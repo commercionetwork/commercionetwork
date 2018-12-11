@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/RiccardoM/Cosmos-SDK-Tutorial/x/nameservice"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/riccardom/cosmos-sdk-tutorial/x/nameservice"
 
 	"github.com/gorilla/mux"
 )

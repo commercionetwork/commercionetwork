@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/RiccardoM/Cosmos-SDK-Tutorial"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	cli2 "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
+	"github.com/riccardom/cosmos-sdk-tutorial"
 	config2 "github.com/tendermint/tendermint/config"
 	"io"
 	"io/ioutil"

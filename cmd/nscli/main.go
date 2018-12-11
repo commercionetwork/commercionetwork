@@ -13,14 +13,14 @@ import (
 	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	nsclient "NameService/x/nameservice/client"
-	nsrest "NameService/x/nameservice/client/rest"
-	app "github.com/RiccardoM/Cosmos-SDK-Tutorial"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
+	app "github.com/riccardom/cosmos-sdk-tutorial"
+	nsclient "github.com/riccardom/cosmos-sdk-tutorial/x/nameservice/client"
+	nsrest "github.com/riccardom/cosmos-sdk-tutorial/x/nameservice/client/rest"
 )
 
 const (
