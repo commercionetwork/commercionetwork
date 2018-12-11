@@ -1,8 +1,8 @@
 package app
 
 import (
-	"NameService/x/nameservice"
 	"encoding/json"
+	"github.com/RiccardoM/cosmos-sdk-tutorial/x/nameservice"
 
 	"github.com/tendermint/tendermint/libs/log"
 

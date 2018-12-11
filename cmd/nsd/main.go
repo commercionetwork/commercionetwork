@@ -1,9 +1,9 @@
 package main
 
 import (
-	"NameService"
 	"encoding/json"
 	"fmt"
+	"github.com/RiccardoM/cosmos-sdk-tutorial"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	cli2 "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
 	config2 "github.com/tendermint/tendermint/config"

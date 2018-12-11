@@ -1,7 +1,7 @@
 package client
 
 import (
-	nameservicecmd "NameService/x/nameservice/client/cli"
+	nameservicecmd "github.com/RiccardoM/cosmos-sdk-tutorial/x/nameservice/client/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 	amino "github.com/tendermint/go-amino"
