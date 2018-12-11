@@ -2,7 +2,7 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/riccardom/cosmos-sdk-tutorial/x/nameservice"
+	"github.com/RiccardoM/Cosmos-SDK-Tutorial/x/nameservice"
 
 	"github.com/tendermint/tendermint/libs/log"
 
