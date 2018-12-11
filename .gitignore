@@ -6,6 +6,8 @@
 # Binaries for programs and plugins
 pkg
 *.exe
+-
+vendor
 *.exe~
 *.dll
 *.so

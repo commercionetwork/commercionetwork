@@ -3,13 +3,12 @@ package cli
 import (
 	"github.com/spf13/cobra"
 
+	"NameService/x/nameservice"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/RiccardoM/cosmos-tutorial/x/nameservice"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 )
 
