@@ -15,7 +15,7 @@ import (
 
 	nsclient "NameService/x/nameservice/client"
 	nsrest "NameService/x/nameservice/client/rest"
-	app "github.com/RiccardoM/cosmos-sdk-tutorial"
+	app "github.com/RiccardoM/Cosmos-SDK-Tutorial"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"

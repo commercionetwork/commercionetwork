@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/RiccardoM/cosmos-sdk-tutorial/x/nameservice"
+	"github.com/RiccardoM/Cosmos-SDK-Tutorial/x/nameservice"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
