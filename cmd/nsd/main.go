@@ -1,9 +1,9 @@
 package main
 
 import (
+	"commercio-network"
 	"encoding/json"
 	"fmt"
-	"github.com/RiccardoM/Cosmos-SDK-Tutorial"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	cli2 "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
 	config2 "github.com/tendermint/tendermint/config"

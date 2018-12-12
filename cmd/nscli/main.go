@@ -13,9 +13,12 @@ import (
 	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	app "github.com/RiccardoM/Cosmos-SDK-Tutorial"
-	nsclient "github.com/RiccardoM/Cosmos-SDK-Tutorial/x/nameservice/client"
-	nsrest "github.com/RiccardoM/Cosmos-SDK-Tutorial/x/nameservice/client/rest"
+	app "commercio-network"
+	nsclient "commercio-network/x/nameservice/client"
+	nsrest "commercio-network/x/nameservice/client/rest"
+
+	idclient "commercio-network/x/commercioid/client"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
@@ -26,6 +29,7 @@ import (
 const (
 	storeAcc = "acc"
 	storeNS  = "nameservice"
+	storeID  = "commercioid"
 )
 
 var defaultCLIHome = os.ExpandEnv("$HOME/.nscli")
@@ -44,6 +48,7 @@ func main() {
 
 	mc := []sdk.ModuleClients{
 		nsclient.NewModuleClient(storeNS, cdc),
+		idclient.NewModuleClient(storeID, cdc),
 	}
 
 	rootCmd := &cobra.Command{

@@ -57,7 +57,7 @@
   revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
 
 [[projects]]
-  digest = "1:f8625c4b6936e82427091f2e3f6e4c980075610bc9a13ba59b04ae01425e608a"
+  digest = "1:c8ecdb8ef86954cca7fff6c9e21d310f1fae5ef28cc3e398e1298c49b579b0e8"
   name = "github.com/cosmos/cosmos-sdk"
   packages = [
     "baseapp",
@@ -118,8 +118,8 @@
     "x/stake/types",
   ]
   pruneopts = "UT"
-  revision = "dfd00a661a19df6efe7e0dde96b2fbeb883d1d80"
-  version = "v0.27.1"
+  revision = "68019bef65ae4192021ed022aaea62dc97c8ab0b"
+  version = "v0.28.0"
 
 [[projects]]
   digest = "1:e8a3550c8786316675ff54ad6f09d265d129c9d986919af7f541afba50d87ce2"
@@ -631,14 +631,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0799b586aeed41a4fb7a1bd1c8d95ee98c08bdec022fea5bf2d746a72752400b"
+  digest = "1:8655481729d85c1e9e0c3692988fc5a3a2715813427f9e3dcc33be0d65c80ae6"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
     "unix",
   ]
   pruneopts = "UT"
-  revision = "2a47403f2ae58167c4d75973960ccc62b28cb0d8"
+  revision = "b05ddf57801d2239d6ab0ee35f9d981e0420f4ac"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"

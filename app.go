@@ -1,8 +1,9 @@
 package app
 
 import (
+	"commercio-network/x/commercioid"
+	"commercio-network/x/nameservice"
 	"encoding/json"
-	"github.com/RiccardoM/Cosmos-SDK-Tutorial/x/nameservice"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -20,7 +21,7 @@ import (
 )
 
 const (
-	appName = "nameservice"
+	appName = "commercio"
 )
 
 type nameserviceApp struct {
@@ -37,7 +38,12 @@ type nameserviceApp struct {
 	accountKeeper       auth.AccountKeeper
 	bankKeeper          bank.Keeper
 	feeCollectionKeeper auth.FeeCollectionKeeper
-	nsKeeper            nameservice.Keeper
+
+	nsKeeper nameservice.Keeper
+
+	commercioIdKeeper commercioid.Keeper
+	keyIDIdentites    *sdk.KVStoreKey
+	keyIDOwners       *sdk.KVStoreKey
 }
 
 func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
@@ -59,6 +65,9 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 		keyNSowners:      sdk.NewKVStoreKey("ns_owners"),
 		keyNSprices:      sdk.NewKVStoreKey("ns_prices"),
 		keyFeeCollection: sdk.NewKVStoreKey("fee_collection"),
+
+		keyIDIdentites: sdk.NewKVStoreKey("id_identities"),
+		keyIDOwners:    sdk.NewKVStoreKey("id_owners"),
 	}
 
 	// The AccountKeeper handles address -> account lookups
@@ -84,6 +93,12 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 		app.cdc,
 	)
 
+	app.commercioIdKeeper = commercioid.NewKeeper(
+		app.keyIDIdentites,
+		app.keyIDOwners,
+		app.cdc,
+	)
+
 	// The AnteHandler handles signature verification and transaction pre-processing
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 
@@ -91,11 +106,13 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 	// Register the bank and nameservice routes here
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
-		AddRoute("nameservice", nameservice.NewHandler(app.nsKeeper))
+		AddRoute("nameservice", nameservice.NewHandler(app.nsKeeper)).
+		AddRoute("commercioid", commercioid.NewHandler(app.commercioIdKeeper))
 
 	// The app.QueryRouter is the main query router where each module registers its routes
 	app.QueryRouter().
-		AddRoute("nameservice", nameservice.NewQuerier(app.nsKeeper))
+		AddRoute("nameservice", nameservice.NewQuerier(app.nsKeeper)).
+		AddRoute("commercioid", commercioid.NewQuerier(app.commercioIdKeeper))
 
 	// The initChainer handles translating the genesis.json file into initial state for the network
 	app.SetInitChainer(app.initChainer)
@@ -106,6 +123,9 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 		app.keyNSnames,
 		app.keyNSowners,
 		app.keyNSprices,
+
+		app.keyIDOwners,
+		app.keyIDIdentites,
 	)
 
 	err := app.LoadLatestVersion(app.keyMain)
@@ -173,5 +193,7 @@ func MakeCodec() *codec.Codec {
 	stake.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
+
+	commercioid.RegisterCodec(cdc)
 	return cdc
 }

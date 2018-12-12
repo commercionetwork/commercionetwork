@@ -1,7 +1,7 @@
 package client
 
 import (
-	nameservicecmd "commercio-network/x/nameservice/client/cli"
+	nameservicecmd "commercio-network/x/commercioid/client/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 	amino "github.com/tendermint/go-amino"
@@ -21,13 +21,13 @@ func NewModuleClient(storeKey string, cdc *amino.Codec) ModuleClient {
 func (mc ModuleClient) GetQueryCmd() *cobra.Command {
 	// Group gov queries under a subcommand
 	govQueryCmd := &cobra.Command{
-		Use:   "nameservice",
-		Short: "Querying commands for the nameservice module",
+		Use:   "commercioid",
+		Short: "CommercioID querying commands",
 	}
 
 	govQueryCmd.AddCommand(client.GetCommands(
-		nameservicecmd.GetCmdResolveName(mc.storeKey, mc.cdc),
-		nameservicecmd.GetCmdWhois(mc.storeKey, mc.cdc),
+		nameservicecmd.GetCmdResolveIdentity(mc.storeKey, mc.cdc),
+		//nameservicecmd.GetCmdWhois(mc.storeKey, mc.cdc),
 	)...)
 
 	return govQueryCmd
@@ -36,13 +36,13 @@ func (mc ModuleClient) GetQueryCmd() *cobra.Command {
 // GetTxCmd returns the transaction commands for this module
 func (mc ModuleClient) GetTxCmd() *cobra.Command {
 	govTxCmd := &cobra.Command{
-		Use:   "nameservice",
-		Short: "Nameservice transactions subcommands",
+		Use:   "commercioid",
+		Short: "CommercioID transactions subcommands",
 	}
 
 	govTxCmd.AddCommand(client.PostCommands(
-		nameservicecmd.GetCmdBuyName(mc.cdc),
-		nameservicecmd.GetCmdSetName(mc.cdc),
+		nameservicecmd.GetCmdSetIdentity(mc.cdc),
+		//nameservicecmd.GetCmdSetName(mc.cdc),
 	)...)
 
 	return govTxCmd
