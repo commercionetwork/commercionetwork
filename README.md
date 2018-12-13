@@ -36,8 +36,8 @@ dep ensure -update -v && make install
 
 After all of this, you should be able to run the following commands successfully 
 ```bash
-$ nsd help
-$ nscli help
+nsd help
+nscli help
 ```
 
 ## Running the live network and using the commands
@@ -61,34 +61,19 @@ nsd start
 
 Now, you can start using the commands to interact with the network.
 
+
+### CommercioID
 ```bash
-# First check the accounts to ensure they have funds
-nscli query account $(nscli keys show jack --address) \
-    --indent --chain-id testchain --trust-node=true
-    
-nscli query account $(nscli keys show alice --address) \
-    --indent --chain-id testchain --trust-node=true
+# Create a first identity specifying the DID and the DDO reference. 
+# The first parameter is the DID, the second is the DDO reference
+nscli tx commercioid set-identity \
+    0x170083cadd2d80d86fe9fcc165bd4fa66b61df4f \
+    QmeLx4bzgChxWn5L1ZUSHve8gBhKfnya2jiq13kkwjMQp4 \
+    --from $(nscli keys show jack --address) \
+    --chain-id testchain
 
-# Buy your first name using your coins from the genesis file
-nscli tx nameservice buy-name jack.id 5mycoin \
-    --from     $(nscli keys show jack --address) \
-    --chain-id testchain --trust-node=true
-
-# Set the value for the name you just bought
-nscli tx nameservice set-name jack.id 8.8.8.8 \
-    --from     $(nscli keys show jack --address) \
-    --chain-id testchain --trust-node=true
-
-# Try out a resolve query against the name you registered
-nscli query nameservice resolve jack.id --chain-id testchain --trust-node=true
-# > 8.8.8.8
-
-# Try out a whois query against the name you just registered
-nscli query nameservice whois jack.id --chain-id testchain --trust-node=true
-# > {"value":"8.8.8.8","owner":"cosmos1l7k5tdt2qam0zecxrx78yuw447ga54dsmtpk2s","price":[{"denom":"mycoin","amount":"5"}]}
-
-# Alice buys name from jack
-nscli tx nameservice buy-name jack.id 10mycoin \
-    --from     $(nscli keys show alice --address) \
-    --chain-id testchain --trust-node=true
+# Verify that the identity has been properly saved by retrieving it using the DID
+nscli query commercioid resolve \
+    0x170083cadd2d80d86fe9fcc165bd4fa66b61df4f \
+    --indent --chain-id=testchain
 ```
