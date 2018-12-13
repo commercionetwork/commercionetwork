@@ -1,15 +1,43 @@
-# Using the app
-## Building the application
+# Commercio.network Cosmos Blockchain application
+## Downloading the app
+### Requirements
+In order to be sure everything works properly, due to [Go](https://golang.org/) restrictions, the following requirements
+must be matched.
+
+1. You must have Go 11.2+ installed. The download is available [here](https://golang.org/dl/)
+2. You must have a valid `GOPATH` environment variable set
+3. You must have a valid `GOBIN` environment variable set
+
+### Installation
+The installation process is composed of the following steps
+1. Creating a `src` folder inside the `GOPATH` folder.
+2. Creating a `commercio-network` folder inside the `src` folder. 
+3. Cloning the project inside the `commercio-network` folder. 
+4. Installing all the tools. 
+5. Updating the dependencies and installing the app into `GOBIN`
+
+The following commands must be issued:
 ```bash
-# Initialize dep and install dependencies
-make get_tools && make get_vendor_deps
+# Create a src folder inside GOPATH
+mkdir $GOPATH/src && cd $GOPATH/src
 
-# Install the app into your $GOBIN
-make install
+# Create the commercio-network folder
+mkdir commercio-network && cd commercio-network
 
-# Now you should be able to run the following commands:
-nsd help
-nscli help
+# Clone the project
+git clone https://scw-gitlab.zotsell.com/Commercio.network/Cosmos-application .
+
+# Install all the tools necessary
+make get_tools && dep init -v
+
+# Update the dependencies and install the app 
+dep ensure -update -v && make install
+```
+
+After all of this, you should be able to run the following commands successfully 
+```bash
+$ nsd help
+$ nscli help
 ```
 
 ## Running the live network and using the commands
@@ -26,6 +54,9 @@ nscli keys add alice
 # Add both accounts, with coins to the genesis file
 nsd add-genesis-account $(nscli keys show jack --address) 1000mycoin,1000jackCoin
 nsd add-genesis-account $(nscli keys show alice --address) 1000mycoin,1000aliceCoin
+
+# Start the blockchain 
+nsd start
 ```
 
 Now, you can start using the commands to interact with the network.
