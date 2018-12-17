@@ -10,6 +10,7 @@ package commercioid
  */
 
 import (
+	"commercio-network/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,31 +19,37 @@ import (
 
 // query endpoints supported by the governance Querier
 const (
-	QueryRead = "resolve"
+	QueryResolveDid  = "resolve"
+	QueryConnections = "connections"
 )
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case QueryRead:
-			return queryRead(ctx, path[1:], req, keeper)
+		case QueryResolveDid:
+			return queryResolveIdentity(ctx, path[1:], keeper)
+		case QueryConnections:
+			return queryGetConnections(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest("Unknown commercioid query endpoint")
 		}
 	}
 }
 
+// ----------------------------------
+// --- Resolve identity
+// ----------------------------------
+
 // nolint: unparam
-func queryRead(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Keeper) (res []byte, err sdk.Error) {
-	did := path[0]
+func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+	did := types.Did(path[0])
 
-	whois := Identity{}
+	identityResult := IdentityResult{}
+	identityResult.Did = did
+	identityResult.DdoReference = keeper.GetDdoReferenceByDid(ctx, did)
 
-	whois.Value = keeper.GetIdentity(ctx, did)
-	whois.Owner = keeper.GetOwner(ctx, did)
-
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, whois)
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, identityResult)
 	if err2 != nil {
 		panic("Could not marshal result to JSON")
 	}
@@ -50,9 +57,33 @@ func queryRead(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Kee
 	return bz, nil
 }
 
-// Identity represents a did -> DDO lookup
+// Identity represents a Did -> Did Document lookup
 // If your application needs some custom response types (Identity in this example), define them in this file.
-type Identity struct {
-	Value string         `json:"value"`
-	Owner sdk.AccAddress `json:"owner"`
+type IdentityResult struct {
+	Did          types.Did `json:"did"`
+	DdoReference string    `json:"ddoReference"`
+}
+
+// ----------------------------------
+// --- Get connections
+// ----------------------------------
+
+func queryGetConnections(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+	did := types.Did(path[0])
+
+	connectionsResult := ConnectionsResult{}
+	connectionsResult.Did = did
+	connectionsResult.Connections = keeper.GetConnections(ctx, did)
+
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, connectionsResult)
+	if err2 != nil {
+		panic("Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}
+
+type ConnectionsResult struct {
+	Did         types.Did   `json:"did"`
+	Connections []types.Did `json:"connections"`
 }

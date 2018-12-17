@@ -14,7 +14,9 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case MsgSetIdentity:
-			return handleMsgSetIdentity(ctx, keeper, msg)
+			return handleMsgCreateIdentity(ctx, keeper, msg)
+		case MsgCreateConnection:
+			return handleMsgCreateConnection(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized nameservice Msg type: %v", msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -22,20 +24,39 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	}
 }
 
-// Handle MsgSetName
-func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity) sdk.Result {
+// ----------------------------------
+// --- Create identity
+// ----------------------------------
+
+func handleMsgCreateIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity) sdk.Result {
 
 	// Checks if the the msg sender is the same as the current owner
-	if keeper.HasOwner(ctx, msg.DID) && !msg.Owner.Equals(keeper.GetOwner(ctx, msg.DID)) {
+	if !keeper.CanBeUsedBy(ctx, msg.Owner, msg.DID) {
 		// If not, throw an error
 		return sdk.ErrUnauthorized("Incorrect Owner").Result()
 	}
 
 	// If so, set the DDO reference to the value specified in the msg.
-	keeper.SetIdentity(ctx, msg.DID, msg.DDOReference)
+	keeper.CreateIdentity(ctx, msg.Owner, msg.DID, msg.DDOReference)
 
-	// Also, store the owner of the identity so one will be able to claim it or edit it
-	keeper.SetOwner(ctx, msg.DID, msg.Owner)
+	// return
+	return sdk.Result{}
+}
+
+// ----------------------------------
+// --- Create connection
+// ----------------------------------
+
+func handleMsgCreateConnection(ctx sdk.Context, keeper Keeper, msg MsgCreateConnection) sdk.Result {
+
+	// Checks if the the msg sender is the same as the current owner
+	if !keeper.CanBeUsedBy(ctx, msg.Signer, msg.FirstUser) && !keeper.CanBeUsedBy(ctx, msg.Signer, msg.SecondUser) {
+		// If not, throw an error
+		return sdk.ErrUnauthorized("The signer must own either the first or the second DID").Result()
+	}
+
+	// If so, set the DDO reference to the value specified in the msg.
+	keeper.AddConnection(ctx, msg.FirstUser, msg.SecondUser)
 
 	// return
 	return sdk.Result{}

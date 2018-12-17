@@ -27,7 +27,7 @@ func (mc ModuleClient) GetQueryCmd() *cobra.Command {
 
 	govQueryCmd.AddCommand(client.GetCommands(
 		nameservicecmd.GetCmdResolveIdentity(mc.storeKey, mc.cdc),
-		//nameservicecmd.GetCmdWhois(mc.storeKey, mc.cdc),
+		nameservicecmd.GetCmdReadConnections(mc.storeKey, mc.cdc),
 	)...)
 
 	return govQueryCmd
@@ -42,6 +42,7 @@ func (mc ModuleClient) GetTxCmd() *cobra.Command {
 
 	govTxCmd.AddCommand(client.PostCommands(
 		nameservicecmd.GetCmdSetIdentity(mc.cdc),
+		nameservicecmd.GetCmdCreateConnection(mc.cdc),
 		//nameservicecmd.GetCmdSetName(mc.cdc),
 	)...)
 

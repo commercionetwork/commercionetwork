@@ -66,7 +66,7 @@ Now, you can start using the commands to interact with the network.
 ```bash
 # Create a first identity specifying the DID and the DDO reference. 
 # The first parameter is the DID, the second is the DDO reference
-nscli tx commercioid set-identity \
+nscli tx commercioid upsert-identity \
     0x170083cadd2d80d86fe9fcc165bd4fa66b61df4f \
     QmeLx4bzgChxWn5L1ZUSHve8gBhKfnya2jiq13kkwjMQp4 \
     --from $(nscli keys show jack --address) \

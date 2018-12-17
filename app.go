@@ -44,6 +44,7 @@ type nameserviceApp struct {
 	commercioIdKeeper commercioid.Keeper
 	keyIDIdentites    *sdk.KVStoreKey
 	keyIDOwners       *sdk.KVStoreKey
+	keyIDConnections  *sdk.KVStoreKey
 }
 
 func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
@@ -66,8 +67,9 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 		keyNSprices:      sdk.NewKVStoreKey("ns_prices"),
 		keyFeeCollection: sdk.NewKVStoreKey("fee_collection"),
 
-		keyIDIdentites: sdk.NewKVStoreKey("id_identities"),
-		keyIDOwners:    sdk.NewKVStoreKey("id_owners"),
+		keyIDIdentites:   sdk.NewKVStoreKey("id_identities"),
+		keyIDOwners:      sdk.NewKVStoreKey("id_owners"),
+		keyIDConnections: sdk.NewKVStoreKey("id_connections"),
 	}
 
 	// The AccountKeeper handles address -> account lookups
@@ -96,6 +98,7 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 	app.commercioIdKeeper = commercioid.NewKeeper(
 		app.keyIDIdentites,
 		app.keyIDOwners,
+		app.keyIDConnections,
 		app.cdc,
 	)
 
@@ -126,6 +129,7 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 
 		app.keyIDOwners,
 		app.keyIDIdentites,
+		app.keyIDConnections,
 	)
 
 	err := app.LoadLatestVersion(app.keyMain)
