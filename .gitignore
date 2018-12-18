@@ -8,6 +8,8 @@ pkg
 *.exe
 -
 vendor
+bin
+
 *.exe~
 *.dll
 *.so

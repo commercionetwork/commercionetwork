@@ -15,12 +15,9 @@ import (
 
 	"commercio-network"
 
-	// Nameservice
-	nsclient "commercio-network/x/nameservice/client"
-	nsrest "commercio-network/x/nameservice/client/rest"
-
 	// CommercioDOCS
 	docsclient "commercio-network/x/commerciodocs/client"
+	docsrest "commercio-network/x/commerciodocs/client/rest"
 
 	// CommercioID
 	idclient "commercio-network/x/commercioid/client"
@@ -35,7 +32,6 @@ import (
 
 const (
 	storeAcc  = "acc"
-	storeNS   = "nameservice"
 	storeID   = "commercioid"
 	storeDOCS = "commerciodocs"
 )
@@ -55,7 +51,6 @@ func main() {
 	config.Seal()
 
 	mc := []sdk.ModuleClients{
-		nsclient.NewModuleClient(storeNS, cdc),
 		idclient.NewModuleClient(storeID, cdc),
 		docsclient.NewModuleClient(storeDOCS, cdc),
 	}
@@ -94,12 +89,11 @@ func registerRoutes(rs *lcd.RestServer) {
 	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
 	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 
-	// Nameservice
-	nsrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeNS)
-
 	// CommercioID
 	idrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeID)
 
+	// CommercioDOCS
+	docsrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeDOCS)
 }
 
 func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {

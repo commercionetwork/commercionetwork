@@ -58,8 +58,8 @@ func queryGetMetadata(ctx sdk.Context, path []string, keeper Keeper) (res []byte
 
 // Metadata represents a reference -> metadata lookup
 type MetadataResult struct {
-	Document string `json:"documentReference"`
-	Metadata string `json:"metadataReference"`
+	Document string `json:"document_reference"`
+	Metadata string `json:"metadata_reference"`
 }
 
 // ----------------------------------
@@ -83,5 +83,5 @@ func queryGetAuthorized(ctx sdk.Context, path []string, keeper Keeper) (res []by
 
 type AuthorizedResult struct {
 	Document string      `json:"document"`
-	Readers  []types.Did `json:"authorizedReaders"`
+	Readers  []types.Did `json:"authorized_readers"`
 }
