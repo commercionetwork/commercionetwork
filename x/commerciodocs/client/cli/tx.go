@@ -2,9 +2,9 @@ package cli
 
 import (
 	"commercio-network/types"
+	"commercio-network/x/commerciodocs"
 	"github.com/spf13/cobra"
 
-	"commercio-network/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,17 +13,12 @@ import (
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 )
 
-/**
-This files contains the functions that take a CLI command and emit a message that will later be held in order to
-perform a transaction on the blockchain.
-*/
-
-// GetCmdSetIdentity is the CLI command for sending a SetIdentity transaction
-func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
+// GetCmdSetIdentity is the CLI command for sending a StoreDocument transaction
+func GetCmdStoreDocument(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "upsert-identity [did] [ddo-reference]",
+		Use:   "store [identity] [document-reference] [metadata-reference]",
 		Short: "Edit an existing identity or add a new one",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
 
@@ -38,7 +33,7 @@ func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			msg := commercioid.NewMsgSetIdentity(types.Did(args[0]), args[1], account)
+			msg := commerciodocs.NewMsgStoreDocument(account, types.Did(args[0]), args[1], args[2])
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -51,12 +46,12 @@ func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-// GetCmdCreateConnection is the CLI command for sending a CreateConnection transaction
-func GetCmdCreateConnection(cdc *codec.Codec) *cobra.Command {
+// GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
+func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "create-connection [first-did] [second-did]",
-		Short: "Creates a connection between the first and second DIDs",
-		Args:  cobra.ExactArgs(2),
+		Use:   "share [document-reference] [sender-identity] [receiver-identity]",
+		Short: "Shares the document with the given reference between the sender identity and the receiver identity",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
 
@@ -71,7 +66,7 @@ func GetCmdCreateConnection(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			msg := commercioid.NewMsgCreateConnection(types.Did(args[0]), types.Did(args[1]), account)
+			msg := commerciodocs.NewMsgShareDocument(account, args[0], types.Did(args[1]), types.Did(args[2]))
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

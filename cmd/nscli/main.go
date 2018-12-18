@@ -10,14 +10,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
-	amino "github.com/tendermint/go-amino"
+	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	app "commercio-network"
+	"commercio-network"
+
+	// Nameservice
 	nsclient "commercio-network/x/nameservice/client"
 	nsrest "commercio-network/x/nameservice/client/rest"
 
+	// CommercioDOCS
+	docsclient "commercio-network/x/commerciodocs/client"
+
+	// CommercioID
 	idclient "commercio-network/x/commercioid/client"
+	idrest "commercio-network/x/commercioid/client/rest"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -27,9 +34,10 @@ import (
 )
 
 const (
-	storeAcc = "acc"
-	storeNS  = "nameservice"
-	storeID  = "commercioid"
+	storeAcc  = "acc"
+	storeNS   = "nameservice"
+	storeID   = "commercioid"
+	storeDOCS = "commerciodocs"
 )
 
 var defaultCLIHome = os.ExpandEnv("$HOME/.nscli")
@@ -49,11 +57,12 @@ func main() {
 	mc := []sdk.ModuleClients{
 		nsclient.NewModuleClient(storeNS, cdc),
 		idclient.NewModuleClient(storeID, cdc),
+		docsclient.NewModuleClient(storeDOCS, cdc),
 	}
 
 	rootCmd := &cobra.Command{
 		Use:   "nscli",
-		Short: "nameservice Client",
+		Short: "Commercio.network client",
 	}
 
 	// Construct Root Command
@@ -84,7 +93,13 @@ func registerRoutes(rs *lcd.RestServer) {
 	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
 	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
+
+	// Nameservice
 	nsrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeNS)
+
+	// CommercioID
+	idrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeID)
+
 }
 
 func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {

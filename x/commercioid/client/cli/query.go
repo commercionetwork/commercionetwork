@@ -26,7 +26,7 @@ func GetCmdResolveIdentity(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/resolve/%s", queryRoute, name), nil)
+			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/identities/%s", queryRoute, name), nil)
 			if err != nil {
 				fmt.Printf("Could not resolve identity - %s \n", string(name))
 				return nil

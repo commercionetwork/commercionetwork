@@ -1,8 +1,10 @@
 package commerciodocs
 
 import (
+	"bytes"
 	"commercio-network/types"
 	"commercio-network/utilities"
+	"commercio-network/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/genproto/googleapis/type/date"
@@ -13,28 +15,38 @@ import (
 // ----------------------------------
 
 type Keeper struct {
-	// Key of the map { Address => []DocReference }
-	docsStoreKey sdk.StoreKey
+	// Keeper for dealing with identities
+	commercioIdKeeper commercioid.Keeper
+
+	// Key of the map { DocumentReference => Address }
+	ownersStoreKey sdk.StoreKey
 
 	// Key of the map { DocumentReference => Metadata }
 	metadataStoreKey sdk.StoreKey
 
-	// Key of the map { Address => []Sharing }
+	// Key of the map { Did => []Sharing }
 	sharingStoreKey sdk.StoreKey
+
+	// Key of the map { DocumentReference => []Did }
+	readersStoreKey sdk.StoreKey
 
 	cdc *codec.Codec
 }
 
 func NewKeeper(
-	docsStoreKey sdk.StoreKey,
+	commercioIdKeeper commercioid.Keeper,
+	ownersStoreKey sdk.StoreKey,
 	metadataStoreKey sdk.StoreKey,
 	sharingStoreKey sdk.StoreKey,
+	readersStoreKey sdk.StoreKey,
 	cdc *codec.Codec) Keeper {
 	return Keeper{
-		docsStoreKey:     docsStoreKey,
-		metadataStoreKey: metadataStoreKey,
-		sharingStoreKey:  sharingStoreKey,
-		cdc:              cdc,
+		commercioIdKeeper: commercioIdKeeper,
+		ownersStoreKey:    ownersStoreKey,
+		metadataStoreKey:  metadataStoreKey,
+		sharingStoreKey:   sharingStoreKey,
+		readersStoreKey:   readersStoreKey,
+		cdc:               cdc,
 	}
 }
 
@@ -49,60 +61,61 @@ type Sharing struct {
 // --- Keeper methods
 // ----------------------------------
 
-// StoreDocument stores the given document reference assigning it to the given owner, so that we know who created it
-func (keeper Keeper) StoreDocument(ctx sdk.Context, reference string, owner sdk.AccAddress) {
-	store := ctx.KVStore(keeper.docsStoreKey)
+func (keeper Keeper) addReaderForDocument(ctx sdk.Context, user types.Did, reference string) {
+	store := ctx.KVStore(keeper.readersStoreKey)
 
-	var documents []string
-
-	// Read the existing documents for the given user, if there are any
-	existingDocuments := store.Get(owner)
-	if existingDocuments != nil {
-		keeper.cdc.MustUnmarshalBinaryBare(existingDocuments, &documents)
+	// Get the readers for the document by reading the store
+	var readers []types.Did
+	existingReaders := store.Get([]byte(reference))
+	if existingReaders != nil {
+		keeper.cdc.MustUnmarshalBinaryBare(existingReaders, &readers)
 	}
 
-	// Append the given document to the list, if not already present
-	documents = utilities.AppendStringIfMissing(documents, reference)
+	// Append the user to the reading list
+	readers = utilities.AppendDidIfMissing(readers, user)
 
-	// Save the documents back to the blockchain
-	store.Set(owner, keeper.cdc.MustMarshalBinaryBare(documents))
+	// Save the result into the store
+	store.Set([]byte(reference), keeper.cdc.MustMarshalBinaryBare(&readers))
 }
 
-// IsOwner tells whenever the given address is the owner of the document or not
+// StoreDocument stores the given document reference assigning it to the given owner, so that we know who created it.
+func (keeper Keeper) StoreDocument(ctx sdk.Context, owner sdk.AccAddress, identity types.Did, reference string, metadata string) {
+	// Save the document owner
+	ownersStore := ctx.KVStore(keeper.ownersStoreKey)
+	ownersStore.Set([]byte(reference), owner)
+
+	// Save the metadata
+	metadataStore := ctx.KVStore(keeper.metadataStoreKey)
+	metadataStore.Set([]byte(reference), []byte(metadata))
+
+	// Set the creator as one of the readers
+	keeper.addReaderForDocument(ctx, identity, reference)
+}
+
+// HasOwners tells whenever the document with the given reference as an owner or not.
+// Returns true iff the document already has an owner, false otherwise.
+func (keeper Keeper) HasOwner(ctx sdk.Context, reference string) bool {
+	store := ctx.KVStore(keeper.ownersStoreKey)
+	result := store.Get([]byte(reference))
+	return result != nil
+}
+
+// IsOwner tells whenever the given address is the owner of the document or not.
 func (keeper Keeper) IsOwner(ctx sdk.Context, owner sdk.AccAddress, reference string) bool {
-	store := ctx.KVStore(keeper.docsStoreKey)
-
-	existingDocuments := store.Get(owner)
-	if existingDocuments == nil {
-		return false
-	}
-
-	var documents []string
-	keeper.cdc.MustUnmarshalBinaryBare(existingDocuments, &documents)
-
-	return utilities.StringInSlice(reference, documents)
+	store := ctx.KVStore(keeper.ownersStoreKey)
+	existingOwner := store.Get([]byte(reference))
+	return bytes.Equal(existingOwner, owner)
 }
 
-func getUserSharing(sharingStore sdk.KVStore, sender types.Did, keeper Keeper) []Sharing {
-	var userSharing []Sharing
-	existingSharing := sharingStore.Get([]byte(sender))
-	if existingSharing != nil {
-		keeper.cdc.MustUnmarshalBinaryBare(existingSharing, userSharing)
-	}
-	return userSharing
-}
-
-func isPresentInsideSharing(documentReference string, list []Sharing) bool {
-	for _, ele := range list {
-		if ele.Document == documentReference {
-			return true
-		}
-	}
-	return false
+// GetMetadata returns the metadata reference for the document with the given reference.
+func (keeper Keeper) GetMetadata(ctx sdk.Context, reference string) string {
+	store := ctx.KVStore(keeper.metadataStoreKey)
+	result := store.Get([]byte(reference))
+	return string(result)
 }
 
 // ShareDocument allows the sharing of a document represented by the given reference, between the given sender and the
-// given recipient
+// given recipient.
 func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender types.Did, recipient types.Did) {
 	sharing := Sharing{
 		Sender:   sender,
@@ -122,11 +135,37 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender typ
 	if !keeper.CanReadDocument(ctx, recipient, reference) {
 		sharingStore.Set([]byte(recipient), keeper.cdc.MustMarshalBinaryBare(sharing))
 	}
+
+	// Set both the users as readers
+	keeper.addReaderForDocument(ctx, sender, reference)
+	keeper.addReaderForDocument(ctx, recipient, reference)
 }
 
 // CanReadDocument tells whenever a given user has access to a document or not.
-// Returns true if the user has access to the document, false otherwise
+// Returns true if the user has access to the document, false otherwise.
 func (keeper Keeper) CanReadDocument(ctx sdk.Context, user types.Did, reference string) bool {
-	store := ctx.KVStore(keeper.sharingStoreKey)
-	return isPresentInsideSharing(reference, getUserSharing(store, user, keeper))
+	store := ctx.KVStore(keeper.readersStoreKey)
+
+	var readers []types.Did
+
+	existingReaders := store.Get([]byte(reference))
+	if existingReaders != nil {
+		keeper.cdc.MustUnmarshalBinaryBare(existingReaders, &readers)
+	}
+
+	return utilities.DidInSlice(user, readers)
+}
+
+// GetAuthorizedReaders lists all the users, represented by their identity, that have access to the document.
+// This includes the creator of the document as well all the users to which the creator has shared the document itself.
+func (keeper Keeper) GetAuthorizedReaders(ctx sdk.Context, reference string) []types.Did {
+	store := ctx.KVStore(keeper.readersStoreKey)
+
+	var readers []types.Did
+	existingReaders := store.Get([]byte(reference))
+	if existingReaders != nil {
+		keeper.cdc.MustUnmarshalBinaryBare(existingReaders, &readers)
+	}
+
+	return readers
 }

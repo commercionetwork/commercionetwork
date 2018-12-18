@@ -1,8 +1,8 @@
 package app
 
 import (
+	"commercio-network/x/commerciodocs"
 	"commercio-network/x/commercioid"
-	"commercio-network/x/nameservice"
 	"encoding/json"
 
 	"github.com/tendermint/tendermint/libs/log"
@@ -21,33 +21,37 @@ import (
 )
 
 const (
-	appName = "commercio"
+	appName = "Commercio.network"
 )
 
-type nameserviceApp struct {
+type commercioNetworkApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
-	keyMain          *sdk.KVStoreKey
-	keyAccount       *sdk.KVStoreKey
-	keyNSnames       *sdk.KVStoreKey
-	keyNSowners      *sdk.KVStoreKey
-	keyNSprices      *sdk.KVStoreKey
-	keyFeeCollection *sdk.KVStoreKey
+	keyMain *sdk.KVStoreKey
 
-	accountKeeper       auth.AccountKeeper
-	bankKeeper          bank.Keeper
+	accountKeeper auth.AccountKeeper
+	keyAccount    *sdk.KVStoreKey
+
 	feeCollectionKeeper auth.FeeCollectionKeeper
+	keyFeeCollection    *sdk.KVStoreKey
 
-	nsKeeper nameservice.Keeper
+	bankKeeper bank.Keeper
 
 	commercioIdKeeper commercioid.Keeper
-	keyIDIdentites    *sdk.KVStoreKey
+	keyIDIdentities   *sdk.KVStoreKey
 	keyIDOwners       *sdk.KVStoreKey
 	keyIDConnections  *sdk.KVStoreKey
+
+	// CommercioDOCS
+	commercioDocsKeeper commerciodocs.Keeper
+	keyDOCSOwners       *sdk.KVStoreKey
+	keyDOCSMetadata     *sdk.KVStoreKey
+	keyDOCSSharing      *sdk.KVStoreKey
+	keyDOCSReaders      *sdk.KVStoreKey
 }
 
-func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
+func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
@@ -56,20 +60,24 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
 
 	// Here you initialize your application with the store keys it requires
-	var app = &nameserviceApp{
+	var app = &commercioNetworkApp{
 		BaseApp: bApp,
 		cdc:     cdc,
 
 		keyMain:          sdk.NewKVStoreKey("main"),
 		keyAccount:       sdk.NewKVStoreKey("acc"),
-		keyNSnames:       sdk.NewKVStoreKey("ns_names"),
-		keyNSowners:      sdk.NewKVStoreKey("ns_owners"),
-		keyNSprices:      sdk.NewKVStoreKey("ns_prices"),
 		keyFeeCollection: sdk.NewKVStoreKey("fee_collection"),
 
-		keyIDIdentites:   sdk.NewKVStoreKey("id_identities"),
+		// CommercioID
+		keyIDIdentities:  sdk.NewKVStoreKey("id_identities"),
 		keyIDOwners:      sdk.NewKVStoreKey("id_owners"),
 		keyIDConnections: sdk.NewKVStoreKey("id_connections"),
+
+		// CommercioDOCS
+		keyDOCSOwners:   sdk.NewKVStoreKey("docs_owners"),
+		keyDOCSMetadata: sdk.NewKVStoreKey("docs_metadata"),
+		keyDOCSSharing:  sdk.NewKVStoreKey("docs_sharing"),
+		keyDOCSReaders:  sdk.NewKVStoreKey("docs_readers"),
 	}
 
 	// The AccountKeeper handles address -> account lookups
@@ -85,37 +93,35 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 	// The FeeCollectionKeeper collects transaction fees and renders them to the fee distribution module
 	app.feeCollectionKeeper = auth.NewFeeCollectionKeeper(cdc, app.keyFeeCollection)
 
-	// The NameserviceKeeper is the Keeper from the module for this tutorial
-	// It handles interactions with the namestore
-	app.nsKeeper = nameservice.NewKeeper(
-		app.bankKeeper,
-		app.keyNSnames,
-		app.keyNSowners,
-		app.keyNSprices,
-		app.cdc,
-	)
-
+	// The CommercioID keeper handles interactions for the CommercioID module
 	app.commercioIdKeeper = commercioid.NewKeeper(
-		app.keyIDIdentites,
+		app.keyIDIdentities,
 		app.keyIDOwners,
 		app.keyIDConnections,
-		app.cdc,
-	)
+		app.cdc)
+
+	app.commercioDocsKeeper = commerciodocs.NewKeeper(
+		app.commercioIdKeeper,
+		app.keyDOCSOwners,
+		app.keyDOCSMetadata,
+		app.keyDOCSSharing,
+		app.keyDOCSReaders,
+		app.cdc)
 
 	// The AnteHandler handles signature verification and transaction pre-processing
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 
 	// The app.Router is the main transaction router where each module registers its routes
-	// Register the bank and nameservice routes here
+	// Register the routes here
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
-		AddRoute("nameservice", nameservice.NewHandler(app.nsKeeper)).
-		AddRoute("commercioid", commercioid.NewHandler(app.commercioIdKeeper))
+		AddRoute("commercioid", commercioid.NewHandler(app.commercioIdKeeper)).
+		AddRoute("commerciodocs", commerciodocs.NewHandler(app.commercioDocsKeeper))
 
 	// The app.QueryRouter is the main query router where each module registers its routes
 	app.QueryRouter().
-		AddRoute("nameservice", nameservice.NewQuerier(app.nsKeeper)).
-		AddRoute("commercioid", commercioid.NewQuerier(app.commercioIdKeeper))
+		AddRoute("commercioid", commercioid.NewQuerier(app.commercioIdKeeper)).
+		AddRoute("commerciodocs", commerciodocs.NewQuerier(app.commercioDocsKeeper))
 
 	// The initChainer handles translating the genesis.json file into initial state for the network
 	app.SetInitChainer(app.initChainer)
@@ -123,13 +129,17 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 	app.MountStores(
 		app.keyMain,
 		app.keyAccount,
-		app.keyNSnames,
-		app.keyNSowners,
-		app.keyNSprices,
 
+		// CommercioID
 		app.keyIDOwners,
-		app.keyIDIdentites,
+		app.keyIDIdentities,
 		app.keyIDConnections,
+
+		// CommercioDOCS
+		app.keyDOCSOwners,
+		app.keyDOCSMetadata,
+		app.keyDOCSSharing,
+		app.keyDOCSReaders,
 	)
 
 	err := app.LoadLatestVersion(app.keyMain)
@@ -145,7 +155,7 @@ type GenesisState struct {
 	Accounts []*auth.BaseAccount `json:"accounts"`
 }
 
-func (app *nameserviceApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
 
 	genesisState := new(GenesisState)
@@ -163,7 +173,7 @@ func (app *nameserviceApp) initChainer(ctx sdk.Context, req abci.RequestInitChai
 }
 
 // ExportAppStateAndValidators does the things
-func (app *nameserviceApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
+func (app *commercioNetworkApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	ctx := app.NewContext(true, abci.Header{})
 	var accounts []*auth.BaseAccount
 
@@ -193,11 +203,15 @@ func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
 	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
-	nameservice.RegisterCodec(cdc)
 	stake.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 
+	// CommercioID
 	commercioid.RegisterCodec(cdc)
+
+	// CommercioDOCS
+	commerciodocs.RegisterCodec(cdc)
+
 	return cdc
 }

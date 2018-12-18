@@ -2,11 +2,10 @@ package commercioid
 
 /**
  * This is the place to define which queries against application state users will be able to make.
- * Our nameservice module will expose two queries:
+ * Our commercioid module will expose two queries:
  *
- * • resolve: This takes a name and returns the value that is stored by the nameservice. This is similar to a DNS query.
- * • whois: This takes a name and returns the price, value, and owner of the name.
- *   Used for figuring out how much names cost when you want to buy them.
+ * • resolve: This takes a Did and returns the associated Did Document reference
+ * • connections: This takes a Did and returns the list of all the connections associated with it
  */
 
 import (
@@ -19,7 +18,7 @@ import (
 
 // query endpoints supported by the governance Querier
 const (
-	QueryResolveDid  = "resolve"
+	QueryResolveDid  = "identities"
 	QueryConnections = "connections"
 )
 
@@ -58,10 +57,9 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 }
 
 // Identity represents a Did -> Did Document lookup
-// If your application needs some custom response types (Identity in this example), define them in this file.
 type IdentityResult struct {
 	Did          types.Did `json:"did"`
-	DdoReference string    `json:"ddoReference"`
+	DdoReference string    `json:"ddo_reference"`
 }
 
 // ----------------------------------
