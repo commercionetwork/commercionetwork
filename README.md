@@ -171,7 +171,7 @@ nscli keys show jack --address
 
 Now, start the REST server by running
 ```bash
-nscli rest-server --chain-id testchain --trust-node
+nscli rest-server --chain-id testchain --trust-node --laddr=tcp://0.0.0.0:1317
 ```
 
 Now, with the previously output address, run the following in other terminal shell:

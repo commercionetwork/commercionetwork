@@ -21,3 +21,9 @@ update_vendor_deps:
 install:
 	go install ./cmd/nsd
 	go install ./cmd/nscli
+
+crossbuild_windows_linux:
+	set GOARCH=amd64
+	set GOOS=linux
+	go build -o "nsd" ./cmd/nsd/main.go
+	go build -o "nscli" ./cmd/nscli/main.go
