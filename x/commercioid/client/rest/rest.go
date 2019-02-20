@@ -51,7 +51,7 @@ func upsertIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 		}
 
 		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w) {
+		if !baseReq.ValidateBasic(w, cliCtx) {
 			return
 		}
 
@@ -94,7 +94,7 @@ func createConnectionHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 		}
 
 		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w) {
+		if !baseReq.ValidateBasic(w, cliCtx) {
 			return
 		}
 

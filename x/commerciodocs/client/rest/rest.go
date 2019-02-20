@@ -53,7 +53,7 @@ func storeDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		}
 
 		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w) {
+		if !baseReq.ValidateBasic(w, cliCtx) {
 			return
 		}
 
@@ -118,7 +118,7 @@ func shareDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		}
 
 		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w) {
+		if !baseReq.ValidateBasic(w, cliCtx) {
 			return
 		}
 

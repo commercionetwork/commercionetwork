@@ -25,7 +25,7 @@ type Keeper struct {
 	cdc *codec.Codec
 }
 
-// NewKeeper creates new instances of the nameservice Keeper
+// NewKeeper creates new instances of the CommercioID Keeper
 func NewKeeper(
 	identitiesStoreKey sdk.StoreKey,
 	ownersStoresKey sdk.StoreKey,

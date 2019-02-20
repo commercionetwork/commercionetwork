@@ -1,6 +1,7 @@
 package app
 
 import (
+	"commercio-network/x/commercioauth"
 	"commercio-network/x/commerciodocs"
 	"commercio-network/x/commercioid"
 	"encoding/json"
@@ -38,6 +39,10 @@ type commercioNetworkApp struct {
 
 	bankKeeper bank.Keeper
 
+	// CommercioAUTH
+	commercioAuthKeeper commercioauth.Keeper
+
+	// CommercioID
 	commercioIdKeeper commercioid.Keeper
 	keyIDIdentities   *sdk.KVStoreKey
 	keyIDOwners       *sdk.KVStoreKey
@@ -93,6 +98,11 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 	// The FeeCollectionKeeper collects transaction fees and renders them to the fee distribution module
 	app.feeCollectionKeeper = auth.NewFeeCollectionKeeper(cdc, app.keyFeeCollection)
 
+	// The CommercioAUTH keeper handles interactions for the CommercioAUTH module
+	app.commercioAuthKeeper = commercioauth.NewKeeper(
+		app.accountKeeper,
+		app.cdc)
+
 	// The CommercioID keeper handles interactions for the CommercioID module
 	app.commercioIdKeeper = commercioid.NewKeeper(
 		app.keyIDIdentities,
@@ -100,6 +110,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 		app.keyIDConnections,
 		app.cdc)
 
+	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
 	app.commercioDocsKeeper = commerciodocs.NewKeeper(
 		app.commercioIdKeeper,
 		app.keyDOCSOwners,
@@ -112,14 +123,15 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 
 	// The app.Router is the main transaction router where each module registers its routes
-	// Register the routes here
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
+		AddRoute("commercioauth", commercioauth.NewHandler(app.commercioAuthKeeper)).
 		AddRoute("commercioid", commercioid.NewHandler(app.commercioIdKeeper)).
 		AddRoute("commerciodocs", commerciodocs.NewHandler(app.commercioDocsKeeper))
 
 	// The app.QueryRouter is the main query router where each module registers its routes
 	app.QueryRouter().
+		AddRoute("commercioauth", commercioauth.NewQuerier(app.commercioAuthKeeper)).
 		AddRoute("commercioid", commercioid.NewQuerier(app.commercioIdKeeper)).
 		AddRoute("commerciodocs", commerciodocs.NewQuerier(app.commercioDocsKeeper))
 
@@ -129,6 +141,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 	app.MountStores(
 		app.keyMain,
 		app.keyAccount,
+
+		// CommercioAUTH does not use any specific store as we base it on the auth module
 
 		// CommercioID
 		app.keyIDOwners,
@@ -206,6 +220,9 @@ func MakeCodec() *codec.Codec {
 	stake.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
+
+	// CommercioAUTH
+	commercioauth.RegisterCodec(cdc)
 
 	// CommercioID
 	commercioid.RegisterCodec(cdc)
