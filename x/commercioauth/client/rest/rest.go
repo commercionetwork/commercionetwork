@@ -6,9 +6,10 @@ import (
 
 	"commercio-network/x/commercioauth"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/utils"
+	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/rest"
 
 	"github.com/gorilla/mux"
 )
@@ -24,30 +25,29 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec, 
 // ----------------------------------
 
 type registerAccountReq struct {
-	BaseReq  utils.BaseReq `json:"base_req"`
-	Signer   string        `json:"signer"`
-	Address  string        `json:"address"`
-	KeyType  string        `json:"key_type"`
-	KeyValue string        `json:"key_value"`
+	BaseReq  rest.BaseReq `json:"base_req"`
+	Signer   string       `json:"signer"`
+	Address  string       `json:"address"`
+	KeyType  string       `json:"key_type"`
+	KeyValue string       `json:"key_value"`
 }
 
 func storeDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req registerAccountReq
-		err := utils.ReadRESTReq(w, r, cdc, &req)
-		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "Failed to parse request")
 			return
 		}
 
 		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w, cliCtx) {
+		if !baseReq.ValidateBasic(w) {
 			return
 		}
 
 		addr, err := sdk.AccAddressFromBech32(req.Signer)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -55,10 +55,10 @@ func storeDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		msg := commercioauth.NewMsgCreateAccount(addr, req.Address, req.KeyType, req.KeyValue)
 		err = msg.ValidateBasic()
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		utils.CompleteAndBroadcastTxREST(w, r, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
 	}
 }

@@ -28,20 +28,17 @@ func GetCmdStoreDocument(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			account, err := cliCtx.GetFromAddress()
-			if err != nil {
-				return err
-			}
+			account := cliCtx.GetFromAddress()
 
 			msg := commerciodocs.NewMsgStoreDocument(account, types.Did(args[0]), args[1], args[2])
-			err = msg.ValidateBasic()
+			err := msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
 
 			cliCtx.PrintResponse = true
 
-			return utils.CompleteAndBroadcastTxCli(txBldr, cliCtx, []sdk.Msg{msg})
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 		},
 	}
 }
@@ -61,20 +58,17 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			account, err := cliCtx.GetFromAddress()
-			if err != nil {
-				return err
-			}
+			account := cliCtx.GetFromAddress()
 
 			msg := commerciodocs.NewMsgShareDocument(account, args[0], types.Did(args[1]), types.Did(args[2]))
-			err = msg.ValidateBasic()
+			err := msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
 
 			cliCtx.PrintResponse = true
 
-			return utils.CompleteAndBroadcastTxCli(txBldr, cliCtx, []sdk.Msg{msg})
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 		},
 	}
 }

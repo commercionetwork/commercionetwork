@@ -5,13 +5,13 @@ import (
 	"commercio-network/x/commerciodocs"
 	"commercio-network/x/commercioid"
 	"encoding/json"
+	"github.com/cosmos/cosmos-sdk/x/params"
 
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/stake"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,13 +31,17 @@ type commercioNetworkApp struct {
 
 	keyMain *sdk.KVStoreKey
 
-	accountKeeper auth.AccountKeeper
+	keyParams  *sdk.KVStoreKey
+	tkeyParams *sdk.TransientStoreKey
+
 	keyAccount    *sdk.KVStoreKey
+	accountKeeper auth.AccountKeeper
 
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	keyFeeCollection    *sdk.KVStoreKey
 
-	bankKeeper bank.Keeper
+	bankKeeper   bank.Keeper
+	paramsKeeper params.Keeper
 
 	// CommercioAUTH
 	commercioAuthKeeper commercioauth.Keeper
@@ -69,7 +73,11 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 		BaseApp: bApp,
 		cdc:     cdc,
 
-		keyMain:          sdk.NewKVStoreKey("main"),
+		keyMain: sdk.NewKVStoreKey("main"),
+
+		keyParams:  sdk.NewKVStoreKey("params"),
+		tkeyParams: sdk.NewTransientStoreKey("transient_params"),
+
 		keyAccount:       sdk.NewKVStoreKey("acc"),
 		keyFeeCollection: sdk.NewKVStoreKey("fee_collection"),
 
@@ -85,15 +93,23 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 		keyDOCSReaders:  sdk.NewKVStoreKey("docs_readers"),
 	}
 
+	// The ParamsKeeper handles parameter storage for the application
+	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams)
+
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
 		app.keyAccount,
+		app.paramsKeeper.Subspace(auth.DefaultParamspace),
 		auth.ProtoBaseAccount,
 	)
 
 	// The BankKeeper allows you perform sdk.Coins interactions
-	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper)
+	app.bankKeeper = bank.NewBaseKeeper(
+		app.accountKeeper,
+		app.paramsKeeper.Subspace(bank.DefaultParamspace),
+		bank.DefaultCodespace,
+	)
 
 	// The FeeCollectionKeeper collects transaction fees and renders them to the fee distribution module
 	app.feeCollectionKeeper = auth.NewFeeCollectionKeeper(cdc, app.keyFeeCollection)
@@ -166,6 +182,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 
 // GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
 type GenesisState struct {
+	AuthData auth.GenesisState   `json:"auth"`
+	BankData bank.GenesisState   `json:"bank"`
 	Accounts []*auth.BaseAccount `json:"accounts"`
 }
 
@@ -217,7 +235,6 @@ func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
 	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
-	stake.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 
