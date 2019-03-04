@@ -32,6 +32,7 @@ import (
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
+	staking "github.com/cosmos/cosmos-sdk/x/staking/client/rest"
 )
 
 const (
@@ -85,7 +86,7 @@ func main() {
 		version.VersionCmd,
 	)
 
-	executor := cli.PrepareMainCmd(rootCmd, "NS", defaultCLIHome)
+	executor := cli.PrepareMainCmd(rootCmd, "CN", defaultCLIHome)
 	err := executor.Execute()
 	if err != nil {
 		panic(err)
@@ -98,6 +99,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
 	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
+	staking.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 
 	// CommercioAUTH
 	authrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAUTH)

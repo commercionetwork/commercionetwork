@@ -51,6 +51,7 @@ func main() {
 
 	rootCmd.AddCommand(InitCmd(ctx, cdc))
 	rootCmd.AddCommand(AddGenesisAccountCmd(ctx, cdc))
+	rootCmd.AddCommand(gaiaInit.GenTxCmd(ctx, cdc))
 
 	server.AddCommands(ctx, cdc, rootCmd, newApp, appExporter())
 
