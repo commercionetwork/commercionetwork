@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
 	"io"
@@ -23,6 +22,11 @@ import (
 	"github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/store"
+
+	cnInit "commercio-network/init"
 	gaiaInit "github.com/cosmos/cosmos-sdk/cmd/gaia/init"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -33,6 +37,14 @@ import (
 // DefaultNodeHome sets the folder where the application data and configuration will be stored
 var DefaultNodeHome = os.ExpandEnv("$HOME/.cnd")
 
+type printInfo struct {
+	Moniker    string          `json:"moniker"`
+	ChainID    string          `json:"chain_id"`
+	NodeID     string          `json:"node_id"`
+	GenTxsDir  string          `json:"gentxs_dir"`
+	AppMessage json.RawMessage `json:"app_message"`
+}
+
 const (
 	flagOverwrite = "overwrite"
 )
@@ -41,8 +53,14 @@ func main() {
 	cobra.EnableCommandSorting = false
 
 	cdc := app.MakeCodec()
-	ctx := server.NewDefaultContext()
 
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
+	config.Seal()
+
+	ctx := server.NewDefaultContext()
 	rootCmd := &cobra.Command{
 		Use:               "cnd",
 		Short:             "Commercio.network app daemon (server)",
@@ -50,13 +68,17 @@ func main() {
 	}
 
 	rootCmd.AddCommand(InitCmd(ctx, cdc))
+	rootCmd.AddCommand(cnInit.CollectGenTxsCmd(ctx, cdc))
+	rootCmd.AddCommand(cnInit.TestnetFilesCmd(ctx, cdc))
+	rootCmd.AddCommand(cnInit.GenTxCmd(ctx, cdc))
 	rootCmd.AddCommand(AddGenesisAccountCmd(ctx, cdc))
-	rootCmd.AddCommand(gaiaInit.GenTxCmd(ctx, cdc))
+	rootCmd.AddCommand(cnInit.ValidateGenesisCmd(ctx, cdc))
+	rootCmd.AddCommand(client.NewCompletionCmd(rootCmd, true))
 
-	server.AddCommands(ctx, cdc, rootCmd, newApp, appExporter())
+	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)
 
 	// prepare and add flags
-	executor := cli.PrepareBaseCmd(rootCmd, "NS", DefaultNodeHome)
+	executor := cli.PrepareBaseCmd(rootCmd, "CN", DefaultNodeHome)
 	err := executor.Execute()
 	if err != nil {
 		// handle with #870
@@ -65,24 +87,37 @@ func main() {
 }
 
 func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application {
-	return app.NewCommercioNetworkApp(logger, db)
+	return app.NewCommercioNetworkApp(
+		logger, db, traceStore, true,
+		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
+		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
+	)
 }
 
-func appExporter() server.AppExporter {
-	return func(logger log.Logger, db dbm.DB, _ io.Writer, _ int64, _ bool, _ []string) (
-		json.RawMessage, []tmtypes.GenesisValidator, error) {
-		dapp := app.NewCommercioNetworkApp(logger, db)
-		return dapp.ExportAppStateAndValidators()
+// Substitutions of old function appExporter()
+func exportAppStateAndTMValidators(
+	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,
+) (json.RawMessage, []tmtypes.GenesisValidator, error) {
+	if height != -1 {
+		dapp := app.NewCommercioNetworkApp(logger, db, traceStore, false)
+		err := dapp.LoadHeight(height)
+		if err != nil {
+			return nil, nil, err
+		}
+		return dapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
+	dapp := app.NewCommercioNetworkApp(logger, db, traceStore, true)
+	return dapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }
 
 // InitCmd initializes all files for tendermint and application
 func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Initialize genesis config, priv-validator file, and p2p-node file",
-		Args:  cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		Use:   "init [moniker]",
+		Short: "Initialize private validator, p2p, genesis, and application configuration files",
+		Long:  `Initialize validators's and node's configuration files.`,
+		Args:  cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
@@ -91,25 +126,19 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 				chainID = fmt.Sprintf("test-chain-%v", common.RandStr(6))
 			}
 
-			_, pk, err := gaiaInit.InitializeNodeValidatorFiles(config)
+			nodeID, pk, err := gaiaInit.InitializeNodeValidatorFiles(config)
 			if err != nil {
 				return err
 			}
 
+			config.Moniker = args[0]
+
 			var appState json.RawMessage
 			genFile := config.GenesisFile()
 
-			if !viper.GetBool(flagOverwrite) && common.FileExists(genFile) {
-				return fmt.Errorf("genesis.json file already exists: %v", genFile)
-			}
-
-			genesis := app.GenesisState{
-				AuthData: auth.DefaultGenesisState(),
-				BankData: bank.DefaultGenesisState(),
-			}
-
-			appState, err = codec.MarshalJSONIndent(cdc, genesis)
-			if err != nil {
+			// Use specialized function to inizialize GenesisState
+			if appState, err = initializeEmptyGenesis(cdc, genFile, chainID,
+				viper.GetBool(flagOverwrite)); err != nil {
 				return err
 			}
 
@@ -122,10 +151,13 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
+			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
 
+			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
+			
 			fmt.Printf("Initialized nsd configuration and bootstrapping files in %s...\n", viper.GetString(cli.HomeFlag))
-			return nil
+			return displayInfo(cdc, toPrint)
+			//return nil
 		},
 	}
 
@@ -185,7 +217,7 @@ $ nsd add-genesis-account cosmos1tse7r2fadvlrrgau3pa0ss7cqh55wrv6y9alwh 1000STAK
 
 			acc := auth.NewBaseAccountWithAddress(addr)
 			acc.Coins = coins
-			appState.Accounts = append(appState.Accounts, &acc)
+			appState.Accounts = append(appState.Accounts, app.NewGenesisAccount(&acc))
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {
 				return err
@@ -229,3 +261,40 @@ func SimpleAppGenTx(cdc *codec.Codec, pk crypto.PubKey) (
 
 	return
 }
+
+func initializeEmptyGenesis(
+	cdc *codec.Codec, genFile, chainID string, overwrite bool,
+) (appState json.RawMessage, err error) {
+
+	if !overwrite && common.FileExists(genFile) {
+		return nil, fmt.Errorf("genesis.json file already exists: %v", genFile)
+	}
+
+	return codec.MarshalJSONIndent(cdc, app.NewDefaultGenesisState())
+}
+
+
+func newPrintInfo(moniker, chainID, nodeID, genTxsDir string,
+	appMessage json.RawMessage) printInfo {
+
+	return printInfo{
+		Moniker:    moniker,
+		ChainID:    chainID,
+		NodeID:     nodeID,
+		GenTxsDir:  genTxsDir,
+		AppMessage: appMessage,
+	}
+}
+
+func displayInfo(cdc *codec.Codec, info printInfo) error {
+	out, err := codec.MarshalJSONIndent(cdc, info)
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(os.Stderr, "%s\n", string(out)) // nolint: errcheck
+	return nil
+}
+
+
+

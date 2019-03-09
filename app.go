@@ -1,39 +1,52 @@
 package app
 
 import (
+	"fmt"
+	"io"
+	"os"
+	"sort"
+
 	"commercio-network/x/commercioauth"
 	"commercio-network/x/commerciodocs"
 	"commercio-network/x/commercioid"
-	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/x/params"
 
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"	
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/cosmos/cosmos-sdk/x/mint"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
-	tmtypes "github.com/tendermint/tendermint/types"
+	distr "github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	"github.com/cosmos/cosmos-sdk/x/mint"
+	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 const (
 	appName = "Commercio.network"
+	// DefaultKeyPass contains the default key password for genesis transactions
+	DefaultKeyPass = "12345678"
 )
 
+// default home directories for expected binaries
+var (
+	DefaultCLIHome  = os.ExpandEnv("$HOME/.cncli")
+	DefaultNodeHome = os.ExpandEnv("$HOME/.cnd")
+)
+
+// Extended ABCI application
 type commercioNetworkApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
+	// keys to access the substores
 	keyMain          *sdk.KVStoreKey
 	keyAccount       *sdk.KVStoreKey
 	keyStaking       *sdk.KVStoreKey
@@ -47,7 +60,7 @@ type commercioNetworkApp struct {
 	keyParams        *sdk.KVStoreKey
 	tkeyParams       *sdk.TransientStoreKey
 
-
+	// Manage getting and setting accounts
 	accountKeeper       auth.AccountKeeper
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	bankKeeper          bank.Keeper
@@ -57,6 +70,7 @@ type commercioNetworkApp struct {
 	distrKeeper         distr.Keeper
 	govKeeper           gov.Keeper
 	paramsKeeper        params.Keeper
+
 
 
 	// CommercioAUTH
@@ -76,30 +90,31 @@ type commercioNetworkApp struct {
 	keyDOCSReaders      *sdk.KVStoreKey
 }
 
-func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
-
+// NewCommercioNetworkApp returns a reference to an initialized CommercioNetworkApp.
+func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, baseAppOptions ...func(*bam.BaseApp)) *commercioNetworkApp {
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
 
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
-	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
+	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
+	bApp.SetCommitMultiStoreTracer(traceStore)
 
 	// Here you initialize your application with the store keys it requires
 	var app = &commercioNetworkApp{
-		BaseApp: bApp,
-		cdc:     cdc,
-		keyMain:          sdk.NewKVStoreKey("main"),
-		keyAccount:       sdk.NewKVStoreKey("acc"),
-		keyStaking:       sdk.NewKVStoreKey("staking"),
-		tkeyStaking:      sdk.NewTransientStoreKey("transient_staking"),
-		keyMint:          sdk.NewKVStoreKey("mint"),
-		keyDistr:         sdk.NewKVStoreKey("distr"),
-		tkeyDistr:        sdk.NewTransientStoreKey("transient_distr"),
-		keySlashing:      sdk.NewKVStoreKey("slashing"),
-		keyGov:           sdk.NewKVStoreKey("gov"),
-		keyFeeCollection: sdk.NewKVStoreKey("fee_collection"),
-		keyParams:        sdk.NewKVStoreKey("params"),
-		tkeyParams:       sdk.NewTransientStoreKey("transient_params"),
+		BaseApp:          bApp,
+		cdc:              cdc,
+		keyMain:          sdk.NewKVStoreKey(bam.MainStoreKey),
+		keyAccount:       sdk.NewKVStoreKey(auth.StoreKey),
+		keyStaking:       sdk.NewKVStoreKey(staking.StoreKey),
+		tkeyStaking:      sdk.NewTransientStoreKey(staking.TStoreKey),
+		keyMint:          sdk.NewKVStoreKey(mint.StoreKey),
+		keyDistr:         sdk.NewKVStoreKey(distr.StoreKey),
+		tkeyDistr:        sdk.NewTransientStoreKey(distr.TStoreKey),
+		keySlashing:      sdk.NewKVStoreKey(slashing.StoreKey),
+		keyGov:           sdk.NewKVStoreKey(gov.StoreKey),
+		keyFeeCollection: sdk.NewKVStoreKey(auth.FeeStoreKey),
+		keyParams:        sdk.NewKVStoreKey(params.StoreKey),
+		tkeyParams:       sdk.NewTransientStoreKey(params.TStoreKey),
 
 		// CommercioID
 		keyIDIdentities:  sdk.NewKVStoreKey("id_identities"),
@@ -114,11 +129,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 	}
 
 	// The ParamsKeeper handles parameter storage for the application
-	app.paramsKeeper = params.NewKeeper(
-		app.cdc, 
-		app.keyParams, 
-		app.tkeyParams,
-	)
+	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -137,58 +148,46 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 
 	// The FeeCollectionKeeper collects transaction fees and renders them to the fee distribution module
 	app.feeCollectionKeeper = auth.NewFeeCollectionKeeper(
-		cdc, 
+		app.cdc,
 		app.keyFeeCollection,
 	)
-
-	// The StakingKeeper 
 	stakingKeeper := staking.NewKeeper(
 		app.cdc,
-		app.keyStaking,
-		app.tkeyStaking,
-		app.bankKeeper, 
-		app.paramsKeeper.Subspace(staking.DefaultParamspace),
+		app.keyStaking, app.tkeyStaking,
+		app.bankKeeper, app.paramsKeeper.Subspace(staking.DefaultParamspace),
 		staking.DefaultCodespace,
 	)
-
-	app.mintKeeper = mint.NewKeeper(
-		app.cdc,
-		app.keyMint,
+	app.mintKeeper = mint.NewKeeper(app.cdc, app.keyMint,
 		app.paramsKeeper.Subspace(mint.DefaultParamspace),
-		app.stakingKeeper, 
-		app.feeCollectionKeeper,
+		&stakingKeeper, app.feeCollectionKeeper,
 	)
-
 	app.distrKeeper = distr.NewKeeper(
 		app.cdc,
 		app.keyDistr,
 		app.paramsKeeper.Subspace(distr.DefaultParamspace),
-		app.bankKeeper, 
-		app.stakingKeeper, 
-		app.feeCollectionKeeper,
+		app.bankKeeper, &stakingKeeper, app.feeCollectionKeeper,
 		distr.DefaultCodespace,
 	)
-
 	app.slashingKeeper = slashing.NewKeeper(
 		app.cdc,
 		app.keySlashing,
-		app.stakingKeeper, 
-		app.paramsKeeper.Subspace(slashing.DefaultParamspace),
+		&stakingKeeper, app.paramsKeeper.Subspace(slashing.DefaultParamspace),
 		slashing.DefaultCodespace,
 	)
 	app.govKeeper = gov.NewKeeper(
 		app.cdc,
 		app.keyGov,
-		app.paramsKeeper, 
-		app.paramsKeeper.Subspace(gov.DefaultParamspace), 
-		app.bankKeeper, 
-		app.stakingKeeper,
+		app.paramsKeeper, app.paramsKeeper.Subspace(gov.DefaultParamspace), app.bankKeeper, &stakingKeeper,
 		gov.DefaultCodespace,
 	)
 
+	// register the staking hooks
+	// NOTE: The stakingKeeper above is passed by reference, so that it can be
+	// modified like below:
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		NewStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
+
 
 	// The CommercioAUTH keeper handles interactions for the CommercioAUTH module
 	app.commercioAuthKeeper = commercioauth.NewKeeper(
@@ -211,53 +210,33 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 		app.keyDOCSReaders,
 		app.cdc)
 
-	// The AnteHandler handles signature verification and transaction pre-processing
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
-
 	// The app.Router is the main transaction router where each module registers its routes
 	app.Router().
-		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
-		AddRoute("staking", staking.NewHandler(app.stakingKeeper)).
-		AddRoute("distr", distr.NewHandler(app.distrKeeper)).
-		AddRoute("slashing", slashing.NewHandler(app.slashingKeeper)).
-		AddRoute("gov", gov.NewHandler(app.govKeeper)).
+		AddRoute(bank.RouterKey, bank.NewHandler(app.bankKeeper)).
+		AddRoute(staking.RouterKey, staking.NewHandler(app.stakingKeeper)).
+		AddRoute(distr.RouterKey, distr.NewHandler(app.distrKeeper)).
+		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
+		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute("commercioauth", commercioauth.NewHandler(app.commercioAuthKeeper)).
 		AddRoute("commercioid", commercioid.NewHandler(app.commercioIdKeeper)).
 		AddRoute("commerciodocs", commerciodocs.NewHandler(app.commercioDocsKeeper))
 
 	// The app.QueryRouter is the main query router where each module registers its routes
 	app.QueryRouter().
-		AddRoute("distr", distr.NewQuerier(app.distrKeeper)).
-		AddRoute("gov", gov.NewQuerier(app.govKeeper)).
-		AddRoute("slashing", slashing.NewQuerier(app.slashingKeeper, app.cdc)).
-		AddRoute("staking", staking.NewQuerier(app.stakingKeeper, app.cdc)).
+		//AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
+		AddRoute(distr.QuerierRoute, distr.NewQuerier(app.distrKeeper)).
+		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
+		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
+		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute("commercioauth", commercioauth.NewQuerier(app.commercioAuthKeeper)).
 		AddRoute("commercioid", commercioid.NewQuerier(app.commercioIdKeeper)).
 		AddRoute("commerciodocs", commerciodocs.NewQuerier(app.commercioDocsKeeper))
 
-	// The initChainer handles translating the genesis.json file into initial state for the network
-	app.SetInitChainer(app.initChainer)
-	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
-	app.SetEndBlocker(app.EndBlocker)
-
-
-
-	app.MountStores(
-		app.keyMain,
-		app.keyAccount,
-
-		app.keyStaking, 
-		app.keyMint, 
-		app.keyDistr,
-		app.keySlashing, 
-		app.keyGov, 
-		app.keyFeeCollection, 
-		app.keyParams,
-		app.tkeyParams, 
-		app.tkeyStaking, 
-		app.tkeyDistr,
-	
+	// initialize BaseApp
+	app.MountStores(app.keyMain, app.keyAccount, app.keyStaking, app.keyMint, app.keyDistr,
+		app.keySlashing, app.keyGov, app.keyFeeCollection, app.keyParams,
+		app.tkeyParams, app.tkeyStaking, app.tkeyDistr,
+		
 		// CommercioAUTH does not use any specific store as we base it on the auth module
 
 		// CommercioID
@@ -271,13 +250,59 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB) *commercioNetworkApp {
 		app.keyDOCSSharing,
 		app.keyDOCSReaders,
 	)
+	app.SetInitChainer(app.initChainer)
+	app.SetBeginBlocker(app.BeginBlocker)
+	// The AnteHandler handles signature verification and transaction pre-processing
+	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
+	app.SetEndBlocker(app.EndBlocker)
 
-	err := app.LoadLatestVersion(app.keyMain)
-	if err != nil {
-		cmn.Exit(err.Error())
+	if loadLatest {
+		err := app.LoadLatestVersion(app.keyMain)
+		if err != nil {
+			cmn.Exit(err.Error())
+		}
 	}
 
 	return app
+}
+
+// GenesisState was moved in genesis.go file 
+
+// custom logic for gaia initialization
+func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	stateJSON := req.AppStateBytes
+	// TODO is this now the whole genesis file? <-- Comment from ufficial Gaia app 
+
+	var genesisState GenesisState
+	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
+	if err != nil {
+		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from ufficial Gaia app 
+		// return sdk.ErrGenesisParse("").TraceCause(err, "")
+	}
+
+	validators := app.initFromGenesisState(ctx, genesisState)
+
+	// sanity check
+	if len(req.Validators) > 0 {
+		if len(req.Validators) != len(validators) {
+			panic(fmt.Errorf("len(RequestInitChain.Validators) != len(validators) (%d != %d)",
+				len(req.Validators), len(validators)))
+		}
+		sort.Sort(abci.ValidatorUpdates(req.Validators))
+		sort.Sort(abci.ValidatorUpdates(validators))
+		for i, val := range validators {
+			if !val.Equal(req.Validators[i]) {
+				panic(fmt.Errorf("validators[%d] != req.Validators[%d] ", i, i))
+			}
+		}
+	}
+
+	// assert runtime invariants
+	app.assertRuntimeInvariants()
+
+	return abci.ResponseInitChain{
+		Validators: validators,
+	}
 }
 
 
@@ -308,7 +333,7 @@ func (app *commercioNetworkApp) EndBlocker(ctx sdk.Context, req abci.RequestEndB
 	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)
 
-	//app.assertRuntimeInvariants()
+	app.assertRuntimeInvariants()
 
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
@@ -316,46 +341,37 @@ func (app *commercioNetworkApp) EndBlocker(ctx sdk.Context, req abci.RequestEndB
 	}
 }
 
+// initialize store from a genesis state
+func (app *commercioNetworkApp) initFromGenesisState(ctx sdk.Context, genesisState GenesisState) []abci.ValidatorUpdate {
+	genesisState.Sanitize()
 
-// GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
-type GenesisState struct {
-	AuthData auth.GenesisState   `json:"auth"`
-	BankData bank.GenesisState   `json:"bank"`
-	StakingData  staking.GenesisState  `json:"staking"`
-	MintData     mint.GenesisState     `json:"mint"`
-	DistrData    distr.GenesisState    `json:"distr"`
-	GovData      gov.GenesisState      `json:"gov"`
-	SlashingData slashing.GenesisState `json:"slashing"`
-	Accounts []*auth.BaseAccount `json:"accounts"`
-	GenTxs       []json.RawMessage     `json:"gentxs"`
-}
-
-func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	stateJSON := req.AppStateBytes
-
-	genesisState := new(GenesisState)
-	err := app.cdc.UnmarshalJSON(stateJSON, genesisState)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, acc := range genesisState.Accounts {
-		acc.AccountNumber = app.accountKeeper.GetNextAccountNumber(ctx)
+	// load the accounts
+	for _, gacc := range genesisState.Accounts {
+		acc := gacc.ToAccount()
+		acc = app.accountKeeper.NewAccount(ctx, acc) // set account number
 		app.accountKeeper.SetAccount(ctx, acc)
 	}
+
 	// initialize distribution (must happen before staking)
 	distr.InitGenesis(ctx, app.distrKeeper, genesisState.DistrData)
+
 	// load the initial staking information
 	validators, err := staking.InitGenesis(ctx, app.stakingKeeper, genesisState.StakingData)
 	if err != nil {
 		panic(err) // TODO find a way to do this w/o panics
 	}
+
 	// initialize module-specific stores
 	auth.InitGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper, genesisState.AuthData)
 	bank.InitGenesis(ctx, app.bankKeeper, genesisState.BankData)
 	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakingData.Validators.ToSDKValidators())
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
+
+	// validate genesis state
+	if err := GaiaValidateGenesisState(genesisState); err != nil {
+		panic(err) // TODO find a way to do this w/o panics
+	}
 
 	if len(genesisState.GenTxs) > 0 {
 		for _, genTx := range genesisState.GenTxs {
@@ -373,72 +389,16 @@ func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestIni
 
 		validators = app.stakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 	}
-	return abci.ResponseInitChain{
-		Validators: validators,		
-	}
-}
-
-// ExportAppStateAndValidators does the things
-func (app *commercioNetworkApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
-	ctx := app.NewContext(true, abci.Header{})
-	var accounts []*auth.BaseAccount
-
-
-	appendAccountsFn := func(acc auth.Account) bool {
-		account := &auth.BaseAccount{
-			Address: acc.GetAddress(),
-			Coins:   acc.GetCoins(),
-		}
-
-		accounts = append(accounts, account)
-		return false
-	}
-
-	app.accountKeeper.IterateAccounts(ctx, appendAccountsFn)
-
-	genState := NewGenesisState(
-		accounts,
-		auth.ExportGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper),
-		bank.ExportGenesis(ctx, app.bankKeeper),
-		staking.ExportGenesis(ctx, app.stakingKeeper),
-		mint.ExportGenesis(ctx, app.mintKeeper),
-		distr.ExportGenesis(ctx, app.distrKeeper),
-		gov.ExportGenesis(ctx, app.govKeeper),
-		slashing.ExportGenesis(ctx, app.slashingKeeper),
-	)
-	
-	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return appState, validators, err
-}
-
-func NewGenesisState(accounts []*auth.BaseAccount, 
-	authData auth.GenesisState,
-	bankData bank.GenesisState,
-	stakingData staking.GenesisState, 
-	mintData mint.GenesisState,
-	distrData distr.GenesisState, 
-	govData gov.GenesisState,
-	slashingData slashing.GenesisState) GenesisState {
-
-	return GenesisState{
-		Accounts:     accounts,
-		AuthData:     authData,
-		BankData:     bankData,
-		StakingData:  stakingData,
-		MintData:     mintData,
-		DistrData:    distrData,
-		GovData:      govData,
-		SlashingData: slashingData,
-	}
+	return validators
 }
 
 
+// load a particular height
+func (app *commercioNetworkApp) LoadHeight(height int64) error {
+	return app.LoadVersion(height, app.keyMain)
+}
 
-// MakeCodec generates the necessary codecs for Amino
+// custom tx codec
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
 	auth.RegisterCodec(cdc)
@@ -463,7 +423,7 @@ func MakeCodec() *codec.Codec {
 }
 
 
-//______________________________________________________________________________________________
+// ______________________________________________________________________________________________
 
 var _ sdk.StakingHooks = StakingHooks{}
 

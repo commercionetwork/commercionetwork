@@ -24,3 +24,5 @@ bin
 # Sources
 src
 
+# Mac noise
+.DS_Store
