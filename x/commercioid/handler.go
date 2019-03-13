@@ -31,7 +31,7 @@ func handleMsgCreateIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity)
 	// Checks if the the msg sender is the same as the current owner
 	if !keeper.CanBeUsedBy(ctx, msg.Owner, msg.DID) {
 		// If not, throw an error
-		return sdk.ErrUnauthorized("Incorrect Owner").Result()
+		return sdk.ErrUnauthorized("Incorrect Signer").Result()
 	}
 
 	// If so, set the DDO reference to the value specified in the msg.

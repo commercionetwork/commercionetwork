@@ -7,9 +7,10 @@ import (
 
 	"commercio-network/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/utils"
+	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/rest"
 
 	"github.com/gorilla/mux"
 )
@@ -35,18 +36,17 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec, 
 // ----------------------------------
 
 type upsertIdentityReq struct {
-	BaseReq      utils.BaseReq `json:"base_req"`
-	Owner        string        `json:"owner"`
-	Did          string        `json:"did"`
-	DdoReference string        `json:"ddo_reference"`
+	BaseReq      rest.BaseReq `json:"base_req"`
+	Owner        string       `json:"owner"`
+	Did          string       `json:"did"`
+	DdoReference string       `json:"ddo_reference"`
 }
 
 func upsertIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req upsertIdentityReq
-		err := utils.ReadRESTReq(w, r, cdc, &req)
-		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "Failed to parse request")
 			return
 		}
 
@@ -57,7 +57,7 @@ func upsertIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 
 		addr, err := sdk.AccAddressFromBech32(req.Owner)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -65,11 +65,11 @@ func upsertIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 		msg := commercioid.NewMsgSetIdentity(types.Did(req.Did), req.DdoReference, addr)
 		err = msg.ValidateBasic()
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		utils.CompleteAndBroadcastTxREST(w, r, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
 	}
 }
 
@@ -78,18 +78,17 @@ func upsertIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 // ----------------------------------
 
 type createConnectionReq struct {
-	BaseReq    utils.BaseReq `json:"base_req"`
-	Owner      string        `json:"owner"`
-	FirstUser  string        `json:"first_user"`
-	SecondUser string        `json:"second_user"`
+	BaseReq    rest.BaseReq `json:"base_req"`
+	Owner      string       `json:"owner"`
+	FirstUser  string       `json:"first_user"`
+	SecondUser string       `json:"second_user"`
 }
 
 func createConnectionHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req createConnectionReq
-		err := utils.ReadRESTReq(w, r, cdc, &req)
-		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "Failed to parse request")
 			return
 		}
 
@@ -100,7 +99,7 @@ func createConnectionHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 
 		addr, err := sdk.AccAddressFromBech32(req.Owner)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -108,11 +107,11 @@ func createConnectionHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 		msg := commercioid.NewMsgCreateConnection(types.Did(req.FirstUser), types.Did(req.SecondUser), addr)
 		err = msg.ValidateBasic()
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		utils.CompleteAndBroadcastTxREST(w, r, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
 	}
 }
 
@@ -127,11 +126,11 @@ func resolveIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext, storeNa
 
 		res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/identities/%s", storeName, paramType), nil)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		utils.PostProcessResponse(w, cdc, res, cliCtx.Indent)
+		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
 
@@ -146,10 +145,10 @@ func getConnectionsHandler(cdc *codec.Codec, cliCtx context.CLIContext, storeNam
 
 		res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/connections/%s", storeName, paramType), nil)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		utils.PostProcessResponse(w, cdc, res, cliCtx.Indent)
+		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }

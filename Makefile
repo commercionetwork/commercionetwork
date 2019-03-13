@@ -19,11 +19,11 @@ update_vendor_deps:
 	@dep ensure -v -update
 
 install:
-	go install ./cmd/nsd
-	go install ./cmd/nscli
+	go install ./cmd/cnd
+	go install ./cmd/cncli
 
 crossbuild_windows_linux:
 	set GOARCH=amd64
 	set GOOS=linux
-	go build -o "nsd" ./cmd/nsd/main.go
-	go build -o "nscli" ./cmd/nscli/main.go
+	go build -o "cnd" ./cmd/cnd/main.go
+	go build -o "cncli" ./cmd/cncli/main.go

@@ -36,24 +36,24 @@ dep ensure -update -v && make install
 
 After all of this, you should be able to run the following commands successfully 
 ```bash
-nsd help
-nscli help
+cnd help
+cncli help
 ```
 
 ## Running the live network
 ```bash
 # Initialize configuration files and genesis file
-nsd init --chain-id testchain
+cnd init --chain-id testchain --moniker testchain
 
 # Copy the `Address` output here and save it for later use
-nscli keys add jack
+cncli keys add jack
 
 # Copy the `Address` output here and save it for later use
-nscli keys add alice
+cncli keys add alice
 
 # Add both accounts, with coins to the genesis file
-nsd add-genesis-account $(nscli keys show jack --address) 1000mycoin,1000jackCoin
-nsd add-genesis-account $(nscli keys show alice --address) 1000mycoin,1000aliceCoin
+cnd add-genesis-account $(cncli keys show jack --address) 1000mycoin,1000jackCoin
+cnd add-genesis-account $(cncli keys show alice --address) 1000mycoin,1000aliceCoin
 ```
 
 Now, you can start using the commands to interact with the network.
@@ -62,8 +62,39 @@ Now, you can start using the commands to interact with the network.
 Before you can start using the CLI, you need to effectively start the blockchain.  
 To do so, just run
 ```bash
-nsd start
+cnd start
 ``` 
+
+### CommercioAUTH
+#### Creating an account
+Create an account specifying the address, the public key type and its value. 
+Note: 
+* the address value must be an hex value, **without** the `0x` prefix
+* the key type value must be either `Secp256k1` or `Ed25519`
+* the key value must be an hex value, **without** the `0x` prefix
+```bash
+cncli tx commercioauth register \
+    0b13c55fc6c3496796258d8637330ff7e269cac8 \
+    Ed25519 \
+    917325912fbdbe78a5d6c92678d1d89f09a89c0ca35a856688a13f6e7ef5e951 \
+    --from $(cncli keys show jack --address) \
+    --chain-id testchain
+```
+
+#### Reading the accounts' details
+##### Read all the accounts
+List all the registered accounts
+```bash
+cncli query commercioauth account list \
+    --chain-id testchain
+```
+
+##### Read the details of a specific account
+Retrieve the details of an account based on his address expressed as an hex value **without** the `0x` prefix
+```bash
+cncli query commercioauth account 0b13c55fc6c3496796258d8637330ff7e269cac8 \
+    --chain-id testchain
+```
 
 ### CommercioID
 #### Managing an identity
@@ -71,17 +102,17 @@ nsd start
 Create an identity specifying the DID and the DDO reference.  
 The first parameter is the DID, the second is the DDO reference.
 ```bash
-nscli tx commercioid upsert-identity \
+cncli tx commercioid upsert-identity \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     QmWCnEEqSaBcKtKLUurzi2Zs9LAPxJkpzE8as21fvmeXrj \
-    --from     $(nscli keys show jack --address) \
+    --from $(cncli keys show jack --address) \
     --chain-id testchain
 ```
 
 ##### Resolving an identity
 Read the identity details by its DID.
 ```bash
-nscli query commercioid resolve \
+cncli query commercioid resolve \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     --indent --chain-id=testchain
 ``` 
@@ -91,10 +122,10 @@ nscli query commercioid resolve \
 Create a connection specifying the two users that needs to connect to each other.\
 The first parameter is the first DID, the second parameter is the second DID.
 ```bash 
-nscli tx commercioid create-connection \
+cncli tx commercioid create-connection \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     0x9f2ae6af2545076e7a55816dd4f8e45b650b07f0 \
-    --from     $(nscli keys show jack --address) \
+    --from $(cncli keys show jack --address) \
     --chain-id testchain
 ```
 
@@ -102,7 +133,7 @@ nscli tx commercioid create-connection \
 List all the connections that a user has established.
 The required parameter is the DID for which to retrieve the connections
 ```bash
-nscli query commercioid connections \
+cncli query commercioid connections \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     --indent --chain-id=testchain
 ```
@@ -117,18 +148,18 @@ Store a document with an associated metadata inside the blockchain. The params a
 3. The reference to the document metadata
 
 ```bash
-nscli tx commerciodocs store \
+cncli tx commerciodocs store \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
     QmRCxjZrUQ29aYNcrmdtnzDeB1GAf56tpdwpymgZhf2ifp \
-    --from     $(nscli keys show jack --address) \
+    --from $(cncli keys show jack --address) \
     --chain-id testchain
 ```
 
 ##### Read the metadata of a document
 Retrieve the metadata of a document by its reference.
 ```bash
-nscli query commerciodocs metadata \
+cncli query commerciodocs metadata \
     QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
     --indent --chain-id=testchain
 ```
@@ -142,11 +173,11 @@ Share a document with a given user specifying his DID. The params are:
 3. The receiver identity (as a DID).
 
 ```bash
-nscli tx commerciodocs share \
+cncli tx commerciodocs share \
     QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     0x9f2ae6af2545076e7a55816dd4f8e45b650b07f0 \
-    --from     $(nscli keys show jack --address) \
+    --from $(cncli keys show jack --address) \
     --chain-id testchain
 ```
 
@@ -156,22 +187,22 @@ with whom the creator has shared the document.
 The only parameter required is the reference of the document.
 
 ```bash
-nscli query commerciodocs readers \
+cncli query commerciodocs readers \
     QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
     --indent --chain-id=testchain
 ```
 
 
 ## Using the REST APIs
-In order to use the REST APIs, you firstly need to run `nsd start` you did not run this previously.  
+In order to use the REST APIs, you firstly need to run `cnd start` you did not run this previously.  
 After that, you need to gather the address of the registered user (in this case, Jack). To do so, run
 ```bash
-nscli keys show jack --address
+cncli keys show jack --address
 ```
 
 Now, start the REST server by running
 ```bash
-nscli rest-server --chain-id testchain --trust-node --laddr=tcp://0.0.0.0:1317
+cncli rest-server --chain-id testchain --trust-node --laddr=tcp://0.0.0.0:1317
 ```
 
 Now, with the previously output address, run the following in other terminal shell:

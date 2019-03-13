@@ -15,6 +15,10 @@ import (
 
 	"commercio-network"
 
+	// CommercioAUTH
+	authclient "commercio-network/x/commercioauth/client"
+	authrest "commercio-network/x/commercioauth/client/rest"
+
 	// CommercioDOCS
 	docsclient "commercio-network/x/commerciodocs/client"
 	docsrest "commercio-network/x/commerciodocs/client/rest"
@@ -32,11 +36,12 @@ import (
 
 const (
 	storeAcc  = "acc"
+	storeAUTH = "commercioauth"
 	storeID   = "commercioid"
 	storeDOCS = "commerciodocs"
 )
 
-var defaultCLIHome = os.ExpandEnv("$HOME/.nscli")
+var defaultCLIHome = os.ExpandEnv("$HOME/.cncli")
 
 func main() {
 	cobra.EnableCommandSorting = false
@@ -51,20 +56,25 @@ func main() {
 	config.Seal()
 
 	mc := []sdk.ModuleClients{
+		// CommercioAUTH
+		authclient.NewModuleClient(storeAUTH, cdc),
+
+		// CommercioID
 		idclient.NewModuleClient(storeID, cdc),
+
+		// CommercioDOCS
 		docsclient.NewModuleClient(storeDOCS, cdc),
 	}
 
 	rootCmd := &cobra.Command{
-		Use:   "nscli",
+		Use:   "cncli",
 		Short: "Commercio.network client",
 	}
 
 	// Construct Root Command
 	rootCmd.AddCommand(
-		rpc.InitClientCommand(),
 		rpc.StatusCommand(),
-		client.ConfigCmd(),
+		client.ConfigCmd(defaultCLIHome),
 		queryCmd(cdc, mc),
 		txCmd(cdc, mc),
 		client.LineBreak,
@@ -89,6 +99,9 @@ func registerRoutes(rs *lcd.RestServer) {
 	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
 	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 
+	// CommercioAUTH
+	authrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAUTH)
+
 	// CommercioID
 	idrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeID)
 
@@ -104,7 +117,7 @@ func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
-		rpc.ValidatorCommand(),
+		rpc.ValidatorCommand(cdc),
 		rpc.BlockCommand(),
 		tx.SearchTxCmd(cdc),
 		tx.QueryTxCmd(cdc),
@@ -129,7 +142,7 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 		bankcmd.SendTxCmd(cdc),
 		client.LineBreak,
 		authcmd.GetSignCommand(cdc),
-		bankcmd.GetBroadcastCommand(cdc),
+		authcmd.GetBroadcastCommand(cdc),
 		client.LineBreak,
 	)
 

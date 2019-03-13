@@ -7,9 +7,10 @@ import (
 
 	"commercio-network/x/commerciodocs"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/utils"
+	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/rest"
 
 	"github.com/gorilla/mux"
 )
@@ -36,19 +37,18 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec, 
 // ----------------------------------
 
 type storeDocumentReq struct {
-	BaseReq   utils.BaseReq `json:"base_req"`
-	Owner     string        `json:"owner"`
-	Identity  string        `json:"identity"`
-	Reference string        `json:"reference"`
-	Metadata  string        `json:"metadata"`
+	BaseReq   rest.BaseReq `json:"base_req"`
+	Owner     string       `json:"owner"`
+	Identity  string       `json:"identity"`
+	Reference string       `json:"reference"`
+	Metadata  string       `json:"metadata"`
 }
 
 func storeDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req storeDocumentReq
-		err := utils.ReadRESTReq(w, r, cdc, &req)
-		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "Failed to parse request")
 			return
 		}
 
@@ -59,7 +59,7 @@ func storeDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 
 		addr, err := sdk.AccAddressFromBech32(req.Owner)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -67,11 +67,11 @@ func storeDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		msg := commerciodocs.NewMsgStoreDocument(addr, types.Did(req.Identity), req.Reference, req.Metadata)
 		err = msg.ValidateBasic()
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		utils.CompleteAndBroadcastTxREST(w, r, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
 	}
 }
 
@@ -86,11 +86,11 @@ func getDocumentMetadataHandler(cdc *codec.Codec, cliCtx context.CLIContext, sto
 
 		res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/metadata/%s", storeName, paramType), nil)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		utils.PostProcessResponse(w, cdc, res, cliCtx.Indent)
+		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
 
@@ -99,10 +99,10 @@ func getDocumentMetadataHandler(cdc *codec.Codec, cliCtx context.CLIContext, sto
 // ----------------------------------
 
 type shareDocumentReq struct {
-	BaseReq  utils.BaseReq `json:"base_req"`
-	Owner    string        `json:"owner"`
-	Sender   string        `json:"sender"`
-	Receiver string        `json:"receiver"`
+	BaseReq  rest.BaseReq `json:"base_req"`
+	Owner    string       `json:"owner"`
+	Sender   string       `json:"sender"`
+	Receiver string       `json:"receiver"`
 }
 
 func shareDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
@@ -111,9 +111,8 @@ func shareDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		paramType := vars[restName]
 
 		var req shareDocumentReq
-		err := utils.ReadRESTReq(w, r, cdc, &req)
-		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "Failed to parse request")
 			return
 		}
 
@@ -124,7 +123,7 @@ func shareDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 
 		addr, err := sdk.AccAddressFromBech32(req.Owner)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -132,11 +131,11 @@ func shareDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		msg := commerciodocs.NewMsgShareDocument(addr, paramType, types.Did(req.Sender), types.Did(req.Receiver))
 		err = msg.ValidateBasic()
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		utils.CompleteAndBroadcastTxREST(w, r, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
 	}
 }
 
@@ -151,10 +150,10 @@ func getDocumentReadersHandler(cdc *codec.Codec, cliCtx context.CLIContext, stor
 
 		res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/readers/%s", storeName, paramType), nil)
 		if err != nil {
-			utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		utils.PostProcessResponse(w, cdc, res, cliCtx.Indent)
+		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
