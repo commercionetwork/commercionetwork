@@ -9,10 +9,8 @@ cache:
     - /go/src/gopkg.in
 
 before_script:
-  - mkdir -p /go/src/gitlab.com/pantomath-io /go/src/_/builds
-  - cp -r $CI_PROJECT_DIR /go/src/gitlab.com/pantomath-io/pantomath
-  - ln -s /go/src/gitlab.com/pantomath-io /go/src/_/builds/pantomath-io
-  - make dep
+  - make get_tools
+  - make get_vendor_deps
 
 build:
   stage: build
