@@ -386,7 +386,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "d0f344d83b0c80a1bc03b547a2374a9ec6711144"
+  revision = "6ed1f7e1041181781dd2826d3001075d011a80cc"
 
 [[projects]]
   digest = "1:ea0700160aca4ef099f4e06686a665a87691f4248dddd40796925eda2e46bd64"
