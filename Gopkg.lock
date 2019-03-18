@@ -288,12 +288,12 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:b5cf82c3199c040b82e2bb3fbcbcf6771c2759f9c6b839621b0714c822167581"
+  digest = "1:3bb9c8451d199650bfd303e0068d86f135952fead374ad87c09a9b8a2cc4bd7c"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   pruneopts = "UT"
-  revision = "a6dda38a851a575e6799957cdd53ffe0b3fdd90f"
-  version = "v0.0.5"
+  revision = "369ecd8cea9851e459abb67eb171853e3986591e"
+  version = "v0.0.6"
 
 [[projects]]
   digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
@@ -379,7 +379,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "e4d4a2206da023361ed100d85c5f2cf9c8364e9f"
+  revision = "6ed1f7e1041181781dd2826d3001075d011a80cc"
 
 [[projects]]
   digest = "1:ea0700160aca4ef099f4e06686a665a87691f4248dddd40796925eda2e46bd64"
@@ -749,6 +749,7 @@
     "github.com/cosmos/cosmos-sdk/client/context",
     "github.com/cosmos/cosmos-sdk/client/keys",
     "github.com/cosmos/cosmos-sdk/client/lcd",
+    "github.com/cosmos/cosmos-sdk/client/rest",
     "github.com/cosmos/cosmos-sdk/client/rpc",
     "github.com/cosmos/cosmos-sdk/client/tx",
     "github.com/cosmos/cosmos-sdk/client/utils",
@@ -756,6 +757,7 @@
     "github.com/cosmos/cosmos-sdk/codec",
     "github.com/cosmos/cosmos-sdk/server",
     "github.com/cosmos/cosmos-sdk/types",
+    "github.com/cosmos/cosmos-sdk/types/rest",
     "github.com/cosmos/cosmos-sdk/version",
     "github.com/cosmos/cosmos-sdk/x/auth",
     "github.com/cosmos/cosmos-sdk/x/auth/client/cli",
@@ -764,6 +766,7 @@
     "github.com/cosmos/cosmos-sdk/x/bank",
     "github.com/cosmos/cosmos-sdk/x/bank/client/cli",
     "github.com/cosmos/cosmos-sdk/x/bank/client/rest",
+    "github.com/cosmos/cosmos-sdk/x/params",
     "github.com/gorilla/mux",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
