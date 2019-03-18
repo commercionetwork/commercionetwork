@@ -9,9 +9,8 @@ cache:
     - /go/src/gopkg.in
 
 before_script:
-  - mkdir -p $GOPATH/src/commercio-network $GOPATH/src/_/builds
   - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
-  - ln -s $GOPATH/src/commercio-network $GOPATH/src/_/builds/commercio-network
+  - cd $GOPATH/src/commercio-network
   - make get_tools
   - make get_vendor_deps
 
