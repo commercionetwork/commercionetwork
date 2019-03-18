@@ -1,0 +1,23 @@
+image: golang:1.9
+
+cache:
+  paths:
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
+
+before_script:
+  - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
+  - cd $GOPATH/src/commercio-network
+  - make get_tools
+  - make get_vendor_deps
+
+build:
+  stage: build
+  script:
+    - make install
+    - mv $GOBIN/*.exe ./windows/
+    - mv $GOBIN/cnd ./linux
+    - mv $GOBIN/cncli ./linux
