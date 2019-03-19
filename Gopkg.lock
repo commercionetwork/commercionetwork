@@ -295,12 +295,12 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:3bb9c8451d199650bfd303e0068d86f135952fead374ad87c09a9b8a2cc4bd7c"
+  digest = "1:e150b5fafbd7607e2d638e4e5cf43aa4100124e5593385147b0a74e2733d8b0d"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   pruneopts = "UT"
-  revision = "369ecd8cea9851e459abb67eb171853e3986591e"
-  version = "v0.0.6"
+  revision = "c2a7a6ca930a4cd0bc33a3f298eb71960732a3a7"
+  version = "v0.0.7"
 
 [[projects]]
   digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
@@ -376,7 +376,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:01cd0cd47758f04c5604daa3be4637e2afa1e0c15af7e08289e95360369e4f48"
+  digest = "1:0573a48c92e778ad732779bf1e5064a5085ab3fbd236ad71e53cab5753ef3e6e"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -386,7 +386,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "6ed1f7e1041181781dd2826d3001075d011a80cc"
+  revision = "e56f2e22fc761e82a34aca553f6725e2aff4fe6c"
 
 [[projects]]
   digest = "1:ea0700160aca4ef099f4e06686a665a87691f4248dddd40796925eda2e46bd64"
@@ -511,15 +511,15 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:1bb088f6291e5426e3874a60bca0e481a91a5633395d7e0c427ec3e49b626e7b"
+  digest = "1:9f8cd74d11cdb703946d85b4d131f014daf989e9f1b22c794ca5210a7773ca3e"
   name = "github.com/tendermint/iavl"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ac7c35c12e8633a1e9fd0b52a00b900b40f32cd3"
-  version = "v0.12.1"
+  revision = "2f35d309e69ffec33c044a910acd9e8d739eb095"
+  version = "v0.12.2"
 
 [[projects]]
-  digest = "1:4a372b718ee1433fa421e1c9e450a8b14bc24f2b5d7b5f9329d4d49e360f5f9e"
+  digest = "1:791d8e6add900a4f6bb2e8dbb6da423576fc69cffa61368cb3df0552ff34aa06"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -585,8 +585,8 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "e0f8936455029a40287a69d5b0e7baa4d5864da1"
-  version = "v0.30.1"
+  revision = "976819537d199aa43c6ad55ec4e8958323322bb0"
+  version = "v0.30.2"
 
 [[projects]]
   digest = "1:5a736f4722932d9a45d28852e85b83f68292d9af2ef0be29d4e5fe6fd89d5d96"
@@ -656,14 +656,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c2cc416cd8e59e9da2a55e2807fc46105c00f109db61cc573c8fbb99ec410bcf"
+  digest = "1:d3229d0c4f5a29399fe3d39cd64de216af15f8bce9a00932c0a7a5ddaa6418f7"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
     "unix",
   ]
   pruneopts = "UT"
-  revision = "584f3b12f43e1e55248c90e84804777009eed0a4"
+  revision = "6c81ef8f67ca3f42fc9cd71dfbd5f35b0c4b5771"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -756,7 +756,6 @@
     "github.com/cosmos/cosmos-sdk/client/context",
     "github.com/cosmos/cosmos-sdk/client/keys",
     "github.com/cosmos/cosmos-sdk/client/lcd",
-    "github.com/cosmos/cosmos-sdk/client/lcd/statik",
     "github.com/cosmos/cosmos-sdk/client/rest",
     "github.com/cosmos/cosmos-sdk/client/rpc",
     "github.com/cosmos/cosmos-sdk/client/tx",

@@ -22,7 +22,6 @@ import (
 	"github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/store"
 
@@ -55,7 +54,7 @@ func main() {
 	cdc := app.MakeCodec()
 
 	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
+	config.SetBech32PrefixForAccount("commercio", sdk.Bech32PrefixAccPub)
 	config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
 	config.Seal()
@@ -154,7 +153,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
 
 			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
-			
+
 			fmt.Printf("Initialized nsd configuration and bootstrapping files in %s...\n", viper.GetString(cli.HomeFlag))
 			return displayInfo(cdc, toPrint)
 			//return nil
@@ -273,7 +272,6 @@ func initializeEmptyGenesis(
 	return codec.MarshalJSONIndent(cdc, app.NewDefaultGenesisState())
 }
 
-
 func newPrintInfo(moniker, chainID, nodeID, genTxsDir string,
 	appMessage json.RawMessage) printInfo {
 
@@ -295,6 +293,3 @@ func displayInfo(cdc *codec.Codec, info printInfo) error {
 	fmt.Fprintf(os.Stderr, "%s\n", string(out)) // nolint: errcheck
 	return nil
 }
-
-
-
