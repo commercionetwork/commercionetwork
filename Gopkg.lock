@@ -40,7 +40,7 @@
   revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
 
 [[projects]]
-  digest = "1:aaba47dcb27782c544df8603e4b58148a30fea3050ed31e60cb17ff1d1de8b65"
+  digest = "1:5c7f03af2b1b233ff0382593e4356a1c29a781fb6e1fca799c70e7fac4206c29"
   name = "github.com/cosmos/cosmos-sdk"
   packages = [
     "baseapp",
@@ -89,6 +89,8 @@
     "x/bank/client/rest",
     "x/bank/simulation",
     "x/distribution",
+    "x/distribution/client",
+    "x/distribution/client/cli",
     "x/distribution/client/common",
     "x/distribution/client/rest",
     "x/distribution/keeper",
@@ -96,6 +98,8 @@
     "x/distribution/tags",
     "x/distribution/types",
     "x/gov",
+    "x/gov/client",
+    "x/gov/client/cli",
     "x/gov/client/rest",
     "x/gov/client/utils",
     "x/gov/tags",
@@ -105,9 +109,12 @@
     "x/params",
     "x/params/subspace",
     "x/slashing",
+    "x/slashing/client",
+    "x/slashing/client/cli",
     "x/slashing/client/rest",
     "x/slashing/tags",
     "x/staking",
+    "x/staking/client",
     "x/staking/client/cli",
     "x/staking/client/rest",
     "x/staking/keeper",
@@ -264,12 +271,12 @@
   version = "v1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:39b27d1381a30421f9813967a5866fba35dc1d4df43a6eefe3b7a5444cb07214"
+  digest = "1:a74b5a8e34ee5843cd6e65f698f3e75614f812ff170c2243425d75bc091e9af2"
   name = "github.com/jmhodges/levigo"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c42d9e0ca023e2198120196f842701bb4c55d7b9"
+  revision = "853d788c5c416eaaee5b044570784a96c7a26975"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -288,12 +295,12 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:3bb9c8451d199650bfd303e0068d86f135952fead374ad87c09a9b8a2cc4bd7c"
+  digest = "1:e150b5fafbd7607e2d638e4e5cf43aa4100124e5593385147b0a74e2733d8b0d"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   pruneopts = "UT"
-  revision = "369ecd8cea9851e459abb67eb171853e3986591e"
-  version = "v0.0.6"
+  revision = "c2a7a6ca930a4cd0bc33a3f298eb71960732a3a7"
+  version = "v0.0.7"
 
 [[projects]]
   digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
@@ -369,7 +376,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ca30ee2c96d195cef49b546d10825d3e13b50c63da4df23c80e77c51e07bad0d"
+  digest = "1:0573a48c92e778ad732779bf1e5064a5085ab3fbd236ad71e53cab5753ef3e6e"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -379,7 +386,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "6ed1f7e1041181781dd2826d3001075d011a80cc"
+  revision = "e56f2e22fc761e82a34aca553f6725e2aff4fe6c"
 
 [[projects]]
   digest = "1:ea0700160aca4ef099f4e06686a665a87691f4248dddd40796925eda2e46bd64"
@@ -432,12 +439,12 @@
   version = "v0.0.3"
 
 [[projects]]
-  digest = "1:68ea4e23713989dc20b1bded5d9da2c5f9be14ff9885beef481848edd18c26cb"
+  digest = "1:1b753ec16506f5864d26a28b43703c58831255059644351bbcb019b843950900"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4a4406e478ca629068e7768fc33f3f044173c0a6"
-  version = "v1.0.0"
+  revision = "94f6ae3ed3bceceafa716478c5fbf8d29ca601a1"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
@@ -504,15 +511,15 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:1bb088f6291e5426e3874a60bca0e481a91a5633395d7e0c427ec3e49b626e7b"
+  digest = "1:9f8cd74d11cdb703946d85b4d131f014daf989e9f1b22c794ca5210a7773ca3e"
   name = "github.com/tendermint/iavl"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ac7c35c12e8633a1e9fd0b52a00b900b40f32cd3"
-  version = "v0.12.1"
+  revision = "2f35d309e69ffec33c044a910acd9e8d739eb095"
+  version = "v0.12.2"
 
 [[projects]]
-  digest = "1:4a372b718ee1433fa421e1c9e450a8b14bc24f2b5d7b5f9329d4d49e360f5f9e"
+  digest = "1:791d8e6add900a4f6bb2e8dbb6da423576fc69cffa61368cb3df0552ff34aa06"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -578,8 +585,8 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "e0f8936455029a40287a69d5b0e7baa4d5864da1"
-  version = "v0.30.1"
+  revision = "976819537d199aa43c6ad55ec4e8958323322bb0"
+  version = "v0.30.2"
 
 [[projects]]
   digest = "1:5a736f4722932d9a45d28852e85b83f68292d9af2ef0be29d4e5fe6fd89d5d96"
@@ -649,14 +656,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ad5e62a015226e008f9ca24cdf00d65c74f004f1b247cfa033ca9e3afcf41b29"
+  digest = "1:d3229d0c4f5a29399fe3d39cd64de216af15f8bce9a00932c0a7a5ddaa6418f7"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
     "unix",
   ]
   pruneopts = "UT"
-  revision = "cc5685c2db1239775905f3911f0067c0fa74762f"
+  revision = "6c81ef8f67ca3f42fc9cd71dfbd5f35b0c4b5771"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -683,17 +690,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:182c305bcdd79c899c91b705c2423fe014d7d258237bc2a52e5836db5b7093aa"
+  digest = "1:a83ef3cf3383b5cb24cdb1950d706c9a8886d6f95cf2c5262a6ce359ff3db2a3"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/rpc/status",
     "googleapis/type/date",
   ]
   pruneopts = "UT"
-  revision = "082222b4a5c572e33e82ee9162d1352c7cf38682"
+  revision = "5fe7a883aa19554f42890211544aa549836af7b7"
 
 [[projects]]
-  digest = "1:9ab5a33d8cb5c120602a34d2e985ce17956a4e8c2edce7e6961568f95e40c09a"
+  digest = "1:cbc746de4662c66fd24a037501bd65aa0f8ad0bfca0c92576e0abb88864e3741"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -729,8 +736,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "a02b0774206b209466313a0b525d2c738fe407eb"
-  version = "v1.18.0"
+  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
+  version = "v1.19.0"
 
 [[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
@@ -756,6 +763,8 @@
     "github.com/cosmos/cosmos-sdk/cmd/gaia/init",
     "github.com/cosmos/cosmos-sdk/codec",
     "github.com/cosmos/cosmos-sdk/server",
+    "github.com/cosmos/cosmos-sdk/server/config",
+    "github.com/cosmos/cosmos-sdk/store",
     "github.com/cosmos/cosmos-sdk/types",
     "github.com/cosmos/cosmos-sdk/types/rest",
     "github.com/cosmos/cosmos-sdk/version",
@@ -766,7 +775,24 @@
     "github.com/cosmos/cosmos-sdk/x/bank",
     "github.com/cosmos/cosmos-sdk/x/bank/client/cli",
     "github.com/cosmos/cosmos-sdk/x/bank/client/rest",
+    "github.com/cosmos/cosmos-sdk/x/bank/simulation",
+    "github.com/cosmos/cosmos-sdk/x/distribution",
+    "github.com/cosmos/cosmos-sdk/x/distribution/client",
+    "github.com/cosmos/cosmos-sdk/x/distribution/client/rest",
+    "github.com/cosmos/cosmos-sdk/x/distribution/simulation",
+    "github.com/cosmos/cosmos-sdk/x/gov",
+    "github.com/cosmos/cosmos-sdk/x/gov/client",
+    "github.com/cosmos/cosmos-sdk/x/gov/client/rest",
+    "github.com/cosmos/cosmos-sdk/x/mint",
     "github.com/cosmos/cosmos-sdk/x/params",
+    "github.com/cosmos/cosmos-sdk/x/slashing",
+    "github.com/cosmos/cosmos-sdk/x/slashing/client",
+    "github.com/cosmos/cosmos-sdk/x/slashing/client/rest",
+    "github.com/cosmos/cosmos-sdk/x/staking",
+    "github.com/cosmos/cosmos-sdk/x/staking/client",
+    "github.com/cosmos/cosmos-sdk/x/staking/client/cli",
+    "github.com/cosmos/cosmos-sdk/x/staking/client/rest",
+    "github.com/cosmos/cosmos-sdk/x/staking/simulation",
     "github.com/gorilla/mux",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
@@ -780,7 +806,10 @@
     "github.com/tendermint/tendermint/libs/common",
     "github.com/tendermint/tendermint/libs/db",
     "github.com/tendermint/tendermint/libs/log",
+    "github.com/tendermint/tendermint/p2p",
+    "github.com/tendermint/tendermint/privval",
     "github.com/tendermint/tendermint/types",
+    "github.com/tendermint/tendermint/types/time",
     "google.golang.org/genproto/googleapis/type/date",
   ]
   solver-name = "gps-cdcl"
