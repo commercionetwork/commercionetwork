@@ -18,21 +18,40 @@ import (
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	abci "github.com/tendermint/tendermint/abci/types"
+	cmn "github.com/tendermint/tendermint/libs/common"
+	dbm "github.com/tendermint/tendermint/libs/db"
 )
 
 const (
 	appName = "Commercio.network"
 	// DefaultKeyPass contains the default key password for genesis transactions
 	DefaultKeyPass = "12345678"
+
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32PrefixAccAddr = "commercio"
+
+	Bech32SuffixPub  = "pub"
+	Bech32SuffixVal  = "val"
+	Bech32SuffixOper = "oper"
+	Bech32SuffixCons = "cons"
+
+	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
+	Bech32PrefixAccPub = Bech32PrefixAccAddr + Bech32SuffixPub
+	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
+	Bech32PrefixValAddr = Bech32PrefixAccAddr + Bech32SuffixVal + Bech32SuffixOper
+	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
+	Bech32PrefixValPub = Bech32PrefixValAddr + Bech32SuffixPub
+	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
+	Bech32PrefixConsAddr = Bech32PrefixValAddr + Bech32SuffixVal + Bech32SuffixCons
+	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
+	Bech32PrefixConsPub = Bech32PrefixConsAddr + Bech32SuffixPub
 )
 
 // default home directories for expected binaries
@@ -70,8 +89,6 @@ type commercioNetworkApp struct {
 	distrKeeper         distr.Keeper
 	govKeeper           gov.Keeper
 	paramsKeeper        params.Keeper
-
-
 
 	// CommercioAUTH
 	commercioAuthKeeper commercioauth.Keeper
@@ -188,7 +205,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		NewStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
 
-
 	// The CommercioAUTH keeper handles interactions for the CommercioAUTH module
 	app.commercioAuthKeeper = commercioauth.NewKeeper(
 		app.accountKeeper,
@@ -236,7 +252,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.MountStores(app.keyMain, app.keyAccount, app.keyStaking, app.keyMint, app.keyDistr,
 		app.keySlashing, app.keyGov, app.keyFeeCollection, app.keyParams,
 		app.tkeyParams, app.tkeyStaking, app.tkeyDistr,
-		
+
 		// CommercioAUTH does not use any specific store as we base it on the auth module
 
 		// CommercioID
@@ -266,17 +282,17 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	return app
 }
 
-// GenesisState was moved in genesis.go file 
+// GenesisState was moved in genesis.go file
 
 // custom logic for gaia initialization
 func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
-	// TODO is this now the whole genesis file? <-- Comment from ufficial Gaia app 
+	// TODO is this now the whole genesis file? <-- Comment from ufficial Gaia app
 
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
-		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from ufficial Gaia app 
+		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from ufficial Gaia app
 		// return sdk.ErrGenesisParse("").TraceCause(err, "")
 	}
 
@@ -304,7 +320,6 @@ func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestIni
 		Validators: validators,
 	}
 }
-
 
 // application updates every end block
 func (app *commercioNetworkApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
@@ -392,7 +407,6 @@ func (app *commercioNetworkApp) initFromGenesisState(ctx sdk.Context, genesisSta
 	return validators
 }
 
-
 // load a particular height
 func (app *commercioNetworkApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keyMain)
@@ -421,7 +435,6 @@ func MakeCodec() *codec.Codec {
 
 	return cdc
 }
-
 
 // ______________________________________________________________________________________________
 

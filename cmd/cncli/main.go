@@ -49,7 +49,6 @@ import (
 	govClient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	slashingClient "github.com/cosmos/cosmos-sdk/x/slashing/client"
 	stakingClient "github.com/cosmos/cosmos-sdk/x/staking/client"
-
 	//_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
 )
 
@@ -71,16 +70,16 @@ func main() {
 
 	// Read in the configuration file for the sdk
 	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
+	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 	config.Seal()
 
 	// TODO: setup keybase, viper object, etc. to be passed into
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 
-	// Module clients hold cli commnads (tx,query) and lcd routes
+	// Module clients hold cli commands (tx,query) and lcd routes
 	// TODO: Make the lcd command take a list of ModuleClient
 	mc := []sdk.ModuleClients{
 		govClient.NewModuleClient(gv.StoreKey, cdc),
@@ -123,8 +122,6 @@ func main() {
 		version.VersionCmd,
 		client.NewCompletionCmd(rootCmd, true),
 	)
-
-	
 
 	// Add flags and prefix all env exposed with CN
 	executor := cli.PrepareMainCmd(rootCmd, "CN", defaultCLIHome)
@@ -193,7 +190,7 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 		client.LineBreak,
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
-		// RECHECK THIS POINT: not sure!!!! Marco
+		// TODO: RECHECK THIS POINT: not sure!!!! Marco
 		// tx.GetBroadcastCommand(cdc),
 		authcmd.GetBroadcastCommand(cdc),
 		//tx.GetEncodeCommand(cdc),
@@ -206,7 +203,6 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 
 	return txCmd
 }
-
 
 func initConfig(cmd *cobra.Command) error {
 	home, err := cmd.PersistentFlags().GetString(cli.HomeFlag)
