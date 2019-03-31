@@ -138,8 +138,8 @@ func shareDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		}
 
 		
-		//clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
-		clientrest.WriteGenerateStdTxResponse(w,cdc, cliCtx,baseReq,[]sdk.Msg{msg})
+		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		//clientrest.WriteGenerateStdTxResponse(w,cdc, cliCtx,baseReq,[]sdk.Msg{msg})
 	}
 }
 
