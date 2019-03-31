@@ -50,7 +50,11 @@
 
 [[override]]
   name = "github.com/tendermint/tendermint"
-  version = "v0.30.0-rc0"
+  version = "v0.30.2"
+
+[[constraint]]
+  name = "github.com/cosmos/ledger-cosmos-go"
+  version = "=v0.9.8"
 
 [[override]]
   name = "golang.org/x/crypto"
@@ -68,3 +72,6 @@
 [prune]
   go-tests = true
   unused-packages = true
+  [[prune.project]]
+      name = "github.com/zondax/hid"
+      unused-packages = false

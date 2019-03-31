@@ -59,7 +59,7 @@ func main() {
 	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 	config.Seal()
 
-	ctx := server.NewDefaultContext()
+	ctx := server.NewDefaultContext()	
 	rootCmd := &cobra.Command{
 		Use:               "cnd",
 		Short:             "Commercio.network app daemon (server)",

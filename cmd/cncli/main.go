@@ -188,12 +188,19 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 	txCmd.AddCommand(
 		bankcmd.SendTxCmd(cdc),
 		client.LineBreak,
-		authcmd.GetSignCommand(cdc),
+		authcmd.GetAccountCmd(storeAcc, cdc),
 		authcmd.GetMultiSignCommand(cdc),
-		// TODO: RECHECK THIS POINT: not sure!!!! Marco
-		// tx.GetBroadcastCommand(cdc),
 		authcmd.GetBroadcastCommand(cdc),
+
+
+		//authcmd.GetSignCommand(cdc),
+		//authcmd.GetMultiSignCommand(cdc),
+		//authcmd.GetBroadcastCommand(cdc),
+
+		// RECHECK THIS POINT: not sure!!!! Marco
+		// tx.GetBroadcastCommand(cdc),
 		//tx.GetEncodeCommand(cdc),
+		
 		client.LineBreak,
 	)
 

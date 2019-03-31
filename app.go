@@ -35,7 +35,7 @@ const (
 	DefaultKeyPass = "12345678"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
-	Bech32PrefixAccAddr = "commercio"
+	Bech32PrefixAccAddr = "comnet"
 
 	Bech32SuffixPub  = "pub"
 	Bech32SuffixVal  = "val"
@@ -52,6 +52,7 @@ const (
 	Bech32PrefixConsAddr = Bech32PrefixValAddr + Bech32SuffixVal + Bech32SuffixCons
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32PrefixConsAddr + Bech32SuffixPub
+	
 )
 
 // default home directories for expected binaries
@@ -144,6 +145,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		keyDOCSSharing:  sdk.NewKVStoreKey("docs_sharing"),
 		keyDOCSReaders:  sdk.NewKVStoreKey("docs_readers"),
 	}
+
 
 	// The ParamsKeeper handles parameter storage for the application
 	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams)
