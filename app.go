@@ -33,6 +33,26 @@ const (
 	appName = "Commercio.network"
 	// DefaultKeyPass contains the default key password for genesis transactions
 	DefaultKeyPass = "12345678"
+
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32PrefixAccAddr = "comnet"
+
+	Bech32SuffixPub  = "pub"
+	Bech32SuffixVal  = "val"
+	Bech32SuffixOper = "oper"
+	Bech32SuffixCons = "cons"
+
+	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
+	Bech32PrefixAccPub = Bech32PrefixAccAddr + Bech32SuffixPub
+	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
+	Bech32PrefixValAddr = Bech32PrefixAccAddr + Bech32SuffixVal + Bech32SuffixOper
+	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
+	Bech32PrefixValPub = Bech32PrefixValAddr + Bech32SuffixPub
+	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
+	Bech32PrefixConsAddr = Bech32PrefixValAddr + Bech32SuffixVal + Bech32SuffixCons
+	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
+	Bech32PrefixConsPub = Bech32PrefixConsAddr + Bech32SuffixPub
+	
 )
 
 // default home directories for expected binaries
@@ -127,6 +147,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		keyDOCSSharing:  sdk.NewKVStoreKey("docs_sharing"),
 		keyDOCSReaders:  sdk.NewKVStoreKey("docs_readers"),
 	}
+
 
 	// The ParamsKeeper handles parameter storage for the application
 	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams)

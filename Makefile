@@ -17,11 +17,11 @@ update_vendor_deps:
 	@dep ensure -v -update
 
 install:
-	go install ./cmd/cnd
-	go install ./cmd/cncli
+	go install -tags "ledger" ./cmd/cnd
+	go install -tags "ledger" ./cmd/cncli
 
 crossbuild_windows_linux:
 	set GOARCH=amd64
 	set GOOS=linux
-	go build -o "cnd" ./cmd/cnd/main.go
-	go build -o "cncli" ./cmd/cncli/main.go
+	go build -o "cnd" -tags "ledger" ./cmd/cnd/main.go
+	go build -o "cncli" -tags "ledger" ./cmd/cncli/main.go
