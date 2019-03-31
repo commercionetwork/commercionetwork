@@ -49,7 +49,6 @@ import (
 	govClient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	slashingClient "github.com/cosmos/cosmos-sdk/x/slashing/client"
 	stakingClient "github.com/cosmos/cosmos-sdk/x/staking/client"
-
 	//_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
 )
 
@@ -80,7 +79,7 @@ func main() {
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 
-	// Module clients hold cli commnads (tx,query) and lcd routes
+	// Module clients hold cli commands (tx,query) and lcd routes
 	// TODO: Make the lcd command take a list of ModuleClient
 	mc := []sdk.ModuleClients{
 		govClient.NewModuleClient(gv.StoreKey, cdc),
@@ -123,8 +122,6 @@ func main() {
 		version.VersionCmd,
 		client.NewCompletionCmd(rootCmd, true),
 	)
-
-	
 
 	// Add flags and prefix all env exposed with CN
 	executor := cli.PrepareMainCmd(rootCmd, "CN", defaultCLIHome)
@@ -213,7 +210,6 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 
 	return txCmd
 }
-
 
 func initConfig(cmd *cobra.Command) error {
 	home, err := cmd.PersistentFlags().GetString(cli.HomeFlag)

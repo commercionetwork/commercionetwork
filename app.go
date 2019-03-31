@@ -18,15 +18,15 @@ import (
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	abci "github.com/tendermint/tendermint/abci/types"
+	cmn "github.com/tendermint/tendermint/libs/common"
+	dbm "github.com/tendermint/tendermint/libs/db"
 )
 
 const (
@@ -90,8 +90,6 @@ type commercioNetworkApp struct {
 	distrKeeper         distr.Keeper
 	govKeeper           gov.Keeper
 	paramsKeeper        params.Keeper
-
-
 
 	// CommercioAUTH
 	commercioAuthKeeper commercioauth.Keeper
@@ -209,7 +207,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		NewStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
 
-
 	// The CommercioAUTH keeper handles interactions for the CommercioAUTH module
 	app.commercioAuthKeeper = commercioauth.NewKeeper(
 		app.accountKeeper,
@@ -257,7 +254,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.MountStores(app.keyMain, app.keyAccount, app.keyStaking, app.keyMint, app.keyDistr,
 		app.keySlashing, app.keyGov, app.keyFeeCollection, app.keyParams,
 		app.tkeyParams, app.tkeyStaking, app.tkeyDistr,
-		
+
 		// CommercioAUTH does not use any specific store as we base it on the auth module
 
 		// CommercioID
@@ -287,17 +284,17 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	return app
 }
 
-// GenesisState was moved in genesis.go file 
+// GenesisState was moved in genesis.go file
 
 // custom logic for gaia initialization
 func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
-	// TODO is this now the whole genesis file? <-- Comment from ufficial Gaia app 
+	// TODO is this now the whole genesis file? <-- Comment from ufficial Gaia app
 
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
-		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from ufficial Gaia app 
+		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from ufficial Gaia app
 		// return sdk.ErrGenesisParse("").TraceCause(err, "")
 	}
 
@@ -325,7 +322,6 @@ func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestIni
 		Validators: validators,
 	}
 }
-
 
 // application updates every end block
 func (app *commercioNetworkApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
@@ -413,7 +409,6 @@ func (app *commercioNetworkApp) initFromGenesisState(ctx sdk.Context, genesisSta
 	return validators
 }
 
-
 // load a particular height
 func (app *commercioNetworkApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keyMain)
@@ -442,7 +437,6 @@ func MakeCodec() *codec.Codec {
 
 	return cdc
 }
-
 
 // ______________________________________________________________________________________________
 
