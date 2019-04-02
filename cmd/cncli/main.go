@@ -191,16 +191,14 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 		authcmd.GetAccountCmd(storeAcc, cdc),
 		authcmd.GetMultiSignCommand(cdc),
 		authcmd.GetBroadcastCommand(cdc),
-
-
-		//authcmd.GetSignCommand(cdc),
+		authcmd.GetSignCommand(cdc),
 		//authcmd.GetMultiSignCommand(cdc),
 		//authcmd.GetBroadcastCommand(cdc),
 
 		// RECHECK THIS POINT: not sure!!!! Marco
 		// tx.GetBroadcastCommand(cdc),
 		//tx.GetEncodeCommand(cdc),
-		
+
 		client.LineBreak,
 	)
 
