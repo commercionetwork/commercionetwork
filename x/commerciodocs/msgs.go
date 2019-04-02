@@ -6,17 +6,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const Route = "commerciodocs"
+const RouterKey = "commerciodocs"
 
 // ----------------------------------
 // --- StoreDocument
 // ----------------------------------
 
 type MsgStoreDocument struct {
-	Owner     sdk.AccAddress
-	Identity  types.Did
-	Reference string
-	Metadata  string
+	Owner     sdk.AccAddress `json:"owner"`
+	Identity  types.Did      `json:"identity"`
+	Reference string         `json:"reference"`
+	Metadata  string         `json:"metadata"`
 }
 
 func NewMsgStoreDocument(owner sdk.AccAddress, identity types.Did, reference string, metadata string) MsgStoreDocument {
@@ -28,8 +28,8 @@ func NewMsgStoreDocument(owner sdk.AccAddress, identity types.Did, reference str
 	}
 }
 
-// Route Implements Msg.
-func (msg MsgStoreDocument) Route() string { return Route }
+// RouterKey Implements Msg.
+func (msg MsgStoreDocument) Route() string { return RouterKey }
 
 // Type Implements Msg.
 func (msg MsgStoreDocument) Type() string { return "store_document" }
@@ -47,11 +47,7 @@ func (msg MsgStoreDocument) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgStoreDocument) GetSignBytes() []byte {
-	b, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(b)
+	return sdk.MustSortJSON(msgCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
@@ -79,8 +75,8 @@ func NewMsgShareDocument(owner sdk.AccAddress, reference string, sender types.Di
 	}
 }
 
-// Route Implements Msg.
-func (msg MsgShareDocument) Route() string { return Route }
+// RouterKey Implements Msg.
+func (msg MsgShareDocument) Route() string { return RouterKey }
 
 // Type Implements Msg.
 func (msg MsgShareDocument) Type() string { return "share_document" }

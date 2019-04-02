@@ -6,14 +6,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// RouterKey is they name of the CommercioID module
+const RouterKey = "commercioid"
+
 // ----------------------------------
 // --- SetIdentity
 // ----------------------------------
 
 type MsgSetIdentity struct {
-	DID          types.Did
-	DDOReference string
-	Owner        sdk.AccAddress
+	DID          types.Did      `json:"did"`
+	DDOReference string         `json:"ddo_reference"`
+	Owner        sdk.AccAddress `json:"owner"`
 }
 
 func NewMsgSetIdentity(did types.Did, ddoReference string, owner sdk.AccAddress) MsgSetIdentity {
@@ -25,7 +28,7 @@ func NewMsgSetIdentity(did types.Did, ddoReference string, owner sdk.AccAddress)
 }
 
 // Route Implements Msg.
-func (msg MsgSetIdentity) Route() string { return "commercioid" }
+func (msg MsgSetIdentity) Route() string { return RouterKey }
 
 // Type Implements Msg.
 func (msg MsgSetIdentity) Type() string { return "set_identity" }
@@ -43,11 +46,7 @@ func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgSetIdentity) GetSignBytes() []byte {
-	b, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(b)
+	return sdk.MustSortJSON(msgCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
@@ -74,7 +73,7 @@ func NewMsgCreateConnection(firstUser types.Did, secondUser types.Did, signer sd
 }
 
 // Route Implements Msg.
-func (msg MsgCreateConnection) Route() string { return "commercioid" }
+func (msg MsgCreateConnection) Route() string { return RouterKey }
 
 // Type Implements Msg.
 func (msg MsgCreateConnection) Type() string { return "create_connection" }

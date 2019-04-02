@@ -16,3 +16,5 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgSetIdentity{}, "commercioid/SetIdentity", nil)
 	cdc.RegisterConcrete(MsgCreateConnection{}, "commectioid/CreateConnection", nil)
 }
+
+var msgCdc = codec.New()

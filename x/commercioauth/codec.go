@@ -8,3 +8,5 @@ import (
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgCreateAccount{}, "commercioauth/CreateAccount", nil)
 }
+
+var msgCdc = codec.New()

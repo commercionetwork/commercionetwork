@@ -43,7 +43,7 @@ cncli help
 ## Running the live network
 ```bash
 # Initialize configuration files and genesis file
-cnd init --chain-id testchain --moniker testchain
+cnd init testchain
 
 # Copy the `Address` output here and save it for later use
 cncli keys add jack
@@ -54,6 +54,12 @@ cncli keys add alice
 # Add both accounts, with coins to the genesis file
 cnd add-genesis-account $(cncli keys show jack --address) 1000mycoin,1000jackCoin
 cnd add-genesis-account $(cncli keys show alice --address) 1000mycoin,1000aliceCoin
+
+# Create the genesis transaction signing it with the jack private key
+cnd gentx --name jack
+
+# Collect all the genesis transactions
+cnd collect-gentxs
 ```
 
 Now, you can start using the commands to interact with the network.
@@ -102,10 +108,10 @@ cncli query commercioauth account 0b13c55fc6c3496796258d8637330ff7e269cac8 \
 Create an identity specifying the DID and the DDO reference.  
 The first parameter is the DID, the second is the DDO reference.
 ```bash
-cncli tx commercioid upsert-identity \
+cncli tx commercioid upsert-identity 
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     QmWCnEEqSaBcKtKLUurzi2Zs9LAPxJkpzE8as21fvmeXrj \
-    --from $(cncli keys show jack --address) \
+    --from comnet10g3qpnqclduzepn7eds322mrkfuehj7djpyj5r \
     --chain-id testchain
 ```
 

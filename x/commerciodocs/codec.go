@@ -9,3 +9,5 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgStoreDocument{}, "commerciodocs/StoreDocument", nil)
 	cdc.RegisterConcrete(MsgShareDocument{}, "commerciodocs/ShareDocument", nil)
 }
+
+var msgCdc = codec.New()

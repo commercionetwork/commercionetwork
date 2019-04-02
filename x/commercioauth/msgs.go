@@ -1,21 +1,20 @@
 package commercioauth
 
 import (
-	"encoding/json"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const Route = "commercioauth"
+const RouterKey = "commercioauth"
 
 // ----------------------------------
 // --- CreateAccount
 // ----------------------------------
 
 type MsgCreateAccount struct {
-	Signer   sdk.AccAddress
-	Address  string
-	KeyType  string
-	KeyValue string
+	Signer   sdk.AccAddress `json:"signer"`
+	Address  string         `json:"address"`
+	KeyType  string         `json:"key_type"`
+	KeyValue string         `json:"key_value"`
 }
 
 func NewMsgCreateAccount(signer sdk.AccAddress, address string, keyType string, keyValue string) MsgCreateAccount {
@@ -27,8 +26,8 @@ func NewMsgCreateAccount(signer sdk.AccAddress, address string, keyType string, 
 	}
 }
 
-// Route Implements Msg.
-func (msg MsgCreateAccount) Route() string { return Route }
+// RouterKey Implements Msg.
+func (msg MsgCreateAccount) Route() string { return RouterKey }
 
 // Type Implements Msg.
 func (msg MsgCreateAccount) Type() string { return "create_account" }
@@ -46,11 +45,7 @@ func (msg MsgCreateAccount) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgCreateAccount) GetSignBytes() []byte {
-	b, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(b)
+	return sdk.MustSortJSON(msgCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
