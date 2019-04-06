@@ -52,8 +52,8 @@ cncli keys add jack
 cncli keys add alice
 
 # Add both accounts, with coins to the genesis file
-cnd add-genesis-account $(cncli keys show jack --address) 1000mycoin,1000jackCoin
-cnd add-genesis-account $(cncli keys show alice --address) 1000mycoin,1000aliceCoin
+cnd add-genesis-account $(cncli keys show jack --address) 100000000stake,1000jackcoin
+cnd add-genesis-account $(cncli keys show alice --address) 100000000stake,1000alicecoin
 
 # Create the genesis transaction signing it with the jack private key
 cnd gentx --name jack
@@ -108,7 +108,7 @@ cncli query commercioauth account 0b13c55fc6c3496796258d8637330ff7e269cac8 \
 Create an identity specifying the DID and the DDO reference.  
 The first parameter is the DID, the second is the DDO reference.
 ```bash
-cncli tx commercioid upsert-identity 
+cncli tx commercioid upsert-identity \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     QmWCnEEqSaBcKtKLUurzi2Zs9LAPxJkpzE8as21fvmeXrj \
     --from comnet10g3qpnqclduzepn7eds322mrkfuehj7djpyj5r \
@@ -213,7 +213,7 @@ cncli rest-server --chain-id testchain --trust-node --laddr=tcp://0.0.0.0:1317
 
 Now, with the previously output address, run the following in other terminal shell:
 ```bash
-curl -s -k https://localhost:1317/auth/accounts/${address}
+curl -s https://localhost:1317/auth/accounts/${address}
 ```
 
 Example:
