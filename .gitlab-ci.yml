@@ -44,7 +44,8 @@ build:
     - cd $GOPATH/src/commercio-network
 
   script:
-    - make build
+    - go build -o ${PACKAGE_PATH}/cnd ./cmd/cnd
+    - go build -o ${PACKAGE_PATH}/cncli ./cmd/cncli
 
   artifacts:
     paths:
