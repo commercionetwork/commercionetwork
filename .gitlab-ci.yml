@@ -1,4 +1,4 @@
-image: codyoss/go-dep
+image: golang
 
 variables:
   PACKAGE_PATH: /go/src/commercio-network
@@ -17,7 +17,7 @@ stages:
 dep:
   stage: dep
   before_script:
-    # - apk add --no-cache curl git dep
+    - apt-get install go-dep
     - *inject-gopath
   script:
     - dep ensure -v -vendor-only
@@ -40,7 +40,7 @@ build:
   stage: build
 
   before_script:
-    - apk add build-base
+    - apt-get install build-essential
     - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
     - cd $GOPATH/src/commercio-network
 
