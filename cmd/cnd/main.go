@@ -4,6 +4,7 @@ import (
 	"commercio-network"
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
@@ -55,24 +56,29 @@ func main() {
 
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 	config.Seal()
 
-	ctx := server.NewDefaultContext()	
+	ctx := server.NewDefaultContext()
 	rootCmd := &cobra.Command{
 		Use:               "cnd",
 		Short:             "Commercio.network app daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 
-	rootCmd.AddCommand(InitCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.CollectGenTxsCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.TestnetFilesCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.GenTxCmd(ctx, cdc))
-	rootCmd.AddCommand(AddGenesisAccountCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.ValidateGenesisCmd(ctx, cdc))
-	rootCmd.AddCommand(client.NewCompletionCmd(rootCmd, true))
+	// Set the app version
+	version.Version = app.Version
+
+	// Build root command
+	rootCmd.AddCommand(
+		InitCmd(ctx, cdc),
+		cnInit.CollectGenTxsCmd(ctx, cdc),
+		cnInit.TestnetFilesCmd(ctx, cdc),
+		cnInit.GenTxCmd(ctx, cdc),
+		AddGenesisAccountCmd(ctx, cdc),
+		cnInit.ValidateGenesisCmd(ctx, cdc),
+		client.NewCompletionCmd(rootCmd, true),
+		version.VersionCmd,
+	)
 
 	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)
 

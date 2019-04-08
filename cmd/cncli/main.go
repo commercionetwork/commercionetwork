@@ -71,8 +71,6 @@ func main() {
 	// Read in the configuration file for the sdk
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 	config.Seal()
 
 	// TODO: setup keybase, viper object, etc. to be passed into
@@ -108,7 +106,10 @@ func main() {
 		return initConfig(rootCmd)
 	}
 
-	// Construct Root Command
+	// Set the app version
+	version.Version = app.Version
+
+	// Build root command
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		client.ConfigCmd(defaultCLIHome),
