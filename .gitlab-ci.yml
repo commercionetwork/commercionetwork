@@ -46,8 +46,8 @@ build:
     - cd $GOPATH/src/commercio-network
 
   script:
-    - go build -o "cnd" -tags "ledger" ./cmd/cnd/main.go
-    - go build -o "cncli" -tags "ledger" ./cmd/cncli/main.go
+    - go build -o $CI_PROJECT_DIR/cnd -tags "ledger" ./cmd/cnd/main.go
+    - go build -o $CI_PROJECT_DIR/cncli -tags "ledger" ./cmd/cncli/main.go
 
   artifacts:
     paths:
