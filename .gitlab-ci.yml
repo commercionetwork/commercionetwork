@@ -45,9 +45,8 @@ build:
 
   script:
     - make build
-    - mv ${PACKAGE_PATH}/cnd ./linux
-    - mv ${PACKAGE_PATH}/cncli ./linux
 
   artifacts:
     paths:
-      - ./linux
+      - mv ${PACKAGE_PATH}/cnd
+      - mv ${PACKAGE_PATH}/cncli
