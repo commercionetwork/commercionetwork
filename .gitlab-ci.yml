@@ -5,7 +5,6 @@ variables:
 
 stages:
   - dep
-  - test
   - build
 
 # A hack to make Golang-in-Gitlab happy
