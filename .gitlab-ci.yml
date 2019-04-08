@@ -44,7 +44,13 @@ build:
     - cd $GOPATH/src/commercio-network
 
   script:
+    - make crossbuild_windows_linux
     - make install
-    - mv $GOBIN/*.exe ./windows/
+    - mv $GOBIN/**/*.exe ./windows
     - mv $GOBIN/cnd ./linux
     - mv $GOBIN/cncli ./linux
+
+  artifacts:
+    paths:
+      - ./linux
+      - ./windows
