@@ -27,14 +27,14 @@ dep:
       - vendor/
     expire_in: 1 hour
 
-test:
-  stage: test
-  dependencies:
-    - dep
-  before_script:
-    - *inject-gopath
-  script:
-    - go test ./...
+#test:
+#  stage: test
+#  dependencies:
+#    - dep
+#  before_script:
+#    - *inject-gopath
+#  script:
+#    - go test ./...
 
 build:
   stage: build
