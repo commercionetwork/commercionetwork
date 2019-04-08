@@ -17,7 +17,7 @@ stages:
 dep:
   stage: dep
   before_script:
-    - apt-get install go-dep
+    - go get github.com/golang/dep/cmd/dep
     - *inject-gopath
   script:
     - dep ensure -v -vendor-only
