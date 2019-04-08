@@ -40,7 +40,8 @@ build:
   stage: build
 
   before_script:
-    - apt-get install build-essential
+    - ap-get update
+    - apt-get install gcc
     - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
     - cd $GOPATH/src/commercio-network
 
