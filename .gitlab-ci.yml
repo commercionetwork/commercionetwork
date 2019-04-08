@@ -38,6 +38,11 @@ dep:
 
 build:
   stage: build
+
+  before_script:
+    - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
+    - cd $GOPATH/src/commercio-network
+
   script:
     - make install
     - mv $GOBIN/*.exe ./windows/
