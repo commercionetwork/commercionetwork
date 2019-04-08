@@ -44,10 +44,9 @@ build:
     - cd $GOPATH/src/commercio-network
 
   script:
-    - go build -o ${PACKAGE_PATH}/cnd ./cmd/cnd
-    - go build -o ${PACKAGE_PATH}/cncli ./cmd/cncli
+    - make install
 
   artifacts:
     paths:
-      - ${PACKAGE_PATH}/cnd
-      - ${PACKAGE_PATH}/cncli
+      - /go/bin/cnd
+      - /go/bin/cncli
