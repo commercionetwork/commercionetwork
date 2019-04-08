@@ -44,9 +44,9 @@ build:
     - cd $GOPATH/src/commercio-network
 
   script:
-    - make install
-    - mv $GOBIN/cnd ./linux
-    - mv $GOBIN/cncli ./linux
+    - make build
+    - mv ${PACKAGE_PATH}/cnd ./linux
+    - mv ${PACKAGE_PATH}/cncli ./linux
 
   artifacts:
     paths:

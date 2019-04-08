@@ -16,6 +16,10 @@ update_vendor_deps:
 	@echo "--> Running dep ensure"
 	@dep ensure -v -update
 
+build:
+	go build ./cmd/cncli
+	go build ./cmd/cnd
+
 install:
 	go install ./cmd/cnd
 	go install ./cmd/cncli
