@@ -55,11 +55,9 @@ func main() {
 
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 	config.Seal()
 
-	ctx := server.NewDefaultContext()	
+	ctx := server.NewDefaultContext()
 	rootCmd := &cobra.Command{
 		Use:               "cnd",
 		Short:             "Commercio.network app daemon (server)",
