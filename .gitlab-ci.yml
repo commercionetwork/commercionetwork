@@ -28,7 +28,7 @@ dep:
     expire_in: 1 hour
 
 #test:
-#  stage: test
+#  stage: testK
 #  dependencies:
 #    - dep
 #  before_script:
@@ -40,8 +40,8 @@ build:
   stage: build
 
   before_script:
-    - ap-get update
-    - apt-get install gcc
+    - apt-get update
+    - apt-get install gcc-6
     - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
     - cd $GOPATH/src/commercio-network
 
