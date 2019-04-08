@@ -49,5 +49,5 @@ build:
 
   artifacts:
     paths:
-      - mv ${PACKAGE_PATH}/cnd
-      - mv ${PACKAGE_PATH}/cncli
+      - ${PACKAGE_PATH}/cnd
+      - ${PACKAGE_PATH}/cncli
