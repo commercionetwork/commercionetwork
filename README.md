@@ -104,23 +104,20 @@ cncli tx commercioauth register \
     0b13c55fc6c3496796258d8637330ff7e269cac8 \
     Ed25519 \
     917325912fbdbe78a5d6c92678d1d89f09a89c0ca35a856688a13f6e7ef5e951 \
-    --from $(cncli keys show jack --address) \
-    --chain-id testchain
+    --from $(cncli keys show jack --address)
 ```
 
 #### Reading the accounts' details
 ##### Read all the accounts
 List all the registered accounts
 ```bash
-cncli query commercioauth account list \
-    --chain-id testchain
+cncli query commercioauth account list
 ```
 
 ##### Read the details of a specific account
 Retrieve the details of an account based on his address expressed as an hex value **without** the `0x` prefix
 ```bash
-cncli query commercioauth account 0b13c55fc6c3496796258d8637330ff7e269cac8 \
-    --chain-id testchain
+cncli query commercioauth account 0b13c55fc6c3496796258d8637330ff7e269cac8
 ```
 
 ### CommercioID
@@ -132,16 +129,14 @@ The first parameter is the DID, the second is the DDO reference.
 cncli tx commercioid upsert-identity \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     QmWCnEEqSaBcKtKLUurzi2Zs9LAPxJkpzE8as21fvmeXrj \
-    --from comnet10g3qpnqclduzepn7eds322mrkfuehj7djpyj5r \
-    --chain-id testchain
+    --from $(cncli keys show jack --address)
 ```
 
 ##### Resolving an identity
 Read the identity details by its DID.
 ```bash
 cncli query commercioid resolve \
-    0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
-    --indent --chain-id=testchain
+    0xa971c43e6c26c01e744a57db57cf9982b2e195ba
 ``` 
 
 #### Managing a connection
@@ -152,8 +147,7 @@ The first parameter is the first DID, the second parameter is the second DID.
 cncli tx commercioid create-connection \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     0x9f2ae6af2545076e7a55816dd4f8e45b650b07f0 \
-    --from $(cncli keys show jack --address) \
-    --chain-id testchain
+    --from $(cncli keys show jack --address)
 ```
 
 ##### Reading all the connections of a user
@@ -161,8 +155,7 @@ List all the connections that a user has established.
 The required parameter is the DID for which to retrieve the connections
 ```bash
 cncli query commercioid connections \
-    0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
-    --indent --chain-id=testchain
+    0xa971c43e6c26c01e744a57db57cf9982b2e195ba
 ```
 
 ### CommercioDOCS
@@ -179,16 +172,14 @@ cncli tx commerciodocs store \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
     QmRCxjZrUQ29aYNcrmdtnzDeB1GAf56tpdwpymgZhf2ifp \
-    --from $(cncli keys show jack --address) \
-    --chain-id testchain
+    --from $(cncli keys show jack --address)
 ```
 
 ##### Read the metadata of a document
 Retrieve the metadata of a document by its reference.
 ```bash
 cncli query commerciodocs metadata \
-    QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
-    --indent --chain-id=testchain
+    QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n
 ```
 
 #### Sharing a document
@@ -204,8 +195,7 @@ cncli tx commerciodocs share \
     QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
     0xa971c43e6c26c01e744a57db57cf9982b2e195ba \
     0x9f2ae6af2545076e7a55816dd4f8e45b650b07f0 \
-    --from $(cncli keys show jack --address) \
-    --chain-id testchain
+    --from $(cncli keys show jack --address)
 ```
 
 ##### Read the authorized users
@@ -215,8 +205,7 @@ The only parameter required is the reference of the document.
 
 ```bash
 cncli query commerciodocs readers \
-    QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n \
-    --indent --chain-id=testchain
+    QmPMcMY6VAkLfDVZwrGYE48bFRbEovAHkRiJ7t7Lp7qD3n
 ```
 
 
@@ -229,7 +218,7 @@ cncli keys show jack --address
 
 Now, start the REST server by running
 ```bash
-cncli rest-server --chain-id testchain --trust-node --laddr=tcp://0.0.0.0:1317
+cncli rest-server --laddr=tcp://0.0.0.0:1317
 ```
 
 Now, with the previously output address, run the following in other terminal shell:
