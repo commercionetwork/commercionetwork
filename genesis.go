@@ -210,9 +210,29 @@ func NewDefaultGenesisState() GenesisState {
 		StakingData:  staking.DefaultGenesisState(),
 		MintData:     mint.DefaultGenesisState(),
 		DistrData:    distr.DefaultGenesisState(),
-		GovData:      gov.DefaultGenesisState(),
+		GovData:      DefaultGovGenesisState(),
 		SlashingData: slashing.DefaultGenesisState(),
 		GenTxs:       nil,
+	}
+}
+
+// DefaultGovGenesisState creates the default governance module state that will be created during the genesis
+func DefaultGovGenesisState() gov.GenesisState {
+	return gov.GenesisState{
+		StartingProposalID: 1,
+		DepositParams: gov.DepositParams{
+			MinDeposit:       sdk.Coins{sdk.NewCoin("comnetstaketoken", sdk.NewInt(50000))},
+			MaxDepositPeriod: gov.DefaultPeriod,
+		},
+		VotingParams: gov.VotingParams{
+			VotingPeriod: gov.DefaultPeriod,
+		},
+		TallyParams: gov.TallyParams{
+			Quorum:            sdk.NewDecWithPrec(334, 3),
+			Threshold:         sdk.NewDecWithPrec(5, 1),
+			Veto:              sdk.NewDecWithPrec(334, 3),
+			GovernancePenalty: sdk.NewDecWithPrec(1, 2),
+		},
 	}
 }
 

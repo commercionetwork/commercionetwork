@@ -52,7 +52,6 @@ const (
 	Bech32PrefixConsAddr = Bech32PrefixValAddr + Bech32SuffixVal + Bech32SuffixCons
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32PrefixConsAddr + Bech32SuffixPub
-	
 )
 
 // default home directories for expected binaries
@@ -146,7 +145,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		keyDOCSReaders:  sdk.NewKVStoreKey("docs_readers"),
 	}
 
-
 	// The ParamsKeeper handles parameter storage for the application
 	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams)
 
@@ -184,19 +182,25 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		app.cdc,
 		app.keyDistr,
 		app.paramsKeeper.Subspace(distr.DefaultParamspace),
-		app.bankKeeper, &stakingKeeper, app.feeCollectionKeeper,
+		app.bankKeeper,
+		&stakingKeeper,
+		app.feeCollectionKeeper,
 		distr.DefaultCodespace,
 	)
 	app.slashingKeeper = slashing.NewKeeper(
 		app.cdc,
 		app.keySlashing,
-		&stakingKeeper, app.paramsKeeper.Subspace(slashing.DefaultParamspace),
+		&stakingKeeper,
+		app.paramsKeeper.Subspace(slashing.DefaultParamspace),
 		slashing.DefaultCodespace,
 	)
 	app.govKeeper = gov.NewKeeper(
 		app.cdc,
 		app.keyGov,
-		app.paramsKeeper, app.paramsKeeper.Subspace(gov.DefaultParamspace), app.bankKeeper, &stakingKeeper,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(gov.DefaultParamspace),
+		app.bankKeeper,
+		&stakingKeeper,
 		gov.DefaultCodespace,
 	)
 
@@ -284,17 +288,15 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	return app
 }
 
-// GenesisState was moved in genesis.go file
-
-// custom logic for gaia initialization
+// custom logic for Gaia initialization
 func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
-	// TODO is this now the whole genesis file? <-- Comment from ufficial Gaia app
+	// TODO is this now the whole genesis file? <-- Comment from official Gaia app
 
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
-		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from ufficial Gaia app
+		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from official Gaia app
 		// return sdk.ErrGenesisParse("").TraceCause(err, "")
 	}
 
