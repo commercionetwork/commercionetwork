@@ -40,6 +40,7 @@ build:
   stage: build
 
   before_script:
+    - apk add build-base
     - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
     - cd $GOPATH/src/commercio-network
 
