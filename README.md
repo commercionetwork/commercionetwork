@@ -62,6 +62,27 @@ cnd gentx --name jack
 cnd collect-gentxs
 ```
 
+Once you've done this, you are ready to start using the Command Line Interface (CLI) to interact with the blockchain.  
+However, to make things easier, you should follow the following steps in order to set some useful default 
+configurations.
+
+```bash
+# 1. Set the proper CLI output format and indentation
+cncli config output json
+cncli config indent true
+
+# 2. Tell the CLI we are running on a trusted node
+cncli config trust-node true
+
+# 3. Set the default chain id
+# First of all, read the generated chain id value
+cat ~/.cnd/config/genesis.json
+
+# Copy the value of the `chain_id` field, then execute the following
+cnd config chain-id <CHAIN-ID>
+# Example: cnd config chain-id test-chain-RKFXWR
+``` 
+
 Now, you can start using the commands to interact with the network.
 
 ## Using the Command Line Interface
