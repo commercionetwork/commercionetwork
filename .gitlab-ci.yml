@@ -1,4 +1,4 @@
-image: instrumentisto/dep
+image: codyoss/go-dep
 
 variables:
   PACKAGE_PATH: /go/src/commercio-network
