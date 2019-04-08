@@ -1,23 +1,55 @@
-image: golang:1.9
+image: golang
 
-cache:
-  paths:
-    - /apt-cache
-    - /go/src/github.com
-    - /go/src/golang.org
-    - /go/src/google.golang.org
-    - /go/src/gopkg.in
+variables:
+  PACKAGE_PATH: /go/src/commercio-network
 
-before_script:
-  - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
-  - cd $GOPATH/src/commercio-network
-  - make get_tools
-  - make get_vendor_deps
+stages:
+  - dep
+  - build
+
+# A hack to make Golang-in-Gitlab happy
+.anchors:
+  - &inject-gopath
+      mkdir -p $(dirname ${PACKAGE_PATH})
+      && ln -s ${CI_PROJECT_DIR} ${PACKAGE_PATH}
+      && cd ${PACKAGE_PATH}
+
+dep:
+  stage: dep
+  before_script:
+    - go get github.com/golang/dep/cmd/dep
+    - *inject-gopath
+  script:
+    - dep ensure -v -vendor-only
+  artifacts:
+    name: "vendor-$CI_PIPELINE_ID"
+    paths:
+      - vendor/
+    expire_in: 1 hour
+
+#test:
+#  stage: testK
+#  dependencies:
+#    - dep
+#  before_script:
+#    - *inject-gopath
+#  script:
+#    - go test ./...
 
 build:
   stage: build
+
+  before_script:
+    - apt-get update
+    - apt-get install gcc-6
+    - cp -r $CI_PROJECT_DIR $GOPATH/src/commercio-network
+    - cd $GOPATH/src/commercio-network
+
   script:
-    - make install
-    - mv $GOBIN/*.exe ./windows/
-    - mv $GOBIN/cnd ./linux
-    - mv $GOBIN/cncli ./linux
+    - go build -o $CI_PROJECT_DIR/cnd -tags "ledger" ./cmd/cnd/main.go
+    - go build -o $CI_PROJECT_DIR/cncli -tags "ledger" ./cmd/cncli/main.go
+
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/cnd
+      - $CI_PROJECT_DIR/cncli
