@@ -31,6 +31,8 @@ import (
 
 const (
 	appName = "Commercio.network"
+	Version = "0.32.0"
+
 	// DefaultKeyPass contains the default key password for genesis transactions
 	DefaultKeyPass = "12345678"
 

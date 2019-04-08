@@ -4,6 +4,7 @@ import (
 	"commercio-network"
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
@@ -64,13 +65,20 @@ func main() {
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 
-	rootCmd.AddCommand(InitCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.CollectGenTxsCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.TestnetFilesCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.GenTxCmd(ctx, cdc))
-	rootCmd.AddCommand(AddGenesisAccountCmd(ctx, cdc))
-	rootCmd.AddCommand(cnInit.ValidateGenesisCmd(ctx, cdc))
-	rootCmd.AddCommand(client.NewCompletionCmd(rootCmd, true))
+	// Set the app version
+	version.Version = app.Version
+
+	// Build root command
+	rootCmd.AddCommand(
+		InitCmd(ctx, cdc),
+		cnInit.CollectGenTxsCmd(ctx, cdc),
+		cnInit.TestnetFilesCmd(ctx, cdc),
+		cnInit.GenTxCmd(ctx, cdc),
+		AddGenesisAccountCmd(ctx, cdc),
+		cnInit.ValidateGenesisCmd(ctx, cdc),
+		client.NewCompletionCmd(rootCmd, true),
+		version.VersionCmd,
+	)
 
 	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)
 
