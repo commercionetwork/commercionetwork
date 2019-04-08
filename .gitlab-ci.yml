@@ -1,4 +1,4 @@
-image: golang:1.10-alpine3.7
+image: instrumentisto/dep
 
 variables:
   PACKAGE_PATH: /go/src/commercio-network
@@ -18,7 +18,7 @@ stages:
 dep:
   stage: dep
   before_script:
-    - apk add --no-cache curl git dep
+    # - apk add --no-cache curl git dep
     - *inject-gopath
   script:
     - dep ensure -v -vendor-only
