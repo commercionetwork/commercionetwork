@@ -79,7 +79,7 @@ cncli config trust-node true
 cat ~/.cnd/config/genesis.json
 
 # Copy the value of the `chain_id` field, then execute the following
-cnd config chain-id <CHAIN-ID>
+cncli config chain-id <CHAIN-ID>
 # Example: cnd config chain-id test-chain-RKFXWR
 ``` 
 
