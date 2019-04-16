@@ -136,6 +136,7 @@ func main() {
 
 // registerRoutes registers the routes from the different modules for the LCD.
 func registerRoutes(rs *lcd.RestServer) {
+	//rs.CliCtx = rs.CliCtx.WithAccountDecoder(rs.Cdc)
 	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
 	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
@@ -190,9 +191,9 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 		client.LineBreak,
 		authcmd.GetAccountCmd(storeAcc, cdc),
 		authcmd.GetMultiSignCommand(cdc),
-		authcmd.GetBroadcastCommand(cdc),
+		tx.GetBroadcastCommand(cdc),
 		authcmd.GetSignCommand(cdc),
-		//authcmd.GetMultiSignCommand(cdc),
+		//tx.GetBroadcastCommand(cdc),
 		//authcmd.GetBroadcastCommand(cdc),
 
 		// RECHECK THIS POINT: not sure!!!! Marco

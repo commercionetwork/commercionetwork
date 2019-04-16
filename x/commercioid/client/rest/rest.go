@@ -69,7 +69,8 @@ func upsertIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			return
 		}
 
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		//clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, baseReq, []sdk.Msg{msg})
 	}
 }
 
@@ -111,8 +112,8 @@ func createConnectionHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 			return
 		}
 
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
-		//clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, baseReq,[]sdk.Msg{msg})
+		//clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, baseReq,[]sdk.Msg{msg})
 	}
 }
 

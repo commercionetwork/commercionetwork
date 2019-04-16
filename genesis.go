@@ -23,12 +23,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	stktype "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 var (
 	// bonded tokens given to genesis validators/accounts
 	freeTokensPerAcc = sdk.TokensFromTendermintPower(150)
-	defaultBondDenom = sdk.DefaultBondDenom
+	//defaultBondDenom = sdk.DefaultBondDenom
+	defaultBondDenom = "comnetstaketoken"
 )
 
 // GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
@@ -207,12 +209,38 @@ func NewDefaultGenesisState() GenesisState {
 		Accounts:     nil,
 		AuthData:     auth.DefaultGenesisState(),
 		BankData:     bank.DefaultGenesisState(),
-		StakingData:  staking.DefaultGenesisState(),
-		MintData:     mint.DefaultGenesisState(),
+		StakingData:  defaultStakingGenesisState(),
+		MintData:     defaultMintGenesisState(),
 		DistrData:    distr.DefaultGenesisState(),
 		GovData:      defaultGovGenesisState(),
 		SlashingData: slashing.DefaultGenesisState(),
 		GenTxs:       nil,
+	}
+}
+
+func defaultMintGenesisState() mint.GenesisState {
+	return mint.GenesisState{
+		Minter: mint.DefaultInitialMinter(),
+		Params: mint.Params{
+			MintDenom:           StakeTokenName,
+			InflationRateChange: sdk.NewDecWithPrec(13, 2),
+			InflationMax:        sdk.NewDecWithPrec(20, 2),
+			InflationMin:        sdk.NewDecWithPrec(7, 2),
+			GoalBonded:          sdk.NewDecWithPrec(67, 2),
+			BlocksPerYear:       uint64(60 * 60 * 8766 / 5), // assuming 5 second block times
+		},
+	}
+}
+
+func defaultStakingGenesisState() staking.GenesisState {
+	return staking.GenesisState{
+		Pool: staking.InitialPool(),
+		Params: staking.Params{
+			UnbondingTime: stktype.DefaultUnbondingTime,
+			MaxValidators: stktype.DefaultMaxValidators,
+			MaxEntries:    stktype.DefaultMaxEntries,
+			BondDenom:     StakeTokenName,
+		},
 	}
 }
 
@@ -222,17 +250,16 @@ func defaultGovGenesisState() gov.GenesisState {
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.Coins{sdk.NewCoin("ucommercio", minDepositTokens)},
+			MinDeposit:       sdk.Coins{sdk.NewCoin(StakeTokenName, minDepositTokens)},
 			MaxDepositPeriod: gov.DefaultPeriod,
 		},
 		VotingParams: gov.VotingParams{
 			VotingPeriod: gov.DefaultPeriod,
 		},
 		TallyParams: gov.TallyParams{
-			Quorum:            sdk.NewDecWithPrec(334, 3),
-			Threshold:         sdk.NewDecWithPrec(5, 1),
-			Veto:              sdk.NewDecWithPrec(334, 3),
-			GovernancePenalty: sdk.NewDecWithPrec(1, 2),
+			Quorum:    sdk.NewDecWithPrec(334, 3),
+			Threshold: sdk.NewDecWithPrec(5, 1),
+			Veto:      sdk.NewDecWithPrec(334, 3),
 		},
 	}
 }
@@ -382,8 +409,8 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 
 		msg := msgs[0].(staking.MsgCreateValidator)
 		// validate delegator and validator addresses and funds against the accounts in the state
-		delAddr := msg.DelegatorAddr.String()
-		valAddr := sdk.AccAddress(msg.ValidatorAddr).String()
+		delAddr := msg.DelegatorAddress.String()
+		valAddr := sdk.AccAddress(msg.ValidatorAddress).String()
 
 		delAcc, delOk := addrMap[delAddr]
 		_, valOk := addrMap[valAddr]
