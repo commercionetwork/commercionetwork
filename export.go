@@ -89,7 +89,7 @@ func (app *commercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWh
 	// withdraw all delegator rewards
 	dels := app.stakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		_ = app.distrKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddr, delegation.ValidatorAddr)
+		_ = app.distrKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
 	}
 
 	// clear validator slash events
@@ -110,7 +110,7 @@ func (app *commercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWh
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		app.distrKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddr, del.ValidatorAddr)
+		app.distrKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddress, del.ValidatorAddress)
 	}
 
 	// reset context height

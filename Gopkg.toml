@@ -26,7 +26,7 @@
 
 [[constraint]]
   name = "github.com/cosmos/cosmos-sdk"
-  version = "v0.32.0"
+  version = "v0.33.0"
 
 [[override]]
   name = "github.com/golang/protobuf"
@@ -46,11 +46,11 @@
 
 [[override]]
   name = "github.com/tendermint/iavl"
-  version = "v0.12.0"
+  version = "=v0.12.1"
 
 [[override]]
   name = "github.com/tendermint/tendermint"
-  version = "v0.30.2"
+  revision = "v0.31.0-dev0"
 
 [[constraint]]
   name = "github.com/cosmos/ledger-cosmos-go"
@@ -71,7 +71,7 @@
 
 [prune]
   go-tests = true
-  unused-packages = true
+  unused-packages = true  
   [[prune.project]]
       name = "github.com/zondax/hid"
       unused-packages = false
