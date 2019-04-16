@@ -210,18 +210,19 @@ func NewDefaultGenesisState() GenesisState {
 		StakingData:  staking.DefaultGenesisState(),
 		MintData:     mint.DefaultGenesisState(),
 		DistrData:    distr.DefaultGenesisState(),
-		GovData:      DefaultGovGenesisState(),
+		GovData:      defaultGovGenesisState(),
 		SlashingData: slashing.DefaultGenesisState(),
 		GenTxs:       nil,
 	}
 }
 
-// DefaultGovGenesisState creates the default governance module state that will be created during the genesis
-func DefaultGovGenesisState() gov.GenesisState {
+// defaultGovGenesisState creates the default governance module state that will be created during the genesis
+func defaultGovGenesisState() gov.GenesisState {
+	minDepositTokens := sdk.TokensFromTendermintPower(50000)
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.Coins{sdk.NewCoin("comnetstaketoken", sdk.NewInt(50000))},
+			MinDeposit:       sdk.Coins{sdk.NewCoin("ucommercio", minDepositTokens)},
 			MaxDepositPeriod: gov.DefaultPeriod,
 		},
 		VotingParams: gov.VotingParams{
