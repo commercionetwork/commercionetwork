@@ -41,30 +41,41 @@ const KeyTypeEcdsa = "Secp256k1"
 
 func (keeper Keeper) RegisterAccount(ctx sdk.Context, address string, keyType string, keyValue string) sdk.Error {
 
-	// Get the address from the string
-	accountAddress, err := sdk.AccAddressFromHex(address)
+	// Try getting the address as Bech32 string
+	accountAddress, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
-		return sdk.ErrInvalidAddress("Invalid address provided")
+
+		// If Bech32 fails, read the address as a HEX string
+		accountAddress, err = sdk.AccAddressFromHex(address)
+		if err != nil {
+			return sdk.ErrInvalidAddress("Invalid address provided")
+
+		}
 	}
 
-	// Decode the HEX string
-	publicKeyBytes, err := hex.DecodeString(keyValue)
-	if err != nil {
-		return sdk.ErrUnknownRequest("Invalid public key HEX value provided")
-	}
-
-	// Validate the sent key type
 	var publicKey crypto.PubKey
-	if keyType == KeyTypeEd25519 {
-		var pkEd ed25519.PubKeyEd25519
-		copy(pkEd[:], publicKeyBytes[:])
-		publicKey = pkEd
-	} else if keyType == KeyTypeEcdsa {
-		var pkEd secp256k1.PubKeySecp256k1
-		copy(pkEd[:], publicKeyBytes[:])
-		publicKey = pkEd
-	} else {
-		return sdk.ErrUnknownRequest("Invalid key type. Currently supported key types are Ed25519 and Secp256k1")
+
+	// Try reading the public key as Bech32 string
+	publicKey, err = sdk.GetAccPubKeyBech32(keyValue)
+
+	if err != nil {
+		// If Bech32 fails, read the public key as a HEX string
+		publicKeyBytes, err := hex.DecodeString(keyValue)
+
+		if err == nil {
+			// Validate the sent key type
+			if keyType == KeyTypeEd25519 {
+				var pkEd ed25519.PubKeyEd25519
+				copy(pkEd[:], publicKeyBytes[:])
+				publicKey = pkEd
+			} else if keyType == KeyTypeEcdsa {
+				var pkEd secp256k1.PubKeySecp256k1
+				copy(pkEd[:], publicKeyBytes[:])
+				publicKey = pkEd
+			} else {
+				return sdk.ErrUnknownRequest("Invalid key type. Currently supported key types are Ed25519 and Secp256k1")
+			}
+		}
 	}
 
 	// Try getting the existing account
