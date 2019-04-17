@@ -52,8 +52,8 @@ cncli keys add jack
 cncli keys add alice
 
 # Add both accounts, with coins to the genesis file
-cnd add-genesis-account $(cncli keys show jack --address) 100000000stake,1000jackcoin
-cnd add-genesis-account $(cncli keys show alice --address) 100000000stake,1000alicecoin
+cnd add-genesis-account $(cncli keys show jack --address) 5000000000ucommercio
+cnd add-genesis-account $(cncli keys show alice --address) 5000000000ucommercio
 
 # Create the genesis transaction signing it with the jack private key
 cnd gentx --name jack
@@ -80,7 +80,7 @@ cat ~/.cnd/config/genesis.json
 
 # Copy the value of the `chain_id` field, then execute the following
 cncli config chain-id <CHAIN-ID>
-# Example: cnd config chain-id test-chain-RKFXWR
+# Example: cncli config chain-id test-chain-RKFXWR
 ``` 
 
 Now, you can start using the commands to interact with the network.
