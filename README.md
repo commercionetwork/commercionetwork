@@ -223,12 +223,12 @@ cncli rest-server --laddr=tcp://0.0.0.0:1317
 
 Now, with the previously output address, run the following in other terminal shell:
 ```bash
-curl -s https://localhost:1317/auth/accounts/${address}
+curl -s http://localhost:1317/auth/accounts/${address}
 ```
 
 Example:
 ```bash
-$ curl -s -k https://localhost:1317/auth/accounts/cosmos153eu7p9lpgaatml7ua2vvgl8w08r4kjl5ca3y0
+$ curl -s -k http://localhost:1317/auth/accounts/cosmos153eu7p9lpgaatml7ua2vvgl8w08r4kjl5ca3y0
 {
   "type": "auth/Account",
   "value": {
