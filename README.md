@@ -56,7 +56,7 @@ cnd add-genesis-account $(cncli keys show jack --address) 5000000000ucommercio
 cnd add-genesis-account $(cncli keys show alice --address) 5000000000ucommercio
 
 # Create the genesis transaction signing it with the jack private key
-cnd gentx --name jack
+cnd gentx --amount 100000000ucommercio --name jack
 
 # Collect all the genesis transactions
 cnd collect-gentxs
