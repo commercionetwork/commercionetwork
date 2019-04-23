@@ -15,10 +15,11 @@ import (
 	"github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	//"github.com/cosmos/cosmos-sdk/cmd/gaia/app"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+
+	gaiautils "github.com/cosmos/cosmos-sdk/cmd/gaia/init"
 )
 
 const (
@@ -42,12 +43,12 @@ func CollectGenTxsCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 			name := viper.GetString(client.FlagName)
-			nodeID, valPubKey, err := InitializeNodeValidatorFiles(config)
+			nodeID, valPubKey, err := gaiautils.InitializeNodeValidatorFiles(config)
 			if err != nil {
 				return err
 			}
 
-			genDoc, err := LoadGenesisDoc(cdc, config.GenesisFile())
+			genDoc, err := types.GenesisDocFromFile(config.GenesisFile())
 			if err != nil {
 				return err
 			}
@@ -60,7 +61,7 @@ func CollectGenTxsCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 			toPrint := newPrintInfo(config.Moniker, genDoc.ChainID, nodeID, genTxsDir, json.RawMessage(""))
 			initCfg := newInitConfig(genDoc.ChainID, genTxsDir, name, nodeID, valPubKey)
 
-			appMessage, err := genAppStateFromConfig(cdc, config, initCfg, genDoc)
+			appMessage, err := genAppStateFromConfig(cdc, config, initCfg, *genDoc)
 			if err != nil {
 				return err
 			}
@@ -83,7 +84,6 @@ func genAppStateFromConfig(
 	cdc *codec.Codec, config *cfg.Config, initCfg initConfig, genDoc types.GenesisDoc,
 ) (appState json.RawMessage, err error) {
 
-	genFile := config.GenesisFile()
 	var (
 		appGenTxs       []auth.StdTx
 		persistentPeers string
@@ -117,7 +117,8 @@ func genAppStateFromConfig(
 		return
 	}
 
-	err = ExportGenesisFile(genFile, initCfg.ChainID, nil, appState)
+	genDoc.AppState = appState
+	err = gaiautils.ExportGenesisFile(config.GenesisFile(), genDoc.ChainID, genDoc.Validators, genDoc.AppState)
 	return
 }
 

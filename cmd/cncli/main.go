@@ -5,15 +5,17 @@ import (
 	"os"
 	"path"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	amino "github.com/tendermint/go-amino"
+
+	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"commercio-network"
@@ -31,12 +33,13 @@ import (
 	idrest "commercio-network/x/commercioid/client/rest"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//at "github.com/cosmos/cosmos-sdk/x/auth"
+	at "github.com/cosmos/cosmos-sdk/x/auth"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
 	dist "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
 	gv "github.com/cosmos/cosmos-sdk/x/gov"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
+	//mintrest "github.com/cosmos/cosmos-sdk/x/mint/client/rest"
 	sl "github.com/cosmos/cosmos-sdk/x/slashing"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	st "github.com/cosmos/cosmos-sdk/x/staking"
@@ -44,16 +47,16 @@ import (
 
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	//crisisclient "github.com/cosmos/cosmos-sdk/x/crisis/client"
 	distcmd "github.com/cosmos/cosmos-sdk/x/distribution"
 	distClient "github.com/cosmos/cosmos-sdk/x/distribution/client"
 	govClient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	slashingClient "github.com/cosmos/cosmos-sdk/x/slashing/client"
-	stakingClient "github.com/cosmos/cosmos-sdk/x/staking/client"
-	//_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
+	//mintclient "github.com/cosmos/cosmos-sdk/x/mint/client"
+	slashingclient "github.com/cosmos/cosmos-sdk/x/slashing/client"
+	stakingclient "github.com/cosmos/cosmos-sdk/x/staking/client"
 )
 
 const (
-	storeAcc  = "acc"
 	storeAUTH = "commercioauth"
 	storeID   = "commercioid"
 	storeDOCS = "commerciodocs"
@@ -71,6 +74,8 @@ func main() {
 	// Read in the configuration file for the sdk
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 	config.Seal()
 
 	// TODO: setup keybase, viper object, etc. to be passed into
@@ -82,8 +87,10 @@ func main() {
 	mc := []sdk.ModuleClients{
 		govClient.NewModuleClient(gv.StoreKey, cdc),
 		distClient.NewModuleClient(distcmd.StoreKey, cdc),
-		stakingClient.NewModuleClient(st.StoreKey, cdc),
-		slashingClient.NewModuleClient(sl.StoreKey, cdc),
+		stakingclient.NewModuleClient(st.StoreKey, cdc),
+		//mintclient.NewModuleClient(mint.StoreKey, cdc),
+		slashingclient.NewModuleClient(sl.StoreKey, cdc),
+		//crisisclient.NewModuleClient(sl.StoreKey, cdc),
 
 		// CommercioAUTH
 		authclient.NewModuleClient(storeAUTH, cdc),
@@ -97,7 +104,7 @@ func main() {
 
 	rootCmd := &cobra.Command{
 		Use:   "cncli",
-		Short: "Commercio.network client",
+		Short: "Command line interface for interacting with cnd",
 	}
 
 	// Add --chain-id to persistent flags and mark it required
@@ -134,28 +141,6 @@ func main() {
 	}
 }
 
-// registerRoutes registers the routes from the different modules for the LCD.
-func registerRoutes(rs *lcd.RestServer) {
-	//rs.CliCtx = rs.CliCtx.WithAccountDecoder(rs.Cdc)
-	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
-	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
-	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	dist.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, distcmd.StoreKey)
-	staking.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-
-	// CommercioAUTH
-	authrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAUTH)
-
-	// CommercioID
-	idrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeID)
-
-	// CommercioDOCS
-	docsrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeDOCS)
-}
-
 func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 	queryCmd := &cobra.Command{
 		Use:     "query",
@@ -169,12 +154,14 @@ func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 		tx.SearchTxCmd(cdc),
 		tx.QueryTxCmd(cdc),
 		client.LineBreak,
-		authcmd.GetAccountCmd(storeAcc, cdc),
-		//authcmd.GetAccountCmd(at.StoreKey, cdc),
+		authcmd.GetAccountCmd(at.StoreKey, cdc),
 	)
 
 	for _, m := range mc {
-		queryCmd.AddCommand(m.GetQueryCmd())
+		mQueryCmd := m.GetQueryCmd()
+		if mQueryCmd != nil {
+			queryCmd.AddCommand(mQueryCmd)
+		}
 	}
 
 	return queryCmd
@@ -189,17 +176,10 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 	txCmd.AddCommand(
 		bankcmd.SendTxCmd(cdc),
 		client.LineBreak,
-		authcmd.GetAccountCmd(storeAcc, cdc),
+		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
 		tx.GetBroadcastCommand(cdc),
-		authcmd.GetSignCommand(cdc),
-		//tx.GetBroadcastCommand(cdc),
-		//authcmd.GetBroadcastCommand(cdc),
-
-		// RECHECK THIS POINT: not sure!!!! Marco
-		// tx.GetBroadcastCommand(cdc),
-		//tx.GetEncodeCommand(cdc),
-
+		tx.GetEncodeCommand(cdc),
 		client.LineBreak,
 	)
 
@@ -208,6 +188,28 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 	}
 
 	return txCmd
+}
+
+// registerRoutes registers the routes from the different modules for the LCD.
+func registerRoutes(rs *lcd.RestServer) {
+	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
+	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, at.StoreKey)
+	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
+	dist.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, distcmd.StoreKey)
+	staking.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
+	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
+	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	//mintrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+
+	// CommercioAUTH
+	authrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAUTH)
+
+	// CommercioID
+	idrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeID)
+
+	// CommercioDOCS
+	docsrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeDOCS)
 }
 
 func initConfig(cmd *cobra.Command) error {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -11,29 +12,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/x/bank"
-
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	stktype "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-var (
-	// bonded tokens given to genesis validators/accounts
-	freeTokensPerAcc = sdk.TokensFromTendermintPower(150)
-	//defaultBondDenom = sdk.DefaultBondDenom
-	defaultBondDenom = "comnetstaketoken"
-)
-
-// GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
 // State to Unmarshal
 type GenesisState struct {
 	Accounts     []GenesisAccount      `json:"accounts"`
@@ -43,6 +35,7 @@ type GenesisState struct {
 	MintData     mint.GenesisState     `json:"mint"`
 	DistrData    distr.GenesisState    `json:"distr"`
 	GovData      gov.GenesisState      `json:"gov"`
+	CrisisData   crisis.GenesisState   `json:"crisis"`
 	SlashingData slashing.GenesisState `json:"slashing"`
 	GenTxs       []json.RawMessage     `json:"gentxs"`
 }
@@ -50,7 +43,7 @@ type GenesisState struct {
 func NewGenesisState(accounts []GenesisAccount, authData auth.GenesisState,
 	bankData bank.GenesisState,
 	stakingData staking.GenesisState, mintData mint.GenesisState,
-	distrData distr.GenesisState, govData gov.GenesisState,
+	distrData distr.GenesisState, govData gov.GenesisState, crisisData crisis.GenesisState,
 	slashingData slashing.GenesisState) GenesisState {
 
 	return GenesisState{
@@ -61,6 +54,7 @@ func NewGenesisState(accounts []GenesisAccount, authData auth.GenesisState,
 		MintData:     mintData,
 		DistrData:    distrData,
 		GovData:      govData,
+		CrisisData:   crisisData,
 		SlashingData: slashingData,
 	}
 }
@@ -213,16 +207,18 @@ func NewDefaultGenesisState() GenesisState {
 		MintData:     defaultMintGenesisState(),
 		DistrData:    distr.DefaultGenesisState(),
 		GovData:      defaultGovGenesisState(),
+		CrisisData:   defaultCrisisGenesisState(),
 		SlashingData: slashing.DefaultGenesisState(),
 		GenTxs:       nil,
 	}
 }
 
+// defaultMintGenesisState creates the default minting module state that will be used during the genesis
 func defaultMintGenesisState() mint.GenesisState {
 	return mint.GenesisState{
 		Minter: mint.DefaultInitialMinter(),
 		Params: mint.Params{
-			MintDenom:           StakeTokenName,
+			MintDenom:           DefaultBondDenom,
 			InflationRateChange: sdk.NewDecWithPrec(13, 2),
 			InflationMax:        sdk.NewDecWithPrec(20, 2),
 			InflationMin:        sdk.NewDecWithPrec(7, 2),
@@ -232,25 +228,26 @@ func defaultMintGenesisState() mint.GenesisState {
 	}
 }
 
+// defaultStakingGenesisState creates the default staking module state that will be used during the genesis
 func defaultStakingGenesisState() staking.GenesisState {
 	return staking.GenesisState{
 		Pool: staking.InitialPool(),
 		Params: staking.Params{
-			UnbondingTime: stktype.DefaultUnbondingTime,
-			MaxValidators: stktype.DefaultMaxValidators,
-			MaxEntries:    stktype.DefaultMaxEntries,
-			BondDenom:     StakeTokenName,
+			UnbondingTime: types.DefaultUnbondingTime,
+			MaxValidators: types.DefaultMaxValidators,
+			MaxEntries:    types.DefaultMaxEntries,
+			BondDenom:     DefaultBondDenom,
 		},
 	}
 }
 
-// defaultGovGenesisState creates the default governance module state that will be created during the genesis
+// defaultGovGenesisState creates the default governance module state that will be used during the genesis
 func defaultGovGenesisState() gov.GenesisState {
 	minDepositTokens := sdk.TokensFromTendermintPower(50000)
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.Coins{sdk.NewCoin(StakeTokenName, minDepositTokens)},
+			MinDeposit:       sdk.Coins{sdk.NewCoin(DefaultBondDenom, minDepositTokens)},
 			MaxDepositPeriod: gov.DefaultPeriod,
 		},
 		VotingParams: gov.VotingParams{
@@ -261,6 +258,13 @@ func defaultGovGenesisState() gov.GenesisState {
 			Threshold: sdk.NewDecWithPrec(5, 1),
 			Veto:      sdk.NewDecWithPrec(334, 3),
 		},
+	}
+}
+
+// defaultGovGenesisState creates the default crisis module state that will be used during the genesis
+func defaultCrisisGenesisState() crisis.GenesisState {
+	return crisis.GenesisState{
+		ConstantFee: sdk.NewCoin(DefaultBondDenom, sdk.NewInt(1000)),
 	}
 }
 
@@ -294,6 +298,9 @@ func GaiaValidateGenesisState(genesisState GenesisState) error {
 		return err
 	}
 	if err := gov.ValidateGenesis(genesisState.GovData); err != nil {
+		return err
+	}
+	if err := crisis.ValidateGenesis(genesisState.CrisisData); err != nil {
 		return err
 	}
 
@@ -444,17 +451,4 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 	persistentPeers = strings.Join(addressesIPs, ",")
 
 	return appGenTxs, persistentPeers, nil
-}
-
-func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
-	accAuth := auth.NewBaseAccountWithAddress(addr)
-	coins := sdk.Coins{
-		sdk.NewCoin("footoken", sdk.NewInt(1000)),
-		sdk.NewCoin(defaultBondDenom, freeTokensPerAcc),
-	}
-
-	coins.Sort()
-
-	accAuth.Coins = coins
-	return NewGenesisAccount(&accAuth)
 }

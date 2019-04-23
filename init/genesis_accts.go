@@ -8,13 +8,15 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/common"
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	//"github.com/cosmos/cosmos-sdk/cmd/gaia/app"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+
+	gaiautils "github.com/cosmos/cosmos-sdk/cmd/gaia/init"
 )
 
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.
@@ -59,7 +61,7 @@ func AddGenesisAccountCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command 
 				return fmt.Errorf("%s does not exist, run `cnd init` first", genFile)
 			}
 
-			genDoc, err := LoadGenesisDoc(cdc, genFile)
+			genDoc, err := tmtypes.GenesisDocFromFile(genFile)
 			if err != nil {
 				return err
 			}
@@ -79,7 +81,8 @@ func AddGenesisAccountCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command 
 				return err
 			}
 
-			return ExportGenesisFile(genFile, genDoc.ChainID, nil, appStateJSON)
+			genDoc.AppState = appStateJSON
+			return gaiautils.ExportGenesisFile(genFile, genDoc.ChainID, genDoc.Validators, genDoc.AppState)
 		},
 	}
 

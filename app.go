@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,19 +32,37 @@ import (
 
 const (
 	appName = "Commercio.network"
-	Version = "0.33.0"
+	Version = "0.34.0"
 
-	StakeTokenName = "ucommercio"
+	DefaultBondDenom = "ucommercio"
 
 	// DefaultKeyPass contains the default key password for genesis transactions
 	DefaultKeyPass = "12345678"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
-	Bech32PrefixAccAddr = "comnet"
-	Bech32SuffixPub     = "pub"
+	Bech32MainPrefix = "comnet"
 
+	// PrefixValidator is the prefix for validator keys
+	PrefixValidator = "val"
+	// PrefixConsensus is the prefix for consensus keys
+	PrefixConsensus = "cons"
+	// PrefixPublic is the prefix for public keys
+	PrefixPublic = "pub"
+	// PrefixOperator is the prefix for operator keys
+	PrefixOperator = "oper"
+
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32PrefixAccAddr = Bech32MainPrefix
 	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
-	Bech32PrefixAccPub = Bech32PrefixAccAddr + Bech32SuffixPub
+	Bech32PrefixAccPub = Bech32MainPrefix + PrefixPublic
+	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
+	Bech32PrefixValAddr = Bech32MainPrefix + PrefixValidator + PrefixOperator
+	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
+	Bech32PrefixValPub = Bech32MainPrefix + PrefixValidator + PrefixOperator + PrefixPublic
+	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
+	Bech32PrefixConsAddr = Bech32MainPrefix + PrefixValidator + PrefixConsensus
+	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
+	Bech32PrefixConsPub = Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
 )
 
 // default home directories for expected binaries
@@ -80,6 +99,7 @@ type commercioNetworkApp struct {
 	mintKeeper          mint.Keeper
 	distrKeeper         distr.Keeper
 	govKeeper           gov.Keeper
+	crisisKeeper        crisis.Keeper
 	paramsKeeper        params.Keeper
 
 	// CommercioAUTH
@@ -195,6 +215,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		&stakingKeeper,
 		gov.DefaultCodespace,
 	)
+	app.crisisKeeper = crisis.NewKeeper(
+		app.paramsKeeper.Subspace(crisis.DefaultParamspace),
+		app.distrKeeper,
+		app.bankKeeper,
+		app.feeCollectionKeeper,
+	)
 
 	// register the staking hooks
 	// NOTE: The stakingKeeper above is passed by reference, so that it can be
@@ -202,6 +228,11 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		NewStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
+
+	// register the crisis routes
+	bank.RegisterInvariants(&app.crisisKeeper, app.accountKeeper)
+	distr.RegisterInvariants(&app.crisisKeeper, app.distrKeeper, app.stakingKeeper)
+	staking.RegisterInvariants(&app.crisisKeeper, app.stakingKeeper, app.feeCollectionKeeper, app.distrKeeper, app.accountKeeper)
 
 	// The CommercioAUTH keeper handles interactions for the CommercioAUTH module
 	app.commercioAuthKeeper = commercioauth.NewKeeper(
@@ -231,6 +262,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		AddRoute(distr.RouterKey, distr.NewHandler(app.distrKeeper)).
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
+		AddRoute(crisis.RouterKey, crisis.NewHandler(app.crisisKeeper)).
 		AddRoute("commercioauth", commercioauth.NewHandler(app.commercioAuthKeeper)).
 		AddRoute("commercioid", commercioid.NewHandler(app.commercioIdKeeper)).
 		AddRoute("commerciodocs", commerciodocs.NewHandler(app.commercioDocsKeeper))
@@ -283,12 +315,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 // custom logic for Gaia initialization
 func (app *commercioNetworkApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
-	// TODO is this now the whole genesis file? <-- Comment from official Gaia app
+	// TODO is this now the whole genesis file?
 
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
-		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468 <-- Comment from official Gaia app
+		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468
 		// return sdk.ErrGenesisParse("").TraceCause(err, "")
 	}
 
@@ -377,6 +409,7 @@ func (app *commercioNetworkApp) initFromGenesisState(ctx sdk.Context, genesisSta
 	bank.InitGenesis(ctx, app.bankKeeper, genesisState.BankData)
 	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakingData.Validators.ToSDKValidators())
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
+	crisis.InitGenesis(ctx, app.crisisKeeper, genesisState.CrisisData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 
 	// validate genesis state
@@ -411,12 +444,13 @@ func (app *commercioNetworkApp) LoadHeight(height int64) error {
 // custom tx codec
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
-	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
 	staking.RegisterCodec(cdc)
 	distr.RegisterCodec(cdc)
 	slashing.RegisterCodec(cdc)
 	gov.RegisterCodec(cdc)
+	auth.RegisterCodec(cdc)
+	crisis.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 
