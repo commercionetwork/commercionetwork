@@ -12,9 +12,10 @@ import (
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/common"
+	"github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	//"github.com/cosmos/cosmos-sdk/cmd/gaia/app"
+	gaiautils "github.com/cosmos/cosmos-sdk/cmd/gaia/init"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 )
@@ -62,7 +63,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command { // nolint: 
 				chainID = fmt.Sprintf("test-chain-%v", common.RandStr(6))
 			}
 
-			nodeID, _, err := InitializeNodeValidatorFiles(config)
+			nodeID, _, err := gaiautils.InitializeNodeValidatorFiles(config)
 			if err != nil {
 				return err
 			}
@@ -72,12 +73,26 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command { // nolint: 
 			var appState json.RawMessage
 			genFile := config.GenesisFile()
 
-			if appState, err = initializeEmptyGenesis(cdc, genFile, chainID,
-				viper.GetBool(flagOverwrite)); err != nil {
+			if appState, err = initializeEmptyGenesis(cdc, genFile, viper.GetBool(flagOverwrite)); err != nil {
 				return err
 			}
 
-			if err = ExportGenesisFile(genFile, chainID, nil, appState); err != nil {
+			genDoc := &types.GenesisDoc{}
+			if _, err := os.Stat(genFile); err != nil {
+				if !os.IsNotExist(err) {
+					return err
+				}
+			} else {
+				genDoc, err = types.GenesisDocFromFile(genFile)
+				if err != nil {
+					return err
+				}
+			}
+
+			genDoc.ChainID = chainID
+			genDoc.Validators = nil
+			genDoc.AppState = appState
+			if err = gaiautils.ExportGenesisFile(genFile, genDoc.ChainID, genDoc.Validators, genDoc.AppState); err != nil {
 				return err
 			}
 

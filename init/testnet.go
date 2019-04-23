@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	//"github.com/cosmos/cosmos-sdk/cmd/gaia/app"
 	"github.com/cosmos/cosmos-sdk/codec"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,6 +28,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
+	gaiautils "github.com/cosmos/cosmos-sdk/cmd/gaia/init"
 	"github.com/cosmos/cosmos-sdk/server"
 )
 
@@ -85,7 +85,7 @@ Example:
 		client.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created",
 	)
 	cmd.Flags().String(
-		server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),
+		server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", app.DefaultBondDenom),
 		"Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)",
 	)
 
@@ -147,7 +147,7 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 			return err
 		}
 
-		nodeIDs[i], valPubKeys[i], err = InitializeNodeValidatorFiles(config)
+		nodeIDs[i], valPubKeys[i], err = gaiautils.InitializeNodeValidatorFiles(config)
 		if err != nil {
 			_ = os.RemoveAll(outDir)
 			return err
@@ -198,7 +198,7 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 			Address: addr,
 			Coins: sdk.Coins{
 				sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-				sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
+				sdk.NewCoin(app.DefaultBondDenom, accStakingTokens),
 			},
 		})
 
@@ -206,7 +206,7 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 		msg := staking.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
-			sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
+			sdk.NewCoin(app.DefaultBondDenom, valTokens),
 			staking.NewDescription(nodeDirName, "", "", ""),
 			staking.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			sdk.OneInt(),
@@ -307,12 +307,12 @@ func collectGenFiles(
 		nodeID, valPubKey := nodeIDs[i], valPubKeys[i]
 		initCfg := newInitConfig(chainID, gentxsDir, moniker, nodeID, valPubKey)
 
-		genDoc, err := LoadGenesisDoc(cdc, config.GenesisFile())
+		genDoc, err := types.GenesisDocFromFile(config.GenesisFile())
 		if err != nil {
 			return err
 		}
 
-		nodeAppState, err := genAppStateFromConfig(cdc, config, initCfg, genDoc)
+		nodeAppState, err := genAppStateFromConfig(cdc, config, initCfg, *genDoc)
 		if err != nil {
 			return err
 		}
@@ -325,7 +325,7 @@ func collectGenFiles(
 		genFile := config.GenesisFile()
 
 		// overwrite each validator's genesis file to have a canonical genesis time
-		err = ExportGenesisFileWithTime(genFile, chainID, nil, appState, genTime)
+		err = gaiautils.ExportGenesisFileWithTime(genFile, chainID, nil, appState, genTime)
 		if err != nil {
 			return err
 		}

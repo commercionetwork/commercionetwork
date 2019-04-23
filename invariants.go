@@ -7,19 +7,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banksim "github.com/cosmos/cosmos-sdk/x/bank/simulation"
-	distrsim "github.com/cosmos/cosmos-sdk/x/distribution/simulation"
-	stakingsim "github.com/cosmos/cosmos-sdk/x/staking/simulation"
 )
-
-func (app *commercioNetworkApp) runtimeInvariants() []sdk.Invariant {
-	return []sdk.Invariant{
-		banksim.NonnegativeBalanceInvariant(app.accountKeeper),
-		distrsim.NonNegativeOutstandingInvariant(app.distrKeeper),
-		stakingsim.SupplyInvariants(app.stakingKeeper, app.feeCollectionKeeper, app.distrKeeper, app.accountKeeper),
-		stakingsim.NonNegativePowerInvariant(app.stakingKeeper),
-	}
-}
 
 func (app *commercioNetworkApp) assertRuntimeInvariants() {
 	ctx := app.NewContext(false, abci.Header{Height: app.LastBlockHeight() + 1})
@@ -28,13 +16,16 @@ func (app *commercioNetworkApp) assertRuntimeInvariants() {
 
 func (app *commercioNetworkApp) assertRuntimeInvariantsOnContext(ctx sdk.Context) {
 	start := time.Now()
-	invariants := app.runtimeInvariants()
-	for _, inv := range invariants {
-		if err := inv(ctx); err != nil {
-			panic(fmt.Errorf("invariant broken: %s", err))
+	invarRoutes := app.crisisKeeper.Routes()
+	for _, ir := range invarRoutes {
+		if err := ir.Invar(ctx); err != nil {
+			panic(fmt.Errorf("invariant broken: %s\n"+
+				"\tCRITICAL please submit the following transaction:\n"+
+				"\t\t gaiacli tx crisis invariant-broken %v %v", err, ir.ModuleName, ir.Route))
 		}
 	}
 	end := time.Now()
 	diff := end.Sub(start)
-	app.BaseApp.Logger().With("module", "invariants").Info("Asserted all invariants", "duration", diff)
+	app.BaseApp.Logger().With("module", "invariants").Info(
+		"Asserted all invariants", "duration", diff, "height", app.LastBlockHeight())
 }
