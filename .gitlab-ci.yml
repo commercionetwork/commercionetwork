@@ -46,10 +46,13 @@ build:
     - cd $GOPATH/src/commercio-network
 
   script:
-    - go build -o $CI_PROJECT_DIR/cnd -tags "ledger" ./cmd/cnd/main.go
-    - go build -o $CI_PROJECT_DIR/cncli -tags "ledger" ./cmd/cncli/main.go
+    - make build-all
+    - mv build/darwin $CI_PROJECT_DIR/darwin
+    - mv build/linux $CI_PROJECT_DIR/linux
+    - mv build/windows $CI_PROJECT_DIR/windows
 
   artifacts:
     paths:
-      - $CI_PROJECT_DIR/cnd
-      - $CI_PROJECT_DIR/cncli
+      - $CI_PROJECT_DIR/darwin
+      - $CI_PROJECT_DIR/linux
+      - $CI_PROJECT_DIR/windows

@@ -26,3 +26,6 @@ src
 
 # Mac noise
 .DS_Store
+
+# Build
+build
