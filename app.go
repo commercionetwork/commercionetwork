@@ -32,7 +32,7 @@ import (
 
 const (
 	appName = "Commercio.network"
-	Version = "0.34.0"
+	Version = "1.0.0"
 
 	DefaultBondDenom = "ucommercio"
 
