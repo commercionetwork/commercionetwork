@@ -9,11 +9,18 @@ pkg
 -
 vendor
 bin
+build
 
 *.exe~
 *.dll
 *.so
 *.dylib
+tools/bin/*
+examples/build/*
+docs/_build
+docs/tutorial
+dist
+tools-stamp
 
 # Test binary, build with `go test -c`
 *.test
@@ -24,8 +31,27 @@ bin
 # Sources
 src
 
-# Mac noise
+# Mac OSX noises
 .DS_Store
+*.swp
+*.swo
+*.swl
+*.swm
+*.swn
+.vscode
+.idea
+*.pyc
+
+# Vagrant
+.vagrant/
+*.box
+*.log
+vagrant
+
+# Latex
+*.aux
+*.out
+*.synctex.gz
 
 # Build
 build

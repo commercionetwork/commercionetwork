@@ -11,3 +11,7 @@ func RegisterCodec(cdc *codec.Codec) {
 }
 
 var msgCdc = codec.New()
+
+func init() {
+	RegisterCodec(msgCdc)
+}

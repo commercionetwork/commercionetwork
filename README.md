@@ -27,11 +27,8 @@ mkdir commercio-network && cd commercio-network
 # Clone the project
 git clone https://scw-gitlab.zotsell.com/Commercio.network/Cosmos-application .
 
-# Install all the tools necessary
-make get_tools && dep init -v
-
-# Update the dependencies and install the app 
-dep ensure -update -v && make install
+# Install the project
+make install
 ```
 
 After all of this, you should be able to run the following commands successfully 
