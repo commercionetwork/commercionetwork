@@ -21,6 +21,7 @@ type testInput struct {
 	bankKeeper bank.BaseKeeper
 }
 
+//This function create an enviroment to test modules
 func setupTestInput() testInput {
 
 	db := dbm.NewMemDB()
