@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func (this MsgCreateAccount) isEqualto(msg MsgCreateAccount) bool {
+func (this MsgCreateAccount) isEqualTo(msg MsgCreateAccount) bool {
 
 	if this.Signer.String() == msg.Signer.String() {
 		if this.Address == msg.Address {
@@ -43,7 +43,7 @@ func TestNewMsgCreateAccount(t *testing.T) {
 
 	actual := NewMsgCreateAccount(signer, address, keyType, keyValue)
 
-	if !actual.isEqualto(expected) {
+	if !actual.isEqualTo(expected) {
 		t.Errorf("actual created account %s is different than expected %v", actual, expected)
 	}
 }
