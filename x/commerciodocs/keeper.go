@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"commercio-network/types"
 	"commercio-network/utilities"
-	"commercio-network/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/genproto/googleapis/type/date"
@@ -15,8 +14,6 @@ import (
 // ----------------------------------
 
 type Keeper struct {
-	// Keeper for dealing with identities
-	commercioIdKeeper commercioid.Keeper
 
 	// Key of the map { DocumentReference => Address }
 	ownersStoreKey sdk.StoreKey
@@ -34,19 +31,17 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	commercioIdKeeper commercioid.Keeper,
 	ownersStoreKey sdk.StoreKey,
 	metadataStoreKey sdk.StoreKey,
 	sharingStoreKey sdk.StoreKey,
 	readersStoreKey sdk.StoreKey,
 	cdc *codec.Codec) Keeper {
 	return Keeper{
-		commercioIdKeeper: commercioIdKeeper,
-		ownersStoreKey:    ownersStoreKey,
-		metadataStoreKey:  metadataStoreKey,
-		sharingStoreKey:   sharingStoreKey,
-		readersStoreKey:   readersStoreKey,
-		cdc:               cdc,
+		ownersStoreKey:   ownersStoreKey,
+		metadataStoreKey: metadataStoreKey,
+		sharingStoreKey:  sharingStoreKey,
+		readersStoreKey:  readersStoreKey,
+		cdc:              cdc,
 	}
 }
 
