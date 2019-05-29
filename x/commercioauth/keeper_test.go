@@ -4,15 +4,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/stretchr/testify/assert"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 	"testing"
 )
 
-var keyValue = "A8dJWr6t9Yh31YYvXkb0N/HtkC5J+KAP75dqg8pr3uws"
-var address = "cosmos153eu7p9lpgaatml7ua2vvgl8w08r4kjl5ca3y0"
+var address = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
+var keyValue = "cosmospub1addwnpepqvhd7lalnwuh0k2hy8x60k99dhqurv02eeuv3cencr2c088gp03uq6wrh5f"
 var keyType = "Secp256k1"
 
-var input = setupTestInput()
 var keeper = Keeper{
 	accountKeeper: input.accKeeper,
 	cdc:           input.cdc,
@@ -113,8 +111,23 @@ func TestKeeper_GetAccount3(t *testing.T) {
 		panic(err)
 	}
 
+	//creating account to insert inside chain
 	account := keeper.accountKeeper.NewAccountWithAddress(input.ctx, addr)
-	account.SetPubKey(ed25519.GenPrivKey().PubKey())
+
+	key, err := sdk.GetAccPubKeyBech32(keyValue)
+
+	if err != nil {
+		panic(err)
+	}
+
+	//set account pubKey
+	err = account.SetPubKey(key)
+
+	if err != nil {
+		panic(err)
+	}
+
+	//set account
 	keeper.accountKeeper.SetAccount(input.ctx, account)
 
 	actual, actualErr := keeper.GetAccount(input.ctx, address)

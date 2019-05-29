@@ -10,6 +10,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -20,6 +21,9 @@ type testInput struct {
 	accKeeper  auth.AccountKeeper
 	bankKeeper bank.BaseKeeper
 }
+
+//commercioauth module initialisation
+var input = setupTestInput()
 
 //This function create an enviroment to test modules
 func setupTestInput() testInput {
@@ -60,10 +64,11 @@ func setupTestInput() testInput {
 func makeCodec() *codec.Codec {
 	var cdc = codec.New()
 
-	cdc.RegisterConcrete(MsgCreateAccount{}, "commercioauth/CreateAccount", nil)
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
+	cdc.RegisterConcrete(MsgCreateAccount{}, "commercioauth/CreateAccount", nil)
 	cdc.RegisterConcrete(ed25519.GenPrivKey().PubKey(), "ed25519.PubKey", nil)
+	cdc.RegisterConcrete(secp256k1.PubKeySecp256k1{}, "secp256k1PubKey", nil)
 
 	cdc.Seal()
 
