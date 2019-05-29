@@ -383,14 +383,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:77b841555ca2ce5a45d7ba8b3eea5bd6e2e50c139d979b9b10f57a30fbd1132c"
+  digest = "1:143586a82affa4434b01666d886709858ab9b834f815c73d3d6740fa83a7c7e4"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
     "internal/fs"
   ]
   pruneopts = "UT"
-  revision = "a7aeb8df3389edaf53efcc319ad0063cb27c3960"
+  revision = "3cb620ac02d09c0648c0ea033ea9706e5d11e416"
 
 [[projects]]
   digest = "1:77b730fa4c2d98f3ddf492acbea351eb6b0560fa5eace4105a6fc33ff937bb1b"
@@ -468,21 +468,10 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:ac83cf90d08b63ad5f7e020ef480d319ae890c208f8524622a2f3136e2686b02"
-  name = "github.com/stretchr/objx"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
-  version = "v0.1.1"
-
-[[projects]]
-  digest = "1:f2e5e255194f9cb72c5e334f9f015211d0416c65ba0bba6212155e4b47de66d9"
+  digest = "1:5da8ce674952566deae4dbc23d07c85caafc6cfa815b0b3e03e41979cedb8750"
   name = "github.com/stretchr/testify"
   packages = [
-    ".",
     "assert",
-    "http",
-    "mock",
     "require"
   ]
   pruneopts = "UT"
@@ -657,14 +646,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:181f3fd33e620b958b5ab77da177cf775cdcccd7db82963607875fbd09ae995e"
+  digest = "1:079999f5a3a0db923759948975e14ec0cee7195b9d99c566139307d971e7fc3c"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
     "unix"
   ]
   pruneopts = "UT"
-  revision = "ea4c425e90c70928be951f4eba8763495297e0a6"
+  revision = "cc920278c2cc35e068854c6a2ab722b2302c7002"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -800,7 +789,6 @@
     "github.com/gorilla/mux",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
-    "github.com/stretchr/testify",
     "github.com/stretchr/testify/assert",
     "github.com/tendermint/go-amino",
     "github.com/tendermint/tendermint/abci/types",
