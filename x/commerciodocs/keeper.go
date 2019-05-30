@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"commercio-network/types"
 	"commercio-network/utilities"
+	"commercio-network/x/commercioid"
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/genproto/googleapis/type/date"
@@ -14,6 +16,7 @@ import (
 // ----------------------------------
 
 type Keeper struct {
+	commercioIdKeeper commercioid.Keeper
 
 	// Key of the map { DocumentReference => Address }
 	ownersStoreKey sdk.StoreKey
@@ -31,17 +34,19 @@ type Keeper struct {
 }
 
 func NewKeeper(
+	commercioId commercioid.Keeper,
 	ownersStoreKey sdk.StoreKey,
 	metadataStoreKey sdk.StoreKey,
 	sharingStoreKey sdk.StoreKey,
 	readersStoreKey sdk.StoreKey,
 	cdc *codec.Codec) Keeper {
 	return Keeper{
-		ownersStoreKey:   ownersStoreKey,
-		metadataStoreKey: metadataStoreKey,
-		sharingStoreKey:  sharingStoreKey,
-		readersStoreKey:  readersStoreKey,
-		cdc:              cdc,
+		commercioIdKeeper: commercioId,
+		ownersStoreKey:    ownersStoreKey,
+		metadataStoreKey:  metadataStoreKey,
+		sharingStoreKey:   sharingStoreKey,
+		readersStoreKey:   readersStoreKey,
+		cdc:               cdc,
 	}
 }
 
@@ -111,7 +116,7 @@ func (keeper Keeper) GetMetadata(ctx sdk.Context, reference string) string {
 
 // ShareDocument allows the sharing of a document represented by the given reference, between the given sender and the
 // given recipient.
-func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender types.Did, recipient types.Did) {
+func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender types.Did, recipient types.Did) sdk.Error {
 	sharing := Sharing{
 		Sender:   sender,
 		Receiver: recipient,
@@ -122,18 +127,19 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender typ
 	sharingStore := ctx.KVStore(keeper.sharingStoreKey)
 
 	// Save the shared document for the sender
-	if !keeper.CanReadDocument(ctx, sender, reference) {
+	if keeper.CanReadDocument(ctx, sender, reference) {
 		sharingStore.Set([]byte(sender), keeper.cdc.MustMarshalBinaryBare(sharing))
+	} else {
+		return sdk.ErrUnauthorized(fmt.Sprintf("The sender with address %s doesnt have the rights on this document", sender))
 	}
 
 	// Save the shared document for the recipient
 	if !keeper.CanReadDocument(ctx, recipient, reference) {
 		sharingStore.Set([]byte(recipient), keeper.cdc.MustMarshalBinaryBare(sharing))
+		keeper.addReaderForDocument(ctx, recipient, reference)
 	}
 
-	// Set both the users as readers
-	keeper.addReaderForDocument(ctx, sender, reference)
-	keeper.addReaderForDocument(ctx, recipient, reference)
+	return nil
 }
 
 // CanReadDocument tells whenever a given user has access to a document or not.

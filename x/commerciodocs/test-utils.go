@@ -1,6 +1,7 @@
 package commerciodocs
 
 import (
+	"commercio-network/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,6 +36,11 @@ func setupTestInput() testInput {
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
 
+	// CommercioID
+	keyIDIdentities := sdk.NewKVStoreKey("id_identities")
+	keyIDOwners := sdk.NewKVStoreKey("id_owners")
+	keyIDConnections := sdk.NewKVStoreKey("id_connections")
+
 	// CommercioDOCS
 	keyDOCSOwners := sdk.NewKVStoreKey("docs_owners")
 	keyDOCSMetadata := sdk.NewKVStoreKey("docs_metadata")
@@ -47,6 +53,11 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
+	ms.MountStoreWithDB(keyDOCSReaders, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyDOCSOwners, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyDOCSMetadata, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyDOCSSharing, sdk.StoreTypeIAVL, db)
+
 	ms.LoadLatestVersion()
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams)
@@ -55,7 +66,8 @@ func setupTestInput() testInput {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	dck := NewKeeper(keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
+	idk := commercioid.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
+	dck := NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 

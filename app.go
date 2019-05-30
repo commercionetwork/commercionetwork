@@ -248,6 +248,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
 	app.commercioDocsKeeper = commerciodocs.NewKeeper(
+		app.commercioIdKeeper,
 		app.keyDOCSOwners,
 		app.keyDOCSMetadata,
 		app.keyDOCSSharing,
