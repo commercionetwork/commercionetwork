@@ -8,14 +8,6 @@ import (
 	"testing"
 )
 
-var user = types.Did("newReader")
-var reference = "reference"
-var address = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
-var keyValue = "cosmospub1addwnpepqvhd7lalnwuh0k2hy8x60k99dhqurv02eeuv3cencr2c088gp03uq6wrh5f"
-var keyType = "Secp256k1"
-
-var owner, err = sdk.AccAddressFromBech32(address)
-
 //testing add readers
 func TestKeeper_addReaderForDocument(t *testing.T) {
 
@@ -26,7 +18,7 @@ func TestKeeper_addReaderForDocument(t *testing.T) {
 
 	currentLength := len(store.Get([]byte(reference)))
 
-	input.docsKeeper.addReaderForDocument(input.ctx, user, reference)
+	input.docsKeeper.addReaderForDocument(input.ctx, ownerIdentity, reference)
 
 	afterOpLength := len(store.Get([]byte(reference)))
 
@@ -37,8 +29,6 @@ func TestKeeper_addReaderForDocument(t *testing.T) {
 
 func TestKeeper_StoreDocument(t *testing.T) {
 
-	metadata := "meta"
-
 	ownerStore := input.ctx.KVStore(input.docsKeeper.ownersStoreKey)
 	ownerStore.Set([]byte(reference), []byte(owner))
 
@@ -46,7 +36,7 @@ func TestKeeper_StoreDocument(t *testing.T) {
 
 	currentLength := len(metadataStore.Get([]byte(reference)))
 
-	input.docsKeeper.StoreDocument(input.ctx, owner, user, reference, metadata)
+	input.docsKeeper.StoreDocument(input.ctx, owner, ownerIdentity, reference, metadata)
 
 	afterOpLength := len(metadataStore.Get([]byte(reference)))
 
@@ -104,8 +94,6 @@ func TestKeeper_GetMetadata_OfExistentDocument(t *testing.T) {
 
 	ass := assert.New(t)
 
-	metadata := "meta"
-
 	metadataStore := input.ctx.KVStore(input.docsKeeper.metadataStoreKey)
 	metadataStore.Set([]byte(reference), []byte(metadata))
 
@@ -128,12 +116,12 @@ func TestKeeper_CanReadDocument_True(t *testing.T) {
 
 	ass := assert.New(t)
 
-	readers := []types.Did{user}
+	readers := []types.Did{ownerIdentity}
 
 	readerStore := input.ctx.KVStore(input.docsKeeper.readersStoreKey)
 	readerStore.Set([]byte(reference), input.cdc.MustMarshalBinaryBare(&readers))
 
-	result := input.docsKeeper.CanReadDocument(input.ctx, user, reference)
+	result := input.docsKeeper.CanReadDocument(input.ctx, ownerIdentity, reference)
 
 	ass.True(result)
 }
@@ -142,7 +130,7 @@ func TestKeeper_CanReadDocument_False(t *testing.T) {
 
 	ass := assert.New(t)
 
-	result := input.docsKeeper.CanReadDocument(input.ctx, user, reference)
+	result := input.docsKeeper.CanReadDocument(input.ctx, ownerIdentity, reference)
 
 	ass.False(result)
 }
@@ -160,25 +148,21 @@ func TestKeeper_GetAuthorizedReaders(t *testing.T) {
 
 func TestKeeper_ShareDocument_SenderAuthorizedToShare(t *testing.T) {
 
-	var readers = []types.Did{user}
-
-	recipient := types.Did("recipient")
+	var readers = []types.Did{ownerIdentity}
 
 	readerStore := input.ctx.KVStore(input.docsKeeper.readersStoreKey)
 	readerStore.Set([]byte(reference), input.cdc.MustMarshalBinaryBare(&readers))
 
-	result := input.docsKeeper.ShareDocument(input.ctx, reference, user, recipient)
+	result := input.docsKeeper.ShareDocument(input.ctx, reference, ownerIdentity, recipient)
 
 	assert.Nil(t, result)
 }
 
 func TestKeeper_ShareDocument_SenderUnauthorizedToShare(t *testing.T) {
 
-	recipient := types.Did("recipient")
+	error := sdk.ErrUnauthorized(fmt.Sprintf("The sender with address %s doesnt have the rights on this document", ownerIdentity))
 
-	error := sdk.ErrUnauthorized(fmt.Sprintf("The sender with address %s doesnt have the rights on this document", user))
-
-	result := input.docsKeeper.ShareDocument(input.ctx, reference, user, recipient)
+	result := input.docsKeeper.ShareDocument(input.ctx, reference, ownerIdentity, recipient)
 
 	assert.NotNil(t, result)
 

@@ -2,7 +2,6 @@ package commerciodocs
 
 import (
 	"commercio-network/types"
-	"encoding/json"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -60,10 +59,10 @@ func (msg MsgStoreDocument) GetSigners() []sdk.AccAddress {
 // ----------------------------------
 
 type MsgShareDocument struct {
-	Owner     sdk.AccAddress
-	Sender    types.Did
-	Receiver  types.Did
-	Reference string
+	Owner     sdk.AccAddress `json:"owner"`
+	Sender    types.Did      `json:"sender"`
+	Receiver  types.Did      `json:"receiver"`
+	Reference string         `json:"reference"`
 }
 
 func NewMsgShareDocument(owner sdk.AccAddress, reference string, sender types.Did, receiver types.Did) MsgShareDocument {
@@ -94,11 +93,7 @@ func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgShareDocument) GetSignBytes() []byte {
-	b, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(b)
+	return sdk.MustSortJSON(msgCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
