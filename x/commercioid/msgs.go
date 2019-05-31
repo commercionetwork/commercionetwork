@@ -2,7 +2,6 @@ package commercioid
 
 import (
 	"commercio-network/types"
-	"encoding/json"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -80,6 +79,9 @@ func (msg MsgCreateConnection) Type() string { return "create_connection" }
 
 // ValidateBasic Implements Msg.
 func (msg MsgCreateConnection) ValidateBasic() sdk.Error {
+	if msg.Signer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Signer.String())
+	}
 	if len(msg.FirstUser) == 0 || len(msg.SecondUser) == 0 {
 		return sdk.ErrUnknownRequest("First user and second user cannot be empty")
 	}
@@ -88,11 +90,7 @@ func (msg MsgCreateConnection) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgCreateConnection) GetSignBytes() []byte {
-	b, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(b)
+	return sdk.MustSortJSON(msgCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
