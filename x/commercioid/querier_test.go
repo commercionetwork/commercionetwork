@@ -28,7 +28,7 @@ func Test_queryResolveIdentity(t *testing.T) {
 }
 
 func Test_queryResolveIdentity_unmarshalError(t *testing.T) {
-	path := []string{"identities", "newReader"}
+	path := []string{"identities", "nunu"}
 
 	_, err := querier(input.ctx, path, request)
 

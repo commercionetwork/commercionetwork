@@ -48,73 +48,64 @@ func TestKeeper_StoreDocument(t *testing.T) {
 //Given reference has an owner
 func TestKeeper_HasOwner_True(t *testing.T) {
 
-	ass := assert.New(t)
-
 	store := input.ctx.KVStore(input.docsKeeper.ownersStoreKey)
 	store.Set([]byte(reference), []byte(owner))
 
 	result := input.docsKeeper.HasOwner(input.ctx, reference)
 
-	ass.True(result)
+	assert.True(t, result)
 }
 
 //Given reference hasn't got an owner
 func TestKeeper_HasOwner_False(t *testing.T) {
-	ass := assert.New(t)
+
+	reference := "reff"
 
 	result := input.docsKeeper.HasOwner(input.ctx, reference)
 
-	ass.False(result)
+	assert.False(t, result)
 }
 
 //Given owner is the owner of doc reference
 func TestKeeper_IsOwner_True(t *testing.T) {
 
-	ass := assert.New(t)
-
 	store := input.ctx.KVStore(input.docsKeeper.ownersStoreKey)
 	store.Set([]byte(reference), []byte(owner))
 
 	res := input.docsKeeper.IsOwner(input.ctx, owner, reference)
 
-	ass.True(res)
+	assert.True(t, res)
 }
 
 //Given owner isnt the owner of the doc reference
 func TestKeeper_IsOwner_False(t *testing.T) {
 
-	ass := assert.New(t)
-
+	reference := "reff"
 	res := input.docsKeeper.IsOwner(input.ctx, owner, reference)
 
-	ass.False(res)
+	assert.False(t, res)
 }
 
 func TestKeeper_GetMetadata_OfExistentDocument(t *testing.T) {
-
-	ass := assert.New(t)
 
 	metadataStore := input.ctx.KVStore(input.docsKeeper.metadataStoreKey)
 	metadataStore.Set([]byte(reference), []byte(metadata))
 
 	result := input.docsKeeper.GetMetadata(input.ctx, reference)
 
-	ass.Equal(metadata, result)
-
+	assert.Equal(t, metadata, result)
 }
 
 func TestKeeper_GetMetadata_OfNonExistentDocument(t *testing.T) {
 
-	ass := assert.New(t)
+	reference := "reff"
 
 	result := input.docsKeeper.GetMetadata(input.ctx, reference)
 
-	ass.Equal("", result)
+	assert.Equal(t, "", result)
 }
 
 func TestKeeper_CanReadDocument_True(t *testing.T) {
-
-	ass := assert.New(t)
 
 	readers := []types.Did{ownerIdentity}
 
@@ -123,16 +114,16 @@ func TestKeeper_CanReadDocument_True(t *testing.T) {
 
 	result := input.docsKeeper.CanReadDocument(input.ctx, ownerIdentity, reference)
 
-	ass.True(result)
+	assert.True(t, result)
 }
 
 func TestKeeper_CanReadDocument_False(t *testing.T) {
 
-	ass := assert.New(t)
+	reference := "reff"
 
 	result := input.docsKeeper.CanReadDocument(input.ctx, ownerIdentity, reference)
 
-	ass.False(result)
+	assert.False(t, result)
 }
 
 func TestKeeper_GetAuthorizedReaders(t *testing.T) {
@@ -160,6 +151,7 @@ func TestKeeper_ShareDocument_SenderAuthorizedToShare(t *testing.T) {
 
 func TestKeeper_ShareDocument_SenderUnauthorizedToShare(t *testing.T) {
 
+	ownerIdentity := types.Did("notOwner")
 	error := sdk.ErrUnauthorized(fmt.Sprintf("The sender with address %s doesnt have the rights on this document", ownerIdentity))
 
 	result := input.docsKeeper.ShareDocument(input.ctx, reference, ownerIdentity, recipient)

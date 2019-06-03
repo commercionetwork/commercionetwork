@@ -26,6 +26,8 @@ func Test_handleStoreDocument_documentHasAlreadyAnOwner(t *testing.T) {
 }
 
 func Test_handleStoreDocument_documentStoredCorrectly(t *testing.T) {
+	docStore := input.ctx.KVStore(input.docsKeeper.ownersStoreKey)
+	docStore.Set([]byte(reference), owner)
 
 	res := handler(input.ctx, msgStore)
 
@@ -49,6 +51,9 @@ func Test_handleShareDocument_documentHasAlreadyAnOwner(t *testing.T) {
 }
 
 func Test_handlerShareDocument_documentSharedCorrectly(t *testing.T) {
+
+	docStore := input.ctx.KVStore(input.docsKeeper.ownersStoreKey)
+	docStore.Set([]byte(reference), owner)
 
 	readersStore := input.ctx.KVStore(input.docsKeeper.readersStoreKey)
 	var readers = []types.Did{msgShare.Sender}

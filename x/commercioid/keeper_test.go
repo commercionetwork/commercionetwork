@@ -2,11 +2,16 @@ package commercioid
 
 import (
 	"commercio-network/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestKeeper_CreateIdentity(t *testing.T) {
+
+	owner, _ := sdk.AccAddressFromBech32("cosmos153eu7p9lpgaatml7ua2vvgl8w08r4kjl5ca3y0")
+	ownerIdentity := types.Did("idid")
+
 	identitiesStore := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
 	storeLen := len(identitiesStore.Get([]byte(ownerIdentity)))
 
@@ -27,6 +32,10 @@ func TestKeeper_GetDdoReferenceByDid(t *testing.T) {
 }
 
 func TestKeeper_CanBeUsedBy_UserWithNoRegisteredIdentities(t *testing.T) {
+
+	owner, _ := sdk.AccAddressFromBech32("cosmos153eu7p9lpgaatml7ua2vvgl8w08r4kjl5ca310")
+	ownerIdentity := types.Did("idid")
+
 	store := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
 	store.Set([]byte(ownerIdentity), []byte(identityRef))
 

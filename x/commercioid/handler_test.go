@@ -19,6 +19,12 @@ func Test_handleMsgCreateIdentity_incorrectSigner(t *testing.T) {
 	store := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
 	store.Set([]byte(ownerIdentity), []byte(identityRef))
 
+	var msgSetId = MsgSetIdentity{
+		DID:          ownerIdentity,
+		DDOReference: identityRef,
+		Owner:        sdk.AccAddress{},
+	}
+
 	expected := sdk.ErrUnauthorized("Incorrect Signer").Result()
 
 	actual := handler(input.ctx, msgSetId)
@@ -36,6 +42,12 @@ func Test_handleMsgCreateConnection(t *testing.T) {
 func Test_handleMsgCreateConnection_SignerIsntTheOwnerOfIdentity(t *testing.T) {
 	store := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
 	store.Set([]byte(ownerIdentity), []byte(identityRef))
+
+	var msgCreateConn = MsgCreateConnection{
+		FirstUser:  ownerIdentity,
+		SecondUser: recipient,
+		Signer:     sdk.AccAddress{},
+	}
 
 	expected := sdk.ErrUnauthorized("The signer must own either the first or the second DID").Result()
 

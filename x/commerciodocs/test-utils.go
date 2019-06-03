@@ -58,6 +58,9 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(keyDOCSOwners, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyDOCSMetadata, sdk.StoreTypeIAVL, db)
 	ms.MountStoreWithDB(keyDOCSSharing, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyIDIdentities, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyIDOwners, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyIDConnections, sdk.StoreTypeIAVL, db)
 
 	ms.LoadLatestVersion()
 
