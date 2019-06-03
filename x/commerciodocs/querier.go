@@ -76,7 +76,7 @@ func queryGetAuthorized(ctx sdk.Context, path []string, keeper Keeper) (res []by
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, connectionsResult)
 	if err2 != nil {
-		panic("Could not marshal result to JSON")
+		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Could not marshal result to JSON"))
 	}
 
 	return bz, nil

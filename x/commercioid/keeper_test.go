@@ -72,7 +72,7 @@ func TestKeeper_AddConnection(t *testing.T) {
 func TestKeeper_GetConnections(t *testing.T) {
 	store := input.ctx.KVStore(input.idKeeper.connectionsStoreKey)
 
-	var connections []types.Did
+	var connections = []types.Did{ownerIdentity}
 
 	expected := []types.Did{ownerIdentity}
 

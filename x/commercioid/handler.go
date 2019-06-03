@@ -48,7 +48,7 @@ func handleMsgCreateIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity)
 func handleMsgCreateConnection(ctx sdk.Context, keeper Keeper, msg MsgCreateConnection) sdk.Result {
 
 	// Checks if the the msg sender is the same as the current owner
-	if !keeper.CanBeUsedBy(ctx, msg.Signer, msg.FirstUser) && !keeper.CanBeUsedBy(ctx, msg.Signer, msg.SecondUser) {
+	if !keeper.CanBeUsedBy(ctx, msg.Signer, msg.FirstUser) || !keeper.CanBeUsedBy(ctx, msg.Signer, msg.SecondUser) {
 		// If not, throw an error
 		return sdk.ErrUnauthorized("The signer must own either the first or the second DID").Result()
 	}
