@@ -18,6 +18,12 @@ to protect your node from DDOS attacks and to ensure high-availability.
 
 You may want to skip the next section if you have already [set up a full-node](./join-mainnet.md). 
 
+## Create your validator machine
+In order to properly run a validator, some criteria must be satisfied to ensure that your machine won't stop working and 
+all your stake won't be slashed for downtime. Three different hardware setup can be found inside the 
+[validator hardware](./validator-hardware.md) page.
+
+
 ## Create your validator
 Your `comnetvalconspub` can be used to create a new validator by staking tokens. 
 You can find your validator pubkey by running:
