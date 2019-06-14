@@ -23,7 +23,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// gaiad custom flags
+// cnd custom flags
 const flagInvCheckPeriod = "inv-check-period"
 
 var invCheckPeriod uint
