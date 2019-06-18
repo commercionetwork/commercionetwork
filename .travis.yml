@@ -14,7 +14,12 @@ matrix:
         - vuepress build docs
         - cd docs/.vuepress/dist
         # - echo 'www.example.com' > CNAME # to deploy into a custom domain
-        - git init
-        - git add -A
-        - git commit -m 'deploy'
-        - git push -f git@github.com:commercionetwork/commercionetwork.git master:gh-pages
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        github_token: $GITHUB_TOKEN
+        keep_history: true
+        local_dir: /docs/.vuepress/dist
+        on:
+          branch: master
+
