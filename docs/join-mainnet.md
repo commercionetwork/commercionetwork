@@ -49,7 +49,7 @@ Fetch the mainnet's `genesis.json` file into the `cnd`'s config directory.
 
 ```bash
 mkdir -p $HOME/.cnd/config
-curl https://raw.githubusercontent.com/commercionetwork/launch/master/genesis.json > $HOME/.cnd/config/genesis.json
+curl https://raw.githubusercontent.com/Commercionetwork/Chains/master/latest/genesis.json > $HOME/.cnd/config/genesis.json
 ```
 
 Note that we use the `latest` directory inside the [chains repo](https://github.com/commercionetwork/chains) which 
