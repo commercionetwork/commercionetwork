@@ -17,7 +17,7 @@ matrix:
         skip_cleanup: true
         github_token: $GITHUB_TOKEN
         keep_history: true
-        local_dir: /docs/.vuepress/dist
+        local_dir: docs/.vuepress/dist
         on:
           branch: master
 
