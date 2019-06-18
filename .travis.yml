@@ -1,7 +1,20 @@
-language: go
+matrix:
+  include:
+    - language: go
+      go: 1.12.6
+      script:
+        - make build
 
-go:
-  - 1.12.6
-
-script:
-  - make build
+    - language: nodejs
+      before_script:
+        - cd docs
+        - npm install -g vuepress
+      script:
+        - set -e
+        - npm run docs:build
+        - cd docs/.vuepress/dist
+        # - echo 'www.example.com' > CNAME # to deploy into a custom domain
+        - git init
+        - git add -A
+        - git commit -m 'deploy'
+        - git push -f git@github.com:commercionetwork/commercionetwork.git master:gh-pages

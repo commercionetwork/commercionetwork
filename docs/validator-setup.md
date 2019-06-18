@@ -1,7 +1,9 @@
-# Run a Validator on the Commercio.network Mainnet\
+# Run a Validator on the Commercio.network Mainnet
 
-> TIP. Information on how to join the mainnet (`genenis.json` file and seeds) is held 
+::: tip
+Information on how to join the mainnet (`genenis.json` file and seeds) is held 
 [in our `launch` repo](https://github.com/commercionetwork/launch).
+:::
 
 Before setting up your validator node, make sure you've already gone through the 
 [Full Node Setup](./join-mainnet.md) guide.
@@ -13,8 +15,10 @@ A validator's stake is slashed if they become unavailable or sign blocks at the 
 Please read about [Sentry Node Architecture](https://cosmos.network/docs/cosmos-hub/validators/validator-faq.html#technical-requirements) 
 to protect your node from DDOS attacks and to ensure high-availability.
 
-> WARNING. If you want to become a validator for the Hub's `mainnet`, you should 
+::: danger 
+If you want to become a validator for the Hub's `mainnet`, you should 
 [research security](https://cosmos.network/docs/cosmos-hub/validators/security.html)
+:::
 
 You may want to skip the next section if you have already [set up a full-node](./join-mainnet.md). 
 
@@ -34,7 +38,9 @@ cnd tendermint show-validator
 
 To create your validator, just use the following command: 
 
-> WARNING. Don't use more `ucommercio` than you have
+::: warning
+Don't use more `ucommercio` than you have
+:::
 
  ```shell
 cncli tx staking create-validator \
@@ -51,17 +57,18 @@ cncli tx staking create-validator \
     --from=<key_name>
  ```
  
-> TIP. When specifying the commission parameters, the `commision-max-change-rate` is used to measure the `% point` 
-change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase but only 1 percentage point. 
+::: tip
+When specifying the commission parameters, the `commision-max-change-rate` is used to measure the `% point` 
+change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase but only 1 percentage point.
+::: 
 
-> TIP. `Min-self-delegation` is a strictly positive integer that represents the minimum amount of self-delegated 
+::: tip 
+`Min-self-delegation` is a strictly positive integer that represents the minimum amount of self-delegated 
 voting power your validator must always have. A `min-self-delegation` of 1 means your validator will never have a 
 self-delegation lower than `1commercio`, or `1000000ucommercio`.
+:::
 
 You can confirm that you are in the validator set by using a third party explorer. 
-
-## Participate in Genesis as a Validator
-> WARNING. 
 
 ## Edit the validator description
 You can edit your validator's public description. This info is to identify your validator, and will be relied on by 
