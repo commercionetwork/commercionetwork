@@ -12,8 +12,6 @@ matrix:
       script:
         - set -e
         - vuepress build docs
-        - cd docs/.vuepress/dist
-        # - echo 'www.example.com' > CNAME # to deploy into a custom domain
       deploy:
         provider: pages
         skip_cleanup: true
