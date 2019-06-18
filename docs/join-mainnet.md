@@ -1,6 +1,6 @@
 # Join the mainnet
 
-> See the [launch repo](https://github.com/commercionetwork/launch) for information on the mainnet, including the 
+> See the [chains repo](https://github.com/commercionetwork/chains) for information on the mainnet, including the 
 details about the genesis file. 
 
 > Please make you you have [installed commercio.network](./installation.md) before you go further. 
@@ -50,7 +50,7 @@ mkdir -p $HOME/.cnd/config
 curl https://raw.githubusercontent.com/commercionetwork/launch/master/genesis.json > $HOME/.cnd/config/genesis.json
 ```
 
-Note that we use the `latest` directory inside the [launch repo](https://github.com/commercionetwork/launch) which 
+Note that we use the `latest` directory inside the [chains repo](https://github.com/commercionetwork/chains) which 
 contains details for the mainnet like the latest version and genesis file. 
 
 > If you want to connect to the public testnet instead, click [here](./join-testnet.md).
@@ -63,7 +63,7 @@ cnd start
 
 ### Add Seed Nodes
 Your node needs to know how to find peers. You'll need to add healthy seed nodes to `$HOME/.cnd/config/config.toml`. 
-The [launch repo](https://github.com/commercionetwork/launch) contains the links to some seed nodes.
+The [chains repo](https://github.com/commercionetwork/chains) contains the links to some seed nodes.
 
 If those seeds aren't working, you can ask for peers on the [Commercio.network Telegram Group](https://t.me/CommercioNetwork).
 
