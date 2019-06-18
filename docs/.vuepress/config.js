@@ -2,7 +2,7 @@ module.exports = {
     title: "Commercio.network SDK Documentation",
     description: "Documentation for the Commercio.network blockchain.",
     ga: "UA-51029217-2",
-    base: "/docs/",
+    base: "/Commercionetwork/",
     markdown: {
         lineNumbers: true
     },
