@@ -3,7 +3,9 @@
 > See the [chains repo](https://github.com/commercionetwork/chains) for information on the mainnet, including the 
 details about the genesis file. 
 
-> Please make you you have [installed commercio.network](./installation.md) before you go further. 
+:::warning 
+Please make you you have [installed commercio.network](./installation.md) before you go further.
+::: 
 
 ## Setting up a new node
 These instructions are for setting up a brand new full node from scratch. 
@@ -70,7 +72,9 @@ If those seeds aren't working, you can ask for peers on the [Commercio.network T
 For more information on seeds and peers, you can [read this](https://github.com/tendermint/tendermint/blob/develop/docs/tendermint-core/using-tendermint.md#peers).
 
 ## A Note on Gas and Fees
-> WARNING. On Commercio.network mainnet, the accepted denom is ucommercio, where 1commercio = 1.000.000ucommercio
+:::warning 
+On Commercio.network mainnet, the accepted denom is ucommercio, where 1commercio = 1.000.000ucommercio
+:::
 
 Transactions on the Cosmos Hub network need to include a transaction fee in order to be processed. 
 This fee pays for the gas required to run the transaction. The formula is the following:
@@ -90,7 +94,9 @@ transactions that have a `gasPrice` greater than their `min-gas-price`.
 The transaction `fees` are the product of `gas` and `gasPrice`. As a user, you have to input 2 out of 3. 
 The higher the `gasPrice/fees`, the higher the chance that your transaction will get included in a block.
 
-> TIP. For the mainnet, the recommended gas-prices is `0.025ucommercio`.
+:::tip
+For the mainnet, the recommended gas-prices is `0.025ucommercio`.
+:::
 
 ## Set `minimum-gas-prices`
 Your full-node keeps unconfirmed transactions in its mempool. In order to protect it from spam, it is better to set a 

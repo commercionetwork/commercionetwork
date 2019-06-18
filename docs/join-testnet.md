@@ -1,9 +1,12 @@
 # Join the Public Testnet
-> Current Testnet.   
+:::tip Current Testnet.   
 See the [testnet repo](https://github.com/commercionetwork/testnets) for information on the latest testnet, including the correct
 version of the Commercio.network executable to use and the details about the genesis file. 
+:::
 
-> WARNING. You need to [install Commercio.network](./installation.md) before you go further.
+::: warning 
+You need to [install Commercio.network](./installation.md) before you go further.
+:::
 
 ## Starting a new node
 > NOTE: If you ran a full node on previous testnet, please skip to [Upgrading from Previous Testnet](#upgrading-your-node).
@@ -33,9 +36,10 @@ Your node is now in a pristine state while keeping the original `priv_validator.
 If you had any sentry nodes or full nodes setup before, your node will still try to connect to them, but may fail if 
 they haven't also been upgraded.
 
-> WARNING. 
+::: warning 
 Make sure that every node has a unique `priv_validator.json`. Do not copy the `priv_validator.json` from an old node to 
 multiple new nodes. Running two nodes with the same `priv_validator.json` will cause you to double sign.
+:::
 
 ## Software upgrade
 Now it is time to upgrade the software:
