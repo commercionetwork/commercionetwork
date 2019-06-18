@@ -45,7 +45,7 @@ func ValidateGenesisCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Error validating genesis file %s: %s", genesis, err.Error())
 			}
 
-			fmt.Printf("File at %s is a valid genesis file for gaiad\n", genesis)
+			fmt.Printf("File at %s is a valid genesis file for cnd\n", genesis)
 			return nil
 		},
 	}
