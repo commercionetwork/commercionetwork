@@ -5,7 +5,7 @@ matrix:
       script:
         - make build
 
-    - language: nodejs
+    - language: node_js
       before_script:
         - cd docs
         - npm install -g vuepress
