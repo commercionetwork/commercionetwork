@@ -4,4 +4,4 @@ go:
   - 1.12.6
 
 script:
-  - make build-all
+  - make build
