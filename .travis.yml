@@ -1,0 +1,7 @@
+language: go
+
+go:
+  - 1.12.6
+
+script:
+  - make build-all
