@@ -58,9 +58,9 @@ func (msg MsgSetIdentity) GetSigners() []sdk.AccAddress {
 // ----------------------------------
 
 type MsgCreateConnection struct {
-	FirstUser  types.Did
-	SecondUser types.Did
-	Signer     sdk.AccAddress
+	FirstUser  types.Did      `json:"first_user"`
+	SecondUser types.Did      `json:"second_user"`
+	Signer     sdk.AccAddress `json:"signer"`
 }
 
 func NewMsgCreateConnection(firstUser types.Did, secondUser types.Did, signer sdk.AccAddress) MsgCreateConnection {
