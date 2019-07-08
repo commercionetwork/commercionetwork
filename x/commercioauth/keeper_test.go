@@ -16,18 +16,6 @@ var keeper = Keeper{
 	cdc:           input.cdc,
 }
 
-//All fields are valid
-func TestKeeper_RegisterAccount(t *testing.T) {
-
-	ass := assert.New(t)
-
-	actual := keeper.RegisterAccount(input.ctx, address, keyType, keyValue)
-
-	if !ass.Nil(actual) {
-		t.Errorf("Registration of account %s failed", actual)
-	}
-}
-
 //Invalid address
 func TestKeeper_RegisterAccount2(t *testing.T) {
 

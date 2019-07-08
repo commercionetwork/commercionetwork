@@ -90,6 +90,8 @@ func makeCodec() *codec.Codec {
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
+	cdc.RegisterConcrete(MsgStoreDocument{}, "commerciodocs/StoreDocument", nil)
+	cdc.RegisterConcrete(MsgShareDocument{}, "commerciodocs/ShareDocument", nil)
 
 	cdc.Seal()
 

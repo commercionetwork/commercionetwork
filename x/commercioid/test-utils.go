@@ -78,6 +78,8 @@ func makeCodec() *codec.Codec {
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
+	cdc.RegisterConcrete(MsgSetIdentity{}, "commercioid/SetIdentity", nil)
+	cdc.RegisterConcrete(MsgCreateConnection{}, "commectioid/CreateConnection", nil)
 
 	cdc.Seal()
 

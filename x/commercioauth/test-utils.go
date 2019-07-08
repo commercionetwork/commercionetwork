@@ -69,7 +69,6 @@ func makeCodec() *codec.Codec {
 	cdc.RegisterConcrete(MsgCreateAccount{}, "commercioauth/CreateAccount", nil)
 	cdc.RegisterConcrete(ed25519.GenPrivKey().PubKey(), "ed25519.PubKey", nil)
 	cdc.RegisterConcrete(secp256k1.PubKeySecp256k1{}, "secp256k1PubKey", nil)
-
 	cdc.Seal()
 
 	return cdc
