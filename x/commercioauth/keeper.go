@@ -49,7 +49,6 @@ func (keeper Keeper) RegisterAccount(ctx sdk.Context, address string, keyType st
 		accountAddress, err = sdk.AccAddressFromHex(address)
 		if err != nil {
 			return sdk.ErrInvalidAddress("Invalid address provided")
-
 		}
 	}
 
@@ -86,8 +85,13 @@ func (keeper Keeper) RegisterAccount(ctx sdk.Context, address string, keyType st
 		account = keeper.accountKeeper.NewAccountWithAddress(ctx, accountAddress)
 
 		// Set the account's public key
-		if err := account.SetPubKey(publicKey); err != nil {
-			return sdk.ErrInternal(fmt.Sprintf("Error while setting the account's public key %s", err))
+		if publicKey != nil {
+			err := account.SetPubKey(publicKey)
+			if err != nil {
+				return sdk.ErrInternal(fmt.Sprintf("Error while setting the account's public key %s", err))
+			}
+		} else {
+			return sdk.ErrInternal(fmt.Sprintf("Can't set a null public key to account %s", address))
 		}
 
 		// Store the account inside the store
@@ -100,9 +104,14 @@ func (keeper Keeper) RegisterAccount(ctx sdk.Context, address string, keyType st
 func (keeper Keeper) GetAccount(ctx sdk.Context, address string) (auth.Account, sdk.Error) {
 
 	// Get the address from the string
-	accountAddress, err := sdk.AccAddressFromHex(address)
+	accountAddress, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress("Invalid address provided")
+
+		// If Bech32 fails, read the address as a HEX string
+		accountAddress, err = sdk.AccAddressFromHex(address)
+		if err != nil {
+			return nil, sdk.ErrInvalidAddress("Invalid address provided")
+		}
 	}
 
 	// Try getting the existing account

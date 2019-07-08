@@ -11,6 +11,7 @@ package commerciodocs
 
 import (
 	"commercio-network/types"
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,7 +51,7 @@ func queryGetMetadata(ctx sdk.Context, path []string, keeper Keeper) (res []byte
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, identityResult)
 	if err2 != nil {
-		panic("Could not marshal result to JSON")
+		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Could not marshal result to JSON"))
 	}
 
 	return bz, nil
@@ -75,13 +76,13 @@ func queryGetAuthorized(ctx sdk.Context, path []string, keeper Keeper) (res []by
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, connectionsResult)
 	if err2 != nil {
-		panic("Could not marshal result to JSON")
+		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Could not marshal result to JSON"))
 	}
 
 	return bz, nil
 }
 
 type AuthorizedResult struct {
-	Document string      `json:"document"`
+	Document string      `json:"document_reference"`
 	Readers  []types.Did `json:"authorized_readers"`
 }
