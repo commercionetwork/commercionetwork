@@ -8,18 +8,8 @@ import (
 )
 
 func (this MsgCreateAccount) isEqualTo(msg MsgCreateAccount) bool {
-
-	if this.Signer.String() == msg.Signer.String() {
-		if this.Address == msg.Address {
-			if this.KeyType == msg.KeyType {
-				if this.KeyValue == msg.KeyValue {
-					return true
-				}
-			}
-		}
-	}
-
-	return false
+	return this.Signer.String() == msg.Signer.String() && this.Address == msg.Address &&
+		this.KeyType == msg.KeyType && this.KeyValue == msg.KeyValue
 }
 
 var priv = ed25519.GenPrivKey()

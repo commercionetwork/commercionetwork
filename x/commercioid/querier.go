@@ -10,7 +10,6 @@ package commercioid
 
 import (
 	"commercio-network/types"
-	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,12 +49,12 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 	identityResult.DdoReference = keeper.GetDdoReferenceByDid(ctx, did)
 
 	if identityResult.DdoReference == "" {
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("No ddo reference related to given did"))
+		return nil, sdk.ErrUnknownRequest("No ddo reference related to given did")
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, identityResult)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Could not marshal result to JSON"))
+		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -80,7 +79,7 @@ func queryGetConnections(ctx sdk.Context, path []string, keeper Keeper) (res []b
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, connectionsResult)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Could not marshal result to JSON"))
+		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 
 	return bz, nil

@@ -34,14 +34,14 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	commercioId commercioid.Keeper,
+	commercioIdKeeper commercioid.Keeper,
 	ownersStoreKey sdk.StoreKey,
 	metadataStoreKey sdk.StoreKey,
 	sharingStoreKey sdk.StoreKey,
 	readersStoreKey sdk.StoreKey,
 	cdc *codec.Codec) Keeper {
 	return Keeper{
-		commercioIdKeeper: commercioId,
+		commercioIdKeeper: commercioIdKeeper,
 		ownersStoreKey:    ownersStoreKey,
 		metadataStoreKey:  metadataStoreKey,
 		sharingStoreKey:   sharingStoreKey,
@@ -71,7 +71,7 @@ func (keeper Keeper) addReaderForDocument(ctx sdk.Context, user types.Did, refer
 		keeper.cdc.MustUnmarshalBinaryBare(existingReaders, &readers)
 	}
 
-	// Append the ownerIdentity to the reading list
+	// Append the user to the reading list
 	readers = utilities.AppendDidIfMissing(readers, user)
 
 	// Save the result into the store
@@ -142,8 +142,8 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender typ
 	return nil
 }
 
-// CanReadDocument tells whenever a given ownerIdentity has access to a document or not.
-// Returns true if the ownerIdentity has access to the document, false otherwise.
+// CanReadDocument tells whenever a given user has access to a document or not.
+// Returns true if the user has access to the document, false otherwise.
 func (keeper Keeper) CanReadDocument(ctx sdk.Context, user types.Did, reference string) bool {
 	store := ctx.KVStore(keeper.readersStoreKey)
 

@@ -15,7 +15,7 @@ var comAuthkeeper = Keeper{
 	cdc:           input.cdc,
 }
 
-//handled message
+//Tests the correct managing of create account message by handler
 func TestNewHandler(t *testing.T) {
 
 	ass := assert.New(t)
@@ -35,10 +35,9 @@ func TestNewHandler(t *testing.T) {
 	if !ass.Equal(expected.IsOK(), res.IsOK()) {
 		t.Errorf("The results should be equal")
 	}
-
 }
 
-//unhandled message
+//Tests if the handler correctly throw an error message with unhandled messages
 func TestNewHandler2(t *testing.T) {
 
 	ass := assert.New(t)
