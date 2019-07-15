@@ -110,7 +110,7 @@ func addConnectionToUser(user types.Did, connection types.Did, store sdk.KVStore
 	var userConnections []types.Did
 
 	existingUserConnections := store.Get([]byte(user))
-	if userConnections != nil {
+	if existingUserConnections != nil {
 		codec.MustUnmarshalBinaryBare(existingUserConnections, &userConnections)
 	}
 
