@@ -1,4 +1,4 @@
-package commercioid
+package types
 
 /**
  * Any interface you create and any struct that implements an interface needs to be

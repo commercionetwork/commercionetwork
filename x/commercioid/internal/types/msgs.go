@@ -1,4 +1,4 @@
-package commercioid
+package types
 
 import (
 	"commercio-network/types"
@@ -45,7 +45,7 @@ func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgSetIdentity) GetSignBytes() []byte {
-	return sdk.MustSortJSON(msgCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(types2.msgCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
@@ -90,7 +90,7 @@ func (msg MsgCreateConnection) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgCreateConnection) GetSignBytes() []byte {
-	return sdk.MustSortJSON(msgCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(types2.msgCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.

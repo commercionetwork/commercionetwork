@@ -9,12 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 )
@@ -30,26 +24,7 @@ func (app *commercioNetworkApp) ExportAppStateAndValidators(forZeroHeight bool, 
 		app.prepForZeroHeightGenesis(ctx, jailWhiteList)
 	}
 
-	// iterate to get the accounts
-	accounts := []GenesisAccount{}
-	appendAccount := func(acc auth.Account) (stop bool) {
-		account := NewGenesisAccountI(acc)
-		accounts = append(accounts, account)
-		return false
-	}
-	app.accountKeeper.IterateAccounts(ctx, appendAccount)
-
-	genState := NewGenesisState(
-		accounts,
-		auth.ExportGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper),
-		bank.ExportGenesis(ctx, app.bankKeeper),
-		staking.ExportGenesis(ctx, app.stakingKeeper),
-		mint.ExportGenesis(ctx, app.mintKeeper),
-		distr.ExportGenesis(ctx, app.distrKeeper),
-		gov.ExportGenesis(ctx, app.govKeeper),
-		crisis.ExportGenesis(ctx, app.crisisKeeper),
-		slashing.ExportGenesis(ctx, app.slashingKeeper),
-	)
+	genState := app.mm.ExportGenesis(ctx)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {
 		return nil, nil, err
@@ -78,12 +53,12 @@ func (app *commercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWh
 	}
 
 	/* Just to be safe, assert the invariants on current state. */
-	app.assertRuntimeInvariantsOnContext(ctx)
+	app.crisisKeeper.AssertInvariants(ctx)
 
 	/* Handle fee distribution state. */
 
 	// withdraw all validator commission
-	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val sdk.Validator) (stop bool) {
+	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val staking.ValidatorI) (stop bool) {
 		_, _ = app.distrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
 		return false
 	})
@@ -105,7 +80,7 @@ func (app *commercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWh
 	ctx = ctx.WithBlockHeight(0)
 
 	// reinitialize all validators
-	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val sdk.Validator) (stop bool) {
+	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val staking.ValidatorI) (stop bool) {
 
 		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
 		scraps := app.distrKeeper.GetValidatorOutstandingRewards(ctx, val.GetOperator())

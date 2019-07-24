@@ -1,6 +1,7 @@
 package app
 
 import (
+	"commercio-network/app"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -218,7 +219,7 @@ func defaultMintGenesisState() mint.GenesisState {
 	return mint.GenesisState{
 		Minter: mint.DefaultInitialMinter(),
 		Params: mint.Params{
-			MintDenom:           DefaultBondDenom,
+			MintDenom:           app.DefaultBondDenom,
 			InflationRateChange: sdk.NewDecWithPrec(13, 2),
 			InflationMax:        sdk.NewDecWithPrec(20, 2),
 			InflationMin:        sdk.NewDecWithPrec(7, 2),
@@ -236,7 +237,7 @@ func defaultStakingGenesisState() staking.GenesisState {
 			UnbondingTime: types.DefaultUnbondingTime,
 			MaxValidators: types.DefaultMaxValidators,
 			MaxEntries:    types.DefaultMaxEntries,
-			BondDenom:     DefaultBondDenom,
+			BondDenom:     app.DefaultBondDenom,
 		},
 	}
 }
@@ -247,7 +248,7 @@ func defaultGovGenesisState() gov.GenesisState {
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.Coins{sdk.NewCoin(DefaultBondDenom, minDepositTokens)},
+			MinDeposit:       sdk.Coins{sdk.NewCoin(app.DefaultBondDenom, minDepositTokens)},
 			MaxDepositPeriod: gov.DefaultPeriod,
 		},
 		VotingParams: gov.VotingParams{
@@ -264,7 +265,7 @@ func defaultGovGenesisState() gov.GenesisState {
 // defaultGovGenesisState creates the default crisis module state that will be used during the genesis
 func defaultCrisisGenesisState() crisis.GenesisState {
 	return crisis.GenesisState{
-		ConstantFee: sdk.NewCoin(DefaultBondDenom, sdk.NewInt(1000)),
+		ConstantFee: sdk.NewCoin(app.DefaultBondDenom, sdk.NewInt(1000)),
 	}
 }
 

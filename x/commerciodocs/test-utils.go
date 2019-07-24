@@ -2,7 +2,7 @@ package commerciodocs
 
 import (
 	"commercio-network/types"
-	"commercio-network/x/commercioid"
+	"commercio-network/x/commercioid/internal/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -70,7 +70,7 @@ func setupTestInput() testInput {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	idk := commercioid.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
+	idk := keeper.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
 	dck := NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())

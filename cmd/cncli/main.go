@@ -1,6 +1,7 @@
 package main
 
 import (
+	app "commercio-network/app"
 	"fmt"
 	"os"
 	"path"
@@ -12,53 +13,27 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
 
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"commercio-network"
+	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 
-	// CommercioAUTH
-	authclient "commercio-network/x/commercioauth/client"
-	authrest "commercio-network/x/commercioauth/client/rest"
-
-	// CommercioDOCS
-	docsclient "commercio-network/x/commerciodocs/client"
 	docsrest "commercio-network/x/commerciodocs/client/rest"
 
-	// CommercioID
-	idclient "commercio-network/x/commercioid/client"
 	idrest "commercio-network/x/commercioid/client/rest"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	at "github.com/cosmos/cosmos-sdk/x/auth"
-	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
-	bank "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
-	dist "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
-	gv "github.com/cosmos/cosmos-sdk/x/gov"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
-	//mintrest "github.com/cosmos/cosmos-sdk/x/mint/client/rest"
-	sl "github.com/cosmos/cosmos-sdk/x/slashing"
-	slashing "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
-	st "github.com/cosmos/cosmos-sdk/x/staking"
-	staking "github.com/cosmos/cosmos-sdk/x/staking/client/rest"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	//crisisclient "github.com/cosmos/cosmos-sdk/x/crisis/client"
-	distcmd "github.com/cosmos/cosmos-sdk/x/distribution"
-	distClient "github.com/cosmos/cosmos-sdk/x/distribution/client"
-	govClient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	//mintclient "github.com/cosmos/cosmos-sdk/x/mint/client"
-	slashingclient "github.com/cosmos/cosmos-sdk/x/slashing/client"
-	stakingclient "github.com/cosmos/cosmos-sdk/x/staking/client"
 )
 
 const (
 	storeAUTH = "commercioauth"
-	storeID   = "commercioid"
 	storeDOCS = "commerciodocs"
 )
 
@@ -82,7 +57,8 @@ func main() {
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 
-	// Module clients hold cli commands (tx,query) and lcd routes
+/*
+	// Module clients hold cli commFands (tx,queryF) and lcd routes
 	// TODO: Make the lcd command take a list of ModuleClient
 	mc := []sdk.ModuleClients{
 		govClient.NewModuleClient(gv.StoreKey, cdc),
@@ -101,7 +77,7 @@ func main() {
 		// CommercioDOCS
 		docsclient.NewModuleClient(storeDOCS, cdc),
 	}
-
+*/
 	rootCmd := &cobra.Command{
 		Use:   "cncli",
 		Short: "Command line interface for interacting with cnd",
@@ -120,19 +96,19 @@ func main() {
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		client.ConfigCmd(defaultCLIHome),
-		queryCmd(cdc, mc),
-		txCmd(cdc, mc),
+		queryCmd(cdc),
+		txCmd(cdc),
 		client.LineBreak,
 		lcd.ServeCommand(cdc, registerRoutes),
 		client.LineBreak,
 		keys.Commands(),
 		client.LineBreak,
-		version.VersionCmd,
+		version.Cmd,
 		client.NewCompletionCmd(rootCmd, true),
 	)
 
 	// Add flags and prefix all env exposed with CN
-	executor := cli.PrepareMainCmd(rootCmd, "CN", defaultCLIHome)
+	executor := cli.PrepareMainCmd(rootCmd, "CN", app.DefaultCLIHome)
 
 	err := executor.Execute()
 	if err != nil {
@@ -141,7 +117,7 @@ func main() {
 	}
 }
 
-func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
+func queryCmd(cdc *amino.Codec) *cobra.Command {
 	queryCmd := &cobra.Command{
 		Use:     "query",
 		Aliases: []string{"q"},
@@ -149,25 +125,22 @@ func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
-		rpc.ValidatorCommand(cdc),
-		rpc.BlockCommand(),
-		tx.SearchTxCmd(cdc),
-		tx.QueryTxCmd(cdc),
+		authcmd.GetAccountCmd(cdc),
 		client.LineBreak,
-		authcmd.GetAccountCmd(at.StoreKey, cdc),
+		authcmd.GetSignCommand(cdc),
+		authcmd.GetMultiSignCommand(cdc),
+		client.LineBreak,
+		authcmd.GetBroadcastCommand(cdc),
+		authcmd.GetEncodeCommand(cdc),
+		client.LineBreak,
 	)
 
-	for _, m := range mc {
-		mQueryCmd := m.GetQueryCmd()
-		if mQueryCmd != nil {
-			queryCmd.AddCommand(mQueryCmd)
-		}
-	}
+	app.ModuleBasics.AddQueryCommands(queryCmd, cdc)
 
 	return queryCmd
 }
 
-func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
+func txCmd(cdc *amino.Codec) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:   "tx",
 		Short: "Transactions subcommands",
@@ -178,32 +151,34 @@ func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 		client.LineBreak,
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
-		tx.GetBroadcastCommand(cdc),
-		tx.GetEncodeCommand(cdc),
+		client.LineBreak,
+		authcmd.GetBroadcastCommand(cdc),
+		authcmd.GetEncodeCommand(cdc),
 		client.LineBreak,
 	)
 
-	for _, m := range mc {
-		txCmd.AddCommand(m.GetTxCmd())
+	app.ModuleBasics.AddTxCommands(txCmd, cdc)
+
+	var cmdsToRemove []*cobra.Command
+
+	for _, cmd := range txCmd.Commands() {
+		if cmd.Use == auth.ModuleName || cmd.Use == bank.ModuleName {
+			cmdsToRemove = append(cmdsToRemove, cmd)
+		}
 	}
+
+	txCmd.RemoveCommand(cmdsToRemove...)
 
 	return txCmd
 }
 
 // registerRoutes registers the routes from the different modules for the LCD.
 func registerRoutes(rs *lcd.RestServer) {
-	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
-	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, at.StoreKey)
-	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	dist.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, distcmd.StoreKey)
-	staking.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	//mintrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	client.RegisterRoutes(rs.CliCtx, rs.Mux)
+	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
+	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
 
-	// CommercioAUTH
-	authrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAUTH)
+	//todo finish this...
 
 	// CommercioID
 	idrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeID)

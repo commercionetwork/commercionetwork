@@ -2,6 +2,8 @@ package commercioid
 
 import (
 	"commercio-network/types"
+	"commercio-network/x/commercioid/internal/keeper"
+	types2 "commercio-network/x/commercioid/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +21,7 @@ type testInput struct {
 	ctx        sdk.Context
 	accKeeper  auth.AccountKeeper
 	bankKeeper bank.BaseKeeper
-	idKeeper   Keeper
+	idKeeper   keeper.Keeper
 }
 
 //commercioauth module initialisation
@@ -59,7 +61,7 @@ func setupTestInput() testInput {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	idk := NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
+	idk := keeper.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 
@@ -78,8 +80,8 @@ func makeCodec() *codec.Codec {
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
-	cdc.RegisterConcrete(MsgSetIdentity{}, "commercioid/SetIdentity", nil)
-	cdc.RegisterConcrete(MsgCreateConnection{}, "commectioid/CreateConnection", nil)
+	cdc.RegisterConcrete(types2.MsgSetIdentity{}, "commercioid/SetIdentity", nil)
+	cdc.RegisterConcrete(types2.MsgCreateConnection{}, "commectioid/CreateConnection", nil)
 
 	cdc.Seal()
 
@@ -88,13 +90,13 @@ func makeCodec() *codec.Codec {
 
 //TEST VARS
 
-var msgSetId = MsgSetIdentity{
+var msgSetId = types2.MsgSetIdentity{
 	DID:          ownerIdentity,
 	DDOReference: identityRef,
 	Owner:        owner,
 }
 
-var msgCreateConn = MsgCreateConnection{
+var msgCreateConn = types2.MsgCreateConnection{
 	FirstUser:  ownerIdentity,
 	SecondUser: recipient,
 	Signer:     owner,

@@ -1,4 +1,4 @@
-package commercioid
+package keeper
 
 import (
 	"commercio-network/types"

@@ -1,13 +1,12 @@
 package commercioauth
 
 import (
+	"commercio-network/x/commercioid/internal/types"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/stretchr/testify/assert"
 	"testing"
-
-	id "commercio-network/x/commercioid"
 )
 
 var comAuthkeeper = Keeper{
@@ -44,7 +43,7 @@ func TestNewHandler2(t *testing.T) {
 
 	handler := NewHandler(comAuthkeeper)
 
-	unhandledMsg := id.MsgCreateConnection{}
+	unhandledMsg := types.MsgCreateConnection{}
 
 	err := fmt.Sprintf("Unrecognized commerciodocs message type: %v", unhandledMsg.Type())
 

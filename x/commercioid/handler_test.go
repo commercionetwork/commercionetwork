@@ -1,6 +1,7 @@
 package commercioid
 
 import (
+	"commercio-network/x/commercioid/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -19,7 +20,7 @@ func Test_handleMsgCreateIdentity_incorrectSigner(t *testing.T) {
 	store := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
 	store.Set([]byte(ownerIdentity), []byte(identityRef))
 
-	var msgSetId = MsgSetIdentity{
+	var msgSetId = types.MsgSetIdentity{
 		DID:          ownerIdentity,
 		DDOReference: identityRef,
 		Owner:        sdk.AccAddress{},
@@ -43,7 +44,7 @@ func Test_handleMsgCreateConnection_SignerIsntTheOwnerOfIdentity(t *testing.T) {
 	store := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
 	store.Set([]byte(ownerIdentity), []byte(identityRef))
 
-	var msgCreateConn = MsgCreateConnection{
+	var msgCreateConn = types.MsgCreateConnection{
 		FirstUser:  ownerIdentity,
 		SecondUser: recipient,
 		Signer:     sdk.AccAddress{},

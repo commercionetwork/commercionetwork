@@ -1,7 +1,8 @@
-package commercioid
+package types
 
 import (
 	"commercio-network/types"
+	"commercio-network/x/commercioid"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,7 +15,7 @@ import (
 func TestMsgSetIdentity_Route(t *testing.T) {
 	key := "commercioid"
 
-	actual := msgSetId.Route()
+	actual := commercioid.msgSetId.Route()
 
 	assert.Equal(t, key, actual)
 }
@@ -22,22 +23,22 @@ func TestMsgSetIdentity_Route(t *testing.T) {
 func TestMsgSetIdentity_Type(t *testing.T) {
 	ttype := "set_identity"
 
-	actual := msgSetId.Type()
+	actual := commercioid.msgSetId.Type()
 
 	assert.Equal(t, ttype, actual)
 }
 
 func TestMsgSetIdentity_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
-	actual := msgSetId.ValidateBasic()
+	actual := commercioid.msgSetId.ValidateBasic()
 
 	assert.Nil(t, actual)
 }
 
 func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
-	invalidMsg := MsgSetIdentity{
-		DID:          ownerIdentity,
-		DDOReference: identityRef,
+	invalidMsg := types2.MsgSetIdentity{
+		DID:          commercioid.ownerIdentity,
+		DDOReference: commercioid.identityRef,
 		Owner:        sdk.AccAddress{},
 	}
 
@@ -47,9 +48,9 @@ func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 }
 
 func TestMsgSetIdentity_ValidateBasic_InvalidDID(t *testing.T) {
-	invalidMsg := MsgSetIdentity{
+	invalidMsg := types2.MsgSetIdentity{
 		DID:          types.Did(""),
-		DDOReference: identityRef,
+		DDOReference: commercioid.identityRef,
 		Owner:        sdk.AccAddress{},
 	}
 
@@ -59,17 +60,17 @@ func TestMsgSetIdentity_ValidateBasic_InvalidDID(t *testing.T) {
 }
 
 func TestMsgSetIdentity_GetSignBytes(t *testing.T) {
-	expected := sdk.MustSortJSON(input.cdc.MustMarshalJSON(msgSetId))
+	expected := sdk.MustSortJSON(commercioid.input.cdc.MustMarshalJSON(commercioid.msgSetId))
 
-	actual := msgSetId.GetSignBytes()
+	actual := commercioid.msgSetId.GetSignBytes()
 
 	assert.Equal(t, expected, actual)
 }
 
 func TestNewMsgSetIdentity_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{msgSetId.Owner}
+	expected := []sdk.AccAddress{commercioid.msgSetId.Owner}
 
-	actual := msgSetId.GetSigners()
+	actual := commercioid.msgSetId.GetSigners()
 
 	assert.Equal(t, expected, actual)
 }
@@ -81,7 +82,7 @@ func TestNewMsgSetIdentity_GetSigners(t *testing.T) {
 func TestMsgCreateConnection_Route(t *testing.T) {
 	key := "commercioid"
 
-	actual := msgCreateConn.Route()
+	actual := commercioid.msgCreateConn.Route()
 
 	assert.Equal(t, key, actual)
 }
@@ -89,22 +90,22 @@ func TestMsgCreateConnection_Route(t *testing.T) {
 func TestMsgCreateConnection_Type(t *testing.T) {
 	ttype := "create_connection"
 
-	actual := msgCreateConn.Type()
+	actual := commercioid.msgCreateConn.Type()
 
 	assert.Equal(t, ttype, actual)
 }
 
 func TestMsgCreateConnection_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
-	actual := msgCreateConn.ValidateBasic()
+	actual := commercioid.msgCreateConn.ValidateBasic()
 
 	assert.Nil(t, actual)
 }
 
 func TestMsgCreateConnection_ValidateBasic_InvalidSignerAddress(t *testing.T) {
-	invMsg := MsgCreateConnection{
-		FirstUser:  ownerIdentity,
-		SecondUser: recipient,
+	invMsg := types2.MsgCreateConnection{
+		FirstUser:  commercioid.ownerIdentity,
+		SecondUser: commercioid.recipient,
 		Signer:     sdk.AccAddress{},
 	}
 
@@ -114,10 +115,10 @@ func TestMsgCreateConnection_ValidateBasic_InvalidSignerAddress(t *testing.T) {
 }
 
 func TestMsgCreateConnection_ValidateBasic_InvalidUser(t *testing.T) {
-	invMsg := MsgCreateConnection{
+	invMsg := types2.MsgCreateConnection{
 		FirstUser:  types.Did(""),
-		SecondUser: recipient,
-		Signer:     owner,
+		SecondUser: commercioid.recipient,
+		Signer:     commercioid.owner,
 	}
 
 	actual := invMsg.ValidateBasic()
@@ -126,17 +127,17 @@ func TestMsgCreateConnection_ValidateBasic_InvalidUser(t *testing.T) {
 }
 
 func TestMsgCreateConnection_GetSignBytes(t *testing.T) {
-	expected := sdk.MustSortJSON(msgCdc.MustMarshalJSON(msgSetId))
+	expected := sdk.MustSortJSON(types2.msgCdc.MustMarshalJSON(commercioid.msgSetId))
 
-	actual := msgSetId.GetSignBytes()
+	actual := commercioid.msgSetId.GetSignBytes()
 
 	assert.Equal(t, expected, actual)
 }
 
 func TestMsgCreateConnection_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{msgSetId.Owner}
+	expected := []sdk.AccAddress{commercioid.msgSetId.Owner}
 
-	actual := msgSetId.GetSigners()
+	actual := commercioid.msgSetId.GetSigners()
 
 	assert.Equal(t, expected, actual)
 }

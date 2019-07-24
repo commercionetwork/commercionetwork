@@ -2,10 +2,10 @@ package rest
 
 import (
 	"commercio-network/types"
+	types2 "commercio-network/x/commercioid/internal/types"
 	"fmt"
 	"net/http"
 
-	"commercio-network/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -62,7 +62,7 @@ func upsertIdentityHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 		}
 
 		// create the message
-		msg := commercioid.NewMsgSetIdentity(types.Did(req.Did), req.DdoReference, addr)
+		msg := types2.NewMsgSetIdentity(types.Did(req.Did), req.DdoReference, addr)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -105,7 +105,7 @@ func createConnectionHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 		}
 
 		// create the message
-		msg := commercioid.NewMsgCreateConnection(types.Did(req.FirstUser), types.Did(req.SecondUser), addr)
+		msg := types2.NewMsgCreateConnection(types.Did(req.FirstUser), types.Did(req.SecondUser), addr)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -113,7 +113,7 @@ func createConnectionHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 		}
 
 		//clientrest.CompleteAndBroadcastTxREST(w, cliCtx, baseReq, []sdk.Msg{msg}, cdc)
-		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, baseReq,[]sdk.Msg{msg})
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, baseReq, []sdk.Msg{msg})
 	}
 }
 
