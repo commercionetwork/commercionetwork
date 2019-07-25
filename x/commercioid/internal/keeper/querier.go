@@ -1,4 +1,4 @@
-package types
+package keeper
 
 /**
  * This is the place to define which queries against application state users will be able to make.
@@ -10,7 +10,6 @@ package types
 
 import (
 	"commercio-network/types"
-	"commercio-network/x/commercioid/internal/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,7 +23,7 @@ const (
 )
 
 // NewQuerier is the module level router for state queries
-func NewQuerier(keeper keeper.Keeper) sdk.Querier {
+func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
 		case QueryResolveDid:
@@ -42,7 +41,7 @@ func NewQuerier(keeper keeper.Keeper) sdk.Querier {
 // ----------------------------------
 
 // nolint: unparam
-func queryResolveIdentity(ctx sdk.Context, path []string, keeper keeper.Keeper) (res []byte, err sdk.Error) {
+func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
 	did := types.Did(path[0])
 
 	identityResult := IdentityResult{}
@@ -53,7 +52,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper keeper.Keeper) 
 		return nil, sdk.ErrUnknownRequest("No ddo reference related to given did")
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, identityResult)
+	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, identityResult)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -71,14 +70,14 @@ type IdentityResult struct {
 // --- Get connections
 // ----------------------------------
 
-func queryGetConnections(ctx sdk.Context, path []string, keeper keeper.Keeper) (res []byte, err sdk.Error) {
+func queryGetConnections(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
 	did := types.Did(path[0])
 
 	connectionsResult := ConnectionsResult{}
 	connectionsResult.Did = did
 	connectionsResult.Connections = keeper.GetConnections(ctx, did)
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, connectionsResult)
+	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, connectionsResult)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}

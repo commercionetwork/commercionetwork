@@ -58,7 +58,7 @@ func TestKeeper_CanBeUsedBy_OwnerOwnsTheGivenIdentity(t *testing.T) {
 	var identities = []types.Did{commercioid.ownerIdentity}
 
 	ownerStore := commercioid.input.ctx.KVStore(commercioid.input.idKeeper.ownersStoresKey)
-	ownerStore.Set([]byte(commercioid.owner), commercioid.input.idKeeper.cdc.MustMarshalBinaryBare(&identities))
+	ownerStore.Set([]byte(commercioid.owner), commercioid.input.idKeeper.Cdc.MustMarshalBinaryBare(&identities))
 
 	actual := commercioid.input.idKeeper.CanBeUsedBy(commercioid.input.ctx, commercioid.owner, commercioid.ownerIdentity)
 

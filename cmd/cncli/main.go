@@ -89,9 +89,6 @@ func main() {
 		return initConfig(rootCmd)
 	}
 
-	// Set the app version
-	version.Version = app.Version
-
 	// Build root command
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),

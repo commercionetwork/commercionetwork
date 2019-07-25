@@ -19,7 +19,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	genaccscli "github.com/cosmos/cosmos-sdk/x/genaccounts/client/cli"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -33,11 +32,7 @@ var invCheckPeriod uint
 func main() {
 	cdc := app.MakeCodec()
 
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
-	config.Seal()
+	app.SetAddressPrefixes()
 
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false

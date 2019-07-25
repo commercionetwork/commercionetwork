@@ -22,7 +22,7 @@ type Keeper struct {
 	connectionsStoreKey sdk.StoreKey
 
 	// Pointer to the codec that is used by Amino to encode and decode binary structs.
-	cdc *codec.Codec
+	Cdc *codec.Codec
 }
 
 // NewKeeper creates new instances of the CommercioID Keeper
@@ -35,7 +35,7 @@ func NewKeeper(
 		identitiesStoreKey:  identitiesStoreKey,
 		ownersStoresKey:     ownersStoresKey,
 		connectionsStoreKey: connectionsStoreKey,
-		cdc:                 cdc,
+		Cdc:                 cdc,
 	}
 }
 
@@ -62,14 +62,14 @@ func (keeper Keeper) CreateIdentity(ctx sdk.Context, owner sdk.AccAddress, did t
 	// If the value exists, read it. Otherwise create an empty array
 	var dids []types.Did
 	if existingReferences != nil {
-		keeper.cdc.MustUnmarshalBinaryBare(existingReferences, &dids)
+		keeper.Cdc.MustUnmarshalBinaryBare(existingReferences, &dids)
 	}
 
 	// Save the new Did inside the array
 	dids = utilities.AppendDidIfMissing(dids, did)
 
 	// Store the array back to the blockchain
-	ownersStore.Set(owner, keeper.cdc.MustMarshalBinaryBare(&dids))
+	ownersStore.Set(owner, keeper.Cdc.MustMarshalBinaryBare(&dids))
 }
 
 // GetIdentity returns the Did Document reference associated to a given Did.
@@ -100,7 +100,7 @@ func (keeper Keeper) CanBeUsedBy(ctx sdk.Context, owner sdk.AccAddress, did type
 	}
 
 	var dids []types.Did
-	keeper.cdc.MustUnmarshalBinaryBare(result, &dids)
+	keeper.Cdc.MustUnmarshalBinaryBare(result, &dids)
 
 	// If the owner has some identities, check if this one is inside the ones he has registered
 	return utilities.DidInSlice(did, dids)
@@ -124,8 +124,8 @@ func addConnectionToUser(user types.Did, connection types.Did, store sdk.KVStore
 func (keeper Keeper) AddConnection(ctx sdk.Context, firstDid types.Did, secondDid types.Did) {
 	connectionsStore := ctx.KVStore(keeper.connectionsStoreKey)
 
-	addConnectionToUser(firstDid, secondDid, connectionsStore, keeper.cdc)
-	addConnectionToUser(secondDid, firstDid, connectionsStore, keeper.cdc)
+	addConnectionToUser(firstDid, secondDid, connectionsStore, keeper.Cdc)
+	addConnectionToUser(secondDid, firstDid, connectionsStore, keeper.Cdc)
 }
 
 // GetConnections returns all the connections that a given did has.
@@ -137,7 +137,7 @@ func (keeper Keeper) GetConnections(ctx sdk.Context, did types.Did) []types.Did 
 
 	result := store.Get([]byte(did))
 	if result != nil {
-		keeper.cdc.MustUnmarshalBinaryBare(result, &connections)
+		keeper.Cdc.MustUnmarshalBinaryBare(result, &connections)
 	}
 
 	return connections

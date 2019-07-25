@@ -17,8 +17,11 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgCreateConnection{}, "commectioid/CreateConnection", nil)
 }
 
-var msgCdc = codec.New()
+var ModuleCdc *codec.Codec
 
 func init() {
-	RegisterCodec(msgCdc)
+	ModuleCdc = codec.New()
+	RegisterCodec(ModuleCdc)
+	codec.RegisterCrypto(ModuleCdc)
+	ModuleCdc.Seal()
 }
