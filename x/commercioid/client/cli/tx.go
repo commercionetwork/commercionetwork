@@ -2,7 +2,7 @@ package cli
 
 import (
 	types2 "commercio-network/types"
-	types "commercio-network/x/commercioid/internal/types"
+	"commercio-network/x/commercioid/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 

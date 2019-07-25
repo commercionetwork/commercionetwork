@@ -32,11 +32,6 @@ import (
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 )
 
-const (
-	storeAUTH = "commercioauth"
-	storeDOCS = "commerciodocs"
-)
-
 var defaultCLIHome = os.ExpandEnv("$HOME/.cncli")
 
 func main() {
@@ -57,27 +52,27 @@ func main() {
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 
-/*
-	// Module clients hold cli commFands (tx,queryF) and lcd routes
-	// TODO: Make the lcd command take a list of ModuleClient
-	mc := []sdk.ModuleClients{
-		govClient.NewModuleClient(gv.StoreKey, cdc),
-		distClient.NewModuleClient(distcmd.StoreKey, cdc),
-		stakingclient.NewModuleClient(st.StoreKey, cdc),
-		//mintclient.NewModuleClient(mint.StoreKey, cdc),
-		slashingclient.NewModuleClient(sl.StoreKey, cdc),
-		//crisisclient.NewModuleClient(sl.StoreKey, cdc),
+	/*
+		// Module clients hold cli commFands (tx,queryF) and lcd routes
+		// TODO: Make the lcd command take a list of ModuleClient
+		mc := []sdk.ModuleClients{
+			govClient.NewModuleClient(gv.StoreKey, cdc),
+			distClient.NewModuleClient(distcmd.StoreKey, cdc),
+			stakingclient.NewModuleClient(st.StoreKey, cdc),
+			//mintclient.NewModuleClient(mint.StoreKey, cdc),
+			slashingclient.NewModuleClient(sl.StoreKey, cdc),
+			//crisisclient.NewModuleClient(sl.StoreKey, cdc),
 
-		// CommercioAUTH
-		authclient.NewModuleClient(storeAUTH, cdc),
+			// CommercioAUTH
+			authclient.NewModuleClient(storeAUTH, cdc),
 
-		// CommercioID
-		idclient.NewModuleClient(storeID, cdc),
+			// CommercioID
+			idclient.NewModuleClient(storeID, cdc),
 
-		// CommercioDOCS
-		docsclient.NewModuleClient(storeDOCS, cdc),
-	}
-*/
+			// CommercioDOCS
+			docsclient.NewModuleClient(storeDOCS, cdc),
+		}
+	*/
 	rootCmd := &cobra.Command{
 		Use:   "cncli",
 		Short: "Command line interface for interacting with cnd",

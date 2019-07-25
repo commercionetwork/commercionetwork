@@ -1,4 +1,4 @@
-package commercioid
+package commerciodocs
 
 import (
 	"encoding/json"

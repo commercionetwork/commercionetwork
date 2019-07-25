@@ -2,12 +2,11 @@ package rest
 
 import (
 	"commercio-network/types"
+	types2 "commercio-network/x/commerciodocs/internal/types"
 	"fmt"
 	"net/http"
 
-	"commercio-network/x/commerciodocs"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -64,7 +63,7 @@ func storeDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		}
 
 		// create the message
-		msg := commerciodocs.NewMsgStoreDocument(addr, types.Did(req.Identity), req.Reference, req.Metadata)
+		msg := types2.NewMsgStoreDocument(addr, types.Did(req.Identity), req.Reference, req.Metadata)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -129,7 +128,7 @@ func shareDocumentHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 		}
 
 		// create the message
-		msg := commerciodocs.NewMsgShareDocument(addr, paramType, types.Did(req.Sender), types.Did(req.Receiver))
+		msg := types2.NewMsgShareDocument(addr, paramType, types.Did(req.Sender), types.Did(req.Receiver))
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

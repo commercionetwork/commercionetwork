@@ -1,4 +1,4 @@
-package commerciodocs
+package keeper
 
 /**
  * This is the place to define which queries against application state users will be able to make.

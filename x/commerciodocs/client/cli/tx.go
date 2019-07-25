@@ -1,17 +1,34 @@
 package cli
 
 import (
-	"commercio-network/types"
-	"commercio-network/x/commerciodocs"
+	types2 "commercio-network/types"
+	"commercio-network/x/commerciodocs/internal/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 )
+
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+	txCmd := &cobra.Command{
+		Use:                        types.ModuleName,
+		Short:                      "CommercioDOCS transactions subcommands",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+	txCmd.AddCommand(
+		GetCmdStoreDocument(cdc),
+		GetCmdShareDocument(cdc),
+	)
+
+	return txCmd
+}
 
 // GetCmdSetIdentity is the CLI command for sending a StoreDocument transaction
 func GetCmdStoreDocument(cdc *codec.Codec) *cobra.Command {
@@ -20,26 +37,18 @@ func GetCmdStoreDocument(cdc *codec.Codec) *cobra.Command {
 		Short: "Edit an existing identity or add a new one",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
-
-			//txBldr := authtxb.NewTxBuilderFromCLI()
-			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			if err := cliCtx.EnsureAccountExists(); err != nil {
-				return err
-			}
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			account := cliCtx.GetFromAddress()
 
-			msg := commerciodocs.NewMsgStoreDocument(account, types.Did(args[0]), args[1], args[2])
+			msg := types.NewMsgStoreDocument(account, types2.Did(args[0]), args[1], args[2])
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
 
-			cliCtx.PrintResponse = true
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
 }
@@ -51,24 +60,16 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 		Short: "Shares the document with the given reference between the sender identity and the receiver identity",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
-
-			//txBldr := authtxb.NewTxBuilderFromCLI()
-			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			if err := cliCtx.EnsureAccountExists(); err != nil {
-				return err
-			}
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			account := cliCtx.GetFromAddress()
 
-			msg := commerciodocs.NewMsgShareDocument(account, args[0], types.Did(args[1]), types.Did(args[2]))
+			msg := types.NewMsgShareDocument(account, args[0], types2.Did(args[1]), types2.Did(args[2]))
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
-
-			cliCtx.PrintResponse = true
 
 			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 		},

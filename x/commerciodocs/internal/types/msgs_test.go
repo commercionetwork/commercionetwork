@@ -1,7 +1,8 @@
-package commerciodocs
+package types
 
 import (
 	"commercio-network/types"
+	"commercio-network/x/commerciodocs"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -13,15 +14,15 @@ import (
 
 func TestNewMsgStoreDocument(t *testing.T) {
 
-	actual := NewMsgStoreDocument(owner, ownerIdentity, reference, metadata)
+	actual := types2.NewMsgStoreDocument(commerciodocs.owner, commerciodocs.ownerIdentity, commerciodocs.reference, commerciodocs.metadata)
 
-	assert.Equal(t, msgStore, actual)
+	assert.Equal(t, commerciodocs.msgStore, actual)
 }
 
 func TestMsgStoreDocument_Route(t *testing.T) {
 	key := "commerciodocs"
 
-	actual := msgStore.Route()
+	actual := commerciodocs.msgStore.Route()
 
 	assert.Equal(t, key, actual)
 }
@@ -29,24 +30,24 @@ func TestMsgStoreDocument_Route(t *testing.T) {
 func TestMsgStoreDocument_Type(t *testing.T) {
 	dType := "store_document"
 
-	actual := msgStore.Type()
+	actual := commerciodocs.msgStore.Type()
 
 	assert.Equal(t, dType, actual)
 }
 
 func TestMsgStoreDocument_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
-	actual := msgStore.ValidateBasic()
+	actual := commerciodocs.msgStore.ValidateBasic()
 
 	assert.Nil(t, actual)
 }
 
 func TestMsgStoreDocument_ValidateBasic_EmptyOwnerField(t *testing.T) {
-	message := MsgStoreDocument{
+	message := types2.MsgStoreDocument{
 		Owner:     sdk.AccAddress{},
-		Identity:  ownerIdentity,
-		Reference: reference,
-		Metadata:  metadata,
+		Identity:  commerciodocs.ownerIdentity,
+		Reference: commerciodocs.reference,
+		Metadata:  commerciodocs.metadata,
 	}
 
 	actual := message.ValidateBasic()
@@ -55,11 +56,11 @@ func TestMsgStoreDocument_ValidateBasic_EmptyOwnerField(t *testing.T) {
 }
 
 func TestMsgStoreDocument_ValidateBasic_EmptyReference(t *testing.T) {
-	message := MsgStoreDocument{
-		Owner:     owner,
+	message := types2.MsgStoreDocument{
+		Owner:     commerciodocs.owner,
 		Identity:  types.Did(""),
-		Reference: reference,
-		Metadata:  metadata,
+		Reference: commerciodocs.reference,
+		Metadata:  commerciodocs.metadata,
 	}
 
 	actual := message.ValidateBasic()
@@ -69,9 +70,9 @@ func TestMsgStoreDocument_ValidateBasic_EmptyReference(t *testing.T) {
 
 func TestMsgStoreDocument_GetSignBytes(t *testing.T) {
 
-	expected := sdk.MustSortJSON(input.cdc.MustMarshalJSON(msgStore))
+	expected := sdk.MustSortJSON(commerciodocs.input.cdc.MustMarshalJSON(commerciodocs.msgStore))
 
-	actual := msgStore.GetSignBytes()
+	actual := commerciodocs.msgStore.GetSignBytes()
 
 	assert.Equal(t, expected, actual)
 
@@ -79,9 +80,9 @@ func TestMsgStoreDocument_GetSignBytes(t *testing.T) {
 
 func TestMsgStoreDocument_GetSigners(t *testing.T) {
 
-	expected := []sdk.AccAddress{msgStore.Owner}
+	expected := []sdk.AccAddress{commerciodocs.msgStore.Owner}
 
-	actual := msgStore.GetSigners()
+	actual := commerciodocs.msgStore.GetSigners()
 
 	assert.Equal(t, expected, actual)
 }
@@ -92,15 +93,15 @@ func TestMsgStoreDocument_GetSigners(t *testing.T) {
 
 func TestNewMsgShareDocument(t *testing.T) {
 
-	actual := NewMsgShareDocument(owner, reference, ownerIdentity, recipient)
+	actual := types2.NewMsgShareDocument(commerciodocs.owner, commerciodocs.reference, commerciodocs.ownerIdentity, commerciodocs.recipient)
 
-	assert.Equal(t, msgShare, actual)
+	assert.Equal(t, commerciodocs.msgShare, actual)
 }
 
 func TestMsgShareDocument_Route(t *testing.T) {
 	key := "commerciodocs"
 
-	actual := msgShare.Route()
+	actual := commerciodocs.msgShare.Route()
 
 	assert.Equal(t, key, actual)
 }
@@ -108,24 +109,24 @@ func TestMsgShareDocument_Route(t *testing.T) {
 func TestMsgShareDocument_Type(t *testing.T) {
 	dType := "share_document"
 
-	actual := msgShare.Type()
+	actual := commerciodocs.msgShare.Type()
 
 	assert.Equal(t, dType, actual)
 }
 
 func TestMsgShareDocument_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
-	actual := msgShare.ValidateBasic()
+	actual := commerciodocs.msgShare.ValidateBasic()
 
 	assert.Nil(t, actual)
 }
 
 func TestMsgShareDocument_ValidateBasic_EmptyOwnerField(t *testing.T) {
-	msg := MsgShareDocument{
+	msg := types2.MsgShareDocument{
 		Owner:     sdk.AccAddress{},
-		Reference: reference,
-		Sender:    ownerIdentity,
-		Receiver:  recipient,
+		Reference: commerciodocs.reference,
+		Sender:    commerciodocs.ownerIdentity,
+		Receiver:  commerciodocs.recipient,
 	}
 
 	actual := msg.ValidateBasic()
@@ -134,11 +135,11 @@ func TestMsgShareDocument_ValidateBasic_EmptyOwnerField(t *testing.T) {
 }
 
 func TestMsgShareDocument_ValidateBasic_EmptyReference(t *testing.T) {
-	msg := MsgShareDocument{
-		Owner:     owner,
+	msg := types2.MsgShareDocument{
+		Owner:     commerciodocs.owner,
 		Reference: "",
-		Sender:    ownerIdentity,
-		Receiver:  recipient,
+		Sender:    commerciodocs.ownerIdentity,
+		Receiver:  commerciodocs.recipient,
 	}
 
 	actual := msg.ValidateBasic()
@@ -147,17 +148,17 @@ func TestMsgShareDocument_ValidateBasic_EmptyReference(t *testing.T) {
 }
 
 func TestMsgShareDocument_GetSignBytes(t *testing.T) {
-	expected := sdk.MustSortJSON(input.cdc.MustMarshalJSON(msgShare))
+	expected := sdk.MustSortJSON(commerciodocs.input.cdc.MustMarshalJSON(commerciodocs.msgShare))
 
-	actual := msgShare.GetSignBytes()
+	actual := commerciodocs.msgShare.GetSignBytes()
 
 	assert.Equal(t, expected, actual)
 }
 
 func TestMsgShareDocument_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{msgShare.Owner}
+	expected := []sdk.AccAddress{commerciodocs.msgShare.Owner}
 
-	actual := msgShare.GetSigners()
+	actual := commerciodocs.msgShare.GetSigners()
 
 	assert.Equal(t, expected, actual)
 }

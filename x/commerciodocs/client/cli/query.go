@@ -17,7 +17,8 @@ func GetCmdReadDocumentMetadata(queryRoute string, cdc *codec.Codec) *cobra.Comm
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/metadata/%s", queryRoute, name), nil)
+			route := fmt.Sprintf("custom/%s/metadata/%s", queryRoute, name)
+			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get metadata for document %s: \n %s", string(name), err)
 				return nil
@@ -39,7 +40,8 @@ func GetCmdListAuthorizedReaders(queryRoute string, cdc *codec.Codec) *cobra.Com
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/readers/%s", queryRoute, name), nil)
+			route := fmt.Sprintf("custom/%s/readers/%s", queryRoute, name)
+			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get readers for %s: \n %s", string(name), err)
 				return nil

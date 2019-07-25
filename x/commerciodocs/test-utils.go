@@ -2,6 +2,8 @@ package commerciodocs
 
 import (
 	"commercio-network/types"
+	keeper2 "commercio-network/x/commerciodocs/internal/keeper"
+	types2 "commercio-network/x/commerciodocs/internal/types"
 	"commercio-network/x/commercioid/internal/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -20,7 +22,7 @@ type testInput struct {
 	ctx        sdk.Context
 	accKeeper  auth.AccountKeeper
 	bankKeeper bank.BaseKeeper
-	docsKeeper Keeper
+	docsKeeper keeper2.Keeper
 }
 
 //commercioauth module initialisation
@@ -71,7 +73,7 @@ func setupTestInput() testInput {
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	idk := keeper.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
-	dck := NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
+	dck := keeper2.NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 
@@ -90,8 +92,8 @@ func makeCodec() *codec.Codec {
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
-	cdc.RegisterConcrete(MsgStoreDocument{}, "commerciodocs/StoreDocument", nil)
-	cdc.RegisterConcrete(MsgShareDocument{}, "commerciodocs/ShareDocument", nil)
+	cdc.RegisterConcrete(types2.MsgStoreDocument{}, "commerciodocs/StoreDocument", nil)
+	cdc.RegisterConcrete(types2.MsgShareDocument{}, "commerciodocs/ShareDocument", nil)
 
 	cdc.Seal()
 
@@ -107,14 +109,14 @@ var reference = "reference"
 var metadata = "metadata"
 var recipient = types.Did("recipient")
 
-var msgStore = MsgStoreDocument{
+var msgStore = types2.MsgStoreDocument{
 	Owner:     owner,
 	Identity:  ownerIdentity,
 	Reference: reference,
 	Metadata:  metadata,
 }
 
-var msgShare = MsgShareDocument{
+var msgShare = types2.MsgShareDocument{
 	Owner:     owner,
 	Sender:    ownerIdentity,
 	Receiver:  recipient,

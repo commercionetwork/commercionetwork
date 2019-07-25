@@ -2,8 +2,6 @@ package app
 
 import (
 	"commercio-network/x/commercioid"
-	"commercio-network/x/commercioid/internal/keeper"
-	"commercio-network/x/commercioid/internal/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
@@ -104,9 +102,9 @@ func init() {
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
-		//todo Add this
+		//my modules
 		commercioid.AppModuleBasic{},
-		commercioDocs.AppModuleBasic{},
+		commerciodocs.AppModuleBasic{},
 	)
 }
 
@@ -117,7 +115,7 @@ func MakeCodec() *codec.Codec {
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 
-	//TODO probably our modules should declared in init
+	//TODO be sure that codec registration is useless here
 
 	// CommercioAUTH
 	//commercioauth.RegisterCodec(cdc)
@@ -187,7 +185,7 @@ type commercioNetworkApp struct {
 	// CommercioAUTH
 	commercioAuthKeeper commercioauth.Keeper
 	// CommercioID
-	commercioIdKeeper keeper.Keeper
+	commercioIdKeeper commercioid.Keeper
 	// CommercioDOCS
 	commercioDocsKeeper commerciodocs.Keeper
 
@@ -274,7 +272,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.commercioAuthKeeper = commercioauth.NewKeeper(app.accountKeeper, app.cdc)
 
 	// The CommercioID keeper handles interactions for the CommercioID module
-	app.commercioIdKeeper = keeper.NewKeeper(app.keyIDIdentities, app.keyIDOwners, app.keyIDConnections, app.cdc)
+	app.commercioIdKeeper = commercioid.NewKeeper(app.keyIDIdentities, app.keyIDOwners, app.keyIDConnections, app.cdc)
 
 	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
 	app.commercioDocsKeeper = commerciodocs.NewKeeper(app.commercioIdKeeper, app.keyDOCSOwners, app.keyDOCSMetadata,
