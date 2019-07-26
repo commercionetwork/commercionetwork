@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"commercio-network/types"
 	"commercio-network/utilities"
-	"commercio-network/x/commercioid/internal/keeper"
+	"commercio-network/x/commercioid"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,7 +16,7 @@ import (
 // ----------------------------------
 
 type Keeper struct {
-	commercioIdKeeper keeper.Keeper
+	commercioIdKeeper commercioid.Keeper
 
 	// Key of the map { DocumentReference => Address }
 	ownersStoreKey sdk.StoreKey
@@ -34,7 +34,7 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	commercioIdKeeper keeper.Keeper,
+	commercioIdKeeper commercioid.Keeper,
 	ownersStoreKey sdk.StoreKey,
 	metadataStoreKey sdk.StoreKey,
 	sharingStoreKey sdk.StoreKey,

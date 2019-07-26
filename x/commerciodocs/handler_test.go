@@ -1,5 +1,6 @@
 package commerciodocs
 
+/*
 import (
 	"commercio-network/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -64,3 +65,5 @@ func Test_handlerShareDocument_documentSharedCorrectly(t *testing.T) {
 
 	assert.Equal(t, sdk.Result{}, res)
 }
+
+*/

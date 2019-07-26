@@ -46,7 +46,7 @@ func (msg MsgStoreDocument) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgStoreDocument) GetSignBytes() []byte {
-	return sdk.MustSortJSON(types2.msgCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
@@ -93,7 +93,7 @@ func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgShareDocument) GetSignBytes() []byte {
-	return sdk.MustSortJSON(types2.msgCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.

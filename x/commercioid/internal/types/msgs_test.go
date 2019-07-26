@@ -1,5 +1,6 @@
 package types
 
+/*
 import (
 	"commercio-network/types"
 	"commercio-network/x/commercioid"
@@ -141,3 +142,5 @@ func TestMsgCreateConnection_GetSigners(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+*/

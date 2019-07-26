@@ -12,8 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/mint/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/mint/client/rest"
+
+	"commercio-network/x/commercioid/client/cli"
+	"commercio-network/x/commercioid/client/rest"
 )
 
 var (
@@ -56,7 +57,9 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 }
 
 // get the root tx command of this module
-func (AppModuleBasic) GetTxCmd(_ *codec.Codec) *cobra.Command { return nil }
+func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
+	return cli.GetTxCmd(cdc)
+}
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
@@ -87,10 +90,14 @@ func (AppModule) Name() string {
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // module message route name
-func (AppModule) Route() string { return "" }
+func (AppModule) Route() string {
+	return ModuleName
+}
 
 // module handler
-func (am AppModule) NewHandler() sdk.Handler { return nil }
+func (am AppModule) NewHandler() sdk.Handler {
+	return NewHandler(am.keeper)
+}
 
 // module querier route name
 func (AppModule) QuerierRoute() string {

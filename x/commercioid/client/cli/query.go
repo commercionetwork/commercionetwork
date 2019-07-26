@@ -29,6 +29,8 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	cmd.AddCommand(GetCmdResolveIdentity(cdc), GetCmdReadConnections(cdc))
+
+	return cmd
 }
 
 func GetCmdResolveIdentity(cdc *codec.Codec) *cobra.Command {

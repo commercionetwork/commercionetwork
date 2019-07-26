@@ -1,5 +1,6 @@
 package commercioid
 
+/*
 import (
 	"commercio-network/x/commercioid/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,3 +57,5 @@ func Test_handleMsgCreateConnection_SignerIsntTheOwnerOfIdentity(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+*/

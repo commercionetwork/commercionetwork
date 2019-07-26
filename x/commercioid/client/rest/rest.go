@@ -6,11 +6,12 @@ import (
 )
 
 const (
-	restName = "identity"
+	restName  = "identity"
+	storeName = "commercioid"
 )
 
 // RegisterRoutes - Central function to define routes that get registered by the main application
-func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
+func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	registerQueryRoutes(cliCtx, r, storeName)
 	registerTxRoutes(cliCtx, r, storeName)
 }

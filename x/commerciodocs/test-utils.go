@@ -1,10 +1,10 @@
 package commerciodocs
 
+/*
 import (
 	"commercio-network/types"
 	keeper2 "commercio-network/x/commerciodocs/internal/keeper"
 	types2 "commercio-network/x/commerciodocs/internal/types"
-	"commercio-network/x/commercioid/internal/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -122,3 +122,5 @@ var msgShare = types2.MsgShareDocument{
 	Receiver:  recipient,
 	Reference: reference,
 }
+
+*/

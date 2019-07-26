@@ -1,5 +1,6 @@
 package keeper
 
+/*
 import (
 	"commercio-network/types"
 	"commercio-network/x/commercioid"
@@ -92,3 +93,6 @@ func TestKeeper_GetConnections(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+
+*/

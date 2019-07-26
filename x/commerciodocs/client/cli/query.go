@@ -1,14 +1,30 @@
 package cli
 
 import (
+	"commercio-network/x/commerciodocs/internal/types"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
 )
 
-func GetCmdReadDocumentMetadata(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        types.ModuleName,
+		Short:                      "Querying commands for commerciodocs module",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(GetCmdReadDocumentMetadata(cdc), GetCmdListAuthorizedReaders(cdc))
+
+	return cmd
+}
+
+func GetCmdReadDocumentMetadata(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "metadata [document-reference]",
 		Short: "Retrieves the metadata reference for the given document",
@@ -17,7 +33,7 @@ func GetCmdReadDocumentMetadata(queryRoute string, cdc *codec.Codec) *cobra.Comm
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			route := fmt.Sprintf("custom/%s/metadata/%s", queryRoute, name)
+			route := fmt.Sprintf("custom/%s/metadata/%s", types.QuerierRoute, name)
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get metadata for document %s: \n %s", string(name), err)
@@ -31,7 +47,7 @@ func GetCmdReadDocumentMetadata(queryRoute string, cdc *codec.Codec) *cobra.Comm
 	}
 }
 
-func GetCmdListAuthorizedReaders(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdListAuthorizedReaders(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "readers [document-reference]",
 		Short: "Lists all the users that are allowed to read the document with the given reference",
@@ -40,7 +56,7 @@ func GetCmdListAuthorizedReaders(queryRoute string, cdc *codec.Codec) *cobra.Com
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			route := fmt.Sprintf("custom/%s/readers/%s", queryRoute, name)
+			route := fmt.Sprintf("custom/%s/readers/%s", types.QuerierRoute, name)
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get readers for %s: \n %s", string(name), err)

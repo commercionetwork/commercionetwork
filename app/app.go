@@ -10,8 +10,8 @@ import (
 	"io"
 	"os"
 
-	"commercio-network/x/commercioauth"
 	"commercio-network/x/commerciodocs"
+
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -38,7 +38,7 @@ import (
 
 const (
 	appName = "Commercio.network"
-	Version = "1.0.1"
+	Version = "1.0.2"
 
 	DefaultBondDenom = "ucommercio"
 
@@ -115,17 +115,6 @@ func MakeCodec() *codec.Codec {
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 
-	//TODO be sure that codec registration is useless here
-
-	// CommercioAUTH
-	//commercioauth.RegisterCodec(cdc)
-
-	// CommercioID
-	//types.RegisterCodec(cdc)
-
-	// CommercioDOCS
-	//commerciodocs.RegisterCodec(cdc)
-
 	return cdc
 }
 
@@ -182,8 +171,6 @@ type commercioNetworkApp struct {
 	paramsKeeper   params.Keeper
 
 	// commercio-network keepers
-	// CommercioAUTH
-	commercioAuthKeeper commercioauth.Keeper
 	// CommercioID
 	commercioIdKeeper commercioid.Keeper
 	// CommercioDOCS
@@ -267,9 +254,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		slashing.DefaultCodespace)
 
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
-
-	// The CommercioAUTH keeper handles interactions for the CommercioAUTH module
-	app.commercioAuthKeeper = commercioauth.NewKeeper(app.accountKeeper, app.cdc)
 
 	// The CommercioID keeper handles interactions for the CommercioID module
 	app.commercioIdKeeper = commercioid.NewKeeper(app.keyIDIdentities, app.keyIDOwners, app.keyIDConnections, app.cdc)

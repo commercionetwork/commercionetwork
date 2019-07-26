@@ -1,5 +1,6 @@
 package commercioid
 
+/*
 import (
 	"commercio-network/types"
 	"commercio-network/x/commercioid/internal/keeper"
@@ -109,3 +110,5 @@ var identityRef = "ddo-reference"
 var reference = "reference"
 var metadata = "metadata"
 var recipient = types.Did("recipient")
+
+*/

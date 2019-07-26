@@ -1,7 +1,7 @@
 package main
 
 import (
-	app "commercio-network/app"
+	"commercio-network/app"
 	"fmt"
 	"os"
 	"path"
@@ -19,10 +19,6 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
-
-	docsrest "commercio-network/x/commerciodocs/client/rest"
-
-	idrest "commercio-network/x/commercioid/client/rest"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -51,28 +47,6 @@ func main() {
 	// TODO: setup keybase, viper object, etc. to be passed into
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
-
-	/*
-		// Module clients hold cli commFands (tx,queryF) and lcd routes
-		// TODO: Make the lcd command take a list of ModuleClient
-		mc := []sdk.ModuleClients{
-			govClient.NewModuleClient(gv.StoreKey, cdc),
-			distClient.NewModuleClient(distcmd.StoreKey, cdc),
-			stakingclient.NewModuleClient(st.StoreKey, cdc),
-			//mintclient.NewModuleClient(mint.StoreKey, cdc),
-			slashingclient.NewModuleClient(sl.StoreKey, cdc),
-			//crisisclient.NewModuleClient(sl.StoreKey, cdc),
-
-			// CommercioAUTH
-			authclient.NewModuleClient(storeAUTH, cdc),
-
-			// CommercioID
-			idclient.NewModuleClient(storeID, cdc),
-
-			// CommercioDOCS
-			docsclient.NewModuleClient(storeDOCS, cdc),
-		}
-	*/
 	rootCmd := &cobra.Command{
 		Use:   "cncli",
 		Short: "Command line interface for interacting with cnd",
@@ -169,14 +143,6 @@ func registerRoutes(rs *lcd.RestServer) {
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
 	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
-
-	//todo finish this...
-
-	// CommercioID
-	idrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeID)
-
-	// CommercioDOCS
-	docsrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeDOCS)
 }
 
 func initConfig(cmd *cobra.Command) error {
