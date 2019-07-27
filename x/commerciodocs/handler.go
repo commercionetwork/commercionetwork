@@ -37,7 +37,7 @@ func handleStoreDocument(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgSto
 	}
 
 	// Checks whenever the given AccAddress is authorized to use the provided identity
-	if !keeper.commercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Identity) {
+	if !keeper.CommercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Identity) {
 		return sdk.ErrUnauthorized("The provided identity cannot be used by the given account").Result()
 	}
 
@@ -61,7 +61,7 @@ func handleShareDocument(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgSha
 	}
 
 	// Checks whenever the given AccAddress is authorized to use the provided identity
-	if !keeper.commercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Sender) {
+	if !keeper.CommercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Sender) {
 		return sdk.ErrUnauthorized("The provided sender identity cannot be used by the given account").Result()
 	}
 

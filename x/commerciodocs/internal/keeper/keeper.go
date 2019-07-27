@@ -16,7 +16,7 @@ import (
 // ----------------------------------
 
 type Keeper struct {
-	commercioIdKeeper commercioid.Keeper
+	CommercioIdKeeper commercioid.Keeper
 
 	// Key of the map { DocumentReference => Address }
 	ownersStoreKey sdk.StoreKey
@@ -41,7 +41,7 @@ func NewKeeper(
 	readersStoreKey sdk.StoreKey,
 	cdc *codec.Codec) Keeper {
 	return Keeper{
-		commercioIdKeeper: commercioIdKeeper,
+		CommercioIdKeeper: commercioIdKeeper,
 		ownersStoreKey:    ownersStoreKey,
 		metadataStoreKey:  metadataStoreKey,
 		sharingStoreKey:   sharingStoreKey,
