@@ -12,8 +12,6 @@ require (
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
-	github.com/stretchr/testify v1.3.0
-	github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
 	github.com/tendermint/go-amino v0.15.0
 	github.com/tendermint/tendermint v0.32.1
 	github.com/zondax/ledger-go v0.8.0 // indirect

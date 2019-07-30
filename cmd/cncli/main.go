@@ -34,6 +34,9 @@ func main() {
 	// Configure cobra to sort commands
 	cobra.EnableCommandSorting = false
 
+	// Set the command version
+	version.Version = app.Version
+
 	// Instantiate the codec for the command line application
 	cdc := app.MakeCodec()
 

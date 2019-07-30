@@ -2,6 +2,10 @@ package app
 
 import (
 	"commercio-network/x/commercioid"
+	"commercio-network/x/encapsulated/customcrisis"
+	"commercio-network/x/encapsulated/customgov"
+	"commercio-network/x/encapsulated/custommint"
+	"commercio-network/x/encapsulated/customstaking"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
@@ -41,9 +45,6 @@ const (
 	Version = "1.0.2"
 
 	DefaultBondDenom = "ucommercio"
-
-	// DefaultKeyPass contains the default key password for genesis transactions
-	DefaultKeyPass = "12345678"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
 	Bech32MainPrefix = "comnet"
@@ -102,7 +103,22 @@ func init() {
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
-		//my modules
+
+		// Encapsulated modules
+		customcrisis.AppModuleBasic{
+			DefaultBondDenom: DefaultBondDenom,
+		},
+		customgov.AppModuleBasic{
+			DefaultBondName: DefaultBondDenom,
+		},
+		custommint.AppModuleBasic{
+			DefaultBondDenom: DefaultBondDenom,
+		},
+		customstaking.AppModuleBasic{
+			DefaultBondDenom: DefaultBondDenom,
+		},
+
+		// Custom modules
 		commercioid.AppModuleBasic{},
 		commerciodocs.AppModuleBasic{},
 	)
@@ -275,19 +291,23 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()))
 
+	// Create default modules to be used from customs during encapsulation
 	app.mm = module.NewManager(
 		genaccounts.NewAppModule(app.accountKeeper),
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		crisis.NewAppModule(app.crisisKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
-		gov.NewAppModule(app.govKeeper, app.supplyKeeper),
-		mint.NewAppModule(app.mintKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
+
+		// Encapsulating modules
 		staking.NewAppModule(app.stakingKeeper, app.distrKeeper, app.accountKeeper, app.supplyKeeper),
-		//my modules
+		mint.NewAppModule(app.mintKeeper),
+		gov.NewAppModule(app.govKeeper, app.supplyKeeper),
+		crisis.NewAppModule(app.crisisKeeper),
+
+		// Custom modules
 		commercioid.NewAppModule(app.commercioIdKeeper),
 		commerciodocs.NewAppModule(app.commercioDocsKeeper),
 	)

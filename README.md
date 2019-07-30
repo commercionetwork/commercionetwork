@@ -15,3 +15,11 @@ business documents using the blockchain technology.
 * [Official website](https://commercio.network/)
 * [Documentation](./docs)
 * [Telegram group](https://t.me/commercionetwork)
+
+## Installation
+After cloning the repo, execute the following commands
+
+```bash
+make build
+make install
+```
