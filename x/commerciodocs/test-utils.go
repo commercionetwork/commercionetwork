@@ -1,16 +1,18 @@
 package commerciodocs
 
-/*
 import (
 	"commercio-network/types"
-	keeper2 "commercio-network/x/commerciodocs/internal/keeper"
-	types2 "commercio-network/x/commerciodocs/internal/types"
+	keeperDocs "commercio-network/x/commerciodocs/internal/keeper"
+	typesDocs "commercio-network/x/commerciodocs/internal/types"
+	"commercio-network/x/commercioid"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -22,7 +24,7 @@ type testInput struct {
 	ctx        sdk.Context
 	accKeeper  auth.AccountKeeper
 	bankKeeper bank.BaseKeeper
-	docsKeeper keeper2.Keeper
+	docsKeeper keeperDocs.Keeper
 }
 
 //commercioauth module initialisation
@@ -72,8 +74,8 @@ func setupTestInput() testInput {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	idk := keeper.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
-	dck := keeper2.NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
+	idk := commercioid.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
+	dck := keeperDocs.NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 
@@ -92,8 +94,8 @@ func makeCodec() *codec.Codec {
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
-	cdc.RegisterConcrete(types2.MsgStoreDocument{}, "commerciodocs/StoreDocument", nil)
-	cdc.RegisterConcrete(types2.MsgShareDocument{}, "commerciodocs/ShareDocument", nil)
+	cdc.RegisterConcrete(typesDocs.MsgStoreDocument{}, "commerciodocs/StoreDocument", nil)
+	cdc.RegisterConcrete(typesDocs.MsgShareDocument{}, "commerciodocs/ShareDocument", nil)
 
 	cdc.Seal()
 
@@ -109,18 +111,16 @@ var reference = "reference"
 var metadata = "metadata"
 var recipient = types.Did("recipient")
 
-var msgStore = types2.MsgStoreDocument{
+var msgStore = typesDocs.MsgStoreDocument{
 	Owner:     owner,
 	Identity:  ownerIdentity,
 	Reference: reference,
 	Metadata:  metadata,
 }
 
-var msgShare = types2.MsgShareDocument{
+var msgShare = typesDocs.MsgShareDocument{
 	Owner:     owner,
 	Sender:    ownerIdentity,
 	Receiver:  recipient,
 	Reference: reference,
 }
-
-*/
