@@ -1,13 +1,31 @@
 package types
 
-/*
 import (
 	"commercio-network/types"
-	"commercio-network/x/commercioid"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+var testAddress = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
+var testOwner, _ = sdk.AccAddressFromBech32(testAddress)
+var testOwnerIdentity = types.Did("newReader")
+var testIdentityRef = "ddo-reference"
+var testReference = "testReference"
+var testMetadata = "testMetadata"
+var testRecipient = types.Did("recipient")
+
+var msgSetId = MsgSetIdentity{
+	DID:          testOwnerIdentity,
+	DDOReference: testIdentityRef,
+	Owner:        testOwner,
+}
+
+var msgCreateConn = MsgCreateConnection{
+	FirstUser:  testOwnerIdentity,
+	SecondUser: testRecipient,
+	Signer:     testOwner,
+}
 
 // ----------------------------------
 // --- SetIdentity
@@ -16,7 +34,7 @@ import (
 func TestMsgSetIdentity_Route(t *testing.T) {
 	key := "commercioid"
 
-	actual := commercioid.msgSetId.Route()
+	actual := msgSetId.Route()
 
 	assert.Equal(t, key, actual)
 }
@@ -24,22 +42,22 @@ func TestMsgSetIdentity_Route(t *testing.T) {
 func TestMsgSetIdentity_Type(t *testing.T) {
 	ttype := "set_identity"
 
-	actual := commercioid.msgSetId.Type()
+	actual := msgSetId.Type()
 
 	assert.Equal(t, ttype, actual)
 }
 
 func TestMsgSetIdentity_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
-	actual := commercioid.msgSetId.ValidateBasic()
+	actual := msgSetId.ValidateBasic()
 
 	assert.Nil(t, actual)
 }
 
 func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
-	invalidMsg := types2.MsgSetIdentity{
-		DID:          commercioid.ownerIdentity,
-		DDOReference: commercioid.identityRef,
+	invalidMsg := MsgSetIdentity{
+		DID:          testOwnerIdentity,
+		DDOReference: testIdentityRef,
 		Owner:        sdk.AccAddress{},
 	}
 
@@ -49,9 +67,9 @@ func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 }
 
 func TestMsgSetIdentity_ValidateBasic_InvalidDID(t *testing.T) {
-	invalidMsg := types2.MsgSetIdentity{
+	invalidMsg := MsgSetIdentity{
 		DID:          types.Did(""),
-		DDOReference: commercioid.identityRef,
+		DDOReference: testIdentityRef,
 		Owner:        sdk.AccAddress{},
 	}
 
@@ -61,17 +79,17 @@ func TestMsgSetIdentity_ValidateBasic_InvalidDID(t *testing.T) {
 }
 
 func TestMsgSetIdentity_GetSignBytes(t *testing.T) {
-	expected := sdk.MustSortJSON(commercioid.input.cdc.MustMarshalJSON(commercioid.msgSetId))
+	expected := `{"type":"commercioid/SetIdentity","value":{"ddo_reference":"ddo-reference","did":"newReader","owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 
-	actual := commercioid.msgSetId.GetSignBytes()
+	actual := msgSetId.GetSignBytes()
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, string(actual))
 }
 
 func TestNewMsgSetIdentity_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{commercioid.msgSetId.Owner}
+	expected := []sdk.AccAddress{msgSetId.Owner}
 
-	actual := commercioid.msgSetId.GetSigners()
+	actual := msgSetId.GetSigners()
 
 	assert.Equal(t, expected, actual)
 }
@@ -83,7 +101,7 @@ func TestNewMsgSetIdentity_GetSigners(t *testing.T) {
 func TestMsgCreateConnection_Route(t *testing.T) {
 	key := "commercioid"
 
-	actual := commercioid.msgCreateConn.Route()
+	actual := msgCreateConn.Route()
 
 	assert.Equal(t, key, actual)
 }
@@ -91,22 +109,22 @@ func TestMsgCreateConnection_Route(t *testing.T) {
 func TestMsgCreateConnection_Type(t *testing.T) {
 	ttype := "create_connection"
 
-	actual := commercioid.msgCreateConn.Type()
+	actual := msgCreateConn.Type()
 
 	assert.Equal(t, ttype, actual)
 }
 
 func TestMsgCreateConnection_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
-	actual := commercioid.msgCreateConn.ValidateBasic()
+	actual := msgCreateConn.ValidateBasic()
 
 	assert.Nil(t, actual)
 }
 
 func TestMsgCreateConnection_ValidateBasic_InvalidSignerAddress(t *testing.T) {
-	invMsg := types2.MsgCreateConnection{
-		FirstUser:  commercioid.ownerIdentity,
-		SecondUser: commercioid.recipient,
+	invMsg := MsgCreateConnection{
+		FirstUser:  testOwnerIdentity,
+		SecondUser: testRecipient,
 		Signer:     sdk.AccAddress{},
 	}
 
@@ -116,10 +134,10 @@ func TestMsgCreateConnection_ValidateBasic_InvalidSignerAddress(t *testing.T) {
 }
 
 func TestMsgCreateConnection_ValidateBasic_InvalidUser(t *testing.T) {
-	invMsg := types2.MsgCreateConnection{
+	invMsg := MsgCreateConnection{
 		FirstUser:  types.Did(""),
-		SecondUser: commercioid.recipient,
-		Signer:     commercioid.owner,
+		SecondUser: testRecipient,
+		Signer:     testOwner,
 	}
 
 	actual := invMsg.ValidateBasic()
@@ -128,19 +146,17 @@ func TestMsgCreateConnection_ValidateBasic_InvalidUser(t *testing.T) {
 }
 
 func TestMsgCreateConnection_GetSignBytes(t *testing.T) {
-	expected := sdk.MustSortJSON(types2.msgCdc.MustMarshalJSON(commercioid.msgSetId))
+	expected := `{"type":"commercioid/CreateConnection","value":{"first_user":"newReader","second_user":"recipient","signer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 
-	actual := commercioid.msgSetId.GetSignBytes()
+	actual := msgCreateConn.GetSignBytes()
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, string(actual))
 }
 
 func TestMsgCreateConnection_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{commercioid.msgSetId.Owner}
+	expected := []sdk.AccAddress{msgSetId.Owner}
 
-	actual := commercioid.msgSetId.GetSigners()
+	actual := msgSetId.GetSigners()
 
 	assert.Equal(t, expected, actual)
 }
-
-*/

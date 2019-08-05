@@ -1,29 +1,27 @@
 package keeper
 
-/*
 import (
 	"commercio-network/types"
-	"commercio-network/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/stretchr/testify/assert"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"testing"
 )
 
-var querier = types2.NewQuerier(commercioid.input.idKeeper)
+var querier = NewQuerier(testUtils.idKeeper)
 var request abci.RequestQuery
 
 func Test_queryResolveIdentity(t *testing.T) {
 	path := []string{"identities", "newReader"}
 
-	store := commercioid.input.ctx.KVStore(commercioid.input.idKeeper.identitiesStoreKey)
-	store.Set([]byte(commercioid.ownerIdentity), []byte(commercioid.identityRef))
+	store := testUtils.ctx.KVStore(testUtils.idKeeper.identitiesStoreKey)
+	store.Set([]byte(testOwnerIdentity), []byte(testIdentityRef))
 
-	actual, _ := querier(commercioid.input.ctx, path, request)
+	actual, _ := querier(testUtils.ctx, path, request)
 
-	expected := types2.IdentityResult{Did: commercioid.ownerIdentity, DdoReference: commercioid.identityRef}
+	expected := IdentityResult{Did: testOwnerIdentity, DdoReference: testIdentityRef}
 
-	bz, _ := codec.MarshalJSONIndent(commercioid.input.cdc, expected)
+	bz, _ := codec.MarshalJSONIndent(testUtils.cdc, expected)
 
 	assert.Equal(t, bz, actual)
 
@@ -32,7 +30,7 @@ func Test_queryResolveIdentity(t *testing.T) {
 func Test_queryResolveIdentity_unmarshalError(t *testing.T) {
 	path := []string{"identities", "nunu"}
 
-	_, err := querier(commercioid.input.ctx, path, request)
+	_, err := querier(testUtils.ctx, path, request)
 
 	assert.Error(t, err)
 }
@@ -40,18 +38,16 @@ func Test_queryResolveIdentity_unmarshalError(t *testing.T) {
 func Test_queryGetConnections(t *testing.T) {
 	path := []string{"connections", "newReader"}
 
-	var userConnections = []types.Did{commercioid.ownerIdentity}
+	var userConnections = []types.Did{testOwnerIdentity}
 
-	store := commercioid.input.ctx.KVStore(commercioid.input.idKeeper.connectionsStoreKey)
-	store.Set([]byte(commercioid.ownerIdentity), commercioid.input.cdc.MustMarshalBinaryBare(&userConnections))
+	store := testUtils.ctx.KVStore(testUtils.idKeeper.connectionsStoreKey)
+	store.Set([]byte(testOwnerIdentity), testUtils.cdc.MustMarshalBinaryBare(&userConnections))
 
-	actual, _ := querier(commercioid.input.ctx, path, request)
+	actual, _ := querier(testUtils.ctx, path, request)
 
-	expected := types2.ConnectionsResult{Did: commercioid.ownerIdentity, Connections: userConnections}
+	expected := ConnectionsResult{Did: testOwnerIdentity, Connections: userConnections}
 
-	bz, _ := codec.MarshalJSONIndent(commercioid.input.cdc, expected)
+	bz, _ := codec.MarshalJSONIndent(testUtils.cdc, expected)
 
 	assert.Equal(t, bz, actual)
 }
-
-*/

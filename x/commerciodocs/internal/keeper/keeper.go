@@ -78,13 +78,13 @@ func (keeper Keeper) addReaderForDocument(ctx sdk.Context, user types.Did, refer
 	store.Set([]byte(reference), keeper.cdc.MustMarshalBinaryBare(&readers))
 }
 
-// StoreDocument stores the given document reference assigning it to the given owner, so that we know who created it.
+// StoreDocument stores the given document testReference assigning it to the given testOwner, so that we know who created it.
 func (keeper Keeper) StoreDocument(ctx sdk.Context, owner sdk.AccAddress, identity types.Did, reference string, metadata string) {
-	// Save the document owner
+	// Save the document testOwner
 	ownersStore := ctx.KVStore(keeper.ownersStoreKey)
 	ownersStore.Set([]byte(reference), owner)
 
-	// Save the metadata
+	// Save the testMetadata
 	metadataStore := ctx.KVStore(keeper.metadataStoreKey)
 	metadataStore.Set([]byte(reference), []byte(metadata))
 
@@ -92,29 +92,29 @@ func (keeper Keeper) StoreDocument(ctx sdk.Context, owner sdk.AccAddress, identi
 	keeper.addReaderForDocument(ctx, identity, reference)
 }
 
-// HasOwners tells whenever the document with the given reference as an owner or not.
-// Returns true iff the document already has an owner, false otherwise.
+// HasOwners tells whenever the document with the given testReference as an testOwner or not.
+// Returns true iff the document already has an testOwner, false otherwise.
 func (keeper Keeper) HasOwner(ctx sdk.Context, reference string) bool {
 	store := ctx.KVStore(keeper.ownersStoreKey)
 	result := store.Get([]byte(reference))
 	return result != nil
 }
 
-// IsOwner tells whenever the given address is the owner of the document or not.
+// IsOwner tells whenever the given testAddress is the testOwner of the document or not.
 func (keeper Keeper) IsOwner(ctx sdk.Context, owner sdk.AccAddress, reference string) bool {
 	store := ctx.KVStore(keeper.ownersStoreKey)
 	existingOwner := store.Get([]byte(reference))
 	return bytes.Equal(existingOwner, owner)
 }
 
-// GetMetadata returns the metadata reference for the document with the given reference.
+// GetMetadata returns the testMetadata testReference for the document with the given testReference.
 func (keeper Keeper) GetMetadata(ctx sdk.Context, reference string) string {
 	store := ctx.KVStore(keeper.metadataStoreKey)
 	result := store.Get([]byte(reference))
 	return string(result)
 }
 
-// ShareDocument allows the sharing of a document represented by the given reference, between the given sender and the
+// ShareDocument allows the sharing of a document represented by the given testReference, between the given sender and the
 // given recipient.
 func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender types.Did, recipient types.Did) sdk.Error {
 	sharing := Sharing{
@@ -130,7 +130,7 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, reference string, sender typ
 	if keeper.CanReadDocument(ctx, sender, reference) {
 		sharingStore.Set([]byte(sender), keeper.cdc.MustMarshalBinaryBare(sharing))
 	} else {
-		return sdk.ErrUnauthorized(fmt.Sprintf("The sender with address %s doesnt have the rights on this document", sender))
+		return sdk.ErrUnauthorized(fmt.Sprintf("The sender with testAddress %s doesnt have the rights on this document", sender))
 	}
 
 	// Save the shared document for the recipient

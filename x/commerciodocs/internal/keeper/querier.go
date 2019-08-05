@@ -4,8 +4,8 @@ package keeper
  * This is the place to define which queries against application state users will be able to make.
  * Our commerciodocd module will expose:
  *
- * • metadata: This takes a document reference and retrieve the associated metadata.
- * • readers: This takes a document reference and return the list of all the users that are authorized to access it
+ * • testMetadata: This takes a document testReference and retrieve the associated testMetadata.
+ * • readers: This takes a document testReference and return the list of all the users that are authorized to access it
  *   Used for figuring out how much names cost when you want to buy them.
  */
 
@@ -19,7 +19,7 @@ import (
 
 // query endpoints supported by the governance Querier
 const (
-	QueryMetadata = "metadata"
+	QueryMetadata = "testMetadata"
 	QuerySharing  = "readers"
 )
 
@@ -56,7 +56,7 @@ func queryGetMetadata(ctx sdk.Context, path []string, keeper Keeper) (res []byte
 	return bz, nil
 }
 
-// Metadata represents a reference -> metadata lookup
+// Metadata represents a testReference -> testMetadata lookup
 type MetadataResult struct {
 	Document string `json:"document_reference"`
 	Metadata string `json:"metadata_reference"`

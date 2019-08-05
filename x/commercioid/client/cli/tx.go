@@ -72,7 +72,6 @@ func GetCmdCreateConnection(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			//txBldr := authtxb.NewTxBuilderFromCLI()
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			account := cliCtx.GetFromAddress()

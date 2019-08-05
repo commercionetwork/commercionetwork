@@ -14,7 +14,7 @@ import (
 // RegisterCodec registers concrete types on wire codec
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgSetIdentity{}, "commercioid/SetIdentity", nil)
-	cdc.RegisterConcrete(MsgCreateConnection{}, "commectioid/CreateConnection", nil)
+	cdc.RegisterConcrete(MsgCreateConnection{}, "commercioid/CreateConnection", nil)
 }
 
 var ModuleCdc *codec.Codec

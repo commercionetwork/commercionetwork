@@ -2,10 +2,19 @@ package keeper
 
 import (
 	"commercio-network/types"
-	"commercio-network/x/commerciodocs"
+	"commercio-network/x/commercioid"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/stretchr/testify/assert"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto"
+	db2 "github.com/tendermint/tendermint/libs/db"
+	"github.com/tendermint/tendermint/libs/log"
 	"testing"
 )
 
@@ -14,14 +23,14 @@ func TestKeeper_addReaderForDocument(t *testing.T) {
 
 	var readers = []types.Did{"reader", "reader2"}
 
-	store := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.readersStoreKey)
-	store.Set([]byte(commerciodocs.reference), commerciodocs.input.cdc.MustMarshalBinaryBare(&readers))
+	store := testUtils.ctx.KVStore(testUtils.docsKeeper.readersStoreKey)
+	store.Set([]byte(testReference), testUtils.cdc.MustMarshalBinaryBare(&readers))
 
-	currentLength := len(store.Get([]byte(commerciodocs.reference)))
+	currentLength := len(store.Get([]byte(testReference)))
 
-	commerciodocs.input.docsKeeper.addReaderForDocument(commerciodocs.input.ctx, commerciodocs.ownerIdentity, commerciodocs.reference)
+	testUtils.docsKeeper.addReaderForDocument(testUtils.ctx, testOwnerIdentity, testReference)
 
-	afterOpLength := len(store.Get([]byte(commerciodocs.reference)))
+	afterOpLength := len(store.Get([]byte(testReference)))
 
 	if afterOpLength < currentLength {
 		t.Errorf("afterOpLength should be greater than currentLength")
@@ -30,90 +39,90 @@ func TestKeeper_addReaderForDocument(t *testing.T) {
 
 func TestKeeper_StoreDocument(t *testing.T) {
 
-	ownerStore := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.ownersStoreKey)
-	ownerStore.Set([]byte(commerciodocs.reference), []byte(commerciodocs.owner))
+	ownerStore := testUtils.ctx.KVStore(testUtils.docsKeeper.ownersStoreKey)
+	ownerStore.Set([]byte(testReference), []byte(testOwner))
 
-	metadataStore := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.metadataStoreKey)
+	metadataStore := testUtils.ctx.KVStore(testUtils.docsKeeper.metadataStoreKey)
 
-	currentLength := len(metadataStore.Get([]byte(commerciodocs.reference)))
+	currentLength := len(metadataStore.Get([]byte(testReference)))
 
-	commerciodocs.input.docsKeeper.StoreDocument(commerciodocs.input.ctx, commerciodocs.owner, commerciodocs.ownerIdentity, commerciodocs.reference, commerciodocs.metadata)
+	testUtils.docsKeeper.StoreDocument(testUtils.ctx, testOwner, testOwnerIdentity, testReference, testMetadata)
 
-	afterOpLength := len(metadataStore.Get([]byte(commerciodocs.reference)))
+	afterOpLength := len(metadataStore.Get([]byte(testReference)))
 
 	if afterOpLength < currentLength {
 		t.Errorf("after operation length should be greater than current length")
 	}
 }
 
-//Given reference has an owner
+//Given testReference has an testOwner
 func TestKeeper_HasOwner_True(t *testing.T) {
 
-	store := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.ownersStoreKey)
-	store.Set([]byte(commerciodocs.reference), []byte(commerciodocs.owner))
+	store := testUtils.ctx.KVStore(testUtils.docsKeeper.ownersStoreKey)
+	store.Set([]byte(testReference), []byte(testOwner))
 
-	result := commerciodocs.input.docsKeeper.HasOwner(commerciodocs.input.ctx, commerciodocs.reference)
+	result := testUtils.docsKeeper.HasOwner(testUtils.ctx, testReference)
 
 	assert.True(t, result)
 }
 
-//Given reference hasn't got an owner
+//Given testReference hasn't got an testOwner
 func TestKeeper_HasOwner_False(t *testing.T) {
 
 	reference := "reff"
 
-	result := commerciodocs.input.docsKeeper.HasOwner(commerciodocs.input.ctx, reference)
+	result := testUtils.docsKeeper.HasOwner(testUtils.ctx, reference)
 
 	assert.False(t, result)
 }
 
-//Given owner is the owner of doc reference
+//Given testOwner is the testOwner of doc testReference
 func TestKeeper_IsOwner_True(t *testing.T) {
 
-	store := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.ownersStoreKey)
-	store.Set([]byte(commerciodocs.reference), []byte(commerciodocs.owner))
+	store := testUtils.ctx.KVStore(testUtils.docsKeeper.ownersStoreKey)
+	store.Set([]byte(testReference), []byte(testOwner))
 
-	res := commerciodocs.input.docsKeeper.IsOwner(commerciodocs.input.ctx, commerciodocs.owner, commerciodocs.reference)
+	res := testUtils.docsKeeper.IsOwner(testUtils.ctx, testOwner, testReference)
 
 	assert.True(t, res)
 }
 
-//Given owner isnt the owner of the doc reference
+//Given testOwner isnt the testOwner of the doc testReference
 func TestKeeper_IsOwner_False(t *testing.T) {
 
 	reference := "reff"
-	res := commerciodocs.input.docsKeeper.IsOwner(commerciodocs.input.ctx, commerciodocs.owner, reference)
+	res := testUtils.docsKeeper.IsOwner(testUtils.ctx, testOwner, reference)
 
 	assert.False(t, res)
 }
 
 func TestKeeper_GetMetadata_OfExistentDocument(t *testing.T) {
 
-	metadataStore := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.metadataStoreKey)
-	metadataStore.Set([]byte(commerciodocs.reference), []byte(commerciodocs.metadata))
+	metadataStore := testUtils.ctx.KVStore(testUtils.docsKeeper.metadataStoreKey)
+	metadataStore.Set([]byte(testReference), []byte(testMetadata))
 
-	result := commerciodocs.input.docsKeeper.GetMetadata(commerciodocs.input.ctx, commerciodocs.reference)
+	result := testUtils.docsKeeper.GetMetadata(testUtils.ctx, testReference)
 
-	assert.Equal(t, commerciodocs.metadata, result)
+	assert.Equal(t, testMetadata, result)
 }
 
 func TestKeeper_GetMetadata_OfNonExistentDocument(t *testing.T) {
 
 	reference := "reff"
 
-	result := commerciodocs.input.docsKeeper.GetMetadata(commerciodocs.input.ctx, reference)
+	result := testUtils.docsKeeper.GetMetadata(testUtils.ctx, reference)
 
 	assert.Equal(t, "", result)
 }
 
 func TestKeeper_CanReadDocument_True(t *testing.T) {
 
-	readers := []types.Did{commerciodocs.ownerIdentity}
+	readers := []types.Did{testOwnerIdentity}
 
-	readerStore := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.readersStoreKey)
-	readerStore.Set([]byte(commerciodocs.reference), commerciodocs.input.cdc.MustMarshalBinaryBare(&readers))
+	readerStore := testUtils.ctx.KVStore(testUtils.docsKeeper.readersStoreKey)
+	readerStore.Set([]byte(testReference), testUtils.cdc.MustMarshalBinaryBare(&readers))
 
-	result := commerciodocs.input.docsKeeper.CanReadDocument(commerciodocs.input.ctx, commerciodocs.ownerIdentity, commerciodocs.reference)
+	result := testUtils.docsKeeper.CanReadDocument(testUtils.ctx, testOwnerIdentity, testReference)
 
 	assert.True(t, result)
 }
@@ -122,7 +131,7 @@ func TestKeeper_CanReadDocument_False(t *testing.T) {
 
 	reference := "reff"
 
-	result := commerciodocs.input.docsKeeper.CanReadDocument(commerciodocs.input.ctx, commerciodocs.ownerIdentity, reference)
+	result := testUtils.docsKeeper.CanReadDocument(testUtils.ctx, testOwnerIdentity, reference)
 
 	assert.False(t, result)
 }
@@ -130,22 +139,22 @@ func TestKeeper_CanReadDocument_False(t *testing.T) {
 func TestKeeper_GetAuthorizedReaders(t *testing.T) {
 	var readers = []types.Did{"reader", "reader2"}
 
-	store := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.readersStoreKey)
-	store.Set([]byte(commerciodocs.reference), commerciodocs.input.cdc.MustMarshalBinaryBare(&readers))
+	store := testUtils.ctx.KVStore(testUtils.docsKeeper.readersStoreKey)
+	store.Set([]byte(testReference), testUtils.cdc.MustMarshalBinaryBare(&readers))
 
-	res := commerciodocs.input.docsKeeper.GetAuthorizedReaders(commerciodocs.input.ctx, commerciodocs.reference)
+	res := testUtils.docsKeeper.GetAuthorizedReaders(testUtils.ctx, testReference)
 
 	assert.Equal(t, readers, res)
 }
 
 func TestKeeper_ShareDocument_SenderAuthorizedToShare(t *testing.T) {
 
-	var readers = []types.Did{commerciodocs.ownerIdentity}
+	var readers = []types.Did{testOwnerIdentity}
 
-	readerStore := commerciodocs.input.ctx.KVStore(commerciodocs.input.docsKeeper.readersStoreKey)
-	readerStore.Set([]byte(commerciodocs.reference), commerciodocs.input.cdc.MustMarshalBinaryBare(&readers))
+	readerStore := testUtils.ctx.KVStore(testUtils.docsKeeper.readersStoreKey)
+	readerStore.Set([]byte(testReference), testUtils.cdc.MustMarshalBinaryBare(&readers))
 
-	result := commerciodocs.input.docsKeeper.ShareDocument(commerciodocs.input.ctx, commerciodocs.reference, commerciodocs.ownerIdentity, commerciodocs.recipient)
+	result := testUtils.docsKeeper.ShareDocument(testUtils.ctx, testReference, testOwnerIdentity, testRecipient)
 
 	assert.Nil(t, result)
 }
@@ -153,11 +162,88 @@ func TestKeeper_ShareDocument_SenderAuthorizedToShare(t *testing.T) {
 func TestKeeper_ShareDocument_SenderUnauthorizedToShare(t *testing.T) {
 
 	ownerIdentity := types.Did("notOwner")
-	error := sdk.ErrUnauthorized(fmt.Sprintf("The sender with address %s doesnt have the rights on this document", ownerIdentity))
+	error := sdk.ErrUnauthorized(fmt.Sprintf("The sender with testAddress %s doesnt have the rights on this document", ownerIdentity))
 
-	result := commerciodocs.input.docsKeeper.ShareDocument(commerciodocs.input.ctx, commerciodocs.reference, ownerIdentity, commerciodocs.recipient)
+	result := testUtils.docsKeeper.ShareDocument(testUtils.ctx, testReference, ownerIdentity, testRecipient)
 
 	assert.NotNil(t, result)
 
 	assert.Equal(t, error, result)
+}
+
+type testInput struct {
+	cdc        *codec.Codec
+	ctx        sdk.Context
+	accKeeper  auth.AccountKeeper
+	bankKeeper bank.BaseKeeper
+	docsKeeper Keeper
+}
+
+//This function create an enviroment to test modules
+func setupTestInput() testInput {
+
+	db := db2.NewMemDB()
+	cdc := testCodec()
+	authKey := sdk.NewKVStoreKey("authCapKey")
+	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
+	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
+	keyParams := sdk.NewKVStoreKey(params.StoreKey)
+	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
+
+	// CommercioID
+	keyIDIdentities := sdk.NewKVStoreKey("id_identities")
+	keyIDOwners := sdk.NewKVStoreKey("id_owners")
+	keyIDConnections := sdk.NewKVStoreKey("id_connections")
+
+	// CommercioDOCS
+	keyDOCSOwners := sdk.NewKVStoreKey("docs_owners")
+	keyDOCSMetadata := sdk.NewKVStoreKey("docs_metadata")
+	keyDOCSSharing := sdk.NewKVStoreKey("docs_sharing")
+	keyDOCSReaders := sdk.NewKVStoreKey("docs_readers")
+
+	ms := store.NewCommitMultiStore(db)
+	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(authKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, db)
+	ms.MountStoreWithDB(keyDOCSReaders, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyDOCSOwners, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyDOCSMetadata, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyDOCSSharing, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyIDIdentities, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyIDOwners, sdk.StoreTypeIAVL, db)
+	ms.MountStoreWithDB(keyIDConnections, sdk.StoreTypeIAVL, db)
+	_ = ms.LoadLatestVersion()
+
+	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
+	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
+	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace)
+
+	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+
+	idk := commercioid.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
+	dck := NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
+
+	ak.SetParams(ctx, auth.DefaultParams())
+
+	return testInput{
+		cdc:        cdc,
+		ctx:        ctx,
+		accKeeper:  ak,
+		bankKeeper: bk,
+		docsKeeper: dck,
+	}
+
+}
+
+func testCodec() *codec.Codec {
+	var cdc = codec.New()
+
+	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
+	cdc.RegisterInterface((*auth.Account)(nil), nil)
+
+	cdc.Seal()
+
+	return cdc
 }
