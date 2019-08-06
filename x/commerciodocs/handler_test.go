@@ -1,7 +1,7 @@
 package commerciodocs
 
 import (
-	"commercio-network/x/commerciodocs/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"strings"

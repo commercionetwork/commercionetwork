@@ -163,7 +163,7 @@ type commercioNetworkApp struct {
 	keyParams   *sdk.KVStoreKey
 	tkeyParams  *sdk.TransientStoreKey
 
-	// commercio-network keys to access the substores
+	// github.com/commercionetwork/commercionetwork keys to access the substores
 	//CommercioID
 	keyIDIdentities  *sdk.KVStoreKey
 	keyIDOwners      *sdk.KVStoreKey
@@ -186,7 +186,7 @@ type commercioNetworkApp struct {
 	crisisKeeper   crisis.Keeper
 	paramsKeeper   params.Keeper
 
-	// commercio-network keepers
+	// github.com/commercionetwork/commercionetwork keepers
 	// CommercioID
 	commercioIdKeeper commercioid.Keeper
 	// CommercioDOCS

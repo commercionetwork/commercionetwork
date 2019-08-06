@@ -1,7 +1,7 @@
 package commercioid
 
 import (
-	"commercio-network/x/commercioid/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"strings"
