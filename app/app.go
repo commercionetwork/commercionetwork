@@ -26,18 +26,16 @@ import (
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	//distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
 
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
-	//paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
+	dbm "github.com/tendermint/tm-db"
 )
 
 const (
@@ -150,29 +148,8 @@ type commercioNetworkApp struct {
 	invCheckPeriod uint
 
 	// sdk keys to access the substores
-	keyMain     *sdk.KVStoreKey
-	keyAccount  *sdk.KVStoreKey
-	keySupply   *sdk.KVStoreKey
-	keyStaking  *sdk.KVStoreKey
-	tkeyStaking *sdk.TransientStoreKey
-	keySlashing *sdk.KVStoreKey
-	keyMint     *sdk.KVStoreKey
-	keyDistr    *sdk.KVStoreKey
-	tkeyDistr   *sdk.TransientStoreKey
-	keyGov      *sdk.KVStoreKey
-	keyParams   *sdk.KVStoreKey
-	tkeyParams  *sdk.TransientStoreKey
-
-	// commercio-network keys to access the substores
-	//CommercioID
-	keyIDIdentities  *sdk.KVStoreKey
-	keyIDOwners      *sdk.KVStoreKey
-	keyIDConnections *sdk.KVStoreKey
-	//CommercioDOCS
-	keyDOCSOwners   *sdk.KVStoreKey
-	keyDOCSMetadata *sdk.KVStoreKey
-	keyDOCSSharing  *sdk.KVStoreKey
-	keyDOCSReaders  *sdk.KVStoreKey
+	keys  map[string]*sdk.KVStoreKey
+	tkeys map[string]*sdk.TransientStoreKey
 
 	// sdk keepers
 	accountKeeper  auth.AccountKeeper
@@ -207,39 +184,37 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(Version)
 
+	keys := sdk.NewKVStoreKeys(
+		// Basics
+		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
+		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
+		gov.StoreKey, params.StoreKey,
+
+		//CommercioID
+		commercioid.ConnectionsStoreKey,
+		commercioid.IdentitiesStoreKey,
+		commercioid.OwnersStoreKey,
+
+		//CommercioDOCS
+		commerciodocs.OwnersStoreKey,
+		commerciodocs.MetadataStoreKey,
+		commerciodocs.ReadersStoreKey,
+		commerciodocs.SharingStoreKey,
+	)
+	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
+
 	// Here you initialize your application with the store keys it requires
 	var app = &commercioNetworkApp{
-		BaseApp:     bApp,
-		cdc:         cdc,
-		keyMain:     sdk.NewKVStoreKey(bam.MainStoreKey),
-		keyAccount:  sdk.NewKVStoreKey(auth.StoreKey),
-		keySupply:   sdk.NewKVStoreKey(supply.StoreKey),
-		keyStaking:  sdk.NewKVStoreKey(staking.StoreKey),
-		tkeyStaking: sdk.NewTransientStoreKey(staking.TStoreKey),
-		keyMint:     sdk.NewKVStoreKey(mint.StoreKey),
-		keyDistr:    sdk.NewKVStoreKey(distr.StoreKey),
-		tkeyDistr:   sdk.NewTransientStoreKey(distr.TStoreKey),
-		keySlashing: sdk.NewKVStoreKey(slashing.StoreKey),
-		keyGov:      sdk.NewKVStoreKey(gov.StoreKey),
-		keyParams:   sdk.NewKVStoreKey(params.StoreKey),
-		tkeyParams:  sdk.NewTransientStoreKey(params.TStoreKey),
-
-		// CommercioID
-		keyIDIdentities:  sdk.NewKVStoreKey("id_identities"),
-		keyIDOwners:      sdk.NewKVStoreKey("id_owners"),
-		keyIDConnections: sdk.NewKVStoreKey("id_connections"),
-
-		// CommercioDOCS
-		keyDOCSOwners:   sdk.NewKVStoreKey("docs_owners"),
-		keyDOCSMetadata: sdk.NewKVStoreKey("docs_metadata"),
-		keyDOCSSharing:  sdk.NewKVStoreKey("docs_sharing"),
-		keyDOCSReaders:  sdk.NewKVStoreKey("docs_readers"),
+		BaseApp: bApp,
+		cdc:     cdc,
+		keys:    keys,
+		tkeys:   tkeys,
 	}
 
 	// init params keeper and subspaces
 
 	// The ParamsKeeper handles parameter storage for the application
-	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams, params.DefaultCodespace)
+	app.paramsKeeper = params.NewKeeper(app.cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
 
 	//subspaces
 	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
@@ -252,39 +227,43 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	crisisSubspace := app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 
 	// add keepers
-	app.accountKeeper = auth.NewAccountKeeper(app.cdc, app.keyAccount, authSubspace, auth.ProtoBaseAccount)
-	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, bank.DefaultCodespace)
-	app.supplyKeeper = supply.NewKeeper(app.cdc, app.keySupply, app.accountKeeper, app.bankKeeper,
-		supply.DefaultCodespace, maccPerms)
-
-	stakingKeeper := staking.NewKeeper(app.cdc, app.keyStaking, app.tkeyStaking, app.supplyKeeper, stakingSubspace,
-		staking.DefaultCodespace)
-
-	app.mintKeeper = mint.NewKeeper(app.cdc, app.keyMint, mintSubspace, &stakingKeeper, app.supplyKeeper,
-		auth.FeeCollectorName)
-
-	app.distrKeeper = distr.NewKeeper(app.cdc, app.keyDistr, distrSubspace, &stakingKeeper, app.supplyKeeper,
-		distr.DefaultCodespace, auth.FeeCollectorName)
-
-	app.slashingKeeper = slashing.NewKeeper(app.cdc, app.keySlashing, &stakingKeeper, slashingSubspace,
-		slashing.DefaultCodespace)
-
+	app.accountKeeper = auth.NewAccountKeeper(app.cdc, keys[auth.StoreKey], authSubspace, auth.ProtoBaseAccount)
+	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, bank.DefaultCodespace, app.ModuleAccountAddrs())
+	app.supplyKeeper = supply.NewKeeper(app.cdc, keys[supply.StoreKey], app.accountKeeper, app.bankKeeper, maccPerms)
+	stakingKeeper := staking.NewKeeper(
+		app.cdc, keys[staking.StoreKey], tkeys[staking.TStoreKey],
+		app.supplyKeeper, stakingSubspace, staking.DefaultCodespace,
+	)
+	app.mintKeeper = mint.NewKeeper(app.cdc, keys[mint.StoreKey], mintSubspace, &stakingKeeper, app.supplyKeeper, auth.FeeCollectorName)
+	app.distrKeeper = distr.NewKeeper(app.cdc, keys[distr.StoreKey], distrSubspace, &stakingKeeper,
+		app.supplyKeeper, distr.DefaultCodespace, auth.FeeCollectorName, app.ModuleAccountAddrs())
+	app.slashingKeeper = slashing.NewKeeper(
+		app.cdc, keys[slashing.StoreKey], &stakingKeeper, slashingSubspace, slashing.DefaultCodespace,
+	)
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
 
 	// The CommercioID keeper handles interactions for the CommercioID module
-	app.commercioIdKeeper = commercioid.NewKeeper(app.keyIDIdentities, app.keyIDOwners, app.keyIDConnections, app.cdc)
+	app.commercioIdKeeper = commercioid.NewKeeper(
+		app.keys[commercioid.IdentitiesStoreKey], app.keys[commercioid.OwnersStoreKey],
+		app.keys[commercioid.ConnectionsStoreKey],
+		app.cdc)
 
 	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
-	app.commercioDocsKeeper = commerciodocs.NewKeeper(app.commercioIdKeeper, app.keyDOCSOwners, app.keyDOCSMetadata,
-		app.keyDOCSSharing, app.keyDOCSReaders, app.cdc)
+	app.commercioDocsKeeper = commerciodocs.NewKeeper(
+		app.commercioIdKeeper,
+		app.keys[commerciodocs.OwnersStoreKey], app.keys[commerciodocs.MetadataStoreKey],
+		app.keys[commerciodocs.SharingStoreKey], app.keys[commerciodocs.ReadersStoreKey],
+		app.cdc)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
 	govRouter.AddRoute(gov.RouterKey, gov.ProposalHandler).
 		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper)).
 		AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.distrKeeper))
-	app.govKeeper = gov.NewKeeper(app.cdc, app.keyGov, app.paramsKeeper, govSubspace,
-		app.supplyKeeper, &stakingKeeper, gov.DefaultCodespace, govRouter)
+	app.govKeeper = gov.NewKeeper(
+		app.cdc, keys[gov.StoreKey], app.paramsKeeper, govSubspace,
+		app.supplyKeeper, &stakingKeeper, gov.DefaultCodespace, govRouter,
+	)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -330,27 +309,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
 
 	// initialize stores
-	app.MountStores(
-		app.keyMain,
-		app.keyAccount,
-		app.keySupply,
-		app.keyStaking,
-		app.keyMint,
-		app.keyDistr,
-		app.keySlashing,
-		app.keyGov,
-		app.keyParams,
-		app.tkeyParams,
-		app.tkeyStaking,
-		app.tkeyDistr,
-		app.keyIDIdentities,
-		app.keyIDConnections,
-		app.keyIDOwners,
-		app.keyDOCSOwners,
-		app.keyDOCSMetadata,
-		app.keyDOCSReaders,
-		app.keyDOCSSharing,
-	)
+	app.MountKVStores(keys)
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -359,7 +318,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.SetEndBlocker(app.EndBlocker)
 
 	if loadLatest {
-		err := app.LoadLatestVersion(app.keyMain)
+		err := app.LoadLatestVersion(app.keys[bam.MainStoreKey])
 		if err != nil {
 			cmn.Exit(err.Error())
 		}
@@ -386,7 +345,7 @@ func (app *commercioNetworkApp) InitChainer(ctx sdk.Context, req abci.RequestIni
 
 // load a particular height
 func (app *commercioNetworkApp) LoadHeight(height int64) error {
-	return app.LoadVersion(height, app.keyMain)
+	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.

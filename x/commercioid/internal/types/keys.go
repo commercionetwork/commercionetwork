@@ -3,8 +3,10 @@ package types
 const (
 	ModuleName = "commercioid"
 
-	//StoreKey is string representation of the store key for commercio id
-	StoreKey = ModuleName
+	//IdentitiesStoreKey is string representation of the store key for commercio id
+	IdentitiesStoreKey  = "id_identities"
+	OwnersStoreKey      = "id_owners"
+	ConnectionsStoreKey = "id_connections"
 
-	QuerierRoute = StoreKey
+	QuerierRoute = ModuleName
 )
