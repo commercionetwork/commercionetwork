@@ -8,43 +8,43 @@ import (
 	"testing"
 )
 
-var querier = NewQuerier(testUtils.docsKeeper)
+var querier = NewQuerier(TestUtils.DocsKeeper)
 var request abci.RequestQuery
 
 func Test_queryGetMetadata(t *testing.T) {
-	path := []string{"testMetadata", "testReference"}
+	path := []string{"TestMetadata", "TestReference"}
 
 	expected := MetadataResult{
-		Document: testReference,
-		Metadata: testMetadata,
+		Document: TestReference,
+		Metadata: TestMetadata,
 	}
 
-	metadataStore := testUtils.ctx.KVStore(testUtils.docsKeeper.metadataStoreKey)
-	metadataStore.Set([]byte(testReference), []byte(testMetadata))
+	metadataStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.metadataStoreKey)
+	metadataStore.Set([]byte(TestReference), []byte(TestMetadata))
 
-	res, _ := querier(testUtils.ctx, path, request)
+	res, _ := querier(TestUtils.Ctx, path, request)
 
-	bz, _ := codec.MarshalJSONIndent(testUtils.docsKeeper.cdc, expected)
+	bz, _ := codec.MarshalJSONIndent(TestUtils.DocsKeeper.cdc, expected)
 
 	assert.Equal(t, bz, res)
 }
 
 func Test_queryGetAuthorized(t *testing.T) {
-	path := []string{"readers", "testReference"}
+	path := []string{"readers", "TestReference"}
 
 	var readers = []types.Did{"reader1", "reader2"}
 
 	expected := AuthorizedResult{
-		Document: testReference,
+		Document: TestReference,
 		Readers:  readers,
 	}
 
-	readerStore := testUtils.ctx.KVStore(testUtils.docsKeeper.readersStoreKey)
-	readerStore.Set([]byte(testReference), testUtils.cdc.MustMarshalBinaryBare(&readers))
+	readerStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.readersStoreKey)
+	readerStore.Set([]byte(TestReference), TestUtils.Cdc.MustMarshalBinaryBare(&readers))
 
-	res, _ := querier(testUtils.ctx, path, request)
+	res, _ := querier(TestUtils.Ctx, path, request)
 
-	bz, _ := codec.MarshalJSONIndent(testUtils.docsKeeper.cdc, expected)
+	bz, _ := codec.MarshalJSONIndent(TestUtils.DocsKeeper.cdc, expected)
 
 	assert.Equal(t, bz, res)
 
