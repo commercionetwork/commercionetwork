@@ -48,6 +48,10 @@ build-all: go.sum
 ########################################
 ### Tools & dependencies
 
+go-mod-cache: go.sum
+	@echo "--> Download go modules to local cache"
+	@go mod download
+
 go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	GO111MODULE=on go mod verify
