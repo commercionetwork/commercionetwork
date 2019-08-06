@@ -14,7 +14,7 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case types.MsgSetIdentity:
-			return handleMsgCreateIdentity(ctx, keeper, msg)
+			return handleMsgSetIdentity(ctx, keeper, msg)
 		case types.MsgCreateConnection:
 			return handleMsgCreateConnection(ctx, keeper, msg)
 		default:
@@ -22,6 +22,23 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 	}
+}
+
+// ----------------------------------
+// --- Set identity
+// ----------------------------------
+
+func handleMsgSetIdentity(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgSetIdentity) sdk.Result {
+
+	ddoRef := keeper.GetDdoReferenceByDid(ctx, msg.DID)
+
+	if len(ddoRef) == 0 {
+		handleMsgCreateIdentity(ctx, keeper, msg)
+	} else if ddoRef != msg.DDOReference {
+		handleMsgEditIdentity(ctx, keeper, msg)
+	}
+
+	return sdk.Result{}
 }
 
 // ----------------------------------
@@ -40,6 +57,17 @@ func handleMsgCreateIdentity(ctx sdk.Context, keeper keeper.Keeper, msg types.Ms
 	keeper.CreateIdentity(ctx, msg.Owner, msg.DID, msg.DDOReference)
 
 	// return
+	return sdk.Result{}
+}
+
+// ----------------------------------
+// --- Edit identity
+// ----------------------------------
+
+func handleMsgEditIdentity(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgSetIdentity) sdk.Result {
+
+	keeper.EditIdentity(ctx, msg.Owner, msg.DID, msg.DDOReference)
+
 	return sdk.Result{}
 }
 

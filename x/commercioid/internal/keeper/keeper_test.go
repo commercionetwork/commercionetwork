@@ -9,17 +9,29 @@ import (
 
 func TestKeeper_CreateIdentity(t *testing.T) {
 
-	owner, _ := sdk.AccAddressFromBech32("cosmos153eu7p9lpgaatml7ua2vvgl8w08r4kjl5ca3y0")
-	ownerIdentity := types.Did("idid")
-
 	identitiesStore := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.identitiesStoreKey)
-	storeLen := len(identitiesStore.Get([]byte(ownerIdentity)))
+	storeLen := len(identitiesStore.Get([]byte(TestOwnerIdentity)))
 
-	TestUtils.IdKeeper.CreateIdentity(TestUtils.Ctx, owner, ownerIdentity, TestIdentityRef)
+	TestUtils.IdKeeper.CreateIdentity(TestUtils.Ctx, TestOwner, TestOwnerIdentity, TestIdentityRef)
 
-	afterOpLen := len(identitiesStore.Get([]byte(ownerIdentity)))
+	afterOpLen := len(identitiesStore.Get([]byte(TestOwnerIdentity)))
 
 	assert.NotEqual(t, storeLen, afterOpLen)
+}
+
+func TestKeeper_EditIdentity(t *testing.T) {
+
+	updatedIdentityRef := "ddo-reference-update"
+
+	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.identitiesStoreKey)
+	store.Set([]byte(TestOwnerIdentity), []byte(TestIdentityRef))
+
+	TestUtils.IdKeeper.EditIdentity(TestUtils.Ctx, TestOwner, TestOwnerIdentity, updatedIdentityRef)
+
+	actual := store.Get([]byte(TestOwnerIdentity))
+
+	assert.Equal(t, updatedIdentityRef, string(actual))
+
 }
 
 func TestKeeper_GetDdoReferenceByDid(t *testing.T) {
