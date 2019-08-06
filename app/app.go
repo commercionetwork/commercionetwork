@@ -310,6 +310,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// initialize stores
 	app.MountKVStores(keys)
+	app.MountTransientStores(tkeys)
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
