@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"commercio-network/types"
-	types2 "commercio-network/x/commercioid/internal/types"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/types"
+	types2 "github.com/commercionetwork/commercionetwork/x/commercioid/internal/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"

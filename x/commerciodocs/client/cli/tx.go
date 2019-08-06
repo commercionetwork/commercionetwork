@@ -1,8 +1,8 @@
 package cli
 
 import (
-	types2 "commercio-network/types"
-	"commercio-network/x/commerciodocs/internal/types"
+	types2 "github.com/commercionetwork/commercionetwork/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"

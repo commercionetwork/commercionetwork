@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"commercio-network/x/commerciodocs/internal/types"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/cosmos/cosmos-sdk/client/context"

@@ -1,4 +1,4 @@
-module commercio-network
+module github.com/commercionetwork/commercionetwork
 
 go 1.12
 

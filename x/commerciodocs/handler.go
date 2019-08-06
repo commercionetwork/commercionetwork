@@ -1,9 +1,9 @@
 package commerciodocs
 
 import (
-	"commercio-network/x/commerciodocs/internal/keeper"
-	"commercio-network/x/commerciodocs/internal/types"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

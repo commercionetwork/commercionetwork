@@ -1,11 +1,11 @@
 package app
 
 import (
-	"commercio-network/x/commercioid"
-	"commercio-network/x/encapsulated/customcrisis"
-	"commercio-network/x/encapsulated/customgov"
-	"commercio-network/x/encapsulated/custommint"
-	"commercio-network/x/encapsulated/customstaking"
+	"github.com/commercionetwork/commercionetwork/x/commercioid"
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/customstaking"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
@@ -14,7 +14,7 @@ import (
 	"io"
 	"os"
 
-	"commercio-network/x/commerciodocs"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs"
 
 	"github.com/tendermint/tendermint/libs/log"
 

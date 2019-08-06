@@ -1,8 +1,8 @@
 package commerciodocs
 
 import (
-	"commercio-network/x/commerciodocs/internal/keeper"
-	"commercio-network/x/commerciodocs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/types"
 )
 
 const (

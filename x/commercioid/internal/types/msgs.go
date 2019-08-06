@@ -1,7 +1,7 @@
 package types
 
 import (
-	"commercio-network/types"
+	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

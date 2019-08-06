@@ -1,6 +1,6 @@
 package utilities
 
-import "commercio-network/types"
+import "github.com/commercionetwork/commercionetwork/types"
 
 // ----------------------------------
 // --- Utility functions
