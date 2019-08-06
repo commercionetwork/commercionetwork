@@ -2,18 +2,20 @@ package commercioid
 
 import (
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler returns a handler for "commercioid" type messages.
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.
-func NewHandler(keeper Keeper) sdk.Handler {
+func NewHandler(keeper keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
-		case MsgSetIdentity:
+		case types.MsgSetIdentity:
 			return handleMsgCreateIdentity(ctx, keeper, msg)
-		case MsgCreateConnection:
+		case types.MsgCreateConnection:
 			return handleMsgCreateConnection(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized commercioid message type: %v", msg.Type())
@@ -26,7 +28,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 // --- Create identity
 // ----------------------------------
 
-func handleMsgCreateIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity) sdk.Result {
+func handleMsgCreateIdentity(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgSetIdentity) sdk.Result {
 
 	// Checks if the the msg sender is the same as the current owner
 	if !keeper.CanBeUsedBy(ctx, msg.Owner, msg.DID) {
@@ -45,7 +47,7 @@ func handleMsgCreateIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity)
 // --- Create connection
 // ----------------------------------
 
-func handleMsgCreateConnection(ctx sdk.Context, keeper Keeper, msg MsgCreateConnection) sdk.Result {
+func handleMsgCreateConnection(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgCreateConnection) sdk.Result {
 
 	// Checks if the the msg sender is the same as the current owner
 	if !keeper.CanBeUsedBy(ctx, msg.Signer, msg.FirstUser) || !keeper.CanBeUsedBy(ctx, msg.Signer, msg.SecondUser) {

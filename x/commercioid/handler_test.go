@@ -1,57 +1,43 @@
 package commercioid
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"strings"
 	"testing"
 )
 
-var handler = NewHandler(input.idKeeper)
-
-func Test_handleMsgCreateIdentity(t *testing.T) {
-
-	actual := handler(input.ctx, msgSetId)
-
-	assert.Equal(t, sdk.Result{}, actual)
+var msgSetId = MsgSetIdentity{
+	DID:          keeper.TestOwnerIdentity,
+	DDOReference: keeper.TestIdentityRef,
+	Owner:        keeper.TestOwner,
 }
 
-func Test_handleMsgCreateIdentity_incorrectSigner(t *testing.T) {
-	store := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
-	store.Set([]byte(ownerIdentity), []byte(identityRef))
-
-	var msgSetId = MsgSetIdentity{
-		DID:          ownerIdentity,
-		DDOReference: identityRef,
-		Owner:        sdk.AccAddress{},
-	}
-
-	expected := sdk.ErrUnauthorized("Incorrect Signer").Result()
-
-	actual := handler(input.ctx, msgSetId)
-
-	assert.Equal(t, expected, actual)
+var msgCreateConn = MsgCreateConnection{
+	FirstUser:  keeper.TestOwnerIdentity,
+	SecondUser: keeper.TestRecipient,
+	Signer:     keeper.TestOwner,
 }
 
-func Test_handleMsgCreateConnection(t *testing.T) {
+var testUtils = keeper.TestUtils
 
-	actual := handler(input.ctx, msgCreateConn)
+var handler = NewHandler(testUtils.IdKeeper)
 
-	assert.Equal(t, sdk.Result{}, actual)
+func TestValidMsg_StoreDoc(t *testing.T) {
+	res := handler(testUtils.Ctx, msgSetId)
+
+	require.True(t, res.IsOK())
 }
 
-func Test_handleMsgCreateConnection_SignerIsntTheOwnerOfIdentity(t *testing.T) {
-	store := input.ctx.KVStore(input.idKeeper.identitiesStoreKey)
-	store.Set([]byte(ownerIdentity), []byte(identityRef))
+func TestValidMsg_ShareDoc(t *testing.T) {
+	res := handler(testUtils.Ctx, msgCreateConn)
 
-	var msgCreateConn = MsgCreateConnection{
-		FirstUser:  ownerIdentity,
-		SecondUser: recipient,
-		Signer:     sdk.AccAddress{},
-	}
+	require.True(t, res.IsOK())
+}
 
-	expected := sdk.ErrUnauthorized("The signer must own either the first or the second DID").Result()
-
-	actual := handler(input.ctx, msgCreateConn)
-
-	assert.Equal(t, expected, actual)
+func TestInvalidMsg(t *testing.T) {
+	res := handler(testUtils.Ctx, sdk.NewTestMsg())
+	require.False(t, res.IsOK())
+	require.True(t, strings.Contains(res.Log, "Unrecognized commercioid message type"))
 }

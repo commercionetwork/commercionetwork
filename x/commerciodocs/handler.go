@@ -2,17 +2,19 @@ package commerciodocs
 
 import (
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.
-func NewHandler(keeper Keeper) sdk.Handler {
+func NewHandler(keeper keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
-		case MsgStoreDocument:
+		case types.MsgStoreDocument:
 			return handleStoreDocument(ctx, keeper, msg)
-		case MsgShareDocument:
+		case types.MsgShareDocument:
 			return handleShareDocument(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized commerciodocs message type: %v", msg.Type())
@@ -25,7 +27,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 // --- StoreDocument
 // ----------------------------------
 
-func handleStoreDocument(ctx sdk.Context, keeper Keeper, msg MsgStoreDocument) sdk.Result {
+func handleStoreDocument(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgStoreDocument) sdk.Result {
 
 	// Checks if the the document already has an owner.
 	// If it does, checks that msg sender is the same as the current owner
@@ -35,7 +37,7 @@ func handleStoreDocument(ctx sdk.Context, keeper Keeper, msg MsgStoreDocument) s
 	}
 
 	// Checks whenever the given AccAddress is authorized to use the provided identity
-	if !keeper.commercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Identity) {
+	if !keeper.CommercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Identity) {
 		return sdk.ErrUnauthorized("The provided identity cannot be used by the given account").Result()
 	}
 
@@ -49,7 +51,7 @@ func handleStoreDocument(ctx sdk.Context, keeper Keeper, msg MsgStoreDocument) s
 // --- ShareDocument
 // ----------------------------------
 
-func handleShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) sdk.Result {
+func handleShareDocument(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgShareDocument) sdk.Result {
 
 	// Checks if the the document already has an owner.
 	// If it does, checks that msg sender is the same as the current owner
@@ -59,7 +61,7 @@ func handleShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) s
 	}
 
 	// Checks whenever the given AccAddress is authorized to use the provided identity
-	if !keeper.commercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Sender) {
+	if !keeper.CommercioIdKeeper.CanBeUsedBy(ctx, msg.Owner, msg.Sender) {
 		return sdk.ErrUnauthorized("The provided sender identity cannot be used by the given account").Result()
 	}
 

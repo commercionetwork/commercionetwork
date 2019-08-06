@@ -11,13 +11,29 @@ The query path should be contained inside the querier.go file too.
 
 import (
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/types"
+	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
 )
 
-func GetCmdResolveIdentity(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        types.ModuleName,
+		Short:                      "Querying commands for the commercioID module",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(GetCmdResolveIdentity(cdc), GetCmdReadConnections(cdc))
+
+	return cmd
+}
+
+func GetCmdResolveIdentity(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "resolve [did]",
 		Short: "Resolve identity",
@@ -26,7 +42,8 @@ func GetCmdResolveIdentity(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/identities/%s", queryRoute, name), nil)
+			route := fmt.Sprintf("custom/%s/identities/%s", types.QuerierRoute, name)
+			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not resolve identity - %s \n", string(name))
 				return nil
@@ -39,7 +56,7 @@ func GetCmdResolveIdentity(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func GetCmdReadConnections(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdReadConnections(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "connections [did]",
 		Short: "Lists all the connections associated to the given Did",
@@ -48,7 +65,8 @@ func GetCmdReadConnections(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/connections/%s", queryRoute, name), nil)
+			route := fmt.Sprintf("custom/%s/connections/%s", types.QuerierRoute, name)
+			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get connections for %s: %s \n", string(name), err)
 				return nil
