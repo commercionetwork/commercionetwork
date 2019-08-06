@@ -3,7 +3,7 @@ matrix:
     - language: go
       go: 1.12.6
       script:
-        - make build
+        - make all
 
     - language: node_js
       node_js: 10.16.0
