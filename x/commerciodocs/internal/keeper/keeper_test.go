@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	"commercio-network/types"
-	"commercio-network/x/commercioid"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/types"
+	"github.com/commercionetwork/commercionetwork/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"

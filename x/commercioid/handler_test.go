@@ -2,7 +2,7 @@ package commercioid
 
 /*
 import (
-	"commercio-network/x/commercioid/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"testing"

@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"bytes"
-	"commercio-network/types"
-	"commercio-network/utilities"
-	"commercio-network/x/commercioid"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/types"
+	"github.com/commercionetwork/commercionetwork/utilities"
+	"github.com/commercionetwork/commercionetwork/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/genproto/googleapis/type/date"

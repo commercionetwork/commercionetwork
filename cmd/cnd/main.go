@@ -1,8 +1,8 @@
 package main
 
 import (
-	"commercio-network/app"
 	"encoding/json"
+	"github.com/commercionetwork/commercionetwork/app"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"io"

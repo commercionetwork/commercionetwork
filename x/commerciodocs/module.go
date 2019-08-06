@@ -13,8 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"commercio-network/x/commerciodocs/client/cli"
-	"commercio-network/x/commerciodocs/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/client/rest"
 )
 
 var (

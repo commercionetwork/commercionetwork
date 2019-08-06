@@ -1,8 +1,8 @@
 package commercioid
 
 import (
-	"commercio-network/x/commercioid/internal/keeper"
-	"commercio-network/x/commercioid/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/types"
 )
 
 const (

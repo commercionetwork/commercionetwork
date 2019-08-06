@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"commercio-network/types"
+	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/stretchr/testify/assert"
 	abci "github.com/tendermint/tendermint/abci/types"

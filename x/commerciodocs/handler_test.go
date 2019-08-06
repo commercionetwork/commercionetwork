@@ -2,7 +2,7 @@ package commerciodocs
 
 /*
 import (
-	"commercio-network/types"
+	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"testing"

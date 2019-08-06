@@ -10,7 +10,7 @@ package keeper
  */
 
 import (
-	"commercio-network/types"
+	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

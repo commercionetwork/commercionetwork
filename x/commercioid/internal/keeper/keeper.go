@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"commercio-network/types"
-	"commercio-network/utilities"
+	"github.com/commercionetwork/commercionetwork/types"
+	"github.com/commercionetwork/commercionetwork/utilities"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

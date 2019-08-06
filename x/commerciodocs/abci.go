@@ -5,7 +5,7 @@ package commerciodocs
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"commercio-network/x/commerciodocs/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commerciodocs/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

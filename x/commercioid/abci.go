@@ -4,7 +4,7 @@ package commercioid
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"commercio-network/x/commercioid/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

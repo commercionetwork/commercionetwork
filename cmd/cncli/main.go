@@ -1,8 +1,8 @@
 package main
 
 import (
-	"commercio-network/app"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/app"
 	"os"
 	"path"
 
