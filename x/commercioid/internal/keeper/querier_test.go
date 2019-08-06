@@ -8,20 +8,20 @@ import (
 	"testing"
 )
 
-var querier = NewQuerier(testUtils.idKeeper)
+var querier = NewQuerier(TestUtils.IdKeeper)
 var request abci.RequestQuery
 
 func Test_queryResolveIdentity(t *testing.T) {
 	path := []string{"identities", "newReader"}
 
-	store := testUtils.ctx.KVStore(testUtils.idKeeper.identitiesStoreKey)
-	store.Set([]byte(testOwnerIdentity), []byte(testIdentityRef))
+	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.identitiesStoreKey)
+	store.Set([]byte(TestOwnerIdentity), []byte(TestIdentityRef))
 
-	actual, _ := querier(testUtils.ctx, path, request)
+	actual, _ := querier(TestUtils.Ctx, path, request)
 
-	expected := IdentityResult{Did: testOwnerIdentity, DdoReference: testIdentityRef}
+	expected := IdentityResult{Did: TestOwnerIdentity, DdoReference: TestIdentityRef}
 
-	bz, _ := codec.MarshalJSONIndent(testUtils.cdc, expected)
+	bz, _ := codec.MarshalJSONIndent(TestUtils.Cdc, expected)
 
 	assert.Equal(t, bz, actual)
 
@@ -30,7 +30,7 @@ func Test_queryResolveIdentity(t *testing.T) {
 func Test_queryResolveIdentity_unmarshalError(t *testing.T) {
 	path := []string{"identities", "nunu"}
 
-	_, err := querier(testUtils.ctx, path, request)
+	_, err := querier(TestUtils.Ctx, path, request)
 
 	assert.Error(t, err)
 }
@@ -38,16 +38,16 @@ func Test_queryResolveIdentity_unmarshalError(t *testing.T) {
 func Test_queryGetConnections(t *testing.T) {
 	path := []string{"connections", "newReader"}
 
-	var userConnections = []types.Did{testOwnerIdentity}
+	var userConnections = []types.Did{TestOwnerIdentity}
 
-	store := testUtils.ctx.KVStore(testUtils.idKeeper.connectionsStoreKey)
-	store.Set([]byte(testOwnerIdentity), testUtils.cdc.MustMarshalBinaryBare(&userConnections))
+	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.connectionsStoreKey)
+	store.Set([]byte(TestOwnerIdentity), TestUtils.Cdc.MustMarshalBinaryBare(&userConnections))
 
-	actual, _ := querier(testUtils.ctx, path, request)
+	actual, _ := querier(TestUtils.Ctx, path, request)
 
-	expected := ConnectionsResult{Did: testOwnerIdentity, Connections: userConnections}
+	expected := ConnectionsResult{Did: TestOwnerIdentity, Connections: userConnections}
 
-	bz, _ := codec.MarshalJSONIndent(testUtils.cdc, expected)
+	bz, _ := codec.MarshalJSONIndent(TestUtils.Cdc, expected)
 
 	assert.Equal(t, bz, actual)
 }
