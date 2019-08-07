@@ -3,7 +3,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/commercionetwork/commercionetwork.svg)
 ![GitHub](https://img.shields.io/github/license/commercionetwork/commercionetwork.svg)
 ![GitHub release](https://img.shields.io/github/release/commercionetwork/commercionetwork.svg)
-![Travis (.org)](https://img.shields.io/travis/commercionetwork/commercionetwork.svg)
+![CircleCI](https://img.shields.io/circleci/build/github/commercionetwork/commercionetwork/master)
 
 
 Commercio.network, as known as *The Documents Blockchain* is the easiest way for companies to manage their 
