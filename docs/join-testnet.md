@@ -53,8 +53,8 @@ make update_tools install
 > NOTE: If you have issues at this step, please check that you have the latest stable version of Go installed. 
 
 Note we use `master` here since it contains the latest stable release. 
-See the [testnet repo](https://github.com/commercionetwork/testnets) for details on which version is needed for which 
-testnet, and the [chain release page](https://github.com/Commercionetwork/Commercionetwork/releases) for details on 
+See the [chains repo](https://github.com/commercionetwork/chains) for details on which version is needed for which 
+testnet, and the [chain release page](https://github.com/commercionetwork/commercionetwork/releases) for details on 
 each release.
 
 Your full node has been cleanly upgraded!

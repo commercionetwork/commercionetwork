@@ -6,13 +6,14 @@ import (
 )
 
 const (
-	ModuleName   = types.ModuleName
-	StoreKey     = types.StoreKey
-	QuerierRoute = types.QuerierRoute
+	ModuleName          = types.ModuleName
+	IdentitiesStoreKey  = types.IdentitiesStoreKey
+	OwnersStoreKey      = types.OwnersStoreKey
+	ConnectionsStoreKey = types.ConnectionsStoreKey
+	QuerierRoute        = types.QuerierRoute
 )
 
 var (
-
 	//function aliases
 	NewKeeper              = keeper.NewKeeper
 	NewQuerier             = keeper.NewQuerier

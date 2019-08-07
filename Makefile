@@ -1,21 +1,26 @@
+PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 GOBIN ?= $(GOPATH)/bin
 GOSUM := $(shell which gosum)
 
 include Makefile.ledger
 
-all: install
+export GO111MODULE = on
+
+all: build test
+
+########################################
+### Install
 
 install: go.sum
 	GO111MODULE=on go install -tags "$(build_tags)" ./cmd/cnd
 	GO111MODULE=on go install -tags "$(build_tags)" ./cmd/cncli
 
+########################################
+### Build
+
 build: go.sum
 	GO111MODULE=on go build -o "build/cnd" -tags "$(build_tags)" ./cmd/cnd/main.go
 	GO111MODULE=on go build -o "build/cncli" -tags "$(build_tags)" ./cmd/cncli/main.go
-
-go.sum: go.mod
-	@echo "--> Ensure dependencies have not been modified"
-	GO111MODULE=on go mod verify
 
 build-darwin: go.sum
 	env GO111MODULE=on GOOS=darwin GOARCH=386 go build -o ./build/darwin/cncli-darwin-386 -tags "$(build_tags)" ./cmd/cncli/main.go
@@ -39,3 +44,22 @@ build-all: go.sum
 	make build-darwin
 	make build-linux
 	make build-windows
+
+########################################
+### Tools & dependencies
+
+go-mod-cache: go.sum
+	@echo "--> Download go modules to local cache"
+	@go mod download
+
+go.sum: go.mod
+	@echo "--> Ensure dependencies have not been modified"
+	GO111MODULE=on go mod verify
+
+########################################
+### Testing
+
+test: test_unit
+
+test_unit:
+	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_NOSIMULATION) -tags='ledger test_ledger_mock'

@@ -6,9 +6,12 @@ import (
 )
 
 const (
-	ModuleName   = types.ModuleName
-	StoreKey     = types.StoreKey
-	QuerierRoute = types.QuerierRoute
+	ModuleName       = types.ModuleName
+	OwnersStoreKey   = types.OwnersStoreKey
+	MetadataStoreKey = types.MetadataStoreKey
+	SharingStoreKey  = types.SharingStoreKey
+	ReadersStoreKey  = types.ReadersStoreKey
+	QuerierRoute     = types.QuerierRoute
 )
 
 var (
