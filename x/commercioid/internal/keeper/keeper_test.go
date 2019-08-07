@@ -26,7 +26,7 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.identitiesStoreKey)
 	store.Set([]byte(TestOwnerIdentity), []byte(TestIdentityRef))
 
-	TestUtils.IdKeeper.EditIdentity(TestUtils.Ctx, TestOwner, TestOwnerIdentity, updatedIdentityRef)
+	TestUtils.IdKeeper.SaveIdentity(TestUtils.Ctx, TestOwner, TestOwnerIdentity, updatedIdentityRef)
 
 	actual := store.Get([]byte(TestOwnerIdentity))
 

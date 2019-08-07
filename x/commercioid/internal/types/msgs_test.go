@@ -16,7 +16,7 @@ var testMetadata = "testMetadata"
 var testRecipient = types.Did("recipient")
 
 var msgSetId = MsgSetIdentity{
-	DID:          testOwnerIdentity,
+	Did:          testOwnerIdentity,
 	DDOReference: testIdentityRef,
 	Owner:        testOwner,
 }
@@ -56,7 +56,7 @@ func TestMsgSetIdentity_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
 func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DID:          testOwnerIdentity,
+		Did:          testOwnerIdentity,
 		DDOReference: testIdentityRef,
 		Owner:        sdk.AccAddress{},
 	}
@@ -68,7 +68,7 @@ func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 
 func TestMsgSetIdentity_ValidateBasic_InvalidDID(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DID:          types.Did(""),
+		Did:          types.Did(""),
 		DDOReference: testIdentityRef,
 		Owner:        sdk.AccAddress{},
 	}
