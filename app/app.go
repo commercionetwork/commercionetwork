@@ -284,7 +284,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		staking.NewAppModule(app.stakingKeeper, app.distrKeeper, app.accountKeeper, app.supplyKeeper),
 		mint.NewAppModule(app.mintKeeper),
 		gov.NewAppModule(app.govKeeper, app.supplyKeeper),
-		crisis.NewAppModule(app.crisisKeeper),
+		crisis.NewAppModule(&app.crisisKeeper),
 
 		// Custom modules
 		commercioid.NewAppModule(app.commercioIdKeeper),
