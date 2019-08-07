@@ -9,7 +9,7 @@ import (
 )
 
 var msgSetId = MsgSetIdentity{
-	DID:          keeper.TestOwnerIdentity,
+	Did:          keeper.TestOwnerIdentity,
 	DDOReference: keeper.TestIdentityRef,
 	Owner:        keeper.TestOwner,
 }

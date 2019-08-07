@@ -49,8 +49,7 @@ func NewKeeper(
 // reference.
 func (keeper Keeper) CreateIdentity(ctx sdk.Context, owner sdk.AccAddress, did types.Did, ddoReference string) {
 	// Store the Did => Ddo entry
-	identitiesStore := ctx.KVStore(keeper.identitiesStoreKey)
-	identitiesStore.Set([]byte(did), []byte(ddoReference))
+	keeper.SaveIdentity(ctx, owner, did, ddoReference)
 
 	// --- Store the Address => IdentityReference entry ---
 	// Get the store
@@ -72,6 +71,12 @@ func (keeper Keeper) CreateIdentity(ctx sdk.Context, owner sdk.AccAddress, did t
 	ownersStore.Set(owner, keeper.Cdc.MustMarshalBinaryBare(&dids))
 }
 
+// SaveIdentity substitutes the identity's Did Document reference (the old one) with a new Did Document Reference.
+func (keeper Keeper) SaveIdentity(ctx sdk.Context, owner sdk.AccAddress, did types.Did, ddoReference string) {
+	identitiesStore := ctx.KVStore(keeper.identitiesStoreKey)
+	identitiesStore.Set([]byte(did), []byte(ddoReference))
+}
+
 // GetIdentity returns the Did Document reference associated to a given Did.
 // If the given Did has no Did Document reference associated, returns nil.
 func (keeper Keeper) GetDdoReferenceByDid(ctx sdk.Context, did types.Did) string {
@@ -80,7 +85,7 @@ func (keeper Keeper) GetDdoReferenceByDid(ctx sdk.Context, did types.Did) string
 	return string(result)
 }
 
-// IsOwner tells whenever the given AccAddress owns the identity associated with the given Did.
+// CanUsedBy tells whenever the given AccAddress owns the identity associated with the given Did.
 // If the address owns the identity returns true, otherwise returns false.
 func (keeper Keeper) CanBeUsedBy(ctx sdk.Context, owner sdk.AccAddress, did types.Did) bool {
 	identitiesStore := ctx.KVStore(keeper.identitiesStoreKey)

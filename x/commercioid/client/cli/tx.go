@@ -38,7 +38,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdSetIdentity is the CLI command for sending a SetIdentity transaction
 func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "upsert-identity [did] [ddo-reference]",
+		Use:   "set-identity [did] [ddo-reference]",
 		Short: "Edit an existing identity or add a new one",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

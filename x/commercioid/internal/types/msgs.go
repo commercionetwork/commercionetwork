@@ -13,14 +13,14 @@ const RouterKey = "commercioid"
 // ----------------------------------
 
 type MsgSetIdentity struct {
-	DID          types.Did      `json:"did"`
+	Did          types.Did      `json:"did"`
 	DDOReference string         `json:"ddo_reference"`
 	Owner        sdk.AccAddress `json:"owner"`
 }
 
 func NewMsgSetIdentity(did types.Did, ddoReference string, owner sdk.AccAddress) MsgSetIdentity {
 	return MsgSetIdentity{
-		DID:          did,
+		Did:          did,
 		DDOReference: ddoReference,
 		Owner:        owner,
 	}
@@ -37,8 +37,12 @@ func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
 	if msg.Owner.Empty() {
 		return sdk.ErrInvalidAddress(msg.Owner.String())
 	}
-	if len(msg.DID) == 0 || len(msg.DDOReference) == 0 {
-		return sdk.ErrUnknownRequest("DID and/or DDO reference cannot be empty")
+	if len(msg.Did) == 0 || len(msg.DDOReference) == 0 {
+		return sdk.ErrUnknownRequest("did and/or did document reference cannot be empty")
+	}
+	err := msg.Did.Validate()
+	if err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
 	}
 	return nil
 }
@@ -83,7 +87,15 @@ func (msg MsgCreateConnection) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
 	if len(msg.FirstUser) == 0 || len(msg.SecondUser) == 0 {
-		return sdk.ErrUnknownRequest("First user and second user cannot be empty")
+		return sdk.ErrUnknownRequest("first user and second user cannot be empty")
+	}
+	err := msg.FirstUser.Validate()
+	if err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
+	}
+	err = msg.SecondUser.Validate()
+	if err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
 	}
 	return nil
 }

@@ -9,14 +9,12 @@ import (
 
 var testAddress = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
 var testOwner, _ = sdk.AccAddressFromBech32(testAddress)
-var testOwnerIdentity = types.Did("newReader")
+var testOwnerIdentity = types.Did("did:commercio:owner")
 var testIdentityRef = "ddo-reference"
-var testReference = "testReference"
-var testMetadata = "testMetadata"
-var testRecipient = types.Did("recipient")
+var testRecipient = types.Did("did:commercio:recipient")
 
 var msgSetId = MsgSetIdentity{
-	DID:          testOwnerIdentity,
+	Did:          testOwnerIdentity,
 	DDOReference: testIdentityRef,
 	Owner:        testOwner,
 }
@@ -56,7 +54,7 @@ func TestMsgSetIdentity_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
 func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DID:          testOwnerIdentity,
+		Did:          testOwnerIdentity,
 		DDOReference: testIdentityRef,
 		Owner:        sdk.AccAddress{},
 	}
@@ -68,7 +66,7 @@ func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 
 func TestMsgSetIdentity_ValidateBasic_InvalidDID(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DID:          types.Did(""),
+		Did:          types.Did(""),
 		DDOReference: testIdentityRef,
 		Owner:        sdk.AccAddress{},
 	}
@@ -79,7 +77,7 @@ func TestMsgSetIdentity_ValidateBasic_InvalidDID(t *testing.T) {
 }
 
 func TestMsgSetIdentity_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercioid/SetIdentity","value":{"ddo_reference":"ddo-reference","did":"newReader","owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
+	expected := `{"type":"commercioid/SetIdentity","value":{"ddo_reference":"ddo-reference","did":"did:commercio:owner","owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 
 	actual := msgSetId.GetSignBytes()
 
@@ -146,7 +144,7 @@ func TestMsgCreateConnection_ValidateBasic_InvalidUser(t *testing.T) {
 }
 
 func TestMsgCreateConnection_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercioid/CreateConnection","value":{"first_user":"newReader","second_user":"recipient","signer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
+	expected := `{"type":"commercioid/CreateConnection","value":{"first_user":"did:commercio:owner","second_user":"did:commercio:recipient","signer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 
 	actual := msgCreateConn.GetSignBytes()
 
