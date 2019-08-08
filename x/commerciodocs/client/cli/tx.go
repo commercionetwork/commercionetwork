@@ -42,7 +42,7 @@ func GetCmdStoreDocument(cdc *codec.Codec) *cobra.Command {
 
 			account := cliCtx.GetFromAddress()
 
-			msg := types.NewMsgStoreDocument(account, types2.Did(args[0]), args[1], args[2])
+			msg := types.NewMsgStoreDocument(account, args[0], args[1], args[2])
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -65,7 +65,7 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 
 			account := cliCtx.GetFromAddress()
 
-			msg := types.NewMsgShareDocument(account, args[0], types2.Did(args[1]), types2.Did(args[2]))
+			msg := types.NewMsgShareDocument(account, args[0], args[1], args[2])
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err

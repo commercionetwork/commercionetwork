@@ -1,93 +1,138 @@
 package types
 
 import (
+	"encoding/hex"
 	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"strings"
 )
 
-const RouterKey = "commerciodocs"
+/*
+Author: Leonardo Bragagnolo
+*/
 
-// ----------------------------------
-// --- StoreDocument
-// ----------------------------------
-
-type MsgStoreDocument struct {
-	Owner     sdk.AccAddress `json:"owner"`
-	Identity  types.Did      `json:"identity"`
-	Reference string         `json:"reference"`
-	Metadata  string         `json:"metadata"`
-}
-
-func NewMsgStoreDocument(owner sdk.AccAddress, identity types.Did, reference string, metadata string) MsgStoreDocument {
-	return MsgStoreDocument{
-		Owner:     owner,
-		Identity:  identity,
-		Reference: reference,
-		Metadata:  metadata,
-	}
-}
-
-// RouterKey Implements Msg.
-func (msg MsgStoreDocument) Route() string { return RouterKey }
-
-// Type Implements Msg.
-func (msg MsgStoreDocument) Type() string { return "store_document" }
-
-// ValidateBasic Implements Msg.
-func (msg MsgStoreDocument) ValidateBasic() sdk.Error {
-	if msg.Owner.Empty() {
-		return sdk.ErrInvalidAddress(msg.Owner.String())
-	}
-	if len(msg.Reference) == 0 || len(msg.Identity) == 0 || len(msg.Metadata) == 0 {
-		return sdk.ErrUnknownRequest("Identity and/or document reference and/or metadata reference cannot be empty")
-	}
-	return nil
-}
-
-// GetSignBytes Implements Msg.
-func (msg MsgStoreDocument) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners Implements Msg.
-func (msg MsgStoreDocument) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Owner}
-}
+const (
+	MD5    = "md5"
+	SHA1   = "sha-1"
+	SHA224 = "sha-224"
+	SHA256 = "sha-256"
+	SHA384 = "sha-384"
+	SHA512 = "sha-512"
+)
 
 // ----------------------------------
 // --- ShareDocument
 // ----------------------------------
 
 type MsgShareDocument struct {
-	Owner     sdk.AccAddress `json:"owner"`
-	Sender    types.Did      `json:"sender"`
-	Receiver  types.Did      `json:"receiver"`
-	Reference string         `json:"reference"`
+	types.Document
 }
 
-func NewMsgShareDocument(owner sdk.AccAddress, reference string, sender types.Did, receiver types.Did) MsgShareDocument {
+func NewMsgShareDocument(schemaUri string, schemaVersion string, docContentUri string, proof string, checksumValue string,
+	checksumAlgorithm string, sender sdk.AccAddress, receiver sdk.AccAddress, metaContentUri string) MsgShareDocument {
 	return MsgShareDocument{
-		Owner:     owner,
-		Sender:    sender,
-		Receiver:  receiver,
-		Reference: reference,
+		Document: types.Document{
+			Sender:     sender,
+			Receiver:   receiver,
+			ContentUri: docContentUri,
+			Metadata: types.DocumentMetadata{
+				ContentUri: metaContentUri,
+				Schema: types.DocumentMetadataSchema{
+					Uri:     schemaUri,
+					Version: schemaVersion,
+				},
+				Proof: proof,
+			},
+			Checksum: types.DocumentChecksum{
+				Value:     checksumValue,
+				Algorithm: checksumAlgorithm,
+			},
+		},
 	}
 }
 
 // RouterKey Implements Msg.
-func (msg MsgShareDocument) Route() string { return RouterKey }
+func (msg MsgShareDocument) Route() string { return ModuleName }
 
 // Type Implements Msg.
 func (msg MsgShareDocument) Type() string { return "share_document" }
 
+//Basic validation of DocumentMetadata fields
+func validateDocMetadata(docMetadata types.DocumentMetadata) sdk.Error {
+	if len(docMetadata.ContentUri) == 0 {
+		return sdk.ErrUnknownRequest("Metadata content uri can't be empty")
+	}
+	if len(docMetadata.Proof) == 0 {
+		return sdk.ErrUnknownRequest("Computation Proof can't be empty")
+	}
+	if len(docMetadata.Schema.Uri) == 0 {
+		return sdk.ErrUnknownRequest("Schema uri can't be empty")
+	}
+	if len(docMetadata.Schema.Version) == 0 {
+		return sdk.ErrUnknownRequest("Schema version can't be empty")
+	}
+	return nil
+}
+
+//Checksum validation
+func validateChecksum(checksum types.DocumentChecksum) sdk.Error {
+	if len(checksum.Value) == 0 {
+		return sdk.ErrUnknownRequest("Checksum value can't be empty")
+	}
+	if len(checksum.Algorithm) == 0 {
+		return sdk.ErrUnknownRequest("Checksum algorithm can't be empty")
+	}
+
+	_, err := hex.DecodeString(checksum.Value)
+	if err != nil {
+		return sdk.ErrUnknownRequest("Invalid checksum value")
+	}
+
+	algorithm := strings.ToLower(checksum.Algorithm)
+	if algorithm == MD5 && len(checksum.Value) != 32 {
+		return sdk.ErrUnknownRequest("Invalid checksum length for MD5 hash")
+	}
+	if algorithm == SHA1 && len(checksum.Value) != 40 {
+		return sdk.ErrUnknownRequest("Invalid checksum length for SHA1 hash")
+	}
+	if algorithm == SHA224 && len(checksum.Value) != 56 {
+		return sdk.ErrUnknownRequest("Invalid checksum length for SHA224 hash")
+	}
+	if algorithm == SHA256 && len(checksum.Value) != 64 {
+		return sdk.ErrUnknownRequest("Invalid checksum length for SHA256 hash")
+	}
+	if algorithm == SHA384 && len(checksum.Value) != 96 {
+		return sdk.ErrUnknownRequest("Invalid checksum length for SHA384 hash")
+	}
+	if algorithm == SHA512 && len(checksum.Value) != 256 {
+		return sdk.ErrUnknownRequest("Invalid checksum length for SHA512 hash")
+	}
+
+	return nil
+}
+
 // ValidateBasic Implements Msg.
 func (msg MsgShareDocument) ValidateBasic() sdk.Error {
-	if msg.Owner.Empty() {
-		return sdk.ErrInvalidAddress(msg.Owner.String())
+	if msg.Sender.Empty() {
+		return sdk.ErrInvalidAddress(msg.Sender.String())
 	}
-	if len(msg.Sender) == 0 || len(msg.Receiver) == 0 || len(msg.Reference) == 0 {
-		return sdk.ErrUnknownRequest("Sender and/or receiver and/or document reference cannot be empty")
+	if msg.Receiver.Empty() {
+		return sdk.ErrInvalidAddress(msg.Receiver.String())
 	}
+	if len(msg.ContentUri) == 0 {
+		return sdk.ErrUnknownRequest("Document content Uri can't be empty")
+	}
+
+	err := validateDocMetadata(msg.Metadata)
+	if err != nil {
+		return err
+	}
+
+	err = validateChecksum(msg.Checksum)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -98,5 +143,5 @@ func (msg MsgShareDocument) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Owner}
+	return []sdk.AccAddress{msg.Sender}
 }
