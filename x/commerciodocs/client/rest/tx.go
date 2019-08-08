@@ -65,7 +65,7 @@ func storeDocumentHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		// create the message
-		msg := types.NewMsgStoreDocument(addr, types2.Did(req.Identity), req.Reference, req.Metadata)
+		msg := types.NewMsgStoreDocument(addr, req.Identity, req.Reference, req.Metadata)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -100,7 +100,7 @@ func shareDocumentHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		// create the message
-		msg := types.NewMsgShareDocument(addr, paramType, types2.Did(req.Sender), types2.Did(req.Receiver))
+		msg := types.NewMsgShareDocument(addr, paramType, req.Sender, req.Receiver)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
