@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"github.com/commercionetwork/commercionetwork/types"
-	"github.com/commercionetwork/commercionetwork/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -76,8 +75,8 @@ func setupTestInput() testInput {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	idk := commercioid.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
-	dck := NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
+	//idk := commercioid.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
+	//dck := NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 
@@ -86,7 +85,7 @@ func setupTestInput() testInput {
 		Ctx:        ctx,
 		accKeeper:  ak,
 		bankKeeper: bk,
-		DocsKeeper: dck,
+		//DocsKeeper: dck,
 	}
 
 }

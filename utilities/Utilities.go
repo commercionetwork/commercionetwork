@@ -1,6 +1,8 @@
 package utilities
 
-import "github.com/commercionetwork/commercionetwork/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 // ----------------------------------
 // --- Utility functions
@@ -15,9 +17,9 @@ func AppendStringIfMissing(slice []string, i string) []string {
 	return append(slice, i)
 }
 
-func AppendDidIfMissing(slice []types.Did, i types.Did) []types.Did {
+func AppendAddressIfMissing(slice []sdk.AccAddress, i sdk.AccAddress) []sdk.AccAddress {
 	for _, ele := range slice {
-		if ele == i {
+		if ele.Equals(i) {
 			return slice
 		}
 	}
@@ -33,9 +35,9 @@ func StringInSlice(a string, list []string) bool {
 	return false
 }
 
-func DidInSlice(a types.Did, list []types.Did) bool {
+func DidInSlice(a sdk.AccAddress, list []sdk.AccAddress) bool {
 	for _, b := range list {
-		if b == a {
+		if b.Equals(a) {
 			return true
 		}
 	}

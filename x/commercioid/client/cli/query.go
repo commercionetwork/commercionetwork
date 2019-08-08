@@ -35,7 +35,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdResolveIdentity(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "resolve [did]",
+		Use:   "resolve [address]",
 		Short: "Resolve identity",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -58,7 +58,7 @@ func GetCmdResolveIdentity(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdReadConnections(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "connections [did]",
+		Use:   "connections [address]",
 		Short: "Lists all the connections associated to the given Did",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

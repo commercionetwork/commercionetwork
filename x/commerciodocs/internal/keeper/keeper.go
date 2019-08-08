@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/commercionetwork/commercionetwork/types"
-	"github.com/commercionetwork/commercionetwork/utilities"
 	"github.com/commercionetwork/commercionetwork/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -72,7 +71,7 @@ func (keeper Keeper) addReaderForDocument(ctx sdk.Context, user types.Did, refer
 	}
 
 	// Append the user to the reading list
-	readers = utilities.AppendDidIfMissing(readers, user)
+	//readers = utilities.AppendAddressIfMissing(readers, user)
 
 	// Save the result into the store
 	store.Set([]byte(reference), keeper.cdc.MustMarshalBinaryBare(&readers))
@@ -154,7 +153,8 @@ func (keeper Keeper) CanReadDocument(ctx sdk.Context, user types.Did, reference 
 		keeper.cdc.MustUnmarshalBinaryBare(existingReaders, &readers)
 	}
 
-	return utilities.DidInSlice(user, readers)
+	//return utilities.DidInSlice(user, readers)
+	return false
 }
 
 // GetAuthorizedReaders lists all the users, represented by their identity, that have access to the document.
