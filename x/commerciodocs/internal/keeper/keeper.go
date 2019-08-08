@@ -31,11 +31,21 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 // --- Keeper methods
 // ----------------------------------
 
-// GetMetadata returns the Metadata Reference for the document with the given Reference.
-func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, receiver sdk.AccAddress) string {
-	store := ctx.KVStore(keeper.docsStoreKey)
-	result := store.Get([]byte(reference))
-	return string(result)
+func (keeper Keeper) GetDocument(ctx sdk.Context, checksumValue string) types.Document {
+
+}
+
+func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, sender sdk.AccAddress) []types.Document {
+
+}
+
+func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, sender sdk.AccAddress) []types.Document {
+
+}
+
+// GetSharedDocumentsWithUser
+func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, receiver sdk.AccAddress) []types.Document {
+
 }
 
 // ShareDocument allows the sharing of a document represented by the given Reference, between the given sender and the

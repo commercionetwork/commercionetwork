@@ -28,8 +28,8 @@ type MsgShareDocument struct {
 	types.Document
 }
 
-func NewMsgShareDocument(schemaUri string, schemaVersion string, docContentUri string, proof string, checksumValue string,
-	checksumAlgorithm string, sender sdk.AccAddress, receiver sdk.AccAddress, metaContentUri string) MsgShareDocument {
+func NewMsgShareDocument(sender sdk.AccAddress, receiver sdk.AccAddress, docContentUri string, metaContentUri string,
+	schemaUri string, schemaVersion string, proof string, checksumValue string, checksumAlgorithm string) MsgShareDocument {
 	return MsgShareDocument{
 		Document: types.Document{
 			Sender:     sender,
