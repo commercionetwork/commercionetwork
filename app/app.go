@@ -196,7 +196,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		//CommercioDOCS
 		commerciodocs.OwnersStoreKey,
 		commerciodocs.MetadataStoreKey,
-		commerciodocs.ReadersStoreKey,
 		commerciodocs.SharingStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -244,11 +243,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.commercioIdKeeper = commercioid.NewKeeper(app.keys[commercioid.StoreKey], app.cdc)
 
 	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
-	app.commercioDocsKeeper = commerciodocs.NewKeeper(
-		app.commercioIdKeeper,
-		app.keys[commerciodocs.OwnersStoreKey], app.keys[commerciodocs.MetadataStoreKey],
-		app.keys[commerciodocs.SharingStoreKey], app.keys[commerciodocs.ReadersStoreKey],
-		app.cdc)
+	app.commercioDocsKeeper = commerciodocs.NewKeeper(app.keys[commerciodocs.OwnersStoreKey], app.cdc)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()

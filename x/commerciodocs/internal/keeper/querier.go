@@ -10,7 +10,6 @@ package keeper
  */
 
 import (
-	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -46,7 +45,6 @@ func queryGetMetadata(ctx sdk.Context, path []string, keeper Keeper) (res []byte
 
 	identityResult := MetadataResult{}
 	identityResult.Document = documentReference
-	identityResult.Metadata = keeper.GetMetadata(ctx, documentReference)
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, identityResult)
 	if err2 != nil {
@@ -71,7 +69,6 @@ func queryGetAuthorized(ctx sdk.Context, path []string, keeper Keeper) (res []by
 
 	connectionsResult := AuthorizedResult{}
 	connectionsResult.Document = documentReference
-	connectionsResult.Readers = keeper.GetAuthorizedReaders(ctx, documentReference)
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, connectionsResult)
 	if err2 != nil {
@@ -82,6 +79,6 @@ func queryGetAuthorized(ctx sdk.Context, path []string, keeper Keeper) (res []by
 }
 
 type AuthorizedResult struct {
-	Document string      `json:"document_reference"`
-	Readers  []types.Did `json:"authorized_readers"`
+	Document string           `json:"document_reference"`
+	Readers  []sdk.AccAddress `json:"authorized_readers"`
 }

@@ -13,7 +13,6 @@ import (
 
 // RegisterCodec registers concrete types on wire codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgStoreDocument{}, "commerciodocs/StoreDocument", nil)
 	cdc.RegisterConcrete(MsgShareDocument{}, "commerciodocs/ShareDocument", nil)
 }
 
