@@ -4,7 +4,7 @@ that you have received.
 
 {:toc}
 
-## Sending a document
+## Sharing a document
 In order to send a document you are required to have an identity with some tokens inside it.   
 In order to know what an identity is, how to create it and how to get tokens, please refer to the 
 [*"Creating an identity"* section](commercioid.md#creating-an-identity).  
@@ -13,7 +13,7 @@ In order to know what an identity is, how to create it and how to get tokens, pl
 In order to send a document using the CLI you can use the following command 
 
 ```shell
-cncli tx commerciodocs send-document \
+cncli tx commerciodocs share \
   [recipient] \
   [document-uuid] \ 
   [document-metadata-uri] \
@@ -41,16 +41,17 @@ cncli tx commerciodocs send-document \
 #### Example usage 
 
 ```shell
-cncli tx commerciodocs send-document \
-  [recipient] \
-  [document-uuid] \ 
-  [document-metadata-uri] \
-  [metadata-schema-uri] \
-  [metadata-schema-version] \
-  [metadata-verification-proof] \
-  [document-content-uri] \
-  [checksum-value] \
-  [checksum-algorithm]
+cncli tx commerciodocs share \
+  did:com:1d63vn76znf6fxumfdgx4rmc4wlnppv5evqnx84 \
+  490e835d-dbb3-445c-aedc-df477f41d8a2 \
+  http://example.com/document/metadata \
+  http://example.com/document/metadata/schema \
+  1.0.0 \
+  353438683534383534726835347268353472 \
+  https://example/document \
+  7815696ecbf1c96e6894b779456d330e \
+  md5 \
+  --from jack
 ```
 
 ### Creating a transaction offline
@@ -97,7 +98,7 @@ checked only formally. This means that we only check that the hash value has a v
 if the given has is indeed the hash of the document's content. It should be the client responsibility to perform this 
 check.  
 
-## Sending a document reading receipt
+## [WIP] Sending a document reading receipt
 Once you have received a document and you want to acknowledge the sender that you have properly read it, you can use 
 the `SendDocumentReceipt` transaction that allows you to do that. 
 
