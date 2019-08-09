@@ -2,6 +2,7 @@ package commerciodocs
 
 import (
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,7 +25,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 func handleShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) sdk.Result {
 	// Share the document
-	err := keeper.ShareDocument(ctx, msg.Document)
+	err := keeper.ShareDocument(ctx, types.Document(msg))
 	if err != nil {
 		return err.Result()
 	}
