@@ -7,12 +7,12 @@ import (
 )
 
 var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestDidDocumentReference = "https://test.example.com/did-document#1"
+var TestDidDocumentUri = "https://test.example.com/did-document#1"
 var TestConnectionAddress, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
 
 var msgSetId = MsgSetIdentity{
-	Owner:                TestOwnerAddress,
-	DidDocumentReference: TestDidDocumentReference,
+	Owner:          TestOwnerAddress,
+	DidDocumentUri: TestDidDocumentUri,
 }
 
 // ----------------------------------
@@ -38,18 +38,18 @@ func TestMsgSetIdentity_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
 func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DidDocumentReference: TestDidDocumentReference,
-		Owner:                sdk.AccAddress{},
+		DidDocumentUri: TestDidDocumentUri,
+		Owner:          sdk.AccAddress{},
 	}
 
 	actual := invalidMsg.ValidateBasic()
 	assert.Error(t, actual)
 }
 
-func TestMsgSetIdentity_ValidateBasic_InvalidDidDocumentReference(t *testing.T) {
+func TestMsgSetIdentity_ValidateBasic_InvalidDidDocumentUri(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DidDocumentReference: "",
-		Owner:                TestConnectionAddress,
+		DidDocumentUri: "",
+		Owner:          TestConnectionAddress,
 	}
 
 	actual := invalidMsg.ValidateBasic()

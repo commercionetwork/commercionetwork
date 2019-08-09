@@ -9,8 +9,8 @@ import (
 )
 
 var msgSetId = MsgSetIdentity{
-	DidDocumentReference: keeper.TestDidDocumentReference,
-	Owner:                keeper.TestOwnerAddress,
+	DidDocumentUri: keeper.TestDidDocumentUri,
+	Owner:          keeper.TestOwnerAddress,
 }
 
 var testUtils = keeper.TestUtils

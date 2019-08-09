@@ -13,14 +13,14 @@ var request abci.RequestQuery
 
 func Test_queryResolveIdentity(t *testing.T) {
 	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
-	store.Set([]byte(types.IdentitiesStorePrefix+TestOwnerAddress.String()), []byte(TestDidDocumentReference))
+	store.Set([]byte(types.IdentitiesStorePrefix+TestOwnerAddress.String()), []byte(TestDidDocumentUri))
 
 	path := []string{"identities", TestOwnerAddress.String()}
 	actual, _ := querier(TestUtils.Ctx, path, request)
 
 	expected, _ := codec.MarshalJSONIndent(TestUtils.Cdc, IdentityResult{
 		Did:          TestOwnerAddress,
-		DdoReference: TestDidDocumentReference,
+		DdoReference: TestDidDocumentUri,
 	})
 	assert.Equal(t, expected, actual)
 }

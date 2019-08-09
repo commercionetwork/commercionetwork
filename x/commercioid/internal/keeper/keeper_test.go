@@ -11,17 +11,17 @@ func TestKeeper_CreateIdentity(t *testing.T) {
 	storeData := len(identitiesStore.Get([]byte(types.IdentitiesStorePrefix + TestOwnerAddress.String())))
 	assert.Equal(t, 0, storeData)
 
-	TestUtils.IdKeeper.SaveIdentity(TestUtils.Ctx, TestOwnerAddress, TestDidDocumentReference)
+	TestUtils.IdKeeper.SaveIdentity(TestUtils.Ctx, TestOwnerAddress, TestDidDocumentUri)
 
 	afterOpLen := len(identitiesStore.Get([]byte(types.IdentitiesStorePrefix + TestOwnerAddress.String())))
-	assert.Equal(t, len(TestDidDocumentReference), afterOpLen)
+	assert.Equal(t, len(TestDidDocumentUri), afterOpLen)
 }
 
 func TestKeeper_EditIdentity(t *testing.T) {
 	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
-	store.Set([]byte(types.IdentitiesStorePrefix+TestOwnerAddress.String()), []byte(TestDidDocumentReference))
+	store.Set([]byte(types.IdentitiesStorePrefix+TestOwnerAddress.String()), []byte(TestDidDocumentUri))
 	storeData := store.Get([]byte(types.IdentitiesStorePrefix + TestOwnerAddress.String()))
-	assert.Equal(t, []byte(TestDidDocumentReference), storeData)
+	assert.Equal(t, []byte(TestDidDocumentUri), storeData)
 
 	updatedIdentityRef := "ddo-reference-update"
 	TestUtils.IdKeeper.SaveIdentity(TestUtils.Ctx, TestOwnerAddress, updatedIdentityRef)
@@ -30,12 +30,12 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	assert.Equal(t, []byte(updatedIdentityRef), updatedLen)
 }
 
-func TestKeeper_GetDidDocumentReferenceByDid(t *testing.T) {
+func TestKeeper_GetDidDocumentUriByDid(t *testing.T) {
 	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
-	store.Set([]byte(types.IdentitiesStorePrefix+TestOwnerAddress.String()), []byte(TestDidDocumentReference))
+	store.Set([]byte(types.IdentitiesStorePrefix+TestOwnerAddress.String()), []byte(TestDidDocumentUri))
 	storeData := store.Get([]byte(types.IdentitiesStorePrefix + TestOwnerAddress.String()))
-	assert.Equal(t, []byte(TestDidDocumentReference), storeData)
+	assert.Equal(t, []byte(TestDidDocumentUri), storeData)
 
-	actual := TestUtils.IdKeeper.GetDidDocumentReferenceByDid(TestUtils.Ctx, TestOwnerAddress)
-	assert.Equal(t, TestDidDocumentReference, actual)
+	actual := TestUtils.IdKeeper.GetDidDocumentUriByDid(TestUtils.Ctx, TestOwnerAddress)
+	assert.Equal(t, TestDidDocumentUri, actual)
 }

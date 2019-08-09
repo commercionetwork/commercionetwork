@@ -36,8 +36,8 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdSetIdentity is the CLI command for sending a SetIdentity transaction
 func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-identity [ddo-reference]",
-		Short: "Edit an existing identity or add a new one",
+		Use:   "set-identity [did-document-uri]",
+		Short: "Associates the given did document reference to your Did",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			//todo check if we must need NewCLIContextWithFrom
@@ -46,7 +46,7 @@ func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 
 			account := cliCtx.GetFromAddress()
 
-			msg := types.NewMsgSetIdentity(args[1], account)
+			msg := types.NewMsgSetIdentity(account, args[0])
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err

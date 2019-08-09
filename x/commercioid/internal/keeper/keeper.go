@@ -29,7 +29,7 @@ func (keeper Keeper) SaveIdentity(ctx sdk.Context, owner sdk.AccAddress, didDocu
 
 // GetIdentity returns the Did Document reference associated to a given Did.
 // If the given Did has no Did Document reference associated, returns nil.
-func (keeper Keeper) GetDidDocumentReferenceByDid(ctx sdk.Context, owner sdk.AccAddress) string {
+func (keeper Keeper) GetDidDocumentUriByDid(ctx sdk.Context, owner sdk.AccAddress) string {
 	store := ctx.KVStore(keeper.StoreKey)
 	result := store.Get([]byte(types.IdentitiesStorePrefix + owner.String()))
 	return string(result)

@@ -8,14 +8,14 @@ import (
 const RouterKey = "commercioid"
 
 type MsgSetIdentity struct {
-	Owner                sdk.AccAddress `json:"owner"`
-	DidDocumentReference string         `json:"ddo_reference"`
+	Owner          sdk.AccAddress `json:"owner"`
+	DidDocumentUri string         `json:"did_document_uri"`
 }
 
-func NewMsgSetIdentity(didDocumentUri string, owner sdk.AccAddress) MsgSetIdentity {
+func NewMsgSetIdentity(owner sdk.AccAddress, didDocumentUri string) MsgSetIdentity {
 	return MsgSetIdentity{
-		DidDocumentReference: didDocumentUri,
-		Owner:                owner,
+		Owner:          owner,
+		DidDocumentUri: didDocumentUri,
 	}
 }
 
@@ -30,8 +30,8 @@ func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
 	if msg.Owner.Empty() {
 		return sdk.ErrInvalidAddress(msg.Owner.String())
 	}
-	if len(msg.DidDocumentReference) == 0 {
-		return sdk.ErrUnknownRequest("Did cannot be empty")
+	if len(msg.DidDocumentUri) == 0 {
+		return sdk.ErrUnknownRequest("Did Document reference cannot be empty")
 	}
 	return nil
 }

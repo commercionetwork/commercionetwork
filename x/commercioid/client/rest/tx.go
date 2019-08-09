@@ -45,7 +45,7 @@ func postSetIdentityHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		// create the message
-		msg := types2.NewMsgSetIdentity(req.DdoReference, addr)
+		msg := types2.NewMsgSetIdentity(addr, req.DdoReference)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

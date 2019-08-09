@@ -43,7 +43,7 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
 	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
 
-	ms.LoadLatestVersion()
+	_ = ms.LoadLatestVersion()
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
@@ -80,5 +80,4 @@ var TestUtils = setupTestInput()
 
 // Test variables
 var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestDidDocumentReference = "https://test.example.com/did-document#1"
-var TestConnectionAddress, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+var TestDidDocumentUri = "https://test.example.com/did-document#1"

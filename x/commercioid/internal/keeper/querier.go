@@ -39,7 +39,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 
 	identityResult := IdentityResult{}
 	identityResult.Did = address
-	identityResult.DdoReference = keeper.GetDidDocumentReferenceByDid(ctx, address)
+	identityResult.DdoReference = keeper.GetDidDocumentUriByDid(ctx, address)
 
 	if identityResult.DdoReference == "" {
 		return nil, sdk.ErrUnknownRequest("No Did Document reference associated to the given address")

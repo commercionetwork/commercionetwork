@@ -2,8 +2,9 @@
 CommercioID is the module that allows you to associate to an existing account (also called *identity*) a 
 Did Document Reference.  
  
-## Identities
-### Creating an identity
+{:toc}
+ 
+## Creating an identity
 First of all, let's define what an **identity** is inside the Commercio Network blockchain.  
 
 > An identity is the method used inside the Commercio Network blockchain in order to identify documents' sender.
@@ -48,9 +49,92 @@ It is the only way to recover your account if you ever forget your password.
 level awesome panther copy lottery race flag label crunch illegal step atom breeze choose undo solar remove upset caught maze endorse cargo sunny armed
 </summary>
 
-#### Using an identity
+### Using an identity
 Once you have created it, in order to start performing a transaction with your identity you firstly have to 
 fund your identity. Each and every transaction on the blockchain has a cost, and to pay for it you have to have some 
 tokens.  
 If you want to receive some tokens, please tell us inside our [official Telegram group](https://t.me/commercionetwork) 
-and we will send you some as soon as possible. 
+and we will send you some as soon as possible.
+
+## Associating a Did Document to your identity 
+Being your account address a Did, using the Commercio Network blockchain you can associate to it a Did Document
+containing the information that are related to your public (or private) identity.  
+In order to do so you will need to perform a transaction and so your account must have first received some tokens. To
+know how to get them, please take a look at the [*"Using an identity"* section](#using-an-identity). 
+
+### Using the CLI 
+In order to associated a Did Document to your Did, you can use the following command:
+
+```shell
+cncli tx commercioid set-identity [did-document-uri] --from <your-key-name>
+```
+
+#### Parameters
+| Parameter | Type | Description |  
+| :-------: | :---: | :--------- |  
+| `did-document-uri` | String | Uri pointing to the public content of your Did Document |
+
+#### Example usage
+
+```shell
+cncli tx commercioid set-identity https://example.com/my-did --from jack
+```
+
+### Creating a transaction offline
+In order to properly send a `commercioid/SetIdentity` transaction, you will need to create and sign the 
+following message:
+
+```json
+{
+  "type": "commercioid/SetIdentity",
+  "value": {
+    "owner": "<Your Did>",
+    "did_document_uri": "<URI of the Did Document content>"
+  }
+}
+```
+
+#### Transaction example
+```json
+{
+  "chain_id": "test-chain-GrNuU0",
+  "account_number": "0",
+  "sequence": "1",
+  "fee": {
+    "amount": [],
+    "gas": "200000"
+  },
+  "msgs": [
+    {
+      "type": "commercioid/SetIdentity",
+      "value": {
+        "owner": "did:com:1flzcn7yy9p04qwhh67hu8r38ar7ylxde2k47pr",
+        "did_document_uri": "https://example.com/my-did"
+      }
+    }
+  ],
+  "memo": ""
+}
+```
+
+## Reading a user's Did Document reference
+Once a user has associated a Did Document reference with his public (or private) Did, you can access it using the
+following command. 
+
+```shell
+cncli commercioid query resolve <did>
+``` 
+
+#### Example usage
+```shell
+cncli query commercioid resolve did:com:1flzcn7yy9p04qwhh67hu8r38ar7ylxde2k47pr
+```
+
+#### Output example
+```json
+{
+  "did": "did:com:1flzcn7yy9p04qwhh67hu8r38ar7ylxde2k47pr",
+  "did_document_uri": "https://example.com/my-did"
+}
+
+```
