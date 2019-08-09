@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/hex"
-	"fmt"
 	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"regexp"
@@ -30,26 +29,9 @@ type MsgShareDocument struct {
 	types.Document
 }
 
-func NewMsgShareDocument(sender sdk.AccAddress, recipient sdk.AccAddress, docUuid string, docContentUri string, metaContentUri string,
-	schemaUri string, schemaVersion string, proof string, checksumValue string, checksumAlgorithm string) MsgShareDocument {
+func NewMsgShareDocument(document types.Document) MsgShareDocument {
 	return MsgShareDocument{
-		Document: types.Document{
-			Sender:     sender,
-			Recipient:  recipient,
-			ContentUri: docContentUri,
-			Metadata: types.DocumentMetadata{
-				ContentUri: metaContentUri,
-				Schema: types.DocumentMetadataSchema{
-					Uri:     schemaUri,
-					Version: schemaVersion,
-				},
-				Proof: proof,
-			},
-			Checksum: types.DocumentChecksum{
-				Value:     checksumValue,
-				Algorithm: checksumAlgorithm,
-			},
-		},
+		Document: document,
 	}
 }
 
