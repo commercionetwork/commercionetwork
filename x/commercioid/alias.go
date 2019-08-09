@@ -6,27 +6,22 @@ import (
 )
 
 const (
-	ModuleName          = types.ModuleName
-	IdentitiesStoreKey  = types.IdentitiesStoreKey
-	OwnersStoreKey      = types.OwnersStoreKey
-	ConnectionsStoreKey = types.ConnectionsStoreKey
-	QuerierRoute        = types.QuerierRoute
+	ModuleName   = types.ModuleName
+	StoreKey     = types.StoreKey
+	QuerierRoute = types.QuerierRoute
 )
 
 var (
 	//function aliases
-	NewKeeper              = keeper.NewKeeper
-	NewQuerier             = keeper.NewQuerier
-	RegisterCodec          = types.RegisterCodec
-	NewMsgSetIdentity      = types.NewMsgSetIdentity
-	NewMsgCreateConnection = types.NewMsgCreateConnection
+	NewKeeper     = keeper.NewKeeper
+	NewQuerier    = keeper.NewQuerier
+	RegisterCodec = types.RegisterCodec
 
 	//variable aliases
 	ModuleCdc = types.ModuleCdc
 )
 
 type (
-	Keeper              = keeper.Keeper
-	MsgSetIdentity      = types.MsgSetIdentity
-	MsgCreateConnection = types.MsgCreateConnection
+	Keeper         = keeper.Keeper
+	MsgSetIdentity = types.MsgSetIdentity
 )

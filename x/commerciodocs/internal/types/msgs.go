@@ -28,12 +28,12 @@ type MsgShareDocument struct {
 	types.Document
 }
 
-func NewMsgShareDocument(sender sdk.AccAddress, receiver sdk.AccAddress, docContentUri string, metaContentUri string,
+func NewMsgShareDocument(sender sdk.AccAddress, recipient sdk.AccAddress, docContentUri string, metaContentUri string,
 	schemaUri string, schemaVersion string, proof string, checksumValue string, checksumAlgorithm string) MsgShareDocument {
 	return MsgShareDocument{
 		Document: types.Document{
 			Sender:     sender,
-			Receiver:   receiver,
+			Recipient:  recipient,
 			ContentUri: docContentUri,
 			Metadata: types.DocumentMetadata{
 				ContentUri: metaContentUri,
@@ -116,8 +116,8 @@ func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 	if msg.Sender.Empty() {
 		return sdk.ErrInvalidAddress(msg.Sender.String())
 	}
-	if msg.Receiver.Empty() {
-		return sdk.ErrInvalidAddress(msg.Receiver.String())
+	if msg.Recipient.Empty() {
+		return sdk.ErrInvalidAddress(msg.Recipient.String())
 	}
 	if len(msg.ContentUri) == 0 {
 		return sdk.ErrUnknownRequest("Document content Uri can't be empty")

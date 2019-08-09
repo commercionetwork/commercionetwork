@@ -25,3 +25,5 @@ A part from these modules, `cn` comes with the following custom modules:
 * `x/commercioid`: Pseudonymous identities creation.
 
 Next, learn how to [install Commercio.network](./installation.md) 
+
+If you want to know more about the supported operations, take a look at the [modules](modules) folder.

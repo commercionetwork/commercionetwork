@@ -9,30 +9,15 @@ import (
 )
 
 var msgSetId = MsgSetIdentity{
-	Did:          keeper.TestOwnerIdentity,
-	DDOReference: keeper.TestIdentityRef,
-	Owner:        keeper.TestOwner,
-}
-
-var msgCreateConn = MsgCreateConnection{
-	FirstUser:  keeper.TestOwnerIdentity,
-	SecondUser: keeper.TestRecipient,
-	Signer:     keeper.TestOwner,
+	DidDocumentUri: keeper.TestDidDocumentUri,
+	Owner:          keeper.TestOwnerAddress,
 }
 
 var testUtils = keeper.TestUtils
-
 var handler = NewHandler(testUtils.IdKeeper)
 
 func TestValidMsg_StoreDoc(t *testing.T) {
 	res := handler(testUtils.Ctx, msgSetId)
-
-	require.True(t, res.IsOK())
-}
-
-func TestValidMsg_ShareDoc(t *testing.T) {
-	res := handler(testUtils.Ctx, msgCreateConn)
-
 	require.True(t, res.IsOK())
 }
 
