@@ -9,17 +9,14 @@ package keeper
  */
 
 import (
-	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-// query endpoints supported by the governance Querier
 const (
-	QueryResolveDid  = "identities"
-	QueryConnections = "connections"
+	QueryResolveDid = "identities"
 )
 
 // NewQuerier is the module level router for state queries
@@ -28,28 +25,24 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		switch path[0] {
 		case QueryResolveDid:
 			return queryResolveIdentity(ctx, path[1:], keeper)
-		case QueryConnections:
-			return queryGetConnections(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest("Unknown commercioid query endpoint")
 		}
 	}
 }
 
-// ----------------------------------
-// --- Resolve identity
-// ----------------------------------
-
-// nolint: unparam
 func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	did := types.Did(path[0])
+	address, err2 := sdk.AccAddressFromBech32(path[0])
+	if err2 != nil {
+		return nil, sdk.ErrInvalidAddress(path[0])
+	}
 
 	identityResult := IdentityResult{}
-	identityResult.Did = did
-	identityResult.DdoReference = keeper.GetDdoReferenceByDid(ctx, did)
+	identityResult.Did = address
+	identityResult.DdoReference = keeper.GetDidDocumentUriByDid(ctx, address)
 
 	if identityResult.DdoReference == "" {
-		return nil, sdk.ErrUnknownRequest("No ddo reference related to given did")
+		return nil, sdk.ErrUnknownRequest("No Did Document reference associated to the given address")
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, identityResult)
@@ -62,30 +55,6 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 
 // Identity represents a Did -> Did Document lookup
 type IdentityResult struct {
-	Did          types.Did `json:"did"`
-	DdoReference string    `json:"ddo_reference"`
-}
-
-// ----------------------------------
-// --- Get connections
-// ----------------------------------
-
-func queryGetConnections(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	did := types.Did(path[0])
-
-	connectionsResult := ConnectionsResult{}
-	connectionsResult.Did = did
-	connectionsResult.Connections = keeper.GetConnections(ctx, did)
-
-	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, connectionsResult)
-	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
-	}
-
-	return bz, nil
-}
-
-type ConnectionsResult struct {
-	Did         types.Did   `json:"did"`
-	Connections []types.Did `json:"connections"`
+	Did          sdk.AccAddress `json:"did"`
+	DdoReference string         `json:"did_document_uri"`
 }
