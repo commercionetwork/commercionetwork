@@ -2,8 +2,10 @@ package types
 
 import (
 	"encoding/hex"
+	"fmt"
 	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"regexp"
 	"strings"
 )
 
@@ -28,7 +30,7 @@ type MsgShareDocument struct {
 	types.Document
 }
 
-func NewMsgShareDocument(sender sdk.AccAddress, recipient sdk.AccAddress, docContentUri string, metaContentUri string,
+func NewMsgShareDocument(sender sdk.AccAddress, recipient sdk.AccAddress, docUuid string, docContentUri string, metaContentUri string,
 	schemaUri string, schemaVersion string, proof string, checksumValue string, checksumAlgorithm string) MsgShareDocument {
 	return MsgShareDocument{
 		Document: types.Document{
@@ -111,6 +113,17 @@ func validateChecksum(checksum types.DocumentChecksum) sdk.Error {
 	return nil
 }
 
+func validateUuid(uuid string) bool {
+
+	if len(uuid) == 0 {
+		return false
+	}
+
+	var regex = regexp.MustCompile(`[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`)
+
+	return regex.MatchString(uuid)
+}
+
 // ValidateBasic Implements Msg.
 func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 	if msg.Sender.Empty() {
@@ -118,6 +131,9 @@ func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 	}
 	if msg.Recipient.Empty() {
 		return sdk.ErrInvalidAddress(msg.Recipient.String())
+	}
+	if !validateUuid(msg.Uuid) {
+		return sdk.ErrUnknownRequest("Document UUid must be not empty and validate regular expression")
 	}
 	if len(msg.ContentUri) == 0 {
 		return sdk.ErrUnknownRequest("Document content Uri can't be empty")

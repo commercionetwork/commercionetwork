@@ -28,8 +28,8 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdRetrieveDocument(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "document [document-checksum-value]",
-		Short: "Get the document information for the given checksum value",
+		Use:   "document [document-uuid]",
+		Short: "Get the document information for the given uuid value",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
