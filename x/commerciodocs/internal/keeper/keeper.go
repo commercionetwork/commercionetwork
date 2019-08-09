@@ -44,7 +44,7 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, sender sdk.AccAdd
 }
 
 // GetSharedDocumentsWithUser
-func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, receiver sdk.AccAddress) []types.Document {
+func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, recipient sdk.AccAddress) []types.Document {
 
 }
 

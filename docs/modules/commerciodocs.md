@@ -18,19 +18,26 @@ cncli tx commerciodocs send-document
 
 #### Parameters
 | Parameter | Type | Required | Description |  
-| :-------: | :---: | :-----: | :---------- |
-| `recipient` |  
+| :-------- | :---: | :-----: | :---------- |
+| `recipient` |  String | Yes | Bech32 address of the document recipient | 
+| `document-metadata-uri` | String | Yes | Uri to the file containing the document metadata |
+| `metadata-schema-uri` | String | Yes | Uri to the file containing the definition of the metadata schema used to define the metadata of this document |
+| `metadata-schema-version` | String | Yes | Version of the schema used to define the document's metadata |
+| `metadata-verification-proof` | String | Yes | Proof that the client has correctly verified the validity of the metadata based on the associated schema |
+| `document-content-uri` | String | No | Uri of the file containing the document's data |
+| `checksum-value` | String | Yes if `document-content-uri` is present | Value of the document content's checksum | 
+| `checksum-algorithm` | String | Yes if `checksum-value` is present | Algorithm used to compute the document's content checksum |
 
 #### Example usage 
 
 ```shell
 cncli tx commerciodocs send-document \
   [recipient] \
-  [document-content-uri] \
-  [metadata-content-uri] \
+  [document-metadata-uri] \
   [metadata-schema-uri] \
   [metadata-schema-version] \
-  [computation-proof] \
+  [metadata-verification-proof] \
+  [document-content-uri] \
   [checksum-value] \
   [checksum-algorithm]
 ```
@@ -59,4 +66,21 @@ following message:
 }
 ```
 
-## 
+### Supported checksum algorithm
+When computing the checksum of a document's contents, you must use one of the following supported checksum algorithms.  
+Not using one of these will result in your transaction being rejected or mishandled by recipients. 
+
+| Algorithm | Specification |
+| :-------: | :-----------: |
+| `md5` | [MD5](https://www.ietf.org/rfc/rfc1321.txt) |
+| `sha-1`| [SHA-1](https://tools.ietf.org/html/rfc3174) |
+| `sha-224` | [RFC 4634](https://tools.ietf.org/html/rfc4634) |
+| `sha-256` | [RFC 4634](https://tools.ietf.org/html/rfc4634) |
+| `sha-384` | [RFC 4634](https://tools.ietf.org/html/rfc4634) |
+| `sha-512` | [RFC 4634](https://tools.ietf.org/html/rfc4634) |
+
+#### Checksum validity check
+Please note that, when sending a document that has an associated checksum, the validity of the checksum itself is
+checked only formally. This means that we only check that the hash value has a valid length, but we do not check 
+if the given has is indeed the hash of the document's content. It should be the client responsibility to perform this 
+check.  

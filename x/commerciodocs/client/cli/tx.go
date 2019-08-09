@@ -31,21 +31,21 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
 func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use: "share [receiver] [document-content-uri] [metadata-content-uri] [metadata-schema-uri] [schema-version] " +
+		Use: "share [recipient] [document-content-uri] [metadata-content-uri] [metadata-schema-uri] [schema-version] " +
 			"[computation-proof] [checksum-value] [checksum-algorithm]",
-		Short: "Shares the document with the given receiver address",
+		Short: "Shares the document with the given recipient address",
 		Args:  cobra.ExactArgs(8),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			sender := cliCtx.GetFromAddress()
-			receiver, err := sdk.AccAddressFromBech32(args[0])
+			recipient, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgShareDocument(sender, receiver, args[1], args[2], args[3], args[4], args[5], args[6],
+			msg := types.NewMsgShareDocument(sender, recipient, args[1], args[2], args[3], args[4], args[5], args[6],
 				args[7])
 			err = msg.ValidateBasic()
 			if err != nil {
