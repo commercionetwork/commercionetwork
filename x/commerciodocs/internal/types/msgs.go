@@ -35,7 +35,7 @@ func NewMsgShareDocument(document types.Document) MsgShareDocument {
 func (msg MsgShareDocument) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgShareDocument) Type() string { return "share_document" }
+func (msg MsgShareDocument) Type() string { return MsgType }
 
 //Basic validation of DocumentMetadata fields
 func validateDocMetadata(docMetadata types.DocumentMetadata) sdk.Error {
