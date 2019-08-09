@@ -40,17 +40,17 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) {
 	sender := document.Sender.String()
 	recipient := document.Recipient.String()
 
-	var sentDocsList, receiverDocsList []types.Document
+	var sentDocsList, recipientDocsList []types.Document
 
 	// Get the existing received documents
 	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + recipient))
-	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &receiverDocsList)
+	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &recipientDocsList)
 
 	// Append the new received document
-	receiverDocsList = utilities.AppendDocIfMissing(receiverDocsList, document)
+	recipientDocsList = utilities.AppendDocIfMissing(recipientDocsList, document)
 
 	// Save the new list
-	store.Set([]byte(ReceivedDocumentsPrefix+recipient), keeper.cdc.MustMarshalBinaryBare(&receiverDocsList))
+	store.Set([]byte(ReceivedDocumentsPrefix+recipient), keeper.cdc.MustMarshalBinaryBare(&recipientDocsList))
 
 	// Get the existing sent list
 	sentDocs := store.Get([]byte(SentDocumentsPrefix + sender))
@@ -95,7 +95,7 @@ func (keeper Keeper) GetDocument(ctx sdk.Context, checksumValue string) types.Do
 	return types.Document{}
 }
 
-// Get all the documents that given sender has shared with given receiver
-func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, receiver sdk.AccAddress) []types.Document {
+// Get all the documents that given sender has shared with given recipient
+func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, recipient sdk.AccAddress) []types.Document {
 	return []types.Document{}
 }

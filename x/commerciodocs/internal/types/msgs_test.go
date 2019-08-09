@@ -10,7 +10,7 @@ import (
 //TEST VARS
 var addr = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
 var sender, _ = sdk.AccAddressFromBech32(addr)
-var receiver, _ = sdk.AccAddressFromBech32(addr)
+var recipient, _ = sdk.AccAddressFromBech32(addr)
 var validUuid = "6a2f41a3-c54c-fce8-32d2-0324e1c32e22"
 var validChecksum = types.DocumentChecksum{
 	Value:     "48656c6c6f20476f7068657221234567",
@@ -42,7 +42,7 @@ var invalidDocumentMetadata = types.DocumentMetadata{
 
 var validMsg = MsgShareDocument{
 	Sender:     sender,
-	Recipient:  receiver,
+	Recipient:  recipient,
 	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	ContentUri: "http://www.contentUri.com",
 	Metadata:   validDocumentMetadata,
@@ -51,7 +51,7 @@ var validMsg = MsgShareDocument{
 
 var invalidMsg = MsgShareDocument{
 	Sender:     sender,
-	Recipient:  receiver,
+	Recipient:  recipient,
 	Uuid:       validUuid,
 	ContentUri: "http://www.contentUri.com",
 	Metadata: types.DocumentMetadata{
