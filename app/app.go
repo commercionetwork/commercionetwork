@@ -45,7 +45,7 @@ const (
 	DefaultBondDenom = "ucommercio"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
-	Bech32MainPrefix = "comnet"
+	Bech32MainPrefix = "did:com:"
 
 	// PrefixValidator is the prefix for validator keys
 	PrefixValidator = "val"
@@ -191,14 +191,11 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		gov.StoreKey, params.StoreKey,
 
 		//CommercioID
-		commercioid.ConnectionsStoreKey,
-		commercioid.IdentitiesStoreKey,
-		commercioid.OwnersStoreKey,
+		commercioid.StoreKey,
 
 		//CommercioDOCS
 		commerciodocs.OwnersStoreKey,
 		commerciodocs.MetadataStoreKey,
-		commerciodocs.ReadersStoreKey,
 		commerciodocs.SharingStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -243,17 +240,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
 
 	// The CommercioID keeper handles interactions for the CommercioID module
-	app.commercioIdKeeper = commercioid.NewKeeper(
-		app.keys[commercioid.IdentitiesStoreKey], app.keys[commercioid.OwnersStoreKey],
-		app.keys[commercioid.ConnectionsStoreKey],
-		app.cdc)
+	app.commercioIdKeeper = commercioid.NewKeeper(app.keys[commercioid.StoreKey], app.cdc)
 
 	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
-	app.commercioDocsKeeper = commerciodocs.NewKeeper(
-		app.commercioIdKeeper,
-		app.keys[commerciodocs.OwnersStoreKey], app.keys[commerciodocs.MetadataStoreKey],
-		app.keys[commerciodocs.SharingStoreKey], app.keys[commerciodocs.ReadersStoreKey],
-		app.cdc)
+	app.commercioDocsKeeper = commerciodocs.NewKeeper(app.keys[commerciodocs.OwnersStoreKey], app.cdc)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()

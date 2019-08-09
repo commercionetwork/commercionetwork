@@ -3,11 +3,12 @@ package types
 const (
 	ModuleName = "commerciodocs"
 
-	//OwnersStoreKey is string representation of the store key for commercio docs
-	OwnersStoreKey   = "docs_owners"
+	// Key of the map { DocumentReference => Address }
+	OwnersStoreKey = "docs_owners"
+	// Key of the map { DocumentReference => Metadata }
 	MetadataStoreKey = "docs_metadata"
-	SharingStoreKey  = "docs_sharing"
-	ReadersStoreKey  = "docs_readers"
+	// Key of the map { Did => []Sharing }
+	SharingStoreKey = "docs_sharing"
 
 	QuerierRoute = ModuleName
 )

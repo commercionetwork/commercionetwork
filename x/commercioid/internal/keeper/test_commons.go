@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -34,9 +33,7 @@ func setupTestInput() testInput {
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
 
 	// CommercioID
-	keyIDIdentities := sdk.NewKVStoreKey("id_identities")
-	keyIDOwners := sdk.NewKVStoreKey("id_owners")
-	keyIDConnections := sdk.NewKVStoreKey("id_connections")
+	storeKey := sdk.NewKVStoreKey("commercioid")
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
@@ -44,11 +41,9 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(keyIDIdentities, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyIDOwners, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyIDConnections, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
 
-	ms.LoadLatestVersion()
+	_ = ms.LoadLatestVersion()
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
@@ -56,7 +51,7 @@ func setupTestInput() testInput {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	idk := NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
+	idk := NewKeeper(storeKey, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 
@@ -83,11 +78,6 @@ func testCodec() *codec.Codec {
 
 var TestUtils = setupTestInput()
 
-//TEST VARS
-var TestAddress = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
-var TestOwner, _ = sdk.AccAddressFromBech32(TestAddress)
-var TestOwnerIdentity = types.Did("newReader")
-var TestIdentityRef = "ddo-reference"
-var TestReference = "TestReference"
-var TestMetadata = "TestMetadata"
-var TestRecipient = types.Did("recipient")
+// Test variables
+var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestDidDocumentUri = "https://test.example.com/did-document#1"

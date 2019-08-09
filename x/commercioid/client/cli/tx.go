@@ -1,7 +1,6 @@
 package cli
 
 import (
-	types2 "github.com/commercionetwork/commercionetwork/types"
 	"github.com/commercionetwork/commercionetwork/x/commercioid/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
@@ -29,7 +28,6 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 	txCmd.AddCommand(
 		GetCmdSetIdentity(cdc),
-		GetCmdCreateConnection(cdc),
 	)
 
 	return txCmd
@@ -38,9 +36,9 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdSetIdentity is the CLI command for sending a SetIdentity transaction
 func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-identity [did] [ddo-reference]",
-		Short: "Edit an existing identity or add a new one",
-		Args:  cobra.ExactArgs(2),
+		Use:   "set-identity [did-document-uri]",
+		Short: "Associates the given did document reference to your Did",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			//todo check if we must need NewCLIContextWithFrom
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -48,7 +46,7 @@ func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 
 			account := cliCtx.GetFromAddress()
 
-			msg := types.NewMsgSetIdentity(types2.Did(args[0]), args[1], account)
+			msg := types.NewMsgSetIdentity(account, args[0])
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -61,28 +59,4 @@ func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	cmd = client.PostCommands(cmd)[0]
 
 	return cmd
-}
-
-// GetCmdCreateConnection is the CLI command for sending a CreateConnection transaction
-func GetCmdCreateConnection(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "create-connection [first-did] [second-did]",
-		Short: "Creates a connection between the first and second DIDs",
-		Args:  cobra.ExactArgs(2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			account := cliCtx.GetFromAddress()
-
-			msg := types.NewMsgCreateConnection(types2.Did(args[0]), types2.Did(args[1]), account)
-			err := msg.ValidateBasic()
-			if err != nil {
-				return err
-			}
-
-			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
-		},
-	}
 }
