@@ -19,7 +19,7 @@ did:cmc:<unique part>
 In order to do so, you can use the CLI and execute the following command: 
 
 ```shell
-cnd keys add <key-name>
+cncli keys add <key-name>
 ``` 
 
 You will be required to set a password in order to safely store the key on your computer.  
