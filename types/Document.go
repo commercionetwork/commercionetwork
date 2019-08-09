@@ -20,7 +20,7 @@ type DocumentChecksum struct {
 
 type Document struct {
 	Sender     sdk.AccAddress   `json:"sender"`
-	Receiver   sdk.AccAddress   `json:"receiver"`
+	Recipient  sdk.AccAddress   `json:"recipient"`
 	ContentUri string           `json:"content_uri"`
 	Metadata   DocumentMetadata `json:"metadata"`
 	Checksum   DocumentChecksum `json:"checksum"`

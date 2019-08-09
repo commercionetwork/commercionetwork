@@ -26,7 +26,7 @@ package types
 //var msgShare = MsgShareDocument{
 //	Owner:     testOwner,
 //	Sender:    testOwnerIdentity,
-//	Receiver:  testRecipient,
+//	Recipient:  testRecipient,
 //	Reference: testReference,
 //}
 //
@@ -148,7 +148,7 @@ package types
 //		Owner:     sdk.AccAddress{},
 //		Reference: testReference,
 //		Sender:    testOwnerIdentity,
-//		Receiver:  testRecipient,
+//		Recipient:  testRecipient,
 //	}
 //
 //	actual := msg.ValidateBasic()
@@ -161,7 +161,7 @@ package types
 //		Owner:     testOwner,
 //		Reference: "",
 //		Sender:    testOwnerIdentity,
-//		Receiver:  testRecipient,
+//		Recipient:  testRecipient,
 //	}
 //
 //	actual := msg.ValidateBasic()
@@ -170,7 +170,7 @@ package types
 //}
 //
 //func TestMsgShareDocument_GetSignBytes(t *testing.T) {
-//	expected := `{"type":"commerciodocs/ShareDocument","value":{"owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","receiver":"testRecipient","reference":"testReference","sender":"newReader"}}`
+//	expected := `{"type":"commerciodocs/ShareDocument","value":{"owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipient":"testRecipient","reference":"testReference","sender":"newReader"}}`
 //
 //	actual := msgShare.GetSignBytes()
 //

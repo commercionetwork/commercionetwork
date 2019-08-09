@@ -19,7 +19,7 @@ package commerciodocs
 //var msgShareDoc = MsgShareDoc{
 //	Owner:     keeper.TestOwner,
 //	Sender:    keeper.TestOwnerIdentity,
-//	Receiver:  keeper.TestRecipient,
+//	Recipient:  keeper.TestRecipient,
 //	Reference: keeper.TestReference,
 //}
 //
