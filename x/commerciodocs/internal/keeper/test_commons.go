@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"github.com/commercionetwork/commercionetwork/types"
-	"github.com/commercionetwork/commercionetwork/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -44,16 +43,8 @@ func setupTestInput() testInput {
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
 
-	// CommercioID
-	keyIDIdentities := sdk.NewKVStoreKey("id_identities")
-	keyIDOwners := sdk.NewKVStoreKey("id_owners")
-	keyIDConnections := sdk.NewKVStoreKey("id_connections")
-
 	// CommercioDOCS
-	keyDOCSOwners := sdk.NewKVStoreKey("docs_owners")
-	keyDOCSMetadata := sdk.NewKVStoreKey("docs_metadata")
-	keyDOCSSharing := sdk.NewKVStoreKey("docs_sharing")
-	keyDOCSReaders := sdk.NewKVStoreKey("docs_readers")
+	keyDOCS := sdk.NewKVStoreKey("docs")
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
@@ -61,13 +52,7 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(keyDOCSReaders, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyDOCSOwners, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyDOCSMetadata, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyDOCSSharing, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyIDIdentities, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyIDOwners, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyIDConnections, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(keyDOCS, sdk.StoreTypeIAVL, memDB)
 	_ = ms.LoadLatestVersion()
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
@@ -76,8 +61,7 @@ func setupTestInput() testInput {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	idk := commercioid.NewKeeper(keyIDIdentities, keyIDOwners, keyIDConnections, cdc)
-	dck := NewKeeper(idk, keyDOCSOwners, keyDOCSMetadata, keyDOCSSharing, keyDOCSReaders, cdc)
+	dck := NewKeeper(keyDOCS, cdc)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 
@@ -88,7 +72,6 @@ func setupTestInput() testInput {
 		bankKeeper: bk,
 		DocsKeeper: dck,
 	}
-
 }
 
 func testCodec() *codec.Codec {

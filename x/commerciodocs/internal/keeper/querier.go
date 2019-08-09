@@ -29,14 +29,16 @@ const (
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case QueryDocument:
-			return queryGetDocument(ctx, path[1:], keeper)
-		case QuerySentDocuments:
-			return queryGetSentDocuments(ctx, path[1:], keeper)
 		case QueryReceivedDocuments:
 			return queryGetReceivedDocuments(ctx, path[1:], keeper)
-		case QuerySharedDocsWithUser:
-			return queryGetSharedDocumentsWithUser(ctx, path[1:], keeper)
+		case QuerySentDocuments:
+			return queryGetSentDocuments(ctx, path[1:], keeper)
+		/*
+			case QueryDocument:
+				return queryGetDocument(ctx, path[1:], keeper)
+			case QuerySharedDocsWithUser:
+				return queryGetSharedDocumentsWithUser(ctx, path[1:], keeper)
+		*/
 		default:
 			return nil, sdk.ErrUnknownRequest("Unknown commerciodocs query endpoint")
 		}
@@ -44,18 +46,18 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 }
 
 // ----------------------------------
-// --- Get Metadata
+// --- Get Received documents
 // ----------------------------------
 
-//todo
-func queryGetDocument(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	documentReference := path[0]
+func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+	addr := path[0]
 
-	identityResult := MetadataResult{}
-	identityResult.Document = documentReference
-	identityResult.Metadata = keeper.GetMetadata(ctx, documentReference)
+	address, _ := sdk.AccAddressFromBech32(addr)
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, identityResult)
+	var receivedResult []types.Document
+	receivedResult = keeper.GetUserReceivedDocuments(ctx, address)
+
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -63,12 +65,18 @@ func queryGetDocument(ctx sdk.Context, path []string, keeper Keeper) (res []byte
 	return bz, nil
 }
 
-// Metadata represents a TestReference -> TestMetadata lookup
-type MetadataResult struct {
-	Document string `json:"document_reference"`
-	Metadata string `json:"metadata_reference"`
-}
+func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+	addr := path[0]
 
-// ----------------------------------
-// --- Get connections
-// ----------------------------------
+	address, _ := sdk.AccAddressFromBech32(addr)
+
+	var receivedResult []types.Document
+	receivedResult = keeper.GetUserSentDocuments(ctx, address)
+
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
+	if err2 != nil {
+		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}

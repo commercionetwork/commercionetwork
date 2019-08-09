@@ -1,19 +1,20 @@
 package keeper
 
 import (
-	"bytes"
-	"fmt"
 	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/commercionetwork/commercionetwork/utilities"
-	"github.com/commercionetwork/commercionetwork/x/commercioid"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"google.golang.org/genproto/googleapis/type/date"
 )
 
 // ----------------------------------
 // --- Keeper definition
 // ----------------------------------
+
+const (
+	SentDocumentsPrefix     = "sentBy:"
+	ReceivedDocumentsPrefix = "received:"
+)
 
 type Keeper struct {
 	docsStoreKey sdk.StoreKey
@@ -31,28 +32,63 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 // --- Keeper methods
 // ----------------------------------
 
-func (keeper Keeper) GetDocument(ctx sdk.Context, checksumValue string) types.Document {
-
-}
-
-func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, sender sdk.AccAddress) []types.Document {
-
-}
-
-func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, sender sdk.AccAddress) []types.Document {
-
-}
-
-// GetSharedDocumentsWithUser
-func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, receiver sdk.AccAddress) []types.Document {
-
-}
-
-// ShareDocument allows the sharing of a document represented by the given Reference, between the given sender and the
-// given recipient.
-func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) sdk.Error {
+// ShareDocument allows the sharing of a document
+func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) {
 
 	store := ctx.KVStore(keeper.docsStoreKey)
 
-	return nil
+	receiver := document.Receiver.String()
+	sender := document.Receiver.String()
+
+	var receiverDocsList []types.Document
+	var sentDocsList []types.Document
+
+	//Update receiver documents list
+	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + receiver))
+	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &receiverDocsList)
+	receiverDocsList = utilities.AppendDocIfMissing(receiverDocsList, document)
+	store.Set([]byte(ReceivedDocumentsPrefix+receiver), keeper.cdc.MustMarshalBinaryBare(document))
+
+	//Update sender documents list
+	sentDocs := store.Get([]byte(SentDocumentsPrefix + sender))
+	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, &sentDocsList)
+	sentDocsList = append(sentDocsList, document)
+	store.Set([]byte(SentDocumentsPrefix+sender), keeper.cdc.MustMarshalBinaryBare(sentDocsList))
+}
+
+//Get all the received documents by user
+func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
+
+	store := ctx.KVStore(keeper.docsStoreKey)
+
+	var receivedDocsList []types.Document
+
+	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + user.String()))
+	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, receivedDocsList)
+
+	return receivedDocsList
+}
+
+//Get all the sent documents by user
+func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
+	store := ctx.KVStore(keeper.docsStoreKey)
+
+	var sentDocsList []types.Document
+
+	sentDocs := store.Get([]byte(SentDocumentsPrefix + user.String()))
+	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, sentDocsList)
+
+	return sentDocsList
+}
+
+//TODO Implement these functions when it useful
+
+//Get Document associated with checksum given
+func (keeper Keeper) GetDocument(ctx sdk.Context, checksumValue string) types.Document {
+	return types.Document{}
+}
+
+// Get all the documents that given sender has shared with given receiver
+func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, receiver sdk.AccAddress) []types.Document {
+	return []types.Document{}
 }

@@ -21,8 +21,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(GetCmdRetrieveDocument(cdc), GetCmdSentDocument(cdc), GetCmdReceivedDocuments(cdc),
-		GetCmdSharedDocuments(cdc))
+	cmd.AddCommand(GetCmdSentDocuments(cdc), GetCmdReceivedDocuments(cdc))
 
 	return cmd
 }
@@ -50,7 +49,7 @@ func GetCmdRetrieveDocument(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func GetCmdSentDocument(cdc *codec.Codec) *cobra.Command {
+func GetCmdSentDocuments(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "sent-documents",
 		Short: "Get all documents sent by user",

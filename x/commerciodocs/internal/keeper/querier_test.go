@@ -11,10 +11,10 @@ import (
 var querier = NewQuerier(TestUtils.DocsKeeper)
 var request abci.RequestQuery
 
-func Test_queryGetMetadata(t *testing.T) {
+func Test_queryGetReceivedDocuments(t *testing.T) {
 	path := []string{"TestMetadata", "TestReference"}
 
-	expected := MetadataResult{
+	expected := types.Document{
 		Document: TestReference,
 		Metadata: TestMetadata,
 	}

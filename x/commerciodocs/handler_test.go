@@ -15,7 +15,7 @@ var msgStoreDoc = MsgStoreDoc{
 	Metadata:  keeper.TestMetadata,
 }
 
-var msgShareDoc = MsgShareDoc{
+var msgShareDoc = MsgShareDocument{
 	Owner:     keeper.TestOwner,
 	Sender:    keeper.TestOwnerIdentity,
 	Receiver:  keeper.TestRecipient,
