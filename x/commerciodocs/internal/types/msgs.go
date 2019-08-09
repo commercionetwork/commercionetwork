@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"regexp"
 	"strings"
 )
 
@@ -24,38 +25,17 @@ const (
 // --- ShareDocument
 // ----------------------------------
 
-type MsgShareDocument struct {
-	types.Document
-}
+type MsgShareDocument types.Document
 
-func NewMsgShareDocument(schemaUri string, schemaVersion string, docContentUri string, proof string, checksumValue string,
-	checksumAlgorithm string, sender sdk.AccAddress, recipient sdk.AccAddress, metaContentUri string) MsgShareDocument {
-	return MsgShareDocument{
-		Document: types.Document{
-			Sender:     sender,
-			Recipient:  recipient,
-			ContentUri: docContentUri,
-			Metadata: types.DocumentMetadata{
-				ContentUri: metaContentUri,
-				Schema: types.DocumentMetadataSchema{
-					Uri:     schemaUri,
-					Version: schemaVersion,
-				},
-				Proof: proof,
-			},
-			Checksum: types.DocumentChecksum{
-				Value:     checksumValue,
-				Algorithm: checksumAlgorithm,
-			},
-		},
-	}
+func NewMsgShareDocument(document types.Document) MsgShareDocument {
+	return MsgShareDocument(document)
 }
 
 // RouterKey Implements Msg.
 func (msg MsgShareDocument) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgShareDocument) Type() string { return "share_document" }
+func (msg MsgShareDocument) Type() string { return MsgType }
 
 //Basic validation of DocumentMetadata fields
 func validateDocMetadata(docMetadata types.DocumentMetadata) sdk.Error {
@@ -111,6 +91,17 @@ func validateChecksum(checksum types.DocumentChecksum) sdk.Error {
 	return nil
 }
 
+func validateUuid(uuid string) bool {
+
+	if len(uuid) == 0 {
+		return false
+	}
+
+	var regex = regexp.MustCompile(`[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`)
+
+	return regex.MatchString(uuid)
+}
+
 // ValidateBasic Implements Msg.
 func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 	if msg.Sender.Empty() {
@@ -118,6 +109,9 @@ func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 	}
 	if msg.Recipient.Empty() {
 		return sdk.ErrInvalidAddress(msg.Recipient.String())
+	}
+	if !validateUuid(msg.Uuid) {
+		return sdk.ErrUnknownRequest("Document UUid must be not empty and validate regular expression")
 	}
 	if len(msg.ContentUri) == 0 {
 		return sdk.ErrUnknownRequest("Document content Uri can't be empty")

@@ -1,186 +1,136 @@
 package types
 
-//import (
-//	"github.com/commercionetwork/commercionetwork/types"
-//	sdk "github.com/cosmos/cosmos-sdk/types"
-//	"github.com/stretchr/testify/assert"
-//	"testing"
-//)
-//
-////TEST VARS
-//
-//var testAddress = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
-//var testOwner, _ = sdk.AccAddressFromBech32(testAddress)
-//var testOwnerIdentity = types.Did("newReader")
-//var testReference = "testReference"
-//var testMetadata = "testMetadata"
-//var testRecipient = types.Did("testRecipient")
-//
-//var msgStore = MsgStoreDocument{
-//	Identity:  testOwnerIdentity,
-//	Reference: testReference,
-//	Owner:     testOwner,
-//	Metadata:  testMetadata,
-//}
-//
-//var msgShare = MsgShareDocument{
-//	Owner:     testOwner,
-//	Sender:    testOwnerIdentity,
-//	Recipient:  testRecipient,
-//	Reference: testReference,
-//}
-//
-//// ----------------------------------
-//// --- Message StoreDocument
-//// ----------------------------------
-//
-//func TestNewMsgStoreDocument(t *testing.T) {
-//
-//	actual := NewMsgStoreDocument(testOwner, testOwnerIdentity, testReference, testMetadata)
-//
-//	assert.Equal(t, msgStore, actual)
-//}
-//
-//func TestMsgStoreDocument_Route(t *testing.T) {
-//	key := "commerciodocs"
-//
-//	actual := msgStore.Route()
-//
-//	assert.Equal(t, key, actual)
-//}
-//
-//func TestMsgStoreDocument_Type(t *testing.T) {
-//	dType := "store_document"
-//
-//	actual := msgStore.Type()
-//
-//	assert.Equal(t, dType, actual)
-//}
-//
-//func TestMsgStoreDocument_ValidateBasic_AllFieldsCorrect(t *testing.T) {
-//
-//	actual := msgStore.ValidateBasic()
-//
-//	assert.Nil(t, actual)
-//}
-//
-//func TestMsgStoreDocument_ValidateBasic_EmptyOwnerField(t *testing.T) {
-//	message := MsgStoreDocument{
-//		Owner:     sdk.AccAddress{},
-//		Identity:  testOwnerIdentity,
-//		Reference: testReference,
-//		Metadata:  testMetadata,
-//	}
-//
-//	actual := message.ValidateBasic()
-//
-//	assert.Error(t, actual)
-//}
-//
-//func TestMsgStoreDocument_ValidateBasic_EmptyReference(t *testing.T) {
-//	message := MsgStoreDocument{
-//		Owner:     testOwner,
-//		Identity:  types.Did(""),
-//		Reference: testReference,
-//		Metadata:  testMetadata,
-//	}
-//
-//	actual := message.ValidateBasic()
-//
-//	assert.Error(t, actual)
-//}
-//
-//func TestMsgStoreDocument_GetSignBytes(t *testing.T) {
-//
-//	expected := `{"type":"commerciodocs/StoreDocument","value":{"identity":"newReader","metadata":"testMetadata","owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","reference":"testReference"}}`
-//
-//	actual := msgStore.GetSignBytes()
-//
-//	assert.Equal(t, expected, string(actual))
-//
-//}
-//
-//func TestMsgStoreDocument_GetSigners(t *testing.T) {
-//
-//	expected := []sdk.AccAddress{msgStore.Owner}
-//
-//	actual := msgStore.GetSigners()
-//
-//	assert.Equal(t, expected, actual)
-//}
-//
-//// ----------------------------------
-//// --- Message ShareDocument
-//// ----------------------------------
-//
-//func TestNewMsgShareDocument(t *testing.T) {
-//
-//	actual := NewMsgShareDocument(testOwner, testReference, testOwnerIdentity, testRecipient)
-//
-//	assert.Equal(t, msgShare, actual)
-//}
-//
-//func TestMsgShareDocument_Route(t *testing.T) {
-//	key := "commerciodocs"
-//
-//	actual := msgShare.Route()
-//
-//	assert.Equal(t, key, actual)
-//}
-//
-//func TestMsgShareDocument_Type(t *testing.T) {
-//	dType := "share_document"
-//
-//	actual := msgShare.Type()
-//
-//	assert.Equal(t, dType, actual)
-//}
-//
-//func TestMsgShareDocument_ValidateBasic_AllFieldsCorrect(t *testing.T) {
-//
-//	actual := msgShare.ValidateBasic()
-//
-//	assert.Nil(t, actual)
-//}
-//
-//func TestMsgShareDocument_ValidateBasic_EmptyOwnerField(t *testing.T) {
-//	msg := MsgShareDocument{
-//		Owner:     sdk.AccAddress{},
-//		Reference: testReference,
-//		Sender:    testOwnerIdentity,
-//		Recipient:  testRecipient,
-//	}
-//
-//	actual := msg.ValidateBasic()
-//
-//	assert.Error(t, actual)
-//}
-//
-//func TestMsgShareDocument_ValidateBasic_EmptyReference(t *testing.T) {
-//	msg := MsgShareDocument{
-//		Owner:     testOwner,
-//		Reference: "",
-//		Sender:    testOwnerIdentity,
-//		Recipient:  testRecipient,
-//	}
-//
-//	actual := msg.ValidateBasic()
-//
-//	assert.Error(t, actual)
-//}
-//
-//func TestMsgShareDocument_GetSignBytes(t *testing.T) {
-//	expected := `{"type":"commerciodocs/ShareDocument","value":{"owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipient":"testRecipient","reference":"testReference","sender":"newReader"}}`
-//
-//	actual := msgShare.GetSignBytes()
-//
-//	assert.Equal(t, expected, string(actual))
-//}
-//
-//func TestMsgShareDocument_GetSigners(t *testing.T) {
-//	expected := []sdk.AccAddress{msgShare.Owner}
-//
-//	actual := msgShare.GetSigners()
-//
-//	assert.Equal(t, expected, actual)
-//}
+import (
+	"github.com/commercionetwork/commercionetwork/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+//TEST VARS
+var addr = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
+var sender, _ = sdk.AccAddressFromBech32(addr)
+var recipient, _ = sdk.AccAddressFromBech32(addr)
+var validUuid = "6a2f41a3-c54c-fce8-32d2-0324e1c32e22"
+var validChecksum = types.DocumentChecksum{
+	Value:     "48656c6c6f20476f7068657221234567",
+	Algorithm: MD5,
+}
+var validMetadataSchema = types.DocumentMetadataSchema{
+	Uri:     "http://www.contentUri.com",
+	Version: "test",
+}
+var validDocumentMetadata = types.DocumentMetadata{
+	ContentUri: "http://www.contentUri.com",
+	Schema:     validMetadataSchema,
+	Proof:      "proof",
+}
+
+var invalidChecksum = types.DocumentChecksum{
+	Value:     "",
+	Algorithm: "",
+}
+var invalidMetadataSchema = types.DocumentMetadataSchema{
+	Uri:     "",
+	Version: "",
+}
+var invalidDocumentMetadata = types.DocumentMetadata{
+	ContentUri: "",
+	Schema:     invalidMetadataSchema,
+	Proof:      "",
+}
+
+var validMsg = MsgShareDocument{
+	Sender:     sender,
+	Recipient:  recipient,
+	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	ContentUri: "http://www.contentUri.com",
+	Metadata:   validDocumentMetadata,
+	Checksum:   validChecksum,
+}
+
+var invalidMsg = MsgShareDocument{
+	Sender:     sender,
+	Recipient:  recipient,
+	Uuid:       validUuid,
+	ContentUri: "http://www.contentUri.com",
+	Metadata: types.DocumentMetadata{
+		ContentUri: "http://www.contentUri.com",
+		Schema: types.DocumentMetadataSchema{
+			Uri:     "http://www.contentUri.com",
+			Version: "test",
+		},
+		Proof: "proof",
+	},
+	Checksum: types.DocumentChecksum{
+		Value:     "testValue",
+		Algorithm: SHA256,
+	},
+}
+
+func TestMsgShareDocument_Route(t *testing.T) {
+	actual := validMsg.Route()
+	expected := ModuleName
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestMsgShareDocument_Type(t *testing.T) {
+	actual := validMsg.Type()
+	expected := MsgType
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestValidateChecksum_valid(t *testing.T) {
+	actual := validateChecksum(validChecksum)
+	assert.Nil(t, actual)
+}
+
+func TestValidateChecksum_invalid(t *testing.T) {
+	actual := validateChecksum(invalidChecksum)
+	assert.NotNil(t, actual)
+}
+
+func TestValidateDocMetadata_valid(t *testing.T) {
+	actual := validateDocMetadata(validDocumentMetadata)
+	assert.Nil(t, actual)
+}
+
+func TestValidateDocMetadata_invalid(t *testing.T) {
+	actual := validateDocMetadata(invalidDocumentMetadata)
+	assert.NotNil(t, actual)
+}
+
+func TestValidateUuid_valid(t *testing.T) {
+	actual := validateUuid(validUuid)
+	assert.True(t, actual)
+}
+
+func TestValidateUuid_invalid(t *testing.T) {
+	actual := validateUuid("ebkfkd")
+	assert.False(t, actual)
+}
+
+func TestMsgShareDocument_ValidateBasic_valid(t *testing.T) {
+	actual := validMsg.ValidateBasic()
+	assert.Nil(t, actual)
+}
+
+func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
+	actual := invalidMsg.ValidateBasic()
+	assert.NotNil(t, actual)
+}
+
+func TestMsgShareDocument_GetSignBytes(t *testing.T) {
+	actual := validMsg.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(validMsg))
+	assert.Equal(t, expected, actual)
+}
+
+func TestMsgShareDocument_GetSigners(t *testing.T) {
+	actual := validMsg.GetSigners()
+	expected := validMsg.Sender
+
+	assert.Equal(t, expected, actual[0])
+}

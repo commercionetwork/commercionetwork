@@ -1,15 +1,7 @@
 package keeper
 
-/**
- * This is the place to define which queries against application state users will be able to make.
- * Our commerciodocd module will expose:
- *
- * • TestMetadata: This takes a document TestReference and retrieve the associated TestMetadata.
- * • readers: This takes a document TestReference and return the list of all the users that are authorized to access it
- *   Used for figuring out how much names cost when you want to buy them.
- */
-
 import (
+	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,18 +10,26 @@ import (
 
 // query endpoints supported by the governance Querier
 const (
-	QueryMetadata = "TestMetadata"
-	QuerySharing  = "readers"
+	QueryDocument           = "document"
+	QuerySentDocuments      = "sent"
+	QueryReceivedDocuments  = "received"
+	QuerySharedDocsWithUser = "shared-with"
 )
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case QueryMetadata:
-			return queryGetMetadata(ctx, path[1:], keeper)
-		case QuerySharing:
-			return queryGetAuthorized(ctx, path[1:], keeper)
+		case QueryReceivedDocuments:
+			return queryGetReceivedDocuments(ctx, path[1:], keeper)
+		case QuerySentDocuments:
+			return queryGetSentDocuments(ctx, path[1:], keeper)
+		/*
+			case QueryDocument:
+				return queryGetDocument(ctx, path[1:], keeper)
+			case QuerySharedDocsWithUser:
+				return queryGetSharedDocumentsWithUser(ctx, path[1:], keeper)
+		*/
 		default:
 			return nil, sdk.ErrUnknownRequest("Unknown commerciodocs query endpoint")
 		}
@@ -37,16 +37,18 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 }
 
 // ----------------------------------
-// --- Get Metadata
+// --- Get Received documents
 // ----------------------------------
 
-func queryGetMetadata(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	documentReference := path[0]
+func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+	addr := path[0]
 
-	identityResult := MetadataResult{}
-	identityResult.Document = documentReference
+	address, _ := sdk.AccAddressFromBech32(addr)
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, identityResult)
+	var receivedResult []types.Document
+	receivedResult = keeper.GetUserReceivedDocuments(ctx, address)
+
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -54,31 +56,18 @@ func queryGetMetadata(ctx sdk.Context, path []string, keeper Keeper) (res []byte
 	return bz, nil
 }
 
-// Metadata represents a TestReference -> TestMetadata lookup
-type MetadataResult struct {
-	Document string `json:"document_reference"`
-	Metadata string `json:"metadata_reference"`
-}
+func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+	addr := path[0]
 
-// ----------------------------------
-// --- Get connections
-// ----------------------------------
+	address, _ := sdk.AccAddressFromBech32(addr)
 
-func queryGetAuthorized(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	documentReference := path[0]
+	var receivedResult []types.Document
+	receivedResult = keeper.GetUserSentDocuments(ctx, address)
 
-	connectionsResult := AuthorizedResult{}
-	connectionsResult.Document = documentReference
-
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, connectionsResult)
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 
 	return bz, nil
-}
-
-type AuthorizedResult struct {
-	Document string           `json:"document_reference"`
-	Readers  []sdk.AccAddress `json:"authorized_readers"`
 }

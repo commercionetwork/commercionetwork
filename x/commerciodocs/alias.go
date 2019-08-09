@@ -6,23 +6,19 @@ import (
 )
 
 const (
-	ModuleName       = types.ModuleName
-	OwnersStoreKey   = types.OwnersStoreKey
-	MetadataStoreKey = types.MetadataStoreKey
-	SharingStoreKey  = types.SharingStoreKey
-	QuerierRoute     = types.QuerierRoute
+	ModuleName   = types.ModuleName
+	StoreKey     = types.StoreKey
+	QuerierRoute = types.QuerierRoute
 )
 
 var (
-	NewKeeper      = keeper.NewKeeper
-	NewQuerier     = keeper.NewQuerier
-	RegisterCodec  = types.RegisterCodec
-	NewMsgShareDoc = types.NewMsgShareDocument
-
-	ModuleCdc = types.ModuleCdc
+	NewKeeper     = keeper.NewKeeper
+	NewQuerier    = keeper.NewQuerier
+	RegisterCodec = types.RegisterCodec
+	ModuleCdc     = types.ModuleCdc
 )
 
 type (
-	Keeper      = keeper.Keeper
-	MsgShareDoc = types.MsgShareDocument
+	Keeper           = keeper.Keeper
+	MsgShareDocument = types.MsgShareDocument
 )
