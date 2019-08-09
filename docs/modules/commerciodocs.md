@@ -16,4 +16,47 @@ In order to send a document using the CLI you can use the following command
 cncli tx commerciodocs send-document
 ```
 
-### 
+#### Parameters
+| Parameter | Type | Required | Description |  
+| :-------: | :---: | :-----: | :---------- |
+| `recipient` |  
+
+#### Example usage 
+
+```shell
+cncli tx commerciodocs send-document \
+  [recipient] \
+  [document-content-uri] \
+  [metadata-content-uri] \
+  [metadata-schema-uri] \
+  [metadata-schema-version] \
+  [computation-proof] \
+  [checksum-value] \
+  [checksum-algorithm]
+```
+
+### Creating a transaction offline
+In order to properly send a `commerciodocs/SendDocument` transaction, you will need to create and sign the
+following message:
+
+```json
+{
+  "sender": "<Your address>",
+  "recipient": "<Recipient address>",
+  "content_uri": "<Document content URI>",
+  "metadata": {
+    "content_uri": "<Metadata content URI>",
+    "schema": {
+      "uri": "<Metadata schema URI>",
+      "version": "<Metadata schema version>"
+    },
+    "proof": "<Metadata validation proof>"
+  },
+  "checksum": {
+    "value": "<Document content checksum value>",
+    "algorithm": "<Checsum algorithm>"
+  }
+}
+```
+
+## 
