@@ -1,14 +1,5 @@
 package keeper
 
-/**
- * This is the place to define which queries against application state users will be able to make.
- * Our commerciodocd module will expose:
- *
- * • TestMetadata: This takes a document TestReference and retrieve the associated TestMetadata.
- * • readers: This takes a document TestReference and return the list of all the users that are authorized to access it
- *   Used for figuring out how much names cost when you want to buy them.
- */
-
 import (
 	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"

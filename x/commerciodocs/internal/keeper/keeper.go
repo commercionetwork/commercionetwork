@@ -37,23 +37,35 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) sdk
 
 	store := ctx.KVStore(keeper.StoreKey)
 
-	receiver := document.Recipient.String()
-	sender := document.Recipient.String()
+	sender := document.Sender.String()
+	recipient := document.Recipient.String()
 
 	var receiverDocsList []types.Document
 	var sentDocsList []types.Document
 
-	//Update receiver documents list
-	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + receiver))
-	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &receiverDocsList)
-	receiverDocsList = utilities.AppendDocIfMissing(receiverDocsList, document)
-	store.Set([]byte(ReceivedDocumentsPrefix+receiver), keeper.cdc.MustMarshalBinaryBare(document))
+	// Get the existing received documents
+	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + recipient))
+	if receivedDocs != nil {
+		keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &receiverDocsList)
+	}
 
-	//Update sender documents list
+	// Append the new received document
+	receiverDocsList = utilities.AppendDocIfMissing(receiverDocsList, document)
+
+	// Save the new list
+	store.Set([]byte(ReceivedDocumentsPrefix+recipient), keeper.cdc.MustMarshalBinaryBare(&receiverDocsList))
+
+	// Get the existing sent list
 	sentDocs := store.Get([]byte(SentDocumentsPrefix + sender))
-	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, &sentDocsList)
-	sentDocsList = append(sentDocsList, document)
-	store.Set([]byte(SentDocumentsPrefix+sender), keeper.cdc.MustMarshalBinaryBare(sentDocsList))
+	if sentDocs != nil {
+		keeper.cdc.MustUnmarshalBinaryBare(sentDocs, &sentDocsList)
+	}
+
+	// Append the new sent document
+	sentDocsList = utilities.AppendDocIfMissing(sentDocsList, document)
+
+	// Save the new list
+	store.Set([]byte(SentDocumentsPrefix+sender), keeper.cdc.MustMarshalBinaryBare(&sentDocsList))
 
 	return nil
 }
@@ -62,11 +74,10 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) sdk
 func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
 
 	store := ctx.KVStore(keeper.StoreKey)
+	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + user.String()))
 
 	var receivedDocsList []types.Document
-
-	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + user.String()))
-	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, receivedDocsList)
+	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &receivedDocsList)
 
 	return receivedDocsList
 }
@@ -74,11 +85,10 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddre
 //Get all the sent documents by user
 func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
 	store := ctx.KVStore(keeper.StoreKey)
+	sentDocs := store.Get([]byte(SentDocumentsPrefix + user.String()))
 
 	var sentDocsList []types.Document
-
-	sentDocs := store.Get([]byte(SentDocumentsPrefix + user.String()))
-	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, sentDocsList)
+	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, &sentDocsList)
 
 	return sentDocsList
 }
