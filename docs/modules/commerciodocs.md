@@ -13,13 +13,23 @@ In order to know what an identity is, how to create it and how to get tokens, pl
 In order to send a document using the CLI you can use the following command 
 
 ```shell
-cncli tx commerciodocs send-document
+cncli tx commerciodocs send-document \
+  [recipient] \
+  [document-uuid] \ 
+  [document-metadata-uri] \
+  [metadata-schema-uri] \
+  [metadata-schema-version] \
+  [metadata-verification-proof] \
+  [document-content-uri] \
+  [checksum-value] \
+  [checksum-algorithm]
 ```
 
 #### Parameters
 | Parameter | Type | Required | Description |  
 | :-------- | :---: | :-----: | :---------- |
 | `recipient` |  String | Yes | Bech32 address of the document recipient | 
+| `document-uuid` | String | Yes | UUID of the document that is being sent |
 | `document-metadata-uri` | String | Yes | Uri to the file containing the document metadata |
 | `metadata-schema-uri` | String | Yes | Uri to the file containing the definition of the metadata schema used to define the metadata of this document |
 | `metadata-schema-version` | String | Yes | Version of the schema used to define the document's metadata |
@@ -33,6 +43,7 @@ cncli tx commerciodocs send-document
 ```shell
 cncli tx commerciodocs send-document \
   [recipient] \
+  [document-uuid] \ 
   [document-metadata-uri] \
   [metadata-schema-uri] \
   [metadata-schema-version] \
@@ -50,6 +61,7 @@ following message:
 {
   "sender": "<Your address>",
   "recipient": "<Recipient address>",
+  "uuid": "<Document UUID>",
   "content_uri": "<Document content URI>",
   "metadata": {
     "content_uri": "<Metadata content URI>",
@@ -84,3 +96,52 @@ Please note that, when sending a document that has an associated checksum, the v
 checked only formally. This means that we only check that the hash value has a valid length, but we do not check 
 if the given has is indeed the hash of the document's content. It should be the client responsibility to perform this 
 check.  
+
+## Sending a document reading receipt
+Once you have received a document and you want to acknowledge the sender that you have properly read it, you can use 
+the `SendDocumentReceipt` transaction that allows you to do that. 
+
+### Using the CLI
+In order to send such a transaction using the CLI, you can execute the following command:
+
+```shell
+cncli tx commerciodocs send-document-receipt \
+  [document-sender] \
+  [document-recipient] \ 
+  [tx-hash] \
+  [document-uuid] \
+  [proof]
+```
+
+#### Parameters 
+| Parameter | Type | Required | Description |  
+| :-------- | :---: | :-----: | :---------- |
+| `document-sender` | Address | Yes | The address of the original document sender | 
+| `document-recipient` | Address | Yes | The address of the original document recipient |
+| `tx-hash` | String | Yes | Hash of the transaction inside which is contained the sent document |
+| `document-uuid` | Uuid | Yes | UUID of the document to which this receipt is related to |
+| `proof` | String | No | Optional proof that the recipient has read the document | 
+
+#### Example usage 
+```shell
+cncli tx commerciodocs send-document \
+  [document-sender] \
+  [document-recipient] \ 
+  [tx-hash] \
+  [document-uuid] \
+  [proof]
+```
+
+### Creating a transaction offline
+In order to properly create and send a transaction representing a document receipt you need to compose the 
+`commerciodocs/SendDocumentReceipt` message:
+
+```json
+{
+  "sender": "<Document sender address>",
+  "recipient": "<Document recipient address>",
+  "tx_hash": "<Tx hash in which the document has been sent>",
+  "document_uuid": "<Document UUID>",
+  "proof": "<Optional reading proof>"
+}
+```
