@@ -1,10 +1,8 @@
 package types
 
 const (
-	ModuleName = "commercioid"
-
+	ModuleName            = "commercioid"
 	StoreKey              = ModuleName
 	IdentitiesStorePrefix = StoreKey + ":identities:"
-
-	QuerierRoute = ModuleName
+	QuerierRoute          = ModuleName
 )

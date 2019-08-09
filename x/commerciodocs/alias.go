@@ -7,16 +7,15 @@ import (
 
 const (
 	ModuleName   = types.ModuleName
+	StoreKey     = types.StoreKey
 	QuerierRoute = types.QuerierRoute
 )
 
 var (
-	NewKeeper      = keeper.NewKeeper
-	NewQuerier     = keeper.NewQuerier
-	RegisterCodec  = types.RegisterCodec
-	NewMsgShareDoc = types.NewMsgShareDocument
-
-	ModuleCdc = types.ModuleCdc
+	NewKeeper     = keeper.NewKeeper
+	NewQuerier    = keeper.NewQuerier
+	RegisterCodec = types.RegisterCodec
+	ModuleCdc     = types.ModuleCdc
 )
 
 type (

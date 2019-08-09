@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,14 +14,6 @@ import (
 )
 
 var TestUtils = setupTestInput()
-
-//TEST VARS
-var TestAddress = "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"
-var TestOwner, _ = sdk.AccAddressFromBech32(TestAddress)
-var TestOwnerIdentity = types.Did("newReader")
-var TestReference = "TestReference"
-var TestMetadata = "TestMetadata"
-var TestRecipient = types.Did("recipient")
 
 type testInput struct {
 	Cdc        *codec.Codec

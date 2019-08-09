@@ -17,14 +17,14 @@ const (
 )
 
 type Keeper struct {
-	docsStoreKey sdk.StoreKey
-	cdc          *codec.Codec
+	StoreKey sdk.StoreKey
+	cdc      *codec.Codec
 }
 
 func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 	return Keeper{
-		docsStoreKey: storeKey,
-		cdc:          cdc,
+		StoreKey: storeKey,
+		cdc:      cdc,
 	}
 }
 
@@ -33,12 +33,12 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 // ----------------------------------
 
 // ShareDocument allows the sharing of a document
-func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) {
+func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) sdk.Error {
 
-	store := ctx.KVStore(keeper.docsStoreKey)
+	store := ctx.KVStore(keeper.StoreKey)
 
-	receiver := document.Receiver.String()
-	sender := document.Receiver.String()
+	receiver := document.Recipient.String()
+	sender := document.Recipient.String()
 
 	var receiverDocsList []types.Document
 	var sentDocsList []types.Document
@@ -54,12 +54,14 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) {
 	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, &sentDocsList)
 	sentDocsList = append(sentDocsList, document)
 	store.Set([]byte(SentDocumentsPrefix+sender), keeper.cdc.MustMarshalBinaryBare(sentDocsList))
+
+	return nil
 }
 
 //Get all the received documents by user
 func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
 
-	store := ctx.KVStore(keeper.docsStoreKey)
+	store := ctx.KVStore(keeper.StoreKey)
 
 	var receivedDocsList []types.Document
 
@@ -71,7 +73,7 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddre
 
 //Get all the sent documents by user
 func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
-	store := ctx.KVStore(keeper.docsStoreKey)
+	store := ctx.KVStore(keeper.StoreKey)
 
 	var sentDocsList []types.Document
 
