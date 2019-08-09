@@ -27,7 +27,7 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 // ----------------------------------
 
 // GetMetadata returns the Metadata Reference for the document with the given Reference.
-func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, receiver sdk.AccAddress) string {
+func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, recipient sdk.AccAddress) string {
 	//store := ctx.KVStore(keeper.docsStoreKey)
 	//result := store.Get([]byte(reference))
 	//return string(result)

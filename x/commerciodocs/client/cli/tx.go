@@ -49,8 +49,8 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 //// GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
 //func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 //	return &cobra.Command{
-//		Use:   "share [document-reference] [sender-identity] [receiver-identity]",
-//		Short: "Shares the document with the given reference between the sender identity and the receiver identity",
+//		Use:   "share [document-reference] [sender-identity] [recipient-identity]",
+//		Short: "Shares the document with the given reference between the sender identity and the recipient identity",
 //		Args:  cobra.ExactArgs(3),
 //		RunE: func(cmd *cobra.Command, args []string) error {
 //			cliCtx := context.NewCLIContext().WithCodec(cdc)

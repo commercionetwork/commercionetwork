@@ -34,10 +34,10 @@ type (
 	// --- ShareDocument
 	// ----------------------------------
 	shareDocumentReq struct {
-		BaseReq  rest.BaseReq `json:"base_req"`
-		Owner    string       `json:"owner"`
-		Sender   string       `json:"sender"`
-		Receiver string       `json:"receiver"`
+		BaseReq   rest.BaseReq `json:"base_req"`
+		Owner     string       `json:"owner"`
+		Sender    string       `json:"sender"`
+		Recipient string       `json:"recipient"`
 	}
 )
 
@@ -96,7 +96,7 @@ func shareDocumentHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		//}
 
 		// create the message
-		//msg := types.NewMsgShareDocument(addr, paramType, req.Sender, req.Receiver)
+		//msg := types.NewMsgShareDocument(addr, paramType, req.Sender, req.Recipient)
 		//err = msg.ValidateBasic()
 		//if err != nil {
 		//	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
