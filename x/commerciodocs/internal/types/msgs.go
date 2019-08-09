@@ -25,14 +25,10 @@ const (
 // --- ShareDocument
 // ----------------------------------
 
-type MsgShareDocument struct {
-	types.Document
-}
+type MsgShareDocument types.Document
 
 func NewMsgShareDocument(document types.Document) MsgShareDocument {
-	return MsgShareDocument{
-		Document: document,
-	}
+	return MsgShareDocument(document)
 }
 
 // RouterKey Implements Msg.

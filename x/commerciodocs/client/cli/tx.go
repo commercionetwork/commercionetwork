@@ -31,7 +31,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 // GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
 func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use: "share [recipient] [document-uuid] [document-metadata-uri] " +
 			"[metadata-schema-uri] [metadata-schema-version] [metadata-verification-proof] " +
 			"[document-content-uri]" +
@@ -83,4 +83,8 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 		},
 	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
 }
