@@ -33,21 +33,18 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 // ----------------------------------
 
 // ShareDocument allows the sharing of a document
-func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) sdk.Error {
+func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) {
 
 	store := ctx.KVStore(keeper.StoreKey)
 
 	sender := document.Sender.String()
 	recipient := document.Recipient.String()
 
-	var receiverDocsList []types.Document
-	var sentDocsList []types.Document
+	var sentDocsList, receiverDocsList []types.Document
 
 	// Get the existing received documents
 	receivedDocs := store.Get([]byte(ReceivedDocumentsPrefix + recipient))
-	if receivedDocs != nil {
-		keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &receiverDocsList)
-	}
+	keeper.cdc.MustUnmarshalBinaryBare(receivedDocs, &receiverDocsList)
 
 	// Append the new received document
 	receiverDocsList = utilities.AppendDocIfMissing(receiverDocsList, document)
@@ -66,8 +63,6 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) sdk
 
 	// Save the new list
 	store.Set([]byte(SentDocumentsPrefix+sender), keeper.cdc.MustMarshalBinaryBare(&sentDocsList))
-
-	return nil
 }
 
 //Get all the received documents by user
