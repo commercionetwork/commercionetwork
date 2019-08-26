@@ -123,7 +123,7 @@ func GetCmdShareDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[1]
+	cmd = client.PostCommands(cmd)[0]
 
 	return cmd
 }

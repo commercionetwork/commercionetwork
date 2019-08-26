@@ -134,7 +134,7 @@ func GetCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceipt, args[0])
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceipts, args[0])
 			res, _, err2 := cliCtx.QueryWithData(route, nil)
 			if err2 != nil {
 				fmt.Printf("Could not get any receipt associated with %s: \n %s", args[0], err2)
@@ -143,6 +143,19 @@ func GetCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
 			fmt.Printf(string(res))
 
 			return nil
+		},
+	}
+}
+
+func GetCmdReceivedReceiptByUuid(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "receipts [doc-uuid]",
+		Short: "Get the document receipt associated with given document uuid",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceipts, args[0])
 		},
 	}
 }

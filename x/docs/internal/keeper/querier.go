@@ -19,7 +19,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryGetReceivedDocuments(ctx, path[1:], keeper)
 		case doctypes.QuerySentDocuments:
 			return queryGetSentDocuments(ctx, path[1:], keeper)
-		case doctypes.QueryReceipt:
+		case doctypes.QueryReceipts:
 			return queryGetReceivedDocsReceipts(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", doctypes.ModuleName))

@@ -10,5 +10,6 @@ const (
 
 	QuerySentDocuments     = "sent"
 	QueryReceivedDocuments = "received"
-	QueryReceipt           = "receipt"
+	QueryReceipts          = "receipts"
+	QueryUuidReceipt       = "receipt"
 )

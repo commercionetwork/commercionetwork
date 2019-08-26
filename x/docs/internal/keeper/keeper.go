@@ -140,5 +140,18 @@ func (keeper Keeper) GetUserReceivedReceipt(ctx sdk.Context, user sdk.AccAddress
 }
 
 func (keeper Keeper) GetReceiptByDocumentUuid(ctx sdk.Context, recipient sdk.AccAddress, uuid string) types.DocumentReceipt {
+	store := ctx.KVStore(keeper.StoreKey)
+	iterator := store.Iterator(nil, nil)
+
+	var receipt types.DocumentReceipt
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &receipt)
+		if receipt.Uuid == uuid {
+			return receipt
+		}
+	}
+
 	return types.DocumentReceipt{}
 }
