@@ -1,20 +1,21 @@
 package app
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/commercioid"
+	"io"
+	"os"
+
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customstaking"
+	"github.com/commercionetwork/commercionetwork/x/id"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"io"
-	"os"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciodocs"
+	"github.com/commercionetwork/commercionetwork/x/docs"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -117,8 +118,8 @@ func init() {
 		},
 
 		// Custom modules
-		commercioid.AppModuleBasic{},
-		commerciodocs.AppModuleBasic{},
+		id.AppModuleBasic{},
+		docs.AppModuleBasic{},
 	)
 }
 
@@ -165,9 +166,9 @@ type commercioNetworkApp struct {
 
 	// commercio-network keepers
 	// CommercioID
-	commercioIdKeeper commercioid.Keeper
+	commercioIdKeeper id.Keeper
 	// CommercioDOCS
-	commercioDocsKeeper commerciodocs.Keeper
+	commercioDocsKeeper docs.Keeper
 
 	mm *module.Manager
 }
@@ -191,8 +192,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		gov.StoreKey, params.StoreKey,
 
 		// Custom modules
-		commercioid.StoreKey,
-		commerciodocs.StoreKey,
+		id.StoreKey,
+		docs.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -236,10 +237,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
 
 	// The CommercioID keeper handles interactions for the CommercioID module
-	app.commercioIdKeeper = commercioid.NewKeeper(app.keys[commercioid.StoreKey], app.cdc)
+	app.commercioIdKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
 
 	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
-	app.commercioDocsKeeper = commerciodocs.NewKeeper(app.keys[commerciodocs.StoreKey], app.cdc)
+	app.commercioDocsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.cdc)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -273,8 +274,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		crisis.NewAppModule(&app.crisisKeeper),
 
 		// Custom modules
-		commercioid.NewAppModule(app.commercioIdKeeper),
-		commerciodocs.NewAppModule(app.commercioDocsKeeper),
+		id.NewAppModule(app.commercioIdKeeper),
+		docs.NewAppModule(app.commercioDocsKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
