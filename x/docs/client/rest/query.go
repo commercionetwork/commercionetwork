@@ -4,37 +4,34 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 )
 
 const (
-	documentRestParameterName = "document"
+	addressRestParameterName = "owner"
 )
 
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
+func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, routerName string) {
 	r.HandleFunc(
-		fmt.Sprintf("/%s/documents/{%s}", storeName, documentRestParameterName),
-		getDocumentMetadataHandler(cliCtx, storeName)).
+		fmt.Sprintf("/%s/sent/{%s}", routerName, addressRestParameterName),
+		getSentDocumentsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/%s/documents/{%s}/readers", storeName, documentRestParameterName),
-		getDocumentReadersHandler(cliCtx, storeName)).
+		fmt.Sprintf("/%s/received/{%s}", routerName, addressRestParameterName),
+		getReceivedDocumentsHandler(cliCtx)).
 		Methods("GET")
 }
 
-// ----------------------------------
-// --- GetDocumentMetadata
-// ----------------------------------
-
-func getDocumentMetadataHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+func getSentDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		paramType := vars[documentRestParameterName]
+		address := vars[addressRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/metadata/%s", storeName, paramType)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.ModuleName, types.QuerySentDocuments, address)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -45,16 +42,12 @@ func getDocumentMetadataHandler(cliCtx context.CLIContext, storeName string) htt
 	}
 }
 
-// ----------------------------------
-// --- GetDocumentReaders
-// ----------------------------------
-
-func getDocumentReadersHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+func getReceivedDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		paramType := vars[documentRestParameterName]
+		address := vars[addressRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/readers/%s", storeName, paramType)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.ModuleName, types.QueryReceivedDocuments, address)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
