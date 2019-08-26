@@ -13,6 +13,8 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case MsgShareDocument:
 			return handleShareDocument(ctx, keeper, msg)
+		case MsgDocumentReceipt:
+			return handleDocumentReceipt(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -26,5 +28,14 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 func handleShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) sdk.Result {
 	keeper.ShareDocument(ctx, types.Document(msg))
+	return sdk.Result{}
+}
+
+// ----------------------------------
+// --- DocumentReceipt
+// ----------------------------------
+
+func handleDocumentReceipt(ctx sdk.Context, keeper Keeper, msg MsgDocumentReceipt) sdk.Result {
+	keeper.ShareDocumentReceipt(ctx, types.DocumentReceipt(msg))
 	return sdk.Result{}
 }

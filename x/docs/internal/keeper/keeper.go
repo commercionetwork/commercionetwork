@@ -14,6 +14,7 @@ import (
 const (
 	SentDocumentsPrefix     = "sentBy:"
 	ReceivedDocumentsPrefix = "received:"
+	DocumentReceiptPrefix   = "receiptOf:"
 )
 
 type Keeper struct {
@@ -30,6 +31,10 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 
 // ----------------------------------
 // --- Keeper methods
+// ----------------------------------
+
+// ----------------------------------
+// --- ShareDocument
 // ----------------------------------
 
 // ShareDocument allows the sharing of a document
@@ -90,12 +95,50 @@ func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) 
 
 //TODO Implement these functions when it useful
 
-//Get Document associated with checksum given
-func (keeper Keeper) GetDocument(ctx sdk.Context, checksumValue string) types.Document {
+//Get Document associated with UUID given
+func (keeper Keeper) GetDocument(ctx sdk.Context, uuid string) types.Document {
 	return types.Document{}
 }
 
 // Get all the documents that given sender has shared with given recipient
 func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccAddress, recipient sdk.AccAddress) []types.Document {
 	return []types.Document{}
+}
+
+// ----------------------------------
+// --- DocumentReceipt
+// ----------------------------------
+
+func (keeper Keeper) ShareDocumentReceipt(ctx sdk.Context, receipt types.DocumentReceipt) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	recipient := receipt.Recipient.String()
+
+	var receivedDocumentReceipt []types.DocumentReceipt
+
+	// Get the existing document's receipts
+	receivedDocsReceipts := store.Get([]byte(DocumentReceiptPrefix + recipient))
+	keeper.cdc.MustUnmarshalBinaryBare(receivedDocsReceipts, &receivedDocumentReceipt)
+
+	// Append the new receipt to the receipts list
+	receivedDocumentReceipt = utilities.AppendReceiptIfMissing(receivedDocumentReceipt, receipt)
+
+	// Save the new list
+	store.Set([]byte(DocumentReceiptPrefix+recipient), keeper.cdc.MustMarshalBinaryBare(receivedDocumentReceipt))
+}
+
+func (keeper Keeper) GetUserReceivedReceipt(ctx sdk.Context, user sdk.AccAddress) []types.DocumentReceipt {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	var receivedReceipts []types.DocumentReceipt
+	recipient := user.String()
+
+	receipts := store.Get([]byte(DocumentReceiptPrefix + recipient))
+	keeper.cdc.MustUnmarshalBinaryBare(receipts, &receivedReceipts)
+
+	return receivedReceipts
+}
+
+func (keeper Keeper) GetReceiptByDocumentUuid(ctx sdk.Context, recipient sdk.AccAddress, uuid string) types.DocumentReceipt {
+	return types.DocumentReceipt{}
 }

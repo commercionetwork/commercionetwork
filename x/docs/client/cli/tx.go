@@ -24,6 +24,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 	txCmd.AddCommand(
 		GetCmdShareDocument(cdc),
+		GetCmdShareDocumentReceipt(cdc),
 	)
 
 	return txCmd
@@ -85,6 +86,44 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	}
 
 	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func GetCmdShareDocumentReceipt(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "share-receipt [recipient] [tx-hash] [document-uuid] [proof]",
+		Short: "Share the document's receipt with the given recipient address",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			sender := cliCtx.GetFromAddress()
+			recipient, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			receipt := internal.DocumentReceipt{
+				Sender:    sender,
+				Recipient: recipient,
+				TxHash:    args[1],
+				Uuid:      args[2],
+				Proof:     args[3],
+			}
+
+			msg := types.NewMsgDocumentReceipt(receipt)
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[1]
 
 	return cmd
 }

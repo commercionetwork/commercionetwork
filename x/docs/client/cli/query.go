@@ -27,6 +27,10 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
+// ----------------------------------
+// --- ShareDocument
+// ----------------------------------
+
 func GetCmdRetrieveDocument(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "document [document-uuid]",
@@ -52,7 +56,7 @@ func GetCmdRetrieveDocument(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdSentDocuments(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "sent-documents",
+		Use:   "sent-documents [user-address]",
 		Short: "Get all documents sent by user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -73,7 +77,7 @@ func GetCmdSentDocuments(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdReceivedDocuments(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "received-documents",
+		Use:   "received-documents [user-address]",
 		Short: "Get all documents received by user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -112,6 +116,31 @@ func GetCmdSharedDocuments(cdc *codec.Codec) *cobra.Command {
 			}
 
 			fmt.Println(string(res))
+
+			return nil
+		},
+	}
+}
+
+// ----------------------------------
+// --- DocumentReceipt
+// ----------------------------------
+
+func GetCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "receipts [user-address]",
+		Short: "Get all the documents receipts sent to the given user address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceipt, args[0])
+			res, _, err2 := cliCtx.QueryWithData(route, nil)
+			if err2 != nil {
+				fmt.Printf("Could not get any receipt associated with %s: \n %s", args[0], err2)
+			}
+
+			fmt.Printf(string(res))
 
 			return nil
 		},

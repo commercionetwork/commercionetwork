@@ -122,3 +122,49 @@ func (msg MsgShareDocument) GetSignBytes() []byte {
 func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }
+
+// ----------------------------------
+// --- DocumentReceipt
+// ----------------------------------
+
+type MsgDocumentReceipt types.DocumentReceipt
+
+func NewMsgDocumentReceipt(receipt types.DocumentReceipt) MsgDocumentReceipt {
+	return MsgDocumentReceipt(receipt)
+}
+
+// RouterKey Implements Msg.
+func (msg MsgDocumentReceipt) Route() string { return ModuleName }
+
+// Type Implements Msg.
+func (msg MsgDocumentReceipt) Type() string { return MsgTypeDocumentReceipt }
+
+func (msg MsgDocumentReceipt) ValidateBasic() sdk.Error {
+	if msg.Sender.Empty() {
+		return sdk.ErrInvalidAddress(msg.Sender.String())
+	}
+	if msg.Recipient.Empty() {
+		return sdk.ErrInvalidAddress(msg.Recipient.String())
+	}
+	if len(msg.TxHash) == 0 {
+		return sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty")
+	}
+	if !validateUuid(msg.Uuid) {
+		return sdk.ErrUnknownRequest("Invalid document UUID")
+	}
+	if len(msg.Proof) == 0 {
+		return sdk.ErrUnknownRequest("Receipt proof can't be empty")
+	}
+
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgDocumentReceipt) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgDocumentReceipt) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Sender}
+}
