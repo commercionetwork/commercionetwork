@@ -65,7 +65,7 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, document types.Document) {
 	store.Set([]byte(SentDocumentsPrefix+sender), keeper.cdc.MustMarshalBinaryBare(&sentDocsList))
 }
 
-//Get all the received documents by user
+// GetUserReceivedDocuments returns a list of all the documents that has been received from a user
 func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
 
 	store := ctx.KVStore(keeper.StoreKey)
@@ -77,7 +77,7 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddre
 	return receivedDocsList
 }
 
-//Get all the sent documents by user
+//GetUserSentDocuments returns a list of all documents sent by user
 func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) []types.Document {
 	store := ctx.KVStore(keeper.StoreKey)
 	sentDocs := store.Get([]byte(SentDocumentsPrefix + user.String()))

@@ -5,4 +5,7 @@ const (
 	MsgType      = "shareDocument"
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
+
+	QuerySentDocuments     = "sent"
+	QueryReceivedDocuments = "received"
 )

@@ -53,11 +53,11 @@ func GetCmdSentDocuments(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "sent-documents",
 		Short: "Get all documents sent by user",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/sent", types.QuerierRoute)
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QuerySentDocuments, args[0])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get sent documents by user: \n %s", err)
@@ -74,11 +74,11 @@ func GetCmdReceivedDocuments(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "received-documents",
 		Short: "Get all documents received by user",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/received", types.QuerierRoute)
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceivedDocuments, args[0])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get received documents by user: \n %s", err)
