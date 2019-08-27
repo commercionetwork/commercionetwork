@@ -6,7 +6,7 @@ include Makefile.ledger
 
 export GO111MODULE = on
 
-all: build test
+all: test build
 
 ########################################
 ### Install
