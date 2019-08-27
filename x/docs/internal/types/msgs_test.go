@@ -260,3 +260,59 @@ func TestValidateChecksum_invalidChecksumLengths(t *testing.T) {
 		assert.NotNil(t, actual)
 	}
 }
+
+// ----------------------------------
+// --- DocumentReceipt tests
+// ----------------------------------
+var msgDocumentReceipt = MsgDocumentReceipt{
+	Sender:    sender,
+	Recipient: recipient,
+	TxHash:    "txHash",
+	Uuid:      "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	Proof:     "proof",
+}
+
+func TestMsgDocumentReceipt_Route(t *testing.T) {
+	actual := msgDocumentReceipt.Route()
+	expected := ModuleName
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestMsgDocumentReceipt_Type(t *testing.T) {
+	actual := msgDocumentReceipt.Type()
+	expected := MsgTypeDocumentReceipt
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestMsgDocumentReceipt_ValidateBasic_valid(t *testing.T) {
+	actual := msgDocumentReceipt.ValidateBasic()
+	assert.Nil(t, actual)
+}
+
+func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
+	var msgDocReceipt = MsgDocumentReceipt{
+		Sender:    sender,
+		Recipient: recipient,
+		TxHash:    "txHash",
+		Uuid:      "123456789",
+		Proof:     "proof",
+	}
+	actual := msgDocReceipt.ValidateBasic()
+
+	assert.NotNil(t, actual)
+}
+
+func TestMsgDocumentReceipt_GetSignBytes(t *testing.T) {
+	actual := msgDocumentReceipt.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgDocumentReceipt))
+	assert.Equal(t, expected, actual)
+}
+
+func TestMsgDocumentReceipt_GetSigners(t *testing.T) {
+	actual := msgDocumentReceipt.GetSigners()
+	expected := msgDocumentReceipt.Sender
+
+	assert.Equal(t, expected, actual[0])
+}

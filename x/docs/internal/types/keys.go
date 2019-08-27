@@ -12,4 +12,10 @@ const (
 	QueryReceivedDocuments = "received"
 	QueryReceipts          = "receipts"
 	QueryUuidReceipt       = "receipt"
+
+	//KVStore prefix
+	SentDocumentsPrefix     = StoreKey + "sentBy:"
+	ReceivedDocumentsPrefix = StoreKey + "received:"
+	DocumentReceiptPrefix   = StoreKey + "receiptOf:"
+	ReceiptsCounter         = StoreKey + "receiptsNumber:"
 )

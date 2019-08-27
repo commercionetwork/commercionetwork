@@ -22,7 +22,8 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(GetCmdSentDocuments(cdc), GetCmdReceivedDocuments(cdc))
+	cmd.AddCommand(GetCmdSentDocuments(cdc), GetCmdReceivedDocuments(cdc),
+		GetCmdReceivedReceipts(cdc), GetCmdReceivedReceiptByUuid(cdc))
 
 	return cmd
 }
@@ -96,7 +97,7 @@ func GetCmdReceivedDocuments(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func GetCmdSharedDocuments(cdc *codec.Codec) *cobra.Command {
+func GetCmdSharedDocumentsWithUser(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "shared-with [user-address]",
 		Short: "Get all documents shared with given address",
@@ -149,13 +150,21 @@ func GetCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdReceivedReceiptByUuid(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "receipts [doc-uuid]",
+		Use:   "receipts [user-address] [doc-uuid]",
 		Short: "Get the document receipt associated with given document uuid",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceipts, args[0])
+			route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryReceipts, args[0], args[1])
+			res, _, err2 := cliCtx.QueryWithData(route, nil)
+			if err2 != nil {
+				fmt.Printf("Could not get any receipt associated with uuid: %s: \n %s", args[1], err2)
+			}
+
+			fmt.Printf(string(res))
+
+			return nil
 		},
 	}
 }
