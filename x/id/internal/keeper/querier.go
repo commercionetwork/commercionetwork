@@ -1,12 +1,5 @@
 package keeper
 
-/**
- * This is the place to define which queries against application state users will be able to make.
- * Our module will expose two queries:
- * • resolve: This takes a Did and returns the associated Did Document reference
- * • connections: This takes a Did and returns the list of all the connections associated with it
- */
-
 import (
 	"fmt"
 

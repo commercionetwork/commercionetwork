@@ -9,10 +9,12 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customstaking"
 	"github.com/commercionetwork/commercionetwork/x/id"
+	"github.com/commercionetwork/commercionetwork/x/membership"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	"github.com/commercionetwork/commercionetwork/x/docs"
@@ -102,6 +104,7 @@ func init() {
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
+		nft.AppModuleBasic{},
 
 		// Encapsulated modules
 		customcrisis.AppModuleBasic{
@@ -120,6 +123,7 @@ func init() {
 		// Custom modules
 		id.AppModuleBasic{},
 		docs.AppModuleBasic{},
+		membership.AppModuleBasic{},
 	)
 }
 
@@ -163,12 +167,12 @@ type commercioNetworkApp struct {
 	govKeeper      gov.Keeper
 	crisisKeeper   crisis.Keeper
 	paramsKeeper   params.Keeper
+	nftKeeper      nft.Keeper
 
-	// commercio-network keepers
-	// CommercioID
-	commercioIdKeeper id.Keeper
-	// CommercioDOCS
-	commercioDocsKeeper docs.Keeper
+	// Custom modules
+	commercioIdKeeper         id.Keeper
+	commercioDocsKeeper       docs.Keeper
+	commercioMembershipKeeper membership.Keeper
 
 	mm *module.Manager
 }
@@ -189,11 +193,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Basics
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey,
+		gov.StoreKey, params.StoreKey, nft.StoreKey,
 
 		// Custom modules
 		id.StoreKey,
 		docs.StoreKey,
+		membership.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -235,12 +240,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		app.cdc, keys[slashing.StoreKey], &stakingKeeper, slashingSubspace, slashing.DefaultCodespace,
 	)
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
+	app.nftKeeper = nft.NewKeeper(app.cdc, app.keys[nft.StoreKey])
 
-	// The CommercioID keeper handles interactions for the CommercioID module
+	// Custom modules
 	app.commercioIdKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
-
-	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
 	app.commercioDocsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.cdc)
+	app.commercioMembershipKeeper = membership.NewKeeper(app.cdc, app.keys[membership.StoreKey], app.nftKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -248,7 +253,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper)).
 		AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.distrKeeper))
 	app.govKeeper = gov.NewKeeper(
-		app.cdc, keys[gov.StoreKey], app.paramsKeeper, govSubspace,
+		app.cdc, keys[gov.StoreKey], govSubspace,
 		app.supplyKeeper, &stakingKeeper, gov.DefaultCodespace, govRouter,
 	)
 
@@ -266,9 +271,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
+		nft.NewAppModule(app.nftKeeper),
 
 		// Encapsulating modules
-		staking.NewAppModule(app.stakingKeeper, app.distrKeeper, app.accountKeeper, app.supplyKeeper),
+		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		mint.NewAppModule(app.mintKeeper),
 		gov.NewAppModule(app.govKeeper, app.supplyKeeper),
 		crisis.NewAppModule(&app.crisisKeeper),
@@ -276,12 +282,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Custom modules
 		id.NewAppModule(app.commercioIdKeeper),
 		docs.NewAppModule(app.commercioDocsKeeper),
+		membership.NewAppModule(app.commercioMembershipKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
-	//todo In these functions, if necessary, add our modules
+	// TODO: In these functions, if necessary, add our modules
 	app.mm.SetOrderBeginBlockers(mint.ModuleName, distr.ModuleName, slashing.ModuleName)
 
 	app.mm.SetOrderEndBlockers(gov.ModuleName, staking.ModuleName)
@@ -290,7 +297,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(genaccounts.ModuleName, distr.ModuleName,
 		staking.ModuleName, auth.ModuleName, bank.ModuleName, slashing.ModuleName,
-		gov.ModuleName, mint.ModuleName, supply.ModuleName, crisis.ModuleName, genutil.ModuleName)
+		gov.ModuleName, mint.ModuleName, supply.ModuleName, crisis.ModuleName, genutil.ModuleName,
+		nft.ModuleName,
+
+		// Custom modules
+		id.ModuleName,
+		docs.ModuleName,
+		membership.ModuleName)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
