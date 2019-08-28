@@ -1,13 +1,11 @@
 package keeper
 
 import (
-	"fmt"
 	"github.com/commercionetwork/commercionetwork/types"
 	"github.com/commercionetwork/commercionetwork/utilities"
 	keys "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"math/big"
 )
 
 // ----------------------------------
@@ -105,63 +103,41 @@ func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccA
 // ----------------------------------
 // --- DocumentReceipt
 // ----------------------------------
-//TODO fix all of these functions with iterators
+
+//Share the receipt with the recipient inside it
 func (keeper Keeper) ShareDocumentReceipt(ctx sdk.Context, receipt types.DocumentReceipt) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	var receivedDocumentReceipt []types.DocumentReceipt
-	var missing bool
-
-	// Get the existing document's receipts
-	receivedDocsReceipts := store.Get([]byte(keys.DocumentReceiptPrefix))
-	keeper.cdc.MustUnmarshalBinaryBare(receivedDocsReceipts, &receivedDocumentReceipt)
-
-	// Append the new receipt to the receipts list
-	receivedDocumentReceipt, missing = utilities.AppendReceiptIfMissing(receivedDocumentReceipt, receipt)
-	//Update receipts counter
-	if missing {
-		recCount := store.Get([]byte(keys.ReceiptsCounter))
-		if recCount == nil {
-			store.Set([]byte(keys.ReceiptsCounter), []byte(big.NewInt(0).String()))
-		} else {
-			var stringedCounter string
-			counterBz := store.Get([]byte(keys.ReceiptsCounter))
-			keeper.cdc.MustUnmarshalBinaryBare(counterBz, &stringedCounter)
-			counter := new(big.Int)
-			counter.SetString(stringedCounter, 10)
-			counter = counter.Add(counter, big.NewInt(1))
-			store.Set([]byte(keys.ReceiptsCounter), []byte(counter.String()))
-		}
+	//Check if the receipt is already in the store
+	receiptBz := store.Get([]byte(keys.DocumentReceiptPrefix + receipt.Uuid + receipt.Recipient.String()))
+	//if it's not, insert it
+	if receiptBz == nil {
+		store.Set([]byte(keys.DocumentReceiptPrefix+receipt.Uuid+receipt.Recipient.String()),
+			keeper.cdc.MustMarshalBinaryBare(&receipt))
 	}
-
-	// Save the new list
-	store.Set([]byte(keys.DocumentReceiptPrefix), keeper.cdc.MustMarshalBinaryBare(receivedDocumentReceipt))
 }
 
 func (keeper Keeper) GetUserReceivedReceipts(ctx sdk.Context, user sdk.AccAddress) []types.DocumentReceipt {
 	store := ctx.KVStore(keeper.StoreKey)
+	iterator := sdk.KVStorePrefixIterator(store, []byte(keys.DocumentReceiptPrefix))
 
 	var receivedReceipts []types.DocumentReceipt
-	receipts := store.Iterator([]byte(keys.DocumentReceiptPrefix), nil)
-
-	keeper.cdc.MustUnmarshalBinaryBare(receipts, &receivedReceipts)
-
+	var receipt types.DocumentReceipt
+	for ; iterator.Valid(); iterator.Next() {
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &receipt)
+		if receipt.Recipient.Equals(user) {
+			receivedReceipts = utilities.AppendReceiptIfMissing(receivedReceipts, receipt)
+		}
+	}
 	return receivedReceipts
 }
 
 func (keeper Keeper) GetReceiptByDocumentUuid(ctx sdk.Context, recipient sdk.AccAddress, uuid string) types.DocumentReceipt {
-	fmt.Println(recipient.String())
-	fmt.Println(uuid)
 	store := ctx.KVStore(keeper.StoreKey)
-	iterator := store.Iterator([]byte(keys.DocumentReceiptPrefix), nil)
-	var receipt []types.DocumentReceipt
 
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &receipt)
-		if receipt[1].Uuid == uuid {
-			return receipt[1]
-		}
-	}
-	return types.DocumentReceipt{}
+	var receipt types.DocumentReceipt
+	receiptBz := store.Get([]byte(keys.DocumentReceiptPrefix + uuid + recipient.String()))
+	keeper.cdc.MustUnmarshalBinaryBare(receiptBz, &receipt)
+
+	return receipt
 }

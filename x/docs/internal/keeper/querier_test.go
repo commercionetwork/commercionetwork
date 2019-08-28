@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/types"
+	keys "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/stretchr/testify/assert"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -16,7 +17,7 @@ func Test_queryGetReceivedDocuments(t *testing.T) {
 	// Setup the store
 	metadataStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	metadataStore.Set(
-		[]byte(ReceivedDocumentsPrefix+TestingDocument.Recipient.String()),
+		[]byte(keys.ReceivedDocumentsPrefix+TestingDocument.Recipient.String()),
 		TestUtils.Cdc.MustMarshalBinaryBare(&documents),
 	)
 
@@ -35,7 +36,7 @@ func Test_queryGetSentDocuments(t *testing.T) {
 	// Setup the store
 	metadataStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	metadataStore.Set(
-		[]byte(SentDocumentsPrefix+TestingDocument.Sender.String()),
+		[]byte(keys.SentDocumentsPrefix+TestingDocument.Sender.String()),
 		TestUtils.Cdc.MustMarshalBinaryBare(&documents),
 	)
 
@@ -59,7 +60,7 @@ func TestKeeper_GetUserReceivedReceipts(t *testing.T) {
 
 	//Setup the store
 	receiptStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	receiptStore.Set([]byte(DocumentReceiptPrefix+TestingDocumentReceipt.Recipient.String()),
+	receiptStore.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Recipient.String()),
 		TestUtils.Cdc.MustMarshalBinaryBare(&receipts))
 
 	// Compose the path
@@ -78,7 +79,7 @@ func TestKeeper_GetReceiptByDocumentUuid(t *testing.T) {
 
 	//Setup the store
 	receiptStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	receiptStore.Set([]byte(DocumentReceiptPrefix+TestingDocumentReceipt.Recipient.String()),
+	receiptStore.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Recipient.String()),
 		TestUtils.Cdc.MustMarshalBinaryBare(&receipts))
 
 	// Compose the path

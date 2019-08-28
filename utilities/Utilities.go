@@ -43,11 +43,11 @@ func AppendDocIfMissing(slice []types.Document, i types.Document) []types.Docume
 	return append(slice, i)
 }
 
-func AppendReceiptIfMissing(slice []types.DocumentReceipt, receipt types.DocumentReceipt) ([]types.DocumentReceipt, bool) {
+func AppendReceiptIfMissing(slice []types.DocumentReceipt, receipt types.DocumentReceipt) []types.DocumentReceipt {
 	for _, ele := range slice {
 		if ele.Equals(receipt) {
-			return slice, false
+			return slice
 		}
 	}
-	return append(slice, receipt), true
+	return append(slice, receipt)
 }
