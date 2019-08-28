@@ -1,7 +1,7 @@
 package types
 
 const (
-	ModuleName   = "commerciodocs"
+	ModuleName   = "docs"
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
