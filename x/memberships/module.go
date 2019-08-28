@@ -1,4 +1,4 @@
-package membership
+package memberships
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/commercionetwork/commercionetwork/x/membership/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
 )
 
 var (

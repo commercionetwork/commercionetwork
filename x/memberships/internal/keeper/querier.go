@@ -5,20 +5,16 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/commercionetwork/commercionetwork/x/membership/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
-)
-
-const (
-	QueryResolveMembership = "membership"
 )
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case QueryResolveMembership:
+		case types.QueryGetMembership:
 			return queryResolveMembership(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
@@ -33,11 +29,13 @@ func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res 
 		return nil, sdk.ErrInvalidAddress(path[0])
 	}
 
-	result := MembershipResult{}
+	// Create the result type
+	result := MembershipResult{
+		User: address,
+	}
 
 	// Search the membership
 	if membership, found := keeper.GetMembership(ctx, address); found {
-		result.User = membership.GetOwner()
 		result.MembershipType = keeper.GetMembershipType(membership)
 	}
 

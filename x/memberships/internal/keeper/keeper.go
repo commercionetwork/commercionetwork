@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/commercionetwork/commercionetwork/x/membership/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
@@ -40,18 +40,19 @@ func (keeper Keeper) getMembershipUri(membershipType string, id string) string {
 	return fmt.Sprintf("membership:%s:%s", membershipType, id)
 }
 
-// AssignMembership allow to mint and assign a membership of the given membershipType to the specified user
-func (keeper Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) error {
+// AssignMembership allow to mint and assign a membership of the given membershipType to the specified user.
+// If the user already has a membership assigned, deletes the current one and assigns to it the new one.
+// Returns the URI of the new minted token represented the assigned membership, or an error if something goes wrong
+func (keeper Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) (string, error) {
 
 	// Check the membership type validity
 	if !types.IsMembershipTypeValid(membershipType) {
-		return errors.New("invalid membership type")
+		return "", errors.New("invalid membership type")
 	}
 
-	// Make sure the user does not yet have a membership
-	membership, found := keeper.GetMembership(ctx, user)
-	if found && !types.CanUpgrade(keeper.GetMembershipType(membership), membershipType) {
-		return errors.New("user already has a membership")
+	// Find any existing membership
+	if _, err := keeper.RemoveMembership(ctx, user); err != nil {
+		return "", err
 	}
 
 	// Build the token information
@@ -63,11 +64,11 @@ func (keeper Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, memb
 
 	// Mint the token
 	if err := keeper.NftKeeper.MintNFT(ctx, types.NftDenom, &membershipToken); err != nil {
-		return err
+		return "", err
 	}
 
 	// Return with no error
-	return nil
+	return membershipToken.TokenURI, nil
 }
 
 // GetMembership allows to retrieve any existent membership for the specified user.
@@ -83,6 +84,25 @@ func (keeper Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (export
 	return foundToken, true
 }
 
+// RemoveMembership allows to remove any existing membership associated with the given user.
+func (keeper Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) (bool, error) {
+	id := keeper.getMembershipTokenId(user)
+
+	if found, _ := keeper.NftKeeper.GetNFT(ctx, types.NftDenom, id); found == nil {
+		// The token was not found, so it's trivial to delete it: simply do nothing
+		return true, nil
+	}
+
+	if err := keeper.NftKeeper.DeleteNFT(ctx, types.NftDenom, keeper.getMembershipTokenId(user)); err != nil {
+		// The token was found, but an error was raised during the deletion. Return the error
+		return false, err
+	}
+
+	// The token was found and deleted
+	return true, nil
+}
+
+// GetMembershipType returns the type of the membership represented by the given NFT token
 func (keeper Keeper) GetMembershipType(membership exported.NFT) string {
 	return strings.Split(membership.GetTokenURI(), ":")[1]
 }

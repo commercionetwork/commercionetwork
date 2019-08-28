@@ -1,7 +1,9 @@
 package cli
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/membership/internal/types"
+	"errors"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 
@@ -36,7 +38,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdAssignMembership is the CLI command for sending a SetIdentity transaction
 func GetCmdAssignMembership(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "assign-membership [user-address] [membership-type]",
+		Use:   "assign [user-address] [membership-type]",
 		Short: "Associates to the specified user address a membership of the given type",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -44,12 +46,16 @@ func GetCmdAssignMembership(cdc *codec.Codec) *cobra.Command {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			signer := cliCtx.GetFromAddress()
+			if signer == nil {
+				return errors.New("missing --from flag")
+			}
+
 			user, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgAssignMembership(signer, user, args[2])
+			msg := types.NewMsgAssignMembership(signer, user, args[1])
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

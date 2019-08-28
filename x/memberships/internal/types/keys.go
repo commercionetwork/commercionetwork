@@ -1,11 +1,12 @@
 package types
 
 const (
-	ModuleName   = "membership"
+	ModuleName   = "memberships"
 	StoreKey     = ModuleName
+	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
 	NftDenom = "membership"
 
-	MsgTypeAssignMembership = "assignMembership"
+	QueryGetMembership = "membership"
 )

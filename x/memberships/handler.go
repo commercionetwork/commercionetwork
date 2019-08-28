@@ -1,10 +1,10 @@
-package membership
+package memberships
 
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/membership/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/membership/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -40,7 +40,7 @@ func handleMsgAssignMembership(ctx sdk.Context, keeper keeper.Keeper, msg types.
 	}
 
 	// Assign the membership
-	if err := keeper.AssignMembership(ctx, msg.User, msg.MembershipType); err != nil {
+	if _, err := keeper.AssignMembership(ctx, msg.User, msg.MembershipType); err != nil {
 		return sdk.ErrInternal(err.Error()).Result()
 	}
 

@@ -5,9 +5,9 @@ import (
 )
 
 type MsgAssignMembership struct {
-	Signer         sdk.AccAddress // Represents the user that must sign the transaction. Should be a trusted user
-	User           sdk.AccAddress // Represents the user that will receive the membership token
-	MembershipType string         // Represents the type of the membership to be given
+	Signer         sdk.AccAddress `json:"signer"`          // Represents the user that must sign the transaction. Should be a trusted user
+	User           sdk.AccAddress `json:"user"`            // Represents the user that will receive the membership token
+	MembershipType string         `json:"membership_type"` // Represents the type of the membership to be given
 }
 
 func NewMsgAssignMembership(signer sdk.AccAddress, user sdk.AccAddress, membershipType string) MsgAssignMembership {
@@ -19,13 +19,16 @@ func NewMsgAssignMembership(signer sdk.AccAddress, user sdk.AccAddress, membersh
 }
 
 // Route Implements Msg.
-func (msg MsgAssignMembership) Route() string { return ModuleName }
+func (msg MsgAssignMembership) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgAssignMembership) Type() string { return MsgTypeAssignMembership }
+func (msg MsgAssignMembership) Type() string { return "assign_membership" }
 
 // ValidateBasic Implements Msg.
 func (msg MsgAssignMembership) ValidateBasic() sdk.Error {
+	if msg.Signer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Signer.String())
+	}
 	if msg.User.Empty() {
 		return sdk.ErrInvalidAddress(msg.User.String())
 	}

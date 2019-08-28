@@ -1,4 +1,4 @@
-package membership
+package memberships
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
