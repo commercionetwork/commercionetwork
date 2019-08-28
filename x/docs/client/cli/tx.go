@@ -24,7 +24,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 	txCmd.AddCommand(
 		GetCmdShareDocument(cdc),
-		GetCmdShareDocumentReceipt(cdc),
+		GetCmdSendDocumentReceipt(cdc),
 	)
 
 	return txCmd
@@ -90,10 +90,10 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func GetCmdShareDocumentReceipt(cdc *codec.Codec) *cobra.Command {
+func GetCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "share-receipt [recipient] [tx-hash] [document-uuid] [proof]",
-		Short: "Share the document's receipt with the given recipient address",
+		Use:   "send-receipt [recipient] [tx-hash] [document-uuid] [proof]",
+		Short: "Send the document's receipt with the given recipient address",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)

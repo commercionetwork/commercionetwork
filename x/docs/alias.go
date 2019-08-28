@@ -21,5 +21,5 @@ var (
 type (
 	Keeper             = keeper.Keeper
 	MsgShareDocument   = types.MsgShareDocument
-	MsgDocumentReceipt = types.MsgDocumentReceipt
+	MsgDocumentReceipt = types.MsgSendDocumentReceipt
 )

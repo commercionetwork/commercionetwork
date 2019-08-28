@@ -21,8 +21,6 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryGetSentDocuments(ctx, path[1:], keeper)
 		case doctypes.QueryReceipts:
 			return queryGetReceivedDocsReceipts(ctx, path[1:], keeper)
-		case doctypes.QueryUuidReceipt:
-			return queryGetReceiptByUuid(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", doctypes.ModuleName))
 		}
@@ -66,33 +64,27 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) (res [
 func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
-
-	receipts := keeper.GetUserReceivedReceipts(ctx, address)
-	if receipts == nil {
-		receipts = make([]types.DocumentReceipt, 0)
-	}
-
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receipts)
-	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
-	}
-
-	return bz, nil
-
-}
-
-func queryGetReceiptByUuid(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
-
 	uuid := path[1]
 
-	receipt := keeper.GetReceiptByDocumentUuid(ctx, address, uuid)
-	if len(receipt.Uuid) == 0 {
-		receipt = types.DocumentReceipt{}
+	var receipts []types.DocumentReceipt
+	var receipt types.DocumentReceipt
+	var bz []byte
+	var err2 error
+
+	//If user wants all his receipts
+	if uuid == "" {
+		receipts = keeper.GetUserReceivedReceipts(ctx, address)
+
+		if receipts == nil {
+			receipts = make([]types.DocumentReceipt, 0)
+		}
+		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
+
+	} else {
+		receipt = keeper.GetReceiptByDocumentUuid(ctx, address, uuid)
+		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipt)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receipt)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}

@@ -55,35 +55,34 @@ func Test_queryGetSentDocuments(t *testing.T) {
 // --- DocumentReceipt
 // ----------------------------------
 
-func TestKeeper_GetUserReceivedReceipts(t *testing.T) {
-	receipts := []types.DocumentReceipt{TestingDocumentReceipt}
-
+func Test_GetUserReceivedReceipts(t *testing.T) {
 	//Setup the store
 	receiptStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	receiptStore.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Recipient.String()),
-		TestUtils.Cdc.MustMarshalBinaryBare(&receipts))
+	receiptStore.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Uuid+TestingDocumentReceipt.Recipient.String()),
+		TestUtils.Cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+
+	var expected = []types.DocumentReceipt{TestingDocumentReceipt}
 
 	// Compose the path
-	path := []string{"receipts", TestingDocumentReceipt.Recipient.String()}
+	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), ""}
 
 	//Get the returned receipts
 	var actual []types.DocumentReceipt
 	actualBz, _ := querier(TestUtils.Ctx, path, request)
 	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, receipts, actual)
+	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_GetReceiptByDocumentUuid(t *testing.T) {
-	receipts := []types.DocumentReceipt{TestingDocumentReceipt}
+func Test_GetReceiptByDocumentUuid(t *testing.T) {
 
 	//Setup the store
 	receiptStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	receiptStore.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Recipient.String()),
-		TestUtils.Cdc.MustMarshalBinaryBare(&receipts))
+	receiptStore.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Uuid+TestingDocumentReceipt.Recipient.String()),
+		TestUtils.Cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	// Compose the path
-	path := []string{"receipt", TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.Uuid}
+	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.Uuid}
 
 	//Get the returned receipts
 	var actual types.DocumentReceipt

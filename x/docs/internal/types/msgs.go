@@ -127,19 +127,19 @@ func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
 // --- DocumentReceipt
 // ----------------------------------
 
-type MsgDocumentReceipt types.DocumentReceipt
+type MsgSendDocumentReceipt types.DocumentReceipt
 
-func NewMsgDocumentReceipt(receipt types.DocumentReceipt) MsgDocumentReceipt {
-	return MsgDocumentReceipt(receipt)
+func NewMsgDocumentReceipt(receipt types.DocumentReceipt) MsgSendDocumentReceipt {
+	return MsgSendDocumentReceipt(receipt)
 }
 
 // RouterKey Implements Msg.
-func (msg MsgDocumentReceipt) Route() string { return ModuleName }
+func (msg MsgSendDocumentReceipt) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgDocumentReceipt) Type() string { return MsgTypeDocumentReceipt }
+func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeDocumentReceipt }
 
-func (msg MsgDocumentReceipt) ValidateBasic() sdk.Error {
+func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 	if msg.Sender.Empty() {
 		return sdk.ErrInvalidAddress(msg.Sender.String())
 	}
@@ -160,11 +160,11 @@ func (msg MsgDocumentReceipt) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgDocumentReceipt) GetSignBytes() []byte {
+func (msg MsgSendDocumentReceipt) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgDocumentReceipt) GetSigners() []sdk.AccAddress {
+func (msg MsgSendDocumentReceipt) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }

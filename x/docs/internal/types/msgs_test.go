@@ -264,7 +264,7 @@ func TestValidateChecksum_invalidChecksumLengths(t *testing.T) {
 // ----------------------------------
 // --- DocumentReceipt tests
 // ----------------------------------
-var msgDocumentReceipt = MsgDocumentReceipt{
+var msgDocumentReceipt = MsgSendDocumentReceipt{
 	Sender:    sender,
 	Recipient: recipient,
 	TxHash:    "txHash",
@@ -292,7 +292,7 @@ func TestMsgDocumentReceipt_ValidateBasic_valid(t *testing.T) {
 }
 
 func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
-	var msgDocReceipt = MsgDocumentReceipt{
+	var msgDocReceipt = MsgSendDocumentReceipt{
 		Sender:    sender,
 		Recipient: recipient,
 		TxHash:    "txHash",
