@@ -17,5 +17,4 @@ const (
 	SentDocumentsPrefix     = StoreKey + "sentBy:"
 	ReceivedDocumentsPrefix = StoreKey + "received:"
 	DocumentReceiptPrefix   = StoreKey + "receiptOf:"
-	ReceiptsCounter         = StoreKey + "receiptsNumber:"
 )
