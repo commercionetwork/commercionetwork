@@ -4,23 +4,34 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-/**
-THIS FILE IS USELESS BUT IT HELPS ME REMEMBER THIS FILE STRUCTURE IN ORDER TO USE IT IN FUTURE MODULES
-*/
-
+// GenesisState state at genesis
 type GenesisState struct {
+	Minters Minters `json:"minters"` // List of users allowed to sign a membership giving tx
 }
 
+// InitGenesis sets membership information for genesis.
+func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
+	for _, minter := range genState.Minters {
+		keeper.AddTrustedMinter(ctx, minter)
+	}
+}
+
+// DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
-	return GenesisState{}
+	return GenesisState{
+		Minters: Minters{},
+	}
 }
 
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {}
-
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	return DefaultGenesisState()
-}
-
-func ValidateGenesis(data GenesisState) error {
+// ValidateGenesis performs basic validation of genesis data returning an
+// error for any failed validation criteria.
+func ValidateGenesis(_ GenesisState) error {
 	return nil
+}
+
+// ExportGenesis returns a GenesisState for a given context and keeper.
+func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+	return GenesisState{
+		Minters: keeper.GetTrustedMinters(ctx),
+	}
 }

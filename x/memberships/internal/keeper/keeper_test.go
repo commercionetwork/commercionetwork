@@ -4,9 +4,32 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestKeeper_AddTrustedMinter(t *testing.T) {
+	membershipsStore := TestUtils.Ctx.KVStore(TestUtils.MembershipKeeper.StoreKey)
+	storeData := membershipsStore.Get([]byte(types.TrustworthyMinterPrefix + TestSignerAddress.String()))
+	assert.Nil(t, storeData)
+
+	TestUtils.MembershipKeeper.AddTrustedMinter(TestUtils.Ctx, TestSignerAddress)
+
+	afterOpLen := membershipsStore.Get([]byte(types.TrustworthyMinterPrefix + TestSignerAddress.String()))
+	assert.Equal(t, TestSignerAddress.Bytes(), afterOpLen)
+}
+
+func TestKeeper_GetTrustedMinters(t *testing.T) {
+	membershipsStore := TestUtils.Ctx.KVStore(TestUtils.MembershipKeeper.StoreKey)
+	membershipsStore.Set([]byte(types.TrustworthyMinterPrefix+TestSignerAddress.String()), TestSignerAddress.Bytes())
+	membershipsStore.Set([]byte(types.TrustworthyMinterPrefix+TestUserAddress.String()), TestUserAddress.Bytes())
+
+	minters := TestUtils.MembershipKeeper.GetTrustedMinters(TestUtils.Ctx)
+
+	assert.True(t, minters.Contains(TestSignerAddress))
+	assert.True(t, minters.Contains(TestUserAddress))
+}
 
 func TestKeeper_getMembershipTokenId(t *testing.T) {
 	actual := TestUtils.MembershipKeeper.getMembershipTokenId(TestSignerAddress)

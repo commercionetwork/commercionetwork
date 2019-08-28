@@ -27,6 +27,11 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 // identity is the real owner of that identity.
 // If the user is not allowed to use that identity, returns an error.
 func handleMsgAssignMembership(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgAssignMembership) sdk.Result {
+	// Check the signer
+	if !keeper.GetTrustedMinters(ctx).Contains(msg.Signer) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid minter address: %s", msg.Signer.String())).Result()
+	}
+
 	// Check the type
 	if !types.IsMembershipTypeValid(msg.MembershipType) {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", msg.MembershipType)).Result()

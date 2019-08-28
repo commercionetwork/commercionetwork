@@ -13,16 +13,18 @@ const (
 
 var (
 	//function aliases
-	NewKeeper              = keeper.NewKeeper
-	NewQuerier             = keeper.NewQuerier
-	RegisterCodec          = types.RegisterCodec
-	NewMsgAssignMembership = types.NewMsgAssignMembership
+	NewKeeper     = keeper.NewKeeper
+	NewQuerier    = keeper.NewQuerier
+	RegisterCodec = types.RegisterCodec
 
 	//variable aliases
 	ModuleCdc = types.ModuleCdc
 )
 
 type (
-	Keeper              = keeper.Keeper
+	Keeper = keeper.Keeper
+
+	Minters = types.Minters
+
 	MsgAssignMembership = types.MsgAssignMembership
 )
