@@ -3,7 +3,6 @@ package keeper
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/types"
 	keys "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func TestKeeper_ShareDocument_EmptyLists(t *testing.T) {
 	sentDocsBz := store.Get([]byte(keys.SentDocumentsPrefix + TestingSender.String()))
 	receivedDocsBz := store.Get([]byte(keys.ReceivedDocumentsPrefix + TestingRecipient.String()))
 
-	var sentDocs, receivedDocs []types.Document
+	var sentDocs, receivedDocs []keys.Document
 	TestUtils.Cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
 	TestUtils.Cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 
@@ -29,7 +28,7 @@ func TestKeeper_ShareDocument_EmptyLists(t *testing.T) {
 }
 
 func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
-	documents := []types.Document{TestingDocument}
+	documents := []keys.Document{TestingDocument}
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	store.Set([]byte(keys.SentDocumentsPrefix+TestingSender.String()), TestUtils.Cdc.MustMarshalBinaryBare(&documents))
 	store.Set([]byte(keys.ReceivedDocumentsPrefix+TestingRecipient.String()), TestUtils.Cdc.MustMarshalBinaryBare(&documents))
@@ -39,7 +38,7 @@ func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
 	sentDocsBz := store.Get([]byte(keys.SentDocumentsPrefix + TestingSender.String()))
 	receivedDocsBz := store.Get([]byte(keys.ReceivedDocumentsPrefix + TestingRecipient.String()))
 
-	var sentDocs, receivedDocs []types.Document
+	var sentDocs, receivedDocs []keys.Document
 	TestUtils.Cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
 	TestUtils.Cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 
@@ -51,13 +50,13 @@ func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
 }
 
 func TestKeeper_ShareDocument_SameInfoDifferentRecipient(t *testing.T) {
-	documents := []types.Document{TestingDocument}
+	documents := []keys.Document{TestingDocument}
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	store.Set([]byte(keys.SentDocumentsPrefix+TestingSender.String()), TestUtils.Cdc.MustMarshalBinaryBare(&documents))
 	store.Set([]byte(keys.ReceivedDocumentsPrefix+TestingRecipient.String()), TestUtils.Cdc.MustMarshalBinaryBare(&documents))
 
 	newRecipient, _ := sdk.AccAddressFromBech32("cosmos1h2z8u9294gtqmxlrnlyfueqysng3krh009fum7")
-	newDocument := types.Document{
+	newDocument := keys.Document{
 		Sender:     TestingDocument.Sender,
 		Recipient:  newRecipient,
 		ContentUri: TestingDocument.ContentUri,
@@ -70,7 +69,7 @@ func TestKeeper_ShareDocument_SameInfoDifferentRecipient(t *testing.T) {
 	receivedDocsBz := store.Get([]byte(keys.ReceivedDocumentsPrefix + TestingRecipient.String()))
 	newReceivedDocsBz := store.Get([]byte(keys.ReceivedDocumentsPrefix + newRecipient.String()))
 
-	var sentDocs, receivedDocs, newReceivedDocs []types.Document
+	var sentDocs, receivedDocs, newReceivedDocs []keys.Document
 	TestUtils.Cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
 	TestUtils.Cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 	TestUtils.Cdc.MustUnmarshalBinaryBare(newReceivedDocsBz, &newReceivedDocs)
@@ -95,7 +94,7 @@ func TestKeeper_GetUserReceivedDocuments_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_GetUserReceivedDocuments_NonEmptyList(t *testing.T) {
-	documents := []types.Document{TestingDocument}
+	documents := []keys.Document{TestingDocument}
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	store.Set([]byte(keys.ReceivedDocumentsPrefix+TestingRecipient.String()), TestUtils.Cdc.MustMarshalBinaryBare(&documents))
 	receivedDocs := TestUtils.DocsKeeper.GetUserReceivedDocuments(TestUtils.Ctx, TestingRecipient)
@@ -113,7 +112,7 @@ func TestKeeper_GetUserSentDocuments_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_GetUserSentDocuments_NonEmptyList(t *testing.T) {
-	documents := []types.Document{TestingDocument}
+	documents := []keys.Document{TestingDocument}
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	store.Set([]byte(keys.SentDocumentsPrefix+TestingSender.String()), TestUtils.Cdc.MustMarshalBinaryBare(&documents))
 
@@ -134,7 +133,7 @@ func TestKeeper_ShareDocumentReceipt_EmptyList(t *testing.T) {
 	docReceiptBz := store.Get([]byte(keys.DocumentReceiptPrefix + TestingDocumentReceipt.Uuid +
 		TestingDocumentReceipt.Recipient.String()))
 
-	var actual types.DocumentReceipt
+	var actual keys.DocumentReceipt
 
 	TestUtils.Cdc.MustUnmarshalBinaryBare(docReceiptBz, &actual)
 
@@ -169,7 +168,7 @@ func TestKeeper_GetUserReceivedReceipts_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_GetUserReceivedReceipts_FilledList(t *testing.T) {
-	var TestingDocumentReceipt2 = types.DocumentReceipt{
+	var TestingDocumentReceipt2 = keys.DocumentReceipt{
 		Sender:    TestingRecipient,
 		Recipient: TestingSender,
 		TxHash:    "txHash",
@@ -177,7 +176,7 @@ func TestKeeper_GetUserReceivedReceipts_FilledList(t *testing.T) {
 		Proof:     "proof",
 	}
 
-	var expectedReceipts = []types.DocumentReceipt{TestingDocumentReceipt}
+	var expectedReceipts = []keys.DocumentReceipt{TestingDocumentReceipt}
 
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	store.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Uuid+TestingDocumentReceipt.Recipient.String()),
@@ -196,7 +195,7 @@ func TestKeeper_GetReceiptByDocumentUuid_UuidNotFound(t *testing.T) {
 }
 
 func TestKeeper_GetReceiptByDocumentUuid_UuidFound(t *testing.T) {
-	var TestingDocumentReceipt2 = types.DocumentReceipt{
+	var TestingDocumentReceipt2 = keys.DocumentReceipt{
 		Sender:    TestingRecipient,
 		Recipient: TestingSender,
 		TxHash:    "txHash",

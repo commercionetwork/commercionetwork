@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/docs"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -60,4 +61,15 @@ func (doc Document) Equals(doc2 Document) bool {
 		doc.ContentUri == doc2.ContentUri &&
 		doc.Metadata.Equals(doc2.Metadata) &&
 		doc.Checksum.Equals(doc2.Checksum)
+}
+
+type Documents []Document
+
+func (documents Documents) AppendIfMissing(i docs.Document) []docs.Document {
+	for _, ele := range documents {
+		if ele.Equals(i) {
+			return documents
+		}
+	}
+	return append(documents, i)
 }

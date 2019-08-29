@@ -3,7 +3,7 @@ package docs
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/types"
+	types2 "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -27,7 +27,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 // ----------------------------------
 
 func handleShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) sdk.Result {
-	keeper.ShareDocument(ctx, types.Document(msg))
+	keeper.ShareDocument(ctx, types2.Document(msg))
 	return sdk.Result{}
 }
 
@@ -36,6 +36,6 @@ func handleShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) s
 // ----------------------------------
 
 func handleDocumentReceipt(ctx sdk.Context, keeper Keeper, msg MsgDocumentReceipt) sdk.Result {
-	keeper.ShareDocumentReceipt(ctx, types.DocumentReceipt(msg))
+	keeper.ShareDocumentReceipt(ctx, types2.DocumentReceipt(msg))
 	return sdk.Result{}
 }

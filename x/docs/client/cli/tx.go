@@ -1,7 +1,6 @@
 package cli
 
 import (
-	internal "github.com/commercionetwork/commercionetwork/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -56,20 +55,20 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				checksumAlgorithm = args[8]
 			}
 
-			document := internal.Document{
+			document := types.Document{
 				Sender:     sender,
 				Recipient:  recipient,
 				ContentUri: contentUri,
 				Uuid:       args[1],
-				Metadata: internal.DocumentMetadata{
+				Metadata: types.DocumentMetadata{
 					ContentUri: args[2],
-					Schema: internal.DocumentMetadataSchema{
+					Schema: types.DocumentMetadataSchema{
 						Uri:     args[3],
 						Version: args[4],
 					},
 					Proof: args[5],
 				},
-				Checksum: internal.DocumentChecksum{
+				Checksum: types.DocumentChecksum{
 					Value:     checksumValue,
 					Algorithm: checksumAlgorithm,
 				},
@@ -105,7 +104,7 @@ func GetCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			receipt := internal.DocumentReceipt{
+			receipt := types.DocumentReceipt{
 				Sender:    sender,
 				Recipient: recipient,
 				TxHash:    args[1],

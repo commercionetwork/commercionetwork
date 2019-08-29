@@ -3,7 +3,6 @@ package types
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,15 +15,15 @@ var msgShareDocument = MsgShareDocument{
 	Recipient:  recipient,
 	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	ContentUri: "http://www.contentUri.com",
-	Metadata: types.DocumentMetadata{
+	Metadata: DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: types.DocumentMetadataSchema{
+		Schema: DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
 		Proof: "proof",
 	},
-	Checksum: types.DocumentChecksum{
+	Checksum: DocumentChecksum{
 		Value:     "48656c6c6f20476f7068657221234567",
 		Algorithm: "md5",
 	},
@@ -59,15 +58,15 @@ func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
 		Recipient:  recipient,
 		Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 		ContentUri: "http://www.contentUri.com",
-		Metadata: types.DocumentMetadata{
+		Metadata: DocumentMetadata{
 			ContentUri: "http://www.contentUri.com",
-			Schema: types.DocumentMetadataSchema{
+			Schema: DocumentMetadataSchema{
 				Uri:     "http://www.contentUri.com",
 				Version: "test",
 			},
 			Proof: "proof",
 		},
-		Checksum: types.DocumentChecksum{
+		Checksum: DocumentChecksum{
 			Value:     "testValue",
 			Algorithm: "sha-256",
 		},
@@ -114,9 +113,9 @@ func TestValidateUuid_invalid(t *testing.T) {
 // -------------------------
 
 func TestValidateDocMetadata_valid(t *testing.T) {
-	validDocumentMetadata := types.DocumentMetadata{
+	validDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: types.DocumentMetadataSchema{
+		Schema: DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -128,9 +127,9 @@ func TestValidateDocMetadata_valid(t *testing.T) {
 }
 
 func TestValidateDocMetadata_emptyContentUri(t *testing.T) {
-	invalidDocumentMetadata := types.DocumentMetadata{
+	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "",
-		Schema: types.DocumentMetadataSchema{
+		Schema: DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -142,9 +141,9 @@ func TestValidateDocMetadata_emptyContentUri(t *testing.T) {
 }
 
 func TestValidateDocMetadata_emptySchemaUri(t *testing.T) {
-	invalidDocumentMetadata := types.DocumentMetadata{
+	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: types.DocumentMetadataSchema{
+		Schema: DocumentMetadataSchema{
 			Uri:     "",
 			Version: "test",
 		},
@@ -156,9 +155,9 @@ func TestValidateDocMetadata_emptySchemaUri(t *testing.T) {
 }
 
 func TestValidateDocMetadata_emptySchemaVersion(t *testing.T) {
-	invalidDocumentMetadata := types.DocumentMetadata{
+	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: types.DocumentMetadataSchema{
+		Schema: DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "",
 		},
@@ -170,9 +169,9 @@ func TestValidateDocMetadata_emptySchemaVersion(t *testing.T) {
 }
 
 func TestValidateDocMetadata_emptyProof(t *testing.T) {
-	invalidDocumentMetadata := types.DocumentMetadata{
+	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: types.DocumentMetadataSchema{
+		Schema: DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -198,14 +197,14 @@ func TestValidateChecksum_validChecksum(t *testing.T) {
 	}
 
 	for key, value := range checksumList {
-		checksum := types.DocumentChecksum{Algorithm: key, Value: value}
+		checksum := DocumentChecksum{Algorithm: key, Value: value}
 		actual := validateChecksum(checksum)
 		assert.Nil(t, actual)
 	}
 }
 
 func TestValidateChecksum_emptyValue(t *testing.T) {
-	invalidChecksum := types.DocumentChecksum{
+	invalidChecksum := DocumentChecksum{
 		Value:     "",
 		Algorithm: "md5",
 	}
@@ -215,7 +214,7 @@ func TestValidateChecksum_emptyValue(t *testing.T) {
 }
 
 func TestValidateChecksum_emptyAlgorithm(t *testing.T) {
-	invalidChecksum := types.DocumentChecksum{
+	invalidChecksum := DocumentChecksum{
 		Value:     "48656c6c6f20476f7068657221234567",
 		Algorithm: "",
 	}
@@ -225,7 +224,7 @@ func TestValidateChecksum_emptyAlgorithm(t *testing.T) {
 }
 
 func TestValidateChecksum_invalidHexValue(t *testing.T) {
-	invalidChecksum := types.DocumentChecksum{
+	invalidChecksum := DocumentChecksum{
 		Value:     "qr54g7srg5674fsg4sfg",
 		Algorithm: "md5",
 	}
@@ -235,7 +234,7 @@ func TestValidateChecksum_invalidHexValue(t *testing.T) {
 }
 
 func TestValidateChecksum_invalidAlgorithmType(t *testing.T) {
-	invalidChecksum := types.DocumentChecksum{
+	invalidChecksum := DocumentChecksum{
 		Value:     "48656c6c6f20476f7068657221234567",
 		Algorithm: "md6",
 	}
@@ -255,7 +254,7 @@ func TestValidateChecksum_invalidChecksumLengths(t *testing.T) {
 	}
 
 	for key, value := range checksumList {
-		checksum := types.DocumentChecksum{Algorithm: key, Value: value}
+		checksum := DocumentChecksum{Algorithm: key, Value: value}
 		actual := validateChecksum(checksum)
 		assert.NotNil(t, actual)
 	}

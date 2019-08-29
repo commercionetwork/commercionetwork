@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/types"
 	doctypes "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
@@ -33,7 +32,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) (r
 
 	receivedResult := keeper.GetUserReceivedDocuments(ctx, address)
 	if receivedResult == nil {
-		receivedResult = make([]types.Document, 0)
+		receivedResult = make([]doctypes.Document, 0)
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
@@ -50,7 +49,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) (res [
 
 	receivedResult := keeper.GetUserSentDocuments(ctx, address)
 	if receivedResult == nil {
-		receivedResult = make([]types.Document, 0)
+		receivedResult = make([]doctypes.Document, 0)
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
@@ -64,10 +63,14 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) (res [
 func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
-	uuid := path[1]
 
-	var receipts []types.DocumentReceipt
-	var receipt types.DocumentReceipt
+	var uuid string
+	if len(path) == 2 {
+		uuid = path[1]
+	}
+
+	var receipts []doctypes.DocumentReceipt
+	var receipt doctypes.DocumentReceipt
 	var bz []byte
 	var err2 error
 
@@ -76,7 +79,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 		receipts = keeper.GetUserReceivedReceipts(ctx, address)
 
 		if receipts == nil {
-			receipts = make([]types.DocumentReceipt, 0)
+			receipts = make([]doctypes.DocumentReceipt, 0)
 		}
 		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
 

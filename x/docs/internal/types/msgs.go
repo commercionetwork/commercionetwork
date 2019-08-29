@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -23,9 +22,9 @@ var algorithms = map[string]int{
 // --- ShareDocument
 // ----------------------------------
 
-type MsgShareDocument types.Document
+type MsgShareDocument Document
 
-func NewMsgShareDocument(document types.Document) MsgShareDocument {
+func NewMsgShareDocument(document Document) MsgShareDocument {
 	return MsgShareDocument(document)
 }
 
@@ -40,7 +39,7 @@ func validateUuid(uuid string) bool {
 	return regex.MatchString(uuid)
 }
 
-func validateDocMetadata(docMetadata types.DocumentMetadata) sdk.Error {
+func validateDocMetadata(docMetadata DocumentMetadata) sdk.Error {
 	if len(docMetadata.ContentUri) == 0 {
 		return sdk.ErrUnknownRequest("Metadata content URI can't be empty")
 	}
@@ -56,7 +55,7 @@ func validateDocMetadata(docMetadata types.DocumentMetadata) sdk.Error {
 	return nil
 }
 
-func validateChecksum(checksum types.DocumentChecksum) sdk.Error {
+func validateChecksum(checksum DocumentChecksum) sdk.Error {
 	if len(checksum.Value) == 0 {
 		return sdk.ErrUnknownRequest("Checksum value can't be empty")
 	}
@@ -127,9 +126,9 @@ func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
 // --- DocumentReceipt
 // ----------------------------------
 
-type MsgSendDocumentReceipt types.DocumentReceipt
+type MsgSendDocumentReceipt DocumentReceipt
 
-func NewMsgDocumentReceipt(receipt types.DocumentReceipt) MsgSendDocumentReceipt {
+func NewMsgDocumentReceipt(receipt DocumentReceipt) MsgSendDocumentReceipt {
 	return MsgSendDocumentReceipt(receipt)
 }
 

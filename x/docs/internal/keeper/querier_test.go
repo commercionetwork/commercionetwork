@@ -3,7 +3,6 @@ package keeper
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/types"
 	keys "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/stretchr/testify/assert"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -11,7 +10,7 @@ import (
 
 var querier = NewQuerier(TestUtils.DocsKeeper)
 var request abci.RequestQuery
-var documents = []types.Document{TestingDocument}
+var documents = []keys.Document{TestingDocument}
 
 func Test_queryGetReceivedDocuments(t *testing.T) {
 	// Setup the store
@@ -25,7 +24,7 @@ func Test_queryGetReceivedDocuments(t *testing.T) {
 	path := []string{"received", TestingDocument.Recipient.String()}
 
 	// Get the returned documents
-	var actual []types.Document
+	var actual []keys.Document
 	actualBz, _ := querier(TestUtils.Ctx, path, request)
 	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
@@ -44,7 +43,7 @@ func Test_queryGetSentDocuments(t *testing.T) {
 	path := []string{"sent", TestingDocument.Sender.String()}
 
 	// Get the returned documents
-	var actual []types.Document
+	var actual []keys.Document
 	actualBz, _ := querier(TestUtils.Ctx, path, request)
 	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
@@ -61,13 +60,13 @@ func Test_GetUserReceivedReceipts(t *testing.T) {
 	receiptStore.Set([]byte(keys.DocumentReceiptPrefix+TestingDocumentReceipt.Uuid+TestingDocumentReceipt.Recipient.String()),
 		TestUtils.Cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
-	var expected = []types.DocumentReceipt{TestingDocumentReceipt}
+	var expected = []keys.DocumentReceipt{TestingDocumentReceipt}
 
 	// Compose the path
 	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), ""}
 
 	//Get the returned receipts
-	var actual []types.DocumentReceipt
+	var actual []keys.DocumentReceipt
 	actualBz, _ := querier(TestUtils.Ctx, path, request)
 	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
@@ -85,7 +84,7 @@ func Test_GetReceiptByDocumentUuid(t *testing.T) {
 	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.Uuid}
 
 	//Get the returned receipts
-	var actual types.DocumentReceipt
+	var actual keys.DocumentReceipt
 	actualBz, _ := querier(TestUtils.Ctx, path, request)
 	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
