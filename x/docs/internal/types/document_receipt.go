@@ -1,7 +1,6 @@
 package types
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/docs"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -42,7 +41,7 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 
 type DocumentReceipts []DocumentReceipt
 
-func (receipts DocumentReceipts) AppendReceiptIfMissing(receipt docs.DocumentReceipt) []docs.DocumentReceipt {
+func (receipts DocumentReceipts) AppendReceiptIfMissing(receipt DocumentReceipt) []DocumentReceipt {
 	for _, ele := range receipts {
 		if ele.Equals(receipt) {
 			return receipts
