@@ -280,7 +280,7 @@ func TestMsgDocumentReceipt_Route(t *testing.T) {
 
 func TestMsgDocumentReceipt_Type(t *testing.T) {
 	actual := msgDocumentReceipt.Type()
-	expected := MsgTypeDocumentReceipt
+	expected := MsgTypeSendDocumentReceipt
 
 	assert.Equal(t, expected, actual)
 }

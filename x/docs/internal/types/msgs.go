@@ -136,7 +136,7 @@ func NewMsgDocumentReceipt(receipt DocumentReceipt) MsgSendDocumentReceipt {
 func (msg MsgSendDocumentReceipt) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeDocumentReceipt }
+func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeSendDocumentReceipt }
 
 func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 	if msg.Sender.Empty() {

@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	types2 "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -83,25 +83,25 @@ var TestingSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dz
 var TestingSender2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var TestingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
 
-var TestingDocument = types2.Document{
+var TestingDocument = types.Document{
 	Sender:     TestingSender,
 	Recipient:  TestingRecipient,
 	ContentUri: "https://example.com/document",
-	Metadata: types2.DocumentMetadata{
+	Metadata: types.DocumentMetadata{
 		ContentUri: "",
-		Schema: types2.DocumentMetadataSchema{
+		Schema: types.DocumentMetadataSchema{
 			Uri:     "https://example.com/document/metadata/schema",
 			Version: "1.0.0",
 		},
 		Proof: "73666c68676c7366676c7366676c6a6873666c6a6768",
 	},
-	Checksum: types2.DocumentChecksum{
+	Checksum: types.DocumentChecksum{
 		Value:     "93dfcaf3d923ec47edb8580667473987",
 		Algorithm: "md5",
 	},
 }
 
-var TestingDocumentReceipt = types2.DocumentReceipt{
+var TestingDocumentReceipt = types.DocumentReceipt{
 	Sender:    TestingSender,
 	Recipient: TestingRecipient,
 	TxHash:    "txHash",

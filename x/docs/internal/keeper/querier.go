@@ -76,16 +76,14 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 	//If user wants all his receipts
 	if uuid == "" {
 		receipts = keeper.GetUserReceivedReceipts(ctx, address)
-
 		if receipts == nil {
 			receipts = make([]doctypes.DocumentReceipt, 0)
 		}
-		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
-
 	} else {
 		receipts = keeper.GetUserReceivedReceiptsForDocument(ctx, address, uuid)
-		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
 	}
+
+	bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
 
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")

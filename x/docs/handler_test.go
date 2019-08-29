@@ -11,7 +11,7 @@ import (
 )
 
 var msgShareDocument = MsgShareDocument(keeper.TestingDocument)
-var msgDocumentReceipt = MsgDocumentReceipt(keeper.TestingDocumentReceipt)
+var msgDocumentReceipt = MsgSendDocumentReceipt(keeper.TestingDocumentReceipt)
 
 var testUtils = keeper.TestUtils
 var handler = NewHandler(testUtils.DocsKeeper)

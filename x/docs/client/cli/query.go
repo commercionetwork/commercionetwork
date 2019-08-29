@@ -128,7 +128,7 @@ func GetCmdSharedDocumentsWithUser(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "receipts [user-address] [doc-uuid]",
+		Use:   "receipts [user-address] [[doc-uuid]]",
 		Short: "Get the document receipt associated with given document uuid",
 		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
