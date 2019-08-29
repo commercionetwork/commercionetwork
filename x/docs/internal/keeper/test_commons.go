@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -80,6 +80,7 @@ func testCodec() *codec.Codec {
 // Testing variables
 
 var TestingSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestingSender2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var TestingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
 
 var TestingDocument = types.Document{
@@ -98,4 +99,12 @@ var TestingDocument = types.Document{
 		Value:     "93dfcaf3d923ec47edb8580667473987",
 		Algorithm: "md5",
 	},
+}
+
+var TestingDocumentReceipt = types.DocumentReceipt{
+	Sender:    TestingSender,
+	Recipient: TestingRecipient,
+	TxHash:    "txHash",
+	Uuid:      "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	Proof:     "proof",
 }

@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/commercionetwork/commercionetwork/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -23,9 +22,9 @@ var algorithms = map[string]int{
 // --- ShareDocument
 // ----------------------------------
 
-type MsgShareDocument types.Document
+type MsgShareDocument Document
 
-func NewMsgShareDocument(document types.Document) MsgShareDocument {
+func NewMsgShareDocument(document Document) MsgShareDocument {
 	return MsgShareDocument(document)
 }
 
@@ -40,7 +39,7 @@ func validateUuid(uuid string) bool {
 	return regex.MatchString(uuid)
 }
 
-func validateDocMetadata(docMetadata types.DocumentMetadata) sdk.Error {
+func validateDocMetadata(docMetadata DocumentMetadata) sdk.Error {
 	if len(docMetadata.ContentUri) == 0 {
 		return sdk.ErrUnknownRequest("Metadata content URI can't be empty")
 	}
@@ -56,7 +55,7 @@ func validateDocMetadata(docMetadata types.DocumentMetadata) sdk.Error {
 	return nil
 }
 
-func validateChecksum(checksum types.DocumentChecksum) sdk.Error {
+func validateChecksum(checksum DocumentChecksum) sdk.Error {
 	if len(checksum.Value) == 0 {
 		return sdk.ErrUnknownRequest("Checksum value can't be empty")
 	}
@@ -120,5 +119,51 @@ func (msg MsgShareDocument) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Sender}
+}
+
+// ----------------------------------
+// --- DocumentReceipt
+// ----------------------------------
+
+type MsgSendDocumentReceipt DocumentReceipt
+
+func NewMsgDocumentReceipt(receipt DocumentReceipt) MsgSendDocumentReceipt {
+	return MsgSendDocumentReceipt(receipt)
+}
+
+// RouterKey Implements Msg.
+func (msg MsgSendDocumentReceipt) Route() string { return ModuleName }
+
+// Type Implements Msg.
+func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeSendDocumentReceipt }
+
+func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
+	if msg.Sender.Empty() {
+		return sdk.ErrInvalidAddress(msg.Sender.String())
+	}
+	if msg.Recipient.Empty() {
+		return sdk.ErrInvalidAddress(msg.Recipient.String())
+	}
+	if len(msg.TxHash) == 0 {
+		return sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty")
+	}
+	if !validateUuid(msg.Uuid) {
+		return sdk.ErrUnknownRequest("Invalid document UUID")
+	}
+	if len(msg.Proof) == 0 {
+		return sdk.ErrUnknownRequest("Receipt proof can't be empty")
+	}
+
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgSendDocumentReceipt) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgSendDocumentReceipt) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }

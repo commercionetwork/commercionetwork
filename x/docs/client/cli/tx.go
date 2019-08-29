@@ -1,7 +1,6 @@
 package cli
 
 import (
-	internal "github.com/commercionetwork/commercionetwork/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -24,6 +23,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 	txCmd.AddCommand(
 		GetCmdShareDocument(cdc),
+		GetCmdSendDocumentReceipt(cdc),
 	)
 
 	return txCmd
@@ -55,26 +55,64 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				checksumAlgorithm = args[8]
 			}
 
-			document := internal.Document{
+			document := types.Document{
 				Sender:     sender,
 				Recipient:  recipient,
 				ContentUri: contentUri,
 				Uuid:       args[1],
-				Metadata: internal.DocumentMetadata{
+				Metadata: types.DocumentMetadata{
 					ContentUri: args[2],
-					Schema: internal.DocumentMetadataSchema{
+					Schema: types.DocumentMetadataSchema{
 						Uri:     args[3],
 						Version: args[4],
 					},
 					Proof: args[5],
 				},
-				Checksum: internal.DocumentChecksum{
+				Checksum: types.DocumentChecksum{
 					Value:     checksumValue,
 					Algorithm: checksumAlgorithm,
 				},
 			}
 
 			msg := types.NewMsgShareDocument(document)
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func GetCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "send-receipt [recipient] [tx-hash] [document-uuid] [proof]",
+		Short: "Send the document's receipt with the given recipient address",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			sender := cliCtx.GetFromAddress()
+			recipient, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			receipt := types.DocumentReceipt{
+				Sender:    sender,
+				Recipient: recipient,
+				TxHash:    args[1],
+				Uuid:      args[2],
+				Proof:     args[3],
+			}
+
+			msg := types.NewMsgDocumentReceipt(receipt)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
