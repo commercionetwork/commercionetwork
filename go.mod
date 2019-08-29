@@ -3,7 +3,7 @@ module github.com/commercionetwork/commercionetwork
 go 1.12
 
 require (
-	github.com/cosmos/cosmos-sdk v0.36.0-rc5
+		github.com/cosmos/cosmos-sdk v0.36.0
 	github.com/gorilla/mux v1.7.0
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
