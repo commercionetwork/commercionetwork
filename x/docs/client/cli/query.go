@@ -134,13 +134,8 @@ func GetCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			var addr, uuid string
-
-			if len(args) == 1 {
-				addr = args[0]
-				uuid = ""
-			} else {
-				addr = args[0]
+			addr, uuid := args[0], ""
+			if len(args) == 2 {
 				uuid = args[1]
 			}
 

@@ -90,15 +90,15 @@ func (keeper Keeper) GetSharedDocumentsWithUser(ctx sdk.Context, sender sdk.AccA
 	return types.Documents{}
 }
 
-// ShareDocumentReceipt allows to properly store the given receipt
-func (keeper Keeper) ShareDocumentReceipt(ctx sdk.Context, receipt types.DocumentReceipt) {
+// SendDocumentReceipt allows to properly store the given receipt
+func (keeper Keeper) SendDocumentReceipt(ctx sdk.Context, receipt types.DocumentReceipt) {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	//Check if the receipt is already in the store
-	receiptBz := store.Get([]byte(types.DocumentReceiptPrefix + receipt.Uuid + receipt.Recipient.String()))
+	receiptBz := store.Get([]byte(types.DocumentReceiptPrefix + receipt.Uuid + receipt.Sender.String()))
 	//if it's not, insert it
 	if receiptBz == nil {
-		store.Set([]byte(types.DocumentReceiptPrefix+receipt.Uuid+receipt.Recipient.String()),
+		store.Set([]byte(types.DocumentReceiptPrefix+receipt.Uuid+receipt.Sender.String()),
 			keeper.cdc.MustMarshalBinaryBare(&receipt))
 	}
 }
@@ -119,14 +119,19 @@ func (keeper Keeper) GetUserReceivedReceipts(ctx sdk.Context, user sdk.AccAddres
 	return receivedReceipts
 }
 
-// GetReceiptByDocumentUuid returns the receipts that the given recipient has received for the document having the
+// GetUserReceivedReceiptsForDocument returns the receipts that the given recipient has received for the document having the
 // given uuid
-func (keeper Keeper) GetReceiptByDocumentUuid(ctx sdk.Context, recipient sdk.AccAddress, uuid string) types.DocumentReceipt {
+func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipient sdk.AccAddress, uuid string) types.DocumentReceipts {
 	store := ctx.KVStore(keeper.StoreKey)
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DocumentReceiptPrefix+uuid))
 
 	var receipt types.DocumentReceipt
-	receiptBz := store.Get([]byte(types.DocumentReceiptPrefix + uuid + recipient.String()))
-	keeper.cdc.MustUnmarshalBinaryBare(receiptBz, &receipt)
-
-	return receipt
+	receipts := types.DocumentReceipts{}
+	for ; iterator.Valid(); iterator.Next() {
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &receipt)
+		if receipt.Recipient.Equals(recipient) {
+			receipts = receipts.AppendReceiptIfMissing(receipt)
+		}
+	}
+	return receipts
 }

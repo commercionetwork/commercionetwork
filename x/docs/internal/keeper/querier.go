@@ -70,7 +70,6 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 	}
 
 	var receipts []doctypes.DocumentReceipt
-	var receipt doctypes.DocumentReceipt
 	var bz []byte
 	var err2 error
 
@@ -84,8 +83,8 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
 
 	} else {
-		receipt = keeper.GetReceiptByDocumentUuid(ctx, address, uuid)
-		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipt)
+		receipts = keeper.GetUserReceivedReceiptsForDocument(ctx, address, uuid)
+		bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
 	}
 
 	if err2 != nil {

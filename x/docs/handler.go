@@ -36,6 +36,6 @@ func handleShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) s
 // ----------------------------------
 
 func handleDocumentReceipt(ctx sdk.Context, keeper Keeper, msg MsgDocumentReceipt) sdk.Result {
-	keeper.ShareDocumentReceipt(ctx, types2.DocumentReceipt(msg))
+	keeper.SendDocumentReceipt(ctx, types2.DocumentReceipt(msg))
 	return sdk.Result{}
 }
