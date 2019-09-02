@@ -5,12 +5,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 type Keeper struct {
 	StoreKey sdk.StoreKey
 
-	BankKeeper bank.Keeper
+	BankKeeper  bank.Keeper
+	StakeKeeper staking.Keeper
 
 	Cdc *codec.Codec
 }
@@ -37,11 +39,13 @@ func (keeper Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAd
 			poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
 			keeper.Cdc.MustUnmarshalBinaryBare(poolBz, &brPool)
 			brPool.Add(brAmount)
-			store.Set([]byte(types.BlockRewardsPoolPrefix), keeper.Cdc.MustMarshalBinaryBare(&brAmount))
+			store.Set([]byte(types.BlockRewardsPoolPrefix), keeper.Cdc.MustMarshalBinaryBare(&brPool))
 		}
 	}
 }
 
-func (keeper Keeper) DistributeBlockRewards(ctx sdk.Context, validators []sdk.AccAddress) {
+func (keeper Keeper) DistributeBlockRewards(ctx sdk.Context, validators []staking.Validator) {
 
 }
+
+func (keeper Keeper) ComputeValidatorsReward(ctx sdk.Context, validatorNumber sdk.Int)
