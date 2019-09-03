@@ -55,40 +55,42 @@ func Test_queryGetSentDocuments(t *testing.T) {
 // ----------------------------------
 
 func Test_GetUserReceivedReceipts(t *testing.T) {
+	// Setup the store
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
-	receiptStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-
-	//cleanup the store
-	receiptStore.Delete([]byte(types.DocumentReceiptPrefix + TestingDocumentReceipt.Uuid + TestingSender2.String()))
-
-	//Setup the store
-	receiptStore.Set([]byte(types.DocumentReceiptPrefix+TestingDocumentReceipt.Uuid+TestingDocumentReceipt.Sender.String()),
-		TestUtils.Cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
-
-	var expected = types.DocumentReceipts{TestingDocumentReceipt}
+	var stored = types.DocumentReceipts{TestingDocumentReceipt}
+	store.Set(
+		TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
+		TestUtils.Cdc.MustMarshalBinaryBare(&stored),
+	)
 
 	// Compose the path
 	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), ""}
 
-	//Get the returned receipts
+	// Get the returned receipts
 	var actual types.DocumentReceipts
 	actualBz, _ := querier(TestUtils.Ctx, path, request)
 	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, stored, actual)
 }
 
 func Test_GetUserReceivedReceiptsForDocument(t *testing.T) {
+	// Setup the store
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
-	//Setup the store
-	receiptStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	receiptStore.Set([]byte(types.DocumentReceiptPrefix+TestingDocumentReceipt.Uuid+TestingDocumentReceipt.Sender.String()),
-		TestUtils.Cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	var stored = types.DocumentReceipts{TestingDocumentReceipt}
+	store.Set(
+		TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
+		TestUtils.Cdc.MustMarshalBinaryBare(&stored),
+	)
 
 	// Compose the path
-	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.Uuid}
+	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUuid}
 
-	//Get the returned receipts
+	// Get the returned receipts
 	var actual types.DocumentReceipts
 	actualBz, _ := querier(TestUtils.Ctx, path, request)
 	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)

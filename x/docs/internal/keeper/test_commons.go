@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -19,8 +18,6 @@ var TestUtils = setupTestInput()
 type testInput struct {
 	Cdc        *codec.Codec
 	Ctx        sdk.Context
-	accKeeper  auth.AccountKeeper
-	bankKeeper bank.BaseKeeper
 	DocsKeeper Keeper
 }
 
@@ -47,21 +44,13 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(keyDOCS, sdk.StoreTypeIAVL, memDB)
 	_ = ms.LoadLatestVersion()
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
-
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	dck := NewKeeper(keyDOCS, cdc)
 
-	ak.SetParams(ctx, auth.DefaultParams())
-
 	return testInput{
 		Cdc:        cdc,
 		Ctx:        ctx,
-		accKeeper:  ak,
-		bankKeeper: bk,
 		DocsKeeper: dck,
 	}
 }
@@ -102,9 +91,9 @@ var TestingDocument = types.Document{
 }
 
 var TestingDocumentReceipt = types.DocumentReceipt{
-	Sender:    TestingSender,
-	Recipient: TestingRecipient,
-	TxHash:    "txHash",
-	Uuid:      "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-	Proof:     "proof",
+	Sender:       TestingSender,
+	Recipient:    TestingRecipient,
+	TxHash:       "txHash",
+	DocumentUuid: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	Proof:        "proof",
 }

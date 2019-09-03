@@ -264,11 +264,11 @@ func TestValidateChecksum_invalidChecksumLengths(t *testing.T) {
 // --- DocumentReceipt tests
 // ----------------------------------
 var msgDocumentReceipt = MsgSendDocumentReceipt{
-	Sender:    sender,
-	Recipient: recipient,
-	TxHash:    "txHash",
-	Uuid:      "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-	Proof:     "proof",
+	Sender:       sender,
+	Recipient:    recipient,
+	TxHash:       "txHash",
+	DocumentUuid: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	Proof:        "proof",
 }
 
 func TestMsgDocumentReceipt_Route(t *testing.T) {
@@ -292,11 +292,11 @@ func TestMsgDocumentReceipt_ValidateBasic_valid(t *testing.T) {
 
 func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
 	var msgDocReceipt = MsgSendDocumentReceipt{
-		Sender:    sender,
-		Recipient: recipient,
-		TxHash:    "txHash",
-		Uuid:      "123456789",
-		Proof:     "proof",
+		Sender:       sender,
+		Recipient:    recipient,
+		TxHash:       "txHash",
+		DocumentUuid: "123456789",
+		Proof:        "proof",
 	}
 	actual := msgDocReceipt.ValidateBasic()
 
