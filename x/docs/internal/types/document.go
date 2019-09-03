@@ -61,3 +61,14 @@ func (doc Document) Equals(doc2 Document) bool {
 		doc.Metadata.Equals(doc2.Metadata) &&
 		doc.Checksum.Equals(doc2.Checksum)
 }
+
+type Documents []Document
+
+func (documents Documents) AppendIfMissing(i Document) []Document {
+	for _, ele := range documents {
+		if ele.Equals(i) {
+			return documents
+		}
+	}
+	return append(documents, i)
+}

@@ -11,12 +11,18 @@ import (
 )
 
 var msgShareDocument = MsgShareDocument(keeper.TestingDocument)
+var msgDocumentReceipt = MsgSendDocumentReceipt(keeper.TestingDocumentReceipt)
 
 var testUtils = keeper.TestUtils
 var handler = NewHandler(testUtils.DocsKeeper)
 
 func TestValidMsg_ShareDoc(t *testing.T) {
 	res := handler(testUtils.Ctx, msgShareDocument)
+	require.True(t, res.IsOK())
+}
+
+func TestValidMsg_DocReceipt(t *testing.T) {
+	res := handler(testUtils.Ctx, msgDocumentReceipt)
 	require.True(t, res.IsOK())
 }
 

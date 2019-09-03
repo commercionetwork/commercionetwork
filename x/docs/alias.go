@@ -19,6 +19,9 @@ var (
 )
 
 type (
-	Keeper           = keeper.Keeper
-	MsgShareDocument = types.MsgShareDocument
+	Keeper                 = keeper.Keeper
+	Document               = types.Document
+	DocumentReceipt        = types.DocumentReceipt
+	MsgShareDocument       = types.MsgShareDocument
+	MsgSendDocumentReceipt = types.MsgSendDocumentReceipt
 )
