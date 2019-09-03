@@ -1,4 +1,4 @@
-package docs
+package memberships
 
 import (
 	"encoding/json"
@@ -13,8 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/commercionetwork/commercionetwork/x/docs/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/docs/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
 )
 
 var (
@@ -23,7 +22,7 @@ var (
 	_ module.AppModuleSimulation = AppModuleSimulation{}
 )
 
-// AppModuleBasic defines the basic application module used by the docs module.
+// AppModuleBasic defines the basic application module used by the id module.
 type AppModuleBasic struct{}
 
 var _ module.AppModuleBasic = AppModuleBasic{}
@@ -55,7 +54,8 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	rest.RegisterRoutes(ctx, rtr, ModuleName)
+	// TODO
+	//rest.RegisterRoutes(ctx, rtr, ModuleName)
 }
 
 // get the root tx command of this module
@@ -76,9 +76,8 @@ type AppModuleSimulation struct{}
 // RegisterStoreDecoder registers a decoder for auth module's types
 func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 
-//____________________________________________________________________________
-
-// AppModule implements an application module for the id module.
+//___________________________
+// app module
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
@@ -137,9 +136,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // module begin-block
-func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
-	BeginBlocker(ctx, rbb, am.keeper)
-}
+func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {}
 
 // module end-block
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {

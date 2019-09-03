@@ -6,6 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/nft"
+	"github.com/cosmos/cosmos-sdk/x/nft/exported"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -14,11 +16,11 @@ import (
 )
 
 type testInput struct {
-	Cdc        *codec.Codec
-	Ctx        sdk.Context
-	accKeeper  auth.AccountKeeper
-	bankKeeper bank.BaseKeeper
-	IdKeeper   Keeper
+	Cdc              *codec.Codec
+	Ctx              sdk.Context
+	accKeeper        auth.AccountKeeper
+	bankKeeper       bank.BaseKeeper
+	MembershipKeeper Keeper
 }
 
 //This function create an environment to test modules
@@ -31,9 +33,9 @@ func setupTestInput() testInput {
 	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
+	nftKey := sdk.NewKVStoreKey("nft")
 
-	// CommercioID
-	storeKey := sdk.NewKVStoreKey("commercioid")
+	storeKey := sdk.NewKVStoreKey("memberships")
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
@@ -41,6 +43,7 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
+	ms.MountStoreWithDB(nftKey, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
 
 	_ = ms.LoadLatestVersion()
@@ -48,19 +51,20 @@ func setupTestInput() testInput {
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
+	nftk := nft.NewKeeper(cdc, nftKey)
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	idk := NewKeeper(storeKey, cdc)
+	idk := NewKeeper(cdc, storeKey, nftk)
 
 	ak.SetParams(ctx, auth.DefaultParams())
 
 	return testInput{
-		Cdc:        cdc,
-		Ctx:        ctx,
-		accKeeper:  ak,
-		bankKeeper: bk,
-		IdKeeper:   idk,
+		Cdc:              cdc,
+		Ctx:              ctx,
+		accKeeper:        ak,
+		bankKeeper:       bk,
+		MembershipKeeper: idk,
 	}
 
 }
@@ -71,6 +75,10 @@ func testCodec() *codec.Codec {
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
 
+	// Register NFT names
+	cdc.RegisterInterface((*exported.NFT)(nil), nil)
+	cdc.RegisterConcrete(&nft.BaseNFT{}, "cosmos-sdk/BaseNFT", nil)
+
 	cdc.Seal()
 
 	return cdc
@@ -79,5 +87,6 @@ func testCodec() *codec.Codec {
 var TestUtils = setupTestInput()
 
 // Test variables
-var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestDidDocumentUri = "https://test.example.com/did-document#1"
+var TestSignerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestUserAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestMembershipType = "green"
