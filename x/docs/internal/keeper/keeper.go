@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"strings"
+
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -143,4 +145,89 @@ func (keeper Keeper) GetUserReceivedReceipts(ctx sdk.Context, user sdk.AccAddres
 func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipient sdk.AccAddress, docUuid string) types.DocumentReceipts {
 	receivedReceipts := keeper.GetUserReceivedReceipts(ctx, recipient)
 	return receivedReceipts.FindByDocumentId(docUuid)
+}
+
+// GetUserSentDocuments returns a list of all documents sent by user
+func (keeper Keeper) GetUserSentReceipts(ctx sdk.Context, user sdk.AccAddress) types.DocumentReceipts {
+	store := ctx.KVStore(keeper.StoreKey)
+	sentDocs := store.Get([]byte(types.ReceivedDocumentsReceiptsPrefix + user.String()))
+
+	var sentReceipts types.DocumentReceipts
+	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, &sentReceipts)
+
+	return sentReceipts
+}
+
+// --------------------
+// --- Genesis utils
+// --------------------
+
+// GetUsersSet returns the list of all the users that sent or received at least one document or receipt.
+func (keeper Keeper) GetUsersSet(ctx sdk.Context) ([]sdk.AccAddress, error) {
+	prefixes := []string{
+		types.SentDocumentsPrefix,
+		types.ReceivedDocumentsPrefix,
+		types.SentDocumentsReceiptsPrefix,
+		types.ReceivedDocumentsReceiptsPrefix,
+	}
+
+	var err error
+	users := types.Addresses{}
+	for _, prefix := range prefixes {
+		users, err = keeper.addAccountsWithPrefix(ctx, prefix, users)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return users, nil
+}
+
+func (keeper Keeper) addAccountsWithPrefix(ctx sdk.Context, prefix string, existingAccounts types.Addresses) (types.Addresses, error) {
+	store := ctx.KVStore(keeper.StoreKey)
+	iterator := sdk.KVStorePrefixIterator(store, []byte(prefix))
+
+	for ; iterator.Valid(); iterator.Next() {
+		stringKey := strings.ReplaceAll(string(iterator.Key()), prefix, "")
+		address, err := sdk.AccAddressFromBech32(stringKey)
+		if err != nil {
+			return nil, err
+		}
+
+		existingAccounts = existingAccounts.AppendIfMissing(address)
+	}
+
+	return existingAccounts, nil
+}
+
+// SetUserDocuments should be used while initializing the genesis and allows to bulk update
+// all the sent and received documents related to the given user
+func (keeper Keeper) SetUserDocuments(ctx sdk.Context, user sdk.AccAddress, sentDocuments, receivedDocuments types.Documents) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	sentDocsBz := keeper.cdc.MustMarshalBinaryBare(&sentDocuments)
+	if sentDocsBz != nil {
+		store.Set(keeper.getSentDocumentsStoreKey(user), sentDocsBz)
+	}
+
+	receivedDocsBz := keeper.cdc.MustMarshalBinaryBare(&receivedDocuments)
+	if receivedDocsBz != nil {
+		store.Set(keeper.getReceivedDocumentsStoreKey(user), receivedDocsBz)
+	}
+}
+
+// SetUserDocuments should be used while initializing the genesis and allows to bulk update
+// all the sent and received receipts related to the given user
+func (keeper Keeper) SetUserReceipts(ctx sdk.Context, user sdk.AccAddress, sentReceipts, receivedReceipts types.DocumentReceipts) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	sentReceiptsBz := keeper.cdc.MustMarshalBinaryBare(&sentReceipts)
+	if sentReceiptsBz != nil {
+		store.Set(keeper.getSentReceiptsStoreKey(user), sentReceiptsBz)
+	}
+
+	receivedReceiptsBz := keeper.cdc.MustMarshalBinaryBare(&receivedReceipts)
+	if receivedReceiptsBz != nil {
+		store.Set(keeper.getReceivedReceiptsStoreKey(user), receivedReceiptsBz)
+	}
 }

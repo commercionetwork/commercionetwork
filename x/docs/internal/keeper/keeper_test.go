@@ -8,6 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ----------------------------------
+// --- Document
+// ----------------------------------
+
 func TestKeeper_ShareDocument_EmptyLists(t *testing.T) {
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 
@@ -218,4 +222,77 @@ func TestKeeper_GetUserReceivedReceiptsForDocument_UuidFound(t *testing.T) {
 	)
 
 	assert.Equal(t, stored, actual)
+}
+
+// ----------------------------------
+// --- Genesis utils
+// ----------------------------------
+
+func TestKeeper_GetUsersSet_FilledSet(t *testing.T) {
+	TestUtils.DocsKeeper.ShareDocument(TestUtils.Ctx, TestingDocument)
+	TestUtils.DocsKeeper.SendDocumentReceipt(TestUtils.Ctx, TestingDocumentReceipt)
+
+	users, err := TestUtils.DocsKeeper.GetUsersSet(TestUtils.Ctx)
+
+	assert.Nil(t, err)
+	assert.Contains(t, users, TestingDocument.Sender)
+	assert.Contains(t, users, TestingDocument.Recipient)
+	assert.Contains(t, users, TestingDocumentReceipt.Sender)
+	assert.Contains(t, users, TestingDocumentReceipt.Recipient)
+}
+
+func TestKeeper_GetUsersSet_EmptySet(t *testing.T) {
+	// Cleanup the store
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	iterator := store.Iterator(nil, nil)
+	for ; iterator.Valid(); iterator.Next() {
+		store.Delete(iterator.Key())
+	}
+
+	users, err := TestUtils.DocsKeeper.GetUsersSet(TestUtils.Ctx)
+
+	assert.Nil(t, err)
+	assert.Empty(t, users)
+}
+
+func TestKeeper_SetUserDocuments(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete(TestUtils.DocsKeeper.getSentDocumentsStoreKey(TestingDocument.Sender))
+	store.Delete(TestUtils.DocsKeeper.getReceivedDocumentsStoreKey(TestingDocument.Recipient))
+
+	documents := types.Documents{TestingDocument}
+
+	TestUtils.DocsKeeper.SetUserDocuments(TestUtils.Ctx, TestingDocument.Sender, documents, types.Documents{})
+	TestUtils.DocsKeeper.SetUserDocuments(TestUtils.Ctx, TestingDocument.Recipient, types.Documents{}, documents)
+
+	sentBz := store.Get(TestUtils.DocsKeeper.getSentDocumentsStoreKey(TestingDocument.Sender))
+	receivedBz := store.Get(TestUtils.DocsKeeper.getReceivedDocumentsStoreKey(TestingDocument.Recipient))
+
+	var sentDocuments, receivedDocuments types.Documents
+	TestUtils.Cdc.MustUnmarshalBinaryBare(sentBz, &sentDocuments)
+	TestUtils.Cdc.MustUnmarshalBinaryBare(receivedBz, &receivedDocuments)
+
+	assert.Equal(t, documents, sentDocuments)
+	assert.Equal(t, documents, receivedDocuments)
+}
+
+func TestKeeper_SetUserReceipts(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete(TestUtils.DocsKeeper.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
+	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
+
+	receipts := types.DocumentReceipts{TestingDocumentReceipt}
+
+	TestUtils.DocsKeeper.SetUserReceipts(TestUtils.Ctx, TestingDocumentReceipt.Sender, receipts, types.DocumentReceipts{})
+	TestUtils.DocsKeeper.SetUserReceipts(TestUtils.Ctx, TestingDocumentReceipt.Recipient, types.DocumentReceipts{}, receipts)
+
+	sentBz := store.Get(TestUtils.DocsKeeper.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
+	receivedBz := store.Get(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
+
+	var sentReceipts, receivedReceipts types.DocumentReceipts
+	TestUtils.Cdc.MustUnmarshalBinaryBare(sentBz, &sentReceipts)
+	TestUtils.Cdc.MustUnmarshalBinaryBare(receivedBz, &receivedReceipts)
+
+	assert.Equal(t, receipts, sentReceipts)
+	assert.Equal(t, receipts, receivedReceipts)
 }
