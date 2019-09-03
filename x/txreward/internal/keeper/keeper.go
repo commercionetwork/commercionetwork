@@ -5,23 +5,27 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 type Keeper struct {
 	StoreKey sdk.StoreKey
 
-	BankKeeper  bank.Keeper
-	StakeKeeper staking.Keeper
+	BankKeeper         bank.Keeper
+	StakeKeeper        staking.Keeper
+	DistributionKeeper distribution.Keeper
 
 	Cdc *codec.Codec
 }
 
-func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk distribution.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
-		StoreKey:   storeKey,
-		BankKeeper: bk,
-		Cdc:        cdc,
+		StoreKey:           storeKey,
+		BankKeeper:         bk,
+		StakeKeeper:        sk,
+		DistributionKeeper: dk,
+		Cdc:                cdc,
 	}
 }
 
@@ -44,8 +48,20 @@ func (keeper Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAd
 	}
 }
 
-func (keeper Keeper) DistributeBlockRewards(ctx sdk.Context, validators []staking.Validator) {
+func (keeper Keeper) ComputeValidatorsReward(ctx sdk.Context, validatorNumber sdk.Int) sdk.DecCoins {
 
+	return sdk.DecCoins{}
 }
 
-func (keeper Keeper) ComputeValidatorsReward(ctx sdk.Context, validatorNumber sdk.Int)
+//Distribute the computed reward to the block proposer
+func (keeper Keeper) DistributeBlockRewards(ctx sdk.Context, proposer sdk.ConsAddress, reward sdk.DecCoins) {
+	//Get the validator from the consensus address
+	validator := keeper.StakeKeeper.ValidatorByConsAddr(ctx, proposer)
+
+	//Get his current reward and then add the new one
+	currentRewards := keeper.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
+	currentRewards.Rewards = currentRewards.Rewards.Add(reward)
+
+	//Set the just earned reward
+	keeper.DistributionKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
+}
