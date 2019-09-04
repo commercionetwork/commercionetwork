@@ -105,11 +105,11 @@ func GetCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 			}
 
 			receipt := types.DocumentReceipt{
-				Sender:    sender,
-				Recipient: recipient,
-				TxHash:    args[1],
-				Uuid:      args[2],
-				Proof:     args[3],
+				Sender:       sender,
+				Recipient:    recipient,
+				TxHash:       args[1],
+				DocumentUuid: args[2],
+				Proof:        args[3],
 			}
 
 			msg := types.NewMsgDocumentReceipt(receipt)
