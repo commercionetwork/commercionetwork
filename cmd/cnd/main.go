@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"io"
+
 	"github.com/commercionetwork/commercionetwork/app"
+	genmintcli "github.com/commercionetwork/commercionetwork/x/genmembershipminters/client/cli"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
-	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -54,6 +56,7 @@ func main() {
 	rootCmd.AddCommand(genutilcli.MigrateGenesisCmd(ctx, cdc))
 	rootCmd.AddCommand(genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics))
 	rootCmd.AddCommand(genaccscli.AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
+	rootCmd.AddCommand(genmintcli.AddGenesisMembershipMinterCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(genutilcli.GenTxCmd(ctx, cdc, app.ModuleBasics, staking.AppModuleBasic{},
 		genaccounts.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(client.NewCompletionCmd(rootCmd, true))

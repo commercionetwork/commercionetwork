@@ -35,7 +35,7 @@ func (msg MsgShareDocument) Route() string { return ModuleName }
 func (msg MsgShareDocument) Type() string { return MsgTypeShareDocument }
 
 func validateUuid(uuid string) bool {
-	regex := regexp.MustCompile(`[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`)
+	regex := regexp.MustCompile(`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
 	return regex.MatchString(uuid)
 }
 
@@ -148,7 +148,7 @@ func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 	if len(msg.TxHash) == 0 {
 		return sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty")
 	}
-	if !validateUuid(msg.Uuid) {
+	if !validateUuid(msg.DocumentUuid) {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
 	if len(msg.Proof) == 0 {

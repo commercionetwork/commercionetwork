@@ -14,7 +14,7 @@ import (
 )
 
 // export the state of gaia for a genesis file
-func (app *commercioNetworkApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string) (
+func (app *CommercioNetworkApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string) (
 	appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 
 	// as if they could withdraw from the start of the next block
@@ -34,7 +34,7 @@ func (app *commercioNetworkApp) ExportAppStateAndValidators(forZeroHeight bool, 
 }
 
 // prepare for fresh start at zero height
-func (app *commercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
+func (app *CommercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
 	applyWhiteList := false
 
 	//Check if there is a whitelist

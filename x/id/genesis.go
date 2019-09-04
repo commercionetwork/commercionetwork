@@ -1,26 +1,38 @@
 package id
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-/**
-THIS FILE IS USELESS BUT IT HELPS ME REMEMBER THIS FILE STRUCTURE IN ORDER TO USE IT IN FUTURE MODULES
-*/
-
+// GenesisState - id genesis state
 type GenesisState struct {
+	Identities []types.Identity `json:"identities"`
 }
 
+// DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
 	return GenesisState{}
 }
 
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {}
-
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	return DefaultGenesisState()
+// InitGenesis sets ids information for genesis.
+func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+	keeper.SetIdentities(ctx, data.Identities)
 }
 
-func ValidateGenesis(data GenesisState) error {
+// ExportGenesis returns a GenesisState for a given context and keeper.
+func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+	identities, err := keeper.GetIdentities(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return GenesisState{
+		Identities: identities,
+	}
+}
+
+// ValidateGenesis performs basic validation of genesis data returning an
+// error for any failed validation criteria.
+func ValidateGenesis(_ GenesisState) error {
 	return nil
 }

@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// DocumentReceipt contains the generic information about the proof that a shared document (identified by the Uuid field)
+// DocumentReceipt contains the generic information about the proof that a shared document (identified by the DocumentUuid field)
 // has been read by the recipient.
 // It contains information about the sender of the receipt's proof, the recipient,
 // the original shared Document transaction's hash, a uuid that identifies which document has been received and
@@ -13,11 +13,11 @@ import (
 // transaction hash need to be referred to an existing transaction on chain and the uuid associated with document
 // has to be non-empty and unique.
 type DocumentReceipt struct {
-	Sender    sdk.AccAddress `json:"sender"`
-	Recipient sdk.AccAddress `json:"recipient"`
-	TxHash    string         `json:"tx_hash"`
-	Uuid      string         `json:"uuid"`
-	Proof     string         `json:"proof"`
+	Sender       sdk.AccAddress `json:"sender"`
+	Recipient    sdk.AccAddress `json:"recipient"`
+	TxHash       string         `json:"tx_hash"`
+	DocumentUuid string         `json:"document_uuid"`
+	Proof        string         `json:"proof"`
 }
 
 func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
@@ -30,7 +30,7 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 	if receipt.TxHash != rec.TxHash {
 		return false
 	}
-	if receipt.Uuid != rec.Uuid {
+	if receipt.DocumentUuid != rec.DocumentUuid {
 		return false
 	}
 	if receipt.Proof != rec.Proof {
@@ -48,4 +48,14 @@ func (receipts DocumentReceipts) AppendReceiptIfMissing(receipt DocumentReceipt)
 		}
 	}
 	return append(receipts, receipt)
+}
+
+func (receipts DocumentReceipts) FindByDocumentId(docId string) DocumentReceipts {
+	var foundReceipts DocumentReceipts
+	for _, ele := range receipts {
+		if ele.DocumentUuid == docId {
+			foundReceipts = append(foundReceipts, ele)
+		}
+	}
+	return foundReceipts
 }

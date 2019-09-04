@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -14,7 +14,7 @@ import (
 func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the commercioID module",
+		Short:                      fmt.Sprintf("Querying commands for the %s module", types.ModuleName),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -27,17 +27,17 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdResolveIdentity(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "resolve [did]",
-		Short: "Resolves the given Did by returning the data associated with it",
+		Use:   "current [address]",
+		Short: "Returns the membership associated to the given address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			route := fmt.Sprintf("custom/%s/identities/%s", types.QuerierRoute, name)
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetMembership, name)
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
-				fmt.Printf("Could not resolve identity - %s \n", string(name))
+				fmt.Printf("Could not read membership - %s \n %s \n", name, err.Error())
 				return nil
 			}
 

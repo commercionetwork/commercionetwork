@@ -9,10 +9,12 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customstaking"
 	"github.com/commercionetwork/commercionetwork/x/id"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	"github.com/commercionetwork/commercionetwork/x/docs"
@@ -32,6 +34,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 
+	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -76,19 +79,6 @@ var (
 	DefaultCLIHome  = os.ExpandEnv("$HOME/.cncli")
 	DefaultNodeHome = os.ExpandEnv("$HOME/.cnd")
 
-	ModuleBasics module.BasicManager
-
-	maccPerms = map[string][]string{
-		auth.FeeCollectorName:     nil,
-		distr.ModuleName:          nil,
-		mint.ModuleName:           {supply.Minter},
-		staking.BondedPoolName:    {supply.Burner, supply.Staking},
-		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-		gov.ModuleName:            {supply.Burner},
-	}
-)
-
-func init() {
 	ModuleBasics = module.NewBasicManager(
 		genaccounts.AppModuleBasic{},
 		genutil.AppModuleBasic{},
@@ -97,11 +87,12 @@ func init() {
 		staking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
-		gov.AppModuleBasic{},
+		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
+		nft.AppModuleBasic{},
 
 		// Encapsulated modules
 		customcrisis.AppModuleBasic{
@@ -120,15 +111,27 @@ func init() {
 		// Custom modules
 		id.AppModuleBasic{},
 		docs.AppModuleBasic{},
+		memberships.AppModuleBasic{},
 	)
-}
+
+	maccPerms = map[string][]string{
+		auth.FeeCollectorName:     nil,
+		distr.ModuleName:          nil,
+		mint.ModuleName:           {supply.Minter},
+		staking.BondedPoolName:    {supply.Burner, supply.Staking},
+		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+		gov.ModuleName:            {supply.Burner},
+	}
+)
 
 // custom tx codec
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
+
 	ModuleBasics.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
+	codec.RegisterEvidences(cdc)
 
 	return cdc
 }
@@ -142,7 +145,7 @@ func SetAddressPrefixes() {
 }
 
 // Extended ABCI application
-type commercioNetworkApp struct {
+type CommercioNetworkApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
@@ -163,19 +166,19 @@ type commercioNetworkApp struct {
 	govKeeper      gov.Keeper
 	crisisKeeper   crisis.Keeper
 	paramsKeeper   params.Keeper
+	nftKeeper      nft.Keeper
 
-	// commercio-network keepers
-	// CommercioID
-	commercioIdKeeper id.Keeper
-	// CommercioDOCS
-	commercioDocsKeeper docs.Keeper
+	// Custom modules
+	commercioIdKeeper         id.Keeper
+	commercioDocsKeeper       docs.Keeper
+	commercioMembershipKeeper memberships.Keeper
 
 	mm *module.Manager
 }
 
 // NewCommercioNetworkApp returns a reference to an initialized CommercioNetworkApp.
-func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, invCheckPeriod uint,
-	baseAppOptions ...func(*bam.BaseApp)) *commercioNetworkApp {
+func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
+	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp)) *CommercioNetworkApp {
 
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
@@ -189,35 +192,33 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Basics
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey,
+		gov.StoreKey, params.StoreKey, nft.StoreKey,
 
 		// Custom modules
 		id.StoreKey,
 		docs.StoreKey,
+		memberships.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
 	// Here you initialize your application with the store keys it requires
-	var app = &commercioNetworkApp{
-		BaseApp: bApp,
-		cdc:     cdc,
-		keys:    keys,
-		tkeys:   tkeys,
+	var app = &CommercioNetworkApp{
+		BaseApp:        bApp,
+		cdc:            cdc,
+		invCheckPeriod: invCheckPeriod,
+		keys:           keys,
+		tkeys:          tkeys,
 	}
 
 	// init params keeper and subspaces
-
-	// The ParamsKeeper handles parameter storage for the application
 	app.paramsKeeper = params.NewKeeper(app.cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
-
-	//subspaces
 	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
 	bankSubspace := app.paramsKeeper.Subspace(bank.DefaultParamspace)
 	stakingSubspace := app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	mintSubspace := app.paramsKeeper.Subspace(mint.DefaultParamspace)
 	distrSubspace := app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	slashingSubspace := app.paramsKeeper.Subspace(slashing.DefaultParamspace)
-	govSubspace := app.paramsKeeper.Subspace(gov.DefaultParamspace)
+	govSubspace := app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	crisisSubspace := app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 
 	// add keepers
@@ -235,12 +236,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		app.cdc, keys[slashing.StoreKey], &stakingKeeper, slashingSubspace, slashing.DefaultCodespace,
 	)
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
+	app.nftKeeper = nft.NewKeeper(app.cdc, app.keys[nft.StoreKey])
 
-	// The CommercioID keeper handles interactions for the CommercioID module
+	// Custom modules
 	app.commercioIdKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
-
-	// The CommercioDOCS keeper handles interactions for the CommercioDOCS module
 	app.commercioDocsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.cdc)
+	app.commercioMembershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -248,14 +249,15 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper)).
 		AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.distrKeeper))
 	app.govKeeper = gov.NewKeeper(
-		app.cdc, keys[gov.StoreKey], app.paramsKeeper, govSubspace,
+		app.cdc, keys[gov.StoreKey], govSubspace,
 		app.supplyKeeper, &stakingKeeper, gov.DefaultCodespace, govRouter,
 	)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.stakingKeeper = *stakingKeeper.SetHooks(
-		staking.NewMultiStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()))
+		staking.NewMultiStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
+	)
 
 	// Create default modules to be used from customs during encapsulation
 	app.mm = module.NewManager(
@@ -266,9 +268,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
+		nft.NewAppModule(app.nftKeeper),
 
 		// Encapsulating modules
-		staking.NewAppModule(app.stakingKeeper, app.distrKeeper, app.accountKeeper, app.supplyKeeper),
+		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		mint.NewAppModule(app.mintKeeper),
 		gov.NewAppModule(app.govKeeper, app.supplyKeeper),
 		crisis.NewAppModule(&app.crisisKeeper),
@@ -276,21 +279,27 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Custom modules
 		id.NewAppModule(app.commercioIdKeeper),
 		docs.NewAppModule(app.commercioDocsKeeper),
+		memberships.NewAppModule(app.commercioMembershipKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
-	//todo In these functions, if necessary, add our modules
+	// TODO: In these functions, if necessary, add our modules
 	app.mm.SetOrderBeginBlockers(mint.ModuleName, distr.ModuleName, slashing.ModuleName)
 
 	app.mm.SetOrderEndBlockers(gov.ModuleName, staking.ModuleName)
 
-	// genutils must occur after staking so that pools are properly
-	// initialized with tokens from genesis accounts.
+	// NOTE: The genutils module must occur after staking so that pools are
+	// properly initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(genaccounts.ModuleName, distr.ModuleName,
 		staking.ModuleName, auth.ModuleName, bank.ModuleName, slashing.ModuleName,
-		gov.ModuleName, mint.ModuleName, supply.ModuleName, crisis.ModuleName, genutil.ModuleName)
+		gov.ModuleName, mint.ModuleName, supply.ModuleName, crisis.ModuleName, genutil.ModuleName,
+		nft.ModuleName,
+
+		// Custom modules
+		id.ModuleName, docs.ModuleName, memberships.ModuleName,
+	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
@@ -315,29 +324,29 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 }
 
 // application updates every begin block
-func (app *commercioNetworkApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *CommercioNetworkApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // application updates every end block
-func (app *commercioNetworkApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *CommercioNetworkApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // application update at chain initialization
-func (app *commercioNetworkApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *CommercioNetworkApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 	return app.mm.InitGenesis(ctx, genesisState)
 }
 
 // load a particular height
-func (app *commercioNetworkApp) LoadHeight(height int64) error {
+func (app *CommercioNetworkApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *commercioNetworkApp) ModuleAccountAddrs() map[string]bool {
+func (app *CommercioNetworkApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = true
