@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	ModuleName   = types.ModuleName
-	StoreKey     = types.StoreKey
-	QuerierRoute = types.QuerierRoute
+	ModuleName             = types.ModuleName
+	StoreKey               = types.StoreKey
+	QuerierRoute           = types.QuerierRoute
+	BlockRewardsPoolPrefix = types.BlockRewardsPoolPrefix
 )
 
 var (
