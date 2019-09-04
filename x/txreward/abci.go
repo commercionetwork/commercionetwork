@@ -22,7 +22,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) 
 	validator := k.StakeKeeper.ValidatorByConsAddr(ctx, previousProposer)
 
 	//Compute the reward based on the number of validators, the validator's staked tokens and the total staked tokens
-	reward := k.ComputeValidatorReward(ctx, valNumber, validator, k.StakeKeeper.TotalBondedTokens(ctx))
+	reward := k.ComputeProposerReward(ctx, valNumber, validator, k.StakeKeeper.TotalBondedTokens(ctx))
 
 	//Get the block proposer
 	if ctx.BlockHeight() > 1 {

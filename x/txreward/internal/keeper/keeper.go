@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"math/big"
+
 	"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -31,38 +33,28 @@ func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk dist
 	}
 }
 
-func (keeper Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coin) {
-	store := ctx.KVStore(keeper.StoreKey)
-	bk := keeper.BankKeeper
+//Increase the Block Rewards Pool with the specified coin amount
+func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coin) {
+	bk := k.BankKeeper
 	brAmount := sdk.Coins{amount}
-	var brPool sdk.Coins
+	brPool := types.InitBlockRewardsPool()
 
 	if bk.HasCoins(ctx, funder, brAmount) {
-		poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
-		if poolBz == nil {
-			store.Set([]byte(types.BlockRewardsPoolPrefix), keeper.Cdc.MustMarshalBinaryBare(&brAmount))
+		brPool.GetBlockRewardsPool(ctx, k)
+		if brPool.Funds.IsZero() {
+			brPool.Funds.Add(sdk.NewDecCoins(brAmount))
+			brPool.SetBlockRewardsPool(ctx, k, &brPool)
 		} else {
-			poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
-			keeper.Cdc.MustUnmarshalBinaryBare(poolBz, &brPool)
-			brPool.Add(brAmount)
-			store.Set([]byte(types.BlockRewardsPoolPrefix), keeper.Cdc.MustMarshalBinaryBare(&brPool))
+			brPool.Funds.Add(sdk.NewDecCoins(brAmount))
+			brPool.SetBlockRewardsPool(ctx, k, &brPool)
 		}
 	}
 }
 
-func (keeper Keeper) GetPoolFunds(ctx sdk.Context) sdk.DecCoins {
-	store := ctx.KVStore(keeper.StoreKey)
-	var brPool sdk.Coins
-
-	poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
-	keeper.Cdc.MustUnmarshalBinaryBare(poolBz, brPool)
-
-	return sdk.NewDecCoins(brPool)
-}
-
-func (keeper Keeper) setPoolFunds(ctx sdk.Context, updatedPool sdk.Coins) {
-	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.BlockRewardsPoolPrefix), keeper.Cdc.MustMarshalBinaryBare(&updatedPool))
+//Return the Block Rewards Pool if exists
+func (k Keeper) GetBlockRewardsPool(ctx sdk.Context) types.BlockRewardsPool {
+	var brPool types.BlockRewardsPool
+	return brPool.GetBlockRewardsPool(ctx, k)
 }
 
 /*
@@ -94,22 +86,45 @@ STAKE 		 staked token's amount of n-esim validator
 TOTALSTAKE	 indicates all staked token's amount of all validators
 
 */
-
-// constants representing Tokens Per Year, Days Per Year, Hours Per Day, Minutes Per Days, Blocks Per Minutes
-const (
-	TPY = 25000
-	DPY = 365
-	HPD = 24
-	MPD = 60
-	BPM = 12
+//TODO I used big.Int to mantain the precision in these operations and in prevision of very large numbers,
+// I don't know if it's the right choise, need to discuss
+var (
+	TPY = big.NewInt(25000)  //Tokens Per Year
+	DPY = big.NewInt(365.24) // Days Per Year
+	HPD = big.NewInt(24)     // 	Hours Per Day
+	MPD = big.NewInt(60)     // 	Minutes Per Days
+	BPM = big.NewInt(12)     // 	Blocks Per Minutes
 )
 
-func computeRawReward(validatorNumber sdk.Int) sdk.Dec {
-	rawReward := (TPY * 1000000) / (DPY * HPD * MPD * BPM) * (100 / validatorNumber.Int64())
-	return sdk.NewDec(rawReward)
+/*
+Compute the Raw Reward for proposer, assuming that Raw Reward is the Reward(n, V) equation's result
+without the last multiplication between the (Stake/TotalStake) value
+*/
+func computeRawReward(validatorsNumber sdk.Int) sdk.Dec {
+	var firstMember big.Int
+	var secondMember big.Int
+	var thirdMember big.Int
+
+	averageValidatorsNumber := big.NewInt(100)
+	vNumber := big.NewInt(validatorsNumber.Int64())
+
+	firstMember.Mul(TPY, big.NewInt(1000000))
+
+	secondMember.Mul(DPY, HPD)
+	secondMember.Mul(&secondMember, MPD)
+	secondMember.Mul(&secondMember, BPM)
+
+	thirdMember.Quo(averageValidatorsNumber, vNumber)
+
+	firstMember.Quo(&firstMember, &secondMember)
+
+	rawReward := firstMember.Mul(&firstMember, &thirdMember)
+
+	return sdk.NewDecFromBigInt(rawReward)
 }
 
-func (keeper Keeper) ComputeValidatorReward(ctx sdk.Context, validatorNumber sdk.Int, proposer exported.ValidatorI,
+//Compute the final reward for the validator block's proposer
+func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber sdk.Int, proposer exported.ValidatorI,
 	totalStakedTokens sdk.Int) sdk.DecCoins {
 
 	//Get the raw reward for proposer
@@ -129,19 +144,22 @@ func (keeper Keeper) ComputeValidatorReward(ctx sdk.Context, validatorNumber sdk
 }
 
 //Distribute the computed reward to the block proposer
-func (keeper Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) {
+func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) {
 
-	brPoolFunds := keeper.GetPoolFunds(ctx)
-	if brPoolFunds.AmountOf(app.DefaultBondDenom).GTE(reward.AmountOf(app.DefaultBondDenom)) {
-		brPoolFunds = brPoolFunds.Sub(reward)
-		keeper.setPoolFunds(ctx)
+	var brPool types.BlockRewardsPool
+
+	brPool.GetBlockRewardsPool(ctx, k)
+
+	//Check if the pool has enough funds
+	if brPool.Funds.AmountOf(app.DefaultBondDenom).GTE(reward.AmountOf(app.DefaultBondDenom)) {
+		brPool.Funds = brPool.Funds.Sub(reward)
+		brPool.SetBlockRewardsPool(ctx, k, &brPool)
 	}
 
 	//Get his current reward and then add the new one
-	currentRewards := keeper.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
-
+	currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
 	currentRewards.Rewards = currentRewards.Rewards.Add(reward)
 
 	//Set the just earned reward
-	keeper.DistributionKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
+	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
 }
