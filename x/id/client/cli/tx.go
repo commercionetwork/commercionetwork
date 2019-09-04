@@ -31,7 +31,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdSetIdentity is the CLI command for sending a SetIdentity transaction
 func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-identity [did-document-uri]",
+		Use:   "set [did-document-uri]",
 		Short: "Associates the given did document reference to your Did",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
