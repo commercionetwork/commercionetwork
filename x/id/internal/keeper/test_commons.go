@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -14,11 +13,9 @@ import (
 )
 
 type testInput struct {
-	Cdc        *codec.Codec
-	Ctx        sdk.Context
-	accKeeper  auth.AccountKeeper
-	bankKeeper bank.BaseKeeper
-	IdKeeper   Keeper
+	Cdc      *codec.Codec
+	Ctx      sdk.Context
+	IdKeeper Keeper
 }
 
 //This function create an environment to test modules
@@ -45,22 +42,14 @@ func setupTestInput() testInput {
 
 	_ = ms.LoadLatestVersion()
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
-
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	idk := NewKeeper(storeKey, cdc)
 
-	ak.SetParams(ctx, auth.DefaultParams())
-
 	return testInput{
-		Cdc:        cdc,
-		Ctx:        ctx,
-		accKeeper:  ak,
-		bankKeeper: bk,
-		IdKeeper:   idk,
+		Cdc:      cdc,
+		Ctx:      ctx,
+		IdKeeper: idk,
 	}
 
 }
