@@ -1,5 +1,9 @@
 package types
 
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
 const (
 	MembershipTypeGreen  = "green"
 	MembershipTypeBronze = "bronze"
@@ -7,6 +11,12 @@ const (
 	MembershipTypeGold   = "gold"
 	MembershipTypeBlack  = "black"
 )
+
+// Membership contains the data of a membership associated to a specific user
+type Membership struct {
+	Owner          sdk.AccAddress `json:"owner"`
+	MembershipType string         `json:"membership_type"`
+}
 
 // IsMembershipTypeValid returns true iff the given membership type if valid
 // TODO: Test this
