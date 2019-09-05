@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/stretchr/testify/assert"
 )
@@ -120,4 +121,48 @@ func TestKeeper_GetMembershipType(t *testing.T) {
 	membership := nft.NewBaseNFT(id, TestSignerAddress, TestUtils.MembershipKeeper.getMembershipUri(membershipType, id))
 
 	assert.Equal(t, membershipType, TestUtils.MembershipKeeper.GetMembershipType(&membership))
+}
+
+// ----------------------
+// --- Genesis utils
+// ----------------------
+
+func clearNFTs(t *testing.T) {
+	if collection, found := TestUtils.MembershipKeeper.NftKeeper.GetCollection(TestUtils.Ctx, types.NftDenom); found {
+		for _, membershipNft := range collection.NFTs {
+			err := TestUtils.MembershipKeeper.NftKeeper.DeleteNFT(TestUtils.Ctx, types.NftDenom, membershipNft.GetID())
+			assert.Nil(t, err)
+		}
+	}
+}
+
+func TestKeeper_GetMembershipsSet_EmptySet(t *testing.T) {
+	clearNFTs(t)
+
+	set := TestUtils.MembershipKeeper.GetMembershipsSet(TestUtils.Ctx)
+	assert.Empty(t, set)
+}
+
+func TestKeeper_GetMembershipsSet_FilledSet(t *testing.T) {
+	clearNFTs(t)
+
+	first, err := sdk.AccAddressFromBech32("cosmos18v6sv92yrxdxck4hvw0gyfccu7dggweyrsqcx9")
+	second, err := sdk.AccAddressFromBech32("cosmos1e2zdv8l45mstf8uexgcyk54g87jmrx8sjn0g24")
+	third, err := sdk.AccAddressFromBech32("cosmos1e2cc3x2z7ku282kmh2x7jczylkajge0s2num6q")
+	assert.Nil(t, err)
+
+	_, err = TestUtils.MembershipKeeper.AssignMembership(TestUtils.Ctx, first, "green")
+	_, err = TestUtils.MembershipKeeper.AssignMembership(TestUtils.Ctx, second, "silver")
+	_, err = TestUtils.MembershipKeeper.AssignMembership(TestUtils.Ctx, third, "bronze")
+
+	set := TestUtils.MembershipKeeper.GetMembershipsSet(TestUtils.Ctx)
+
+	firstMembership := types.Membership{Owner: first, MembershipType: "green"}
+	secondMembership := types.Membership{Owner: second, MembershipType: "silver"}
+	thirdMembership := types.Membership{Owner: third, MembershipType: "bronze"}
+
+	assert.Equal(t, 3, len(set))
+	assert.Contains(t, set, firstMembership)
+	assert.Contains(t, set, secondMembership)
+	assert.Contains(t, set, thirdMembership)
 }
