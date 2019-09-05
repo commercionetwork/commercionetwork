@@ -8,4 +8,6 @@ const (
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 
 	BlockRewardsPoolPrefix = StoreKey + ":bRewardsPool:"
+
+	DefaultBondDenom = "ucommercio"
 )

@@ -3,7 +3,6 @@ package keeper
 import (
 	"math/big"
 
-	"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,6 +32,24 @@ func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk dist
 	}
 }
 
+//Utility function to set Block Reward Pool
+func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool types.BlockRewardsPool) {
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.BlockRewardsPoolPrefix), k.Cdc.MustMarshalBinaryBare(&updatedPool))
+}
+
+//Utility function to get Block Reward Pool
+func (k Keeper) getBrPool(ctx sdk.Context) types.BlockRewardsPool {
+	var brPool types.BlockRewardsPool
+	store := ctx.KVStore(k.StoreKey)
+	brpBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
+	if brpBz == nil {
+		return types.InitBlockRewardsPool()
+	}
+	k.Cdc.MustUnmarshalBinaryBare(brpBz, &brPool)
+	return brPool
+}
+
 //Increase the Block Rewards Pool with the specified coin amount
 func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coin) {
 	bk := k.BankKeeper
@@ -40,21 +57,20 @@ func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress
 	brPool := types.InitBlockRewardsPool()
 
 	if bk.HasCoins(ctx, funder, brAmount) {
-		brPool.GetBlockRewardsPool(ctx, k)
+		brPool = k.getBrPool(ctx)
 		if brPool.Funds.IsZero() {
 			brPool.Funds.Add(sdk.NewDecCoins(brAmount))
-			brPool.SetBlockRewardsPool(ctx, k, &brPool)
+			k.setBlockRewardsPool(ctx, brPool)
 		} else {
 			brPool.Funds.Add(sdk.NewDecCoins(brAmount))
-			brPool.SetBlockRewardsPool(ctx, k, &brPool)
+			k.setBlockRewardsPool(ctx, brPool)
 		}
 	}
 }
 
 //Return the Block Rewards Pool if exists
 func (k Keeper) GetBlockRewardsPool(ctx sdk.Context) types.BlockRewardsPool {
-	var brPool types.BlockRewardsPool
-	return brPool.GetBlockRewardsPool(ctx, k)
+	return k.getBrPool(ctx)
 }
 
 /*
@@ -89,11 +105,12 @@ TOTALSTAKE	 indicates all staked token's amount of all validators
 //TODO I used big.Int to mantain the precision in these operations and in prevision of very large numbers,
 // I don't know if it's the right choise, need to discuss
 var (
-	TPY = big.NewInt(25000)  //Tokens Per Year
-	DPY = big.NewInt(365.24) // Days Per Year
-	HPD = big.NewInt(24)     // 	Hours Per Day
-	MPD = big.NewInt(60)     // 	Minutes Per Days
-	BPM = big.NewInt(12)     // 	Blocks Per Minutes
+	TPY = big.NewInt(25000) //Tokens Per Year
+	//TODO when sdk.Dec get an implementation with big.Float, switch this to 365.24 to count even the bissextile year
+	DPY = big.NewInt(365) // Days Per Year
+	HPD = big.NewInt(24)  // 	Hours Per Day
+	MPD = big.NewInt(60)  // 	Minutes Per Days
+	BPM = big.NewInt(12)  // 	Blocks Per Minutes
 )
 
 /*
@@ -138,7 +155,7 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber sdk.Int, 
 	//calculate the final reward for this proposer
 	concreteReward := rawReward.Mul(validatorPower)
 
-	coinReward := sdk.DecCoin{Denom: app.DefaultBondDenom, Amount: concreteReward}
+	coinReward := sdk.DecCoin{Denom: types.DefaultBondDenom, Amount: concreteReward}
 
 	return append(sdk.DecCoins{}, coinReward)
 }
@@ -148,12 +165,12 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 	var brPool types.BlockRewardsPool
 
-	brPool.GetBlockRewardsPool(ctx, k)
+	k.GetBlockRewardsPool(ctx)
 
 	//Check if the pool has enough funds
-	if brPool.Funds.AmountOf(app.DefaultBondDenom).GTE(reward.AmountOf(app.DefaultBondDenom)) {
+	if brPool.Funds.AmountOf(types.DefaultBondDenom).GTE(reward.AmountOf(types.DefaultBondDenom)) {
 		brPool.Funds = brPool.Funds.Sub(reward)
-		brPool.SetBlockRewardsPool(ctx, k, &brPool)
+		k.setBlockRewardsPool(ctx, brPool)
 	}
 
 	//Get his current reward and then add the new one

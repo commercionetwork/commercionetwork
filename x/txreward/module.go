@@ -2,6 +2,7 @@ package txreward
 
 import (
 	"encoding/json"
+
 	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -14,8 +15,9 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModule           = AppModule{}
+	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.AppModuleSimulation = AppModuleSimulation{}
 )
 
 type AppModuleBasic struct{}
@@ -59,18 +61,30 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetQueryCmd(cdc)
 }
 
+//____________________________________________________________________________
+
+// AppModuleSimulation defines the module simulation functions used by the auth module.
+type AppModuleSimulation struct{}
+
+// RegisterStoreDecoder registers a decoder for auth module's types
+func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
+
+//____________________________________________________________________________
+
 //___________________________
 // app module
 type AppModule struct {
 	AppModuleBasic
+	AppModuleSimulation
 	keeper Keeper
 }
 
 // NewAppModule creates a new AppModule object
 func NewAppModule(keeper Keeper) AppModule {
 	return AppModule{
-		AppModuleBasic: AppModuleBasic{},
-		keeper:         keeper,
+		AppModuleBasic:      AppModuleBasic{},
+		AppModuleSimulation: AppModuleSimulation{},
+		keeper:              keeper,
 	}
 }
 
