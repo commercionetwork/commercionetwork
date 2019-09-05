@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	types2 "github.com/commercionetwork/commercionetwork/x/utils/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -172,7 +173,7 @@ func (keeper Keeper) GetUsersSet(ctx sdk.Context) ([]sdk.AccAddress, error) {
 	}
 
 	var err error
-	users := types.Addresses{}
+	users := types2.Addresses{}
 	for _, prefix := range prefixes {
 		users, err = keeper.addAccountsWithPrefix(ctx, prefix, users)
 		if err != nil {
@@ -183,7 +184,7 @@ func (keeper Keeper) GetUsersSet(ctx sdk.Context) ([]sdk.AccAddress, error) {
 	return users, nil
 }
 
-func (keeper Keeper) addAccountsWithPrefix(ctx sdk.Context, prefix string, existingAccounts types.Addresses) (types.Addresses, error) {
+func (keeper Keeper) addAccountsWithPrefix(ctx sdk.Context, prefix string, existingAccounts types2.Addresses) (types2.Addresses, error) {
 	store := ctx.KVStore(keeper.StoreKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(prefix))
 
