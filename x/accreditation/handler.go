@@ -12,6 +12,8 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case MsgSetAccrediter:
 			return handleSetAccrediter(ctx, keeper, msg)
+		case MsgDistributeReward:
+			return handleDistributeReward(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -35,6 +37,15 @@ func handleSetAccrediter(ctx sdk.Context, keeper Keeper, msg MsgSetAccrediter) s
 
 	// If everything passes the checks, set the accrediter
 	keeper.SetAccrediter(ctx, msg.Accrediter, msg.User)
+
+	return sdk.Result{}
+}
+
+func handleDistributeReward(ctx sdk.Context, keeper Keeper, msg MsgDistributeReward) sdk.Result {
+	// TODO
+
+	// 1. Check that the pair user - accrediter has not status accreditated
+	// 2. Distribute the reward
 
 	return sdk.Result{}
 }

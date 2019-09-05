@@ -7,6 +7,7 @@ import (
 // RegisterCodec registers concrete types on wire codec
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgSetAccrediter{}, "commercio/SetAccrediter", nil)
+	cdc.RegisterConcrete(MsgDistributeReward{}, "commercio/DistributeReward", nil)
 }
 
 var ModuleCdc *codec.Codec

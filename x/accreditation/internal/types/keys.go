@@ -6,7 +6,8 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	MsgTypeSetAccrediter = "setAccrediter"
+	MsgTypeSetAccrediter    = "setAccrediter"
+	MsgTypeDistributeReward = "distributeReward"
 
 	TrustworthySignersKey = "signers"
 )

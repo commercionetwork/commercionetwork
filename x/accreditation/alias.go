@@ -21,5 +21,6 @@ var (
 type (
 	Keeper = keeper.Keeper
 
-	MsgSetAccrediter = types.MsgSetAccrediter
+	MsgSetAccrediter    = types.MsgSetAccrediter
+	MsgDistributeReward = types.MsgDistributeReward
 )
