@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -26,6 +28,9 @@ func (msg MsgIncrementBlockRewardsPool) ValidateBasic() sdk.Error {
 	}
 	if msg.Amount.Amount.IsZero() {
 		return sdk.ErrUnknownRequest("You can't transfer a null amount")
+	}
+	if msg.Amount.Denom != DefaultBondDenom {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("You can't transfer others than %s", DefaultBondDenom))
 	}
 
 	return nil

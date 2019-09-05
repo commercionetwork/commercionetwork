@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -18,19 +19,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
-type testInput struct {
-	Cdc       *codec.Codec
-	Ctx       sdk.Context
-	TBRKeeper Keeper
-}
-
 var (
 	distrAcc = supply.NewEmptyModuleAccount(types.ModuleName)
 )
 
-func setupTestInput() testInput {
+var (
+	multiPerm  = "multiple permissions account"
+	randomPerm = "random permission"
+	holder     = "holder"
+)
+
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	memDB := db.NewMemDB()
-	cdc := testCodec()
+	cdc = testCodec()
 
 	authKey := sdk.NewKVStoreKey("authCapKey")
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
@@ -69,26 +70,21 @@ func setupTestInput() testInput {
 	blacklistedAddrs[bondPool.GetAddress().String()] = true
 	blacklistedAddrs[distrAcc.GetAddress().String()] = true
 
-	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, blacklistedAddrs)
 
-	maccPerms := map[string][]string{
-		auth.FeeCollectorName:     nil,
-		types.ModuleName:          nil,
-		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-		staking.BondedPoolName:    {supply.Burner, supply.Staking},
-	}
+	// add module accounts to supply keeper
+	maccPerms := simapp.GetMaccPerms()
+	maccPerms[holder] = nil
+	maccPerms[supply.Burner] = []string{supply.Burner}
+	maccPerms[supply.Minter] = []string{supply.Minter}
+	maccPerms[multiPerm] = []string{supply.Burner, supply.Minter, supply.Staking}
+	maccPerms[randomPerm] = []string{"random"}
 
 	suk := supply.NewKeeper(cdc, keySupply, ak, bk, maccPerms)
-	// set module accounts
-	suk.SetModuleAccount(ctx, feeCollectorAcc)
-	suk.SetModuleAccount(ctx, notBondedPool)
-	suk.SetModuleAccount(ctx, bondPool)
-	suk.SetModuleAccount(ctx, distrAcc)
-
 	sk := staking.NewKeeper(cdc, keyStaking, tkeyStaking, suk, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
 	sk.SetParams(ctx, staking.DefaultParams())
 
@@ -99,7 +95,7 @@ func setupTestInput() testInput {
 
 	tbrKeeper := NewKeeper(tbrStoreKey, bk, sk, dk, cdc)
 
-	return testInput{Cdc: cdc, Ctx: ctx, TBRKeeper: tbrKeeper}
+	return cdc, ctx, tbrKeeper
 }
 
 func testCodec() *codec.Codec {
@@ -112,8 +108,6 @@ func testCodec() *codec.Codec {
 
 	return cdc
 }
-
-var TestUtils = setupTestInput()
 
 var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestAmount = sdk.Coin{

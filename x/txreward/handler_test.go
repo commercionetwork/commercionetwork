@@ -15,17 +15,22 @@ var msgIncrementsBRPool = MsgIncrementsBlockRewardsPool{
 	Amount: keeper.TestAmount,
 }
 
-var testUtils = keeper.TestUtils
-
-var handler = NewHandler(testUtils.TBRKeeper)
-
 func TestValidMsg_IncrementBRPool(t *testing.T) {
-	res := handler(testUtils.Ctx, msgIncrementsBRPool)
+	_, cdc, k := TestSetup()
+
+	handler := NewHandler(k)
+
+	res := handler(cdc, msgIncrementsBRPool)
 	require.True(t, res.IsOK())
 }
 
 func TestInvalidMsg(t *testing.T) {
-	res := handler(testUtils.Ctx, sdk.NewTestMsg())
+	_, cdc, k := TestSetup()
+
+	handler := NewHandler(k)
+
+	res := handler(cdc, sdk.NewTestMsg())
+
 	require.False(t, res.IsOK())
 	require.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", ModuleName)))
 }
