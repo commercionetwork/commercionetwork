@@ -1,9 +1,9 @@
-package accreditation
+package accreditations
 
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditation/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/accreditations/client/cli"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -116,8 +116,7 @@ func (AppModule) QuerierRoute() string {
 
 // module querier
 func (am AppModule) NewQuerierHandler() sdk.Querier {
-	// TODO - return NewQuerier(am.keeper)
-	return nil
+	return NewQuerier(am.keeper)
 }
 
 // module init-genesis

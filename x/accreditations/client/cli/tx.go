@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/accreditation/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -21,14 +21,15 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetCmdSetAccrediter(cdc),
+		getCmdSetAccrediter(cdc),
+		getCmdDepositIntoPool(cdc),
 	)
 
 	return txCmd
 }
 
 // GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
-func GetCmdSetAccrediter(cdc *codec.Codec) *cobra.Command {
+func getCmdSetAccrediter(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set [user] [accrediter]",
 		Short: "Sets the accrediter for the given user",
@@ -50,6 +51,38 @@ func GetCmdSetAccrediter(cdc *codec.Codec) *cobra.Command {
 			}
 
 			msg := types.NewMsgSetAccrediter(user, accrediter, signer)
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+// GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
+func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit [amount]",
+		Short: "Deposits the specified amount into the accreditation pool",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			depositor := cliCtx.GetFromAddress()
+
+			amount, err := sdk.ParseCoins(args[0])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgMsgDepositIntoLiquidityPool(amount, depositor)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

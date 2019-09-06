@@ -1,4 +1,4 @@
-package accreditation
+package accreditations
 
 import (
 	"fmt"
@@ -14,6 +14,8 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleSetAccrediter(ctx, keeper, msg)
 		case MsgDistributeReward:
 			return handleDistributeReward(ctx, keeper, msg)
+		case MsgDepositIntoLiquidityPool:
+			return handleDepositIntoPool(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -30,22 +32,39 @@ func handleSetAccrediter(ctx sdk.Context, keeper Keeper, msg MsgSetAccrediter) s
 	}
 
 	// Check the accrediter
-	if accrediter, found := keeper.GetAccrediter(ctx, msg.User); found {
+	if accrediter := keeper.GetAccrediter(ctx, msg.User); accrediter != nil {
 		errMsg := fmt.Sprintf("User %s already has an accrediter (%s)", msg.User.String(), accrediter.String())
 		return sdk.ErrUnknownRequest(errMsg).Result()
 	}
 
 	// If everything passes the checks, set the accrediter
-	keeper.SetAccrediter(ctx, msg.Accrediter, msg.User)
+	if err := keeper.SetAccrediter(ctx, msg.Accrediter, msg.User); err != nil {
+		return sdk.ErrUnknownRequest(err.Error()).Result()
+	}
 
 	return sdk.Result{}
 }
 
 func handleDistributeReward(ctx sdk.Context, keeper Keeper, msg MsgDistributeReward) sdk.Result {
-	// TODO
 
-	// 1. Check that the pair user - accrediter has not status accreditated
-	// 2. Distribute the reward
+	// Check the accrediter
+	if accrediter := keeper.GetAccrediter(ctx, msg.User); accrediter == nil || !accrediter.Equals(msg.Accrediter) {
+		errMsg := fmt.Sprintf("Accrediter of %s does not match with the given one", msg.User.String())
+		return sdk.ErrUnknownRequest(errMsg).Result()
+	}
+
+	// Distribute the reward
+	if err := keeper.DistributeReward(ctx, msg.Accrediter, msg.Reward, msg.User); err != nil {
+		return sdk.ErrUnknownRequest(err.Error()).Result()
+	}
+
+	return sdk.Result{}
+}
+
+func handleDepositIntoPool(ctx sdk.Context, keeper Keeper, msg MsgDepositIntoLiquidityPool) sdk.Result {
+	if err := keeper.DepositIntoPool(ctx, msg.Amount); err != nil {
+		return sdk.ErrUnknownRequest(err.Error()).Result()
+	}
 
 	return sdk.Result{}
 }

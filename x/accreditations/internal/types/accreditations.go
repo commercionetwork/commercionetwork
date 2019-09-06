@@ -7,4 +7,5 @@ import (
 type Accreditation struct {
 	Accrediter sdk.AccAddress `json:"accrediter"`
 	User       sdk.AccAddress `json:"user"`
+	Rewarded   bool           `json:"rewarded"` // Tells if the accrediter has already been rewarded for this accreditation
 }
