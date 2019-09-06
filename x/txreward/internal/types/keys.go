@@ -5,9 +5,13 @@ const (
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
+	QueryBlockRewardsPoolFunds   = "funds"
+	QueryBlockRewardsPoolFunders = "funders"
+
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 
-	BlockRewardsPoolPrefix = StoreKey + ":bRewardsPool:"
+	BlockRewardsPoolPrefix        = StoreKey + ":pool:"
+	BlockRewardsPoolFundersPrefix = StoreKey + ":funders:"
 
 	DefaultBondDenom = "ucommercio"
 )

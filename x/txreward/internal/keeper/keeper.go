@@ -32,13 +32,13 @@ func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk dist
 	}
 }
 
-//Utility function to set Block Reward Pool
+//Utility method to set Block Reward Pool
 func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool types.BlockRewardsPool) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.BlockRewardsPoolPrefix), k.Cdc.MustMarshalBinaryBare(&updatedPool))
 }
 
-//Utility function to get Block Reward Pool
+//Utility method to get Block Reward Pool
 func (k Keeper) getBrPool(ctx sdk.Context) types.BlockRewardsPool {
 	var brPool types.BlockRewardsPool
 	store := ctx.KVStore(k.StoreKey)
@@ -48,6 +48,31 @@ func (k Keeper) getBrPool(ctx sdk.Context) types.BlockRewardsPool {
 	}
 	k.Cdc.MustUnmarshalBinaryBare(brpBz, &brPool)
 	return brPool
+}
+
+func (k Keeper) getFunders(ctx sdk.Context) types.Funders {
+	var funders types.Funders
+	store := ctx.KVStore(k.StoreKey)
+	fundersBz := store.Get([]byte(types.BlockRewardsPoolFundersPrefix))
+	k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
+	return funders
+}
+
+func (k Keeper) setFunders(ctx sdk.Context, updatedFunders types.Funders) {
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.BlockRewardsPoolFundersPrefix), k.Cdc.MustMarshalBinaryBare(&updatedFunders))
+}
+
+//Add new funder to the list of the authorized funders of the block rewards pool
+func (k Keeper) AddBlockRewardsPoolFunder(ctx sdk.Context, funder types.Funder) {
+	funders := k.getFunders(ctx)
+	funders.AppendFunderIfMissing(funder)
+	k.setFunders(ctx, funders)
+}
+
+//Return all the block rewards pool's funders
+func (k Keeper) GetBlockRewardsPoolFunders(ctx sdk.Context) types.Funders {
+	return k.getFunders(ctx)
 }
 
 //Increase the Block Rewards Pool with the specified coin amount
