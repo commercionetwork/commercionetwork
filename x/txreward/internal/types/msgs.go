@@ -7,11 +7,11 @@ import (
 )
 
 type MsgIncrementBlockRewardsPool struct {
-	Funder sdk.AccAddress `json:"funder"`
-	Amount sdk.Coin       `json:"amount"`
+	Funder Funder   `json:"funder"`
+	Amount sdk.Coin `json:"amount"`
 }
 
-func NewMsgIncrementBlockRewardsPool(funder sdk.AccAddress, amount sdk.Coin) MsgIncrementBlockRewardsPool {
+func NewMsgIncrementBlockRewardsPool(funder Funder, amount sdk.Coin) MsgIncrementBlockRewardsPool {
 	return MsgIncrementBlockRewardsPool{
 		Funder: funder,
 		Amount: amount,
@@ -23,8 +23,8 @@ func (msg MsgIncrementBlockRewardsPool) Route() string { return ModuleName }
 func (msg MsgIncrementBlockRewardsPool) Type() string { return MsgTypeIncrementBlockRewardsPool }
 
 func (msg MsgIncrementBlockRewardsPool) ValidateBasic() sdk.Error {
-	if msg.Funder.Empty() {
-		return sdk.ErrInvalidAddress(msg.Funder.String())
+	if msg.Funder.Address.Empty() {
+		return sdk.ErrInvalidAddress(msg.Funder.Address.String())
 	}
 	if msg.Amount.Amount.IsZero() {
 		return sdk.ErrUnknownRequest("You can't transfer a null amount")
@@ -41,5 +41,5 @@ func (msg MsgIncrementBlockRewardsPool) GetSignBytes() []byte {
 }
 
 func (msg MsgIncrementBlockRewardsPool) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Funder}
+	return []sdk.AccAddress{msg.Funder.Address}
 }
