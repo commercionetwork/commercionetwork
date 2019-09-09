@@ -7,16 +7,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
-
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 var (
@@ -109,8 +108,17 @@ func testCodec() *codec.Codec {
 	return cdc
 }
 
-var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var addr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestFunder = types.Funder{Address: addr}
 var TestAmount = sdk.Coin{
 	Denom:  "ucommercio",
 	Amount: sdk.NewInt(10),
 }
+
+var coin = sdk.Coin{Amount: sdk.NewInt(1000000), Denom: types.DefaultBondDenom}
+var coins = sdk.NewCoins(coin)
+var TestBlockRewardsPool = types.BlockRewardsPool{
+	Funds: sdk.NewDecCoins(coins),
+}
+
+var TestFunders = types.Funders{TestFunder}
