@@ -30,7 +30,7 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, bankKeeper bank.Keeper) 
 }
 
 // SetAccrediter allows to set a given user as being accreditated by the given accrediter.
-func (keeper Keeper) SetAccrediter(ctx sdk.Context, accrediter sdk.AccAddress, user sdk.AccAddress) error {
+func (keeper Keeper) SetAccrediter(ctx sdk.Context, user, accrediter sdk.AccAddress) error {
 	store := ctx.KVStore(keeper.StoreKey)
 	if store.Has(user) {
 		return errors.New("user already have an accrediter")
@@ -44,7 +44,7 @@ func (keeper Keeper) SetAccrediter(ctx sdk.Context, accrediter sdk.AccAddress, u
 	}
 
 	// Save the accreditation
-	accreditationBz := keeper.cdc.MustMarshalBinaryBare(&accreditation)
+	accreditationBz := keeper.cdc.MustMarshalBinaryBare(accreditation)
 	store.Set(user, accreditationBz)
 	return nil
 }
@@ -63,8 +63,41 @@ func (keeper Keeper) GetAccrediter(ctx sdk.Context, user sdk.AccAddress) sdk.Acc
 	return accreditation.Accrediter
 }
 
+// GetAccreditations returns all the accreditations that have been
+func (keeper Keeper) GetAccreditations(ctx sdk.Context) (accreditations []types.Accreditation) {
+	store := ctx.KVStore(keeper.StoreKey)
+	iterator := store.Iterator(nil, nil)
+
+	for ; iterator.Valid() && string(iterator.Key()) != types.TrustworthySignersKey; iterator.Next() {
+		var accreditation types.Accreditation
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &accreditation)
+		accreditations = append(accreditations, accreditation)
+	}
+
+	return
+}
+
+// DepositIntoPool allows anyone to deposit into the liquidity pool that
+// will be used when giving out rewards for accreditations.
+func (keeper Keeper) DepositIntoPool(ctx sdk.Context, amount sdk.Coins) error {
+	if amount.IsAnyNegative() {
+		return errors.New("amount cannot be negative")
+	}
+
+	store := ctx.KVStore(keeper.StoreKey)
+
+	// Add the amount to the pool
+	var pool sdk.Coins
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolKey)), &pool)
+	pool = pool.Add(amount)
+	store.Set([]byte(types.LiquidityPoolKey), keeper.cdc.MustMarshalBinaryBare(&pool))
+
+	return nil
+}
+
 // DistributeReward allows to give the specified accrediter the specified amount of reward related
 // to the accreditation of the specified user
+// TODO: Test
 func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress, reward sdk.Coins, user sdk.AccAddress) error {
 	store := ctx.KVStore(keeper.StoreKey)
 	if !store.Has(user) {
@@ -100,39 +133,6 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress
 	return nil
 }
 
-// DepositIntoPool allows anyone to deposit into the liquidity pool that
-// will be used when giving out rewards for accreditations.
-func (keeper Keeper) DepositIntoPool(ctx sdk.Context, amount sdk.Coins) error {
-	if amount.IsAnyNegative() {
-		return errors.New("amount cannot be negative")
-	}
-
-	store := ctx.KVStore(keeper.StoreKey)
-
-	// Add the amount to the pool
-	var pool sdk.Coins
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolKey)), &pool)
-	pool = pool.Add(amount)
-	store.Set([]byte(types.LiquidityPoolKey), keeper.cdc.MustMarshalBinaryBare(&pool))
-
-	return nil
-}
-
-// IsTrustworthySigner tells if the given signer is a trustworthy one or not
-func (keeper Keeper) IsTrustworthySigner(ctx sdk.Context, signer sdk.AccAddress) bool {
-	signers := keeper.GetTrustworthySigners(ctx)
-	for _, s := range signers {
-		if s.Equals(signer) {
-			return true
-		}
-	}
-	return false
-}
-
-// -----------------------
-// --- Genesis utils
-// -----------------------
-
 // AddTrustworthySigner allows to add the given signer as a trustworthy entity
 // that can sign transactions setting an accrediter for a user.
 func (keeper Keeper) AddTrustworthySigner(ctx sdk.Context, signer sdk.AccAddress) {
@@ -145,29 +145,21 @@ func (keeper Keeper) AddTrustworthySigner(ctx sdk.Context, signer sdk.AccAddress
 	store.Set([]byte(types.TrustworthySignersKey), newSignersBz)
 }
 
-// GetAccreditations returns all the accreditations that have been
-func (keeper Keeper) GetAccreditations(ctx sdk.Context) (accreditations []types.Accreditation) {
-	store := ctx.KVStore(keeper.StoreKey)
-	iterator := store.Iterator(nil, nil)
-
-	for ; iterator.Valid() && string(iterator.Key()) != types.TrustworthySignersKey; iterator.Next() {
-		var accreditation types.Accreditation
-		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &accreditation)
-		accreditations = append(accreditations, accreditation)
-	}
-
-	return
-}
-
 // GetTrustworthySigners returns the list of signers that are allowed to sign
 // transactions setting a specific accrediter for a user.
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
 // be allowed to send a transaction setting an accrediter for another user.
-func (keeper Keeper) GetTrustworthySigners(ctx sdk.Context) (signers []sdk.AccAddress) {
+func (keeper Keeper) GetTrustworthySigners(ctx sdk.Context) (signers utypes.Addresses) {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	signersBz := store.Get([]byte(types.TrustworthySignersKey))
 	keeper.cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 
 	return
+}
+
+// IsTrustworthySigner tells if the given signer is a trustworthy one or not
+func (keeper Keeper) IsTrustworthySigner(ctx sdk.Context, signer sdk.AccAddress) bool {
+	signers := keeper.GetTrustworthySigners(ctx)
+	return signers.Contains(signer)
 }

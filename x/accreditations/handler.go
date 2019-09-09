@@ -38,7 +38,7 @@ func handleSetAccrediter(ctx sdk.Context, keeper Keeper, msg MsgSetAccrediter) s
 	}
 
 	// If everything passes the checks, set the accrediter
-	if err := keeper.SetAccrediter(ctx, msg.Accrediter, msg.User); err != nil {
+	if err := keeper.SetAccrediter(ctx, msg.User, msg.Accrediter); err != nil {
 		return sdk.ErrUnknownRequest(err.Error()).Result()
 	}
 

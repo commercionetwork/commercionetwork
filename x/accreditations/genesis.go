@@ -31,7 +31,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 	// Import all the accreditations
 	for _, accreditation := range data.Accreditations {
-		if err := keeper.SetAccrediter(ctx, accreditation.Accrediter, accreditation.User); err != nil {
+		if err := keeper.SetAccrediter(ctx, accreditation.User, accreditation.Accrediter); err != nil {
 			panic(err)
 		}
 	}
