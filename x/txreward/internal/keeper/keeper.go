@@ -30,24 +30,6 @@ func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk dist
 	}
 }
 
-//Utility method to set Block Reward Pool
-func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool types.BlockRewardsPool) {
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.BlockRewardsPoolPrefix), k.Cdc.MustMarshalBinaryBare(&updatedPool))
-}
-
-//Utility method to get Block Reward Pool
-func (k Keeper) getBrPool(ctx sdk.Context) types.BlockRewardsPool {
-	var brPool types.BlockRewardsPool
-	store := ctx.KVStore(k.StoreKey)
-	brpBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
-	if brpBz == nil {
-		return types.InitBlockRewardsPool()
-	}
-	k.Cdc.MustUnmarshalBinaryBare(brpBz, &brPool)
-	return brPool
-}
-
 func (k Keeper) getFunders(ctx sdk.Context) types.Funders {
 	var funders types.Funders
 	store := ctx.KVStore(k.StoreKey)
@@ -71,6 +53,24 @@ func (k Keeper) AddBlockRewardsPoolFunder(ctx sdk.Context, funder types.Funder) 
 //Return all the block rewards pool's funders
 func (k Keeper) GetBlockRewardsPoolFunders(ctx sdk.Context) types.Funders {
 	return k.getFunders(ctx)
+}
+
+//Utility method to set Block Reward Pool
+func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool types.BlockRewardsPool) {
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.BlockRewardsPoolPrefix), k.Cdc.MustMarshalBinaryBare(&updatedPool))
+}
+
+//Utility method to get Block Reward Pool
+func (k Keeper) getBrPool(ctx sdk.Context) types.BlockRewardsPool {
+	var brPool types.BlockRewardsPool
+	store := ctx.KVStore(k.StoreKey)
+	brpBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
+	if brpBz == nil {
+		return types.InitBlockRewardsPool()
+	}
+	k.Cdc.MustUnmarshalBinaryBare(brpBz, &brPool)
+	return brPool
 }
 
 //Increase the Block Rewards Pool with the specified coin amount
@@ -131,10 +131,11 @@ TOTALSTAKE	 indicates all staked token's amount of all validators
 */
 var (
 	TPY = sdk.NewDecWithPrec(25000, 0) //Tokens Per Year
-	DPY = sdk.NewDecWithPrec(365, 24)  // Days Per Year
-	HPD = sdk.NewDecWithPrec(24, 0)    //  Hours Per Day
-	MPH = sdk.NewDecWithPrec(60, 0)    //  Minutes Per Hour
-	BPM = sdk.NewDecWithPrec(12, 0)    // Blocks Per Minutes
+	//TODO need help with this, cant understand how to create this with sdk.Dec
+	DPY = "365.24"                  // Days Per Year
+	HPD = sdk.NewDecWithPrec(24, 0) //  Hours Per Day
+	MPH = sdk.NewDecWithPrec(60, 0) //  Minutes Per Hour
+	BPM = sdk.NewDecWithPrec(12, 0) // Blocks Per Minutes
 )
 
 /*
@@ -142,17 +143,35 @@ Compute the Raw Reward for proposer, assuming that Raw Reward is the Reward(n, V
 without the last multiplication between the (Stake/TotalStake) value
 */
 func computeRawReward(validatorsNumber int64) sdk.Dec {
-	var tokensPerYear = TPY
-	tokensPerYear.Mul(sdk.NewDecWithPrec(1000000, 0))
 
-	var divider = DPY
+	tokensPerYear := TPY.Mul(sdk.NewDecWithPrec(1000000, 0))
 
-	divider.Mul(HPD).Mul(MPH).Mul(BPM)
+	//println(tokensPerYear.String())
+
+	var divider, err = sdk.NewDecFromStr(DPY)
+	//println(divider.String())
+	if err != nil {
+		panic(err)
+	}
+
+	divider = divider.Mul(HPD).Mul(MPH).Mul(BPM)
+
+	//println(divider.String())
+
+	firstMember := tokensPerYear.Quo(divider)
+	//println(firstMember.String())
 
 	averageValidatorsNumber := sdk.NewDecWithPrec(100, 0)
 	vNumber := sdk.NewDecWithPrec(validatorsNumber, 0)
 
-	return tokensPerYear.Quo(divider).Mul(averageValidatorsNumber.Quo(vNumber))
+	secondMember := averageValidatorsNumber.Quo(vNumber)
+	//println(secondMember.String())
+
+	firstMember = firstMember.Mul(secondMember)
+
+	//println(firstMember.String())
+
+	return firstMember
 }
 
 //Compute the final reward for the validator block's proposer
@@ -161,14 +180,19 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber int64, pr
 
 	//Get the raw reward for proposer
 	rawReward := computeRawReward(validatorNumber)
+	println("raw reward: " + rawReward.String())
 
 	//Retrieve staked tokens by proposer
-	validatorStakedTokens := proposer.GetBondedTokens()
+	validatorStakedTokens := proposer.GetBondedTokens().ToDec()
+	//println("validator staked tokens: " + validatorStakedTokens.String())
+
 	//compute his validation power
-	validatorPower := validatorStakedTokens.Quo(totalStakedTokens).ToDec()
+	validatorPower := validatorStakedTokens.Quo(totalStakedTokens.ToDec())
+	//println("validator power: "+validatorPower.String())
 
 	//calculate the final reward for this proposer
 	concreteReward := rawReward.Mul(validatorPower)
+	//println("concrete reward: " + concreteReward.String())
 
 	coinReward := sdk.DecCoin{Denom: types.DefaultBondDenom, Amount: concreteReward}
 
@@ -180,18 +204,23 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 	var brPool types.BlockRewardsPool
 
-	k.GetBlockRewardsPool(ctx)
+	brPool = k.GetBlockRewardsPool(ctx)
+
+	println("br pool funds: " + brPool.Funds.AmountOf(types.DefaultBondDenom).String())
+	println("reward: " + reward.AmountOf(types.DefaultBondDenom).String())
 
 	//Check if the pool has enough funds
 	if brPool.Funds.AmountOf(types.DefaultBondDenom).GTE(reward.AmountOf(types.DefaultBondDenom)) {
 		brPool.Funds = brPool.Funds.Sub(reward)
 		k.setBlockRewardsPool(ctx, brPool)
+
+		//Get his current reward and then add the new one
+		currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
+		currentRewards.Rewards = currentRewards.Rewards.Add(reward)
+
+		//Set the just earned reward
+		k.DistributionKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
+	} else {
+		println("todo") //todo how should we manage this situation?
 	}
-
-	//Get his current reward and then add the new one
-	currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
-	currentRewards.Rewards = currentRewards.Rewards.Add(reward)
-
-	//Set the just earned reward
-	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
 }

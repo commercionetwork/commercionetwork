@@ -9,7 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var addr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestFunder = Funder{Address: addr}
 var TestAmount = sdk.Coin{
 	Denom:  "ucommercio",
 	Amount: sdk.NewInt(10),
@@ -73,7 +74,7 @@ func TestMsgIncrementBlockRewardsPool_GetSignBytes(t *testing.T) {
 
 func TestMsgIncrementBlockRewardsPool_GetSigners(t *testing.T) {
 	actual := msgIncrementsBRPool.GetSigners()
-	expected := []sdk.AccAddress{msgIncrementsBRPool.Funder}
+	expected := []sdk.AccAddress{msgIncrementsBRPool.Funder.Address}
 
 	assert.Equal(t, expected, actual)
 }

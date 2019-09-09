@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 )
@@ -27,6 +28,26 @@ var (
 	randomPerm = "random permission"
 	holder     = "holder"
 )
+
+var addr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var valAddr, _ = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
+var pubKey = ed25519.GenPrivKey().PubKey()
+var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
+
+var TestFunder = types.Funder{Address: addr}
+
+var TestAmount = sdk.Coin{
+	Denom:  "ucommercio",
+	Amount: sdk.NewInt(100),
+}
+
+var coin = sdk.Coin{Amount: sdk.NewInt(10000000000000000), Denom: types.DefaultBondDenom}
+var coins = sdk.NewCoins(coin)
+var TestBlockRewardsPool = types.BlockRewardsPool{
+	Funds: sdk.NewDecCoins(coins),
+}
+
+var TestFunders = types.Funders{TestFunder}
 
 func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	memDB := db.NewMemDB()
@@ -97,6 +118,16 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	return cdc, ctx, tbrKeeper
 }
 
+func createTestApp(isCheckTx bool) (*simapp.SimApp, sdk.Context) {
+	app := simapp.Setup(isCheckTx)
+	ctx := app.BaseApp.NewContext(isCheckTx, abci.Header{})
+
+	app.AccountKeeper.SetParams(ctx, auth.DefaultParams())
+	app.BankKeeper.SetSendEnabled(ctx, true)
+
+	return app, ctx
+}
+
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
 
@@ -107,18 +138,3 @@ func testCodec() *codec.Codec {
 
 	return cdc
 }
-
-var addr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestFunder = types.Funder{Address: addr}
-var TestAmount = sdk.Coin{
-	Denom:  "ucommercio",
-	Amount: sdk.NewInt(10),
-}
-
-var coin = sdk.Coin{Amount: sdk.NewInt(1000000), Denom: types.DefaultBondDenom}
-var coins = sdk.NewCoins(coin)
-var TestBlockRewardsPool = types.BlockRewardsPool{
-	Funds: sdk.NewDecCoins(coins),
-}
-
-var TestFunders = types.Funders{TestFunder}
