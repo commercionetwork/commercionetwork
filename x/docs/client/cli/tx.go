@@ -62,7 +62,7 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				Uuid:       args[1],
 				Metadata: types.DocumentMetadata{
 					ContentUri: args[2],
-					Schema: types.DocumentMetadataSchema{
+					Schema: &types.DocumentMetadataSchema{
 						Uri:     args[3],
 						Version: args[4],
 					},

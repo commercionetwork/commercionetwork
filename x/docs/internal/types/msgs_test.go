@@ -10,18 +10,33 @@ import (
 // Test vars
 var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var recipient, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var msgShareDocument = MsgShareDocument{
+var msgShareDocumentSchema = MsgShareDocument{
 	Sender:     sender,
 	Recipient:  recipient,
 	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	ContentUri: "http://www.contentUri.com",
 	Metadata: DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
 		Proof: "proof",
+	},
+	Checksum: DocumentChecksum{
+		Value:     "48656c6c6f20476f7068657221234567",
+		Algorithm: "md5",
+	},
+}
+var msgShareDocumentSchemaType = MsgShareDocument{
+	Sender:     sender,
+	Recipient:  recipient,
+	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	ContentUri: "http://www.contentUri.com",
+	Metadata: DocumentMetadata{
+		ContentUri: "http://www.contentUri.com",
+		SchemaType: "uni-sincro",
+		Proof:      "proof",
 	},
 	Checksum: DocumentChecksum{
 		Value:     "48656c6c6f20476f7068657221234567",
@@ -34,21 +49,26 @@ var msgShareDocument = MsgShareDocument{
 // ----------------------
 
 func TestMsgShareDocument_Route(t *testing.T) {
-	actual := msgShareDocument.Route()
+	actual := msgShareDocumentSchema.Route()
 	expected := ModuleName
 
 	assert.Equal(t, expected, actual)
 }
 
 func TestMsgShareDocument_Type(t *testing.T) {
-	actual := msgShareDocument.Type()
+	actual := msgShareDocumentSchema.Type()
 	expected := MsgTypeShareDocument
 
 	assert.Equal(t, expected, actual)
 }
 
-func TestMsgShareDocument_ValidateBasic_valid(t *testing.T) {
-	actual := msgShareDocument.ValidateBasic()
+func TestMsgShareDocument_ValidateBasic_Schema_valid(t *testing.T) {
+	actual := msgShareDocumentSchema.ValidateBasic()
+	assert.Nil(t, actual)
+}
+
+func TestMsgShareDocument_ValidateBasic_SchemaType_valid(t *testing.T) {
+	actual := msgShareDocumentSchemaType.ValidateBasic()
 	assert.Nil(t, actual)
 }
 
@@ -60,7 +80,7 @@ func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
 		ContentUri: "http://www.contentUri.com",
 		Metadata: DocumentMetadata{
 			ContentUri: "http://www.contentUri.com",
-			Schema: DocumentMetadataSchema{
+			Schema: &DocumentMetadataSchema{
 				Uri:     "http://www.contentUri.com",
 				Version: "test",
 			},
@@ -77,16 +97,35 @@ func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
 }
 
 func TestMsgShareDocument_GetSignBytes(t *testing.T) {
-	actual := msgShareDocument.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgShareDocument))
+	actual := msgShareDocumentSchema.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgShareDocumentSchema))
 	assert.Equal(t, expected, actual)
 }
 
 func TestMsgShareDocument_GetSigners(t *testing.T) {
-	actual := msgShareDocument.GetSigners()
-	expected := msgShareDocument.Sender
+	actual := msgShareDocumentSchema.GetSigners()
+	expected := msgShareDocumentSchema.Sender
 
 	assert.Equal(t, expected, actual[0])
+}
+
+func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
+	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipient":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema":{"uri":"http://www.contentUri.com","version":"test"},"proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}`
+
+	var msg MsgShareDocument
+	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
+
+	assert.Equal(t, "http://www.contentUri.com", msg.Metadata.Schema.Uri)
+	assert.Equal(t, "test", msg.Metadata.Schema.Version)
+}
+
+func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
+	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipient":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema_type":"uni-sincro","proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}`
+
+	var msg MsgShareDocument
+	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
+
+	assert.Equal(t, "uni-sincro", msg.Metadata.SchemaType)
 }
 
 // ----------------------
@@ -109,13 +148,13 @@ func TestValidateUuid_invalid(t *testing.T) {
 }
 
 // -------------------------
-// --- Metadata validation
+// --- MetadataSchema validation
 // -------------------------
 
 func TestValidateDocMetadata_valid(t *testing.T) {
 	validDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -129,7 +168,7 @@ func TestValidateDocMetadata_valid(t *testing.T) {
 func TestValidateDocMetadata_emptyContentUri(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -143,7 +182,7 @@ func TestValidateDocMetadata_emptyContentUri(t *testing.T) {
 func TestValidateDocMetadata_emptySchemaUri(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "",
 			Version: "test",
 		},
@@ -157,7 +196,7 @@ func TestValidateDocMetadata_emptySchemaUri(t *testing.T) {
 func TestValidateDocMetadata_emptySchemaVersion(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "",
 		},
@@ -171,7 +210,7 @@ func TestValidateDocMetadata_emptySchemaVersion(t *testing.T) {
 func TestValidateDocMetadata_emptyProof(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},

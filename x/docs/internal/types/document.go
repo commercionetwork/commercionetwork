@@ -18,15 +18,16 @@ func (metaSchema DocumentMetadataSchema) Equals(metSchema2 DocumentMetadataSchem
 
 // DocumentMetadata represents the information about the metadata associated to a document
 type DocumentMetadata struct {
-	ContentUri string                 `json:"content_uri"`
-	Schema     DocumentMetadataSchema `json:"schema"`
-	Proof      string                 `json:"proof"`
+	ContentUri string                  `json:"content_uri"`
+	SchemaType string                  `json:"schema_type"` // Optional - Either this or schema must be defined
+	Schema     *DocumentMetadataSchema `json:"schema"`      // Optional - Either this or schema_type must be defined
+	Proof      string                  `json:"proof"`
 }
 
 func (docMeta DocumentMetadata) Equals(docMeta2 DocumentMetadata) bool {
 	return docMeta.ContentUri == docMeta2.ContentUri &&
 		docMeta.Proof == docMeta2.Proof &&
-		docMeta.Schema.Equals(docMeta2.Schema)
+		docMeta.Schema.Equals(*docMeta2.Schema)
 }
 
 // DocumentChecksum represents the information related to the checksum of a document, if any

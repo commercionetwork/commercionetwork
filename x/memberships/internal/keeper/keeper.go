@@ -37,7 +37,7 @@ func (keeper Keeper) AddTrustedMinter(ctx sdk.Context, minter sdk.AccAddress) {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	// Save the minter
-	key := []byte(types.TrustworthyMinterPrefix + minter.String())
+	key := []byte(types.TrustedMinterPrefix + minter.String())
 	store.Set(key, minter)
 }
 
@@ -49,7 +49,7 @@ func (keeper Keeper) GetTrustedMinters(ctx sdk.Context) types.Minters {
 	var minters []sdk.AccAddress
 
 	// Iterate over all the keys having the minter prefix
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.TrustworthyMinterPrefix))
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.TrustedMinterPrefix))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		// Add each minter to the list

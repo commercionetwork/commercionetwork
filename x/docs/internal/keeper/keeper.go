@@ -24,6 +24,59 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 	}
 }
 
+// ----------------------
+// --- MetadataSchema
+// ----------------------
+
+// AddSupportedMetadataScheme allows to add the given metadata scheme definition as a supported metadata
+// scheme that will be accepted into document sending transactions
+func (keeper Keeper) AddSupportedMetadataScheme(ctx sdk.Context, metadataSchema types.MetadataSchema) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	// Read and update
+	schemes := keeper.GetSupportedMetadataSchemes(ctx)
+	schemes = schemes.AppendIfMissing(metadataSchema)
+
+	// Store
+	newMetadataListBz := keeper.cdc.MustMarshalBinaryBare(&schemes)
+	store.Set([]byte(types.SupportedMetadataStoreKey), newMetadataListBz)
+}
+
+// IsMetadataSchemeTypeSupported returns true iff the given metadata scheme type is supported
+// as an official one
+func (keeper Keeper) IsMetadataSchemeTypeSupported(ctx sdk.Context, metadataSchemaType string) bool {
+	schemes := keeper.GetSupportedMetadataSchemes(ctx)
+	return schemes.IsTypeSupported(metadataSchemaType)
+}
+
+// GetSupportedMetadataSchemes returns the list of all the officially supported metadata schemes
+func (keeper Keeper) GetSupportedMetadataSchemes(ctx sdk.Context) types.MetadataSchemes {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	var schemes types.MetadataSchemes
+	schemesBz := store.Get([]byte(types.SupportedMetadataStoreKey))
+	keeper.cdc.MustUnmarshalBinaryBare(schemesBz, &schemes)
+
+	return schemes
+}
+
+// ------------------------------
+// --- Metadata schema proposers
+// ------------------------------
+
+func (keeper Keeper) AddTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAddress) {
+	// TODO
+}
+
+func (keeper Keeper) GetTrustedSchemaProposers(ctx sdk.Context) []sdk.AccAddress {
+	// TODO
+	return []sdk.AccAddress{}
+}
+
+// ----------------------
+// --- Documents
+// ----------------------
+
 // getSentDocumentsStoreKey returns the byte representation of the key that should be used when updating the
 // list of documents that the given user has sent
 func (keeper Keeper) getSentDocumentsStoreKey(user sdk.AccAddress) []byte {
@@ -87,6 +140,10 @@ func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) 
 
 	return sentDocsList
 }
+
+// ----------------------
+// --- Receipts
+// ----------------------
 
 // getSentReceiptsStoreKey returns the bytes representation of the key that should be used when
 // updating the list of receipts that the given user has sent
@@ -158,9 +215,9 @@ func (keeper Keeper) GetUserSentReceipts(ctx sdk.Context, user sdk.AccAddress) t
 	return sentReceipts
 }
 
-// --------------------
+// ----------------------
 // --- Genesis utils
-// --------------------
+// ----------------------
 
 // GetUsersSet returns the list of all the users that sent or received at least one document or receipt.
 func (keeper Keeper) GetUsersSet(ctx sdk.Context) ([]sdk.AccAddress, error) {
