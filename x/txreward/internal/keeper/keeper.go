@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"math/big"
-
 	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -79,7 +77,9 @@ Compute the reward of proposer validator as following:
 With 100 or less active validators, we calculate the reward like this:
 
 TPY = Tokens Per Year
-Reward100 = TPY / (365 * 24 * 60 * 12)
+Divider =  (365 * 24 * 60 * 12)
+
+Reward100 = TPY / Divider
 
 Instead, if the active validators will be more than 100, we calculate the reward like this:
 
@@ -89,7 +89,9 @@ RewardVN = (Reward100 / V) * 100
 
 Summarizing these formulas we obtain:
 
-Reward(n, V) = TPY / (365 * 24 * 60 * 12) * 100 / V * STAKE / TOTALSTAKE
+Reward(n, V) = TPY / Divider * 100 / V * STAKE / TOTALSTAKE
+
+Divider's members:
 365 years' days
 24 hours per day
 60 minutes per hour
@@ -102,46 +104,34 @@ STAKE 		 staked token's amount of n-esim validator
 TOTALSTAKE	 indicates all staked token's amount of all validators
 
 */
-//TODO I used big.Int to mantain the precision in these operations and in prevision of very large numbers,
-// I don't know if it's the right choise, need to discuss
 var (
-	TPY = big.NewInt(25000) //Tokens Per Year
-	//TODO when sdk.Dec get an implementation with big.Float, switch this to 365.24 to count even the bissextile year
-	DPY = big.NewInt(365) // Days Per Year
-	HPD = big.NewInt(24)  // 	Hours Per Day
-	MPD = big.NewInt(60)  // 	Minutes Per Days
-	BPM = big.NewInt(12)  // 	Blocks Per Minutes
+	TPY = sdk.NewDecWithPrec(25000, 0) //Tokens Per Year
+	DPY = sdk.NewDecWithPrec(365, 24)  // Days Per Year
+	HPD = sdk.NewDecWithPrec(24, 0)    //  Hours Per Day
+	MPH = sdk.NewDecWithPrec(60, 0)    //  Minutes Per Hour
+	BPM = sdk.NewDecWithPrec(12, 0)    // Blocks Per Minutes
 )
 
 /*
 Compute the Raw Reward for proposer, assuming that Raw Reward is the Reward(n, V) equation's result
 without the last multiplication between the (Stake/TotalStake) value
 */
-func computeRawReward(validatorsNumber sdk.Int) sdk.Dec {
-	var firstMember big.Int
-	var secondMember big.Int
-	var thirdMember big.Int
+func computeRawReward(validatorsNumber int64) sdk.Dec {
+	var tokensPerYear = TPY
+	tokensPerYear.Mul(sdk.NewDecWithPrec(1000000, 0))
 
-	averageValidatorsNumber := big.NewInt(100)
-	vNumber := big.NewInt(validatorsNumber.Int64())
+	var divider = DPY
 
-	firstMember.Mul(TPY, big.NewInt(1000000))
+	divider.Mul(HPD).Mul(MPH).Mul(BPM)
 
-	secondMember.Mul(DPY, HPD)
-	secondMember.Mul(&secondMember, MPD)
-	secondMember.Mul(&secondMember, BPM)
+	averageValidatorsNumber := sdk.NewDecWithPrec(100, 0)
+	vNumber := sdk.NewDecWithPrec(validatorsNumber, 0)
 
-	thirdMember.Quo(averageValidatorsNumber, vNumber)
-
-	firstMember.Quo(&firstMember, &secondMember)
-
-	rawReward := firstMember.Mul(&firstMember, &thirdMember)
-
-	return sdk.NewDecFromBigInt(rawReward)
+	return tokensPerYear.Quo(divider).Mul(averageValidatorsNumber.Quo(vNumber))
 }
 
 //Compute the final reward for the validator block's proposer
-func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber sdk.Int, proposer exported.ValidatorI,
+func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber int64, proposer exported.ValidatorI,
 	totalStakedTokens sdk.Int) sdk.DecCoins {
 
 	//Get the raw reward for proposer

@@ -15,7 +15,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) 
 
 	//Get the number of active validators
 	activeValidators := k.StakeKeeper.GetLastValidators(ctx)
-	valNumber := sdk.NewInt(int64(len(activeValidators)))
+	valNumber := int64(len(activeValidators))
 
 	//Get the validator who proposed the block
 	previousProposer := k.DistributionKeeper.GetPreviousProposerConsAddr(ctx)
