@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -14,18 +15,22 @@ import (
 
 type Keeper struct {
 	StoreKey sdk.StoreKey
-	cdc      *codec.Codec
+
+	GovernmentKeeper government.Keeper
+
+	cdc *codec.Codec
 }
 
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
-		StoreKey: storeKey,
-		cdc:      cdc,
+		StoreKey:         storeKey,
+		GovernmentKeeper: gKeeper,
+		cdc:              cdc,
 	}
 }
 
 // ----------------------
-// --- MetadataSchema
+// --- Metadata schemes
 // ----------------------
 
 // AddSupportedMetadataScheme allows to add the given metadata scheme definition as a supported metadata
@@ -39,7 +44,7 @@ func (keeper Keeper) AddSupportedMetadataScheme(ctx sdk.Context, metadataSchema 
 
 	// Store
 	newMetadataListBz := keeper.cdc.MustMarshalBinaryBare(&schemes)
-	store.Set([]byte(types.SupportedMetadataStoreKey), newMetadataListBz)
+	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), newMetadataListBz)
 }
 
 // IsMetadataSchemeTypeSupported returns true iff the given metadata scheme type is supported
@@ -54,7 +59,7 @@ func (keeper Keeper) GetSupportedMetadataSchemes(ctx sdk.Context) types.Metadata
 	store := ctx.KVStore(keeper.StoreKey)
 
 	var schemes types.MetadataSchemes
-	schemesBz := store.Get([]byte(types.SupportedMetadataStoreKey))
+	schemesBz := store.Get([]byte(types.SupportedMetadataSchemesStoreKey))
 	keeper.cdc.MustUnmarshalBinaryBare(schemesBz, &schemes)
 
 	return schemes
@@ -64,13 +69,34 @@ func (keeper Keeper) GetSupportedMetadataSchemes(ctx sdk.Context) types.Metadata
 // --- Metadata schema proposers
 // ------------------------------
 
+// AddTrustedSchemaProposer adds the given proposer to the list of trusted addresses
+// that can propose new metadata schemes as officially recognized
 func (keeper Keeper) AddTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAddress) {
-	// TODO
+	store := ctx.KVStore(keeper.StoreKey)
+
+	// Read and update
+	proposers := keeper.GetTrustedSchemaProposers(ctx)
+	proposers = proposers.AppendIfMissing(proposer)
+
+	// Store
+	proposersBz := keeper.cdc.MustMarshalBinaryBare(&proposers)
+	store.Set([]byte(types.MetadataSchemaProposersStoreKey), proposersBz)
 }
 
-func (keeper Keeper) GetTrustedSchemaProposers(ctx sdk.Context) []sdk.AccAddress {
-	// TODO
-	return []sdk.AccAddress{}
+// IsTrustedSchemaProposer returns true iff the given proposer is a trusted one
+func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAddress) bool {
+	return keeper.GetTrustedSchemaProposers(ctx).Contains(proposer)
+}
+
+// GetTrustedSchemaProposers returns the list of all the trusted addresses
+// that can propose new metadata schemes as officially recognized
+func (keeper Keeper) GetTrustedSchemaProposers(ctx sdk.Context) types.Addresses {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	var proposers types.Addresses
+	proposersBz := store.Get([]byte(types.MetadataSchemaProposersStoreKey))
+	keeper.cdc.MustUnmarshalBinaryBare(proposersBz, &proposers)
+	return proposers
 }
 
 // ----------------------

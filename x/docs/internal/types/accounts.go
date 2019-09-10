@@ -8,13 +8,21 @@ import (
 // enables custom operations
 type Addresses []sdk.AccAddress
 
+func (addresses Addresses) Contains(address sdk.Address) bool {
+	for _, ele := range addresses {
+		if ele.Equals(address) {
+			return true
+		}
+	}
+	return false
+}
+
 // AppendIfMissing returns a new Addresses instance containing the given
 // address if it wasn't already present
 func (addresses Addresses) AppendIfMissing(address sdk.AccAddress) Addresses {
-	for _, ele := range addresses {
-		if ele.Equals(address) {
-			return addresses
-		}
+	if addresses.Contains(address) {
+		return addresses
+	} else {
+		return append(addresses, address)
 	}
-	return append(addresses, address)
 }

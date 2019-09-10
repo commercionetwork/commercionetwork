@@ -1,4 +1,4 @@
-package docs
+package government
 
 import (
 	"encoding/json"
@@ -109,7 +109,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return nil
 }
 
 // module querier route name
@@ -138,7 +138,6 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 
 // module begin-block
 func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
-	BeginBlocker(ctx, rbb, am.keeper)
 }
 
 // module end-block

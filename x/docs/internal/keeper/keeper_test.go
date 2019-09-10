@@ -9,7 +9,166 @@ import (
 )
 
 // ----------------------------------
-// --- Document
+// --- Metadata schemes
+// ----------------------------------
+
+func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
+
+	schema := types.MetadataSchema{Type: "schema", SchemaUri: "https://example.com/schema", Version: "1.0.0"}
+	TestUtils.DocsKeeper.AddSupportedMetadataScheme(TestUtils.Ctx, schema)
+
+	var stored types.MetadataSchemes
+	storedBz := store.Get([]byte(types.SupportedMetadataSchemesStoreKey))
+	TestUtils.Cdc.MustUnmarshalBinaryBare(storedBz, &stored)
+
+	assert.Equal(t, 1, len(stored))
+	assert.Contains(t, stored, schema)
+}
+
+func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+
+	existingSchema := types.MetadataSchema{Type: "schema", SchemaUri: "https://example.com/newSchema", Version: "1.0.0"}
+	existing := []types.MetadataSchema{existingSchema}
+	existingBz := TestUtils.Cdc.MustMarshalBinaryBare(&existing)
+	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), existingBz)
+
+	newSchema := types.MetadataSchema{Type: "schema2", SchemaUri: "https://example.com/schema2", Version: "2.0.0"}
+	TestUtils.DocsKeeper.AddSupportedMetadataScheme(TestUtils.Ctx, newSchema)
+
+	var stored types.MetadataSchemes
+	storedBz := store.Get([]byte(types.SupportedMetadataSchemesStoreKey))
+	TestUtils.Cdc.MustUnmarshalBinaryBare(storedBz, &stored)
+
+	assert.Equal(t, 2, len(stored))
+	assert.Contains(t, stored, existingSchema)
+	assert.Contains(t, stored, newSchema)
+}
+
+func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
+
+	assert.False(t, TestUtils.DocsKeeper.IsMetadataSchemeTypeSupported(TestUtils.Ctx, "schema"))
+	assert.False(t, TestUtils.DocsKeeper.IsMetadataSchemeTypeSupported(TestUtils.Ctx, "schema2"))
+	assert.False(t, TestUtils.DocsKeeper.IsMetadataSchemeTypeSupported(TestUtils.Ctx, "non-existent"))
+}
+
+func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+
+	existingSchema := types.MetadataSchema{Type: "schema", SchemaUri: "https://example.com/newSchema", Version: "1.0.0"}
+	existing := []types.MetadataSchema{existingSchema}
+	existingBz := TestUtils.Cdc.MustMarshalBinaryBare(&existing)
+	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), existingBz)
+
+	assert.True(t, TestUtils.DocsKeeper.IsMetadataSchemeTypeSupported(TestUtils.Ctx, "schema"))
+	assert.False(t, TestUtils.DocsKeeper.IsMetadataSchemeTypeSupported(TestUtils.Ctx, "schema2"))
+	assert.False(t, TestUtils.DocsKeeper.IsMetadataSchemeTypeSupported(TestUtils.Ctx, "any-schema"))
+}
+
+func TestKeeper_GetSupportedMetadataSchemes_EmptyList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
+
+	result := TestUtils.DocsKeeper.GetSupportedMetadataSchemes(TestUtils.Ctx)
+
+	assert.Empty(t, result)
+}
+
+func TestKeeper_GetSupportedMetadataSchemes_ExistingList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+
+	existingSchema := types.MetadataSchema{Type: "schema", SchemaUri: "https://example.com/newSchema", Version: "1.0.0"}
+	existing := types.MetadataSchemes{existingSchema}
+	existingBz := TestUtils.Cdc.MustMarshalBinaryBare(&existing)
+	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), existingBz)
+
+	actual := TestUtils.DocsKeeper.GetSupportedMetadataSchemes(TestUtils.Ctx)
+
+	assert.Equal(t, existing, actual)
+}
+
+// ----------------------------------
+// --- Metadata schema proposers
+// ----------------------------------
+
+func TestKeeper_AddTrustedSchemaProposer_EmptyList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
+
+	TestUtils.DocsKeeper.AddTrustedSchemaProposer(TestUtils.Ctx, TestingSender)
+
+	var proposers []sdk.AccAddress
+	proposersBz := store.Get([]byte(types.MetadataSchemaProposersStoreKey))
+	TestUtils.Cdc.MustUnmarshalBinaryBare(proposersBz, &proposers)
+
+	assert.Equal(t, 1, len(proposers))
+	assert.Contains(t, proposers, TestingSender)
+}
+
+func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+
+	existing := []sdk.AccAddress{TestingSender}
+	proposersBz := TestUtils.Cdc.MustMarshalBinaryBare(&existing)
+	store.Set([]byte(types.MetadataSchemaProposersStoreKey), proposersBz)
+
+	TestUtils.DocsKeeper.AddTrustedSchemaProposer(TestUtils.Ctx, TestingSender2)
+
+	var stored []sdk.AccAddress
+	storedBz := store.Get([]byte(types.MetadataSchemaProposersStoreKey))
+	TestUtils.Cdc.MustUnmarshalBinaryBare(storedBz, &stored)
+
+	assert.Equal(t, 2, len(stored))
+	assert.Contains(t, stored, TestingSender)
+	assert.Contains(t, stored, TestingSender2)
+}
+
+func TestKeeper_IsTrustedSchemaProposer_EmptyList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
+
+	assert.False(t, TestUtils.DocsKeeper.IsTrustedSchemaProposer(TestUtils.Ctx, TestingSender))
+	assert.False(t, TestUtils.DocsKeeper.IsTrustedSchemaProposer(TestUtils.Ctx, TestingSender2))
+}
+
+func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+
+	existing := []sdk.AccAddress{TestingSender}
+	proposersBz := TestUtils.Cdc.MustMarshalBinaryBare(&existing)
+	store.Set([]byte(types.MetadataSchemaProposersStoreKey), proposersBz)
+
+	assert.True(t, TestUtils.DocsKeeper.IsTrustedSchemaProposer(TestUtils.Ctx, TestingSender))
+	assert.False(t, TestUtils.DocsKeeper.IsTrustedSchemaProposer(TestUtils.Ctx, TestingSender2))
+}
+
+func TestKeeper_GetTrustedSchemaProposers_EmptyList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
+
+	stored := TestUtils.DocsKeeper.GetTrustedSchemaProposers(TestUtils.Ctx)
+
+	assert.Empty(t, stored)
+}
+
+func TestKeeper_GetTrustedSchemaProposers_ExistingList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+
+	existing := types.Addresses{TestingSender}
+	proposersBz := TestUtils.Cdc.MustMarshalBinaryBare(&existing)
+	store.Set([]byte(types.MetadataSchemaProposersStoreKey), proposersBz)
+
+	stored := TestUtils.DocsKeeper.GetTrustedSchemaProposers(TestUtils.Ctx)
+
+	assert.Equal(t, existing, stored)
+}
+
+// ----------------------------------
+// --- Documents
 // ----------------------------------
 
 func TestKeeper_ShareDocument_EmptyLists(t *testing.T) {
@@ -134,7 +293,7 @@ func TestKeeper_GetUserSentDocuments_NonEmptyList(t *testing.T) {
 }
 
 // ----------------------------------
-// --- DocumentReceipt
+// --- Document receipts
 // ----------------------------------
 
 func TestKeeper_SendDocumentReceipt_EmptyList(t *testing.T) {

@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	doctypes "github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,53 +14,67 @@ import (
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case doctypes.QueryReceivedDocuments:
+		case types.QueryReceivedDocuments:
 			return queryGetReceivedDocuments(ctx, path[1:], keeper)
-		case doctypes.QuerySentDocuments:
+		case types.QuerySentDocuments:
 			return queryGetSentDocuments(ctx, path[1:], keeper)
-		case doctypes.QueryReceipts:
+		case types.QueryReceivedReceipts:
 			return queryGetReceivedDocsReceipts(ctx, path[1:], keeper)
+		case types.QuerySentReceipts:
+			return querySentReceipts(ctx, path[1:], keeper)
+		case types.QuerySupportedMetadataSchemes:
+			return querySupportedMetadataSchemes(ctx, path[1:], keeper)
+		case types.QueryTrustedMetadataProposers:
+			return queryTrustedMetadataProposers(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", doctypes.ModuleName))
+			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
 
-func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+// ----------------------------------
+// --- Documents
+// ----------------------------------
+
+func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
 	receivedResult := keeper.GetUserReceivedDocuments(ctx, address)
 	if receivedResult == nil {
-		receivedResult = make([]doctypes.Document, 0)
+		receivedResult = make([]types.Document, 0)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
-	if err2 != nil {
+	bz, err := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
+	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
-func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
 	receivedResult := keeper.GetUserSentDocuments(ctx, address)
 	if receivedResult == nil {
-		receivedResult = make([]doctypes.Document, 0)
+		receivedResult = make([]types.Document, 0)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
-	if err2 != nil {
+	bz, err := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
+	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
-func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+// ----------------------------------
+// --- Documents receipts
+// ----------------------------------
+
+func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
@@ -69,23 +83,71 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 		uuid = path[1]
 	}
 
-	var receipts []doctypes.DocumentReceipt
-	var bz []byte
-	var err2 error
+	var receipts []types.DocumentReceipt
 
 	//If user wants all his receipts
 	if uuid == "" {
 		receipts = keeper.GetUserReceivedReceipts(ctx, address)
 		if receipts == nil {
-			receipts = make([]doctypes.DocumentReceipt, 0)
+			receipts = make([]types.DocumentReceipt, 0)
 		}
 	} else {
 		receipts = keeper.GetUserReceivedReceiptsForDocument(ctx, address, uuid)
 	}
 
-	bz, err2 = codec.MarshalJSONIndent(keeper.cdc, &receipts)
+	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
 
-	if err2 != nil {
+	if err != nil {
+		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}
+
+func querySentReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+	addr := path[0]
+	address, err := sdk.AccAddressFromBech32(addr)
+
+	if err != nil {
+		return nil, sdk.ErrInvalidAddress(addr)
+	}
+
+	receipts := keeper.GetUserSentReceipts(ctx, address)
+	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
+
+	if err != nil {
+		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}
+
+// ----------------------------------
+// --- Document metadata schemes
+// ----------------------------------
+
+func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
+	schemes := keeper.GetSupportedMetadataSchemes(ctx)
+
+	bz, err := codec.MarshalJSONIndent(keeper.cdc, &schemes)
+
+	if err != nil {
+		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}
+
+// -----------------------------------------
+// --- Document metadata schemes proposers
+// -----------------------------------------
+
+func queryTrustedMetadataProposers(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
+	proposers := keeper.GetTrustedSchemaProposers(ctx)
+
+	bz, err := codec.MarshalJSONIndent(keeper.cdc, &proposers)
+
+	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 

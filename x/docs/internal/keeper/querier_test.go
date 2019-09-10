@@ -12,6 +12,10 @@ var querier = NewQuerier(TestUtils.DocsKeeper)
 var request abci.RequestQuery
 var documents = types.Documents{TestingDocument}
 
+// ----------------------------------
+// --- Documents
+// ----------------------------------
+
 func Test_queryGetReceivedDocuments(t *testing.T) {
 	// Setup the store
 	metadataStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
@@ -21,7 +25,7 @@ func Test_queryGetReceivedDocuments(t *testing.T) {
 	)
 
 	// Compose the path
-	path := []string{"received", TestingDocument.Recipient.String()}
+	path := []string{types.QueryReceivedDocuments, TestingDocument.Recipient.String()}
 
 	// Get the returned documents
 	var actual types.Documents
@@ -40,7 +44,7 @@ func Test_queryGetSentDocuments(t *testing.T) {
 	)
 
 	// Compose the path
-	path := []string{"sent", TestingDocument.Sender.String()}
+	path := []string{types.QuerySentDocuments, TestingDocument.Sender.String()}
 
 	// Get the returned documents
 	var actual types.Documents
@@ -50,11 +54,11 @@ func Test_queryGetSentDocuments(t *testing.T) {
 	assert.Equal(t, documents, actual)
 }
 
-// ----------------------------------
-// --- DocumentReceipt
-// ----------------------------------
+// ---------------------------------
+// --- Document receipts
+// ---------------------------------
 
-func Test_GetUserReceivedReceipts(t *testing.T) {
+func Test_queryGetReceivedDocsReceipts(t *testing.T) {
 	// Setup the store
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
@@ -66,7 +70,7 @@ func Test_GetUserReceivedReceipts(t *testing.T) {
 	)
 
 	// Compose the path
-	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), ""}
+	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
 
 	// Get the returned receipts
 	var actual types.DocumentReceipts
@@ -76,7 +80,7 @@ func Test_GetUserReceivedReceipts(t *testing.T) {
 	assert.Equal(t, stored, actual)
 }
 
-func Test_GetUserReceivedReceiptsForDocument(t *testing.T) {
+func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	// Setup the store
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
@@ -88,7 +92,7 @@ func Test_GetUserReceivedReceiptsForDocument(t *testing.T) {
 	)
 
 	// Compose the path
-	path := []string{"receipts", TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUuid}
+	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUuid}
 
 	// Get the returned receipts
 	var actual types.DocumentReceipts
