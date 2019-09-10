@@ -9,6 +9,90 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestKeeper_getFundersStoreKey(t *testing.T) {
+	_, _, k := SetupTestInput()
+	actual := k.getFundersStoreKey()
+	expected := []byte(types.BlockRewardsPoolFundersPrefix)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestKeeper_setFunders(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	var funders types.Funders
+
+	k.setFunders(ctx, TestFunders)
+
+	store := ctx.KVStore(k.StoreKey)
+	fundersBz := store.Get([]byte(types.BlockRewardsPoolFundersPrefix))
+	k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
+
+	assert.Equal(t, TestFunders, funders)
+}
+
+func TestKeeper_AddBlockRewardsPoolFunder_FundersNotFound(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+
+	k.AddBlockRewardsPoolFunder(ctx, TestFunder)
+
+	actual := k.GetBlockRewardsPoolFunders(ctx)
+
+	assert.Equal(t, TestFunders, actual)
+}
+
+func TestKeeper_AddBlockRewardsPoolFunder_FundersFound(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	addr, _ := sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
+	var tstFunder = types.Funder{Address: addr}
+
+	k.setFunders(ctx, TestFunders)
+	k.AddBlockRewardsPoolFunder(ctx, tstFunder)
+
+	expected := TestFunders.AppendFunderIfMissing(tstFunder)
+
+	funders := k.GetBlockRewardsPoolFunders(ctx)
+
+	assert.Equal(t, expected, funders)
+}
+
+func TestKeeper_GetBlockRewardsPoolFunders(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	k.setFunders(ctx, TestFunders)
+	actual := k.GetBlockRewardsPoolFunders(ctx)
+
+	assert.Equal(t, TestFunders, actual)
+}
+
+func TestKeeper_setBlockRewardsPool_utilityFunction(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	var pool types.BlockRewardsPool
+
+	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+	store := ctx.KVStore(k.StoreKey)
+	poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
+	k.Cdc.MustUnmarshalBinaryBare(poolBz, &pool)
+
+	assert.Equal(t, pool, TestBlockRewardsPool)
+}
+
+func TestKeeper_getBrPoolStoreKey(t *testing.T) {
+	_, _, k := SetupTestInput()
+	actual := k.getBrPoolStoreKey()
+	expected := []byte(types.BlockRewardsPoolPrefix)
+
+	assert.Equal(t, expected, actual)
+
+}
+
+func TestKeeper_GetBlockRewardsPool(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+
+	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+	actual := k.GetBlockRewardsPool(ctx)
+
+	assert.Equal(t, TestBlockRewardsPool, actual)
+}
+
 func TestKeeper_ComputeProposerReward(t *testing.T) {
 
 	_, ctx, k := SetupTestInput()
@@ -46,36 +130,6 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_setBlockRewardsPool_utilityFunction(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	var pool types.BlockRewardsPool
-
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
-	store := ctx.KVStore(k.StoreKey)
-	poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
-	k.Cdc.MustUnmarshalBinaryBare(poolBz, &pool)
-
-	assert.Equal(t, pool, TestBlockRewardsPool)
-}
-
-func TestKeeper_getBlockRewardsPool_utilityFunction(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
-	actual := k.getBrPool(ctx)
-
-	assert.Equal(t, TestBlockRewardsPool, actual)
-}
-
-func TestKeeper_GetBlockRewardsPool(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
-	actual := k.GetBlockRewardsPool(ctx)
-
-	assert.Equal(t, TestBlockRewardsPool, actual)
-}
-
 func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
@@ -86,7 +140,7 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
 	k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
-	actual := k.getBrPool(ctx)
+	actual := k.GetBlockRewardsPool(ctx)
 
 	var greater bool
 

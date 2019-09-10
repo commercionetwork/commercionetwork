@@ -11,6 +11,9 @@ type Funder struct {
 type Funders []Funder
 
 func (funders Funders) AppendFunderIfMissing(funder Funder) Funders {
+	if len(funders) == 0 {
+		return Funders{funder}
+	}
 	for _, ele := range funders {
 		if ele.Equals(funder) {
 			return funders

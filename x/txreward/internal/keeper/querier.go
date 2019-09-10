@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	tbrTypes "github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
@@ -24,7 +25,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 }
 
 func queryGetBlockRewardsPoolFunds(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	funds := keeper.getBrPool(ctx)
+	funds := keeper.GetBlockRewardsPool(ctx)
 
 	fundsBz, err2 := codec.MarshalJSONIndent(keeper.Cdc, funds)
 	if err2 != nil {
@@ -35,7 +36,7 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, path []string, keeper Keeper
 }
 
 func queryGetBlockRewardsPoolFunders(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	funders := keeper.getFunders(ctx)
+	funders := keeper.GetBlockRewardsPoolFunders(ctx)
 
 	fundersBz, err2 := codec.MarshalJSONIndent(keeper.Cdc, funders)
 	if err2 != nil {
