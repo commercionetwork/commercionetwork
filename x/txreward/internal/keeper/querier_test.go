@@ -12,7 +12,7 @@ import (
 var request abci.RequestQuery
 
 func TestQuerier_getBlockRewardsPoolFunds(t *testing.T) {
-	var cdc, ctx, k = SetupTestInput()
+	var cdc, ctx, k = SetupTestInput(app, ctx)
 	var querier = NewQuerier(k)
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
@@ -26,7 +26,7 @@ func TestQuerier_getBlockRewardsPoolFunds(t *testing.T) {
 }
 
 func TestQuerier_getBlockRewardsPoolFunders(t *testing.T) {
-	var cdc, ctx, k = SetupTestInput()
+	var cdc, ctx, k = SetupTestInput(app, ctx)
 	var querier = NewQuerier(k)
 
 	k.setFunders(ctx, TestFunders)
