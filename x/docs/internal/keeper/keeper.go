@@ -233,7 +233,7 @@ func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipie
 // GetUserSentDocuments returns a list of all documents sent by user
 func (keeper Keeper) GetUserSentReceipts(ctx sdk.Context, user sdk.AccAddress) types.DocumentReceipts {
 	store := ctx.KVStore(keeper.StoreKey)
-	sentDocs := store.Get([]byte(types.ReceivedDocumentsReceiptsPrefix + user.String()))
+	sentDocs := store.Get(keeper.getSentReceiptsStoreKey(user))
 
 	var sentReceipts types.DocumentReceipts
 	keeper.cdc.MustUnmarshalBinaryBare(sentDocs, &sentReceipts)

@@ -147,6 +147,38 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	store.Delete(TestUtils.DocsKeeper.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
+
+	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
+
+	var actual types.DocumentReceipts
+	actualBz, _ := querier(TestUtils.Ctx, path, request)
+	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+
+	assert.Equal(t, "[]", string(actualBz))
+	assert.Empty(t, actual)
+}
+
+func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
+	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+
+	var stored = types.DocumentReceipts{TestingDocumentReceipt}
+	store.Set(
+		TestUtils.DocsKeeper.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender),
+		TestUtils.Cdc.MustMarshalBinaryBare(&stored),
+	)
+
+	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
+
+	var actual types.DocumentReceipts
+	actualBz, _ := querier(TestUtils.Ctx, path, request)
+	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+
+	assert.Equal(t, stored, actual)
+}
+
 // ----------------------------------
 // --- Document metadata schemes
 // ----------------------------------

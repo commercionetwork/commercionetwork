@@ -114,6 +114,10 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 	}
 
 	receipts := keeper.GetUserSentReceipts(ctx, address)
+	if receipts == nil {
+		receipts = make([]types.DocumentReceipt, 0)
+	}
+
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
 
 	if err != nil {
