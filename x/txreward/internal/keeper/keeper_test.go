@@ -63,7 +63,7 @@ func TestKeeper_GetBlockRewardsPoolFunders(t *testing.T) {
 	assert.Equal(t, TestFunders, actual)
 }
 
-func TestKeeper_setBlockRewardsPool_utilityFunction(t *testing.T) {
+func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var pool types.BlockRewardsPool
 
@@ -130,13 +130,39 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
+func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
-	app, ctx := createTestApp(false)
+	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(1000))}
 
-	account := app.AccountKeeper.NewAccountWithAddress(ctx, TestFunder.Address)
-	app.AccountKeeper.SetAccount(ctx, account)
+	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+
+	validatorRewards := types2.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
+	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
+
+	_ = k.DistributeBlockRewards(ctx, TestValidator, reward)
+
+	actual := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, TestValidator.OperatorAddress)
+
+	assert.Equal(t, reward, actual.Rewards)
+}
+
+func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+
+	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(12000))}
+	poolFunds := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(10000))}
+	brPool := types.BlockRewardsPool{Funds: poolFunds}
+
+	k.setBlockRewardsPool(ctx, brPool)
+
+	err := k.DistributeBlockRewards(ctx, TestValidator, reward)
+
+	assert.Error(t, err)
+}
+
+func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
+	_, ctx, k := SetupTestInput()
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
 	k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
@@ -149,21 +175,4 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 	}
 
 	assert.True(t, greater)
-}
-
-func TestKeeper_DistributeBlockRewards_enoughPoolFunds(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(1000))}
-
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
-
-	k.DistributeBlockRewards(ctx, TestValidator, reward)
-
-	validatorRewards := types2.ValidatorCurrentRewards{Rewards: reward}
-	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
-
-	actual := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, TestValidator.OperatorAddress)
-
-	assert.Equal(t, reward, actual.Rewards)
 }

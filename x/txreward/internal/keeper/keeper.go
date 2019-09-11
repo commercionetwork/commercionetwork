@@ -210,14 +210,11 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber int64, pr
 }
 
 //Distribute the computed reward to the block proposer
-func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) {
+func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) error {
 
 	var brPool types.BlockRewardsPool
 
 	brPool = k.GetBlockRewardsPool(ctx)
-
-	println("br pool funds: " + brPool.Funds.AmountOf(types.DefaultBondDenom).String())
-	println("reward: " + reward.AmountOf(types.DefaultBondDenom).String())
 
 	//Check if the pool has enough funds
 	if brPool.Funds.AmountOf(types.DefaultBondDenom).GTE(reward.AmountOf(types.DefaultBondDenom)) {
@@ -231,6 +228,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 		//Set the just earned reward
 		k.DistributionKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
 	} else {
-		println("todo") //todo how should we manage this situation?
+		return sdk.ErrInsufficientFunds("Pool hasn't got enough funds to supply validator's rewards")
 	}
+	return nil
 }
