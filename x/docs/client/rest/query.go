@@ -16,32 +16,32 @@ const (
 
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("{%s}/documents/sent", addressRestParameterName),
+		fmt.Sprintf("docs/{%s}/sent", addressRestParameterName),
 		getSentDocumentsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("{%s}/documents/received", addressRestParameterName),
+		fmt.Sprintf("docs/{%s}/received", addressRestParameterName),
 		getReceivedDocumentsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("{%s}/receipts/sent", addressRestParameterName),
+		fmt.Sprintf("receipts/{%s}/sent", addressRestParameterName),
 		getSentDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("{%s}/receipts/received", addressRestParameterName),
+		fmt.Sprintf("receipts/{%s}/received", addressRestParameterName),
 		getReceivedDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/metadataSchemes"),
+		fmt.Sprintf("docs/metadataSchemes"),
 		getSupportedMetadataSchemesHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/metadataSchemes/proposers"),
+		fmt.Sprintf("docs/metadataSchemes/proposers"),
 		getTrustedMetadataSchemesProposersHandler(cliCtx)).
 		Methods("GET")
 }
