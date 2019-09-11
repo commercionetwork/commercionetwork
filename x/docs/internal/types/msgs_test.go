@@ -45,31 +45,27 @@ var msgShareDocumentSchemaType = MsgShareDocument{
 }
 
 // ----------------------
-// --- Msg methods
+// --- MsgShareDocument
 // ----------------------
 
 func TestMsgShareDocument_Route(t *testing.T) {
 	actual := msgShareDocumentSchema.Route()
-	expected := ModuleName
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, QuerierRoute, actual)
 }
 
 func TestMsgShareDocument_Type(t *testing.T) {
 	actual := msgShareDocumentSchema.Type()
-	expected := MsgTypeShareDocument
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, MsgTypeShareDocument, actual)
 }
 
 func TestMsgShareDocument_ValidateBasic_Schema_valid(t *testing.T) {
-	actual := msgShareDocumentSchema.ValidateBasic()
-	assert.Nil(t, actual)
+	err := msgShareDocumentSchema.ValidateBasic()
+	assert.Nil(t, err)
 }
 
 func TestMsgShareDocument_ValidateBasic_SchemaType_valid(t *testing.T) {
-	actual := msgShareDocumentSchemaType.ValidateBasic()
-	assert.Nil(t, actual)
+	err := msgShareDocumentSchemaType.ValidateBasic()
+	assert.Nil(t, err)
 }
 
 func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
@@ -92,8 +88,8 @@ func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
 		},
 	}
 
-	actual := invalidMsg.ValidateBasic()
-	assert.NotNil(t, actual)
+	err := invalidMsg.ValidateBasic()
+	assert.NotNil(t, err)
 }
 
 func TestMsgShareDocument_GetSignBytes(t *testing.T) {
@@ -104,9 +100,8 @@ func TestMsgShareDocument_GetSignBytes(t *testing.T) {
 
 func TestMsgShareDocument_GetSigners(t *testing.T) {
 	actual := msgShareDocumentSchema.GetSigners()
-	expected := msgShareDocumentSchema.Sender
-
-	assert.Equal(t, expected, actual[0])
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgShareDocumentSchema.Sender, actual[0])
 }
 
 func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
@@ -299,9 +294,10 @@ func TestValidateChecksum_invalidChecksumLengths(t *testing.T) {
 	}
 }
 
-// ----------------------------------
-// --- DocumentReceipt tests
-// ----------------------------------
+// -----------------------------
+// --- MsgSendDocumentReceipt
+// -----------------------------
+
 var msgDocumentReceipt = MsgSendDocumentReceipt{
 	Sender:       sender,
 	Recipient:    recipient,
@@ -312,21 +308,17 @@ var msgDocumentReceipt = MsgSendDocumentReceipt{
 
 func TestMsgDocumentReceipt_Route(t *testing.T) {
 	actual := msgDocumentReceipt.Route()
-	expected := ModuleName
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, QuerierRoute, actual)
 }
 
 func TestMsgDocumentReceipt_Type(t *testing.T) {
 	actual := msgDocumentReceipt.Type()
-	expected := MsgTypeSendDocumentReceipt
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, MsgTypeSendDocumentReceipt, actual)
 }
 
 func TestMsgDocumentReceipt_ValidateBasic_valid(t *testing.T) {
-	actual := msgDocumentReceipt.ValidateBasic()
-	assert.Nil(t, actual)
+	err := msgDocumentReceipt.ValidateBasic()
+	assert.Nil(t, err)
 }
 
 func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
@@ -337,9 +329,8 @@ func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
 		DocumentUuid: "123456789",
 		Proof:        "proof",
 	}
-	actual := msgDocReceipt.ValidateBasic()
-
-	assert.NotNil(t, actual)
+	err := msgDocReceipt.ValidateBasic()
+	assert.NotNil(t, err)
 }
 
 func TestMsgDocumentReceipt_GetSignBytes(t *testing.T) {
@@ -350,7 +341,104 @@ func TestMsgDocumentReceipt_GetSignBytes(t *testing.T) {
 
 func TestMsgDocumentReceipt_GetSigners(t *testing.T) {
 	actual := msgDocumentReceipt.GetSigners()
-	expected := msgDocumentReceipt.Sender
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgDocumentReceipt.Sender, actual[0])
+}
 
-	assert.Equal(t, expected, actual[0])
+// ------------------------------------
+// --- MsgAddSupportedMetadataSchema
+// ------------------------------------
+
+var msgAddSupportedMetadataSchema = MsgAddSupportedMetadataSchema{
+	Signer: sender,
+	Schema: MetadataSchema{
+		Type:      "schema",
+		SchemaUri: "https://example.com/schema",
+		Version:   "1.0.0",
+	},
+}
+
+func Test_MsgAddSupportedMetadataSchema_Route(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.Route()
+	assert.Equal(t, QuerierRoute, actual)
+}
+
+func Test_MsgAddSupportedMetadataSchema_Type(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.Type()
+	assert.Equal(t, MsgTypeAddSupportedMetadataSchema, actual)
+}
+
+func Test_MsgAddSupportedMetadataSchema_ValidateBasic_valid(t *testing.T) {
+	err := msgAddSupportedMetadataSchema.ValidateBasic()
+	assert.Nil(t, err)
+}
+
+func Test_MsgAddSupportedMetadataSchema_ValidateBasic_invalid(t *testing.T) {
+	var msgDocReceipt = MsgAddSupportedMetadataSchema{
+		Signer: recipient,
+		Schema: MetadataSchema{
+			Type:      "schema-2",
+			SchemaUri: "",
+			Version:   "",
+		},
+	}
+	err := msgDocReceipt.ValidateBasic()
+	assert.NotNil(t, err)
+}
+
+func Test_MsgAddSupportedMetadataSchema_GetSignBytes(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddSupportedMetadataSchema))
+	assert.Equal(t, expected, actual)
+}
+
+func Test_MsgAddSupportedMetadataSchema_GetSigners(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.GetSigners()
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgAddSupportedMetadataSchema.Signer, actual[0])
+}
+
+// -----------------------------------------
+// --- MsgAddTrustedMetadataSchemaProposer
+// -----------------------------------------
+
+var msgAddTrustedMetadataSchemaProposer = MsgAddTrustedMetadataSchemaProposer{
+	Proposer: sender,
+	Signer:   recipient,
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_Route(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.Route()
+	assert.Equal(t, QuerierRoute, actual)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_Type(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.Type()
+	assert.Equal(t, MsgTypeAddTrustedMetadataSchemaProposer, actual)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_valid(t *testing.T) {
+	err := msgAddTrustedMetadataSchemaProposer.ValidateBasic()
+	assert.Nil(t, err)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_invalid(t *testing.T) {
+	var msgDocReceipt = MsgAddTrustedMetadataSchemaProposer{
+		Proposer: nil,
+		Signer:   recipient,
+	}
+	err := msgDocReceipt.ValidateBasic()
+	assert.NotNil(t, err)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_GetSignBytes(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddTrustedMetadataSchemaProposer))
+	assert.Equal(t, expected, actual)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_GetSigners(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.GetSigners()
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgAddTrustedMetadataSchemaProposer.Signer, actual[0])
 }

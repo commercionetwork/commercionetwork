@@ -177,9 +177,9 @@ func (msg MsgSendDocumentReceipt) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }
 
-// ----------------------------------
+// ------------------------------------
 // --- MsgAddSupportedMetadataSchema
-// ----------------------------------
+// ------------------------------------
 
 type MsgAddSupportedMetadataSchema struct {
 	Signer sdk.AccAddress `json:"signer"`
