@@ -14,7 +14,7 @@ const (
 	addressRestParameterName = "user"
 )
 
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
+func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
 		fmt.Sprintf("/docs/{%s}/sent", addressRestParameterName),
 		getSentDocumentsHandler(cliCtx)).

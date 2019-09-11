@@ -8,10 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKeeper_SetGovernmentAddress(t *testing.T) {
+func TestKeeper_SetGovernmentAddress_NonExisting(t *testing.T) {
 	input := setupTestInput()
 
-	input.Keeper.SetGovernmentAddress(input.Ctx, TestAddress)
+	err := input.Keeper.SetGovernmentAddress(input.Ctx, TestAddress)
+	assert.Nil(t, err)
 
 	store := input.Ctx.KVStore(input.Keeper.StoreKey)
 	stored := sdk.AccAddress(store.Get([]byte(types.GovernmentStoreKey)))

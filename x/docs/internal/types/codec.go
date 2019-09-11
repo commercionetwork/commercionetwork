@@ -9,6 +9,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgShareDocument{}, "commercio/MsgShareDocument", nil)
 	cdc.RegisterConcrete(MsgSendDocumentReceipt{}, "commercio/MsgSendDocumentReceipt", nil)
 	cdc.RegisterConcrete(MsgAddSupportedMetadataSchema{}, "commercio/MsgAddSupportedMetadataSchema", nil)
+	cdc.RegisterConcrete(MsgAddTrustedMetadataSchemaProposer{}, "commercio/MsgAddTrustedMetadataSchemaProposer", nil)
 }
 
 var ModuleCdc *codec.Codec

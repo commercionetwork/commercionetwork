@@ -18,7 +18,10 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	keeper.SetGovernmentAddress(ctx, data.GovernmentAddress)
+	err := keeper.SetGovernmentAddress(ctx, data.GovernmentAddress)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
