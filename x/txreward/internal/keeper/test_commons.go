@@ -23,12 +23,6 @@ var (
 	distrAcc = supply.NewEmptyModuleAccount(types.ModuleName)
 )
 
-var (
-	multiPerm  = "multiple permissions account"
-	randomPerm = "random permission"
-	holder     = "holder"
-)
-
 var addr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var valAddr, _ = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var pubKey = ed25519.GenPrivKey().PubKey()
