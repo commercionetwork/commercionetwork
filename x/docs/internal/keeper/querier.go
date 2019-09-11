@@ -21,7 +21,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case types.QueryReceivedReceipts:
 			return queryGetReceivedDocsReceipts(ctx, path[1:], keeper)
 		case types.QuerySentReceipts:
-			return querySentReceipts(ctx, path[1:], keeper)
+			return queryGetSentDocsReceipts(ctx, path[1:], keeper)
 		case types.QuerySupportedMetadataSchemes:
 			return querySupportedMetadataSchemes(ctx, path[1:], keeper)
 		case types.QueryTrustedMetadataProposers:
@@ -88,11 +88,12 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 	//If user wants all his receipts
 	if uuid == "" {
 		receipts = keeper.GetUserReceivedReceipts(ctx, address)
-		if receipts == nil {
-			receipts = make([]types.DocumentReceipt, 0)
-		}
 	} else {
 		receipts = keeper.GetUserReceivedReceiptsForDocument(ctx, address, uuid)
+	}
+
+	if receipts == nil {
+		receipts = make([]types.DocumentReceipt, 0)
 	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
@@ -104,7 +105,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 	return bz, nil
 }
 
-func querySentReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	addr := path[0]
 	address, err := sdk.AccAddressFromBech32(addr)
 
@@ -128,6 +129,9 @@ func querySentReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]byte, s
 
 func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
 	schemes := keeper.GetSupportedMetadataSchemes(ctx)
+	if schemes == nil {
+		schemes = make([]types.MetadataSchema, 0)
+	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &schemes)
 
@@ -144,6 +148,9 @@ func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) (
 
 func queryTrustedMetadataProposers(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
 	proposers := keeper.GetTrustedSchemaProposers(ctx)
+	if proposers == nil {
+		proposers = make([]sdk.AccAddress, 0)
+	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &proposers)
 
