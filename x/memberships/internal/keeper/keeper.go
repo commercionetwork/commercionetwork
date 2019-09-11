@@ -133,3 +133,28 @@ func (keeper Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) (boo
 func (keeper Keeper) GetMembershipType(membership exported.NFT) string {
 	return strings.Split(membership.GetTokenURI(), ":")[1]
 }
+
+// ----------------------
+// --- Genesis utils
+// ----------------------
+
+// Get GetMembershipsSet returns the list of all the memberships
+// that have been minted and are currently stored inside the store
+func (keeper Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
+	var memberships []types.Membership
+
+	collection, found := keeper.NftKeeper.GetCollection(ctx, types.NftDenom)
+	if !found {
+		return memberships
+	}
+
+	for _, membershipNft := range collection.NFTs {
+		membership := types.Membership{
+			Owner:          membershipNft.GetOwner(),
+			MembershipType: keeper.GetMembershipType(membershipNft),
+		}
+		memberships = append(memberships, membership)
+	}
+
+	return memberships
+}

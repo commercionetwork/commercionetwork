@@ -48,25 +48,16 @@ func setupTestInput() testInput {
 
 	_ = ms.LoadLatestVersion()
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
-	nftk := nft.NewKeeper(cdc, nftKey)
-
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
+	nftk := nft.NewKeeper(cdc, nftKey)
 	idk := NewKeeper(cdc, storeKey, nftk)
-
-	ak.SetParams(ctx, auth.DefaultParams())
 
 	return testInput{
 		Cdc:              cdc,
 		Ctx:              ctx,
-		accKeeper:        ak,
-		bankKeeper:       bk,
 		MembershipKeeper: idk,
 	}
-
 }
 
 func testCodec() *codec.Codec {
