@@ -40,9 +40,16 @@ var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
 var TestFunder = types.Funder{Address: addr}
 
 var TestAmount = sdk.Coin{
-	Denom:  "ucommercio",
+	Denom:  types.DefaultBondDenom,
 	Amount: sdk.NewInt(100),
 }
+
+var testCoin = sdk.Coin{
+	Denom:  types.DefaultBondDenom,
+	Amount: sdk.NewInt(100),
+}
+
+var TestCoins = sdk.Coins{testCoin}
 
 var coin = sdk.Coin{Amount: sdk.NewInt(10000000000000000), Denom: types.DefaultBondDenom}
 var coins = sdk.NewCoins(coin)
@@ -52,7 +59,7 @@ var TestBlockRewardsPool = types.BlockRewardsPool{
 
 var TestFunders = types.Funders{TestFunder}
 
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
+func SetupTestInput(app *simapp.SimApp, ctx sdk.Context) (cdc *codec.Codec, cTx sdk.Context, keeper Keeper) {
 	memDB := db.NewMemDB()
 	cdc = testCodec()
 
@@ -126,7 +133,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())
 
-	tbrKeeper := NewKeeper(tbrStoreKey, bk, sk, dk, cdc)
+	tbrKeeper := NewKeeper(tbrStoreKey, app.BankKeeper, app.StakingKeeper, app.DistrKeeper, cdc)
 
 	return cdc, ctx, tbrKeeper
 }
