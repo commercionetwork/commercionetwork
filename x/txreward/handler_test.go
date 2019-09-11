@@ -16,7 +16,7 @@ var msgIncrementsBRPool = MsgIncrementsBlockRewardsPool{
 }
 
 func TestValidMsg_IncrementBRPool(t *testing.T) {
-	_, ctx, k := TestSetup()
+	_, ctx, k, _, _ := TestSetup()
 
 	handler := NewHandler(k)
 
@@ -25,7 +25,7 @@ func TestValidMsg_IncrementBRPool(t *testing.T) {
 }
 
 func TestInvalidMsg(t *testing.T) {
-	_, ctx, k := TestSetup()
+	_, ctx, k, _, _ := TestSetup()
 
 	handler := NewHandler(k)
 

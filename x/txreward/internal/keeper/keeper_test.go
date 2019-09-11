@@ -10,7 +10,7 @@ import (
 )
 
 func TestKeeper_getFundersStoreKey(t *testing.T) {
-	_, _, k := SetupTestInput()
+	_, _, k, _, _ := SetupTestInput()
 	actual := k.getFundersStoreKey()
 	expected := []byte(types.BlockRewardsPoolFundersPrefix)
 
@@ -18,7 +18,7 @@ func TestKeeper_getFundersStoreKey(t *testing.T) {
 }
 
 func TestKeeper_setFunders(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 	var funders types.Funders
 
 	k.setFunders(ctx, TestFunders)
@@ -31,7 +31,7 @@ func TestKeeper_setFunders(t *testing.T) {
 }
 
 func TestKeeper_AddBlockRewardsPoolFunder_FundersNotFound(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 
 	k.AddBlockRewardsPoolFunder(ctx, TestFunder)
 
@@ -41,7 +41,7 @@ func TestKeeper_AddBlockRewardsPoolFunder_FundersNotFound(t *testing.T) {
 }
 
 func TestKeeper_AddBlockRewardsPoolFunder_FundersFound(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 	addr, _ := sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 	var tstFunder = types.Funder{Address: addr}
 
@@ -56,7 +56,7 @@ func TestKeeper_AddBlockRewardsPoolFunder_FundersFound(t *testing.T) {
 }
 
 func TestKeeper_GetBlockRewardsPoolFunders(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 	k.setFunders(ctx, TestFunders)
 	actual := k.GetBlockRewardsPoolFunders(ctx)
 
@@ -64,7 +64,7 @@ func TestKeeper_GetBlockRewardsPoolFunders(t *testing.T) {
 }
 
 func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 	var pool types.BlockRewardsPool
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
@@ -76,7 +76,7 @@ func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 }
 
 func TestKeeper_getBrPoolStoreKey(t *testing.T) {
-	_, _, k := SetupTestInput()
+	_, _, k, _, _ := SetupTestInput()
 	actual := k.getBrPoolStoreKey()
 	expected := []byte(types.BlockRewardsPoolPrefix)
 
@@ -85,7 +85,7 @@ func TestKeeper_getBrPoolStoreKey(t *testing.T) {
 }
 
 func TestKeeper_GetBlockRewardsPool(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
 	actual := k.GetBlockRewardsPool(ctx)
@@ -95,7 +95,7 @@ func TestKeeper_GetBlockRewardsPool(t *testing.T) {
 
 func TestKeeper_ComputeProposerReward(t *testing.T) {
 
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 
 	tpy := sdk.NewDecWithPrec(25000, 0)
 	tpy = tpy.Mul(sdk.NewDecWithPrec(1000000, 0))
@@ -131,7 +131,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 }
 
 func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 
 	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(1000))}
 
@@ -148,7 +148,7 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 }
 
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput()
 
 	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(12000))}
 	poolFunds := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(10000))}
@@ -162,9 +162,15 @@ func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 }
 
 func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k, ak, bk := SetupTestInput()
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+
+	acc := ak.NewAccountWithAddress(ctx, TestFunder.Address)
+	ak.SetAccount(ctx, acc)
+	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1000), Denom: types.DefaultBondDenom})
+	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
+
 	k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
 	actual := k.GetBlockRewardsPool(ctx)
 

@@ -97,10 +97,10 @@ func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder types.Funder, 
 	if bk.HasCoins(ctx, funder.Address, brAmount) {
 		brPool = k.GetBlockRewardsPool(ctx)
 		if brPool.Funds.IsZero() {
-			brPool.Funds.Add(sdk.NewDecCoins(brAmount))
+			brPool.Funds = brPool.Funds.Add(sdk.NewDecCoins(brAmount))
 			k.setBlockRewardsPool(ctx, brPool)
 		} else {
-			brPool.Funds.Add(sdk.NewDecCoins(brAmount))
+			brPool.Funds = brPool.Funds.Add(sdk.NewDecCoins(brAmount))
 			k.setBlockRewardsPool(ctx, brPool)
 		}
 	}

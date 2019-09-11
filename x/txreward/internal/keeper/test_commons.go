@@ -1,20 +1,19 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
@@ -31,8 +30,6 @@ var (
 )
 
 var addr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-
-//var addr, _ = sdk.AccAddressFromBech32("did:com:1hnezke7mk08gezv5e4sjfkcpxn97hmqth80fux")
 var valAddr, _ = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var pubKey = ed25519.GenPrivKey().PubKey()
 var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
@@ -44,7 +41,7 @@ var TestAmount = sdk.Coin{
 	Amount: sdk.NewInt(100),
 }
 
-var coin = sdk.Coin{Amount: sdk.NewInt(10000000000000000), Denom: types.DefaultBondDenom}
+var coin = sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.DefaultBondDenom}
 var coins = sdk.NewCoins(coin)
 var TestBlockRewardsPool = types.BlockRewardsPool{
 	Funds: sdk.NewDecCoins(coins),
@@ -52,15 +49,9 @@ var TestBlockRewardsPool = types.BlockRewardsPool{
 
 var TestFunders = types.Funders{TestFunder}
 
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
 	memDB := db.NewMemDB()
 	cdc = testCodec()
-
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
-	config.Seal()
 
 	authKey := sdk.NewKVStoreKey("authCapKey")
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
@@ -105,17 +96,23 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, blacklistedAddrs)
 
-	acc := ak.NewAccountWithAddress(ctx, TestFunder.Address)
-	ak.SetAccount(ctx, acc)
-	_, _ = bk.AddCoins(ctx, acc.GetAddress(), coins)
-
 	// add module accounts to supply keeper
-	maccPerms := simapp.GetMaccPerms()
-	maccPerms[holder] = nil
-	maccPerms[supply.Burner] = []string{supply.Burner}
-	maccPerms[supply.Minter] = []string{supply.Minter}
-	maccPerms[multiPerm] = []string{supply.Burner, supply.Minter, supply.Staking}
-	maccPerms[randomPerm] = []string{"random"}
+	/*
+		maccPerms := simapp.GetMaccPerms()
+		maccPerms[holder] = nil
+		maccPerms[supply.Burner] = []string{supply.Burner}
+		maccPerms[supply.Minter] = []string{supply.Minter}
+		maccPerms[multiPerm] = []string{supply.Burner, supply.Minter, supply.Staking}
+		maccPerms[randomPerm] = []string{"random"}
+	*/
+	maccPerms := map[string][]string{
+		auth.FeeCollectorName:     nil,
+		distr.ModuleName:          nil,
+		mint.ModuleName:           {supply.Minter},
+		staking.BondedPoolName:    {supply.Burner, supply.Staking},
+		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+		gov.ModuleName:            {supply.Burner},
+	}
 
 	suk := supply.NewKeeper(cdc, keySupply, ak, bk, maccPerms)
 	sk := staking.NewKeeper(cdc, keyStaking, tkeyStaking, suk, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
@@ -128,24 +125,19 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	tbrKeeper := NewKeeper(tbrStoreKey, bk, sk, dk, cdc)
 
-	return cdc, ctx, tbrKeeper
-}
-
-func createTestApp(isCheckTx bool) (*simapp.SimApp, sdk.Context) {
-	app := simapp.Setup(isCheckTx)
-	ctx := app.BaseApp.NewContext(isCheckTx, abci.Header{})
-
-	app.AccountKeeper.SetParams(ctx, auth.DefaultParams())
-	app.BankKeeper.SetSendEnabled(ctx, true)
-
-	return app, ctx
+	return cdc, ctx, tbrKeeper, ak, bk
 }
 
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
+	bank.RegisterCodec(cdc)
+	staking.RegisterCodec(cdc)
+	auth.RegisterCodec(cdc)
+	supply.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
 
-	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
-	cdc.RegisterInterface((*auth.Account)(nil), nil)
+	types.RegisterCodec(cdc) // distr
 
 	cdc.Seal()
 
