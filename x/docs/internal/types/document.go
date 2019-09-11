@@ -24,10 +24,18 @@ type DocumentMetadata struct {
 	Proof      string                  `json:"proof"`
 }
 
-func (docMeta DocumentMetadata) Equals(docMeta2 DocumentMetadata) bool {
-	return docMeta.ContentUri == docMeta2.ContentUri &&
-		docMeta.Proof == docMeta2.Proof &&
-		docMeta.Schema.Equals(*docMeta2.Schema)
+func (docMeta DocumentMetadata) Equals(other DocumentMetadata) bool {
+	if docMeta.Schema == nil && other.Schema == nil {
+		return true
+	}
+
+	if docMeta.Schema == nil || other.Schema == nil {
+		return false
+	}
+
+	return docMeta.ContentUri == other.ContentUri &&
+		docMeta.Proof == other.Proof &&
+		docMeta.Schema.Equals(*other.Schema)
 }
 
 // DocumentChecksum represents the information related to the checksum of a document, if any
