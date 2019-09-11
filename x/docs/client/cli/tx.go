@@ -22,15 +22,14 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetCmdShareDocument(cdc),
-		GetCmdSendDocumentReceipt(cdc),
+		getCmdShareDocument(cdc),
+		getCmdSendDocumentReceipt(cdc),
 	)
 
 	return txCmd
 }
 
-// GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
-func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
+func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "share [recipient] [document-uuid] [document-metadata-uri] " +
 			"[metadata-schema-uri] [metadata-schema-version] [metadata-verification-proof] " +
@@ -89,7 +88,7 @@ func GetCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func GetCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
+func getCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send-receipt [recipient] [tx-hash] [document-uuid] [proof]",
 		Short: "Send the document's receipt with the given recipient address",
