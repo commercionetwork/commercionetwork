@@ -34,19 +34,19 @@ func (k Keeper) getFundersStoreKey() []byte {
 	return []byte(types.BlockRewardsPoolFundersPrefix)
 }
 
-func (k Keeper) setFunders(ctx sdk.Context, updatedFunders types.Funders) {
+func (k Keeper) setFunders(ctx sdk.Context, updatedFunders []sdk.AccAddress) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getFundersStoreKey(), k.Cdc.MustMarshalBinaryBare(&updatedFunders))
 }
 
 //Add new funder to the list of the authorized funders of the block rewards pool
-func (k Keeper) AddBlockRewardsPoolFunder(ctx sdk.Context, funder types.Funder) {
-	var funders types.Funders
+func (k Keeper) AddBlockRewardsPoolFunder(ctx sdk.Context, funder sdk.AccAddress) {
+	var funders []sdk.AccAddress
 	store := ctx.KVStore(k.StoreKey)
 
 	fundersBz := store.Get(k.getFundersStoreKey())
 	if fundersBz == nil {
-		funders = types.Funders{}.AppendFunderIfMissing(funder)
+		funders = funders.AppendFunderIfMissing(funder)
 	} else {
 		k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
 		funders = funders.AppendFunderIfMissing(funder)

@@ -7,10 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-/**
-Retrieve all the active validators, and based on how many are them, calculate the reward ONLY for the block proposer.
-The reward is distributed every time a new block is created (one every 5 sec).
-*/
+//BeginBlocker retrieves all the active validators, and based on how many are of them, calculate
+//the reward ONLY for the block proposer on every begin block.
 func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
 
 	//Get the number of active validators
@@ -29,7 +27,11 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) 
 		reward := k.ComputeProposerReward(ctx, valNumber, validator, k.StakeKeeper.TotalBondedTokens(ctx))
 
 		//Distribute the reward to the block proposer
-		k.DistributeBlockRewards(ctx, validator, reward)
+		err := k.DistributeBlockRewards(ctx, validator, reward)
+		if err != nil {
+			panic(err)
+		}
+
 	}
 
 	// record the proposer for when we payout on the next block

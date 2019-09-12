@@ -14,7 +14,7 @@ import (
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "CommercioTXREWARDS transactions subcommands",
+		Short:                      "CommercioTBR transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -26,19 +26,21 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdIncrementBlockRewardsPool(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "increment-rewards-pool [coin-denom] [amount]",
+		Use:   "deposit [coin-denom] [amount]",
 		Short: "Increments the block rewards pool's liquidity by the given amount",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
-			funder := types.Funder{Address: cliCtx.GetFromAddress()}
-			coin, _ := sdk.NewIntFromString(args[1])
-			amount := sdk.Coin{Denom: args[0], Amount: coin}
+			funder := cliCtx.GetFromAddress()
+			amount, err := sdk.ParseCoin(args[0])
+			if err != nil {
+				return err
+			}
 
 			msg := types.NewMsgIncrementBlockRewardsPool(funder, amount)
-			err := msg.ValidateBasic()
+			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
