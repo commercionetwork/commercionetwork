@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,8 +33,9 @@ func setupTestInput() testInput {
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
 
-	// CommercioDOCS
-	keyDOCS := sdk.NewKVStoreKey("docs")
+	// Store keys
+	keyDocs := sdk.NewKVStoreKey("docs")
+	keyGovernment := sdk.NewKVStoreKey("government")
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
@@ -41,12 +43,14 @@ func setupTestInput() testInput {
 	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(keyDOCS, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(keyDocs, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(keyGovernment, sdk.StoreTypeIAVL, memDB)
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	dck := NewKeeper(keyDOCS, cdc)
+	govk := government.NewKeeper(keyGovernment, cdc)
+	dck := NewKeeper(keyDocs, govk, cdc)
 
 	return testInput{
 		Cdc:        cdc,
@@ -78,7 +82,7 @@ var TestingDocument = types.Document{
 	ContentUri: "https://example.com/document",
 	Metadata: types.DocumentMetadata{
 		ContentUri: "",
-		Schema: types.DocumentMetadataSchema{
+		Schema: &types.DocumentMetadataSchema{
 			Uri:     "https://example.com/document/metadata/schema",
 			Version: "1.0.0",
 		},

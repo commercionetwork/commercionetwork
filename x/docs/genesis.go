@@ -15,7 +15,9 @@ type UserDocumentsData struct {
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	UsersData []UserDocumentsData `json:"users_data"`
+	UsersData                      []UserDocumentsData   `json:"users_data"`
+	SupportedMetadataSchemes       types.MetadataSchemes `json:"supported_metadata_schemes"`
+	TrustedMetadataSchemaProposers []sdk.AccAddress      `json:"trusted_metadata_schema_proposers"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -28,6 +30,12 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	for _, data := range data.UsersData {
 		keeper.SetUserDocuments(ctx, data.User, data.SentDocuments, data.ReceivedDocuments)
 		keeper.SetUserReceipts(ctx, data.User, data.SentReceipts, data.ReceivedReceipts)
+	}
+	for _, schema := range data.SupportedMetadataSchemes {
+		keeper.AddSupportedMetadataScheme(ctx, schema)
+	}
+	for _, proposer := range data.TrustedMetadataSchemaProposers {
+		keeper.AddTrustedSchemaProposer(ctx, proposer)
 	}
 }
 
@@ -51,7 +59,9 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	}
 
 	return GenesisState{
-		UsersData: usersData,
+		UsersData:                      usersData,
+		SupportedMetadataSchemes:       keeper.GetSupportedMetadataSchemes(ctx),
+		TrustedMetadataSchemaProposers: keeper.GetTrustedSchemaProposers(ctx),
 	}
 }
 
