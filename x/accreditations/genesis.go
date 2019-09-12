@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -11,7 +12,7 @@ import (
 type GenesisState struct {
 	LiquidityPoolAmount sdk.Coins             `json:"liquidity_pool_amount"`
 	Accreditations      []types.Accreditation `json:"users_data"`
-	TrustworthySigners  []sdk.AccAddress      `json:"trustworthy_signers"`
+	TrustedSigners      ctypes.Addresses      `json:"trustworthy_signers"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -25,7 +26,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	keeper.SetPoolFunds(ctx, data.LiquidityPoolAmount)
 
 	// Import the signers
-	for _, signer := range data.TrustworthySigners {
+	for _, signer := range data.TrustedSigners {
 		keeper.AddTrustedSigner(ctx, signer)
 	}
 
@@ -42,7 +43,7 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
 		LiquidityPoolAmount: keeper.GetPoolFunds(ctx),
 		Accreditations:      keeper.GetAccreditations(ctx),
-		TrustworthySigners:  keeper.GetTrustedSigners(ctx),
+		TrustedSigners:      keeper.GetTrustedSigners(ctx),
 	}
 }
 
