@@ -3,6 +3,7 @@ package keeper
 import (
 	"testing"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -158,7 +159,7 @@ func TestKeeper_GetTrustedSchemaProposers_EmptyList(t *testing.T) {
 func TestKeeper_GetTrustedSchemaProposers_ExistingList(t *testing.T) {
 	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
 
-	existing := types.Addresses{TestingSender}
+	existing := ctypes.Addresses{TestingSender}
 	proposersBz := TestUtils.Cdc.MustMarshalBinaryBare(&existing)
 	store.Set([]byte(types.MetadataSchemaProposersStoreKey), proposersBz)
 

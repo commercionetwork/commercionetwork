@@ -91,10 +91,10 @@ func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAd
 
 // GetTrustedSchemaProposers returns the list of all the trusted addresses
 // that can propose new metadata schemes as officially recognized
-func (keeper Keeper) GetTrustedSchemaProposers(ctx sdk.Context) types.Addresses {
+func (keeper Keeper) GetTrustedSchemaProposers(ctx sdk.Context) ctypes.Addresses {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	var proposers types.Addresses
+	var proposers ctypes.Addresses
 	proposersBz := store.Get([]byte(types.MetadataSchemaProposersStoreKey))
 	keeper.cdc.MustUnmarshalBinaryBare(proposersBz, &proposers)
 	return proposers
