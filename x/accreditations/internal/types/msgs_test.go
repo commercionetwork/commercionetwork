@@ -173,7 +173,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic_MissingAmount(t *testing.T) {
 	assert.NotNil(t, msg.ValidateBasic())
 }
 
-func TestMsgDepositIntoLiquidityPool_ValidateBasic_Negativeamount(t *testing.T) {
+func TestMsgDepositIntoLiquidityPool_ValidateBasic_NegativeAmount(t *testing.T) {
 	amount := sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(-100)}}
 	msg := MsgDepositIntoLiquidityPool{Depositor: user, Amount: amount}
 	assert.NotNil(t, msg.ValidateBasic())
@@ -199,4 +199,58 @@ func TestMsgDepositIntoLiquidityPool_UnmarshalJson(t *testing.T) {
 
 	assert.Equal(t, user, msg.Depositor)
 	assert.Equal(t, amount, msg.Amount)
+}
+
+// --------------------------------
+// --- MsgAddTrustedSigner
+// --------------------------------
+
+var government, _ = sdk.AccAddressFromBech32("cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg")
+var msgAddTrustedSigner = MsgAddTrustedSigner{
+	Government:    government,
+	TrustedSigner: signer,
+}
+
+func TestMsgAddTrustedSigner_Route(t *testing.T) {
+	assert.Equal(t, QuerierRoute, msgAddTrustedSigner.Route())
+}
+
+func TestMsgAddTrustedSigner_Type(t *testing.T) {
+	assert.Equal(t, MsgTypeAddTrustedSigner, msgAddTrustedSigner.Type())
+}
+
+func TestMsgAddTrustedSigner_ValidateBasic_ValidMsg(t *testing.T) {
+	assert.Nil(t, msgAddTrustedSigner.ValidateBasic())
+}
+
+func TestMsgAddTrustedSigner_ValidateBasic_MissingGovernment(t *testing.T) {
+	msg := MsgAddTrustedSigner{Government: nil, TrustedSigner: signer}
+	assert.NotNil(t, msg.ValidateBasic())
+}
+
+func TestMsgAddTrustedSigner_ValidateBasic_MissingSigner(t *testing.T) {
+	msg := MsgAddTrustedSigner{Government: government, TrustedSigner: nil}
+	assert.NotNil(t, msg.ValidateBasic())
+}
+
+func TestMsgAddTrustedSigner_GetSignBytes(t *testing.T) {
+	actual := msgAddTrustedSigner.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddTrustedSigner))
+	assert.Equal(t, expected, actual)
+}
+
+func TestMsgAddTrustedSigner_GetSigners(t *testing.T) {
+	actual := msgAddTrustedSigner.GetSigners()
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgAddTrustedSigner.Government, actual[0])
+}
+
+func TestMsgAddTrustedSigner_UnmarshalJson(t *testing.T) {
+	json := `{"type":"commercio/MsgAddTrustedSigner","value":{"government":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","signer":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+
+	var msg MsgAddTrustedSigner
+	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
+
+	assert.Equal(t, signer, msg.TrustedSigner)
+	assert.Equal(t, government, msg.Government)
 }

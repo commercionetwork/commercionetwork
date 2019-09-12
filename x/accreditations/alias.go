@@ -24,4 +24,5 @@ type (
 	MsgSetAccrediter            = types.MsgSetAccrediter
 	MsgDistributeReward         = types.MsgDistributeReward
 	MsgDepositIntoLiquidityPool = types.MsgDepositIntoLiquidityPool
+	MsgAddTrustedSigner         = types.MsgAddTrustedSigner
 )

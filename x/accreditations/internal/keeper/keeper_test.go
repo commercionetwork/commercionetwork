@@ -14,7 +14,7 @@ import (
 // ---------------------
 
 func TestKeeper_SetAccrediter_NoAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(TestUser)
@@ -34,7 +34,7 @@ func TestKeeper_SetAccrediter_NoAccrediter(t *testing.T) {
 }
 
 func TestKeeper_SetAccrediter_ExistingAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	existingAccredit := types.Accreditation{
 		Accrediter: TestAccrediter,
@@ -50,7 +50,7 @@ func TestKeeper_SetAccrediter_ExistingAccrediter(t *testing.T) {
 }
 
 func TestKeeper_GetAccreditation_NoAccrediter(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := GetTestInput()
+	ctx, _, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(TestUser)
@@ -60,7 +60,7 @@ func TestKeeper_GetAccreditation_NoAccrediter(t *testing.T) {
 }
 
 func TestKeeper_GetAccreditation_ExistingAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	expected := types.Accreditation{
 		Accrediter: TestAccrediter,
@@ -80,7 +80,7 @@ func TestKeeper_GetAccreditation_ExistingAccrediter(t *testing.T) {
 // ---------------------
 
 func TestKeeper_GetAccreditations_EmptyList(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := GetTestInput()
+	ctx, _, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -93,7 +93,7 @@ func TestKeeper_GetAccreditations_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_GetAccreditations_NonEmptyList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	acc1 := types.Accreditation{Accrediter: TestAccrediter, User: TestUser, Rewarded: false}
 	acc2 := types.Accreditation{Accrediter: TestUser, User: TestAccrediter, Rewarded: false}
@@ -113,7 +113,7 @@ func TestKeeper_GetAccreditations_NonEmptyList(t *testing.T) {
 // ---------------------
 
 func TestKeeper_DepositIntoPool_EmptyPool(t *testing.T) {
-	ctx, cdc, _, bankKeeper, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, bankKeeper, _, accreditationKeeper := GetTestInput()
 
 	coins := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(1000)))
 	_ = bankKeeper.SetCoins(ctx, TestUser, coins)
@@ -132,7 +132,7 @@ func TestKeeper_DepositIntoPool_EmptyPool(t *testing.T) {
 }
 
 func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
-	ctx, cdc, _, bankKeeper, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, bankKeeper, _, accreditationKeeper := GetTestInput()
 
 	coins := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
 	_ = bankKeeper.SetCoins(ctx, TestUser, coins)
@@ -158,7 +158,7 @@ func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
 }
 
 func TestKeeper_SetPoolFunds_EmptyPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.LiquidityPoolKey))
@@ -173,7 +173,7 @@ func TestKeeper_SetPoolFunds_EmptyPool(t *testing.T) {
 }
 
 func TestKeeper_SetPoolFunds_ExistingPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	pool := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
 
@@ -192,7 +192,7 @@ func TestKeeper_SetPoolFunds_ExistingPool(t *testing.T) {
 }
 
 func TestKeeper_GetPoolFunds_EmptyPool(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := GetTestInput()
+	ctx, _, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.LiquidityPoolKey))
@@ -203,7 +203,7 @@ func TestKeeper_GetPoolFunds_EmptyPool(t *testing.T) {
 }
 
 func TestKeeper_GetPoolFunds_ExistingPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	expected := sdk.NewCoins(
 		sdk.NewCoin("uatom", sdk.NewInt(100)),
@@ -223,7 +223,7 @@ func TestKeeper_GetPoolFunds_ExistingPool(t *testing.T) {
 // ---------------------
 
 func TestKeeper_AddTrustworthySigner_EmptyList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -242,7 +242,7 @@ func TestKeeper_AddTrustworthySigner_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_AddTrustworthySigner_ExistingList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -265,7 +265,7 @@ func TestKeeper_AddTrustworthySigner_ExistingList(t *testing.T) {
 }
 
 func TestKeeper_GetTrustworthySigners_EmptyList(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := GetTestInput()
+	ctx, _, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -280,7 +280,7 @@ func TestKeeper_GetTrustworthySigners_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_GetTrustworthySigners_ExistingList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -299,7 +299,7 @@ func TestKeeper_GetTrustworthySigners_ExistingList(t *testing.T) {
 }
 
 func TestKeeper_IsTrustworthySigner_EmptyList(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := GetTestInput()
+	ctx, _, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -313,7 +313,7 @@ func TestKeeper_IsTrustworthySigner_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_IsTrustworthySigner_ExistingList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -334,7 +334,7 @@ func TestKeeper_IsTrustworthySigner_ExistingList(t *testing.T) {
 // --------------------------
 
 func TestKeeper_DistributeReward_NilReward(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -349,7 +349,7 @@ func TestKeeper_DistributeReward_NilReward(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_NegativeReward(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -367,7 +367,7 @@ func TestKeeper_DistributeReward_NegativeReward(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_NoAccrediter(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := GetTestInput()
+	ctx, _, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(TestUser)
@@ -380,7 +380,7 @@ func TestKeeper_DistributeReward_NoAccrediter(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_AlreadyRewarded(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -395,7 +395,7 @@ func TestKeeper_DistributeReward_AlreadyRewarded(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_EmptyPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.LiquidityPoolKey))
@@ -413,7 +413,7 @@ func TestKeeper_DistributeReward_EmptyPool(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_InsufficientPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -433,7 +433,7 @@ func TestKeeper_DistributeReward_InsufficientPool(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_ValidData(t *testing.T) {
-	ctx, cdc, _, bankKeeper, accreditationKeeper := GetTestInput()
+	ctx, cdc, _, bankKeeper, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 

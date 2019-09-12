@@ -14,12 +14,12 @@ import (
 // --------------------------
 
 func Test_handleSetAccrediter_NotTrustedAccrediter(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := keeper.GetTestInput()
+	ctx, _, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.TrustedSignersStoreKey))
 
-	handler := NewHandler(accreditationKeeper)
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	msg := MsgSetAccrediter{User: keeper.TestUser, Accrediter: keeper.TestAccrediter, Signer: keeper.TestSigner}
 	res := handler(ctx, msg)
 
@@ -28,7 +28,7 @@ func Test_handleSetAccrediter_NotTrustedAccrediter(t *testing.T) {
 }
 
 func Test_handleSetAccrediter_ExistingAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := keeper.GetTestInput()
+	ctx, cdc, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&[]sdk.AccAddress{keeper.TestSigner}))
@@ -36,7 +36,7 @@ func Test_handleSetAccrediter_ExistingAccrediter(t *testing.T) {
 	accreditation := types.Accreditation{Accrediter: keeper.TestAccrediter, User: keeper.TestUser, Rewarded: false}
 	store.Set(keeper.TestUser, cdc.MustMarshalBinaryBare(accreditation))
 
-	handler := NewHandler(accreditationKeeper)
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	msg := MsgSetAccrediter{User: keeper.TestUser, Accrediter: keeper.TestAccrediter, Signer: keeper.TestSigner}
 	res := handler(ctx, msg)
 
@@ -45,12 +45,12 @@ func Test_handleSetAccrediter_ExistingAccrediter(t *testing.T) {
 }
 
 func Test_handleSetAccrediter_ValidData(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := keeper.GetTestInput()
+	ctx, cdc, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&[]sdk.AccAddress{keeper.TestSigner}))
 
-	handler := NewHandler(accreditationKeeper)
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	msg := MsgSetAccrediter{User: keeper.TestUser, Accrediter: keeper.TestAccrediter, Signer: keeper.TestSigner}
 	res := handler(ctx, msg)
 
@@ -63,12 +63,12 @@ func Test_handleSetAccrediter_ValidData(t *testing.T) {
 // -----------------------------
 
 func Test_handleDistributeReward_NilAccrediter(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := keeper.GetTestInput()
+	ctx, _, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(keeper.TestUser)
 
-	handler := NewHandler(accreditationKeeper)
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	reward := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
 	msg := MsgDistributeReward{User: keeper.TestUser, Accrediter: keeper.TestAccrediter, Reward: reward, Signer: keeper.TestSigner}
 	res := handler(ctx, msg)
@@ -78,7 +78,7 @@ func Test_handleDistributeReward_NilAccrediter(t *testing.T) {
 }
 
 func Test_handleDistributeReward_InvalidAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := keeper.GetTestInput()
+	ctx, cdc, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -87,7 +87,7 @@ func Test_handleDistributeReward_InvalidAccrediter(t *testing.T) {
 	accreditation := types.Accreditation{Accrediter: keeper.TestUser, User: keeper.TestUser, Rewarded: false}
 	store.Set(keeper.TestUser, cdc.MustMarshalBinaryBare(accreditation))
 
-	handler := NewHandler(accreditationKeeper)
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	msg := MsgDistributeReward{User: keeper.TestUser, Accrediter: keeper.TestAccrediter, Reward: reward, Signer: keeper.TestSigner}
 	res := handler(ctx, msg)
 
@@ -96,7 +96,7 @@ func Test_handleDistributeReward_InvalidAccrediter(t *testing.T) {
 }
 
 func Test_handleDistributeReward_RewardedAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := keeper.GetTestInput()
+	ctx, cdc, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -105,7 +105,7 @@ func Test_handleDistributeReward_RewardedAccrediter(t *testing.T) {
 	accreditation := types.Accreditation{Accrediter: keeper.TestAccrediter, User: keeper.TestUser, Rewarded: true}
 	store.Set(keeper.TestUser, cdc.MustMarshalBinaryBare(accreditation))
 
-	handler := NewHandler(accreditationKeeper)
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	msg := MsgDistributeReward{User: keeper.TestUser, Accrediter: keeper.TestAccrediter, Reward: reward, Signer: keeper.TestSigner}
 	res := handler(ctx, msg)
 
@@ -114,7 +114,7 @@ func Test_handleDistributeReward_RewardedAccrediter(t *testing.T) {
 }
 
 func Test_handleDistributeReward_ValidData(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := keeper.GetTestInput()
+	ctx, cdc, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -126,8 +126,44 @@ func Test_handleDistributeReward_ValidData(t *testing.T) {
 	accreditation := types.Accreditation{Accrediter: keeper.TestAccrediter, User: keeper.TestUser, Rewarded: false}
 	store.Set(keeper.TestUser, cdc.MustMarshalBinaryBare(accreditation))
 
-	handler := NewHandler(accreditationKeeper)
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	msg := MsgDistributeReward{User: keeper.TestUser, Accrediter: keeper.TestAccrediter, Reward: reward, Signer: keeper.TestSigner}
+	res := handler(ctx, msg)
+
+	assert.True(t, res.IsOK())
+	assert.Equal(t, sdk.CodeOK, res.Code)
+}
+
+// -----------------------------
+// --- handleAddTrustedSigner
+// -----------------------------
+
+func Test_handleAddTrustedSigner_InvalidGovernment(t *testing.T) {
+	ctx, _, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
+
+	government, _ := sdk.AccAddressFromBech32("cosmos15ne6fy8uukkyyf072qklkeleh2zf39k52mcg2f")
+
+	err := governmentKeeper.SetGovernmentAddress(ctx, keeper.TestUser)
+	assert.Nil(t, err)
+
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
+	msg := MsgAddTrustedSigner{Government: government, TrustedSigner: keeper.TestSigner}
+	res := handler(ctx, msg)
+
+	assert.False(t, res.IsOK())
+	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+}
+
+func Test_handleAddTrustedSigner_ValidGovernment(t *testing.T) {
+	ctx, _, _, _, governmentKeeper, accreditationKeeper := keeper.GetTestInput()
+
+	government, _ := sdk.AccAddressFromBech32("cosmos15ne6fy8uukkyyf072qklkeleh2zf39k52mcg2f")
+
+	err := governmentKeeper.SetGovernmentAddress(ctx, government)
+	assert.Nil(t, err)
+
+	handler := NewHandler(accreditationKeeper, governmentKeeper)
+	msg := MsgAddTrustedSigner{Government: government, TrustedSigner: keeper.TestSigner}
 	res := handler(ctx, msg)
 
 	assert.True(t, res.IsOK())

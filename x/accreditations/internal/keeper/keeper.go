@@ -21,7 +21,7 @@ type Keeper struct {
 }
 
 // NewKeeper creates new instances of the accreditation module Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, bankKeeper bank.Keeper) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, bankKeeper bank.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
 		StoreKey:   storeKey,
 		BankKeeper: bankKeeper,

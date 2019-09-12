@@ -9,6 +9,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgSetAccrediter{}, "commercio/MsgSetAccrediter", nil)
 	cdc.RegisterConcrete(MsgDistributeReward{}, "commercio/MsgDistributeReward", nil)
 	cdc.RegisterConcrete(MsgDepositIntoLiquidityPool{}, "commercio/MsgDepositIntoLiquidityPool", nil)
+	cdc.RegisterConcrete(MsgAddTrustedSigner{}, "commercio/MsgAddTrustedSigner", nil)
 }
 
 var ModuleCdc *codec.Codec

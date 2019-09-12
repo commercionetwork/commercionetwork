@@ -122,7 +122,7 @@ func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgMsgDepositIntoLiquidityPool(amount, depositor)
+			msg := types.NewMsgDepositIntoLiquidityPool(amount, depositor)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

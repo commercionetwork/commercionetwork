@@ -12,6 +12,7 @@ const (
 	MsgTypeSetAccrediter             = "setAccrediter"
 	MsgTypeDistributeReward          = "distributeReward"
 	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
+	MsgTypeAddTrustedSigner          = "addTrustedSigner"
 
 	QueryGetAccrediter = "accrediter"
 	QueryGetSigners    = "signers"

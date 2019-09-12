@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/commercionetwork/commercionetwork/x/accreditations/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/government"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -79,15 +80,17 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper Keeper
+	keeper           Keeper
+	governmentKeeper government.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper) AppModule {
+func NewAppModule(keeper Keeper, governmentKeeper government.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
+		governmentKeeper:    governmentKeeper,
 	}
 }
 
@@ -106,7 +109,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.keeper, am.governmentKeeper)
 }
 
 // module querier route name

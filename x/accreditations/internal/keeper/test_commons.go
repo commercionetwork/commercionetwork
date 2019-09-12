@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,7 +15,7 @@ import (
 )
 
 //This function create an environment to test modules
-func GetTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper, Keeper) {
+func GetTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper, government.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -26,7 +27,8 @@ func GetTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper,
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
 
-	keyAccreditations := sdk.NewKVStoreKey("accreditations")
+	governmentKey := sdk.NewKVStoreKey("government")
+	accreditationKey := sdk.NewKVStoreKey("accreditations")
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, memDB)
@@ -35,7 +37,8 @@ func GetTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper,
 	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(keyAccreditations, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(governmentKey, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(accreditationKey, sdk.StoreTypeIAVL, memDB)
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
@@ -43,9 +46,11 @@ func GetTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper,
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	accountKeeper := auth.NewAccountKeeper(cdc, keyAcc, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bankKeeper := bank.NewBaseKeeper(accountKeeper, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
-	accreditationKeeper := NewKeeper(cdc, keyAccreditations, bankKeeper)
 
-	return ctx, cdc, accountKeeper, bankKeeper, accreditationKeeper
+	governmentKeeper := government.NewKeeper(governmentKey, cdc)
+	accreditationKeeper := NewKeeper(accreditationKey, bankKeeper, cdc)
+
+	return ctx, cdc, accountKeeper, bankKeeper, governmentKeeper, accreditationKeeper
 }
 
 func testCodec() *codec.Codec {

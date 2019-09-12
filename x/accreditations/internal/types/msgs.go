@@ -26,7 +26,7 @@ func NewMsgSetAccrediter(user, accrediter, signer sdk.AccAddress) MsgSetAccredit
 	}
 }
 
-// RouterKey Implements Msg.
+// Route Implements Msg.
 func (msg MsgSetAccrediter) Route() string { return RouterKey }
 
 // Type Implements Msg.
@@ -81,7 +81,7 @@ func NewMsgDistributeReward(accrediter sdk.AccAddress, reward sdk.Coins, user, s
 	}
 }
 
-// RouterKey Implements Msg.
+// Route Implements Msg.
 func (msg MsgDistributeReward) Route() string { return RouterKey }
 
 // Type Implements Msg.
@@ -129,14 +129,14 @@ type MsgDepositIntoLiquidityPool struct {
 	Amount    sdk.Coins      `json:"amount"`
 }
 
-func NewMsgMsgDepositIntoLiquidityPool(amount sdk.Coins, depositor sdk.AccAddress) MsgDepositIntoLiquidityPool {
+func NewMsgDepositIntoLiquidityPool(amount sdk.Coins, depositor sdk.AccAddress) MsgDepositIntoLiquidityPool {
 	return MsgDepositIntoLiquidityPool{
 		Depositor: depositor,
 		Amount:    amount,
 	}
 }
 
-// RouterKey Implements Msg.
+// Route Implements Msg.
 func (msg MsgDepositIntoLiquidityPool) Route() string { return RouterKey }
 
 // Type Implements Msg.
@@ -164,4 +164,44 @@ func (msg MsgDepositIntoLiquidityPool) GetSignBytes() []byte {
 // GetSigners Implements Msg.
 func (msg MsgDepositIntoLiquidityPool) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Depositor}
+}
+
+// --------------------------------
+// --- MsgAddTrustedSigner
+// --------------------------------
+
+// MsgAddTrustedSigner should be used when wanting to add a new address
+// as a trusted signer.
+// Trusted signers will be able to sign rewarding-giving transactions
+// so should be only a handful of very trusted accounts.
+type MsgAddTrustedSigner struct {
+	TrustedSigner sdk.AccAddress `json:"signer"`
+	Government    sdk.AccAddress `json:"government"`
+}
+
+// Route Implements Msg.
+func (msg MsgAddTrustedSigner) Route() string { return RouterKey }
+
+// Type Implements Msg.
+func (msg MsgAddTrustedSigner) Type() string { return MsgTypeAddTrustedSigner }
+
+// ValidateBasic Implements Msg.
+func (msg MsgAddTrustedSigner) ValidateBasic() sdk.Error {
+	if msg.TrustedSigner.Empty() {
+		return sdk.ErrInvalidAddress(msg.TrustedSigner.String())
+	}
+	if msg.Government.Empty() {
+		return sdk.ErrInvalidAddress(msg.Government.String())
+	}
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgAddTrustedSigner) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgAddTrustedSigner) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Government}
 }

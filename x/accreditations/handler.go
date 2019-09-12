@@ -3,11 +3,12 @@ package accreditations
 import (
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/government"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.
-func NewHandler(keeper Keeper) sdk.Handler {
+func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case MsgSetAccrediter:
@@ -16,6 +17,8 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleDistributeReward(ctx, keeper, msg)
 		case MsgDepositIntoLiquidityPool:
 			return handleDepositIntoPool(ctx, keeper, msg)
+		case MsgAddTrustedSigner:
+			return handleAddTrustedSigner(ctx, keeper, governmentKeeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -75,5 +78,14 @@ func handleDepositIntoPool(ctx sdk.Context, keeper Keeper, msg MsgDepositIntoLiq
 		return sdk.ErrUnknownRequest(err.Error()).Result()
 	}
 
+	return sdk.Result{}
+}
+
+func handleAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg MsgAddTrustedSigner) sdk.Result {
+	if msg.Government == nil || !governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.Government) {
+		return sdk.ErrInvalidAddress("invalid government address").Result()
+	}
+
+	keeper.AddTrustedSigner(ctx, msg.TrustedSigner)
 	return sdk.Result{}
 }
