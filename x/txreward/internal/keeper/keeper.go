@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	comm "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,33 +42,33 @@ func (k Keeper) setFunders(ctx sdk.Context, updatedFunders []sdk.AccAddress) {
 
 //Add new funder to the list of the authorized funders of the block rewards pool
 func (k Keeper) AddBlockRewardsPoolFunder(ctx sdk.Context, funder sdk.AccAddress) {
-	var funders []sdk.AccAddress
+	var funders comm.Addresses
 	store := ctx.KVStore(k.StoreKey)
 
 	fundersBz := store.Get(k.getFundersStoreKey())
 	if fundersBz == nil {
-		funders = funders.AppendFunderIfMissing(funder)
+		funders = comm.Addresses{}.AppendIfMissing(funder)
 	} else {
 		k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
-		funders = funders.AppendFunderIfMissing(funder)
+		funders = funders.AppendIfMissing(funder)
 	}
 	k.setFunders(ctx, funders)
 }
 
 //Return all the block rewards pool's funders
-func (k Keeper) GetBlockRewardsPoolFunders(ctx sdk.Context) types.Funders {
-	var funders types.Funders
+func (k Keeper) GetBlockRewardsPoolFunders(ctx sdk.Context) comm.Addresses {
+	var funders comm.Addresses
 	store := ctx.KVStore(k.StoreKey)
 	fundersBz := store.Get(k.getFundersStoreKey())
 	if fundersBz == nil {
-		return types.Funders{}
+		return comm.Addresses{}
 	}
 	k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
 	return funders
 }
 
 //Utility method to set Block Reward Pool
-func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool types.BlockRewardsPool) {
+func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.BlockRewardsPoolPrefix), k.Cdc.MustMarshalBinaryBare(&updatedPool))
 }
@@ -77,30 +78,30 @@ func (k Keeper) getBrPoolStoreKey() []byte {
 }
 
 //Return the Block Rewards Pool if exists
-func (k Keeper) GetBlockRewardsPool(ctx sdk.Context) types.BlockRewardsPool {
-	var brPool types.BlockRewardsPool
+func (k Keeper) GetBlockRewardsPool(ctx sdk.Context) sdk.DecCoins {
+	var brPool sdk.DecCoins
 	store := ctx.KVStore(k.StoreKey)
 	brpBz := store.Get(k.getBrPoolStoreKey())
 	if brpBz == nil {
-		return types.InitBlockRewardsPool()
+		return sdk.DecCoins{}
 	}
 	k.Cdc.MustUnmarshalBinaryBare(brpBz, &brPool)
 	return brPool
 }
 
 //Increase the Block Rewards Pool with the specified coin amount
-func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder types.Funder, amount sdk.Coin) {
+func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coin) {
 	bk := k.BankKeeper
 	brAmount := sdk.Coins{amount}
-	brPool := types.InitBlockRewardsPool()
+	brPool := sdk.DecCoins{}
 
-	if bk.HasCoins(ctx, funder.Address, brAmount) {
+	if bk.HasCoins(ctx, funder, brAmount) {
 		brPool = k.GetBlockRewardsPool(ctx)
-		if brPool.Funds.IsZero() {
-			brPool.Funds = brPool.Funds.Add(sdk.NewDecCoins(brAmount))
+		if brPool.IsZero() {
+			brPool = brPool.Add(sdk.NewDecCoins(brAmount))
 			k.setBlockRewardsPool(ctx, brPool)
 		} else {
-			brPool.Funds = brPool.Funds.Add(sdk.NewDecCoins(brAmount))
+			brPool = brPool.Add(sdk.NewDecCoins(brAmount))
 			k.setBlockRewardsPool(ctx, brPool)
 		}
 	}
@@ -212,13 +213,13 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber int64, pr
 //Distribute the computed reward to the block proposer
 func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) error {
 
-	var brPool types.BlockRewardsPool
+	var brPool sdk.DecCoins
 
 	brPool = k.GetBlockRewardsPool(ctx)
 
 	//Check if the pool has enough funds
-	if brPool.Funds.AmountOf(types.DefaultBondDenom).GTE(reward.AmountOf(types.DefaultBondDenom)) {
-		brPool.Funds = brPool.Funds.Sub(reward)
+	if brPool.AmountOf(types.DefaultBondDenom).GTE(reward.AmountOf(types.DefaultBondDenom)) {
+		brPool = brPool.Sub(reward)
 		k.setBlockRewardsPool(ctx, brPool)
 
 		//Get his current reward and then add the new one

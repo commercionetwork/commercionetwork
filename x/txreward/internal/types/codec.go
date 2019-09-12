@@ -3,7 +3,7 @@ package types
 import "github.com/cosmos/cosmos-sdk/codec"
 
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgIncrementBlockRewardsPool{}, "commercio/incrementBlockRewardsPool", nil)
+	cdc.RegisterConcrete(MsgIncrementBlockRewardsPool{}, "commercio/MsgIncrementBlockRewardsPool", nil)
 }
 
 var ModuleCdc *codec.Codec

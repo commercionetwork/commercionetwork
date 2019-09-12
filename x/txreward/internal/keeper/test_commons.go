@@ -17,18 +17,18 @@ import (
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	comm "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 var (
 	distrAcc = supply.NewEmptyModuleAccount(types.ModuleName)
 )
 
-var addr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var valAddr, _ = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var pubKey = ed25519.GenPrivKey().PubKey()
 var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
-
-var TestFunder = types.Funder{Address: addr}
 
 var TestAmount = sdk.Coin{
 	Denom:  "ucommercio",
@@ -37,11 +37,9 @@ var TestAmount = sdk.Coin{
 
 var coin = sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.DefaultBondDenom}
 var coins = sdk.NewCoins(coin)
-var TestBlockRewardsPool = types.BlockRewardsPool{
-	Funds: sdk.NewDecCoins(coins),
-}
+var TestBlockRewardsPool = sdk.NewDecCoins(coins)
 
-var TestFunders = types.Funders{TestFunder}
+var TestFunders = comm.Addresses{TestFunder}
 
 func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
 	memDB := db.NewMemDB()
@@ -91,14 +89,6 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, blacklistedAddrs)
 
 	// add module accounts to supply keeper
-	/*
-		maccPerms := simapp.GetMaccPerms()
-		maccPerms[holder] = nil
-		maccPerms[supply.Burner] = []string{supply.Burner}
-		maccPerms[supply.Minter] = []string{supply.Minter}
-		maccPerms[multiPerm] = []string{supply.Burner, supply.Minter, supply.Staking}
-		maccPerms[randomPerm] = []string{"random"}
-	*/
 	maccPerms := map[string][]string{
 		auth.FeeCollectorName:     nil,
 		distr.ModuleName:          nil,

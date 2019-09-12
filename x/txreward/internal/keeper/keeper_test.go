@@ -7,6 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	types2 "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/assert"
+
+	comm "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 func TestKeeper_getFundersStoreKey(t *testing.T) {
@@ -19,7 +21,7 @@ func TestKeeper_getFundersStoreKey(t *testing.T) {
 
 func TestKeeper_setFunders(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
-	var funders types.Funders
+	var funders comm.Addresses
 
 	k.setFunders(ctx, TestFunders)
 
@@ -42,13 +44,12 @@ func TestKeeper_AddBlockRewardsPoolFunder_FundersNotFound(t *testing.T) {
 
 func TestKeeper_AddBlockRewardsPoolFunder_FundersFound(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
-	addr, _ := sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-	var tstFunder = types.Funder{Address: addr}
+	tstFunder, _ := sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 
 	k.setFunders(ctx, TestFunders)
 	k.AddBlockRewardsPoolFunder(ctx, tstFunder)
 
-	expected := TestFunders.AppendFunderIfMissing(tstFunder)
+	expected := TestFunders.AppendIfMissing(tstFunder)
 
 	funders := k.GetBlockRewardsPoolFunders(ctx)
 
@@ -65,7 +66,7 @@ func TestKeeper_GetBlockRewardsPoolFunders(t *testing.T) {
 
 func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
-	var pool types.BlockRewardsPool
+	var pool sdk.DecCoins
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
 	store := ctx.KVStore(k.StoreKey)
@@ -151,8 +152,7 @@ func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
 	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(12000))}
-	poolFunds := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(10000))}
-	brPool := types.BlockRewardsPool{Funds: poolFunds}
+	brPool := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(10000))}
 
 	k.setBlockRewardsPool(ctx, brPool)
 
@@ -166,7 +166,7 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 
 	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
 
-	acc := ak.NewAccountWithAddress(ctx, TestFunder.Address)
+	acc := ak.NewAccountWithAddress(ctx, TestFunder)
 	ak.SetAccount(ctx, acc)
 	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1000), Denom: types.DefaultBondDenom})
 	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
@@ -176,7 +176,7 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 
 	var greater bool
 
-	if TestBlockRewardsPool.Funds.AmountOf(types.DefaultBondDenom).LT(actual.Funds.AmountOf(types.DefaultBondDenom)) {
+	if TestBlockRewardsPool.AmountOf(types.DefaultBondDenom).LT(actual.AmountOf(types.DefaultBondDenom)) {
 		greater = true
 	}
 

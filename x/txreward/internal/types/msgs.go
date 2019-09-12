@@ -26,8 +26,8 @@ func (msg MsgIncrementBlockRewardsPool) ValidateBasic() sdk.Error {
 	if msg.Funder.Empty() {
 		return sdk.ErrInvalidAddress(msg.Funder.String())
 	}
-	if msg.Amount.Amount.IsZero() {
-		return sdk.ErrUnknownRequest("You can't transfer a null amount")
+	if msg.Amount.Amount.IsZero() || msg.Amount.IsNegative() {
+		return sdk.ErrUnknownRequest("You can't transfer a null or negative amount")
 	}
 	if msg.Amount.Denom != DefaultBondDenom {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("You can't transfer others than %s", DefaultBondDenom))
