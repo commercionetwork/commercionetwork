@@ -2,8 +2,6 @@
 CommercioID is the module that allows you to associate to an existing account (also called *identity*) a 
 Did Document Reference.  
  
-{:toc}
- 
 ## Creating an identity
 First of all, let's define what an **identity** is inside the Commercio Network blockchain.  
 
@@ -18,7 +16,7 @@ did:cmc:<unique part>
 
 In order to do so, you can use the CLI and execute the following command: 
 
-```shell
+```bash
 cncli keys add <key-name>
 ``` 
 
@@ -31,8 +29,7 @@ Please note that password will be later asked you when signing the transactions 
 After inserting the password, you will be shown the mnemonic that can be used in order to import your account 
 (and identity) into a wallet. 
 
-<summary>
-<details>Identity creation example output</details>
+```
 
 - name: jack
   type: local
@@ -47,7 +44,7 @@ After inserting the password, you will be shown the mnemonic that can be used in
 It is the only way to recover your account if you ever forget your password.
 
 level awesome panther copy lottery race flag label crunch illegal step atom breeze choose undo solar remove upset caught maze endorse cargo sunny armed
-</summary>
+```
 
 ### Using an identity
 Once you have created it, in order to start performing a transaction with your identity you firstly have to 
@@ -65,7 +62,7 @@ know how to get them, please take a look at the [*"Using an identity"* section](
 ### Using the CLI 
 In order to associated a Did Document to your Did, you can use the following command:
 
-```shell
+```bash
 cncli tx commercioid set-identity [did-document-uri] --from <your-key-name>
 ```
 
@@ -76,7 +73,7 @@ cncli tx commercioid set-identity [did-document-uri] --from <your-key-name>
 
 #### Example usage
 
-```shell
+```bash
 cncli tx commercioid set-identity https://example.com/my-did --from jack
 ```
 
@@ -121,12 +118,12 @@ following message:
 Once a user has associated a Did Document reference with his public (or private) Did, you can access it using the
 following command. 
 
-```shell
+```bash
 cncli commercioid query resolve <did>
 ``` 
 
 #### Example usage
-```shell
+```bash
 cncli query commercioid resolve did:com:1flzcn7yy9p04qwhh67hu8r38ar7ylxde2k47pr
 ```
 

@@ -32,7 +32,7 @@ all your stake won't be slashed for downtime. Three different hardware setup can
 Your `comnetvalconspub` can be used to create a new validator by staking tokens. 
 You can find your validator pubkey by running:
 
-```shell
+```bash
 cnd tendermint show-validator
 ```
 
@@ -42,7 +42,7 @@ To create your validator, just use the following command:
 Don't use more `ucommercio` than you have
 :::
 
- ```shell
+ ```bash
 cncli tx staking create-validator \
     --amount=50000000000ucommercio \
     --pubkey=$(cnd tendermint show-validator) \
@@ -133,7 +133,7 @@ cncli tx slashing unjail \
 ## Confirm your validator is running
 Your validator is active if the following command returns anything:
 
-```shell
+```bash
 cncli query tendermint-validator-set | grep "$(cnd tendermint show-validator)"
 ```
 

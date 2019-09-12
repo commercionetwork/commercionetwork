@@ -19,9 +19,11 @@ var (
 )
 
 type (
-	Keeper                 = keeper.Keeper
-	Document               = types.Document
-	DocumentReceipt        = types.DocumentReceipt
-	MsgShareDocument       = types.MsgShareDocument
-	MsgSendDocumentReceipt = types.MsgSendDocumentReceipt
+	Keeper                              = keeper.Keeper
+	Document                            = types.Document
+	DocumentReceipt                     = types.DocumentReceipt
+	MsgShareDocument                    = types.MsgShareDocument
+	MsgSendDocumentReceipt              = types.MsgSendDocumentReceipt
+	MsgAddSupportedMetadataSchema       = types.MsgAddSupportedMetadataSchema
+	MsgAddTrustedMetadataSchemaProposer = types.MsgAddTrustedMetadataSchemaProposer
 )

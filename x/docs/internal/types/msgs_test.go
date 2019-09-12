@@ -10,14 +10,14 @@ import (
 // Test vars
 var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var recipient, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var msgShareDocument = MsgShareDocument{
+var msgShareDocumentSchema = MsgShareDocument{
 	Sender:     sender,
 	Recipient:  recipient,
 	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	ContentUri: "http://www.contentUri.com",
 	Metadata: DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -28,28 +28,44 @@ var msgShareDocument = MsgShareDocument{
 		Algorithm: "md5",
 	},
 }
+var msgShareDocumentSchemaType = MsgShareDocument{
+	Sender:     sender,
+	Recipient:  recipient,
+	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	ContentUri: "http://www.contentUri.com",
+	Metadata: DocumentMetadata{
+		ContentUri: "http://www.contentUri.com",
+		SchemaType: "uni-sincro",
+		Proof:      "proof",
+	},
+	Checksum: DocumentChecksum{
+		Value:     "48656c6c6f20476f7068657221234567",
+		Algorithm: "md5",
+	},
+}
 
 // ----------------------
-// --- Msg methods
+// --- MsgShareDocument
 // ----------------------
 
 func TestMsgShareDocument_Route(t *testing.T) {
-	actual := msgShareDocument.Route()
-	expected := ModuleName
-
-	assert.Equal(t, expected, actual)
+	actual := msgShareDocumentSchema.Route()
+	assert.Equal(t, QuerierRoute, actual)
 }
 
 func TestMsgShareDocument_Type(t *testing.T) {
-	actual := msgShareDocument.Type()
-	expected := MsgTypeShareDocument
-
-	assert.Equal(t, expected, actual)
+	actual := msgShareDocumentSchema.Type()
+	assert.Equal(t, MsgTypeShareDocument, actual)
 }
 
-func TestMsgShareDocument_ValidateBasic_valid(t *testing.T) {
-	actual := msgShareDocument.ValidateBasic()
-	assert.Nil(t, actual)
+func TestMsgShareDocument_ValidateBasic_Schema_valid(t *testing.T) {
+	err := msgShareDocumentSchema.ValidateBasic()
+	assert.Nil(t, err)
+}
+
+func TestMsgShareDocument_ValidateBasic_SchemaType_valid(t *testing.T) {
+	err := msgShareDocumentSchemaType.ValidateBasic()
+	assert.Nil(t, err)
 }
 
 func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
@@ -60,7 +76,7 @@ func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
 		ContentUri: "http://www.contentUri.com",
 		Metadata: DocumentMetadata{
 			ContentUri: "http://www.contentUri.com",
-			Schema: DocumentMetadataSchema{
+			Schema: &DocumentMetadataSchema{
 				Uri:     "http://www.contentUri.com",
 				Version: "test",
 			},
@@ -72,21 +88,39 @@ func TestMsgShareDocument_ValidateBasic_invalid(t *testing.T) {
 		},
 	}
 
-	actual := invalidMsg.ValidateBasic()
-	assert.NotNil(t, actual)
+	err := invalidMsg.ValidateBasic()
+	assert.NotNil(t, err)
 }
 
 func TestMsgShareDocument_GetSignBytes(t *testing.T) {
-	actual := msgShareDocument.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgShareDocument))
+	actual := msgShareDocumentSchema.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgShareDocumentSchema))
 	assert.Equal(t, expected, actual)
 }
 
 func TestMsgShareDocument_GetSigners(t *testing.T) {
-	actual := msgShareDocument.GetSigners()
-	expected := msgShareDocument.Sender
+	actual := msgShareDocumentSchema.GetSigners()
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgShareDocumentSchema.Sender, actual[0])
+}
 
-	assert.Equal(t, expected, actual[0])
+func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
+	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipient":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema":{"uri":"http://www.contentUri.com","version":"test"},"proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}`
+
+	var msg MsgShareDocument
+	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
+
+	assert.Equal(t, "http://www.contentUri.com", msg.Metadata.Schema.Uri)
+	assert.Equal(t, "test", msg.Metadata.Schema.Version)
+}
+
+func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
+	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipient":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema_type":"uni-sincro","proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}`
+
+	var msg MsgShareDocument
+	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
+
+	assert.Equal(t, "uni-sincro", msg.Metadata.SchemaType)
 }
 
 // ----------------------
@@ -109,13 +143,13 @@ func TestValidateUuid_invalid(t *testing.T) {
 }
 
 // -------------------------
-// --- Metadata validation
+// --- MetadataSchema validation
 // -------------------------
 
 func TestValidateDocMetadata_valid(t *testing.T) {
 	validDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -129,7 +163,7 @@ func TestValidateDocMetadata_valid(t *testing.T) {
 func TestValidateDocMetadata_emptyContentUri(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -143,7 +177,7 @@ func TestValidateDocMetadata_emptyContentUri(t *testing.T) {
 func TestValidateDocMetadata_emptySchemaUri(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "",
 			Version: "test",
 		},
@@ -157,7 +191,7 @@ func TestValidateDocMetadata_emptySchemaUri(t *testing.T) {
 func TestValidateDocMetadata_emptySchemaVersion(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "",
 		},
@@ -171,7 +205,7 @@ func TestValidateDocMetadata_emptySchemaVersion(t *testing.T) {
 func TestValidateDocMetadata_emptyProof(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Schema: DocumentMetadataSchema{
+		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
@@ -260,9 +294,10 @@ func TestValidateChecksum_invalidChecksumLengths(t *testing.T) {
 	}
 }
 
-// ----------------------------------
-// --- DocumentReceipt tests
-// ----------------------------------
+// -----------------------------
+// --- MsgSendDocumentReceipt
+// -----------------------------
+
 var msgDocumentReceipt = MsgSendDocumentReceipt{
 	Sender:       sender,
 	Recipient:    recipient,
@@ -273,21 +308,17 @@ var msgDocumentReceipt = MsgSendDocumentReceipt{
 
 func TestMsgDocumentReceipt_Route(t *testing.T) {
 	actual := msgDocumentReceipt.Route()
-	expected := ModuleName
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, QuerierRoute, actual)
 }
 
 func TestMsgDocumentReceipt_Type(t *testing.T) {
 	actual := msgDocumentReceipt.Type()
-	expected := MsgTypeSendDocumentReceipt
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, MsgTypeSendDocumentReceipt, actual)
 }
 
 func TestMsgDocumentReceipt_ValidateBasic_valid(t *testing.T) {
-	actual := msgDocumentReceipt.ValidateBasic()
-	assert.Nil(t, actual)
+	err := msgDocumentReceipt.ValidateBasic()
+	assert.Nil(t, err)
 }
 
 func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
@@ -298,9 +329,8 @@ func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
 		DocumentUuid: "123456789",
 		Proof:        "proof",
 	}
-	actual := msgDocReceipt.ValidateBasic()
-
-	assert.NotNil(t, actual)
+	err := msgDocReceipt.ValidateBasic()
+	assert.NotNil(t, err)
 }
 
 func TestMsgDocumentReceipt_GetSignBytes(t *testing.T) {
@@ -311,7 +341,104 @@ func TestMsgDocumentReceipt_GetSignBytes(t *testing.T) {
 
 func TestMsgDocumentReceipt_GetSigners(t *testing.T) {
 	actual := msgDocumentReceipt.GetSigners()
-	expected := msgDocumentReceipt.Sender
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgDocumentReceipt.Sender, actual[0])
+}
 
-	assert.Equal(t, expected, actual[0])
+// ------------------------------------
+// --- MsgAddSupportedMetadataSchema
+// ------------------------------------
+
+var msgAddSupportedMetadataSchema = MsgAddSupportedMetadataSchema{
+	Signer: sender,
+	Schema: MetadataSchema{
+		Type:      "schema",
+		SchemaUri: "https://example.com/schema",
+		Version:   "1.0.0",
+	},
+}
+
+func Test_MsgAddSupportedMetadataSchema_Route(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.Route()
+	assert.Equal(t, QuerierRoute, actual)
+}
+
+func Test_MsgAddSupportedMetadataSchema_Type(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.Type()
+	assert.Equal(t, MsgTypeAddSupportedMetadataSchema, actual)
+}
+
+func Test_MsgAddSupportedMetadataSchema_ValidateBasic_valid(t *testing.T) {
+	err := msgAddSupportedMetadataSchema.ValidateBasic()
+	assert.Nil(t, err)
+}
+
+func Test_MsgAddSupportedMetadataSchema_ValidateBasic_invalid(t *testing.T) {
+	var msgDocReceipt = MsgAddSupportedMetadataSchema{
+		Signer: recipient,
+		Schema: MetadataSchema{
+			Type:      "schema-2",
+			SchemaUri: "",
+			Version:   "",
+		},
+	}
+	err := msgDocReceipt.ValidateBasic()
+	assert.NotNil(t, err)
+}
+
+func Test_MsgAddSupportedMetadataSchema_GetSignBytes(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddSupportedMetadataSchema))
+	assert.Equal(t, expected, actual)
+}
+
+func Test_MsgAddSupportedMetadataSchema_GetSigners(t *testing.T) {
+	actual := msgAddSupportedMetadataSchema.GetSigners()
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgAddSupportedMetadataSchema.Signer, actual[0])
+}
+
+// -----------------------------------------
+// --- MsgAddTrustedMetadataSchemaProposer
+// -----------------------------------------
+
+var msgAddTrustedMetadataSchemaProposer = MsgAddTrustedMetadataSchemaProposer{
+	Proposer: sender,
+	Signer:   recipient,
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_Route(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.Route()
+	assert.Equal(t, QuerierRoute, actual)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_Type(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.Type()
+	assert.Equal(t, MsgTypeAddTrustedMetadataSchemaProposer, actual)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_valid(t *testing.T) {
+	err := msgAddTrustedMetadataSchemaProposer.ValidateBasic()
+	assert.Nil(t, err)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_invalid(t *testing.T) {
+	var msgDocReceipt = MsgAddTrustedMetadataSchemaProposer{
+		Proposer: nil,
+		Signer:   recipient,
+	}
+	err := msgDocReceipt.ValidateBasic()
+	assert.NotNil(t, err)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_GetSignBytes(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddTrustedMetadataSchemaProposer))
+	assert.Equal(t, expected, actual)
+}
+
+func Test_MsgAddTrustedMetadataSchemaProposer_GetSigners(t *testing.T) {
+	actual := msgAddTrustedMetadataSchemaProposer.GetSigners()
+	assert.Equal(t, 1, len(actual))
+	assert.Equal(t, msgAddTrustedMetadataSchemaProposer.Signer, actual[0])
 }
