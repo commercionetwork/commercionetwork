@@ -1,6 +1,8 @@
 package accreditations
 
 import (
+	"errors"
+
 	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -40,13 +42,18 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
-		Accreditations:     keeper.GetAccreditations(ctx),
-		TrustworthySigners: keeper.GetTrustworthySigners(ctx),
+		LiquidityPoolAmount: keeper.GetPoolFunds(ctx),
+		Accreditations:      keeper.GetAccreditations(ctx),
+		TrustworthySigners:  keeper.GetTrustworthySigners(ctx),
 	}
 }
 
 // ValidateGenesis performs basic validation of genesis data returning an
 // error for any failed validation criteria.
-func ValidateGenesis(_ GenesisState) error {
+func ValidateGenesis(data GenesisState) error {
+	if data.LiquidityPoolAmount.IsAnyNegative() {
+		return errors.New("liquidity pool amount cannot contain negative values")
+	}
+
 	return nil
 }

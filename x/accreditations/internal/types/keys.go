@@ -6,13 +6,14 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
+	LiquidityPoolKey      = StoreKey + ":liquidityPool:"
+	TrustworthySignersKey = StoreKey + ":signers:"
+
 	MsgTypeSetAccrediter             = "setAccrediter"
 	MsgTypeDistributeReward          = "distributeReward"
 	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
 
 	QueryGetAccrediter = "accrediter"
 	QueryGetSigners    = "signers"
-
-	LiquidityPoolKey      = "liquidityPool"
-	TrustworthySignersKey = "signers"
+	QueryGetPoolFunds  = "getPoolFunds"
 )

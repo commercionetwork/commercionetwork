@@ -95,23 +95,41 @@ func (keeper Keeper) DepositIntoPool(ctx sdk.Context, amount sdk.Coins) error {
 	return nil
 }
 
+// GetPoolFunds return the current pool funds for the given context
+func (keeper Keeper) GetPoolFunds(ctx sdk.Context) sdk.Coins {
+	store := ctx.KVStore(keeper.StoreKey)
+	var pool sdk.Coins
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolKey)), &pool)
+	return pool
+}
+
 // DistributeReward allows to give the specified accrediter the specified amount of reward related
 // to the accreditation of the specified user
-// TODO: Test
 func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress, reward sdk.Coins, user sdk.AccAddress) error {
-	store := ctx.KVStore(keeper.StoreKey)
-	if !store.Has(user) {
-		return errors.New("user does not have an accrediter")
+	if reward == nil {
+		return errors.New("reward cannot be empty")
 	}
 
 	if reward.IsAnyNegative() {
 		return errors.New("rewards cannot be negative")
 	}
 
+	store := ctx.KVStore(keeper.StoreKey)
+	if !store.Has(user) {
+		return errors.New("user does not have an accrediter")
+	}
+
+	var accreditation types.Accreditation
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(user), &accreditation)
+
+	if accreditation.Rewarded {
+		return errors.New("the accrediter has already been rewarded for this user")
+	}
+
 	// Get the liquidity pool value
 	var liquidity sdk.Coins
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolKey)), &liquidity)
-	if reward == nil || reward.IsAnyGT(liquidity) {
+	if liquidity == nil || reward.IsAnyGT(liquidity) {
 		return errors.New("liquidity pool has not a sufficient amount of tokens for this reward")
 	}
 
@@ -125,8 +143,6 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress
 	store.Set([]byte(types.LiquidityPoolKey), keeper.cdc.MustMarshalBinaryBare(&liquidity))
 
 	// Update the accreditation
-	var accreditation types.Accreditation
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(user), &accreditation)
 	accreditation.Rewarded = true
 	store.Set(user, keeper.cdc.MustMarshalBinaryBare(&accreditation))
 

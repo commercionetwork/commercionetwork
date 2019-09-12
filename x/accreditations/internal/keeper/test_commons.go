@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -8,21 +9,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 )
 
-var TestUtils = setupTestInput()
-
-type testInput struct {
-	Cdc      *codec.Codec
-	Ctx      sdk.Context
-	AcKeeper Keeper
-}
-
 //This function create an environment to test modules
-func setupTestInput() testInput {
+func getTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -51,20 +43,20 @@ func setupTestInput() testInput {
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	accountKeeper := auth.NewAccountKeeper(cdc, keyAcc, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bankKeeper := bank.NewBaseKeeper(accountKeeper, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
-	accK := NewKeeper(cdc, keyAccreditations, bankKeeper)
+	accreditationKeeper := NewKeeper(cdc, keyAccreditations, bankKeeper)
 
-	return testInput{
-		Cdc:      cdc,
-		Ctx:      ctx,
-		AcKeeper: accK,
-	}
+	return ctx, cdc, accountKeeper, bankKeeper, accreditationKeeper
 }
 
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
 
-	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
-	cdc.RegisterInterface((*auth.Account)(nil), nil)
+	bank.RegisterCodec(cdc)
+	auth.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
+
+	types.RegisterCodec(cdc)
 
 	cdc.Seal()
 
