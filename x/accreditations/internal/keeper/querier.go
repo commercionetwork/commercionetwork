@@ -35,9 +35,9 @@ func queryGetAccrediter(ctx sdk.Context, path []string, keeper Keeper) (res []by
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
-	accrediter := keeper.GetAccrediter(ctx, address)
+	accreditation := keeper.GetAccreditation(ctx, address)
 	response := AccrediterResponse{
-		Accrediter: accrediter,
+		Accrediter: accreditation.Accrediter,
 		User:       address,
 	}
 
@@ -50,7 +50,7 @@ func queryGetAccrediter(ctx sdk.Context, path []string, keeper Keeper) (res []by
 }
 
 func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err sdk.Error) {
-	signers := keeper.GetTrustworthySigners(ctx)
+	signers := keeper.GetTrustedSigners(ctx)
 	if signers == nil {
 		signers = make([]sdk.AccAddress, 0)
 	}

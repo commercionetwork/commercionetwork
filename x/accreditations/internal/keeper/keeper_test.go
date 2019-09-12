@@ -14,7 +14,7 @@ import (
 // ---------------------
 
 func TestKeeper_SetAccrediter_NoAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(TestUser)
@@ -34,7 +34,7 @@ func TestKeeper_SetAccrediter_NoAccrediter(t *testing.T) {
 }
 
 func TestKeeper_SetAccrediter_ExistingAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	existingAccredit := types.Accreditation{
 		Accrediter: TestAccrediter,
@@ -49,30 +49,30 @@ func TestKeeper_SetAccrediter_ExistingAccrediter(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestKeeper_GetAccrediter_NoAccrediter(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := getTestInput()
+func TestKeeper_GetAccreditation_NoAccrediter(t *testing.T) {
+	ctx, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(TestUser)
 
-	accrediter := accreditationKeeper.GetAccrediter(ctx, TestUser)
-	assert.Nil(t, accrediter)
+	accreditation := accreditationKeeper.GetAccreditation(ctx, TestUser)
+	assert.Equal(t, types.Accreditation{}, accreditation)
 }
 
-func TestKeeper_GetAccrediter_ExistingAccrediter(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+func TestKeeper_GetAccreditation_ExistingAccrediter(t *testing.T) {
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
-	accreditation := types.Accreditation{
+	expected := types.Accreditation{
 		Accrediter: TestAccrediter,
 		User:       TestUser,
 		Rewarded:   false,
 	}
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
-	store.Set(TestUser, cdc.MustMarshalBinaryBare(accreditation))
+	store.Set(TestUser, cdc.MustMarshalBinaryBare(expected))
 
-	accrediter := accreditationKeeper.GetAccrediter(ctx, TestUser)
-	assert.Equal(t, TestAccrediter, accrediter)
+	stored := accreditationKeeper.GetAccreditation(ctx, TestUser)
+	assert.Equal(t, expected, stored)
 }
 
 // ---------------------
@@ -80,7 +80,7 @@ func TestKeeper_GetAccrediter_ExistingAccrediter(t *testing.T) {
 // ---------------------
 
 func TestKeeper_GetAccreditations_EmptyList(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := getTestInput()
+	ctx, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -93,7 +93,7 @@ func TestKeeper_GetAccreditations_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_GetAccreditations_NonEmptyList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	acc1 := types.Accreditation{Accrediter: TestAccrediter, User: TestUser, Rewarded: false}
 	acc2 := types.Accreditation{Accrediter: TestUser, User: TestAccrediter, Rewarded: false}
@@ -113,23 +113,29 @@ func TestKeeper_GetAccreditations_NonEmptyList(t *testing.T) {
 // ---------------------
 
 func TestKeeper_DepositIntoPool_EmptyPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, bankKeeper, accreditationKeeper := GetTestInput()
+
+	coins := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(1000)))
+	_ = bankKeeper.SetCoins(ctx, TestUser, coins)
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.LiquidityPoolKey))
 
-	coins := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
-	err := accreditationKeeper.DepositIntoPool(ctx, coins)
+	deposit := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
+	err := accreditationKeeper.DepositIntoPool(ctx, TestUser, deposit)
 	assert.Nil(t, err)
 
 	var pool sdk.Coins
 	poolBz := store.Get([]byte(types.LiquidityPoolKey))
 	cdc.MustUnmarshalBinaryBare(poolBz, &pool)
-	assert.Equal(t, coins, pool)
+	assert.Equal(t, deposit, pool)
 }
 
 func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, bankKeeper, accreditationKeeper := GetTestInput()
+
+	coins := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
+	_ = bankKeeper.SetCoins(ctx, TestUser, coins)
 
 	pool := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
 
@@ -137,7 +143,7 @@ func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
 	store.Set([]byte(types.LiquidityPoolKey), cdc.MustMarshalBinaryBare(&pool))
 
 	addition := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
-	err := accreditationKeeper.DepositIntoPool(ctx, addition)
+	err := accreditationKeeper.DepositIntoPool(ctx, TestUser, addition)
 	assert.Nil(t, err)
 
 	var actual sdk.Coins
@@ -151,8 +157,42 @@ func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestKeeper_SetPoolFunds_EmptyPool(t *testing.T) {
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+
+	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	store.Delete([]byte(types.LiquidityPoolKey))
+
+	deposit := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
+	accreditationKeeper.SetPoolFunds(ctx, deposit)
+
+	var pool sdk.Coins
+	poolBz := store.Get([]byte(types.LiquidityPoolKey))
+	cdc.MustUnmarshalBinaryBare(poolBz, &pool)
+	assert.Equal(t, deposit, pool)
+}
+
+func TestKeeper_SetPoolFunds_ExistingPool(t *testing.T) {
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
+
+	pool := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
+
+	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	store.Set([]byte(types.LiquidityPoolKey), cdc.MustMarshalBinaryBare(&pool))
+
+	addition := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
+	accreditationKeeper.SetPoolFunds(ctx, addition)
+
+	var actual sdk.Coins
+	actualBz := store.Get([]byte(types.LiquidityPoolKey))
+	cdc.MustUnmarshalBinaryBare(actualBz, &actual)
+
+	expected := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
+	assert.Equal(t, expected, actual)
+}
+
 func TestKeeper_GetPoolFunds_EmptyPool(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := getTestInput()
+	ctx, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.LiquidityPoolKey))
@@ -163,7 +203,7 @@ func TestKeeper_GetPoolFunds_EmptyPool(t *testing.T) {
 }
 
 func TestKeeper_GetPoolFunds_ExistingPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	expected := sdk.NewCoins(
 		sdk.NewCoin("uatom", sdk.NewInt(100)),
@@ -183,7 +223,7 @@ func TestKeeper_GetPoolFunds_ExistingPool(t *testing.T) {
 // ---------------------
 
 func TestKeeper_AddTrustworthySigner_EmptyList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -191,10 +231,10 @@ func TestKeeper_AddTrustworthySigner_EmptyList(t *testing.T) {
 		store.Delete(iterator.Key())
 	}
 
-	accreditationKeeper.AddTrustworthySigner(ctx, TestSigner)
+	accreditationKeeper.AddTrustedSigner(ctx, TestSigner)
 
 	var signers ctypes.Addresses
-	signersBz := store.Get([]byte(types.TrustworthySignersKey))
+	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
 	cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 
 	assert.Equal(t, 1, len(signers))
@@ -202,7 +242,7 @@ func TestKeeper_AddTrustworthySigner_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_AddTrustworthySigner_ExistingList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -211,12 +251,12 @@ func TestKeeper_AddTrustworthySigner_ExistingList(t *testing.T) {
 	}
 
 	signers := ctypes.Addresses{TestSigner}
-	store.Set([]byte(types.TrustworthySignersKey), cdc.MustMarshalBinaryBare(&signers))
+	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&signers))
 
-	accreditationKeeper.AddTrustworthySigner(ctx, TestUser)
+	accreditationKeeper.AddTrustedSigner(ctx, TestUser)
 
 	var actual ctypes.Addresses
-	actualBz := store.Get([]byte(types.TrustworthySignersKey))
+	actualBz := store.Get([]byte(types.TrustedSignersStoreKey))
 	cdc.MustUnmarshalBinaryBare(actualBz, &actual)
 
 	assert.Equal(t, 2, len(actual))
@@ -225,7 +265,7 @@ func TestKeeper_AddTrustworthySigner_ExistingList(t *testing.T) {
 }
 
 func TestKeeper_GetTrustworthySigners_EmptyList(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := getTestInput()
+	ctx, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -234,13 +274,13 @@ func TestKeeper_GetTrustworthySigners_EmptyList(t *testing.T) {
 		store.Delete(iterator.Key())
 	}
 
-	signers := accreditationKeeper.GetTrustworthySigners(ctx)
+	signers := accreditationKeeper.GetTrustedSigners(ctx)
 
 	assert.Empty(t, signers)
 }
 
 func TestKeeper_GetTrustworthySigners_ExistingList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -249,9 +289,9 @@ func TestKeeper_GetTrustworthySigners_ExistingList(t *testing.T) {
 	}
 
 	signers := ctypes.Addresses{TestSigner, TestUser, TestAccrediter}
-	store.Set([]byte(types.TrustworthySignersKey), cdc.MustMarshalBinaryBare(&signers))
+	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&signers))
 
-	actual := accreditationKeeper.GetTrustworthySigners(ctx)
+	actual := accreditationKeeper.GetTrustedSigners(ctx)
 	assert.Equal(t, 3, len(actual))
 	assert.Contains(t, actual, TestSigner)
 	assert.Contains(t, actual, TestUser)
@@ -259,7 +299,7 @@ func TestKeeper_GetTrustworthySigners_ExistingList(t *testing.T) {
 }
 
 func TestKeeper_IsTrustworthySigner_EmptyList(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := getTestInput()
+	ctx, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -267,13 +307,13 @@ func TestKeeper_IsTrustworthySigner_EmptyList(t *testing.T) {
 		store.Delete(iterator.Key())
 	}
 
-	assert.False(t, accreditationKeeper.IsTrustworthySigner(ctx, TestSigner))
-	assert.False(t, accreditationKeeper.IsTrustworthySigner(ctx, TestUser))
-	assert.False(t, accreditationKeeper.IsTrustworthySigner(ctx, TestAccrediter))
+	assert.False(t, accreditationKeeper.IsTrustedSigner(ctx, TestSigner))
+	assert.False(t, accreditationKeeper.IsTrustedSigner(ctx, TestUser))
+	assert.False(t, accreditationKeeper.IsTrustedSigner(ctx, TestAccrediter))
 }
 
 func TestKeeper_IsTrustworthySigner_ExistingList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	iterator := store.Iterator(nil, nil)
@@ -282,11 +322,11 @@ func TestKeeper_IsTrustworthySigner_ExistingList(t *testing.T) {
 	}
 
 	signers := ctypes.Addresses{TestUser, TestSigner}
-	store.Set([]byte(types.TrustworthySignersKey), cdc.MustMarshalBinaryBare(&signers))
+	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&signers))
 
-	assert.True(t, accreditationKeeper.IsTrustworthySigner(ctx, TestUser))
-	assert.True(t, accreditationKeeper.IsTrustworthySigner(ctx, TestSigner))
-	assert.False(t, accreditationKeeper.IsTrustworthySigner(ctx, TestAccrediter))
+	assert.True(t, accreditationKeeper.IsTrustedSigner(ctx, TestUser))
+	assert.True(t, accreditationKeeper.IsTrustedSigner(ctx, TestSigner))
+	assert.False(t, accreditationKeeper.IsTrustedSigner(ctx, TestAccrediter))
 }
 
 // --------------------------
@@ -294,7 +334,7 @@ func TestKeeper_IsTrustworthySigner_ExistingList(t *testing.T) {
 // --------------------------
 
 func TestKeeper_DistributeReward_NilReward(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -309,7 +349,7 @@ func TestKeeper_DistributeReward_NilReward(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_NegativeReward(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -327,7 +367,7 @@ func TestKeeper_DistributeReward_NegativeReward(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_NoAccrediter(t *testing.T) {
-	ctx, _, _, _, accreditationKeeper := getTestInput()
+	ctx, _, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(TestUser)
@@ -340,7 +380,7 @@ func TestKeeper_DistributeReward_NoAccrediter(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_AlreadyRewarded(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -355,7 +395,7 @@ func TestKeeper_DistributeReward_AlreadyRewarded(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_EmptyPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.LiquidityPoolKey))
@@ -373,7 +413,7 @@ func TestKeeper_DistributeReward_EmptyPool(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_InsufficientPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -393,7 +433,7 @@ func TestKeeper_DistributeReward_InsufficientPool(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_ValidData(t *testing.T) {
-	ctx, cdc, _, bankKeeper, accreditationKeeper := getTestInput()
+	ctx, cdc, _, bankKeeper, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 

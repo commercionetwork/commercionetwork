@@ -6,8 +6,8 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	LiquidityPoolKey      = StoreKey + ":liquidityPool:"
-	TrustworthySignersKey = StoreKey + ":signers:"
+	LiquidityPoolKey       = StoreKey + ":liquidityPool:"
+	TrustedSignersStoreKey = StoreKey + ":signers:"
 
 	MsgTypeSetAccrediter             = "setAccrediter"
 	MsgTypeDistributeReward          = "distributeReward"

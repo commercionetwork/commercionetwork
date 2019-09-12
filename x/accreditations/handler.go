@@ -26,18 +26,22 @@ func NewHandler(keeper Keeper) sdk.Handler {
 func handleSetAccrediter(ctx sdk.Context, keeper Keeper, msg MsgSetAccrediter) sdk.Result {
 
 	// Check the signer
-	if !keeper.IsTrustworthySigner(ctx, msg.Signer) {
-		errMsg := fmt.Sprintf("The signer %s is not trustworthy", msg.Signer.String())
+	if !keeper.IsTrustedSigner(ctx, msg.Signer) {
+		errMsg := fmt.Sprintf("The signer %s is not trusted", msg.Signer.String())
+		return sdk.ErrInvalidAddress(errMsg).Result()
+	}
+
+	// Check the accreditation
+	if accreditation := keeper.GetAccreditation(ctx, msg.User); accreditation.Accrediter != nil {
+		errMsg := fmt.Sprintf(
+			"User %s already has an accreditation (%s)",
+			msg.User.String(),
+			accreditation.Accrediter.String(),
+		)
 		return sdk.ErrUnknownRequest(errMsg).Result()
 	}
 
-	// Check the accrediter
-	if accrediter := keeper.GetAccrediter(ctx, msg.User); accrediter != nil {
-		errMsg := fmt.Sprintf("User %s already has an accrediter (%s)", msg.User.String(), accrediter.String())
-		return sdk.ErrUnknownRequest(errMsg).Result()
-	}
-
-	// If everything passes the checks, set the accrediter
+	// If everything passes the checks, set the accreditation
 	if err := keeper.SetAccrediter(ctx, msg.User, msg.Accrediter); err != nil {
 		return sdk.ErrUnknownRequest(err.Error()).Result()
 	}
@@ -47,10 +51,15 @@ func handleSetAccrediter(ctx sdk.Context, keeper Keeper, msg MsgSetAccrediter) s
 
 func handleDistributeReward(ctx sdk.Context, keeper Keeper, msg MsgDistributeReward) sdk.Result {
 
-	// Check the accrediter
-	if accrediter := keeper.GetAccrediter(ctx, msg.User); accrediter == nil || !accrediter.Equals(msg.Accrediter) {
+	// Check the accreditation
+	accreditation := keeper.GetAccreditation(ctx, msg.User)
+	if accreditation.Rewarded {
+		return sdk.ErrUnknownRequest("Accrediter has already been rewarded").Result()
+	}
+
+	if accreditation.Accrediter == nil || !accreditation.Accrediter.Equals(msg.Accrediter) {
 		errMsg := fmt.Sprintf("Accrediter of %s does not match with the given one", msg.User.String())
-		return sdk.ErrUnknownRequest(errMsg).Result()
+		return sdk.ErrInvalidAddress(errMsg).Result()
 	}
 
 	// Distribute the reward
@@ -62,7 +71,7 @@ func handleDistributeReward(ctx sdk.Context, keeper Keeper, msg MsgDistributeRew
 }
 
 func handleDepositIntoPool(ctx sdk.Context, keeper Keeper, msg MsgDepositIntoLiquidityPool) sdk.Result {
-	if err := keeper.DepositIntoPool(ctx, msg.Amount); err != nil {
+	if err := keeper.DepositIntoPool(ctx, msg.Depositor, msg.Amount); err != nil {
 		return sdk.ErrUnknownRequest(err.Error()).Result()
 	}
 

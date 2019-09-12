@@ -14,7 +14,7 @@ import (
 )
 
 //This function create an environment to test modules
-func getTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper, Keeper) {
+func GetTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()

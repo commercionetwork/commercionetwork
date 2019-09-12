@@ -22,13 +22,13 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 	txCmd.AddCommand(
 		getCmdSetAccrediter(cdc),
+		getCmdDistributeReward(cdc),
 		getCmdDepositIntoPool(cdc),
 	)
 
 	return txCmd
 }
 
-// GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
 func getCmdSetAccrediter(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set [user] [accrediter]",
@@ -65,7 +65,47 @@ func getCmdSetAccrediter(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-// GetCmdShareDocument is the CLI command for sending a ShareDocument transaction
+func getCmdDistributeReward(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "distribute-reward [user] [accrediter] [amount]",
+		Short: "Distributes the specified reward to the given accrediter if the user has been accreditated.",
+		Args:  cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			signer := cliCtx.GetFromAddress()
+
+			user, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			accrediter, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoins(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgDistributeReward(accrediter, amount, user, signer)
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
 func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [amount]",

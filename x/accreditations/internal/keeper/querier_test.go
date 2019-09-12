@@ -14,7 +14,7 @@ import (
 // ---------------------
 
 func Test_queryGetAccrediter_NonExistent(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete(TestUser)
@@ -33,7 +33,7 @@ func Test_queryGetAccrediter_NonExistent(t *testing.T) {
 }
 
 func Test_queryGetAccrediter_Existent(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 
@@ -58,10 +58,10 @@ func Test_queryGetAccrediter_Existent(t *testing.T) {
 // ---------------------
 
 func Test_queryGetSigners_EmptyList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
-	store.Delete([]byte(types.TrustworthySignersKey))
+	store.Delete([]byte(types.TrustedSignersStoreKey))
 
 	path := []string{types.QueryGetSigners}
 
@@ -77,12 +77,12 @@ func Test_queryGetSigners_EmptyList(t *testing.T) {
 }
 
 func Test_queryGetSigners_ExistingList(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	expected := []sdk.AccAddress{TestSigner, TestAccrediter}
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
-	store.Set([]byte(types.TrustworthySignersKey), cdc.MustMarshalBinaryBare(&expected))
+	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&expected))
 
 	path := []string{types.QueryGetSigners}
 
@@ -103,7 +103,7 @@ func Test_queryGetSigners_ExistingList(t *testing.T) {
 // ---------------------
 
 func Test_queryGetPoolFunds_EmptyPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Delete([]byte(types.LiquidityPoolKey))
@@ -122,7 +122,7 @@ func Test_queryGetPoolFunds_EmptyPool(t *testing.T) {
 }
 
 func Test_queryGetPoolFunds_ExistingPool(t *testing.T) {
-	ctx, cdc, _, _, accreditationKeeper := getTestInput()
+	ctx, cdc, _, _, accreditationKeeper := GetTestInput()
 
 	expected := sdk.NewCoins(
 		sdk.NewCoin("uatom", sdk.NewInt(100)),

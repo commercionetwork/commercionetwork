@@ -20,14 +20,14 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		getCmdAccrediter(cdc),
-		getCmdSigners(cdc),
+		getCmdQueryAccrediter(cdc),
+		getCmdQuerySigners(cdc),
 	)
 
 	return cmd
 }
 
-func getCmdAccrediter(cdc *codec.Codec) *cobra.Command {
+func getCmdQueryAccrediter(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "accrediter [user-address]",
 		Short: "Get the accrediter of user",
@@ -48,7 +48,7 @@ func getCmdAccrediter(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func getCmdSigners(cdc *codec.Codec) *cobra.Command {
+func getCmdQuerySigners(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "signers",
 		Short: "Get all the trustworthy signers",
@@ -56,7 +56,7 @@ func getCmdSigners(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetSigners, args[0])
+			route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetSigners)
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get trustworthy signers: \n %s", err)

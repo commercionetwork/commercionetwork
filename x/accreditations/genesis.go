@@ -22,13 +22,11 @@ func DefaultGenesisState() GenesisState {
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	// Set the liquidity pool
-	if err := keeper.DepositIntoPool(ctx, data.LiquidityPoolAmount); err != nil {
-		panic(err)
-	}
+	keeper.SetPoolFunds(ctx, data.LiquidityPoolAmount)
 
 	// Import the signers
 	for _, signer := range data.TrustworthySigners {
-		keeper.AddTrustworthySigner(ctx, signer)
+		keeper.AddTrustedSigner(ctx, signer)
 	}
 
 	// Import all the accreditations
@@ -44,7 +42,7 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
 		LiquidityPoolAmount: keeper.GetPoolFunds(ctx),
 		Accreditations:      keeper.GetAccreditations(ctx),
-		TrustworthySigners:  keeper.GetTrustworthySigners(ctx),
+		TrustworthySigners:  keeper.GetTrustedSigners(ctx),
 	}
 }
 
