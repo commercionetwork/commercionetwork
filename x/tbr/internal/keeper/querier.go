@@ -16,8 +16,6 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		switch path[0] {
 		case tbrTypes.QueryBlockRewardsPoolFunds:
 			return queryGetBlockRewardsPoolFunds(ctx, path[1:], keeper)
-		case tbrTypes.QueryBlockRewardsPoolFunders:
-			return queryGetBlockRewardsPoolFunders(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", tbrTypes.ModuleName))
 		}
@@ -33,15 +31,4 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, path []string, keeper Keeper
 	}
 
 	return fundsBz, nil
-}
-
-func queryGetBlockRewardsPoolFunders(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	funders := keeper.GetBlockRewardsPoolFunders(ctx)
-
-	fundersBz, err2 := codec.MarshalJSONIndent(keeper.Cdc, funders)
-	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
-	}
-
-	return fundersBz, nil
 }

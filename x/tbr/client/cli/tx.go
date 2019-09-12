@@ -34,7 +34,7 @@ func GetCmdIncrementBlockRewardsPool(cdc *codec.Codec) *cobra.Command {
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			funder := cliCtx.GetFromAddress()
-			amount, err := sdk.ParseCoin(args[0])
+			amount, err := sdk.ParseCoins(args[0])
 			if err != nil {
 				return err
 			}

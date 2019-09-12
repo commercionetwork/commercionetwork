@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	comm "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,79 +30,31 @@ func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk dist
 	}
 }
 
-func (k Keeper) getFundersStoreKey() []byte {
-	return []byte(types.BlockRewardsPoolFundersPrefix)
-}
-
-func (k Keeper) setFunders(ctx sdk.Context, updatedFunders []sdk.AccAddress) {
-	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getFundersStoreKey(), k.Cdc.MustMarshalBinaryBare(&updatedFunders))
-}
-
-//Add new funder to the list of the authorized funders of the block rewards pool
-func (k Keeper) AddBlockRewardsPoolFunder(ctx sdk.Context, funder sdk.AccAddress) {
-	var funders comm.Addresses
-	store := ctx.KVStore(k.StoreKey)
-
-	fundersBz := store.Get(k.getFundersStoreKey())
-	if fundersBz == nil {
-		funders = comm.Addresses{}.AppendIfMissing(funder)
-	} else {
-		k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
-		funders = funders.AppendIfMissing(funder)
-	}
-	k.setFunders(ctx, funders)
-}
-
-//Return all the block rewards pool's funders
-func (k Keeper) GetBlockRewardsPoolFunders(ctx sdk.Context) comm.Addresses {
-	var funders comm.Addresses
-	store := ctx.KVStore(k.StoreKey)
-	fundersBz := store.Get(k.getFundersStoreKey())
-	if fundersBz == nil {
-		return comm.Addresses{}
-	}
-	k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
-	return funders
-}
-
 //Utility method to set Block Reward Pool
 func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.BlockRewardsPoolPrefix), k.Cdc.MustMarshalBinaryBare(&updatedPool))
 }
 
-func (k Keeper) getBrPoolStoreKey() []byte {
-	return []byte(types.BlockRewardsPoolPrefix)
-}
-
 //Return the Block Rewards Pool if exists
 func (k Keeper) GetBlockRewardsPool(ctx sdk.Context) sdk.DecCoins {
 	var brPool sdk.DecCoins
 	store := ctx.KVStore(k.StoreKey)
-	brpBz := store.Get(k.getBrPoolStoreKey())
-	if brpBz == nil {
-		return sdk.DecCoins{}
-	}
+	brpBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
 	k.Cdc.MustUnmarshalBinaryBare(brpBz, &brPool)
 	return brPool
 }
 
 //Increase the Block Rewards Pool with the specified coin amount
-func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coin) {
+func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coins) {
 	bk := k.BankKeeper
-	brAmount := sdk.Coins{amount}
 	brPool := sdk.DecCoins{}
 
-	if bk.HasCoins(ctx, funder, brAmount) {
+	if bk.HasCoins(ctx, funder, amount) {
 		brPool = k.GetBlockRewardsPool(ctx)
-		if brPool.IsZero() {
-			brPool = brPool.Add(sdk.NewDecCoins(brAmount))
-			k.setBlockRewardsPool(ctx, brPool)
-		} else {
-			brPool = brPool.Add(sdk.NewDecCoins(brAmount))
-			k.setBlockRewardsPool(ctx, brPool)
-		}
+		_, _ = bk.SubtractCoins(ctx, funder, amount)
+		brPool = brPool.Add(sdk.NewDecCoins(amount))
+		k.setBlockRewardsPool(ctx, brPool)
 	}
 }
 

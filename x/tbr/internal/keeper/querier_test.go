@@ -24,17 +24,3 @@ func TestQuerier_getBlockRewardsPoolFunds(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
-
-func TestQuerier_getBlockRewardsPoolFunders(t *testing.T) {
-	var cdc, ctx, k, _, _ = SetupTestInput()
-	var querier = NewQuerier(k)
-
-	k.setFunders(ctx, TestFunders)
-
-	path := []string{types.QueryBlockRewardsPoolFunders}
-	actual, _ := querier(ctx, path, request)
-
-	expected, _ := codec.MarshalJSONIndent(cdc, &TestFunders)
-
-	assert.Equal(t, expected, actual)
-}

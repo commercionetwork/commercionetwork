@@ -19,30 +19,9 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(GetCmdRetrieveBlockRewardsPoolFunders(cdc), GetCmdRetrieveBlockRewardsPoolFunds(cdc))
+	cmd.AddCommand(GetCmdRetrieveBlockRewardsPoolFunds(cdc))
 
 	return cmd
-}
-
-func GetCmdRetrieveBlockRewardsPoolFunders(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "funders",
-		Short: "Get the authorized funders of the block rewards pool",
-		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-			route := fmt.Sprintf("custom/%s/%s", types.ModuleName, types.QueryBlockRewardsPoolFunders)
-			res, _, err := cliCtx.QueryWithData(route, nil)
-			if err != nil {
-				fmt.Printf("Could not get any block rewards pool's funders: \n %s", err)
-			}
-
-			fmt.Println(string(res))
-
-			return nil
-		},
-	}
 }
 
 func GetCmdRetrieveBlockRewardsPoolFunds(cdc *codec.Codec) *cobra.Command {

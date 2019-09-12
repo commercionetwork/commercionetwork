@@ -7,62 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	types2 "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/assert"
-
-	comm "github.com/commercionetwork/commercionetwork/x/common/types"
 )
-
-func TestKeeper_getFundersStoreKey(t *testing.T) {
-	_, _, k, _, _ := SetupTestInput()
-	actual := k.getFundersStoreKey()
-	expected := []byte(types.BlockRewardsPoolFundersPrefix)
-
-	assert.Equal(t, expected, actual)
-}
-
-func TestKeeper_setFunders(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
-	var funders comm.Addresses
-
-	k.setFunders(ctx, TestFunders)
-
-	store := ctx.KVStore(k.StoreKey)
-	fundersBz := store.Get([]byte(types.BlockRewardsPoolFundersPrefix))
-	k.Cdc.MustUnmarshalBinaryBare(fundersBz, &funders)
-
-	assert.Equal(t, TestFunders, funders)
-}
-
-func TestKeeper_AddBlockRewardsPoolFunder_FundersNotFound(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
-
-	k.AddBlockRewardsPoolFunder(ctx, TestFunder)
-
-	actual := k.GetBlockRewardsPoolFunders(ctx)
-
-	assert.Equal(t, TestFunders, actual)
-}
-
-func TestKeeper_AddBlockRewardsPoolFunder_FundersFound(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
-	tstFunder, _ := sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-
-	k.setFunders(ctx, TestFunders)
-	k.AddBlockRewardsPoolFunder(ctx, tstFunder)
-
-	expected := TestFunders.AppendIfMissing(tstFunder)
-
-	funders := k.GetBlockRewardsPoolFunders(ctx)
-
-	assert.Equal(t, expected, funders)
-}
-
-func TestKeeper_GetBlockRewardsPoolFunders(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
-	k.setFunders(ctx, TestFunders)
-	actual := k.GetBlockRewardsPoolFunders(ctx)
-
-	assert.Equal(t, TestFunders, actual)
-}
 
 func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
@@ -74,15 +19,6 @@ func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 	k.Cdc.MustUnmarshalBinaryBare(poolBz, &pool)
 
 	assert.Equal(t, pool, TestBlockRewardsPool)
-}
-
-func TestKeeper_getBrPoolStoreKey(t *testing.T) {
-	_, _, k, _, _ := SetupTestInput()
-	actual := k.getBrPoolStoreKey()
-	expected := []byte(types.BlockRewardsPoolPrefix)
-
-	assert.Equal(t, expected, actual)
-
 }
 
 func TestKeeper_GetBlockRewardsPool(t *testing.T) {

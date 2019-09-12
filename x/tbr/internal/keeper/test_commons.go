@@ -30,10 +30,10 @@ var valAddr, _ = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqt
 var pubKey = ed25519.GenPrivKey().PubKey()
 var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
 
-var TestAmount = sdk.Coin{
+var TestAmount = sdk.NewCoins(sdk.Coin{
 	Denom:  "ucommercio",
 	Amount: sdk.NewInt(100),
-}
+})
 
 var coin = sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.DefaultBondDenom}
 var coins = sdk.NewCoins(coin)

@@ -1,19 +1,17 @@
 package types
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
 
 var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestAmount = sdk.Coin{
+var TestAmount = sdk.NewCoins(sdk.Coin{
 	Denom:  "ucommercio",
-	Amount: sdk.NewInt(10),
-}
+	Amount: sdk.NewInt(100),
+})
 
 var msgIncrementsBRPool = MsgIncrementBlockRewardsPool{
 	Funder: TestFunder,
@@ -22,12 +20,10 @@ var msgIncrementsBRPool = MsgIncrementBlockRewardsPool{
 
 var msgIncrementsBrPoolNoFunds = MsgIncrementBlockRewardsPool{
 	Funder: TestFunder,
-	Amount: types.Coin{Amount: sdk.NewInt(0), Denom: DefaultBondDenom},
-}
-
-var msgIncrementsBrPoolWrongDenom = MsgIncrementBlockRewardsPool{
-	Funder: TestFunder,
-	Amount: types.Coin{Amount: sdk.NewInt(1), Denom: "dogecoin"},
+	Amount: sdk.NewCoins(sdk.Coin{
+		Denom:  "ucommercio",
+		Amount: sdk.NewInt(0),
+	}),
 }
 
 func TestMsgIncrementBlockRewardsPool_Route(t *testing.T) {
@@ -53,24 +49,6 @@ func TestMsgIncrementBlockRewardsPool_ValidateBasic_valid(t *testing.T) {
 func TestMsgIncrementBlockRewardsPool_ValidateBasic_noFunds(t *testing.T) {
 	actual := msgIncrementsBrPoolNoFunds.ValidateBasic()
 	expected := sdk.ErrUnknownRequest("You can't transfer a null or negative amount")
-
-	assert.Equal(t, expected, actual)
-}
-
-func TestMsgIncrementBlockRewardsPool_ValidateBasic_negativeFunds(t *testing.T) {
-	var msgIncrementsBrPoolNegativeFunds = MsgIncrementBlockRewardsPool{
-		Funder: TestFunder,
-		Amount: types.Coin{Amount: sdk.NewInt(-5), Denom: DefaultBondDenom},
-	}
-	actual := msgIncrementsBrPoolNegativeFunds.ValidateBasic()
-	expected := sdk.ErrUnknownRequest("You can't transfer a null or negative amount")
-
-	assert.Equal(t, expected, actual)
-}
-
-func TestMsgIncrementBlockRewardsPool_ValidateBasic_WrongCoinDenom(t *testing.T) {
-	actual := msgIncrementsBrPoolWrongDenom.ValidateBasic()
-	expected := sdk.ErrUnknownRequest(fmt.Sprintf("You can't transfer others than %s", DefaultBondDenom))
 
 	assert.Equal(t, expected, actual)
 }

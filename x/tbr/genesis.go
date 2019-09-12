@@ -4,7 +4,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type GenesisState struct{}
+type GenesisState struct {
+	PoolAmount sdk.DecCoins `json:"pool_amount"`
+}
 
 func DefaultGenesisState() GenesisState {
 	return GenesisState{}
