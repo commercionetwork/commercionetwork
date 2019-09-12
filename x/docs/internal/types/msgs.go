@@ -19,7 +19,7 @@ var algorithms = map[string]int{
 }
 
 // ----------------------------------
-// --- ShareDocument
+// --- MsgShareDocument
 // ----------------------------------
 
 type MsgShareDocument Document
@@ -41,14 +41,22 @@ func validateUuid(uuid string) bool {
 
 func validateDocMetadata(docMetadata DocumentMetadata) sdk.Error {
 	if len(docMetadata.ContentUri) == 0 {
-		return sdk.ErrUnknownRequest("Metadata content URI can't be empty")
+		return sdk.ErrUnknownRequest("MetadataSchema content URI can't be empty")
 	}
-	if len(docMetadata.Schema.Uri) == 0 {
-		return sdk.ErrUnknownRequest("Schema URI can't be empty")
+
+	if (docMetadata.Schema == nil) && len(docMetadata.SchemaType) == 0 {
+		return sdk.ErrUnknownRequest("Either schema or schema_type must be defined")
 	}
-	if len(docMetadata.Schema.Version) == 0 {
-		return sdk.ErrUnknownRequest("Schema version can't be empty")
+
+	if docMetadata.Schema != nil {
+		if len(docMetadata.Schema.Uri) == 0 {
+			return sdk.ErrUnknownRequest("Schema URI can't be empty")
+		}
+		if len(docMetadata.Schema.Version) == 0 {
+			return sdk.ErrUnknownRequest("Schema version can't be empty")
+		}
 	}
+
 	if len(docMetadata.Proof) == 0 {
 		return sdk.ErrUnknownRequest("Computation proof can't be empty")
 	}
@@ -123,7 +131,7 @@ func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
 }
 
 // ----------------------------------
-// --- DocumentReceipt
+// --- MsgSendDocumentReceipt
 // ----------------------------------
 
 type MsgSendDocumentReceipt DocumentReceipt
@@ -138,6 +146,7 @@ func (msg MsgSendDocumentReceipt) Route() string { return ModuleName }
 // Type Implements Msg.
 func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeSendDocumentReceipt }
 
+// ValidateBasic Implements Msg.
 func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 	if msg.Sender.Empty() {
 		return sdk.ErrInvalidAddress(msg.Sender.String())
@@ -166,4 +175,78 @@ func (msg MsgSendDocumentReceipt) GetSignBytes() []byte {
 // GetSigners Implements Msg.
 func (msg MsgSendDocumentReceipt) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
+}
+
+// ------------------------------------
+// --- MsgAddSupportedMetadataSchema
+// ------------------------------------
+
+type MsgAddSupportedMetadataSchema struct {
+	Signer sdk.AccAddress `json:"signer"`
+	Schema MetadataSchema `json:"schema"`
+}
+
+// RouterKey Implements Msg.
+func (msg MsgAddSupportedMetadataSchema) Route() string { return ModuleName }
+
+// Type Implements Msg.
+func (msg MsgAddSupportedMetadataSchema) Type() string { return MsgTypeAddSupportedMetadataSchema }
+
+// ValidateBasic Implements Msg.
+func (msg MsgAddSupportedMetadataSchema) ValidateBasic() sdk.Error {
+	if msg.Signer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Signer.String())
+	}
+	if err := msg.Schema.Validate(); err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
+	}
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgAddSupportedMetadataSchema) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgAddSupportedMetadataSchema) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Signer}
+}
+
+// -----------------------------------------
+// --- MsgAddTrustedMetadataSchemaProposer
+// -----------------------------------------
+
+type MsgAddTrustedMetadataSchemaProposer struct {
+	Proposer sdk.AccAddress `json:"proposer"`
+	Signer   sdk.AccAddress `json:"signer"`
+}
+
+// RouterKey Implements Msg.
+func (msg MsgAddTrustedMetadataSchemaProposer) Route() string { return ModuleName }
+
+// Type Implements Msg.
+func (msg MsgAddTrustedMetadataSchemaProposer) Type() string {
+	return MsgTypeAddTrustedMetadataSchemaProposer
+}
+
+// ValidateBasic Implements Msg.
+func (msg MsgAddTrustedMetadataSchemaProposer) ValidateBasic() sdk.Error {
+	if msg.Proposer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Proposer.String())
+	}
+	if msg.Signer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Signer.String())
+	}
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgAddTrustedMetadataSchemaProposer) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgAddTrustedMetadataSchemaProposer) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Signer}
 }

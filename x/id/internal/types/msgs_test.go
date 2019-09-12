@@ -56,7 +56,7 @@ func TestMsgSetIdentity_ValidateBasic_InvalidDidDocumentUri(t *testing.T) {
 }
 
 func TestMsgSetIdentity_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/SetIdentity","value":{"did_document_uri":"https://test.example.com/did-document#1","owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
+	expected := `{"type":"commercio/MsgSetIdentity","value":{"did_document_uri":"https://test.example.com/did-document#1","owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 
 	actual := msgSetId.GetSignBytes()
 	assert.Equal(t, expected, string(actual))

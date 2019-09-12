@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships"
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -15,22 +15,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 )
 
-const (
-	flagClientHome = "home-client"
-)
-
-// AddGenesisMembershipMinterCmd returns add-genesis-minter cobra Command.
-func AddGenesisMembershipMinterCmd(ctx *server.Context, cdc *codec.Codec,
+// SetGenesisGovernmentAddressCmd returns add-genesis-minter cobra Command.
+func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-membership-minter [minter_address_or_key]",
-		Short: "Add genesis membership minter to genesis.json",
+		Use:   "set-genesis-government-address [government_address_or_key]",
+		Short: "Sets the given address as the government address inside genesis.json",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
-			minterAddr, err := sdk.AccAddressFromBech32(args[0])
+			address, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				kb, err := keys.NewKeyBaseFromDir(viper.GetString(flagClientHome))
 				if err != nil {
@@ -42,7 +38,7 @@ func AddGenesisMembershipMinterCmd(ctx *server.Context, cdc *codec.Codec,
 					return err
 				}
 
-				minterAddr = info.GetAddress()
+				address = info.GetAddress()
 			}
 
 			// retrieve the app state
@@ -53,18 +49,17 @@ func AddGenesisMembershipMinterCmd(ctx *server.Context, cdc *codec.Codec,
 			}
 
 			// add minter to the app state
-			var genState memberships.GenesisState
+			var genState government.GenesisState
+			cdc.MustUnmarshalJSON(appState[government.ModuleName], &genState)
 
-			cdc.MustUnmarshalJSON(appState[memberships.ModuleName], &genState)
-
-			if genState.Minters.Contains(minterAddr) {
-				return fmt.Errorf("cannot add minter at existing address %v", minterAddr)
+			if !genState.GovernmentAddress.Empty() {
+				return fmt.Errorf("cannot replace existing government address")
 			}
 
-			genState.Minters = append(genState.Minters, minterAddr)
+			genState.GovernmentAddress = address
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[memberships.ModuleName] = genesisStateBz
+			appState[government.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

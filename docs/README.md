@@ -1,6 +1,6 @@
 # Commercio.network Documentation
 
-# What is `cn`
+## What is `cn`
 `cn` is the name of the Commercio.network application for the [Cosmos Hub](https://hub.cosmos.network/). It is shipped
 with two different entrypoints: 
 
@@ -20,10 +20,14 @@ with two different entrypoints:
 
 A part from these modules, `cn` comes with the following custom modules: 
 
-* `x/commercioauth`: Easy account management.
-* `x/commerciodocs`: Documents storing and sharing. 
-* `x/commercioid`: Pseudonymous identities creation.
+* [`x/docs`](x/docs/README.md): Documents storing and sharing. 
+* [`x/id`](x/id/README.md): Pseudonymous identities creation.
+* [`x/government`](x/government/README.md): On-chain government. 
 
-Next, learn how to [install Commercio.network](./installation.md) 
+## Installing Commercio.network
+If you wish to install a Commercio.network full node or validator, please refer to our
+[installation guide](./installation.md).  
 
-If you want to know more about the supported operations, take a look at the [modules](modules) folder.
+## Developers
+If you're a developer and would like to integrate to Commercio.network, please refer to our 
+[developer guide](developers/README.md). 

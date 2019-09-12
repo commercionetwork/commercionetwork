@@ -6,7 +6,7 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	TrustworthyMinterPrefix = "minter:"
+	TrustedMinterPrefix = "minter:"
 
 	NftDenom = "membership"
 
