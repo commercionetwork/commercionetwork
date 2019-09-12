@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
-	utypes "github.com/commercionetwork/commercionetwork/x/utils/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -138,7 +138,7 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress
 func (keeper Keeper) AddTrustworthySigner(ctx sdk.Context, signer sdk.AccAddress) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	signers := utypes.Addresses(keeper.GetTrustworthySigners(ctx))
+	signers := ctypes.Addresses(keeper.GetTrustworthySigners(ctx))
 	signers = signers.AppendIfMissing(signer)
 
 	newSignersBz := keeper.cdc.MustMarshalBinaryBare(&signers)
@@ -149,7 +149,7 @@ func (keeper Keeper) AddTrustworthySigner(ctx sdk.Context, signer sdk.AccAddress
 // transactions setting a specific accrediter for a user.
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
 // be allowed to send a transaction setting an accrediter for another user.
-func (keeper Keeper) GetTrustworthySigners(ctx sdk.Context) (signers utypes.Addresses) {
+func (keeper Keeper) GetTrustworthySigners(ctx sdk.Context) (signers ctypes.Addresses) {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	signersBz := store.Get([]byte(types.TrustworthySignersKey))

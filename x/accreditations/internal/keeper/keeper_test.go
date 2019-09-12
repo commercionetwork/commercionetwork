@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
-	utypes "github.com/commercionetwork/commercionetwork/x/utils/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -132,7 +132,7 @@ func TestKeeper_AddTrustworthySigner_EmptyList(t *testing.T) {
 
 	TestUtils.AcKeeper.AddTrustworthySigner(TestUtils.Ctx, TestSigner)
 
-	var signers utypes.Addresses
+	var signers ctypes.Addresses
 	signersBz := store.Get([]byte(types.TrustworthySignersKey))
 	TestUtils.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 
@@ -147,12 +147,12 @@ func TestKeeper_AddTrustworthySigner_ExistingList(t *testing.T) {
 		store.Delete(iterator.Key())
 	}
 
-	signers := utypes.Addresses{TestSigner}
+	signers := ctypes.Addresses{TestSigner}
 	store.Set([]byte(types.TrustworthySignersKey), TestUtils.Cdc.MustMarshalBinaryBare(&signers))
 
 	TestUtils.AcKeeper.AddTrustworthySigner(TestUtils.Ctx, TestUser)
 
-	var actual utypes.Addresses
+	var actual ctypes.Addresses
 	actualBz := store.Get([]byte(types.TrustworthySignersKey))
 	TestUtils.Cdc.MustUnmarshalBinaryBare(actualBz, &actual)
 
@@ -181,7 +181,7 @@ func TestKeeper_GetTrustworthySigners_ExistingList(t *testing.T) {
 		store.Delete(iterator.Key())
 	}
 
-	signers := utypes.Addresses{TestSigner, TestUser, TestAccrediter}
+	signers := ctypes.Addresses{TestSigner, TestUser, TestAccrediter}
 	store.Set([]byte(types.TrustworthySignersKey), TestUtils.Cdc.MustMarshalBinaryBare(&signers))
 
 	actual := TestUtils.AcKeeper.GetTrustworthySigners(TestUtils.Ctx)
@@ -210,7 +210,7 @@ func TestKeeper_IsTrustworthySigner_ExistingList(t *testing.T) {
 		store.Delete(iterator.Key())
 	}
 
-	signers := utypes.Addresses{TestUser, TestSigner}
+	signers := ctypes.Addresses{TestUser, TestSigner}
 	store.Set([]byte(types.TrustworthySignersKey), TestUtils.Cdc.MustMarshalBinaryBare(&signers))
 
 	assert.True(t, TestUtils.AcKeeper.IsTrustworthySigner(TestUtils.Ctx, TestUser))
