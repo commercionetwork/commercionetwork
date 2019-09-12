@@ -15,6 +15,7 @@ var (
 	//function aliases
 	NewKeeper     = keeper.NewKeeper
 	NewQuerier    = keeper.NewQuerier
+	TestSetup     = keeper.SetupTestInput
 	RegisterCodec = types.RegisterCodec
 
 	//variable aliases

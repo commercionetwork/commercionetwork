@@ -9,22 +9,22 @@ import (
 )
 
 func TestKeeper_SetGovernmentAddress_NonExisting(t *testing.T) {
-	input := setupTestInput()
+	_, ctx, k := SetupTestInput()
 
-	err := input.Keeper.SetGovernmentAddress(input.Ctx, TestAddress)
+	err := k.SetGovernmentAddress(ctx, TestAddress)
 	assert.Nil(t, err)
 
-	store := input.Ctx.KVStore(input.Keeper.StoreKey)
+	store := ctx.KVStore(k.StoreKey)
 	stored := sdk.AccAddress(store.Get([]byte(types.GovernmentStoreKey)))
 	assert.Equal(t, TestAddress, stored)
 }
 
 func TestKeeper_GetGovernmentAddress(t *testing.T) {
-	input := setupTestInput()
-	store := input.Ctx.KVStore(input.Keeper.StoreKey)
+	_, ctx, k := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.GovernmentStoreKey), TestAddress)
 
-	actual := input.Keeper.GetGovernmentAddress(input.Ctx)
+	actual := k.GetGovernmentAddress(ctx)
 
 	assert.Equal(t, TestAddress, actual)
 }

@@ -9,7 +9,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-var querier = NewQuerier(TestUtils.DocsKeeper)
 var request abci.RequestQuery
 var documents = types.Documents{TestingDocument}
 
@@ -18,25 +17,30 @@ var documents = types.Documents{TestingDocument}
 // ----------------------------------
 
 func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	store.Delete(TestUtils.DocsKeeper.getReceivedDocumentsStoreKey(TestingDocument.Recipient))
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete(k.getReceivedDocumentsStoreKey(TestingDocument.Recipient))
 
 	path := []string{types.QueryReceivedDocuments, TestingDocument.Recipient.String()}
 
 	var actual types.Documents
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, "[]", string(actualBz))
 	assert.Empty(t, actual)
 }
 
 func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
 	// Setup the store
-	metadataStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	metadataStore := ctx.KVStore(k.StoreKey)
 	metadataStore.Set(
-		TestUtils.DocsKeeper.getReceivedDocumentsStoreKey(TestingDocument.Recipient),
-		TestUtils.Cdc.MustMarshalBinaryBare(&documents),
+		k.getReceivedDocumentsStoreKey(TestingDocument.Recipient),
+		cdc.MustMarshalBinaryBare(&documents),
 	)
 
 	// Compose the path
@@ -44,32 +48,37 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 
 	// Get the returned documents
 	var actual types.Documents
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, documents, actual)
 }
 
 func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	store.Delete(TestUtils.DocsKeeper.getSentDocumentsStoreKey(TestingDocument.Sender))
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete(k.getSentDocumentsStoreKey(TestingDocument.Sender))
 
 	path := []string{types.QuerySentDocuments, TestingDocument.Sender.String()}
 
 	var actual types.Documents
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, "[]", string(actualBz))
 	assert.Empty(t, actual)
 }
 
 func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
-	// Setup the store
-	metadataStore := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	metadataStore := ctx.KVStore(k.StoreKey)
 	metadataStore.Set(
-		TestUtils.DocsKeeper.getSentDocumentsStoreKey(TestingDocument.Sender),
-		TestUtils.Cdc.MustMarshalBinaryBare(&documents),
+		k.getSentDocumentsStoreKey(TestingDocument.Sender),
+		cdc.MustMarshalBinaryBare(&documents),
 	)
 
 	// Compose the path
@@ -77,8 +86,8 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 
 	// Get the returned documents
 	var actual types.Documents
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, documents, actual)
 }
@@ -88,29 +97,34 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 // ---------------------------------
 
 func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
 
 	// Get the returned receipts
 	var actual types.DocumentReceipts
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, "[]", string(actualBz))
 	assert.Empty(t, actual)
 }
 
 func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
-	// Setup the store
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	var stored = types.DocumentReceipts{TestingDocumentReceipt}
 	store.Set(
-		TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
-		TestUtils.Cdc.MustMarshalBinaryBare(&stored),
+		k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
+		cdc.MustMarshalBinaryBare(&stored),
 	)
 
 	// Compose the path
@@ -118,21 +132,23 @@ func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 
 	// Get the returned receipts
 	var actual types.DocumentReceipts
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, stored, actual)
 }
 
 func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
-	// Setup the store
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	store.Delete(TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	var stored = types.DocumentReceipts{TestingDocumentReceipt}
 	store.Set(
-		TestUtils.DocsKeeper.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
-		TestUtils.Cdc.MustMarshalBinaryBare(&stored),
+		k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
+		cdc.MustMarshalBinaryBare(&stored),
 	)
 
 	// Compose the path
@@ -140,41 +156,47 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 
 	// Get the returned receipts
 	var actual types.DocumentReceipts
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	var expected = types.DocumentReceipts{TestingDocumentReceipt}
 	assert.Equal(t, expected, actual)
 }
 
 func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	store.Delete(TestUtils.DocsKeeper.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
 	var actual types.DocumentReceipts
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, "[]", string(actualBz))
 	assert.Empty(t, actual)
 }
 
 func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
 
 	var stored = types.DocumentReceipts{TestingDocumentReceipt}
 	store.Set(
-		TestUtils.DocsKeeper.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender),
-		TestUtils.Cdc.MustMarshalBinaryBare(&stored),
+		k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender),
+		cdc.MustMarshalBinaryBare(&stored),
 	)
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
 	var actual types.DocumentReceipts
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, stored, actual)
 }
@@ -184,33 +206,39 @@ func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 // ----------------------------------
 
 func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
 	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
 
 	path := []string{types.QuerySupportedMetadataSchemes}
 
 	var actual types.MetadataSchemes
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, "[]", string(actualBz))
 	assert.Empty(t, actual)
 }
 
 func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
 
 	schemes := []types.MetadataSchema{
 		{Type: "schema", SchemaUri: "https://example.com/schema", Version: "1.0.0"},
 		{Type: "other-schema", SchemaUri: "https://example.com/other-schema", Version: "1.0.0"},
 	}
-	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), TestUtils.Cdc.MustMarshalBinaryBare(&schemes))
+	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), cdc.MustMarshalBinaryBare(&schemes))
 
 	path := []string{types.QuerySupportedMetadataSchemes}
 
 	var actual []types.MetadataSchema
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, schemes, actual)
 }
@@ -220,30 +248,36 @@ func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
 // -----------------------------------------
 
 func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
+	store := ctx.KVStore(k.StoreKey)
 	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
 
 	path := []string{types.QueryTrustedMetadataProposers}
 
 	var actual []sdk.AccAddress
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, "[]", string(actualBz))
 	assert.Empty(t, actual)
 }
 
 func Test_queryTrustedMetadataProposers_ExistingList(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	//Setup the store
 	proposers := []sdk.AccAddress{TestingSender, TestingSender2}
 
-	store := TestUtils.Ctx.KVStore(TestUtils.DocsKeeper.StoreKey)
-	store.Set([]byte(types.MetadataSchemaProposersStoreKey), TestUtils.Cdc.MustMarshalBinaryBare(&proposers))
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.MetadataSchemaProposersStoreKey), cdc.MustMarshalBinaryBare(&proposers))
 
 	path := []string{types.QueryTrustedMetadataProposers}
 
 	var actual []sdk.AccAddress
-	actualBz, _ := querier(TestUtils.Ctx, path, request)
-	TestUtils.Cdc.MustUnmarshalJSON(actualBz, &actual)
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, proposers, actual)
 }
