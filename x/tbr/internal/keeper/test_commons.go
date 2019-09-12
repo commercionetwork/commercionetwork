@@ -18,7 +18,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 
-	comm "github.com/commercionetwork/commercionetwork/x/common/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 var (
@@ -39,7 +39,7 @@ var coin = sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.DefaultBondDenom}
 var coins = sdk.NewCoins(coin)
 var TestBlockRewardsPool = sdk.NewDecCoins(coins)
 
-var TestFunders = comm.Addresses{TestFunder}
+var TestFunders = ctypes.Addresses{TestFunder}
 
 func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
 	memDB := db.NewMemDB()
