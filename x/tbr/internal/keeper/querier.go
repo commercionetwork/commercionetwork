@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	tbrTypes "github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
+	tbrTypes "github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )

@@ -1,4 +1,4 @@
-package txreward
+package tbr
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"

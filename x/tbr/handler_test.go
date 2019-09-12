@@ -1,11 +1,11 @@
-package txreward
+package tbr
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )

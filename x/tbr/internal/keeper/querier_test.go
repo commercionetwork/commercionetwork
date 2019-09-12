@@ -3,7 +3,7 @@ package keeper
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/stretchr/testify/assert"
 	abci "github.com/tendermint/tendermint/abci/types"

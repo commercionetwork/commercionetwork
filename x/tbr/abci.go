@@ -1,9 +1,9 @@
-package txreward
+package tbr
 
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

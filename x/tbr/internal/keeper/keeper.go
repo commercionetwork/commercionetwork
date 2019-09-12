@@ -2,7 +2,7 @@ package keeper
 
 import (
 	comm "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"

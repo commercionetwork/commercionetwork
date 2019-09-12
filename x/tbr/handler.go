@@ -1,10 +1,10 @@
-package txreward
+package tbr
 
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -1,8 +1,8 @@
-package txreward
+package tbr
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/txreward/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 )
 
 const (

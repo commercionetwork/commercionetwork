@@ -1,4 +1,4 @@
-package txreward
+package tbr
 
 import (
 	"encoding/json"
