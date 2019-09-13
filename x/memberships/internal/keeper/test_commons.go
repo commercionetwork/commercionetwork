@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/nft/exported"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -15,19 +14,11 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-type testInput struct {
-	Cdc              *codec.Codec
-	Ctx              sdk.Context
-	accKeeper        auth.AccountKeeper
-	bankKeeper       bank.BaseKeeper
-	MembershipKeeper Keeper
-}
-
 //This function create an environment to test modules
-func setupTestInput() testInput {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	memDB := db.NewMemDB()
-	cdc := testCodec()
+	cdc = testCodec()
 	authKey := sdk.NewKVStoreKey("authCapKey")
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
 	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
@@ -48,16 +39,12 @@ func setupTestInput() testInput {
 
 	_ = ms.LoadLatestVersion()
 
-	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	nftk := nft.NewKeeper(cdc, nftKey)
-	idk := NewKeeper(cdc, storeKey, nftk)
+	memk := NewKeeper(cdc, storeKey, nftk)
 
-	return testInput{
-		Cdc:              cdc,
-		Ctx:              ctx,
-		MembershipKeeper: idk,
-	}
+	return cdc, ctx, memk
 }
 
 func testCodec() *codec.Codec {
@@ -74,8 +61,6 @@ func testCodec() *codec.Codec {
 
 	return cdc
 }
-
-var TestUtils = setupTestInput()
 
 // Test variables
 var TestSignerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
