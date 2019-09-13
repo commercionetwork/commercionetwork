@@ -46,16 +46,21 @@ func (k Keeper) GetBlockRewardsPool(ctx sdk.Context) sdk.DecCoins {
 }
 
 //Increase the Block Rewards Pool with the specified coin amount
-func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coins) {
+func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coins) error {
 	bk := k.BankKeeper
 	brPool := sdk.DecCoins{}
 
 	if bk.HasCoins(ctx, funder, amount) {
 		brPool = k.GetBlockRewardsPool(ctx)
-		_, _ = bk.SubtractCoins(ctx, funder, amount)
+		_, err := bk.SubtractCoins(ctx, funder, amount)
+		if err != nil {
+			return err
+		}
 		brPool = brPool.Add(sdk.NewDecCoins(amount))
 		k.SetBlockRewardsPool(ctx, brPool)
 	}
+
+	return nil
 }
 
 /*

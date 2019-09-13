@@ -107,7 +107,7 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1000), Denom: types.DefaultBondDenom})
 	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
 
-	k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
+	_ = k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
 	actual := k.GetBlockRewardsPool(ctx)
 
 	var greater bool
