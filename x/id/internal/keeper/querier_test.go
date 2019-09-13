@@ -9,17 +9,18 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-var querier = NewQuerier(TestUtils.IdKeeper)
 var request abci.RequestQuery
 
 func Test_queryResolveIdentity(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.IdentitiesStorePrefix+TestOwnerAddress.String()), []byte(TestDidDocumentUri))
 
 	path := []string{"identities", TestOwnerAddress.String()}
-	actual, _ := querier(TestUtils.Ctx, path, request)
+	actual, _ := querier(ctx, path, request)
 
-	expected, _ := codec.MarshalJSONIndent(TestUtils.Cdc, IdentityResult{
+	expected, _ := codec.MarshalJSONIndent(cdc, IdentityResult{
 		Did:          TestOwnerAddress,
 		DdoReference: TestDidDocumentUri,
 	})
@@ -27,7 +28,9 @@ func Test_queryResolveIdentity(t *testing.T) {
 }
 
 func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
 	path := []string{"identities", "nunu"}
-	_, err := querier(TestUtils.Ctx, path, request)
+	_, err := querier(ctx, path, request)
 	assert.Error(t, err)
 }

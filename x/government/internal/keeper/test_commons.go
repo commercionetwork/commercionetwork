@@ -12,19 +12,11 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-var TestUtils = setupTestInput()
-
-type TestInput struct {
-	Cdc    *codec.Codec
-	Ctx    sdk.Context
-	Keeper Keeper
-}
-
 //This function create an enviroment to test modules
-func setupTestInput() TestInput {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	memDB := db.NewMemDB()
-	cdc := testCodec()
+	cdc = testCodec()
 	authKey := sdk.NewKVStoreKey("authCapKey")
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
 	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
@@ -45,15 +37,11 @@ func setupTestInput() TestInput {
 	ms.MountStoreWithDB(keyGovernment, sdk.StoreTypeIAVL, memDB)
 	_ = ms.LoadLatestVersion()
 
-	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	govk := NewKeeper(keyGovernment, cdc)
 
-	return TestInput{
-		Cdc:    cdc,
-		Ctx:    ctx,
-		Keeper: govk,
-	}
+	return cdc, ctx, govk
 }
 
 func testCodec() *codec.Codec {
