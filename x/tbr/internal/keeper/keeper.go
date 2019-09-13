@@ -31,7 +31,7 @@ func NewKeeper(storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk dist
 }
 
 //Utility method to set Block Reward Pool
-func (k Keeper) setBlockRewardsPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
+func (k Keeper) SetBlockRewardsPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.BlockRewardsPoolPrefix), k.Cdc.MustMarshalBinaryBare(&updatedPool))
 }
@@ -54,7 +54,7 @@ func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress
 		brPool = k.GetBlockRewardsPool(ctx)
 		_, _ = bk.SubtractCoins(ctx, funder, amount)
 		brPool = brPool.Add(sdk.NewDecCoins(amount))
-		k.setBlockRewardsPool(ctx, brPool)
+		k.SetBlockRewardsPool(ctx, brPool)
 	}
 }
 
@@ -171,7 +171,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 	//Check if the pool has enough funds
 	if brPool.AmountOf(types.DefaultBondDenom).GTE(reward.AmountOf(types.DefaultBondDenom)) {
 		brPool = brPool.Sub(reward)
-		k.setBlockRewardsPool(ctx, brPool)
+		k.SetBlockRewardsPool(ctx, brPool)
 
 		//Get his current reward and then add the new one
 		currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())

@@ -13,7 +13,7 @@ func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 	var pool sdk.DecCoins
 
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
 	store := ctx.KVStore(k.StoreKey)
 	poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
 	k.Cdc.MustUnmarshalBinaryBare(poolBz, &pool)
@@ -24,7 +24,7 @@ func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 func TestKeeper_GetBlockRewardsPool(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
 	actual := k.GetBlockRewardsPool(ctx)
 
 	assert.Equal(t, TestBlockRewardsPool, actual)
@@ -72,7 +72,7 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 
 	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(1000))}
 
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
 
 	validatorRewards := types2.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
@@ -90,7 +90,7 @@ func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(12000))}
 	brPool := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(10000))}
 
-	k.setBlockRewardsPool(ctx, brPool)
+	k.SetBlockRewardsPool(ctx, brPool)
 
 	err := k.DistributeBlockRewards(ctx, TestValidator, reward)
 
@@ -100,7 +100,7 @@ func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 	_, ctx, k, ak, bk := SetupTestInput()
 
-	k.setBlockRewardsPool(ctx, TestBlockRewardsPool)
+	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
 
 	acc := ak.NewAccountWithAddress(ctx, TestFunder)
 	ak.SetAccount(ctx, acc)
