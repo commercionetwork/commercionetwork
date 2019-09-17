@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -9,8 +10,8 @@ import (
 type Keeper struct {
 	StoreKey sdk.StoreKey
 
-	BankKeeper bank.BaseKeeper
-	//PriceFeedKeeper pricefeed.Keeper
+	BankKeeper      bank.BaseKeeper
+	PriceFeedKeeper pricefeed.Keeper
 
 	cdc *codec.Codec
 }

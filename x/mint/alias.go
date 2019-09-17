@@ -18,3 +18,9 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 )
+
+type (
+	Keeper           = keeper.Keeper
+	MsgDepositToken  = types.MsgDepositToken
+	MsgWithdrawToken = types.MsgWithdrawToken
+)
