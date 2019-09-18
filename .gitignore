@@ -1,3 +1,7 @@
+### Docs
+/node_modules
+/.vuepress
+
 ### JetBrains
 .idea
 *.iml
