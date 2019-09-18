@@ -6,13 +6,13 @@ import (
 
 type MsgDepositToken struct {
 	Signer sdk.AccAddress `json:"sender"`
-	Amount sdk.Coins      `json:"amount"`
+	Tokens sdk.Coins      `json:"token"`
 }
 
 func NewMsgDepositToken(signer sdk.AccAddress, amount sdk.Coins) MsgDepositToken {
 	return MsgDepositToken{
 		Signer: signer,
-		Amount: amount,
+		Tokens: amount,
 	}
 }
 
@@ -26,11 +26,11 @@ func (msg MsgDepositToken) ValidateBasic() sdk.Error {
 	if msg.Signer.Empty() {
 		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
-	if msg.Amount.Empty() || msg.Amount.IsAnyNegative() {
+	if msg.Tokens.Empty() || msg.Tokens.IsAnyNegative() {
 		return sdk.ErrUnknownRequest("Token's amount cannot be empty or negative")
 	}
 
-	for _, ele := range msg.Amount {
+	for _, ele := range msg.Tokens {
 		if ele.Denom != "ucommercio" {
 			return sdk.ErrUnknownRequest("Only commercio tokens can be deposited")
 		}
@@ -57,7 +57,7 @@ type MsgWithdrawToken struct {
 func NewMsgWithdrawToken(signer sdk.AccAddress, amount sdk.Coins) MsgDepositToken {
 	return MsgDepositToken{
 		Signer: signer,
-		Amount: amount,
+		Tokens: amount,
 	}
 }
 
