@@ -6,10 +6,14 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	MsgTypeSetPrice = "setPrice"
+	MsgTypeSetPrice  = "setPrice"
+	MsgTypeAddOracle = "addOracle"
 
 	QueryGetTokenPrice = "price"
 
-	// Store prefix for the current price of an asset
+	//CurrentPricePrefix store prefix for the current price of an asset
 	CurrentPricePrefix = StoreKey + ":currentprice:"
+
+	//OraclePrefix store prefix for the oracle accounts
+	OraclePrefix = StoreKey + ":oracles:"
 )

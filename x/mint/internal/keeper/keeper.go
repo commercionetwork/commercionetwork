@@ -9,17 +9,14 @@ import (
 )
 
 type Keeper struct {
-	StoreKey sdk.StoreKey
-
 	BankKeeper      bank.BaseKeeper
 	PriceFeedKeeper pricefeed.Keeper
 
 	cdc *codec.Codec
 }
 
-func NewKeeper(storekey sdk.StoreKey, bk bank.BaseKeeper, pk pricefeed.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(bk bank.BaseKeeper, pk pricefeed.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
-		StoreKey:        storekey,
 		BankKeeper:      bk,
 		PriceFeedKeeper: pk,
 		cdc:             cdc,
@@ -36,13 +33,13 @@ func (keeper Keeper) DepositToken(ctx sdk.Context, user sdk.AccAddress, token sd
 		return nil, err
 	}
 	//get token's current price
-	tokenPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultBondDenom)
+	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultBondDenom)
 
 	//get the token value = tokens amount * token price
 	tokenValue := tokenPrice.Mul(token.AmountOf(types.DefaultBondDenom))
 
 	//get credits' current price
-	creditsPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultCreditsDenom)
+	creditsPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultCreditsDenom)
 
 	//get credits' amount = token value / credits price
 	creditsAmount := tokenValue.Quo(creditsPrice)
@@ -68,13 +65,13 @@ func (keeper Keeper) WithdrawToken(ctx sdk.Context, user sdk.AccAddress, credits
 	}
 
 	//get credit's current price
-	creditsPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultCreditsDenom)
+	creditsPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultCreditsDenom)
 
 	//get the credits' value = credits amount * credits price
 	creditsValue := creditsPrice.Mul(credits.AmountOf(types.DefaultCreditsDenom))
 
 	//get token's current price
-	tokenPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultBondDenom)
+	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultBondDenom)
 
 	//get tokens' amount = credits value / token price
 	tokensAmount := creditsValue.Quo(tokenPrice)
