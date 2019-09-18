@@ -39,7 +39,7 @@ func (keeper Keeper) DepositToken(ctx sdk.Context, user sdk.AccAddress, token sd
 	tokenPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultBondDenom)
 
 	//get the token value = tokens amount * token price
-	tokenValue := tokenPrice.Mul(token.AmountOf(types.DefaultBondDenom).ToDec())
+	tokenValue := tokenPrice.Mul(token.AmountOf(types.DefaultBondDenom))
 
 	//get credits' current price
 	creditsPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultCreditsDenom)
@@ -48,7 +48,7 @@ func (keeper Keeper) DepositToken(ctx sdk.Context, user sdk.AccAddress, token sd
 	creditsAmount := tokenValue.Quo(creditsPrice)
 
 	//add credits to users wallet
-	credits := sdk.NewCoins(sdk.NewCoin(types.DefaultCreditsDenom, creditsAmount.TruncateInt()))
+	credits := sdk.NewCoins(sdk.NewCoin(types.DefaultCreditsDenom, creditsAmount))
 	credits, err = keeper.BankKeeper.AddCoins(ctx, user, credits)
 	if err != nil {
 		return nil, err
@@ -71,14 +71,14 @@ func (keeper Keeper) WithdrawToken(ctx sdk.Context, user sdk.AccAddress, credits
 	creditsPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultCreditsDenom)
 
 	//get the credits' value = credits amount * credits price
-	creditsValue := creditsPrice.Mul(credits.AmountOf(types.DefaultCreditsDenom).ToDec())
+	creditsValue := creditsPrice.Mul(credits.AmountOf(types.DefaultCreditsDenom))
 
 	//get token's current price
 	tokenPrice := keeper.PriceFeedKeeper.GetTokenPrice(ctx, types.DefaultBondDenom)
 
 	//get tokens' amount = credits value / token price
 	tokensAmount := creditsValue.Quo(tokenPrice)
-	tokens := sdk.NewCoins(sdk.NewCoin(types.DefaultBondDenom, tokensAmount.TruncateInt()))
+	tokens := sdk.NewCoins(sdk.NewCoin(types.DefaultBondDenom, tokensAmount))
 	credits, err = keeper.BankKeeper.AddCoins(ctx, user, tokens)
 	if err != nil {
 		return nil, err

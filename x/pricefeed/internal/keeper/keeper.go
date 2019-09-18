@@ -24,8 +24,8 @@ func (keeper Keeper) SetTokenPrice(ctx sdk.Context, signer sdk.AccAddress, price
 }
 
 //GetTokenPrice retrieves the current price for the given token name
-func (keeper Keeper) GetTokenPrice(ctx sdk.Context, tokenName string) sdk.Dec {
-	return sdk.Dec{}
+func (keeper Keeper) GetTokenPrice(ctx sdk.Context, tokenName string) sdk.Int {
+	return sdk.Int{}
 }
 
 //ValidateSigner checks if the signer who's trying to post a new price has the rights to do that
