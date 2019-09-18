@@ -2,6 +2,10 @@
 After you've setup your hardware following the [hardware requirements](hardware-requirements.md) you are now ready to
 become a Commercio.network full node. 
 
+:::warning  
+Make sure you have read the [hardware requirements](hardware-requirements.md) before starting  
+:::
+
 ## 1. Installing the software requirements
 In order to update the OS so that you can work properly, execute the following commands:
 

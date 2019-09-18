@@ -75,9 +75,10 @@ workflows:
             tags:
               only:
                 - /^v.*/
+      - test:
+          filters:
             branches:
               ignore:
                 - gh-pages
-      - test:
           requires:
             - setup_dependencies
