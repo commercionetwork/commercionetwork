@@ -17,14 +17,14 @@ module.exports = {
         ],
         sidebar: [
             {
-                title: "Validators",
+                title: "Nodes",
                 collapsable: false,
                 children: [
-                    "/installation",
-                    "/join-testnet",
-                    "/join-mainnet",
-                    "/validator-setup",
-                    "/validator-hardware",
+                    ["nodes/", "Introduction"],
+                    ["nodes/hardware-requirements", "Hardware requirements"],
+                    ["nodes/full-node-installation", "Installing a full node"],
+                    ["nodes/validator-node-installation", "Becoming a validator"],
+                    ["nodes/validator-node-update", "Updating a validator"],
                 ]
             },
             {
