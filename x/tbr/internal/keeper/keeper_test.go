@@ -118,3 +118,18 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 
 	assert.True(t, greater)
 }
+
+func TestKeeper_IncrementBlockRewardsPool_InsufficientUserFunds(t *testing.T) {
+	_, ctx, k, ak, bk := SetupTestInput()
+
+	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
+
+	acc := ak.NewAccountWithAddress(ctx, TestFunder)
+	ak.SetAccount(ctx, acc)
+	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1), Denom: types.DefaultBondDenom})
+	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
+
+	err := k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
+
+	assert.Error(t, err)
+}
