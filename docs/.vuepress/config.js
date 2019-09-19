@@ -15,6 +15,7 @@ module.exports = {
         nav: [
             {text: "Commercio.network", link: "https://commercio.network"},
         ],
+        sidebarDepth: 2,
         sidebar: [
             {
                 title: "Nodes",
@@ -43,7 +44,8 @@ module.exports = {
                     "x/docs/",
                     "x/id/"
                 ]
-            }
+            },
+            "chain-start/"
         ],
     }
 };

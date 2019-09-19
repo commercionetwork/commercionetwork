@@ -1,68 +1,80 @@
-# Update chain
-**IMPORTANT BEFORE YOU START**: If you are a new validator you need follow ["Getting Started"](##getting-started) procedure. __DON'T USE THESE UPDATE PROCEDURES__    
+# Updating a validator
+
+:::danger  
+If you are a new validator you need follow the [*"Becoming a validator"* procedure](validator-node-installation.md).   
+**DO NOT USE THIS UPDATE PROCEDURES**  
+:::    
       
-This section describe the procedures to update chain from a version to another.    
-Every update have a specific produre type.   
-First type will be used only for testnet chains, while the second will be used to update mainnet chain.  
-Every chain starting `commercio-testnet3000` contains type procedure adopted.   
-In     
+This section describes the procedure that needs to be followed in order to update a validator node from one 
+version to another.
 
-`https://github.com/commercionetwork/chains/blob/master/commercio-<chain-version>/.data`      
+Please note that each chain version has an update type associated to it. 
+In order to know which one is associated to the chain version you are currently running, please do the following:
 
-You should find `Update type`.
+1. Go to our [chains repo](https://github.com/commercionetwork/chains)
+2. Enter the folder of you current chain's version 
+3. Open the `.data` file
+4. Read the  value associated to the `Update type` field.
+
+Once you know the update type, please follow the related procedure:
+
+* Update type [`1 - Hard fork`](#update-type-1---hard-fork)
+* Update type [`2 - Soft fork`](#update-type-2---soft-fork)
 
 
-## 1. Update with "getting started" procedure
-This type is similar to the "getting started" procedure.   
-You need to delete or move the `~/.cnd` folder and start as fresh.    
-You can mantain your wallet that is installed in `~/.cncli` folder or in your `ledger` device, or recreate it with mnemonic.   
-You can create new wallet if you prefered and use a new account to become a validator.   
+## Update type 1 - Hard fork
+The procedure to follow in order to upgrade the chain using this update type is very similar to the 
+[installation procedure](validator-node-installation.md).
+
+Due to this procedure being a **hard fork**, this means that any of the current chain data will be completely wiped 
+and a new chain will start from scratch. However, if you want you can create a copy of the current chain state in order
+to use it for testing purposes.    
+
+### 1. Wipe the current chain state
+To start the procedure we need to kill the service running the chain:
 
 ```bash
 systemctl stop cnd
-pkill cnd #We want be sure that chain process was stopped ;)
+pkill cnd
 ```
 
-Delete `~/.cnd` folder
+Now, we need to wipe the chain state. In order to do so, you have two options:
 
-```bash
-rm -rf ~/.cnd
-```
+1. Backup your data  
+   `cp -r ~/.cnd ~/.cnd.back`
+2. Delete the data without a backup
+   `rm -rf ~/.cnd`
 
-or move it (if you want keep the old testnet state for your porpouses). 
-Use `<previous-chain-version>` name for copy name for example
+### 2. Start a new chain
+Once you have properly cleaned up the previous chain state, you are ready to start the new chain version.   
+To do so, please refer to the [full node installation guide](full-node-installation.md) but remember to apply the 
+following changes to the procedure described there:
 
-```bash
-cp -r ~/.cnd ~/.cnd.<previous-chain-version>
-```
-
-Now you can start follow "getting started" procedure.
-**ATTENTION**: before go haed with "getting started" procedure read follow changes about some steps
-
-In [`step 1`](##1-Setup) in order to update the OS so that you can work properly, execute the following commands:
-
+**1.** Inside the [first step](full-node-installation.md#1-installing-the-software-requirements) 
+in order to update the OS so that you can work properly execute the following commands:
+   
 ```bash
 apt update && sudo apt upgrade -y
-snap refresh --classic go # You need to update golang to last version
+snap refresh --classic go
 ```
 
+**2.** During the [4th step](full-node-installation.md#3-install-binaries-genesis-file-and-setup-configuration) 
+you don't need to change the follow rows of your `~/.profile` file
 
- In [`step 4`](##4-install-binaries-genesis-file-and-setup-configuration) you don't need to change the follow rows of your `~/.profile` file
-
-```
+```bash
 export GOPATH="\$HOME/go"
 export PATH="\$GOPATH/bin:\$PATH"
 ```
 
-You need clean up your file from previous chain configurations
+You also need to clean up the files from the previous chain configurations
 
 ```bash
 sed -i \
- -e '/export NODENAME=.*/d' \
- -e '/export CHAINID=.*/d' ~/.profile
+-e '/export NODENAME=.*/d' \
+-e '/export CHAINID=.*/d' ~/.profile
 ```
 
-and add new chain configs
+and add the new chain ones
 
 ```bash
 export NODENAME="<your-moniker>"
@@ -76,36 +88,57 @@ EOF
 
    
 
-## 2. Update with cnd commands **(WIP 🛠)**
-This procedure will be applied to mainnet chain and to some specific testnet update
+## Update type 2 - Soft fork
+The second update type is the one known as **soft fork**.  
+In this case, the chain state will be preserved from its beginning to a certain point in time.  
 
-### A. Preliminary/Risks **(WIP 🛠)**
-To this type of procedure will be assigned a height of block, informations about checksum of geneis file and software version and a deadline expressed in UTC format.    
-There is some risks about double signature: to avoid every sort of risks verify software and hash of `genesis.json` and specific configuration in `config.toml`.
-The deadline of update must be respected: every validator that will not update just in time will be slashed.
+### Preliminary/Risks
+When signalling a required update that should follow this procedure, the following information will 
+be let known to all validators:
 
-### B. Recovery **(WIP 🛠)**
-Is recommended to take a full data snapshot at the export height before update.   
-This procedure is quite simple using commands below
+1. A specific block height
+2. The genesis file checksum 
+3. The new chain software version
+4. A deadline expressed in UTC format
+
+If you are a validator, please make sure that you know all those information before proceeding with the update.
+    
+:::danger Double signing 
+Due to the nature of the update operations, there is some risk of double signature. 
+To avoid every sort of risks please verify the software version, the hash of the `genesis.json` file and the specific
+configuration present inside the `config.toml` file.  
+::: 
+
+:::danger Update time  
+The deadline of the update must be respected: every validator that will not update just in time will be slashed.  
+:::  
+
+### Backup
+Before starting the update it ss recommended to take a full data snapshot of the chain state at the export height.     
+To do so please run:
 
 ```bash
 systemctl stop cnd
-cp -r ~/.cnd ~/.cnd.[OLD VERSION]
-cp -r ~/.cncli ~/.cncli.[OLD VERSION]
-# Save binaries also
-cp -r /root/go/bin/cnd /root/go/bin/cnd.[OLD VERSION]
-cp -r /root/go/bin/cncli /root/go/bin/cncli.[OLD VERSION]
+cp -r ~/.cnd ~/.cnd.back
+cp -r ~/.cncli ~/.cncli.back
+cp -r /root/go/bin/cnd /root/go/bin/cnd.back
+cp -r /root/go/bin/cncli /root/go/bin/cncli.back
 ```
-### C. Upgrade Procedure **(WIP 🛠)**
+
+### Update procedure
+
+#### 1. Updating the software
+In order to properly update your validator node, first of all you need to clone the 
+[`chains` repo](https://github.com/commercionetwork/chains):
 
 ```bash
 rm -rf commercio-chains
 mkdir commercio-chains && cd commercio-chains
 git clone https://github.com/commercionetwork/chains.git .
-cd commercio-<chain-version> # eg. cd commercio-testnet1001 
+cd commercio-<chain-version> # eg. cd commercio-testnet3000 
 ```
 
-Compile binaries 
+Once downloaded, you need to compile the binaries:
 
 ```bash
 git init . 
@@ -115,17 +148,20 @@ git checkout tags/$(cat .data | grep -oP 'Release\s+\K\S+')
 make install
 ```
 
-Test if you have the correct binaries version:
+After the compilation has finished successfully, please make sure you are running the correct software version: 
 
 ```bash
 cnd version
 # Should output the same version written inside the .data file
 ```
 
-Get height from update info
+
+#### 2. Export the chain state (**WIP**)
+Once the software has properly been updated, we need to export the current chain state and later import it.  
+In order to do so, first of all you need to get the export height from the `.data` file:
 
 ```bash
 export BLOCKHEIGHT=$(cat .data | grep -oP 'Height\s+\K\S+')
 ```
 
-Export state from 
+**WIP**

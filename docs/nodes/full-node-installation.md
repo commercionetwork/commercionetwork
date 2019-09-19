@@ -21,7 +21,7 @@ echo 'PATH="$PATH:/snap/bin"' ~/.profile
 source ~/.profile
 ```
 
-## 3. Chain selection
+## 2. Chain selection
 Before installing the node, please select which chain you would like to connect to 
 
 ```bash
@@ -35,7 +35,7 @@ cd commercio-<chain-version>
 Always remember to pick the latest chain version listed inside [chains repo](https://github.com/commercionetwork/chains) 
 ::: 
 
-## 4. Install binaries, genesis file and setup configuration
+## 3. Install binaries, genesis file and setup configuration
 
 Compile binaries 
 
@@ -98,7 +98,7 @@ sed -e "s|seeds = \".*\"|seeds = \"$(cat .data | grep -oP 'Seeds\s+\K\S+')\"|g" 
 mv ~/.cnd/config/config.toml.tmp  ~/.cnd/config/config.toml
 ```
 
-## 5. Configure the service
+## 4. Configure the service
 
 ```bash
 tee /etc/systemd/system/cnd.service > /dev/null <<EOF  
