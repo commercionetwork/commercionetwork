@@ -6,11 +6,9 @@ import (
 )
 
 const (
-	ModuleName          = types.ModuleName
-	StoreKey            = types.StoreKey
-	QuerierRoute        = types.QuerierRoute
-	DefaultCreditsDenom = types.DefaultCreditsDenom
-	DefaultBondDenom    = types.DefaultBondDenom
+	ModuleName   = types.ModuleName
+	StoreKey     = types.StoreKey
+	QuerierRoute = types.QuerierRoute
 )
 
 var (

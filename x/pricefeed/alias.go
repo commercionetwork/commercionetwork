@@ -19,6 +19,7 @@ var (
 )
 
 type (
-	Keeper      = keeper.Keeper
-	MsgSetPrice = types.MsgSetPrice
+	Keeper       = keeper.Keeper
+	MsgSetPrice  = types.MsgSetPrice
+	MsgAddOracle = types.MsgAddOracle
 )
