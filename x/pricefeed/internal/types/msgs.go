@@ -2,15 +2,16 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"strings"
 )
 
 type MsgSetPrice struct {
 	Signer    sdk.AccAddress `json:"sender"`
-	Price     sdk.Dec        `json:"price"`
+	Price     sdk.Int        `json:"price"`
 	TokenName string         `json:"token_name"`
 }
 
-func NewMsgSetPrice(signer sdk.AccAddress, price sdk.Dec, tokenName string) MsgSetPrice {
+func NewMsgSetPrice(signer sdk.AccAddress, price sdk.Int, tokenName string) MsgSetPrice {
 	return MsgSetPrice{
 		Signer:    signer,
 		Price:     price,
@@ -31,8 +32,9 @@ func (msg MsgSetPrice) ValidateBasic() sdk.Error {
 	if msg.Price.IsZero() || msg.Price.IsNegative() {
 		return sdk.ErrUnknownRequest("Token's price cannot be zero or negative")
 	}
-	if msg.TokenName != "ucommercio" {
-		return sdk.ErrUnknownRequest("Cannot set price for this token")
+	//
+	if len(strings.TrimSpace(msg.TokenName)) == 0 {
+		return sdk.ErrUnknownRequest("Cannot set price for unnamed token")
 	}
 	return nil
 }

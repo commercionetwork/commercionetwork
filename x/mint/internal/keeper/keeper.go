@@ -1,11 +1,12 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 type Keeper struct {
@@ -33,19 +34,19 @@ func (keeper Keeper) DepositToken(ctx sdk.Context, user sdk.AccAddress, token sd
 		return nil, err
 	}
 	//get token's current price
-	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultBondDenom)
+	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, ctypes.DefaultBondDenom)
 
 	//get the token value = tokens amount * token price
-	tokenValue := tokenPrice.Mul(token.AmountOf(types.DefaultBondDenom))
+	tokenValue := tokenPrice.Mul(token.AmountOf(ctypes.DefaultBondDenom))
 
 	//get credits' current price
-	creditsPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultCreditsDenom)
+	creditsPrice := keeper.PriceFeedKeeper.GetPrice(ctx, ctypes.DefaultCreditsDenom)
 
 	//get credits' amount = token value / credits price
 	creditsAmount := tokenValue.Quo(creditsPrice)
 
 	//add credits to users wallet
-	credits := sdk.NewCoins(sdk.NewCoin(types.DefaultCreditsDenom, creditsAmount))
+	credits := sdk.NewCoins(sdk.NewCoin(ctypes.DefaultCreditsDenom, creditsAmount))
 	credits, err = keeper.BankKeeper.AddCoins(ctx, user, credits)
 	if err != nil {
 		return nil, err
@@ -65,17 +66,17 @@ func (keeper Keeper) WithdrawToken(ctx sdk.Context, user sdk.AccAddress, credits
 	}
 
 	//get credit's current price
-	creditsPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultCreditsDenom)
+	creditsPrice := keeper.PriceFeedKeeper.GetPrice(ctx, ctypes.DefaultCreditsDenom)
 
 	//get the credits' value = credits amount * credits price
-	creditsValue := creditsPrice.Mul(credits.AmountOf(types.DefaultCreditsDenom))
+	creditsValue := creditsPrice.Mul(credits.AmountOf(ctypes.DefaultCreditsDenom))
 
 	//get token's current price
-	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, types.DefaultBondDenom)
+	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, ctypes.DefaultBondDenom)
 
 	//get tokens' amount = credits value / token price
 	tokensAmount := creditsValue.Quo(tokenPrice)
-	tokens := sdk.NewCoins(sdk.NewCoin(types.DefaultBondDenom, tokensAmount))
+	tokens := sdk.NewCoins(sdk.NewCoin(ctypes.DefaultBondDenom, tokensAmount))
 	credits, err = keeper.BankKeeper.AddCoins(ctx, user, tokens)
 	if err != nil {
 		return nil, err

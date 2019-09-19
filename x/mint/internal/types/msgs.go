@@ -1,6 +1,7 @@
 package types
 
 import (
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -76,7 +77,7 @@ func (msg MsgWithdrawToken) ValidateBasic() sdk.Error {
 	}
 
 	for _, ele := range msg.Amount {
-		if ele.Denom != "ucommercio" {
+		if ele.Denom != ctypes.DefaultBondDenom {
 			return sdk.ErrUnknownRequest("Only commercio tokens can be withdrawed")
 		}
 	}
