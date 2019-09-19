@@ -9,7 +9,8 @@ type MsgSetPrice struct {
 	Signer    sdk.AccAddress `json:"sender"`
 	Price     sdk.Int        `json:"price"`
 	TokenName string         `json:"token_name"`
-	Expiry    sdk.Int        `json:"expiry"`
+	//Block height after that price is invalid
+	Expiry sdk.Int `json:"expiry"`
 }
 
 func NewMsgSetPrice(signer sdk.AccAddress, price sdk.Int, tokenName string, expiry sdk.Int) MsgSetPrice {

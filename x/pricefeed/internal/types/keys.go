@@ -10,6 +10,7 @@ const (
 	MsgTypeAddOracle = "addOracle"
 
 	QueryGetTokenPrice = "price"
+	QueryGetOracles    = "oracles"
 
 	//CurrentPricePrefix store prefix for the current price of an asset
 	CurrentPricePrefix = StoreKey + ":currentprice:"

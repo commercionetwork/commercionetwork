@@ -32,7 +32,7 @@ func (msg MsgDepositToken) ValidateBasic() sdk.Error {
 	}
 
 	for _, ele := range msg.Tokens {
-		if ele.Denom != "ucommercio" {
+		if ele.Denom != ctypes.DefaultBondDenom {
 			return sdk.ErrUnknownRequest("Only commercio tokens can be deposited")
 		}
 	}
