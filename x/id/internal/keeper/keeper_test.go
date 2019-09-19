@@ -9,36 +9,39 @@ import (
 )
 
 func TestKeeper_CreateIdentity(t *testing.T) {
-	identitiesStore := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
-	storeData := len(identitiesStore.Get(TestUtils.IdKeeper.getIdentiyStoreKey(TestOwnerAddress)))
+	_, ctx, k := SetupTestInput()
+	identitiesStore := ctx.KVStore(k.StoreKey)
+	storeData := len(identitiesStore.Get(k.getIdentiyStoreKey(TestOwnerAddress)))
 	assert.Equal(t, 0, storeData)
 
-	TestUtils.IdKeeper.SaveIdentity(TestUtils.Ctx, TestOwnerAddress, TestDidDocumentUri)
+	k.SaveIdentity(ctx, TestOwnerAddress, TestDidDocumentUri)
 
-	afterOpLen := len(identitiesStore.Get(TestUtils.IdKeeper.getIdentiyStoreKey(TestOwnerAddress)))
+	afterOpLen := len(identitiesStore.Get(k.getIdentiyStoreKey(TestOwnerAddress)))
 	assert.Equal(t, len(TestDidDocumentUri), afterOpLen)
 }
 
 func TestKeeper_EditIdentity(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
-	store.Set(TestUtils.IdKeeper.getIdentiyStoreKey(TestOwnerAddress), []byte(TestDidDocumentUri))
-	storeData := store.Get(TestUtils.IdKeeper.getIdentiyStoreKey(TestOwnerAddress))
+	_, ctx, k := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getIdentiyStoreKey(TestOwnerAddress), []byte(TestDidDocumentUri))
+	storeData := store.Get(k.getIdentiyStoreKey(TestOwnerAddress))
 	assert.Equal(t, []byte(TestDidDocumentUri), storeData)
 
 	updatedIdentityRef := "ddo-reference-update"
-	TestUtils.IdKeeper.SaveIdentity(TestUtils.Ctx, TestOwnerAddress, updatedIdentityRef)
+	k.SaveIdentity(ctx, TestOwnerAddress, updatedIdentityRef)
 
-	updatedLen := store.Get(TestUtils.IdKeeper.getIdentiyStoreKey(TestOwnerAddress))
+	updatedLen := store.Get(k.getIdentiyStoreKey(TestOwnerAddress))
 	assert.Equal(t, []byte(updatedIdentityRef), updatedLen)
 }
 
 func TestKeeper_GetDidDocumentUriByDid(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
-	store.Set(TestUtils.IdKeeper.getIdentiyStoreKey(TestOwnerAddress), []byte(TestDidDocumentUri))
-	storeData := store.Get(TestUtils.IdKeeper.getIdentiyStoreKey(TestOwnerAddress))
+	_, ctx, k := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getIdentiyStoreKey(TestOwnerAddress), []byte(TestDidDocumentUri))
+	storeData := store.Get(k.getIdentiyStoreKey(TestOwnerAddress))
 	assert.Equal(t, []byte(TestDidDocumentUri), storeData)
 
-	actual := TestUtils.IdKeeper.GetDidDocumentUriByDid(TestUtils.Ctx, TestOwnerAddress)
+	actual := k.GetDidDocumentUriByDid(ctx, TestOwnerAddress)
 	assert.Equal(t, TestDidDocumentUri, actual)
 }
 
@@ -47,7 +50,8 @@ func TestKeeper_GetDidDocumentUriByDid(t *testing.T) {
 // -------------------------
 
 func TestKeeper_GetIdentities(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
+	_, ctx, k := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
 	for ; iterator.Valid(); iterator.Next() {
 		store.Delete(iterator.Key())
@@ -60,13 +64,13 @@ func TestKeeper_GetIdentities(t *testing.T) {
 	fifth, err := sdk.AccAddressFromBech32("cosmos1ajv8j3e0ud2uduzdqmxfcvwm3nwdgr447yvu5m")
 	assert.Nil(t, err)
 
-	store.Set(TestUtils.IdKeeper.getIdentiyStoreKey(first), []byte("first"))
-	store.Set(TestUtils.IdKeeper.getIdentiyStoreKey(second), []byte("second"))
-	store.Set(TestUtils.IdKeeper.getIdentiyStoreKey(third), []byte("third"))
-	store.Set(TestUtils.IdKeeper.getIdentiyStoreKey(fourth), []byte("fourth"))
-	store.Set(TestUtils.IdKeeper.getIdentiyStoreKey(fifth), []byte("fifth"))
+	store.Set(k.getIdentiyStoreKey(first), []byte("first"))
+	store.Set(k.getIdentiyStoreKey(second), []byte("second"))
+	store.Set(k.getIdentiyStoreKey(third), []byte("third"))
+	store.Set(k.getIdentiyStoreKey(fourth), []byte("fourth"))
+	store.Set(k.getIdentiyStoreKey(fifth), []byte("fifth"))
 
-	actual, err := TestUtils.IdKeeper.GetIdentities(TestUtils.Ctx)
+	actual, err := k.GetIdentities(ctx)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 5, len(actual))
@@ -78,11 +82,8 @@ func TestKeeper_GetIdentities(t *testing.T) {
 }
 
 func TestKeeper_SetIdentities(t *testing.T) {
-	store := TestUtils.Ctx.KVStore(TestUtils.IdKeeper.StoreKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
-	for ; iterator.Valid(); iterator.Next() {
-		store.Delete(iterator.Key())
-	}
+	_, ctx, k := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
 
 	first, err := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
 	second, err := sdk.AccAddressFromBech32("cosmos18t0e6fevehhjv682gkxpchvmnl7z7ue4t4w0nd")
@@ -98,11 +99,11 @@ func TestKeeper_SetIdentities(t *testing.T) {
 		{Owner: fourth, DidDocument: "fourth"},
 		{Owner: fifth, DidDocument: "fifth"},
 	}
-	TestUtils.IdKeeper.SetIdentities(TestUtils.Ctx, identities)
+	k.SetIdentities(ctx, identities)
 
-	assert.True(t, store.Has(TestUtils.IdKeeper.getIdentiyStoreKey(first)))
-	assert.True(t, store.Has(TestUtils.IdKeeper.getIdentiyStoreKey(second)))
-	assert.True(t, store.Has(TestUtils.IdKeeper.getIdentiyStoreKey(third)))
-	assert.True(t, store.Has(TestUtils.IdKeeper.getIdentiyStoreKey(fourth)))
-	assert.True(t, store.Has(TestUtils.IdKeeper.getIdentiyStoreKey(fifth)))
+	assert.True(t, store.Has(k.getIdentiyStoreKey(first)))
+	assert.True(t, store.Has(k.getIdentiyStoreKey(second)))
+	assert.True(t, store.Has(k.getIdentiyStoreKey(third)))
+	assert.True(t, store.Has(k.getIdentiyStoreKey(fourth)))
+	assert.True(t, store.Has(k.getIdentiyStoreKey(fifth)))
 }

@@ -9,18 +9,20 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-var querier = NewQuerier(TestUtils.MembershipKeeper)
 var request abci.RequestQuery
 
 func TestQuerier_resolveIdentity_Existent(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+
 	user := TestSignerAddress
 	membershipType := "green"
-	_, _ = TestUtils.MembershipKeeper.AssignMembership(TestUtils.Ctx, user, membershipType)
+	_, _ = k.AssignMembership(ctx, user, membershipType)
 
 	path := []string{types.QueryGetMembership, user.String()}
-	actual, _ := querier(TestUtils.Ctx, path, request)
+	actual, _ := querier(ctx, path, request)
 
-	expected, _ := codec.MarshalJSONIndent(TestUtils.Cdc, MembershipResult{
+	expected, _ := codec.MarshalJSONIndent(cdc, MembershipResult{
 		User:           user,
 		MembershipType: membershipType,
 	})
@@ -28,7 +30,10 @@ func TestQuerier_resolveIdentity_Existent(t *testing.T) {
 }
 
 func TestQuerier_ResolveIdentity_NonExistent(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+
 	path := []string{types.QueryGetMembership, "nunu"}
-	_, err := querier(TestUtils.Ctx, path, request)
+	_, err := querier(ctx, path, request)
 	assert.Error(t, err)
 }

@@ -24,9 +24,9 @@ A part from these modules, `cn` comes with the following custom modules:
 * [`x/id`](x/id/README.md): Pseudonymous identities creation.
 * [`x/government`](x/government/README.md): On-chain government. 
 
-## Installing Commercio.network
-If you wish to install a Commercio.network full node or validator, please refer to our
-[installation guide](./installation.md).  
+## Nodes
+If you wish to learn about the different node types that are present inside the Commercio.network chain or you 
+wish to setup a new node, please refer to our [nodes section](nodes/README.md).  
 
 ## Developers
 If you're a developer and would like to integrate to Commercio.network, please refer to our 

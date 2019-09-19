@@ -65,8 +65,6 @@ jobs:
           target: test
           description: "Test all"
 
-
-
 workflows:
   version: 2
   test-suite:
@@ -78,5 +76,9 @@ workflows:
               only:
                 - /^v.*/
       - test:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
           requires:
             - setup_dependencies

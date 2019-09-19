@@ -12,17 +12,11 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-type testInput struct {
-	Cdc      *codec.Codec
-	Ctx      sdk.Context
-	IdKeeper Keeper
-}
-
 //This function create an environment to test modules
-func setupTestInput() testInput {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	memDB := db.NewMemDB()
-	cdc := testCodec()
+	cdc = testCodec()
 	authKey := sdk.NewKVStoreKey("authCapKey")
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
 	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
@@ -42,15 +36,11 @@ func setupTestInput() testInput {
 
 	_ = ms.LoadLatestVersion()
 
-	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	idk := NewKeeper(storeKey, cdc)
 
-	return testInput{
-		Cdc:      cdc,
-		Ctx:      ctx,
-		IdKeeper: idk,
-	}
+	return cdc, ctx, idk
 
 }
 
@@ -64,8 +54,6 @@ func testCodec() *codec.Codec {
 
 	return cdc
 }
-
-var TestUtils = setupTestInput()
 
 // Test variables
 var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
