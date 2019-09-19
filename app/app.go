@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/commercionetwork/commercionetwork/x/accreditations"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
@@ -110,10 +111,11 @@ var (
 		},
 
 		// Custom modules
-		id.AppModuleBasic{},
+		accreditations.AppModuleBasic{},
 		docs.AppModuleBasic{},
-		memberships.AppModuleBasic{},
 		government.AppModuleBasic{},
+		id.AppModuleBasic{},
+		memberships.AppModuleBasic{},
 	)
 
 	maccPerms = map[string][]string{
@@ -171,10 +173,11 @@ type CommercioNetworkApp struct {
 	nftKeeper      nft.Keeper
 
 	// Custom modules
-	idKeeper         id.Keeper
-	docsKeeper       docs.Keeper
-	membershipKeeper memberships.Keeper
-	governmentKeeper government.Keeper
+	accreditationKeeper accreditations.Keeper
+	docsKeeper          docs.Keeper
+	idKeeper            id.Keeper
+	governmentKeeper    government.Keeper
+	membershipKeeper    memberships.Keeper
 
 	mm *module.Manager
 }
@@ -198,7 +201,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		gov.StoreKey, params.StoreKey, nft.StoreKey,
 
 		// Custom modules
-		id.StoreKey, docs.StoreKey, memberships.StoreKey, government.StoreKey,
+		accreditations.StoreKey, docs.StoreKey, government.StoreKey, id.StoreKey, memberships.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -240,9 +243,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.nftKeeper = nft.NewKeeper(app.cdc, app.keys[nft.StoreKey])
 
 	// Custom modules
-	app.idKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
 	app.governmentKeeper = government.NewKeeper(app.keys[government.StoreKey], app.cdc)
+	app.accreditationKeeper = accreditations.NewKeeper(app.keys[accreditations.StoreKey], app.bankKeeper, app.cdc)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
+	app.idKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper)
 
 	// register the proposal types
@@ -279,10 +283,11 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		crisis.NewAppModule(&app.crisisKeeper),
 
 		// Custom modules
-		id.NewAppModule(app.idKeeper),
-		docs.NewAppModule(app.docsKeeper),
-		memberships.NewAppModule(app.membershipKeeper),
 		government.NewAppModule(app.governmentKeeper),
+		accreditations.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
+		docs.NewAppModule(app.docsKeeper),
+		id.NewAppModule(app.idKeeper),
+		memberships.NewAppModule(app.membershipKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -301,7 +306,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		nft.ModuleName,
 
 		// Custom modules
-		id.ModuleName, docs.ModuleName, memberships.ModuleName, government.ModuleName,
+		government.ModuleName, accreditations.ModuleName, docs.ModuleName, id.ModuleName, memberships.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
