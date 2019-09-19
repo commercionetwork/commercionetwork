@@ -12,8 +12,7 @@ Please note that the above links **will not** be kept in sync with the frequent 
 do to their documentation structure. In order to preserve my mental sanity, I will only update this page when 
 necessary, so please refer to it in order to always know how to create, sign and broadcast transactions. 
 
-## Processes
-### 1. Message creation
+## 1. Message creation
 A transaction can contain one or multiple messages. While usually a single message is sent per transaction, 
 none denies of sending multiple messages inside the same transaction. Making it short, a message is a simple JSON 
 object with some specific fields inside it. 
@@ -53,7 +52,7 @@ An example of message object is the following.
 
 ---
 
-### 2. Message signing
+## 2. Message signing
 Once created, messages must be signed. In order to do so, the following data will be used.
 
 1. Private key associated to the account.  
@@ -61,10 +60,10 @@ Once created, messages must be signed. In order to do so, the following data wil
 2. Address of the signer.  
    This can be retrieved using the [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) specification, setting `comnet` as the human readable part and using the `m/44'/188'/0'/0/0` derivation path.
 
-#### 2.1 Data retrieval
+### 2.1 Data retrieval
 The first thing that must be done in order to sign a message, is to retrieve all the needed data. 
 
-##### Account number and sequence
+#### Account number and sequence
 To avoid repetition attacks, all the transactions that are sent inside a Cosmos blockchain must contain a given `account_number` and `sequence value`. Those numbers can be retrieved from the blockchain itself with
 
 ```bash
@@ -104,7 +103,7 @@ This should print a JSON object similar to this:
 
 Save the `account_number` and `sequence` value in one place, they will be useful later on. 
 
-##### Chain id
+#### Chain id
 The next thing we need to create a message signature, is the chain id. This value can be retrieved using the following HTTP endpoit. 
 
 ```bash
@@ -141,7 +140,7 @@ This should return a JSON object similar to the following one.
 
 Save the `network` value for later.
 
-#### 2.2 Signature data creation
+### 2.2 Signature data creation
 In order to create the data that has to be signed, you will need the following values: 
 1. JSON representation of the message, created inside the [message creation section](#1-message-creation)
 2. `account_number` and `sequence` values, obtained inside the [account number and sequence section](#account-number-and-sequence)
@@ -205,11 +204,11 @@ Using the same example data of the previous sections, a valid signature data wil
 }
 ```
 
-##### Important notes
-###### Order of the fields
+#### Important notes
+##### Order of the fields
 When serializing them to the JSON format, the fields **must be in alphabetical order**, that means that they should look exactly like the example above.
 
-###### The fee object
+##### The fee object
 The `fee` object contains the details of the fee that the transaction creator and signer will pay when broadcasting the transaction to the blockchain. Usually this object's content is set as the default `gas` value and no `amount` content, i.e
 
 ```json
@@ -219,7 +218,7 @@ The `fee` object contains the details of the fee that the transaction creator an
 }
 ```
 
-#### 2.3 Signing the data
+### 2.3 Signing the data
 Once you've create the JSON object containing the data to sign, it is now time to sign them. In order to do so, the following steps should be made:
 
 1. Convert the JSON object to it's compact and alphabetically ordered representation.  
@@ -252,7 +251,7 @@ let signature_bytes = sign([]byte(hashed_json))
 let base64_signature = base64([]byte(signature_bytes))
 ```
 
-#### 2.4 Signature object creation
+### 2.4 Signature object creation
 Once we have the Base64 signature representation, we can finally create the signature object that we will later use during the transaction creation. In order to do so, a JSON object with the following fields should be created: 
 
 ```json
@@ -273,7 +272,7 @@ Once we have the Base64 signature representation, we can finally create the sign
 | `value` | string | yes | See [Public key value retrieving](#public-key-encoding) for more details |
 | `signature` | string | yes | Base64 encoded value of the signature, as obtained inside the [signing the data section](#23-signing-the-data) |
 
-##### Public key encoding
+#### Public key encoding
 In order to properly encode the public key value of the signer, the following steps should be followed. 
 
 1. Obtain the compressed format of the public key point value.  
@@ -297,10 +296,10 @@ More on how compressed keys can be obtained is described on the following StackE
 
 ---
 
-### 3. Transaction broadcasting
+## 3. Transaction broadcasting
 The last step to correctly insert a transaction into the blockchain is broadcasting it. In order to do so, we need to create the transaction body and later sending it with an HTTP request to a full node. 
 
-#### 3.1. Creating the JSON object representation of the transaction
+### 3.1. Creating the JSON object representation of the transaction
 The first thing that needs to be done in order to create a transaction, is to create a JSON object formed as follows.
 
 ```json
@@ -327,7 +326,7 @@ The first thing that needs to be done in order to create a transaction, is to cr
 | `signatures` | array | yes | Contains all the signatures of the messages that will be sent along with the request. The object definition is the one we've seen in the previous [signature object creation section](#24-signature-object-creation) |
 | `memo` | string | no | This must contain the same value of the `memo` field that is present inside the signature data we've seen on the previous [signature object creation section](#24-signature-object-creation) | 
 
-##### Example
+#### Example
 ```json
 {
   "msg": [
@@ -383,10 +382,10 @@ The first thing that needs to be done in order to create a transaction, is to cr
 }
 ```
 
-#### 3.2 Broadcasting the transaction
+### 3.2 Broadcasting the transaction
 Once the transaction JSON has been created, we can now broadcast it sending it to a full node. In order to do so, a POST HTTP request should be made. 
 
-##### 3.2.1 Creating the request body
+#### 3.2.1 Creating the request body
 The request body must be a JSON object formed as follows: 
 
 ```json
@@ -406,7 +405,7 @@ The request body must be a JSON object formed as follows:
 | `mode` | string | yes | Tells when the node should return the answer. The `async` one tells the node to return immediately, `sync` tells to return after the transaction has been validated, while `block` waits till the transaction has been successfully broadcasted and returns the information of the block containing it. | 
 
 
-##### 3.2.2 Performing the request
+#### 3.2.2 Performing the request
 Once the JSON body has been created, the request can be made. The endpoint is the following:
 
 ```
@@ -422,7 +421,7 @@ curl -X POST http://localhost:1317/txs -d @~/request_body.json
 ```
 
 
-##### Example request body
+#### Example request body
 ```json
 {
   "tx": {
