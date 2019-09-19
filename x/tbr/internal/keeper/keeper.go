@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"errors"
 	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -59,7 +60,7 @@ func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress
 		brPool = brPool.Add(sdk.NewDecCoins(amount))
 		k.SetBlockRewardsPool(ctx, brPool)
 	}
-	return sdk.ErrUnauthorized("Not enough tokens to supply the given funds' amount")
+	return errors.New("not enough tokens to supply the given funds' amount")
 
 }
 
