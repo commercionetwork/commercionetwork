@@ -22,28 +22,42 @@ build: go.sum
 	GO111MODULE=on go build -o "build/cnd" -tags "$(build_tags)" ./cmd/cnd/main.go
 	GO111MODULE=on go build -o "build/cncli" -tags "$(build_tags)" ./cmd/cncli/main.go
 
+# TODO: Note:386 builds are disabled due to a bug inside the Cosmos SDK:
+# github.com/cosmos/cosmos-sdk@v0.28.2-0.20190826165445-eeb847c8455b/simapp/state.go:75:46: constant 1000000000000 overflows
+
 build-darwin: go.sum
-	env GO111MODULE=on GOOS=darwin GOARCH=386 go build -o ./build/darwin/cncli-darwin-386 -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=darwin GOARCH=386 go build -o ./build/darwin/cnd-darwin-386 -tags "$(build_tags)" ./cmd/cnd/main.go
-	env GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -o ./build/darwin/cncli-darwin-amd64 -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -o ./build/darwin/cnd-darwin-amd64 -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -o ./build/Darwin-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+	env GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -o ./build/Darwin-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+# 	env GO111MODULE=on GOOS=darwin GOARCH=386 go build -o ./build/Darwin-386/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+# 	env GO111MODULE=on GOOS=darwin GOARCH=386 go build -o ./build/Darwin-386/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
 
 build-linux: go.sum
-	env GO111MODULE=on GOOS=linux GOARCH=386 go build -o ./build/linux/cncli-linux-386 -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=linux GOARCH=386 go build -o ./build/linux/cnd-linux-386 -tags "$(build_tags)" ./cmd/cnd/main.go
-	env GO111MODULE=on GOOS=linux GOARCH=amd64 go build -o ./build/linux/cncli-linux-amd64 -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=linux GOARCH=amd64 go build -o ./build/linux/cnd-linux-amd64 -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GO111MODULE=on GOOS=linux GOARCH=amd64 go build -o ./build/Linux-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+	env GO111MODULE=on GOOS=linux GOARCH=amd64 go build -o ./build/Linux-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+# 	env GO111MODULE=on GOOS=linux GOARCH=386 go build -o ./build/Linux-386/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+# 	env GO111MODULE=on GOOS=linux GOARCH=386 go build -o ./build/Linux-386/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
 
 build-windows: go.sum
-	env GO111MODULE=on GOOS=windows GOARCH=386 go build -o ./build/windows/cncli-windows-386.exe -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=windows GOARCH=386 go build -o ./build/windows/cnd-windows-386.exe -tags "$(build_tags)" ./cmd/cnd/main.go
-	env GO111MODULE=on GOOS=windows GOARCH=amd64 go build -o ./build/windows/cncli-windows-amd64.exe -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=windows GOARCH=amd64 go build -o ./build/windows/cnd-windows-amd64.exe -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GO111MODULE=on GOOS=windows GOARCH=amd64 go build -o ./build/Windows-AMD64/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
+	env GO111MODULE=on GOOS=windows GOARCH=amd64 go build -o ./build/Windows-AMD64/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
+# 	env GO111MODULE=on GOOS=windows GOARCH=386 go build -o ./build/Windows-386/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
+# 	env GO111MODULE=on GOOS=windows GOARCH=386 go build -o ./build/Windows-386/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
 
 build-all: go.sum
 	make build-darwin
 	make build-linux
 	make build-windows
+
+prepare-release: go.sum build-all
+	rm -f ./build/Darwin-386.zip ./build/Darwin-AMD64.zip
+	rm -f ./build/Linux-386.zip ./build/Linux-AMD64.zip
+	rm -f ./build/Windows-386.zip ./build/Windows-AMD64.zip
+	zip -jr ./build/Darwin-AMD64.zip ./build/Darwin-AMD64/cncli ./build/Darwin-AMD64/cnd
+	zip -jr ./build/Linux-AMD64.zip ./build/Linux-AMD64/cncli ./build/Linux-AMD64/cnd
+	zip -jr ./build/Windows-AMD64.zip ./build/Windows-AMD64/cncli.exe ./build/Windows-AMD64/cnd.exe
+# 	zip -jr ./build/Darwin-386.zip ./build/Darwin-386/cncli ./build/Darwin-386/cnd
+# 	zip -jr ./build/Linux-386.zip ./build/Linux-386/cncli ./build/Linux-386/cnd
+# 	zip -jr ./build/Windows-386.zip ./build/Windows-386/cncli.exe ./build/Windows-386/cnd.exe
 
 ########################################
 ### Tools & dependencies
