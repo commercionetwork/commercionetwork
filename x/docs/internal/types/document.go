@@ -1,74 +1,72 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"errors"
+	"regexp"
 )
-
-// DocumentMetadataSchema represents the information about the schema that should be used in order to
-// validate the metadata associated with a document.
-type DocumentMetadataSchema struct {
-	Uri     string `json:"uri"`
-	Version string `json:"version"`
-}
-
-func (metaSchema DocumentMetadataSchema) Equals(metSchema2 DocumentMetadataSchema) bool {
-	return metaSchema.Uri == metSchema2.Uri &&
-		metaSchema.Version == metSchema2.Version
-}
-
-// DocumentMetadata represents the information about the metadata associated to a document
-type DocumentMetadata struct {
-	ContentUri string                  `json:"content_uri"`
-	SchemaType string                  `json:"schema_type"` // Optional - Either this or schema must be defined
-	Schema     *DocumentMetadataSchema `json:"schema"`      // Optional - Either this or schema_type must be defined
-	Proof      string                  `json:"proof"`
-}
-
-func (docMeta DocumentMetadata) Equals(other DocumentMetadata) bool {
-	if docMeta.Schema == nil && other.Schema == nil {
-		return true
-	}
-
-	if docMeta.Schema == nil || other.Schema == nil {
-		return false
-	}
-
-	return docMeta.ContentUri == other.ContentUri &&
-		docMeta.Proof == other.Proof &&
-		docMeta.Schema.Equals(*other.Schema)
-}
-
-// DocumentChecksum represents the information related to the checksum of a document, if any
-type DocumentChecksum struct {
-	Value     string `json:"value"`
-	Algorithm string `json:"algorithm"`
-}
-
-func (checksum DocumentChecksum) Equals(checksum2 DocumentChecksum) bool {
-	return checksum.Value == checksum2.Value &&
-		checksum.Algorithm == checksum2.Algorithm
-}
 
 // Document contains the generic information about a single document which has been sent from a user to another user.
 // It contains the information about its content, its associated metadata and the related checksum.
 // In order to be valid, a document must have a non-empty and unique UUID and a valid metadata information.
 // Both the content and the checksum information are optional.
 type Document struct {
-	Sender     sdk.AccAddress   `json:"sender"`
-	Recipient  sdk.AccAddress   `json:"recipient"`
-	Uuid       string           `json:"uuid"`
-	Metadata   DocumentMetadata `json:"metadata"`
-	ContentUri string           `json:"content_uri"` // Optional
-	Checksum   DocumentChecksum `json:"checksum"`    // Optional
+	Uuid           string                  `json:"uuid"`
+	Metadata       DocumentMetadata        `json:"metadata"`
+	ContentUri     string                  `json:"content_uri"`     // Optional
+	Checksum       *DocumentChecksum       `json:"checksum"`        // Optional
+	EncryptionData *DocumentEncryptionData `json:"encryption_data"` // Optional
 }
 
+// TODO: Test
 func (doc Document) Equals(doc2 Document) bool {
-	return doc.Sender.Equals(doc2.Sender) &&
-		doc.Recipient.Equals(doc2.Recipient) &&
-		doc.Uuid == doc2.Uuid &&
+	if (doc.Checksum == nil || doc2.Checksum == nil) && doc.Checksum != doc2.Checksum {
+		return false
+	}
+
+	if (doc.EncryptionData == nil || doc2.EncryptionData == nil) && doc.EncryptionData != doc2.EncryptionData {
+		return false
+	}
+
+	return doc.Uuid == doc2.Uuid &&
 		doc.ContentUri == doc2.ContentUri &&
 		doc.Metadata.Equals(doc2.Metadata) &&
-		doc.Checksum.Equals(doc2.Checksum)
+		doc.Checksum.Equals(*doc2.Checksum) &&
+		doc.EncryptionData.Equals(*doc2.EncryptionData)
+}
+
+func validateUuid(uuid string) bool {
+	regex := regexp.MustCompile(`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
+	return regex.MatchString(uuid)
+}
+
+func (doc Document) Validate() error {
+	if !validateUuid(doc.Uuid) {
+		return errors.New("invalid document UUID")
+	}
+	if len(doc.ContentUri) == 0 {
+		return errors.New("document content Uri can't be empty")
+	}
+
+	err := doc.Metadata.Validate()
+	if err != nil {
+		return err
+	}
+
+	if doc.Checksum != nil {
+		err = (*doc.Checksum).Validate()
+		if err != nil {
+			return err
+		}
+	}
+
+	if doc.EncryptionData != nil {
+		err = (*doc.EncryptionData).Validate()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type Documents []Document

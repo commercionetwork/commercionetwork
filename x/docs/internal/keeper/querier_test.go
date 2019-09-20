@@ -21,9 +21,9 @@ func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
 	var querier = NewQuerier(k)
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getReceivedDocumentsStoreKey(TestingDocument.Recipient))
+	store.Delete(k.getReceivedDocumentsStoreKey(TestingRecipient))
 
-	path := []string{types.QueryReceivedDocuments, TestingDocument.Recipient.String()}
+	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
 
 	var actual types.Documents
 	actualBz, _ := querier(ctx, path, request)
@@ -36,15 +36,15 @@ func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
 func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
+
 	// Setup the store
 	metadataStore := ctx.KVStore(k.StoreKey)
-	metadataStore.Set(
-		k.getReceivedDocumentsStoreKey(TestingDocument.Recipient),
-		cdc.MustMarshalBinaryBare(&documents),
-	)
+	documentIds := types.DocumentIds{TestingDocument.Uuid}
+	metadataStore.Set(k.getReceivedDocumentsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentIds))
+	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	// Compose the path
-	path := []string{types.QueryReceivedDocuments, TestingDocument.Recipient.String()}
+	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
 
 	// Get the returned documents
 	var actual types.Documents
@@ -59,9 +59,9 @@ func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
 	var querier = NewQuerier(k)
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getSentDocumentsStoreKey(TestingDocument.Sender))
+	store.Delete(k.getSentDocumentsStoreKey(TestingSender))
 
-	path := []string{types.QuerySentDocuments, TestingDocument.Sender.String()}
+	path := []string{types.QuerySentDocuments, TestingSender.String()}
 
 	var actual types.Documents
 	actualBz, _ := querier(ctx, path, request)
@@ -76,13 +76,12 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 	var querier = NewQuerier(k)
 	//Setup the store
 	metadataStore := ctx.KVStore(k.StoreKey)
-	metadataStore.Set(
-		k.getSentDocumentsStoreKey(TestingDocument.Sender),
-		cdc.MustMarshalBinaryBare(&documents),
-	)
+	documentIds := types.DocumentIds{TestingDocument.Uuid}
+	metadataStore.Set(k.getSentDocumentsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentIds))
+	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	// Compose the path
-	path := []string{types.QuerySentDocuments, TestingDocument.Sender.String()}
+	path := []string{types.QuerySentDocuments, TestingSender.String()}
 
 	// Get the returned documents
 	var actual types.Documents

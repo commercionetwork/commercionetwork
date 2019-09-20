@@ -29,20 +29,20 @@ func NewHandler(keeper Keeper) sdk.Handler {
 func handleMsgShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) sdk.Result {
 
 	// The metadata schema type is being specified
-	if len(msg.Metadata.SchemaType) != 0 {
+	if len(msg.Document.Metadata.SchemaType) != 0 {
 
 		// Check its validity
-		if !keeper.IsMetadataSchemeTypeSupported(ctx, msg.Metadata.SchemaType) {
-			errMsg := fmt.Sprintf("Unsupported metadata schema: %s", msg.Metadata.SchemaType)
+		if !keeper.IsMetadataSchemeTypeSupported(ctx, msg.Document.Metadata.SchemaType) {
+			errMsg := fmt.Sprintf("Unsupported metadata schema: %s", msg.Document.Metadata.SchemaType)
 			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 
 		// Delete the custom data
-		msg.Metadata.Schema = nil
+		msg.Document.Metadata.Schema = nil
 	}
 
 	// Share the document
-	keeper.ShareDocument(ctx, types.Document(msg))
+	keeper.ShareDocument(ctx, msg.Sender, msg.Recipients, msg.Document)
 	return sdk.Result{}
 }
 
