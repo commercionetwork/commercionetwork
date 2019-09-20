@@ -9,11 +9,13 @@ const (
 	MsgTypeSetPrice  = "setPrice"
 	MsgTypeAddOracle = "addOracle"
 
-	QueryGetTokenPrice = "price"
-	QueryGetOracles    = "oracles"
+	QueryGetCurrentPrice  = "price"
+	QueryGetCurrentPrices = "prices"
+	QueryGetOracles       = "oracles"
 
-	//CurrentPricePrefix store prefix for the current price of an asset
-	CurrentPricePrefix = StoreKey + ":currentprice:"
+	//CurrentPricesPrefix store prefix for the current price of an asset
+	CurrentPricesPrefix = StoreKey + ":currentprices:"
+	RawPricesPrefix     = StoreKey + ":rawprices:"
 
 	//OraclePrefix store prefix for the oracle accounts
 	OraclePrefix = StoreKey + ":oracles:"

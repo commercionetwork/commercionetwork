@@ -21,6 +21,10 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg MsgSetPrice) sdk.Result {
+	err := keeper.SetRawPrice(ctx, msg.Price)
+	if err != nil {
+		return err.Result()
+	}
 	return sdk.Result{}
 }
 

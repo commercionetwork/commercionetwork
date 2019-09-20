@@ -1,7 +1,6 @@
 package cli
 
 import (
-	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
@@ -29,30 +28,37 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "set-price [token-name] [token-price] [expiry]",
+		Use:   "set-price [token-name] [token-code] [token-price] [expiry]",
 		Short: "set price for a given token",
-		Args:  cobra.ExactArgs(3),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
-			signer := cliCtx.GetFromAddress()
+			oracle := cliCtx.GetFromAddress()
 			tokenName := args[0]
-			tokenPrice, err := sdk.NewIntFromString(args[1])
+			tokenCode := args[1]
+			tokenPrice, err := sdk.NewIntFromString(args[2])
 			if !err {
 				return sdk.ErrInternal("Can't get integer from string")
 			}
-			expiry, err := sdk.NewIntFromString(args[2])
+			expiry, err := sdk.NewIntFromString(args[3])
 			if !err {
 				return sdk.ErrInternal("Can't get integer from string")
 			}
 
-			msg := pricefeed.MsgSetPrice{
-				Signer:    signer,
-				TokenName: tokenName,
-				Price:     tokenPrice,
-				Expiry:    expiry,
+			price := types.RawPrice{
+				Oracle: oracle,
+				CurrentPrice: types.CurrentPrice{
+					TokenCode: tokenCode,
+					TokenName: tokenName,
+					Price:     tokenPrice,
+					Expiry:    expiry,
+				},
 			}
+
+			msg := types.NewMsgSetPrice(price)
+
 			err2 := msg.ValidateBasic()
 			if err2 != nil {
 				return err2
@@ -79,10 +85,7 @@ func GetCmdAddOracle(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			msg := pricefeed.MsgAddOracle{
-				Signer: signer,
-				Oracle: oracle,
-			}
+			msg := types.NewMsgAddOracle(signer, oracle)
 
 			err = msg.ValidateBasic()
 			if err != nil {

@@ -10,37 +10,66 @@ import (
 )
 
 type Keeper struct {
-	StoreKey 			sdk.StoreKey
-	GovernmentKeeper 	government.Keeper
-	cdc      			*codec.Codec
+	StoreKey         sdk.StoreKey
+	GovernmentKeeper government.Keeper
+	cdc              *codec.Codec
 }
 
 func NewKeeper(storekey sdk.StoreKey, govK government.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
-		StoreKey: storekey,
+		StoreKey:         storekey,
 		GovernmentKeeper: govK,
-		cdc:      cdc,
+		cdc:              cdc,
 	}
 }
 
-
-func (keeper Keeper) SetPrice(ctx sdk.Context, signer sdk.AccAddress, price sdk.Int, tokenName string, expiry sdk.Int) sdk.Error {
-
-	if expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
-
+//SetRawPrice sets the raw price for a given token after checking the validity of the signer
+//If the signer hasn't the rights to set the price, then function returns error
+func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) sdk.Error {
+	err := keeper.ValidateSigner(ctx, price.Oracle)
+	if err != nil {
+		return err
 	}
+	rawPrices := keeper.GetRawPrices(ctx)
+	rawPrices.UpdatePriceOrAppendIfMissing(price)
+	return nil
 }
 
-//SetPrice sets the raw price for a given token after checking the validity of the signer
-//If the signer hasn't the rights to set the price or if the price is zero or negative, then function returns error
-func (keeper Keeper) SetRawPrice(ctx sdk.Context, signer sdk.AccAddress, price sdk.Int, expiry sdk.Int) sdk.Error {
-
-}
-
-//GetPrice retrieves the current price for the given token name
-func (keeper Keeper) GetPrice(ctx sdk.Context, tokenName string) sdk.Int {
+//GetRawPrices retrieves all the current prices
+func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.RawPrices {
 	store := ctx.KVStore(keeper.StoreKey)
-	priceBz :=
+	pricesBz := store.Get([]byte(types.RawPricesPrefix))
+	var rawPrices types.RawPrices
+	keeper.cdc.MustUnmarshalBinaryBare(pricesBz, &rawPrices)
+	return rawPrices
+}
+
+func (keeper Keeper) SetCurrentPrice(ctx sdk.Context) sdk.Error {
+	/*
+		GetRawPrices
+		filter not expire ones
+		filter for tokenName+tokeCode
+		curPrice = avg(rawPrices)
+	*/
+}
+
+//GetCurrentPrices retrieves all the current prices
+func (keeper Keeper) GetCurrentPrices(ctx sdk.Context) types.CurrentPrices {
+	store := ctx.KVStore(keeper.StoreKey)
+	pricesBz := store.Get([]byte(types.CurrentPricesPrefix))
+	var curPrices types.CurrentPrices
+	keeper.cdc.MustUnmarshalBinaryBare(pricesBz, &curPrices)
+	return curPrices
+}
+
+//GetCurrentPrice retrieves the current price for the given token name and code
+func (keeper Keeper) GetCurrentPrice(ctx sdk.Context, tokenName string, tokenCode string) (types.CurrentPrice, sdk.Error) {
+	currentPrices := keeper.GetCurrentPrices(ctx)
+	price, err := currentPrices.FindPrice(tokenName, tokenCode)
+	if err != nil {
+		return types.CurrentPrice{}, err
+	}
+	return price, nil
 }
 
 //ValidateSigner makes sure the signer posting the price is an oracle

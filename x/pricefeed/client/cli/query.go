@@ -18,7 +18,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(getCmdOraclesList(cdc), getCmdTokenPrice(cdc))
+	cmd.AddCommand(getCmdOraclesList(cdc), getCmdCurrentPrice(cdc), getCmdCurrentPrices(cdc))
 
 	return cmd
 }
@@ -44,18 +44,39 @@ func getCmdOraclesList(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func getCmdTokenPrice(cdc *codec.Codec) *cobra.Command {
+func getCmdCurrentPrice(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "price [token-name]",
+		Use:   "price [token-name] [token-code]",
 		Short: "Get the current price of the token",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetOracles, args[0])
+			route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryGetOracles, args[0], args[1])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get token's price: \n %s", err)
+			}
+
+			fmt.Println(string(res))
+
+			return nil
+		},
+	}
+}
+
+func getCmdCurrentPrices(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "prices",
+		Short: "Get the current prices of all tokens",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetCurrentPrices)
+			res, _, err := cliCtx.QueryWithData(route, nil)
+			if err != nil {
+				fmt.Printf("Could not get tokens' price: \n %s", err)
 			}
 
 			fmt.Println(string(res))

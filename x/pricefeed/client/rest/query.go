@@ -10,24 +10,26 @@ import (
 )
 
 const (
-	restTokenName = "token"
+	restTokenName = "tokenName"
+	restTokenCode = "tokenCode"
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("/pricefeed/{%s}/price", restTokenName),
-		getTokenPriceHandler(cliCtx)).Methods("GET")
+		fmt.Sprintf("/pricefeed/{%s}/{%s}/price", restTokenName, restTokenCode),
+		getCurrentPriceHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
 		fmt.Sprintf("pricefeed/oracles"),
 		getOraclesHandler(cliCtx)).Methods("GET")
 }
 
-func getTokenPriceHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getCurrentPriceHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		tokenName := vars[restTokenName]
+		tokenCode := vars[restTokenCode]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetTokenPrice, tokenName)
+		route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryGetCurrentPrice, tokenName, tokenCode)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
