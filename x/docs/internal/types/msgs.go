@@ -7,15 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var algorithms = map[string]int{
-	"md5":     32,
-	"sha-1":   40,
-	"sha-224": 56,
-	"sha-256": 64,
-	"sha-384": 96,
-	"sha-512": 128,
-}
-
 // ----------------------------------
 // --- MsgShareDocument
 // ----------------------------------

@@ -10,7 +10,7 @@ import (
 
 // Test vars
 var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var recipient, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var recipient, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
 var msgShareDocumentSchema = MsgShareDocument{
 	Sender:     sender,
 	Recipients: types.Addresses{recipient},

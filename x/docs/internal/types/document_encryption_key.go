@@ -19,11 +19,10 @@ type DocumentEncryptionKey struct {
 }
 
 // Equals returns true iff this dat and other contain the same data
-// TODO: Test this
 func (key DocumentEncryptionKey) Equals(other DocumentEncryptionKey) bool {
 	return key.Recipient.Equals(other.Recipient) &&
-		key.Value != other.Value &&
-		key.Encoding != other.Encoding
+		key.Value == other.Value &&
+		key.Encoding == other.Encoding
 }
 
 // Validate tries to validate all the data contained inside the given
@@ -34,12 +33,12 @@ func (key DocumentEncryptionKey) Validate() error {
 		return errors.New(fmt.Sprintf("invalid address %s", key.Recipient.String()))
 	}
 
-	if len(key.Value) == 0 {
-		return errors.New("encryption key value cannot be null")
+	if len(strings.TrimSpace(key.Value)) == 0 {
+		return errors.New("encryption key value cannot be empty")
 	}
 
-	if len(key.Encoding) == 0 {
-		return errors.New("encryption key encoding cannot be null")
+	if len(strings.TrimSpace(key.Encoding)) == 0 {
+		return errors.New("encryption key encoding cannot be empty")
 	}
 
 	encoding := strings.ToLower(key.Encoding)
@@ -58,8 +57,6 @@ func (key DocumentEncryptionKey) Validate() error {
 			return err
 		}
 	}
-
-	// TODO: Validate the value base on the encoding
 
 	return nil
 }

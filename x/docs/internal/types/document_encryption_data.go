@@ -14,10 +14,18 @@ type DocumentEncryptionData struct {
 // Equals returns true iff this dat and other contain the same data
 // TODO: Test this
 func (data DocumentEncryptionData) Equals(other DocumentEncryptionData) bool {
+	if len(data.Keys) != len(other.Keys) {
+		return false
+	}
+
 	for index, _ := range data.Keys {
 		if !data.Keys[index].Equals(other.Keys[index]) {
 			return false
 		}
+	}
+
+	if len(data.EncryptedData) != len(other.EncryptedData) {
+		return false
 	}
 
 	for index, _ := range data.EncryptedData {
@@ -31,8 +39,11 @@ func (data DocumentEncryptionData) Equals(other DocumentEncryptionData) bool {
 
 // Validate tries to validate all the data contained inside the given
 // DocumentEncryptionData and returns an error if something is wrong
-// TODO: Test this
 func (data DocumentEncryptionData) Validate() error {
+
+	if len(data.Keys) == 0 {
+		return errors.New("encryption data keys cannot be empty")
+	}
 
 	// Validate the keys
 	for _, key := range data.Keys {

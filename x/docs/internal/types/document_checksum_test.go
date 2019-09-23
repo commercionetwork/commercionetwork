@@ -6,11 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// --------------------------
-// --- Checksum validation
-// --------------------------
-
-func TestValidateChecksum_validChecksum(t *testing.T) {
+func TestDocumentCheckSum_Validate_ValidChecksum(t *testing.T) {
 	var checksumList = map[string]string{
 		"md5":     "0cc175b9c0f1b6a831c399e269772661",
 		"sha-1":   "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
@@ -27,7 +23,7 @@ func TestValidateChecksum_validChecksum(t *testing.T) {
 	}
 }
 
-func TestValidateChecksum_emptyValue(t *testing.T) {
+func TestDocumentCheckSum_Validate_EmptyValue(t *testing.T) {
 	invalidChecksum := DocumentChecksum{
 		Value:     "",
 		Algorithm: "md5",
@@ -37,7 +33,7 @@ func TestValidateChecksum_emptyValue(t *testing.T) {
 	assert.NotNil(t, actual)
 }
 
-func TestValidateChecksum_emptyAlgorithm(t *testing.T) {
+func TestDocumentCheckSum_Validate_EmptyAlgorithm(t *testing.T) {
 	invalidChecksum := DocumentChecksum{
 		Value:     "48656c6c6f20476f7068657221234567",
 		Algorithm: "",
@@ -47,7 +43,7 @@ func TestValidateChecksum_emptyAlgorithm(t *testing.T) {
 	assert.NotNil(t, actual)
 }
 
-func TestValidateChecksum_invalidHexValue(t *testing.T) {
+func TestDocumentCheckSum_Validate_InvalidHexValue(t *testing.T) {
 	invalidChecksum := DocumentChecksum{
 		Value:     "qr54g7srg5674fsg4sfg",
 		Algorithm: "md5",
@@ -57,7 +53,7 @@ func TestValidateChecksum_invalidHexValue(t *testing.T) {
 	assert.NotNil(t, actual)
 }
 
-func TestValidateChecksum_invalidAlgorithmType(t *testing.T) {
+func TestDocumentCheckSum_Validate_InvalidAlgorithmType(t *testing.T) {
 	invalidChecksum := DocumentChecksum{
 		Value:     "48656c6c6f20476f7068657221234567",
 		Algorithm: "md6",
@@ -67,7 +63,7 @@ func TestValidateChecksum_invalidAlgorithmType(t *testing.T) {
 	assert.NotNil(t, actual)
 }
 
-func TestValidateChecksum_invalidChecksumLengths(t *testing.T) {
+func TestDocumentCheckSum_Validate_InvalidChecksumLengths(t *testing.T) {
 	var checksumList = map[string]string{
 		"md5":     "0cc175bc0f1b6a831c399e269772661",
 		"sha-1":   "86f7e437faa5a7fce15dddcb9eaeaea377667b8",
