@@ -6,16 +6,16 @@ import (
 )
 
 type CurrentPrice struct {
-	TokenName string  `json:"token_name"`
-	TokenCode string  `json:"token_code"`
+	AssetName string  `json:"token_name"`
+	AssetCode string  `json:"token_code"`
 	Price     sdk.Int `json:"price"`
 	//Block height after that price is invalid
 	Expiry sdk.Int `json:"expiry"`
 }
 
 func (currentPrice CurrentPrice) Equals(cp CurrentPrice) bool {
-	return currentPrice.TokenName == cp.TokenName &&
-		currentPrice.TokenCode == cp.TokenCode &&
+	return currentPrice.AssetName == cp.AssetName &&
+		currentPrice.AssetCode == cp.AssetCode &&
 		currentPrice.Price.Equal(cp.Price)
 }
 
@@ -23,28 +23,37 @@ type CurrentPrices []CurrentPrice
 
 func (currentPrices CurrentPrices) FindPrice(tokenName string, tokenCode string) (CurrentPrice, sdk.Error) {
 	for _, ele := range currentPrices {
-		if ele.TokenCode == tokenCode && ele.TokenName == tokenName {
+		if ele.AssetCode == tokenCode && ele.AssetName == tokenName {
 			return ele, nil
 		}
 	}
 	return CurrentPrice{}, sdk.ErrInternal("price not found")
 }
 
+func (currentPrices CurrentPrices) AppendIfMissing(cp CurrentPrice) CurrentPrices {
+	for _, ele := range currentPrices {
+		if ele.Equals(cp) {
+			return currentPrices
+		}
+	}
+	return append(currentPrices, cp)
+}
+
 type RawPrice struct {
-	Oracle       sdk.AccAddress `json:"oracle"`
-	CurrentPrice CurrentPrice   `json:"price"`
+	Oracle    sdk.AccAddress `json:"oracle"`
+	PriceInfo CurrentPrice   `json:"price"`
 }
 
 func (rawprice RawPrice) Equals(rp RawPrice) bool {
 	return rawprice.Oracle.Equals(rp.Oracle) &&
-		rawprice.CurrentPrice.Equals(rp.CurrentPrice)
+		rawprice.PriceInfo.Equals(rp.PriceInfo)
 }
 
 type RawPrices []RawPrice
 
 func (rawPrices RawPrices) FindPrice(tokenName string, tokenCode string) (RawPrice, error) {
 	for _, ele := range rawPrices {
-		if ele.CurrentPrice.TokenCode == tokenCode && ele.CurrentPrice.TokenName == tokenName {
+		if ele.PriceInfo.AssetCode == tokenCode && ele.PriceInfo.AssetName == tokenName {
 			return ele, nil
 		}
 	}
@@ -58,10 +67,10 @@ func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) RawPrices {
 			return rawPrices
 		}
 		if ele.Oracle.Equals(rp.Oracle) &&
-			ele.CurrentPrice.TokenName == rp.CurrentPrice.TokenName &&
-			ele.CurrentPrice.TokenCode == rp.CurrentPrice.TokenCode &&
-			ele.CurrentPrice.Expiry.LTE(rp.CurrentPrice.Expiry) &&
-			ele.CurrentPrice.Price != rp.CurrentPrice.Price {
+			ele.PriceInfo.AssetName == rp.PriceInfo.AssetName &&
+			ele.PriceInfo.AssetCode == rp.PriceInfo.AssetCode &&
+			ele.PriceInfo.Expiry.LTE(rp.PriceInfo.Expiry) &&
+			ele.PriceInfo.Price != rp.PriceInfo.Price {
 			rawPrices[index] = rp
 			return rawPrices
 		}

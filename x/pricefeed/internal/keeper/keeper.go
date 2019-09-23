@@ -7,6 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"sort"
 )
 
 type Keeper struct {
@@ -23,28 +24,109 @@ func NewKeeper(storekey sdk.StoreKey, govK government.Keeper, cdc *codec.Codec) 
 	}
 }
 
+//getAssets retrieve all the assets
+func (keeper Keeper) getAssets(ctx sdk.Context) types.Assets {
+	store := ctx.KVStore(keeper.StoreKey)
+	assetsBz := store.Get([]byte(types.AssetsPrefix))
+	var assets types.Assets
+	keeper.cdc.MustUnmarshalBinaryBare(assetsBz, &assets)
+	return assets
+}
+
+//setAssets add a new priced assets to the assets list
+func (keeper Keeper) setAssets(ctx sdk.Context, assetName string, assetCode string) {
+	assets := keeper.getAssets(ctx)
+	assets = assets.AppendIfMissing(types.Asset{Name: assetName, Code: assetCode})
+}
+
 //SetRawPrice sets the raw price for a given token after checking the validity of the signer
 //If the signer hasn't the rights to set the price, then function returns error
 func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) sdk.Error {
+	store := ctx.KVStore(keeper.StoreKey)
 	err := keeper.ValidateSigner(ctx, price.Oracle)
 	if err != nil {
 		return err
 	}
-	rawPrices := keeper.GetRawPrices(ctx)
-	rawPrices.UpdatePriceOrAppendIfMissing(price)
+	rawPrices := keeper.GetRawPrices(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
+	keeper.setAssets(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
+	rawPrices = rawPrices.UpdatePriceOrAppendIfMissing(price)
+	store.Set([]byte(types.RawPricesPrefix + price.PriceInfo.AssetName + price.PriceInfo.AssetCode),
+		keeper.cdc.MustMarshalBinaryBare(rawPrices))
 	return nil
 }
 
-//GetRawPrices retrieves all the current prices
-func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.RawPrices {
+//GetRawPrices retrieves all the raw prices of the given asset if it given, all the raw prices instead
+func (keeper Keeper) GetRawPrices(ctx sdk.Context, assetName string, assetCode string) types.RawPrices {
 	store := ctx.KVStore(keeper.StoreKey)
-	pricesBz := store.Get([]byte(types.RawPricesPrefix))
+	pricesBz := store.Get([]byte(types.RawPricesPrefix + assetName + assetCode))
 	var rawPrices types.RawPrices
 	keeper.cdc.MustUnmarshalBinaryBare(pricesBz, &rawPrices)
 	return rawPrices
 }
 
-func (keeper Keeper) SetCurrentPrice(ctx sdk.Context) sdk.Error {
+func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
+
+	//Get all listed assets
+	assets := keeper.getAssets(ctx)
+
+	//For every asset, get all its not expired prices and calculate a median price that will be the current one
+	for _, asset := range assets {
+		// Get all raw prices posted by oracles
+		rawPrices := keeper.GetRawPrices(ctx, asset.Name, asset.Code)
+		var notExpiredPrices = types.RawPrices{}
+
+		// filter out expired prices
+		for _, price := range rawPrices {
+			if price.PriceInfo.Expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
+				notExpiredPrices = notExpiredPrices.UpdatePriceOrAppendIfMissing(price)
+			}
+		}
+
+		pricesLength := len(notExpiredPrices)
+		var medianPrice sdk.Int
+		var expiry 		sdk.Int
+		// TODO make threshold for acceptance (ie. require 51% of oracles to have posted valid prices)
+		if pricesLength == 0 {
+			// Error if there are no valid prices in the raw prices store
+			return sdk.ErrInternal("no valid raw prices to calculate current prices")
+		} else if pricesLength == 1 {
+			// Return if there's only one price
+			medianPrice = notExpiredPrices[0].PriceInfo.Price
+			expiry = notExpiredPrices[0].PriceInfo.Expiry
+		} else {
+			// sort the prices
+			sort.Slice(notExpiredPrices, func(i, j int) bool {
+				return notExpiredPrices[i].PriceInfo.Price.LT(notExpiredPrices[j].PriceInfo.Price)
+			})
+			// If there's an even number of prices
+			if pricesLength%2 == 0 {
+				// TODO make sure this is safe.
+				// Since it's a price and not a balance, division with precision loss is OK.
+				price1 := notExpiredPrices[pricesLength/2-1].PriceInfo.Price
+				price2 := notExpiredPrices[pricesLength/2].PriceInfo.Price
+				sum := price1.Add(price2)
+				medianPrice = sum.Quo(sdk.NewInt(2))
+				// TODO Check if safe, makes sense
+				// Takes the average of the two expires rounded down to the nearest Int.
+				expiry = notExpiredPrices[pricesLength/2-1].PriceInfo.Expiry.
+					Add(notExpiredPrices[pricesLength/2].PriceInfo.Expiry).
+					Quo(sdk.NewInt(2))
+			} else {
+				// integer division, so we'll get an integer back, rounded down
+				medianPrice = notExpiredPrices[pricesLength/2].PriceInfo.Price
+				expiry = notExpiredPrices[pricesLength/2].PriceInfo.Expiry
+			}
+		}
+		store := ctx.KVStore(keeper.StoreKey)
+
+
+		store.Set([]byte(types.CurrentPricesPrefix+))
+
+
+	}
+
+
+
 	/*
 		GetRawPrices
 		filter not expire ones

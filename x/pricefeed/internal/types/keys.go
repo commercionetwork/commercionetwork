@@ -14,6 +14,7 @@ const (
 	QueryGetOracles       = "oracles"
 
 	//CurrentPricesPrefix store prefix for the current price of an asset
+	AssetsPrefix        = StoreKey + ":tokeninfo:"
 	CurrentPricesPrefix = StoreKey + ":currentprices:"
 	RawPricesPrefix     = StoreKey + ":rawprices:"
 

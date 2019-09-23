@@ -52,7 +52,7 @@ func getCmdCurrentPrice(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryGetOracles, args[0], args[1])
+			route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryGetCurrentPrice, args[0], args[1])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get token's price: \n %s", err)

@@ -25,16 +25,16 @@ func (msg MsgSetPrice) ValidateBasic() sdk.Error {
 	if msg.Price.Oracle.Empty() {
 		return sdk.ErrInvalidAddress(msg.Price.Oracle.String())
 	}
-	if msg.Price.CurrentPrice.Price.IsNegative() {
+	if msg.Price.PriceInfo.Price.IsNegative() {
 		return sdk.ErrUnknownRequest("Token's price cannot be zero or negative")
 	}
-	if len(strings.TrimSpace(msg.Price.CurrentPrice.TokenName)) == 0 {
+	if len(strings.TrimSpace(msg.Price.PriceInfo.AssetName)) == 0 {
 		return sdk.ErrUnknownRequest("Cannot set price for unnamed token")
 	}
-	if len(strings.TrimSpace(msg.Price.CurrentPrice.TokenCode)) == 0 {
+	if len(strings.TrimSpace(msg.Price.PriceInfo.AssetCode)) == 0 {
 		return sdk.ErrUnknownRequest("Cannot set price for unnamed token")
 	}
-	if msg.Price.CurrentPrice.Expiry.IsZero() || msg.Price.CurrentPrice.Expiry.IsNegative() {
+	if msg.Price.PriceInfo.Expiry.IsZero() || msg.Price.PriceInfo.Expiry.IsNegative() {
 		return sdk.ErrUnknownRequest("Cannot set price with an expire height of zero or negative")
 	}
 

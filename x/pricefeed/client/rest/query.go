@@ -38,6 +38,17 @@ func getCurrentPriceHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
+func getCurrentPricesHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetCurrentPrices)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+		}
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
 func getOraclesHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetOracles)

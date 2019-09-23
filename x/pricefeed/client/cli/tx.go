@@ -49,9 +49,9 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 
 			price := types.RawPrice{
 				Oracle: oracle,
-				CurrentPrice: types.CurrentPrice{
-					TokenCode: tokenCode,
-					TokenName: tokenName,
+				PriceInfo: types.CurrentPrice{
+					AssetCode: tokenCode,
+					AssetName: tokenName,
 					Price:     tokenPrice,
 					Expiry:    expiry,
 				},
