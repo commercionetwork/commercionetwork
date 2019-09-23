@@ -54,7 +54,7 @@ func TestKeeper_GetIdentities(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
 	for ; iterator.Valid(); iterator.Next() {
-		store.Delete(iterator.Key())
+
 	}
 
 	first, err := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")

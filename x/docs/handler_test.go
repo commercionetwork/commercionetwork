@@ -97,8 +97,6 @@ func Test_handleMsgSendDocumentReceipt(t *testing.T) {
 func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(MetadataSchemaProposersStoreKey))
 
 	msgAddSupportedMetadataSchema := MsgAddSupportedMetadataSchema{
 		Signer: TestingSender,

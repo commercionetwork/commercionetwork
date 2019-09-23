@@ -17,7 +17,6 @@ func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
 
 	schema := types.MetadataSchema{Type: "schema", SchemaUri: "https://example.com/schema", Version: "1.0.0"}
 	k.AddSupportedMetadataScheme(ctx, schema)
@@ -54,8 +53,6 @@ func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
 
 func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
 
 	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
 	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
@@ -78,8 +75,6 @@ func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
 
 func TestKeeper_GetSupportedMetadataSchemes_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
 
 	result := k.GetSupportedMetadataSchemes(ctx)
 
@@ -107,7 +102,6 @@ func TestKeeper_GetSupportedMetadataSchemes_ExistingList(t *testing.T) {
 func TestKeeper_AddTrustedSchemaProposer_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)
 
@@ -140,8 +134,6 @@ func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
 
 func TestKeeper_IsTrustedSchemaProposer_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
 
 	assert.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
 	assert.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
@@ -161,8 +153,6 @@ func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
 
 func TestKeeper_GetTrustedSchemaProposers_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
 
 	stored := k.GetTrustedSchemaProposers(ctx)
 
@@ -308,8 +298,6 @@ func TestKeeper_ShareDocument_SameDocumentDifferentUuid(t *testing.T) {
 
 func TestKeeper_GetUserReceivedDocuments_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getReceivedDocumentsStoreKey(TestingRecipient))
 
 	receivedDocs, err := k.GetUserReceivedDocuments(ctx, TestingRecipient)
 	assert.Nil(t, err)
@@ -336,9 +324,6 @@ func TestKeeper_GetUserReceivedDocuments_NonEmptyList(t *testing.T) {
 
 func TestKeeper_GetUserSentDocuments_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getSentDocumentsStoreKey(TestingSender))
 
 	sentDocuments, err := k.GetUserSentDocuments(ctx, TestingSender)
 	assert.Nil(t, err)
@@ -369,7 +354,6 @@ func TestKeeper_GetUserSentDocuments_NonEmptyList(t *testing.T) {
 func TestKeeper_SendDocumentReceipt_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
 
 	k.SendDocumentReceipt(ctx, TestingDocumentReceipt)
 
@@ -403,8 +387,6 @@ func TestKeeper_SendDocumentReceipt_ExistingReceipt(t *testing.T) {
 
 func TestKeeper_GetUserReceivedReceipts_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	receipts := k.GetUserReceivedReceipts(ctx, TestingDocumentReceipt.Recipient)
 
@@ -488,8 +470,6 @@ func TestKeeper_GetUsersSet_EmptySet(t *testing.T) {
 func TestKeeper_SetUserDocuments(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getSentDocumentsStoreKey(TestingSender))
-	store.Delete(k.getReceivedDocumentsStoreKey(TestingRecipient))
 
 	documents := types.Documents{TestingDocument}
 
@@ -510,8 +490,6 @@ func TestKeeper_SetUserDocuments(t *testing.T) {
 func TestKeeper_SetUserReceipts(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
-	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	receipts := types.DocumentReceipts{TestingDocumentReceipt}
 

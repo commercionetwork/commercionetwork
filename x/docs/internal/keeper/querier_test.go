@@ -19,9 +19,6 @@ var documents = types.Documents{TestingDocument}
 func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getReceivedDocumentsStoreKey(TestingRecipient))
 
 	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
 
@@ -57,9 +54,6 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getSentDocumentsStoreKey(TestingSender))
 
 	path := []string{types.QuerySentDocuments, TestingSender.String()}
 
@@ -98,9 +92,6 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
 
@@ -118,7 +109,6 @@ func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 	var querier = NewQuerier(k)
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	var stored = types.DocumentReceipts{TestingDocumentReceipt}
 	store.Set(
@@ -142,7 +132,6 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	var querier = NewQuerier(k)
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
 
 	var stored = types.DocumentReceipts{TestingDocumentReceipt}
 	store.Set(
@@ -165,9 +154,6 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
@@ -207,9 +193,6 @@ func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.SupportedMetadataSchemesStoreKey))
 
 	path := []string{types.QuerySupportedMetadataSchemes}
 
@@ -249,9 +232,6 @@ func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
 func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
 
 	path := []string{types.QueryTrustedMetadataProposers}
 
