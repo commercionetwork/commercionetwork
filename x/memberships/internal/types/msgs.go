@@ -1,8 +1,6 @@
 package types
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -34,7 +32,7 @@ func (msg MsgAssignMembership) ValidateBasic() sdk.Error {
 	if msg.User.Empty() {
 		return sdk.ErrInvalidAddress(msg.User.String())
 	}
-	if len(strings.TrimSpace(msg.MembershipType)) == 0 {
+	if len(msg.MembershipType) == 0 {
 		return sdk.ErrUnknownRequest("Did Document reference cannot be empty")
 	}
 	if !IsMembershipTypeValid(msg.MembershipType) {

@@ -14,6 +14,9 @@ import (
 func Test_handleSetAccrediter_NotTrustedAccrediter(t *testing.T) {
 	ctx, _, _, _, governmentKeeper, accreditationKeeper := GetTestInput()
 
+	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	store.Delete([]byte(TrustedSignersStoreKey))
+
 	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	msg := MsgSetAccrediter{User: TestUser, Accrediter: TestAccrediter, Signer: TestSigner}
 	res := handler(ctx, msg)
@@ -59,6 +62,9 @@ func Test_handleSetAccrediter_ValidData(t *testing.T) {
 
 func Test_handleDistributeReward_NilAccrediter(t *testing.T) {
 	ctx, _, _, _, governmentKeeper, accreditationKeeper := GetTestInput()
+
+	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	store.Delete(TestUser)
 
 	handler := NewHandler(accreditationKeeper, governmentKeeper)
 	reward := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))

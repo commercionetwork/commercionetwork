@@ -1,7 +1,6 @@
 package cli
 
 import (
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -48,17 +47,16 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			var checksum *types.DocumentChecksum
-			var contentUri string
+			var contentUri, checksumValue, checksumAlgorithm string
 			if len(args) > 6 {
 				contentUri = args[6]
-				checksum = &types.DocumentChecksum{
-					Value:     args[7],
-					Algorithm: args[8],
-				}
+				checksumValue = args[7]
+				checksumAlgorithm = args[8]
 			}
 
 			document := types.Document{
+				Sender:     sender,
+				Recipient:  recipient,
 				ContentUri: contentUri,
 				Uuid:       args[1],
 				Metadata: types.DocumentMetadata{
@@ -69,10 +67,13 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 					},
 					Proof: args[5],
 				},
-				Checksum: checksum,
+				Checksum: types.DocumentChecksum{
+					Value:     checksumValue,
+					Algorithm: checksumAlgorithm,
+				},
 			}
 
-			msg := types.NewMsgShareDocument(sender, ctypes.Addresses{recipient}, document)
+			msg := types.NewMsgShareDocument(document)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

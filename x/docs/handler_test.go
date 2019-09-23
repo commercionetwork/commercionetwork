@@ -5,7 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,34 +17,32 @@ import (
 // -----------------------------
 
 func Test_handleMsgShareDocument_CustomMetadataSpecs(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
 
-	msgShareDocument := NewMsgShareDocument(TestingSender, types.Addresses{TestingRecipient}, TestingDocument)
+	msgShareDocument := MsgShareDocument(keeper.TestingDocument)
 
 	res := handler(ctx, msgShareDocument)
 	require.True(t, res.IsOK())
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
 
 	msgShareDocument := MsgShareDocument{
-		Sender:     TestingSender,
-		Recipients: types.Addresses{TestingRecipient},
-		Document: Document{
-			Uuid: TestingDocument.Uuid,
-			Metadata: DocumentMetadata{
-				ContentUri: TestingDocument.Metadata.ContentUri,
-				SchemaType: "metadata-schema",
-				Proof:      TestingDocument.Metadata.Proof,
-			},
-			ContentUri: TestingDocument.ContentUri,
-			Checksum:   TestingDocument.Checksum,
+		Sender:    keeper.TestingDocument.Sender,
+		Recipient: keeper.TestingDocument.Recipient,
+		Uuid:      keeper.TestingDocument.Uuid,
+		Metadata: types.DocumentMetadata{
+			ContentUri: keeper.TestingDocument.Metadata.ContentUri,
+			SchemaType: "metadata-schema",
+			Proof:      keeper.TestingDocument.Metadata.Proof,
 		},
+		ContentUri: keeper.TestingDocument.ContentUri,
+		Checksum:   keeper.TestingDocument.Checksum,
 	}
-	supportedSchema := MetadataSchema{
+	supportedSchema := types.MetadataSchema{
 		Type:      "metadata-schema",
 		SchemaUri: "https://example.com/schema",
 		Version:   "1.0.0",
@@ -55,21 +54,19 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
 	msgShareDocument := MsgShareDocument{
-		Sender:     TestingSender,
-		Recipients: types.Addresses{TestingRecipient},
-		Document: Document{
-			Uuid: TestingDocument.Uuid,
-			Metadata: DocumentMetadata{
-				ContentUri: TestingDocument.Metadata.ContentUri,
-				SchemaType: "non-existent-schema-type",
-				Proof:      TestingDocument.Metadata.Proof,
-			},
-			ContentUri: TestingDocument.ContentUri,
-			Checksum:   TestingDocument.Checksum,
+		Sender:    keeper.TestingDocument.Sender,
+		Recipient: keeper.TestingDocument.Recipient,
+		Uuid:      keeper.TestingDocument.Uuid,
+		Metadata: types.DocumentMetadata{
+			ContentUri: keeper.TestingDocument.Metadata.ContentUri,
+			SchemaType: "non-existent-schema-type",
+			Proof:      keeper.TestingDocument.Metadata.Proof,
 		},
+		ContentUri: keeper.TestingDocument.ContentUri,
+		Checksum:   keeper.TestingDocument.Checksum,
 	}
 
 	res := handler(ctx, msgShareDocument)
@@ -82,9 +79,9 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 // -----------------------------------
 
 func Test_handleMsgSendDocumentReceipt(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
-	msgSendDocumentReceipt := MsgSendDocumentReceipt(TestingDocumentReceipt)
+	msgSendDocumentReceipt := MsgSendDocumentReceipt(keeper.TestingDocumentReceipt)
 
 	res := handler(ctx, msgSendDocumentReceipt)
 	assert.True(t, res.IsOK())
@@ -95,12 +92,14 @@ func Test_handleMsgSendDocumentReceipt(t *testing.T) {
 // -------------------------------------------
 
 func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete([]byte(types.MetadataSchemaProposersStoreKey))
 
 	msgAddSupportedMetadataSchema := MsgAddSupportedMetadataSchema{
-		Signer: TestingSender,
-		Schema: MetadataSchema{
+		Signer: keeper.TestingSender,
+		Schema: types.MetadataSchema{
 			Type:      "schema-type",
 			SchemaUri: "https://example.com/schema",
 			Version:   "1.0.0",
@@ -112,16 +111,16 @@ func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
 }
 
 func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, k := TestSetup()
 	var handler = NewHandler(k)
-	signers := []sdk.AccAddress{TestingSender}
+	signers := []sdk.AccAddress{keeper.TestingSender}
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(MetadataSchemaProposersStoreKey), cdc.MustMarshalBinaryBare(&signers))
+	store.Set([]byte(types.MetadataSchemaProposersStoreKey), cdc.MustMarshalBinaryBare(&signers))
 
 	msgAddSupportedMetadataSchema := MsgAddSupportedMetadataSchema{
-		Signer: TestingSender,
-		Schema: MetadataSchema{
+		Signer: keeper.TestingSender,
+		Schema: types.MetadataSchema{
 			Type:      "schema-type",
 			SchemaUri: "https://example.com/schema",
 			Version:   "1.0.0",
@@ -136,12 +135,12 @@ func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
 // ------------------------------------------------
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_MissingGovernment(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
 
-	msgAddTrustedMetadataSchemaProposer := MsgAddTrustedMetadataSchemaProposer{
-		Proposer: TestingSender,
-		Signer:   TestingRecipient,
+	msgAddTrustedMetadataSchemaProposer := types.MsgAddTrustedMetadataSchemaProposer{
+		Proposer: keeper.TestingSender,
+		Signer:   keeper.TestingRecipient,
 	}
 	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
 	assert.False(t, res.IsOK())
@@ -149,13 +148,13 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_MissingGovernment(t *testing
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
-	_ = k.GovernmentKeeper.SetGovernmentAddress(ctx, TestingRecipient)
+	_ = k.GovernmentKeeper.SetGovernmentAddress(ctx, keeper.TestingRecipient)
 
-	msgAddTrustedMetadataSchemaProposer := MsgAddTrustedMetadataSchemaProposer{
-		Proposer: TestingSender,
-		Signer:   TestingSender,
+	msgAddTrustedMetadataSchemaProposer := types.MsgAddTrustedMetadataSchemaProposer{
+		Proposer: keeper.TestingSender,
+		Signer:   keeper.TestingSender,
 	}
 	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
 	assert.False(t, res.IsOK())
@@ -163,13 +162,13 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
-	_ = k.GovernmentKeeper.SetGovernmentAddress(ctx, TestingRecipient)
+	_ = k.GovernmentKeeper.SetGovernmentAddress(ctx, keeper.TestingRecipient)
 
-	msgAddTrustedMetadataSchemaProposer := MsgAddTrustedMetadataSchemaProposer{
-		Proposer: TestingSender,
-		Signer:   TestingRecipient,
+	msgAddTrustedMetadataSchemaProposer := types.MsgAddTrustedMetadataSchemaProposer{
+		Proposer: keeper.TestingSender,
+		Signer:   keeper.TestingRecipient,
 	}
 	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
 	assert.True(t, res.IsOK())
@@ -180,7 +179,7 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) 
 // -------------------
 
 func Test_invalidMsg(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, k := TestSetup()
 	var handler = NewHandler(k)
 	res := handler(ctx, sdk.NewTestMsg())
 	assert.False(t, res.IsOK())

@@ -148,7 +148,7 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress
 
 	// Save the updated pool
 	if liquidity.Empty() {
-
+		store.Delete([]byte(types.LiquidityPoolKey))
 	} else {
 		store.Set([]byte(types.LiquidityPoolKey), keeper.cdc.MustMarshalBinaryBare(&liquidity))
 	}

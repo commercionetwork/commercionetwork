@@ -8,8 +8,6 @@ const (
 	SupportedMetadataSchemesStoreKey = StoreKey + "supportedMetadata"
 	MetadataSchemaProposersStoreKey  = StoreKey + "metadataSchemaProposers"
 
-	DocumentStorePrefix = StoreKey + ":document:"
-
 	SentDocumentsPrefix     = StoreKey + ":documents:sent:"
 	ReceivedDocumentsPrefix = StoreKey + ":received:received:"
 

@@ -16,6 +16,9 @@ import (
 func Test_queryGetAccrediter_NonExistent(t *testing.T) {
 	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
+	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	store.Delete(TestUser)
+
 	path := []string{types.QueryGetAccrediter, TestUser.String()}
 
 	var querier = NewQuerier(accreditationKeeper)
@@ -56,6 +59,9 @@ func Test_queryGetAccrediter_Existent(t *testing.T) {
 
 func Test_queryGetSigners_EmptyList(t *testing.T) {
 	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
+
+	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	store.Delete([]byte(types.TrustedSignersStoreKey))
 
 	path := []string{types.QueryGetSigners}
 
@@ -98,6 +104,9 @@ func Test_queryGetSigners_ExistingList(t *testing.T) {
 
 func Test_queryGetPoolFunds_EmptyPool(t *testing.T) {
 	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
+
+	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	store.Delete([]byte(types.LiquidityPoolKey))
 
 	path := []string{types.QueryGetPoolFunds}
 
