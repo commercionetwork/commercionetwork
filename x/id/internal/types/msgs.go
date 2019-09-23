@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -27,7 +29,7 @@ func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
 	if msg.Owner.Empty() {
 		return sdk.ErrInvalidAddress(msg.Owner.String())
 	}
-	if len(msg.DidDocumentUri) == 0 {
+	if len(strings.TrimSpace(msg.DidDocumentUri)) == 0 {
 		return sdk.ErrUnknownRequest("Did Document reference cannot be empty")
 	}
 	return nil
