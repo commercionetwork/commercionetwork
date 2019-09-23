@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -11,21 +10,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd(cdc *codec.Codec, moduleName, querierRoute string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        types.ModuleName,
+		Use:                        moduleName,
 		Short:                      "Querying commands for the commercioID module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(GetCmdResolveIdentity(cdc))
+	cmd.AddCommand(GetCmdResolveIdentity(cdc, querierRoute))
 
 	return cmd
 }
 
-func GetCmdResolveIdentity(cdc *codec.Codec) *cobra.Command {
+func GetCmdResolveIdentity(cdc *codec.Codec, querierRoute string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "resolve [did]",
 		Short: "Resolves the given Did by returning the data associated with it",
@@ -34,7 +33,7 @@ func GetCmdResolveIdentity(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name := args[0]
 
-			route := fmt.Sprintf("custom/%s/identities/%s", types.QuerierRoute, name)
+			route := fmt.Sprintf("custom/%s/identities/%s", querierRoute, name)
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not resolve identity - %s \n", string(name))

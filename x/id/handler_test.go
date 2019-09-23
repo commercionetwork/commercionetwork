@@ -5,14 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/id/internal/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
 var msgSetId = MsgSetIdentity{
-	DidDocumentUri: keeper.TestDidDocumentUri,
-	Owner:          keeper.TestOwnerAddress,
+	DidDocumentUri: TestDidDocumentUri,
+	Owner:          TestOwnerAddress,
 }
 
 func TestValidMsg_StoreDoc(t *testing.T) {

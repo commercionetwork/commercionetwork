@@ -3,8 +3,7 @@ package tbr
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/tbr/client/cli"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,7 +49,6 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	rest.RegisterRoutes(ctx, rtr, ModuleName)
 }
 
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
@@ -58,7 +56,7 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc)
+	return cli.GetQueryCmd(cdc, ModuleName, QuerierRoute)
 }
 
 //____________________________________________________________________________

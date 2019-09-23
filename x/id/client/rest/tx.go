@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	types2 "github.com/commercionetwork/commercionetwork/x/id/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -46,7 +46,7 @@ func postSetIdentityHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		// create the message
-		msg := types2.NewMsgSetIdentity(addr, req.DdoReference)
+		msg := types.NewMsgSetIdentity(addr, req.DdoReference)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
