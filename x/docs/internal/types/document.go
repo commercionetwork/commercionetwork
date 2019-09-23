@@ -19,20 +19,26 @@ type Document struct {
 }
 
 // TODO: Test
-func (doc Document) Equals(doc2 Document) bool {
-	if (doc.Checksum == nil || doc2.Checksum == nil) && doc.Checksum != doc2.Checksum {
-		return false
+func (doc Document) Equals(other Document) bool {
+	validContent := doc.Uuid == other.Uuid &&
+		doc.ContentUri == other.ContentUri &&
+		doc.Metadata.Equals(other.Metadata)
+
+	var validChecksum bool
+	if doc.Checksum != nil && other.Checksum != nil {
+		validChecksum = doc.Checksum.Equals(*other.Checksum)
+	} else {
+		validChecksum = doc.Checksum == other.Checksum
 	}
 
-	if (doc.EncryptionData == nil || doc2.EncryptionData == nil) && doc.EncryptionData != doc2.EncryptionData {
-		return false
+	var validEncryptionData bool
+	if doc.EncryptionData != nil && other.EncryptionData != nil {
+		validEncryptionData = doc.EncryptionData.Equals(*other.EncryptionData)
+	} else {
+		validEncryptionData = doc.EncryptionData == other.EncryptionData
 	}
 
-	return doc.Uuid == doc2.Uuid &&
-		doc.ContentUri == doc2.ContentUri &&
-		doc.Metadata.Equals(doc2.Metadata) &&
-		doc.Checksum.Equals(*doc2.Checksum) &&
-		doc.EncryptionData.Equals(*doc2.EncryptionData)
+	return validContent && validChecksum && validEncryptionData
 }
 
 func validateUuid(uuid string) bool {

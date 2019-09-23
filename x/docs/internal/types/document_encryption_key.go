@@ -27,7 +27,6 @@ func (key DocumentEncryptionKey) Equals(other DocumentEncryptionKey) bool {
 
 // Validate tries to validate all the data contained inside the given
 // DocumentEncryptionKey and returns an error if something bad occurs
-// TODO: Test this
 func (key DocumentEncryptionKey) Validate() error {
 	if key.Recipient.Empty() {
 		return errors.New(fmt.Sprintf("invalid address %s", key.Recipient.String()))

@@ -12,7 +12,6 @@ type DocumentEncryptionData struct {
 }
 
 // Equals returns true iff this dat and other contain the same data
-// TODO: Test this
 func (data DocumentEncryptionData) Equals(other DocumentEncryptionData) bool {
 	if len(data.Keys) != len(other.Keys) {
 		return false
