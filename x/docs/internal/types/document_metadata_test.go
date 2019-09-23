@@ -63,7 +63,7 @@ func TestDocumentMetadata_Validate(t *testing.T) {
 
 func TestDocumentMetadata_Validate_EmptyContentUri(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
-		ContentUri: "",
+		ContentUri: "   ",
 		Schema: &DocumentMetadataSchema{
 			Uri:     "http://www.contentUri.com",
 			Version: "test",

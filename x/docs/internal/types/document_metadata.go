@@ -41,7 +41,7 @@ func (metadata DocumentMetadata) Equals(other DocumentMetadata) bool {
 // Validate tries to validate all the data contained inside the given
 // DocumentMetadata and returns an error if something is wrong
 func (metadata DocumentMetadata) Validate() error {
-	if len(metadata.ContentUri) == 0 {
+	if len(strings.TrimSpace(metadata.ContentUri)) == 0 {
 		return errors.New("metadata.content_uri can't be empty")
 	}
 
