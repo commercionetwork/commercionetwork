@@ -142,7 +142,12 @@ Inserting other non supported values inside such a field will result in the tran
 | `metadata.content_uri` | Value of the `content_uri` field inside the `metadata` object |
 | `metadata.schema.uri` | Value of the `uri` field inside the `metadata`'s `schema` sub-object |
 
-## ⚠️ OUTDATED ⚠️ Using the CLI
+## Using the CLI
+
+:::danger  
+Please note that the following procedure is completely outdated and should not be used  
+:::
+
 In order to send a document using the CLI you can use the following command 
 
 ```bash
