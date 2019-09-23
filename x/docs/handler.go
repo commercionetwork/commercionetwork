@@ -2,6 +2,7 @@ package docs
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,7 +30,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 func handleMsgShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) sdk.Result {
 
 	// The metadata schema type is being specified
-	if len(msg.Document.Metadata.SchemaType) != 0 {
+	if len(strings.TrimSpace(msg.Document.Metadata.SchemaType)) != 0 {
 
 		// Check its validity
 		if !keeper.IsMetadataSchemeTypeSupported(ctx, msg.Document.Metadata.SchemaType) {

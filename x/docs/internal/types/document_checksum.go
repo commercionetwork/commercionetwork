@@ -30,10 +30,10 @@ func (checksum DocumentChecksum) Equals(other DocumentChecksum) bool {
 
 // Validate returns an error if there is something wrong inside this DocumentChecksum
 func (checksum DocumentChecksum) Validate() error {
-	if len(checksum.Value) == 0 {
+	if len(strings.TrimSpace(checksum.Value)) == 0 {
 		return errors.New("checksum value can't be empty")
 	}
-	if len(checksum.Algorithm) == 0 {
+	if len(strings.TrimSpace(checksum.Algorithm)) == 0 {
 		return errors.New("checksum algorithm can't be empty")
 	}
 
@@ -51,7 +51,7 @@ func (checksum DocumentChecksum) Validate() error {
 	}
 
 	// Check the validity of the checksum value
-	if len(checksum.Value) != length {
+	if len(strings.TrimSpace(checksum.Value)) != length {
 		return errors.New(fmt.Sprintf("invalid checksum length for algorithm %s", algorithm))
 	}
 

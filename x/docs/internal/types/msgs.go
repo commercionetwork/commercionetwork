@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -120,13 +121,13 @@ func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 	if msg.Recipient.Empty() {
 		return sdk.ErrInvalidAddress(msg.Recipient.String())
 	}
-	if len(msg.TxHash) == 0 {
+	if len(strings.TrimSpace(msg.TxHash)) == 0 {
 		return sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty")
 	}
 	if !validateUuid(msg.DocumentUuid) {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
-	if len(msg.Proof) == 0 {
+	if len(strings.TrimSpace(msg.Proof)) == 0 {
 		return sdk.ErrUnknownRequest("Receipt proof can't be empty")
 	}
 

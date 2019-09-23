@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"regexp"
+	"strings"
 )
 
 // Document contains the generic information about a single document which has been sent from a user to another user.
@@ -43,7 +44,7 @@ func (doc Document) Validate() error {
 	if !validateUuid(doc.Uuid) {
 		return errors.New("invalid document UUID")
 	}
-	if len(doc.ContentUri) == 0 {
+	if len(strings.TrimSpace(doc.ContentUri)) == 0 {
 		return errors.New("document content Uri can't be empty")
 	}
 

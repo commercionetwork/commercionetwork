@@ -50,15 +50,15 @@ func (metadata DocumentMetadata) Validate() error {
 	}
 
 	if metadata.Schema != nil {
-		if len(metadata.Schema.Uri) == 0 {
+		if len(strings.TrimSpace(metadata.Schema.Uri)) == 0 {
 			return errors.New("metadata.schema.uri can't be empty")
 		}
-		if len(metadata.Schema.Version) == 0 {
+		if len(strings.TrimSpace(metadata.Schema.Version)) == 0 {
 			return errors.New("metadata.schema.version can't be empty")
 		}
 	}
 
-	if len(metadata.Proof) == 0 {
+	if len(strings.TrimSpace(metadata.Proof)) == 0 {
 		return errors.New("metadata.proof can't be empty")
 	}
 	return nil
