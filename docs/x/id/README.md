@@ -30,11 +30,10 @@ After inserting the password, you will be shown the mnemonic that can be used in
 (and identity) into a wallet. 
 
 ```
-
 - name: jack
   type: local
-  address: did:comnet:1cqewhexuscu5q76qyna4rmnx48flp6dsh9kump
-  pubkey: comnetpub1addwnpepqdvvek7t28g6nga954qhvrln379l22l95qag3n6wlpukzrlajvyakwe9v89
+  address: did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger
+  pubkey: did:com:pub1addwnpepqfdl6s8hdwdya9zvn5wtx8ty3qsqqqd2ddvygc5zutnrryh5x9ju73jdfg8
   mnemonic: ""
   threshold: 0
   pubkeys: []
@@ -43,7 +42,7 @@ After inserting the password, you will be shown the mnemonic that can be used in
 **Important** write this mnemonic phrase in a safe place.
 It is the only way to recover your account if you ever forget your password.
 
-level awesome panther copy lottery race flag label crunch illegal step atom breeze choose undo solar remove upset caught maze endorse cargo sunny armed
+scorpion what indoor keen topic cricket uphold inch cactus six suffer coin popular honey vendor clown day twin during vague midnight emerge man inform
 ```
 
 ### Using an identity

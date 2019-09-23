@@ -58,7 +58,7 @@ Once created, messages must be signed. In order to do so, the following data wil
 1. Private key associated to the account.  
    This can be retrieved from the 12/24 key words using the [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) specification
 2. Address of the signer.  
-   This can be retrieved using the [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) specification, setting `comnet` as the human readable part and using the `m/44'/188'/0'/0/0` derivation path.
+   This can be retrieved using the [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) specification, setting `did:com` as the human readable part and using the `m/44'/188'/0'/0/0` derivation path.
 
 ### 2.1 Data retrieval
 The first thing that must be done in order to sign a message, is to retrieve all the needed data. 
@@ -70,7 +70,7 @@ To avoid repetition attacks, all the transactions that are sent inside a Cosmos 
 curl https://<NODE_URL>/auth/accounts/<SIGNER_ADDRESS>
 ```
 
-Supposing we want to read those values for the address `comnet1yffuvze4pe8v2fn8vyy3dnkj65zjvna5wn22jd` from our local node, we will then use
+Supposing we want to read those values for the address `did:com:10k2fswy7ce8mvfdlkt2x0mht326svvuwkxqp30` from our local node, we will then use
 
 ```bash
 curl http://localhost:1317/auth/accounts/did:com:10k2fswy7ce8mvfdlkt2x0mht326svvuwkxqp30
@@ -83,7 +83,7 @@ This should print a JSON object similar to this:
   "result": {
     "type": "cosmos-sdk/Account",
     "value": {
-      "address": "did:com:1ljw7ny7rx3jewq85hpkln82wzm9lxqwaruxjdg",
+      "address": "did:com:10k2fswy7ce8mvfdlkt2x0mht326svvuwkxqp30",
       "coins": [
         {
           "denom": "ucommercio",
@@ -224,7 +224,7 @@ Once you've create the JSON object containing the data to sign, it is now time t
 1. Convert the JSON object to it's compact and alphabetically ordered representation.  
    This means that the keys of the object should be alphabetically sorted, and any white space should be trimmed. The above JSON should then look like this:  
    ```
-   {"account_number":"0","chain_id":"test-chain-eDSCSs","fee":{"amount":[],"gas":"20000"},"memo":"","msgs":[{"type":"commercioid/SetIdentity","value":{"ddo_reference":"hkbmhbmbmbmnbmb","did":"lkh,mjhmjhmj,hmjh","owner":"comnet1rssrf0njfuzuxz6chvdhljc8cyhhz86kvvsmvu"}}],"sequence":"1"}
+   {"account_number":"0","chain_id":"test-chain-eDSCSs","fee":{"amount":[],"gas":"20000"},"memo":"","msgs":[{"type":"commercioid/SetIdentity","value":{"ddo_reference":"hkbmhbmbmbmnbmb","did":"lkh,mjhmjhmj,hmjh","owner":"did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"}}],"sequence":"1"}
    ```
 
 2. Compute the SHA-256 hash of the JSON content's byte array representation.  
