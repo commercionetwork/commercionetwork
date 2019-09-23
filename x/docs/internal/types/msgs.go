@@ -40,7 +40,7 @@ func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 	}
 
 	if msg.Recipients.Empty() {
-		return sdk.ErrUnknownRequest("Recipients cannot be empty")
+		return sdk.ErrInvalidAddress("Recipients cannot be empty")
 	}
 	for _, recipient := range msg.Recipients {
 		if recipient.Empty() {
