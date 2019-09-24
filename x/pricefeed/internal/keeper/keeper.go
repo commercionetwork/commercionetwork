@@ -2,12 +2,13 @@ package keeper
 
 import (
 	"fmt"
+	"sort"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"sort"
 )
 
 type Keeper struct {
@@ -24,8 +25,8 @@ func NewKeeper(storekey sdk.StoreKey, govK government.Keeper, cdc *codec.Codec) 
 	}
 }
 
-//getAssets retrieve all the assets
-func (keeper Keeper) getAssets(ctx sdk.Context) types.Assets {
+//GetAssets retrieve all the assets
+func (keeper Keeper) GetAssets(ctx sdk.Context) types.Assets {
 	store := ctx.KVStore(keeper.StoreKey)
 	assetsBz := store.Get([]byte(types.AssetsPrefix))
 	var assets types.Assets
@@ -33,9 +34,9 @@ func (keeper Keeper) getAssets(ctx sdk.Context) types.Assets {
 	return assets
 }
 
-//setAssets add a new priced assets to the assets list
-func (keeper Keeper) setAssets(ctx sdk.Context, assetName string, assetCode string) {
-	assets := keeper.getAssets(ctx)
+//SetAssets add a new priced assets to the assets list
+func (keeper Keeper) SetAssets(ctx sdk.Context, assetName string, assetCode string) {
+	assets := keeper.GetAssets(ctx)
 	assets = assets.AppendIfMissing(types.Asset{Name: assetName, Code: assetCode})
 }
 
@@ -48,9 +49,9 @@ func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) sdk.Erro
 		return err
 	}
 	rawPrices := keeper.GetRawPrices(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
-	keeper.setAssets(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
+	keeper.SetAssets(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
 	rawPrices = rawPrices.UpdatePriceOrAppendIfMissing(price)
-	store.Set([]byte(types.RawPricesPrefix + price.PriceInfo.AssetName + price.PriceInfo.AssetCode),
+	store.Set([]byte(types.RawPricesPrefix+price.PriceInfo.AssetName+price.PriceInfo.AssetCode),
 		keeper.cdc.MustMarshalBinaryBare(rawPrices))
 	return nil
 }
@@ -67,7 +68,7 @@ func (keeper Keeper) GetRawPrices(ctx sdk.Context, assetName string, assetCode s
 func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 
 	//Get all listed assets
-	assets := keeper.getAssets(ctx)
+	assets := keeper.GetAssets(ctx)
 
 	//For every asset, get all its not expired prices and calculate a median price that will be the current one
 	for _, asset := range assets {
@@ -84,7 +85,7 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 
 		pricesLength := len(notExpiredPrices)
 		var medianPrice sdk.Int
-		var expiry 		sdk.Int
+		var expiry sdk.Int
 		// TODO make threshold for acceptance (ie. require 51% of oracles to have posted valid prices)
 		if pricesLength == 0 {
 			// Error if there are no valid prices in the raw prices store
@@ -99,6 +100,7 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 				return notExpiredPrices[i].PriceInfo.Price.LT(notExpiredPrices[j].PriceInfo.Price)
 			})
 			// If there's an even number of prices
+			//TODO This is how KAVA, calculate the current price for each token
 			if pricesLength%2 == 0 {
 				// TODO make sure this is safe.
 				// Since it's a price and not a balance, division with precision loss is OK.
@@ -118,21 +120,17 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 			}
 		}
 		store := ctx.KVStore(keeper.StoreKey)
-
-
-		store.Set([]byte(types.CurrentPricesPrefix+))
-
+		currentPrice := types.CurrentPrice{
+			AssetName: asset.Name,
+			AssetCode: asset.Code,
+			Price:     medianPrice,
+			Expiry:    expiry,
+		}
+		store.Set(
+			[]byte(types.CurrentPricesPrefix+asset.Name+asset.Code), keeper.cdc.MustMarshalBinaryBare(currentPrice))
 
 	}
-
-
-
-	/*
-		GetRawPrices
-		filter not expire ones
-		filter for tokenName+tokeCode
-		curPrice = avg(rawPrices)
-	*/
+	return nil
 }
 
 //GetCurrentPrices retrieves all the current prices

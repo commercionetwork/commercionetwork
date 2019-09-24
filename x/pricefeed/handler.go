@@ -1,4 +1,4 @@
-package mint
+package pricefeed
 
 import (
 	"fmt"

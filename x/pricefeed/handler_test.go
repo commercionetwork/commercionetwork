@@ -1,1 +1,1 @@
-package mint
+package pricefeed
