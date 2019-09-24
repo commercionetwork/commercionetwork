@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"sort"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
@@ -75,10 +74,14 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 		// Get all raw prices posted by oracles
 		rawPrices := keeper.GetRawPrices(ctx, asset.Name, asset.Code)
 		var notExpiredPrices = types.RawPrices{}
+		var rawPricesSum = sdk.NewInt(0)
+		var rawExpirySum = sdk.NewInt(0)
 
 		// filter out expired prices
-		for _, price := range rawPrices {
+		for index, price := range rawPrices {
 			if price.PriceInfo.Expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
+				rawPricesSum = rawPricesSum.Add(notExpiredPrices[index].PriceInfo.Price)
+				rawExpirySum = rawExpirySum.Add(notExpiredPrices[index].PriceInfo.Expiry)
 				notExpiredPrices = notExpiredPrices.UpdatePriceOrAppendIfMissing(price)
 			}
 		}
@@ -95,29 +98,9 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 			medianPrice = notExpiredPrices[0].PriceInfo.Price
 			expiry = notExpiredPrices[0].PriceInfo.Expiry
 		} else {
-			// sort the prices
-			sort.Slice(notExpiredPrices, func(i, j int) bool {
-				return notExpiredPrices[i].PriceInfo.Price.LT(notExpiredPrices[j].PriceInfo.Price)
-			})
-			// If there's an even number of prices
-			//TODO This is how KAVA, calculate the current price for each token
-			if pricesLength%2 == 0 {
-				// TODO make sure this is safe.
-				// Since it's a price and not a balance, division with precision loss is OK.
-				price1 := notExpiredPrices[pricesLength/2-1].PriceInfo.Price
-				price2 := notExpiredPrices[pricesLength/2].PriceInfo.Price
-				sum := price1.Add(price2)
-				medianPrice = sum.Quo(sdk.NewInt(2))
-				// TODO Check if safe, makes sense
-				// Takes the average of the two expires rounded down to the nearest Int.
-				expiry = notExpiredPrices[pricesLength/2-1].PriceInfo.Expiry.
-					Add(notExpiredPrices[pricesLength/2].PriceInfo.Expiry).
-					Quo(sdk.NewInt(2))
-			} else {
-				// integer division, so we'll get an integer back, rounded down
-				medianPrice = notExpiredPrices[pricesLength/2].PriceInfo.Price
-				expiry = notExpiredPrices[pricesLength/2].PriceInfo.Expiry
-			}
+			pLength := sdk.NewInt(int64(pricesLength))
+			medianPrice = rawPricesSum.Quo(pLength)
+			expiry = rawExpirySum.Quo(pLength)
 		}
 		store := ctx.KVStore(keeper.StoreKey)
 		currentPrice := types.CurrentPrice{
