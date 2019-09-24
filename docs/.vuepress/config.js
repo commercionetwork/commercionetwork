@@ -44,8 +44,7 @@ module.exports = {
                     "x/docs/",
                     "x/id/"
                 ]
-            },
-            "chain-start/"
+            }
         ],
     }
 };
