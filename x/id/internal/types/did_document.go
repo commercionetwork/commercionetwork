@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/hex"
 	"errors"
 	"strings"
 )
@@ -26,6 +27,10 @@ func (didDocument DidDocument) Validate() error {
 
 	if len(strings.TrimSpace(didDocument.ContentHash)) == 0 {
 		return errors.New("did document content hash cannot be empty")
+	}
+
+	if _, err := hex.DecodeString(didDocument.ContentHash); err != nil {
+		return errors.New("did document content hash must be a valid hex string")
 	}
 
 	if len(strings.TrimSpace(didDocument.ContentHash)) != 64 {

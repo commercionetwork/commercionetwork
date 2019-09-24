@@ -19,12 +19,12 @@ func GetQueryCmd(cdc *codec.Codec, moduleName, querierRoute string) *cobra.Comma
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(GetCmdResolveIdentity(cdc, querierRoute))
+	cmd.AddCommand(getCmdResolveIdentity(cdc, querierRoute))
 
 	return cmd
 }
 
-func GetCmdResolveIdentity(cdc *codec.Codec, querierRoute string) *cobra.Command {
+func getCmdResolveIdentity(cdc *codec.Codec, querierRoute string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "resolve [did]",
 		Short: "Resolves the given Did by returning the data associated with it",

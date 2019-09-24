@@ -23,7 +23,9 @@ func DefaultGenesisState() GenesisState {
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	// Set the liquidity pool
-	keeper.SetPoolFunds(ctx, data.LiquidityPoolAmount)
+	if data.LiquidityPoolAmount != nil {
+		keeper.SetPoolFunds(ctx, data.LiquidityPoolAmount)
+	}
 
 	// Import the signers
 	for _, signer := range data.TrustedSigners {
