@@ -1,8 +1,6 @@
 package types
 
-import "github.com/commercionetwork/commercionetwork/app"
-
 const (
-	DefaultBondDenom    = app.DefaultBondDenom
+	DefaultBondDenom    = "ucommercio"
 	DefaultCreditsDenom = "ucommerciocredits"
 )

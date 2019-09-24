@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"

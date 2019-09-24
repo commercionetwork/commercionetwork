@@ -1,10 +1,14 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"strings"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+//////////////////////////
+/////MsgSetPrice/////////
+////////////////////////
 type MsgSetPrice struct {
 	Price RawPrice `json:"price"`
 }
@@ -51,6 +55,9 @@ func (msg MsgSetPrice) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Price.Oracle}
 }
 
+//////////////////////////
+/////MsgAddOracle////////
+////////////////////////
 type MsgAddOracle struct {
 	Signer sdk.AccAddress
 	Oracle sdk.AccAddress
