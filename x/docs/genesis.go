@@ -48,10 +48,20 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 
 	var usersData []UserDocumentsData
 	for _, user := range users {
+		sentDocs, err := keeper.GetUserSentDocuments(ctx, user)
+		if err != nil {
+			panic(err)
+		}
+
+		receivedDocs, err := keeper.GetUserReceivedDocuments(ctx, user)
+		if err != nil {
+			panic(err)
+		}
+
 		userData := UserDocumentsData{
 			User:              user,
-			SentDocuments:     keeper.GetUserSentDocuments(ctx, user),
-			ReceivedDocuments: keeper.GetUserReceivedDocuments(ctx, user),
+			SentDocuments:     sentDocs,
+			ReceivedDocuments: receivedDocs,
 			SentReceipts:      keeper.GetUserSentReceipts(ctx, user),
 			ReceivedReceipts:  keeper.GetUserReceivedReceipts(ctx, user),
 		}
