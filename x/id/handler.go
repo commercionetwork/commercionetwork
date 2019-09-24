@@ -23,7 +23,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 // handleMsgSetIdentity allows to handle a MsgSetIdentity checking that the user that wants to set an identity is
 // the real owner of that identity.
 // If the user is not allowed to use that identity, returns an error.
-func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdentity) sdk.Result {
+func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity) sdk.Result {
 	keeper.SaveIdentity(ctx, msg.Owner, msg.DidDocument)
 	return sdk.Result{}
 }
