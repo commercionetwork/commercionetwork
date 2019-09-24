@@ -14,19 +14,20 @@ const (
 var (
 	NewKeeper     = keeper.NewKeeper
 	NewQuerier    = keeper.NewQuerier
-	TestSetup     = keeper.SetupTestInput
 	RegisterCodec = types.RegisterCodec
+	ModuleCdc     = types.ModuleCdc
 
-	ModuleCdc        = types.ModuleCdc
-	TestOwnerAddress = keeper.TestOwnerAddress
-	TestDidDocument  = keeper.TestDidDocument
+	NewMsgSetIdentity = types.NewMsgSetIdentity
+
+	TestSetup          = keeper.SetupTestInput
+	TestDidDocumentUri = keeper.TestDidDocumentUri
+	TestOwnerAddress   = keeper.TestOwnerAddress
 )
 
 type (
 	Keeper = keeper.Keeper
 
-	DidDocument = types.DidDocument
-	Identity    = types.Identity
+	Identity = types.Identity
 
 	MsgSetIdentity = types.MsgSetIdentity
 )

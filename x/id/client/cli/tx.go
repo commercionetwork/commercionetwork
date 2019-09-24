@@ -13,23 +13,23 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 )
 
-func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+func GetTxCmd(cdc *codec.Codec, moduleName string) *cobra.Command {
 	txCmd := &cobra.Command{
-		Use:                        types.ModuleName,
+		Use:                        moduleName,
 		Short:                      "CommercioID transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetCmdSetIdentity(cdc),
+		getCmdSetIdentity(cdc),
 	)
 
 	return txCmd
 }
 
-// GetCmdSetIdentity is the CLI command for sending a SetIdentity transaction
-func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
+// getCmdSetIdentity is the CLI command for sending a SetIdentity transaction
+func getCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set [did-document-uri] [did-document-content-sha256]",
 		Short: "Associates the given did document reference to your Did",
