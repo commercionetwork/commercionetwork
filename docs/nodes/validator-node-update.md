@@ -19,7 +19,8 @@ In order to know which one is associated to the chain version you are currently 
 Once you know the update type, please follow the related procedure:
 
 * Update type [`1 - Hard fork`](#update-type-1---hard-fork)
-* Update type [`2 - Soft fork`](#update-type-2---soft-fork)
+* Update type [`2 - Soft fork`](#update-type-2---soft-fork) (WIP)
+* Update type [`3 - Binaries update`](#update-type-3---binaries-update) (WIP)
 
 
 ## Update type 1 - Hard fork
@@ -54,12 +55,12 @@ following changes to the procedure described there:
 in order to update the OS so that you can work properly execute the following commands:
    
 ```bash
-apt update && sudo apt upgrade -y
+apt update && apt upgrade -y
 snap refresh --classic go
 ```
 
 **2.** During the [4th step](full-node-installation.md#3-install-binaries-genesis-file-and-setup-configuration) 
-you don't need to change the follow rows of your `~/.profile` file
+you **don't need** to change the follow rows of your `~/.profile` file
 
 ```bash
 export GOPATH="\$HOME/go"
@@ -89,6 +90,7 @@ EOF
    
 
 ## Update type 2 - Soft fork
+**WIP**    
 The second update type is the one known as **soft fork**.  
 In this case, the chain state will be preserved from its beginning to a certain point in time.  
 
@@ -165,3 +167,59 @@ export BLOCKHEIGHT=$(cat .data | grep -oP 'Height\s+\K\S+')
 ```
 
 **WIP**
+
+## Update type 3 - Binaries update
+**WIP**  
+In order to update minor version of biniaries you need
+#### 1. Stop service
+```bash
+systemctl stop cnd
+```
+#### 2. Chain selection 
+```bash
+rm -rf commercio-chains
+mkdir commercio-chains && cd commercio-chains
+git clone https://github.com/commercionetwork/chains.git .
+cd commercio-<chain-version>
+```
+
+#### 3. Install new binaries
+
+Compile binaries 
+
+```bash
+pkill cncli
+git init . 
+git remote add origin https://github.com/commercionetwork/commercionetwork.git
+git pull
+git checkout tags/$(cat .data | grep -oP 'Release\s+\K\S+')
+make install
+```
+
+#### 4. Restart service
+```bash
+systemctl enable cnd
+systemctl start cnd
+```
+
+#### 5. Control if chain works
+Control if the sync was started. Use `Ctrl + C` to interrupt the `tail` command
+
+```bash
+tail -100f /var/log/syslog
+# OUTPUT SHOULD BE LIKE BELOW
+#
+# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.722] Executed block                               module=state height=1 validTxs=0 invalidTxs=0
+# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.728] Committed state                              module=state height=1 txs=0 appHash=9815044185EB222CE9084AA467A156DFE6B4A0B1BAAC6751DE86BB31C83C4B08
+# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.745] Executed block                               module=state height=2 validTxs=0 invalidTxs=0
+# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.751] Committed state                              module=state height=2 txs=0 appHash=96BFD9C8714A79193A7913E5F091470691B195E1E6F028BC46D6B1423F7508A5
+# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.771] Executed block                               module=state height=3 validTxs=0 invalidTxs=0
+```
+
+### 6. Restart the REST API if you need
+```
+cncli config chain-id $CHAINID
+cncli rest-server
+``` 
+
+**WIP**    
