@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/commercionetwork/commercionetwork/app"
 	"os"
 	"path"
+
+	"github.com/commercionetwork/commercionetwork/app"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -47,7 +48,6 @@ func main() {
 	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 	config.Seal()
 
-	// TODO: setup keybase, viper object, etc. to be passed into
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 	rootCmd := &cobra.Command{

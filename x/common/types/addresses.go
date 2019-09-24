@@ -27,3 +27,7 @@ func (addresses Addresses) Contains(address sdk.Address) bool {
 	}
 	return false
 }
+
+func (addresses Addresses) Empty() bool {
+	return len(addresses) == 0
+}
