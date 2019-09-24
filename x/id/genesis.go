@@ -1,13 +1,12 @@
 package id
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GenesisState - id genesis state
 type GenesisState struct {
-	Identities []types.Identity `json:"identities"`
+	Identities []Identity `json:"identities"`
 }
 
 // DefaultGenesisState returns a default genesis state

@@ -29,6 +29,7 @@ commands:
           command: |
             make << parameters.target >>
 
+
 jobs:
   setup_dependencies:
     executor: golang
@@ -70,11 +71,13 @@ workflows:
   test-suite:
     jobs:
       - setup_dependencies:
-          # This filter enables the job for tags
           filters:
             tags:
               only:
                 - /^v.*/
+            branches:
+              ignore:
+                - gh-pages
       - test:
           filters:
             branches:

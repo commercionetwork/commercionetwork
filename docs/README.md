@@ -31,3 +31,6 @@ wish to setup a new node, please refer to our [nodes section](nodes/README.md).
 ## Developers
 If you're a developer and would like to integrate to Commercio.network, please refer to our 
 [developer guide](developers/README.md). 
+
+## Starting the chain
+If you want to start a local chain for testing purposes, you can [read here](chain-start/README.md).

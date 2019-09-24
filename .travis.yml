@@ -5,6 +5,7 @@ install:
   - npm ci
 script:
   - npm run docs:build
+  - echo 'docs.commercio.network' > docs/.vuepress/dist/CNAME
 deploy:
   provider: pages
   skip-cleanup: true
