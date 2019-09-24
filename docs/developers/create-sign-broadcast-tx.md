@@ -58,7 +58,7 @@ Once created, messages must be signed. In order to do so, the following data wil
 1. Private key associated to the account.  
    This can be retrieved from the 12/24 key words using the [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) specification
 2. Address of the signer.  
-   This can be retrieved using the [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) specification, setting `did:com` as the human readable part and using the `m/44'/188'/0'/0/0` derivation path.
+   This can be retrieved using the [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) specification, setting `did:com` as the human readable part and using the `m/44'/118'/0'/0/0` derivation path.
 
 ### 2.1 Data retrieval
 The first thing that must be done in order to sign a message, is to retrieve all the needed data. 
