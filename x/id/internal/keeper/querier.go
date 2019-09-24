@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	idtypes "github.com/commercionetwork/commercionetwork/x/id/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -21,7 +21,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case QueryResolveDid:
 			return queryResolveIdentity(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", idtypes.ModuleName))
+			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -32,15 +32,15 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 		return nil, sdk.ErrInvalidAddress(path[0])
 	}
 
-	identityResult := IdentityResult{}
-	identityResult.Did = address
-	identityResult.DdoReference = keeper.GetDidDocumentUriByDid(ctx, address)
+	var response ResolveIdentityResponse
+	response.Owner = address
 
-	if identityResult.DdoReference == "" {
-		return nil, sdk.ErrUnknownRequest("No Did Document reference associated to the given address")
+	// Get the Did Document
+	if didDocument, found := keeper.GetDidDocumentByOwner(ctx, address); found {
+		response.DidDocument = &didDocument
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, identityResult)
+	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, response)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -48,8 +48,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 	return bz, nil
 }
 
-// Identity represents a Did -> Did Document lookup
-type IdentityResult struct {
-	Did          sdk.AccAddress `json:"did"`
-	DdoReference string         `json:"did_document_uri"`
+type ResolveIdentityResponse struct {
+	Owner       sdk.AccAddress     `json:"owner"`
+	DidDocument *types.DidDocument `json:"did_document"`
 }

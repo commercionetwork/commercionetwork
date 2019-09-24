@@ -12,17 +12,21 @@ const (
 )
 
 var (
-	//function aliases
 	NewKeeper     = keeper.NewKeeper
 	NewQuerier    = keeper.NewQuerier
 	TestSetup     = keeper.SetupTestInput
 	RegisterCodec = types.RegisterCodec
 
-	//variable aliases
-	ModuleCdc = types.ModuleCdc
+	ModuleCdc        = types.ModuleCdc
+	TestOwnerAddress = keeper.TestOwnerAddress
+	TestDidDocument  = keeper.TestDidDocument
 )
 
 type (
-	Keeper         = keeper.Keeper
+	Keeper = keeper.Keeper
+
+	DidDocument = types.DidDocument
+	Identity    = types.Identity
+
 	MsgSetIdentity = types.MsgSetIdentity
 )

@@ -8,5 +8,5 @@ import (
 // exported during the current state exportation.
 type Identity struct {
 	Owner       sdk.AccAddress `json:"owner"`
-	DidDocument string         `json:"did_document"`
+	DidDocument DidDocument    `json:"did_document"`
 }

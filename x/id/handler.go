@@ -27,6 +27,6 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 // the real owner of that identity.
 // If the user is not allowed to use that identity, returns an error.
 func handleMsgSetIdentity(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgSetIdentity) sdk.Result {
-	keeper.SaveIdentity(ctx, msg.Owner, msg.DidDocumentUri)
+	keeper.SaveIdentity(ctx, msg.Owner, msg.DidDocument)
 	return sdk.Result{}
 }

@@ -5,14 +5,14 @@ import (
 )
 
 type MsgSetIdentity struct {
-	Owner          sdk.AccAddress `json:"owner"`
-	DidDocumentUri string         `json:"did_document_uri"`
+	Owner       sdk.AccAddress `json:"owner"`
+	DidDocument DidDocument    `json:"did_document"`
 }
 
-func NewMsgSetIdentity(owner sdk.AccAddress, didDocumentUri string) MsgSetIdentity {
+func NewMsgSetIdentity(owner sdk.AccAddress, document DidDocument) MsgSetIdentity {
 	return MsgSetIdentity{
-		Owner:          owner,
-		DidDocumentUri: didDocumentUri,
+		Owner:       owner,
+		DidDocument: document,
 	}
 }
 
@@ -27,9 +27,11 @@ func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
 	if msg.Owner.Empty() {
 		return sdk.ErrInvalidAddress(msg.Owner.String())
 	}
-	if len(msg.DidDocumentUri) == 0 {
-		return sdk.ErrUnknownRequest("Did Document reference cannot be empty")
+
+	if err := msg.DidDocument.Validate(); err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
 	}
+
 	return nil
 }
 

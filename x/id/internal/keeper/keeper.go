@@ -23,22 +23,29 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 	}
 }
 
-func (keeper Keeper) getIdentiyStoreKey(owner sdk.AccAddress) []byte {
+func (keeper Keeper) getIdentityStoreKey(owner sdk.AccAddress) []byte {
 	return []byte(types.IdentitiesStorePrefix + owner.String())
 }
 
 // SaveIdentity saves the given didDocumentUri associating it with the given owner, replacing any existent one.
-func (keeper Keeper) SaveIdentity(ctx sdk.Context, owner sdk.AccAddress, didDocumentUri string) {
+func (keeper Keeper) SaveIdentity(ctx sdk.Context, owner sdk.AccAddress, document types.DidDocument) {
 	identitiesStore := ctx.KVStore(keeper.StoreKey)
-	identitiesStore.Set(keeper.getIdentiyStoreKey(owner), []byte(didDocumentUri))
+	identitiesStore.Set(keeper.getIdentityStoreKey(owner), keeper.Cdc.MustMarshalBinaryBare(document))
 }
 
 // GetIdentity returns the Did Document reference associated to a given Did.
 // If the given Did has no Did Document reference associated, returns nil.
-func (keeper Keeper) GetDidDocumentUriByDid(ctx sdk.Context, owner sdk.AccAddress) string {
+func (keeper Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, bool) {
 	store := ctx.KVStore(keeper.StoreKey)
-	result := store.Get(keeper.getIdentiyStoreKey(owner))
-	return string(result)
+
+	identityKey := keeper.getIdentityStoreKey(owner)
+	if !store.Has(identityKey) {
+		return types.DidDocument{}, false
+	}
+
+	var didDocument types.DidDocument
+	keeper.Cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &didDocument)
+	return didDocument, true
 }
 
 // -------------------------
@@ -58,9 +65,12 @@ func (keeper Keeper) GetIdentities(ctx sdk.Context) ([]types.Identity, error) {
 			return nil, err
 		}
 
+		var didDocument types.DidDocument
+		keeper.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &didDocument)
+
 		identity := types.Identity{
 			Owner:       address,
-			DidDocument: string(iterator.Value()),
+			DidDocument: didDocument,
 		}
 		identities = append(identities, identity)
 	}

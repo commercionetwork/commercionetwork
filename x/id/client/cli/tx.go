@@ -31,16 +31,20 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdSetIdentity is the CLI command for sending a SetIdentity transaction
 func GetCmdSetIdentity(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set [did-document-uri]",
+		Use:   "set [did-document-uri] [did-document-content-sha256]",
 		Short: "Associates the given did document reference to your Did",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			account := cliCtx.GetFromAddress()
 
-			msg := types.NewMsgSetIdentity(account, args[0])
+			didDocument := types.DidDocument{
+				Uri:         args[0],
+				ContentHash: args[1],
+			}
+			msg := types.NewMsgSetIdentity(account, didDocument)
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
