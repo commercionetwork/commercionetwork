@@ -22,12 +22,11 @@ type DocumentMetadata struct {
 	ContentUri string                  `json:"content_uri"`
 	SchemaType string                  `json:"schema_type"` // Optional - Either this or schema must be defined
 	Schema     *DocumentMetadataSchema `json:"schema"`      // Optional - Either this or schema_type must be defined
-	Proof      string                  `json:"proof"`
 }
 
 // Equals returns true iff this metadata and other contain the same data
 func (metadata DocumentMetadata) Equals(other DocumentMetadata) bool {
-	if metadata.ContentUri != other.ContentUri || metadata.Proof != other.Proof {
+	if metadata.ContentUri != other.ContentUri {
 		return false
 	}
 
@@ -56,10 +55,6 @@ func (metadata DocumentMetadata) Validate() error {
 		if len(strings.TrimSpace(metadata.Schema.Version)) == 0 {
 			return errors.New("metadata.schema.version can't be empty")
 		}
-	}
-
-	if len(strings.TrimSpace(metadata.Proof)) == 0 {
-		return errors.New("metadata.proof can't be empty")
 	}
 	return nil
 }

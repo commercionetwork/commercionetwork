@@ -12,7 +12,6 @@ func TestDocument_Equals_NilValues(t *testing.T) {
 		Metadata: DocumentMetadata{
 			ContentUri: "document_metadata_content_uri",
 			SchemaType: "document_metadata_schema_type",
-			Proof:      "document_metadata_proof",
 		},
 		ContentUri:     "",
 		Checksum:       nil,

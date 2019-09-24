@@ -23,7 +23,6 @@ var msgShareDocumentSchema = MsgShareDocument{
 				Uri:     "http://www.contentUri.com",
 				Version: "test",
 			},
-			Proof: "proof",
 		},
 		Checksum: &DocumentChecksum{
 			Value:     "48656c6c6f20476f7068657221234567",
@@ -40,7 +39,6 @@ var msgShareDocumentSchemaType = MsgShareDocument{
 		Metadata: DocumentMetadata{
 			ContentUri: "http://www.contentUri.com",
 			SchemaType: "uni-sincro",
-			Proof:      "proof",
 		},
 		Checksum: &DocumentChecksum{
 			Value:     "48656c6c6f20476f7068657221234567",

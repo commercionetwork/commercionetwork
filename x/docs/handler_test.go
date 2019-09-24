@@ -37,7 +37,6 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 			Metadata: DocumentMetadata{
 				ContentUri: TestingDocument.Metadata.ContentUri,
 				SchemaType: "metadata-schema",
-				Proof:      TestingDocument.Metadata.Proof,
 			},
 			ContentUri: TestingDocument.ContentUri,
 			Checksum:   TestingDocument.Checksum,
@@ -65,7 +64,6 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 			Metadata: DocumentMetadata{
 				ContentUri: TestingDocument.Metadata.ContentUri,
 				SchemaType: "non-existent-schema-type",
-				Proof:      TestingDocument.Metadata.Proof,
 			},
 			ContentUri: TestingDocument.ContentUri,
 			Checksum:   TestingDocument.Checksum,

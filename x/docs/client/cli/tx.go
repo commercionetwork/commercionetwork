@@ -33,11 +33,11 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "share [recipient] [document-uuid] [document-metadata-uri] " +
-			"[metadata-schema-uri] [metadata-schema-version] [metadata-verification-proof] " +
+			"[metadata-schema-uri] [metadata-schema-version] " +
 			"[document-content-uri]" +
 			"[checksum-value] [checksum-algorithm]",
 		Short: "Shares the document with the given recipient address",
-		Args:  cobra.RangeArgs(6, 9),
+		Args:  cobra.RangeArgs(5, 8),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -67,7 +67,6 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 						Uri:     args[3],
 						Version: args[4],
 					},
-					Proof: args[5],
 				},
 				Checksum: checksum,
 			}

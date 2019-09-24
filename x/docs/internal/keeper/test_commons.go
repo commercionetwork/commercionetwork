@@ -63,7 +63,6 @@ func testCodec() *codec.Codec {
 var TestingSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestingSender2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var TestingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-var TestingRecipient2, _ = sdk.AccAddressFromBech32("cosmos10yj4fsyt76c5g8jgltj90zwfvn0aplama685ma")
 
 var TestingDocument = types.Document{
 	ContentUri: "https://example.com/document",
@@ -73,7 +72,6 @@ var TestingDocument = types.Document{
 			Uri:     "https://example.com/document/metadata/schema",
 			Version: "1.0.0",
 		},
-		Proof: "73666c68676c7366676c7366676c6a6873666c6a6768",
 	},
 	Checksum: &types.DocumentChecksum{
 		Value:     "93dfcaf3d923ec47edb8580667473987",

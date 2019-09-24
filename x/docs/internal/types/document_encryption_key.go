@@ -1,7 +1,6 @@
 package types
 
 import (
-	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -15,14 +14,12 @@ import (
 type DocumentEncryptionKey struct {
 	Recipient sdk.AccAddress `json:"recipient"` // Recipient that should use this data
 	Value     string         `json:"value"`     // Value of the key that should be used. This is encrypted with the recipient's public key
-	Encoding  string         `json:"encoding"`  // Encoding used to write the above value
 }
 
 // Equals returns true iff this dat and other contain the same data
 func (key DocumentEncryptionKey) Equals(other DocumentEncryptionKey) bool {
 	return key.Recipient.Equals(other.Recipient) &&
-		key.Value == other.Value &&
-		key.Encoding == other.Encoding
+		key.Value == other.Value
 }
 
 // Validate tries to validate all the data contained inside the given
@@ -36,25 +33,8 @@ func (key DocumentEncryptionKey) Validate() error {
 		return errors.New("encryption key value cannot be empty")
 	}
 
-	if len(strings.TrimSpace(key.Encoding)) == 0 {
-		return errors.New("encryption key encoding cannot be empty")
-	}
-
-	encoding := strings.ToLower(key.Encoding)
-	if encoding != "base64" && encoding != "hex" {
-		return errors.New("encryption key encoding method unknown")
-	}
-
-	if encoding == "hex" {
-		if _, err := hex.DecodeString(key.Value); err != nil {
-			return err
-		}
-	}
-
-	if encoding == "base64" {
-		if _, err := base64.StdEncoding.DecodeString(key.Value); err != nil {
-			return err
-		}
+	if _, err := hex.DecodeString(key.Value); err != nil {
+		return errors.New("invalid encryption key value (must be hex)")
 	}
 
 	return nil

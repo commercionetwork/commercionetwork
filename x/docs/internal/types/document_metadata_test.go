@@ -13,23 +13,19 @@ func TestDocumentMetadata_Equals(t *testing.T) {
 			Uri:     "https://example.com/metadata/schema",
 			Version: "1.0.0",
 		},
-		Proof: "123",
 	}
 	assert.True(t, metadata.Equals(metadata))
 }
 
 func TestDocumentMetadata_Equals_DifferentContents(t *testing.T) {
-	metadata := DocumentMetadata{ContentUri: "http://example.com/metadata", Proof: "123"}
+	metadata := DocumentMetadata{ContentUri: "http://example.com/metadata"}
 
-	other := DocumentMetadata{ContentUri: "https://example.com", Proof: metadata.Proof}
-	assert.False(t, metadata.Equals(other))
-
-	other = DocumentMetadata{ContentUri: metadata.ContentUri, Proof: "1234"}
+	other := DocumentMetadata{ContentUri: "https://example.com"}
 	assert.False(t, metadata.Equals(other))
 }
 
 func TestDocumentMetadata_Equals_DifferentSchema(t *testing.T) {
-	metadata := DocumentMetadata{ContentUri: "http://example.com/metadata", Proof: "123"}
+	metadata := DocumentMetadata{ContentUri: "http://example.com/metadata"}
 
 	other := DocumentMetadata{
 		ContentUri: metadata.ContentUri,
@@ -38,7 +34,6 @@ func TestDocumentMetadata_Equals_DifferentSchema(t *testing.T) {
 			Uri:     "https://example.com/metadata/schema",
 			Version: "1.0.0",
 		},
-		Proof: metadata.Proof,
 	}
 	assert.False(t, metadata.Equals(other))
 }
@@ -54,7 +49,6 @@ func TestDocumentMetadata_Validate(t *testing.T) {
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
-		Proof: "proof",
 	}
 
 	actual := validDocumentMetadata.Validate()
@@ -68,7 +62,6 @@ func TestDocumentMetadata_Validate_EmptyContentUri(t *testing.T) {
 			Uri:     "http://www.contentUri.com",
 			Version: "test",
 		},
-		Proof: "proof",
 	}
 
 	err := invalidDocumentMetadata.Validate()
@@ -81,7 +74,6 @@ func TestDocumentMetadata_Validate_EmptyMetadataInfo(t *testing.T) {
 		ContentUri: "https://example.com/metadata",
 		Schema:     nil,
 		SchemaType: "",
-		Proof:      "proof",
 	}
 
 	err := invalidDocumentMetadata.Validate()
@@ -96,7 +88,6 @@ func TestDocumentMetadata_Validate_EmptySchemaUri(t *testing.T) {
 			Uri:     "",
 			Version: "test",
 		},
-		Proof: "proof",
 	}
 
 	err := invalidDocumentMetadata.Validate()
@@ -111,25 +102,9 @@ func TestDocumentMetadata_Validate_EmptySchemaVersion(t *testing.T) {
 			Uri:     "http://www.contentUri.com",
 			Version: "",
 		},
-		Proof: "proof",
 	}
 
 	err := invalidDocumentMetadata.Validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "metadata.schema.version can't be empty", err.Error())
-}
-
-func TestDocumentMetadata_Validate_EmptyProof(t *testing.T) {
-	invalidDocumentMetadata := DocumentMetadata{
-		ContentUri: "http://www.contentUri.com",
-		Schema: &DocumentMetadataSchema{
-			Uri:     "http://www.contentUri.com",
-			Version: "test",
-		},
-		Proof: "",
-	}
-
-	err := invalidDocumentMetadata.Validate()
-	assert.NotNil(t, err)
-	assert.Equal(t, "metadata.proof can't be empty", err.Error())
 }
