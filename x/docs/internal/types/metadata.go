@@ -1,6 +1,9 @@
 package types
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 // MetadataSchema contains the information about an
 // officially supported document metadata schema
@@ -20,13 +23,13 @@ func (m MetadataSchema) Equals(other MetadataSchema) bool {
 // Validate allows to validate the content of the schema, returning
 // an error if something is not valid
 func (m MetadataSchema) Validate() error {
-	if len(m.Type) == 0 {
+	if len(strings.TrimSpace(m.Type)) == 0 {
 		return errors.New("type cannot be empty")
 	}
-	if len(m.SchemaUri) == 0 {
+	if len(strings.TrimSpace(m.SchemaUri)) == 0 {
 		return errors.New("uri cannot be empty")
 	}
-	if len(m.Version) == 0 {
+	if len(strings.TrimSpace(m.Version)) == 0 {
 		return errors.New("version cannot be empty")
 	}
 

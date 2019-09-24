@@ -1,6 +1,7 @@
 package cli
 
 import (
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -32,11 +33,11 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "share [recipient] [document-uuid] [document-metadata-uri] " +
-			"[metadata-schema-uri] [metadata-schema-version] [metadata-verification-proof] " +
+			"[metadata-schema-uri] [metadata-schema-version] " +
 			"[document-content-uri]" +
 			"[checksum-value] [checksum-algorithm]",
 		Short: "Shares the document with the given recipient address",
-		Args:  cobra.RangeArgs(6, 9),
+		Args:  cobra.RangeArgs(5, 8),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -47,16 +48,17 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			var contentUri, checksumValue, checksumAlgorithm string
+			var checksum *types.DocumentChecksum
+			var contentUri string
 			if len(args) > 6 {
 				contentUri = args[6]
-				checksumValue = args[7]
-				checksumAlgorithm = args[8]
+				checksum = &types.DocumentChecksum{
+					Value:     args[7],
+					Algorithm: args[8],
+				}
 			}
 
 			document := types.Document{
-				Sender:     sender,
-				Recipient:  recipient,
 				ContentUri: contentUri,
 				Uuid:       args[1],
 				Metadata: types.DocumentMetadata{
@@ -65,15 +67,11 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 						Uri:     args[3],
 						Version: args[4],
 					},
-					Proof: args[5],
 				},
-				Checksum: types.DocumentChecksum{
-					Value:     checksumValue,
-					Algorithm: checksumAlgorithm,
-				},
+				Checksum: checksum,
 			}
 
-			msg := types.NewMsgShareDocument(document)
+			msg := types.NewMsgShareDocument(sender, ctypes.Addresses{recipient}, document)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

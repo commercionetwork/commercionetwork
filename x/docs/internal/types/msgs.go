@@ -1,31 +1,29 @@
 package types
 
 import (
-	"encoding/hex"
 	"fmt"
-	"regexp"
 	"strings"
 
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
-var algorithms = map[string]int{
-	"md5":     32,
-	"sha-1":   40,
-	"sha-224": 56,
-	"sha-256": 64,
-	"sha-384": 96,
-	"sha-512": 128,
-}
 
 // ----------------------------------
 // --- MsgShareDocument
 // ----------------------------------
 
-type MsgShareDocument Document
+type MsgShareDocument struct {
+	Sender     sdk.AccAddress  `json:"sender"`
+	Recipients types.Addresses `json:"recipients"`
+	Document   Document        `json:"document"`
+}
 
-func NewMsgShareDocument(document Document) MsgShareDocument {
-	return MsgShareDocument(document)
+func NewMsgShareDocument(sender sdk.AccAddress, recipients types.Addresses, document Document) MsgShareDocument {
+	return MsgShareDocument{
+		Sender:     sender,
+		Recipients: recipients,
+		Document:   document,
+	}
 }
 
 // RouterKey Implements Msg.
@@ -34,87 +32,56 @@ func (msg MsgShareDocument) Route() string { return ModuleName }
 // Type Implements Msg.
 func (msg MsgShareDocument) Type() string { return MsgTypeShareDocument }
 
-func validateUuid(uuid string) bool {
-	regex := regexp.MustCompile(`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
-	return regex.MatchString(uuid)
-}
-
-func validateDocMetadata(docMetadata DocumentMetadata) sdk.Error {
-	if len(docMetadata.ContentUri) == 0 {
-		return sdk.ErrUnknownRequest("MetadataSchema content URI can't be empty")
-	}
-
-	if (docMetadata.Schema == nil) && len(docMetadata.SchemaType) == 0 {
-		return sdk.ErrUnknownRequest("Either schema or schema_type must be defined")
-	}
-
-	if docMetadata.Schema != nil {
-		if len(docMetadata.Schema.Uri) == 0 {
-			return sdk.ErrUnknownRequest("Schema URI can't be empty")
-		}
-		if len(docMetadata.Schema.Version) == 0 {
-			return sdk.ErrUnknownRequest("Schema version can't be empty")
-		}
-	}
-
-	if len(docMetadata.Proof) == 0 {
-		return sdk.ErrUnknownRequest("Computation proof can't be empty")
-	}
-	return nil
-}
-
-func validateChecksum(checksum DocumentChecksum) sdk.Error {
-	if len(checksum.Value) == 0 {
-		return sdk.ErrUnknownRequest("Checksum value can't be empty")
-	}
-	if len(checksum.Algorithm) == 0 {
-		return sdk.ErrUnknownRequest("Checksum algorithm can't be empty")
-	}
-
-	_, err := hex.DecodeString(checksum.Value)
-	if err != nil {
-		return sdk.ErrUnknownRequest("Invalid checksum value (must be hex)")
-	}
-
-	algorithm := strings.ToLower(checksum.Algorithm)
-
-	// Check that the algorithm is valid
-	length, ok := algorithms[algorithm]
-	if !ok {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid algorithm type %s", algorithm))
-	}
-
-	// Check the validity of the checksum value
-	if len(checksum.Value) != length {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid checksum length for algorithm %s", algorithm))
-	}
-
-	return nil
-}
-
 // ValidateBasic Implements Msg.
+// TODO: Test more
 func (msg MsgShareDocument) ValidateBasic() sdk.Error {
 	if msg.Sender.Empty() {
 		return sdk.ErrInvalidAddress(msg.Sender.String())
 	}
-	if msg.Recipient.Empty() {
-		return sdk.ErrInvalidAddress(msg.Recipient.String())
+
+	if msg.Recipients.Empty() {
+		return sdk.ErrInvalidAddress("Recipients cannot be empty")
 	}
-	if !validateUuid(msg.Uuid) {
-		return sdk.ErrUnknownRequest("Invalid document UUID")
-	}
-	if len(msg.ContentUri) == 0 {
-		return sdk.ErrUnknownRequest("Document content Uri can't be empty")
+	for _, recipient := range msg.Recipients {
+		if recipient.Empty() {
+			return sdk.ErrInvalidAddress(recipient.String())
+		}
 	}
 
-	err := validateDocMetadata(msg.Metadata)
+	err := msg.Document.Validate()
 	if err != nil {
-		return err
+		return nil
 	}
 
-	err = validateChecksum(msg.Checksum)
-	if err != nil {
-		return err
+	if msg.Document.EncryptionData != nil {
+
+		for _, recipient := range msg.Recipients {
+			found := false
+
+			// Check that each address inside the EncryptionData object is contained inside the list of addresses
+			for _, encAdd := range msg.Document.EncryptionData.Keys {
+
+				// Check that each recipient has an encrypted data associated to it
+				if recipient.Equals(encAdd.Recipient) {
+					found = true
+				}
+
+				if !msg.Recipients.Contains(encAdd.Recipient) {
+					errMsg := fmt.Sprintf(
+						"%s is a recipient inside encryption data but not inside the message",
+						encAdd.Recipient.String(),
+					)
+					return sdk.ErrInvalidAddress(errMsg)
+				}
+			}
+
+			if !found {
+				// The recipient is not found inside the list of encrypted data recipients
+				errMsg := fmt.Sprintf("%s is a recipient but has no encryption data specified", recipient.String())
+				return sdk.ErrInvalidAddress(errMsg)
+			}
+		}
+
 	}
 
 	return nil
@@ -154,13 +121,13 @@ func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 	if msg.Recipient.Empty() {
 		return sdk.ErrInvalidAddress(msg.Recipient.String())
 	}
-	if len(msg.TxHash) == 0 {
+	if len(strings.TrimSpace(msg.TxHash)) == 0 {
 		return sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty")
 	}
 	if !validateUuid(msg.DocumentUuid) {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
-	if len(msg.Proof) == 0 {
+	if len(strings.TrimSpace(msg.Proof)) == 0 {
 		return sdk.ErrUnknownRequest("Receipt proof can't be empty")
 	}
 
