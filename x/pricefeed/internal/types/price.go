@@ -1,7 +1,6 @@
 package types
 
 import (
-	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -16,12 +15,13 @@ type CurrentPrice struct {
 func (currentPrice CurrentPrice) Equals(cp CurrentPrice) bool {
 	return currentPrice.AssetName == cp.AssetName &&
 		currentPrice.AssetCode == cp.AssetCode &&
-		currentPrice.Price.Equal(cp.Price)
+		currentPrice.Price.Equal(cp.Price) &&
+		currentPrice.Expiry.Equal(cp.Expiry)
 }
 
 type CurrentPrices []CurrentPrice
 
-func (currentPrices CurrentPrices) FindPrice(tokenName string, tokenCode string) (CurrentPrice, sdk.Error) {
+func (currentPrices CurrentPrices) GetPrice(tokenName string, tokenCode string) (CurrentPrice, sdk.Error) {
 	for _, ele := range currentPrices {
 		if ele.AssetCode == tokenCode && ele.AssetName == tokenName {
 			return ele, nil
@@ -51,18 +51,17 @@ func (rawprice RawPrice) Equals(rp RawPrice) bool {
 
 type RawPrices []RawPrice
 
-func (rawPrices RawPrices) FindPrice(tokenName string, tokenCode string) (RawPrice, error) {
+func (rawPrices RawPrices) FindPrice(price RawPrice) bool {
 	for _, ele := range rawPrices {
-		if ele.PriceInfo.AssetCode == tokenCode && ele.PriceInfo.AssetName == tokenName {
-			return ele, nil
+		if ele.Equals(price) {
+			return true
 		}
 	}
-	return RawPrice{}, errors.New("price not found")
+	return false
 }
 
 func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) RawPrices {
-	index := 0
-	for _, ele := range rawPrices {
+	for index, ele := range rawPrices {
 		if ele.Equals(rp) {
 			return rawPrices
 		}
@@ -74,7 +73,6 @@ func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) RawPrices {
 			rawPrices[index] = rp
 			return rawPrices
 		}
-		index++
 	}
 	return append(rawPrices, rp)
 }

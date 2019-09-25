@@ -28,7 +28,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
 	}
 
 	for _, asset := range genState.Assets {
-		keeper.SetAssets(ctx, asset.Name, asset.Code)
+		keeper.AddAsset(ctx, asset.Name, asset.Code)
 	}
 }
 

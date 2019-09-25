@@ -54,7 +54,6 @@ func testCodec() *codec.Codec {
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	cdc.RegisterInterface((*auth.Account)(nil), nil)
-
 	cdc.Seal()
 
 	return cdc
@@ -77,6 +76,24 @@ var TestPriceInfo2 = types.CurrentPrice{
 	Expiry:    sdk.NewInt(4000),
 }
 
+var TestPriceInfo3 = types.CurrentPrice{
+	AssetName: TestPriceInfo.AssetName,
+	AssetCode: TestPriceInfo.AssetCode,
+	Price:     sdk.NewInt(20),
+	Expiry:    sdk.NewInt(7000),
+}
+
+var TestPriceInfoE = types.CurrentPrice{
+	AssetName: "test",
+	AssetCode: "0000",
+	Price:     sdk.NewInt(0),
+	Expiry:    sdk.NewInt(-1),
+}
+var TestRawPriceE = types.RawPrice{
+	Oracle:    TestOracle1,
+	PriceInfo: TestPriceInfoE,
+}
+
 var TestRawPrice1 = types.RawPrice{
 	PriceInfo: TestPriceInfo,
 	Oracle:    TestOracle1,
@@ -85,4 +102,19 @@ var TestRawPrice1 = types.RawPrice{
 var TestRawPrice2 = types.RawPrice{
 	PriceInfo: TestPriceInfo2,
 	Oracle:    TestOracle2,
+}
+
+var TestRawPrice3 = types.RawPrice{
+	Oracle:    TestOracle2,
+	PriceInfo: TestPriceInfo3,
+}
+
+var TestAsset = types.Asset{
+	Name: "ucommercio",
+	Code: "0001",
+}
+
+var TestAsset2 = types.Asset{
+	Name: "ucommerciocredits",
+	Code: "0002",
 }

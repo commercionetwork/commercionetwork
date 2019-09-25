@@ -24,7 +24,11 @@ func NewKeeper(storekey sdk.StoreKey, govK government.Keeper, cdc *codec.Codec) 
 	}
 }
 
-//GetAssets retrieve all the assets
+func GetRawPricesKey(assetName string, assetCode string) []byte {
+	return []byte(types.RawPricesPrefix + assetName + assetCode)
+}
+
+//GetAssets retrieves all the assets
 func (keeper Keeper) GetAssets(ctx sdk.Context) types.Assets {
 	store := ctx.KVStore(keeper.StoreKey)
 	assetsBz := store.Get([]byte(types.AssetsPrefix))
@@ -33,10 +37,12 @@ func (keeper Keeper) GetAssets(ctx sdk.Context) types.Assets {
 	return assets
 }
 
-//SetAssets add a new priced assets to the assets list
-func (keeper Keeper) SetAssets(ctx sdk.Context, assetName string, assetCode string) {
+//AddAsset add a new priced asset to the assets list
+func (keeper Keeper) AddAsset(ctx sdk.Context, assetName string, assetCode string) {
+	store := ctx.KVStore(keeper.StoreKey)
 	assets := keeper.GetAssets(ctx)
 	assets = assets.AppendIfMissing(types.Asset{Name: assetName, Code: assetCode})
+	store.Set([]byte(types.AssetsPrefix), keeper.cdc.MustMarshalBinaryBare(&assets))
 }
 
 //SetRawPrice sets the raw price for a given token after checking the validity of the signer
@@ -47,19 +53,26 @@ func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) sdk.Erro
 	if err != nil {
 		return err
 	}
+
+	//add Asset's identifiers if it's the first time that it's been priced
+	keeper.AddAsset(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
+
 	rawPrices := keeper.GetRawPrices(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
-	keeper.SetAssets(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
+	isPresent := rawPrices.FindPrice(price)
+	if isPresent {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("%s, is already been inserted by %s", price, price.Oracle))
+	}
 	rawPrices = rawPrices.UpdatePriceOrAppendIfMissing(price)
-	store.Set([]byte(types.RawPricesPrefix+price.PriceInfo.AssetName+price.PriceInfo.AssetCode),
+	store.Set(GetRawPricesKey(price.PriceInfo.AssetName, price.PriceInfo.AssetCode),
 		keeper.cdc.MustMarshalBinaryBare(rawPrices))
 	return nil
 }
 
-//GetRawPrices retrieves all the raw prices of the given asset if it given, all the raw prices instead
+//GetRawPrices retrieves all the raw prices of the given asset
 func (keeper Keeper) GetRawPrices(ctx sdk.Context, assetName string, assetCode string) types.RawPrices {
 	store := ctx.KVStore(keeper.StoreKey)
-	pricesBz := store.Get([]byte(types.RawPricesPrefix + assetName + assetCode))
 	var rawPrices types.RawPrices
+	pricesBz := store.Get(GetRawPricesKey(assetName, assetCode))
 	keeper.cdc.MustUnmarshalBinaryBare(pricesBz, &rawPrices)
 	return rawPrices
 }
@@ -80,8 +93,8 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 		// filter out expired prices
 		for index, price := range rawPrices {
 			if price.PriceInfo.Expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
-				rawPricesSum = rawPricesSum.Add(notExpiredPrices[index].PriceInfo.Price)
-				rawExpirySum = rawExpirySum.Add(notExpiredPrices[index].PriceInfo.Expiry)
+				rawPricesSum = rawPricesSum.Add(rawPrices[index].PriceInfo.Price)
+				rawExpirySum = rawExpirySum.Add(rawPrices[index].PriceInfo.Expiry)
 				notExpiredPrices = notExpiredPrices.UpdatePriceOrAppendIfMissing(price)
 			}
 		}
@@ -89,7 +102,7 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 		pricesLength := len(notExpiredPrices)
 		var medianPrice sdk.Int
 		var expiry sdk.Int
-		// TODO make threshold for acceptance (ie. require 51% of oracles to have posted valid prices)
+		// TODO KAVA suggestion : make threshold for acceptance (ie. require 51% of oracles to have posted valid prices)
 		if pricesLength == 0 {
 			// Error if there are no valid prices in the raw prices store
 			return sdk.ErrInternal("no valid raw prices to calculate current prices")
@@ -109,8 +122,8 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 			Price:     medianPrice,
 			Expiry:    expiry,
 		}
-		store.Set(
-			[]byte(types.CurrentPricesPrefix+asset.Name+asset.Code), keeper.cdc.MustMarshalBinaryBare(currentPrice))
+		store.Set([]byte(types.CurrentPricesPrefix+asset.Name+asset.Code),
+			keeper.cdc.MustMarshalBinaryBare(currentPrice))
 
 	}
 	return nil
@@ -132,7 +145,7 @@ func (keeper Keeper) GetCurrentPrices(ctx sdk.Context) types.CurrentPrices {
 //GetCurrentPrice retrieves the current price for the given token name and code
 func (keeper Keeper) GetCurrentPrice(ctx sdk.Context, tokenName string, tokenCode string) (types.CurrentPrice, sdk.Error) {
 	currentPrices := keeper.GetCurrentPrices(ctx)
-	price, err := currentPrices.FindPrice(tokenName, tokenCode)
+	price, err := currentPrices.GetPrice(tokenName, tokenCode)
 	if err != nil {
 		return types.CurrentPrice{}, err
 	}

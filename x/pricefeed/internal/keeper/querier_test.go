@@ -3,6 +3,7 @@ package keeper
 import (
 	"testing"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/stretchr/testify/assert"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -45,4 +46,31 @@ func TestQuerier_getCurrentPrice(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, TestPriceInfo, actual)
+}
+
+func TestQuerier_getOracles(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+	var expected = ctypes.Addresses{TestOracle1}
+
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.OraclePrefix), k.cdc.MustMarshalBinaryBare(expected))
+
+	querier := NewQuerier(k)
+	path := []string{types.QueryGetOracles}
+
+	var actual ctypes.Addresses
+
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
+	assert.Equal(t, expected, actual)
+}
+
+func TestQuerier_unknownEndpoint(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	querier := NewQuerier(k)
+
+	path := []string{"test"}
+	_, actual := querier(ctx, path, request)
+
+	assert.Error(t, actual)
 }
