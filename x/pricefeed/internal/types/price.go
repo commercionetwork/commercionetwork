@@ -30,13 +30,13 @@ func (currentPrices CurrentPrices) GetPrice(tokenName string, tokenCode string) 
 	return CurrentPrice{}, sdk.ErrInternal("price not found")
 }
 
-func (currentPrices CurrentPrices) AppendIfMissing(cp CurrentPrice) CurrentPrices {
+func (currentPrices CurrentPrices) AppendIfMissing(cp CurrentPrice) (CurrentPrices, bool) {
 	for _, ele := range currentPrices {
 		if ele.Equals(cp) {
-			return currentPrices
+			return nil, true
 		}
 	}
-	return append(currentPrices, cp)
+	return append(currentPrices, cp), false
 }
 
 type RawPrice struct {
@@ -60,10 +60,10 @@ func (rawPrices RawPrices) FindPrice(price RawPrice) bool {
 	return false
 }
 
-func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) RawPrices {
+func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) (RawPrices, bool) {
 	for index, ele := range rawPrices {
 		if ele.Equals(rp) {
-			return rawPrices
+			return nil, true
 		}
 		if ele.Oracle.Equals(rp.Oracle) &&
 			ele.PriceInfo.AssetName == rp.PriceInfo.AssetName &&
@@ -71,8 +71,8 @@ func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) RawPrices {
 			ele.PriceInfo.Expiry.LTE(rp.PriceInfo.Expiry) &&
 			ele.PriceInfo.Price != rp.PriceInfo.Price {
 			rawPrices[index] = rp
-			return rawPrices
+			return rawPrices, false
 		}
 	}
-	return append(rawPrices, rp)
+	return append(rawPrices, rp), false
 }
