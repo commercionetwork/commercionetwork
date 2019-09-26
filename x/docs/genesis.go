@@ -41,10 +41,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	users, err := keeper.GetUsersSet(ctx)
-	if err != nil {
-		panic(err)
-	}
+	users := keeper.GetUsersSet(ctx)
 
 	var usersData []UserDocumentsData
 	for _, user := range users {
