@@ -167,9 +167,11 @@ func (keeper Keeper) ValidateSigner(ctx sdk.Context, signer sdk.AccAddress) sdk.
 // AddOracle adds an Oracle to the store
 func (keeper Keeper) AddOracle(ctx sdk.Context, oracle sdk.AccAddress) {
 	oracles := keeper.GetOracles(ctx)
-	oracles = oracles.AppendIfMissing(oracle)
-	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.OraclePrefix), keeper.cdc.MustMarshalBinaryBare(&oracles))
+	oracles, found := oracles.AppendIfMissing(oracle)
+	if !found {
+		store := ctx.KVStore(keeper.StoreKey)
+		store.Set([]byte(types.OraclePrefix), keeper.cdc.MustMarshalBinaryBare(&oracles))
+	}
 }
 
 func (keeper Keeper) GetOracles(ctx sdk.Context) ctypes.Addresses {
