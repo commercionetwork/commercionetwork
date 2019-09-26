@@ -15,7 +15,6 @@ func TestCurrentPrice_Equals_true(t *testing.T) {
 func TestCurrentPrice_Equals_false(t *testing.T) {
 	curPrice := CurrentPrice{
 		AssetName: TestPriceInfo.AssetName,
-		AssetCode: TestPriceInfo.AssetCode,
 		Price:     sdk.NewInt(2),
 		Expiry:    sdk.NewInt(5),
 	}
@@ -26,13 +25,13 @@ func TestCurrentPrice_Equals_false(t *testing.T) {
 
 func TestCurrentPrices_GetPrice(t *testing.T) {
 	prices := CurrentPrices{TestPriceInfo}
-	actual, _ := prices.GetPrice(TestPriceInfo.AssetName, TestPriceInfo.AssetCode)
+	actual, _ := prices.GetPrice(TestPriceInfo.AssetName)
 	assert.Equal(t, TestPriceInfo, actual)
 }
 
 func TestCurrentPrices_GetPrice_NotFound(t *testing.T) {
 	prices := CurrentPrices{}
-	_, err := prices.GetPrice("testName", "testCode")
+	_, err := prices.GetPrice("testName")
 	assert.Error(t, err)
 }
 
@@ -54,7 +53,6 @@ func TestCurrentPrices_AppendIfMissing_found(t *testing.T) {
 func TestRawPrice_Equals_false(t *testing.T) {
 	curPrice := CurrentPrice{
 		AssetName: TestPriceInfo.AssetName,
-		AssetCode: TestPriceInfo.AssetCode,
 		Price:     sdk.NewInt(2),
 		Expiry:    sdk.NewInt(5),
 	}
@@ -89,7 +87,6 @@ func TestRawPrices_UpdatePriceOrAppendIfMissing_priceAlreadyInserted(t *testing.
 func TestRawPrices_UpdatePriceOrAppendIfMissing_updatedPrice(t *testing.T) {
 	curPrice := CurrentPrice{
 		AssetName: TestPriceInfo.AssetName,
-		AssetCode: TestPriceInfo.AssetCode,
 		Price:     sdk.NewInt(200),
 		Expiry:    sdk.NewInt(6000),
 	}

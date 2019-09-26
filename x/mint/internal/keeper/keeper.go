@@ -1,10 +1,11 @@
 package keeper
 
 import (
-	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
@@ -12,14 +13,16 @@ import (
 type Keeper struct {
 	BankKeeper      bank.BaseKeeper
 	PriceFeedKeeper pricefeed.Keeper
+	StakingKeeper   staking.Keeper
 
 	cdc *codec.Codec
 }
 
-func NewKeeper(bk bank.BaseKeeper, pk pricefeed.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(bk bank.BaseKeeper, pk pricefeed.Keeper, sk staking.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
 		BankKeeper:      bk,
 		PriceFeedKeeper: pk,
+		StakingKeeper:   sk,
 		cdc:             cdc,
 	}
 }
@@ -34,7 +37,10 @@ func (keeper Keeper) DepositToken(ctx sdk.Context, user sdk.AccAddress, token sd
 		return nil, err
 	}
 	//get token's current price
-	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, ctypes.DefaultBondDenom)
+	tokenPrice, err := keeper.PriceFeedKeeper.GetCurrentPrice(ctx, keeper.StakingKeeper.BondDenom(ctx))
+	if err != nil {
+		return nil, err
+	}
 
 	//get the token value = tokens amount * token price
 	tokenValue := tokenPrice.Mul(token.AmountOf(ctypes.DefaultBondDenom))

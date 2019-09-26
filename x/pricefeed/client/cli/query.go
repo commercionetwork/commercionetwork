@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -46,13 +47,13 @@ func getCmdOraclesList(cdc *codec.Codec) *cobra.Command {
 
 func getCmdCurrentPrice(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "price [token-name] [token-code]",
+		Use:   "price [token-name]",
 		Short: "Get the current price of the token",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryGetCurrentPrice, args[0], args[1])
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetCurrentPrice, args[0])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				fmt.Printf("Could not get token's price: \n %s", err)

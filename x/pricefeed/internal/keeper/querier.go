@@ -38,8 +38,7 @@ func queryGetCurrentPrices(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 
 func queryGetCurrentPrice(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	tokenName := path[0]
-	tokenCode := path[1]
-	price, err2 := keeper.GetCurrentPrice(ctx, tokenName, tokenCode)
+	price, err2 := keeper.GetCurrentPrice(ctx, tokenName)
 	if err2 != nil {
 		return nil, err2
 	}

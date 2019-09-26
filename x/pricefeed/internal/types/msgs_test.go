@@ -12,7 +12,6 @@ var testOracle1, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf5
 
 var TestPriceInfo = CurrentPrice{
 	AssetName: "test",
-	AssetCode: "0000",
 	Price:     sdk.NewInt(10),
 	Expiry:    sdk.NewInt(5000),
 }
@@ -44,7 +43,6 @@ func TestMsgSetPrice_ValidateBasic_ValidMessage(t *testing.T) {
 func TestMsgSetPrice_ValidateBasic_InvalidMessage(t *testing.T) {
 	priceInfo := CurrentPrice{
 		AssetName: "    ",
-		AssetCode: "1",
 		Price:     sdk.NewInt(10),
 		Expiry:    sdk.Int{},
 	}

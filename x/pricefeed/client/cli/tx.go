@@ -28,21 +28,20 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "set-price [token-name] [token-code] [token-price] [expiry]",
+		Use:   "set-price [token-name] [token-price] [expiry]",
 		Short: "set price for a given token",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			oracle := cliCtx.GetFromAddress()
 			tokenName := args[0]
-			tokenCode := args[1]
-			tokenPrice, err := sdk.NewIntFromString(args[2])
+			tokenPrice, err := sdk.NewIntFromString(args[1])
 			if !err {
 				return sdk.ErrInternal("Can't get integer from string")
 			}
-			expiry, err := sdk.NewIntFromString(args[3])
+			expiry, err := sdk.NewIntFromString(args[2])
 			if !err {
 				return sdk.ErrInternal("Can't get integer from string")
 			}
@@ -50,7 +49,6 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 			price := types.RawPrice{
 				Oracle: oracle,
 				PriceInfo: types.CurrentPrice{
-					AssetCode: tokenCode,
 					AssetName: tokenName,
 					Price:     tokenPrice,
 					Expiry:    expiry,

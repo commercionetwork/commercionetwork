@@ -35,9 +35,6 @@ func (msg MsgSetPrice) ValidateBasic() sdk.Error {
 	if len(strings.TrimSpace(msg.Price.PriceInfo.AssetName)) == 0 {
 		return sdk.ErrUnknownRequest("Cannot set price for unnamed token")
 	}
-	if len(strings.TrimSpace(msg.Price.PriceInfo.AssetCode)) == 0 {
-		return sdk.ErrUnknownRequest("Cannot set price for unnamed token")
-	}
 	if msg.Price.PriceInfo.Expiry.IsZero() || msg.Price.PriceInfo.Expiry.IsNegative() {
 		return sdk.ErrUnknownRequest("Cannot set price with an expire height of zero or negative")
 	}

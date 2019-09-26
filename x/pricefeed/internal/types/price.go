@@ -6,7 +6,6 @@ import (
 
 type CurrentPrice struct {
 	AssetName string  `json:"token_name"`
-	AssetCode string  `json:"token_code"`
 	Price     sdk.Int `json:"price"`
 	//Block height after that price is invalid
 	Expiry sdk.Int `json:"expiry"`
@@ -14,16 +13,15 @@ type CurrentPrice struct {
 
 func (currentPrice CurrentPrice) Equals(cp CurrentPrice) bool {
 	return currentPrice.AssetName == cp.AssetName &&
-		currentPrice.AssetCode == cp.AssetCode &&
 		currentPrice.Price.Equal(cp.Price) &&
 		currentPrice.Expiry.Equal(cp.Expiry)
 }
 
 type CurrentPrices []CurrentPrice
 
-func (currentPrices CurrentPrices) GetPrice(tokenName string, tokenCode string) (CurrentPrice, sdk.Error) {
+func (currentPrices CurrentPrices) GetPrice(tokenName string) (CurrentPrice, sdk.Error) {
 	for _, ele := range currentPrices {
-		if ele.AssetCode == tokenCode && ele.AssetName == tokenName {
+		if ele.AssetName == tokenName {
 			return ele, nil
 		}
 	}
@@ -58,7 +56,6 @@ func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) (RawPrices,
 		}
 		if ele.Oracle.Equals(rp.Oracle) &&
 			ele.PriceInfo.AssetName == rp.PriceInfo.AssetName &&
-			ele.PriceInfo.AssetCode == rp.PriceInfo.AssetCode &&
 			ele.PriceInfo.Expiry.LTE(rp.PriceInfo.Expiry) &&
 			ele.PriceInfo.Price != rp.PriceInfo.Price {
 			rawPrices[index] = rp
