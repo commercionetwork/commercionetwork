@@ -41,13 +41,13 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 
 type DocumentReceipts []DocumentReceipt
 
-func (receipts DocumentReceipts) AppendReceiptIfMissing(receipt DocumentReceipt) []DocumentReceipt {
+func (receipts DocumentReceipts) AppendIfMissing(receipt DocumentReceipt) (DocumentReceipts, bool) {
 	for _, ele := range receipts {
 		if ele.Equals(receipt) {
-			return receipts
+			return receipts, false
 		}
 	}
-	return append(receipts, receipt)
+	return append(receipts, receipt), true
 }
 
 func (receipts DocumentReceipts) FindByDocumentId(docId string) DocumentReceipts {
