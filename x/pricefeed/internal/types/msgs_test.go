@@ -10,19 +10,19 @@ import (
 // Test variables
 var testOracle1, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
-var testPriceInfo = CurrentPrice{
+var TestPriceInfo = CurrentPrice{
 	AssetName: "test",
 	AssetCode: "0000",
 	Price:     sdk.NewInt(10),
 	Expiry:    sdk.NewInt(5000),
 }
 
-var testRawPrice = RawPrice{
-	PriceInfo: testPriceInfo,
+var TestRawPrice = RawPrice{
+	PriceInfo: TestPriceInfo,
 	Oracle:    testOracle1,
 }
 
-var msgSetPrice = NewMsgSetPrice(testRawPrice)
+var msgSetPrice = NewMsgSetPrice(TestRawPrice)
 
 func TestMsgSetPrice_Route(t *testing.T) {
 	expected := RouterKey

@@ -60,15 +60,14 @@ func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) sdk.Erro
 	keeper.AddAsset(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
 
 	rawPrices := keeper.GetRawPrices(ctx, price.PriceInfo.AssetName, price.PriceInfo.AssetCode)
-	isPresent := rawPrices.FindPrice(price)
-	if isPresent {
+	rawPrices, found := rawPrices.UpdatePriceOrAppendIfMissing(price)
+	if found {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("%s, is already been inserted by %s", price, price.Oracle))
 	}
-	rawPrices, found := rawPrices.UpdatePriceOrAppendIfMissing(price)
-	if !found {
-		store.Set(GetRawPricesKey(price.PriceInfo.AssetName, price.PriceInfo.AssetCode),
-			keeper.cdc.MustMarshalBinaryBare(rawPrices))
-	}
+
+	store.Set(GetRawPricesKey(price.PriceInfo.AssetName, price.PriceInfo.AssetCode),
+		keeper.cdc.MustMarshalBinaryBare(rawPrices))
+
 	return nil
 }
 

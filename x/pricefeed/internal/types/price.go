@@ -51,15 +51,6 @@ func (rawprice RawPrice) Equals(rp RawPrice) bool {
 
 type RawPrices []RawPrice
 
-func (rawPrices RawPrices) FindPrice(price RawPrice) bool {
-	for _, ele := range rawPrices {
-		if ele.Equals(price) {
-			return true
-		}
-	}
-	return false
-}
-
 func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) (RawPrices, bool) {
 	for index, ele := range rawPrices {
 		if ele.Equals(rp) {
