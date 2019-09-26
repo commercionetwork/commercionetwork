@@ -42,4 +42,12 @@ which should also be a **trusted metadata schema proposer**. Read the [requireme
 | :---: | :------: |
 | `type` | Yes |
 | `schema_uri` | Yes | 
-| `version` | Yes |  
+| `version` | Yes |
+
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+addSupportedMetadataSchema
+```  

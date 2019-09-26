@@ -9,6 +9,13 @@ The REST API endpoint that must be called is the following:
 /txs?message.action={action}
 ``` 
 
+### Supported actions
+#### CommercioDOCS
+- [Send documents](../x/docs/tx/send-document-receipt.md#action-type)
+- [Send document receipt](../x/docs/tx/send-document-receipt.md#action-type)
+- [Add supported metadata schema](../x/docs/tx/add-supported-metadata-schema.md#action-type)
+- [Add trusted schema proposer](../x/docs/tx/add-trusted-metadata-schema-proposer.md#action-type)
+
 ### Examples
 **Endpoint**   
 `https://lcd-testnet.commercio.network/txs?message.action=shareDocument`
