@@ -10,11 +10,11 @@ type Addresses []sdk.AccAddress
 
 // AppendIfMissing returns a new Addresses instance containing the given
 // address if it wasn't already present
-func (addresses Addresses) AppendIfMissing(address sdk.AccAddress) Addresses {
+func (addresses Addresses) AppendIfMissing(address sdk.AccAddress) (Addresses, bool) {
 	if addresses.Contains(address) {
-		return addresses
+		return addresses, false
 	} else {
-		return append(addresses, address)
+		return append(addresses, address), true
 	}
 }
 
@@ -26,4 +26,8 @@ func (addresses Addresses) Contains(address sdk.Address) bool {
 		}
 	}
 	return false
+}
+
+func (addresses Addresses) Empty() bool {
+	return len(addresses) == 0
 }
