@@ -13,11 +13,11 @@ func (asset Asset) Equals(a Asset) bool {
 
 type Assets []Asset
 
-func (assets Assets) AppendIfMissing(a Asset) Assets {
+func (assets Assets) AppendIfMissing(a Asset) (Assets, bool) {
 	for _, ele := range assets {
 		if ele.Equals(a) {
-			return assets
+			return nil, true
 		}
 	}
-	return append(assets, a)
+	return append(assets, a), false
 }

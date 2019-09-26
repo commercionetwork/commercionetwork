@@ -41,8 +41,10 @@ func (keeper Keeper) GetAssets(ctx sdk.Context) types.Assets {
 func (keeper Keeper) AddAsset(ctx sdk.Context, assetName string, assetCode string) {
 	store := ctx.KVStore(keeper.StoreKey)
 	assets := keeper.GetAssets(ctx)
-	assets = assets.AppendIfMissing(types.Asset{Name: assetName, Code: assetCode})
-	store.Set([]byte(types.AssetsPrefix), keeper.cdc.MustMarshalBinaryBare(&assets))
+	assets, found := assets.AppendIfMissing(types.Asset{Name: assetName, Code: assetCode})
+	if !found {
+		store.Set([]byte(types.AssetsPrefix), keeper.cdc.MustMarshalBinaryBare(&assets))
+	}
 }
 
 //SetRawPrice sets the raw price for a given token after checking the validity of the signer
@@ -62,9 +64,11 @@ func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) sdk.Erro
 	if isPresent {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("%s, is already been inserted by %s", price, price.Oracle))
 	}
-	rawPrices = rawPrices.UpdatePriceOrAppendIfMissing(price)
-	store.Set(GetRawPricesKey(price.PriceInfo.AssetName, price.PriceInfo.AssetCode),
-		keeper.cdc.MustMarshalBinaryBare(rawPrices))
+	rawPrices, found := rawPrices.UpdatePriceOrAppendIfMissing(price)
+	if !found {
+		store.Set(GetRawPricesKey(price.PriceInfo.AssetName, price.PriceInfo.AssetCode),
+			keeper.cdc.MustMarshalBinaryBare(rawPrices))
+	}
 	return nil
 }
 
@@ -95,7 +99,7 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 			if price.PriceInfo.Expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
 				rawPricesSum = rawPricesSum.Add(rawPrices[index].PriceInfo.Price)
 				rawExpirySum = rawExpirySum.Add(rawPrices[index].PriceInfo.Expiry)
-				notExpiredPrices = notExpiredPrices.UpdatePriceOrAppendIfMissing(price)
+				notExpiredPrices, _ = notExpiredPrices.UpdatePriceOrAppendIfMissing(price)
 			}
 		}
 
@@ -137,7 +141,7 @@ func (keeper Keeper) GetCurrentPrices(ctx sdk.Context) types.CurrentPrices {
 	for ; iterator.Valid(); iterator.Next() {
 		var currentPrice types.CurrentPrice
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &currentPrice)
-		curPrices = curPrices.AppendIfMissing(currentPrice)
+		curPrices, _ = curPrices.AppendIfMissing(currentPrice)
 	}
 	return curPrices
 }
