@@ -47,8 +47,8 @@ An example of message object is the following.
 
 | Field | Type | Required | Description |
 | :---- | :--- | :------- | :---------- |
-| `type` | string | yes | Contains the type of the message that is represented inside the object. In order to see all the possible `type` values, please refer to the [proper page](message-types-and-values.md) |
-| `value` | object | yes | Contains the real value of the message. For each message type, a different set of fields will be present inside this object. In order to know which fields should be sent inside this object for each message type, please refer to the [proper page](message-types-and-values.md) |
+| `type` | string | yes | Contains the type of the message that is represented inside the object. In order to see all the possible `type` values, please refer to the [proper page](message-types.md) |
+| `value` | object | yes | Contains the real value of the message. For each message type, a different set of fields will be present inside this object. In order to know which fields should be sent inside this object for each message type, please refer to the [proper page](message-types.md) |
 
 ---
 

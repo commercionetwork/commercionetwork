@@ -1,5 +1,5 @@
 # Adding a metadata schema as officially supported
-When [sharing a document](share-document.md), you have the option to specify an officially recognized metadata schema
+When [sharing a document](send-document.md), you have the option to specify an officially recognized metadata schema
 using the `schema_type` field. 
 
 In this page we describe how to add a new schema specification as officially recognized. 
