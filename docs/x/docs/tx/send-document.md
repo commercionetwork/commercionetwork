@@ -35,13 +35,44 @@ following message.
 }
 ```
 
-### Notes
-1. The `metatada.schema_type` and `metadata.schema` fields are mutually exclusive.
-   This means that if the first one exists the second will not be used.
-2. You can read which `metadata.schema_type` values are supported inside 
+### Fields requirements
+| Field | Required | 
+| :---: | :------: |
+| `sender` | Yes | 
+| `recipient` | Yes |
+| `uuid` | Yes | 
+| `content_uri` | No | 
+| `metadata` | Yes |
+| `checksum` | No | 
+
+#### `metadata`
+| Field | Required | 
+| :---: | :------: |
+| `content_uri` | Yes | 
+| `schema_type` | No *<sup>1</sup> *<sup>2</sup>  | 
+| `schema` | No *<sup>1</sup> |
+| `proof` | Yes | 
+
+- *<sup>1</sup> The `schema_type` and `schema` fields are mutually exclusive.
+This means that if the first one exists the second will not be used.
+   
+- *<sup>2</sup> You can read which `schema_type` values are supported inside 
    the [supported metadata schemes section](../metadata-schemes.md#supported-metadata-schemes)
-3. You can read which `checksum.algorithm` values are supported inside the
-   [supported checksum algorithms section](#supported-checksum-algorithm)  
+   
+##### `metadata.schema`
+| Field | Required | 
+| :---: | :------: |
+| `uri` | Yes | 
+| `version` | Yes | 
+
+#### `checksum`
+| Field | Required | 
+| :---: | :------: |
+| `value` | Yes |
+| `algorithm` | Yes *<sup>1</sup> |
+
+- *<sup>1</sup> You can read which `checksum.algorithm` values are supported inside the
+[supported checksum algorithms section](#supported-checksum-algorithm)  
 
 ## Supported checksum algorithm
 When computing the checksum of a document's contents, you must use one of the following supported checksum algorithms.  

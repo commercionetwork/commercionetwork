@@ -23,7 +23,13 @@ following message.
 }
 ```
 
-Please note that the `signer` address must be the one of the government account that has been set 
+### Fields requirements
+| Field | Required | 
+| :---: | :------: |
+| `proposer` | Yes |
+| `signer` | Yes *<sup>1</sup> |  
+
+- *<sup>1</sup> Please note that the `signer` address must be the one of the government account that has been set 
 during the genesis using the `set-genesis-government-address` command.
 
 ## Action type

@@ -28,5 +28,18 @@ In order to add a metadata schema as officially recognized, you need to use the
 }
 ```
 
-Please note that the `signer` value should be the address of the account used to sign the transaction, 
-which should also be a **trusted metadata schema proposer**. Read the [requirements](#requirements) for more details. 
+### Fields requirements
+| Field | Required | 
+| :---: | :------: | 
+| `signer` | Yes *<sup>1</sup> |
+| `schema` | Yes |
+
+- *<sup>1</sup> The `signer` value should be the address of the account used to sign the transaction, 
+which should also be a **trusted metadata schema proposer**. Read the [requirements](#requirements) for more details.
+
+#### `metadata`
+| Field | Required | 
+| :---: | :------: |
+| `type` | Yes |
+| `schema_uri` | Yes | 
+| `version` | Yes |  
