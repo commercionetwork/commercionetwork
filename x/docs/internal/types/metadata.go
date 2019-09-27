@@ -61,10 +61,10 @@ func (metadataSchemes MetadataSchemes) IsTypeSupported(metadataType string) bool
 }
 
 // AppendIfMissing allows to add to this list of schemes the given schema, if it isn't already present
-func (metadataSchemes MetadataSchemes) AppendIfMissing(schema MetadataSchema) MetadataSchemes {
+func (metadataSchemes MetadataSchemes) AppendIfMissing(schema MetadataSchema) (MetadataSchemes, bool) {
 	if metadataSchemes.Contains(schema) {
-		return metadataSchemes
+		return metadataSchemes, false
 	} else {
-		return append(metadataSchemes, schema)
+		return append(metadataSchemes, schema), true
 	}
 }

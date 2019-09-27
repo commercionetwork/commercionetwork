@@ -148,8 +148,20 @@ tail -100f /var/log/syslog
 # Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.771] Executed block                               module=state height=3 validTxs=0 invalidTxs=0
 ```
 
-:::tip Next step  
-Congratulations, you are now a Commercio.network full node!    
-If you want to know how to become a validator, please read the
-[*Becoming a validator* guide](validator-node-installation.md)  
-:::
+## 6. Start the REST API
+Each full node can start up its own REST API service. 
+This will allow it to expose some endpoints that can be used in order to query the chain state at any moment. 
+
+If you want to start such a service, you need to run the following command
+
+```
+cncli config chain-id $CHAINID
+cncli rest-server
+``` 
+
+This will start up the REST server and make it reachable using the port `1317`. 
+From here, if you want you can use services such as [Nginx](https://www.nginx.com/) in order to make it available to other devices. 
+
+## Next step
+Now that you are a Commercio.network full node, if you want you can become a validator.
+If you wish to do so, please read the [*Becoming a validator* guide](validator-node-installation.md).

@@ -11,7 +11,7 @@ const (
 	DocumentStorePrefix = StoreKey + ":document:"
 
 	SentDocumentsPrefix     = StoreKey + ":documents:sent:"
-	ReceivedDocumentsPrefix = StoreKey + ":received:received:"
+	ReceivedDocumentsPrefix = StoreKey + ":documents:received:"
 
 	SentDocumentsReceiptsPrefix     = StoreKey + ":receipts:sent:"
 	ReceivedDocumentsReceiptsPrefix = StoreKey + ":receipts:received:"

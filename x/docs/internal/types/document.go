@@ -78,7 +78,7 @@ func (doc Document) Validate() error {
 
 type Documents []Document
 
-func (documents Documents) AppendIfMissing(i Document) []Document {
+func (documents Documents) AppendIfMissing(i Document) Documents {
 	for _, ele := range documents {
 		if ele.Equals(i) {
 			return documents
