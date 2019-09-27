@@ -14,32 +14,30 @@ var msgSetPrice = NewMsgSetPrice(TestRawPrice)
 var msgAddOracle = NewMsgAddOracle(TestGovernment, TestOracle1)
 
 func TestValidMsgSetPrice(t *testing.T) {
-	_, ctx, k := TestInput()
+	_, ctx, govK, k := TestInput()
 
 	k.AddOracle(ctx, TestOracle1)
 
-	handler := NewHandler(k)
+	handler := NewHandler(k, govK)
 
 	actual := handler(ctx, msgSetPrice)
-
 	assert.True(t, actual.IsOK())
 }
 
 func TestValidMsgAddOracle(t *testing.T) {
-	_, ctx, k := TestInput()
-	handler := NewHandler(k)
+	_, ctx, govK, k := TestInput()
+	handler := NewHandler(k, govK)
 
-	_ = k.GovernmentKeeper.SetGovernmentAddress(ctx, TestGovernment)
+	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
 
 	actual := handler(ctx, msgAddOracle)
-
 	assert.True(t, actual.IsOK())
 }
 
 func TestInvalidMsg(t *testing.T) {
 	invalidMsg := sdk.NewTestMsg()
-	_, ctx, k := TestInput()
-	handler := NewHandler(k)
+	_, ctx, govK, k := TestInput()
+	handler := NewHandler(k, govK)
 
 	actual := handler(ctx, invalidMsg)
 

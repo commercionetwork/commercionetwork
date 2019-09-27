@@ -15,7 +15,7 @@ import (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, govKeeper government.Keeper, keeper Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc = testCodec()
@@ -43,9 +43,9 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	govkeeper := government.NewKeeper(govKey, cdc)
-	pfk := NewKeeper(storeKey, govkeeper, cdc)
+	pfk := NewKeeper(cdc, storeKey)
 
-	return cdc, ctx, pfk
+	return cdc, ctx, govkeeper, pfk
 }
 
 func testCodec() *codec.Codec {
