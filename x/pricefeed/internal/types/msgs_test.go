@@ -58,7 +58,7 @@ func TestMsgSetPrice_GetSigners(t *testing.T) {
 }
 
 func TestMsgSetPrice_ParseJson(t *testing.T) {
-	json := `{"type":"commercio/MsgTypeSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"token_name":"uatom","price":"154.23","expiry":"1100"}}}`
+	json := `{"type":"commercio/MsgTypeSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","price":"154.23","expiry":"1100"}}}`
 
 	var msg MsgSetPrice
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)

@@ -5,7 +5,7 @@ import (
 )
 
 type CurrentPrice struct {
-	AssetName string  `json:"token_name"`
+	AssetName string  `json:"asset_name"`
 	Price     sdk.Dec `json:"price"`
 	Expiry    sdk.Int `json:"expiry"` //Block height after which the price is to be considered invalid
 }
