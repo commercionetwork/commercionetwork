@@ -16,4 +16,4 @@ If you want to create a new SDK or you want to document yourself on how things s
 the following link are a *must read*.  
 
 - [Create, sign and send a transaction offline](./create-sign-broadcast-tx.md)
-- [Commercio.network transaction types and values](./message-types-and-values.md)
+- [Commercio.network transaction types and values](message-types.md)

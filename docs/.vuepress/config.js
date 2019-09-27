@@ -33,7 +33,9 @@ module.exports = {
                 collapsable: false,
                 children: [
                     ["developers/", "Introduction"],
-                    "developers/create-sign-broadcast-tx"
+                    "developers/create-sign-broadcast-tx",
+                    "developers/message-types",
+                    "developers/listing-transactions"
                 ]
             },
             {
@@ -45,8 +47,7 @@ module.exports = {
                     "x/id/",
                     "x/pricefeed/"
                 ]
-            },
-            "chain-start/"
+            }
         ],
     }
 };

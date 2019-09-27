@@ -1,10 +1,10 @@
 # Sending a document reading receipt
 Once you have received a document and you want to acknowledge the sender that you have properly read it, you can use 
-the `SendDocumentReceipt` transaction that allows you to do that. 
+the `MsgSendDocumentReceipt` message that allows you to do that. 
 
 ## Transaction message
-In order to properly create and send a transaction representing a document receipt you need to compose the 
-`commercio/MsgSendDocumentReceipt` message:
+In order to properly send a transaction to share a document, you will need to create and sign the
+following message.
 
 ```json
 {
@@ -19,33 +19,19 @@ In order to properly create and send a transaction representing a document recei
 }
 ```
 
-## Using the CLI
-In order to send such a transaction using the CLI, you can execute the following command:
+### Fields requirements
+| Field | Required | 
+| :---: | :------: | 
+| `sender` | Yes | 
+| `recipient` | Yes | 
+| `tx_hash` | Yes | 
+| `document_uuid` | Yes |
+| `proof` | No | 
 
-```bash
-cncli tx commerciodocs send-document-receipt \
-  [document-sender] \
-  [document-recipient] \ 
-  [tx-hash] \
-  [document-uuid] \
-  [proof]
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
 ```
-
-### Parameters 
-| Parameter | Type | Required | Description |  
-| :-------- | :---: | :-----: | :---------- |
-| `document-sender` | Address | Yes | The address of the original document sender | 
-| `document-recipient` | Address | Yes | The address of the original document recipient |
-| `tx-hash` | String | Yes | Hash of the transaction inside which is contained the sent document |
-| `document-uuid` | Uuid | Yes | UUID of the document to which this receipt is related to |
-| `proof` | String | No | Optional proof that the recipient has read the document | 
-
-### Example usage 
-```bash
-cncli tx commerciodocs send-document \
-  [document-sender] \
-  [document-recipient] \ 
-  [tx-hash] \
-  [document-uuid] \
-  [proof]
+sendDocumentReceipt
 ```

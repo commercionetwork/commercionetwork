@@ -6,7 +6,7 @@ that you have received.
 Using the `docs` module you can perform the following transactions. 
 
 **Accessible to everyone**
-- [Share a document](tx/share-document.md) 
+- [Share a document](tx/send-document.md) 
 - [Send a document receipt](tx/send-document-receipt.md)
 
 **Accessible to trusted metadata scheme proposers**

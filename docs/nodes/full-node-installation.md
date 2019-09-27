@@ -10,14 +10,17 @@ Make sure you have read the [hardware requirements](hardware-requirements.md) be
 In order to update the OS so that you can work properly, execute the following commands:
 
 ```bash
-apt update && sudo apt upgrade -y
-apt install unzip
-apt install -y git gcc make
+apt update && apt upgrade -y
+apt install -y git gcc make unzip
 snap install --classic go
 
-echo 'GOPATH="$HOME/go"' >> ~/.profile
-echo 'PATH="$PATH:$GOPATH/bin"' ~/.profile
-echo 'PATH="$PATH:/snap/bin"' ~/.profile
+export NODENAME="<your-moniker>"
+
+echo 'export GOPATH="$HOME/go"' >> ~/.profile
+echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.profile
+echo 'export PATH="$PATH:/snap/bin"' >> ~/.profile
+echo 'export NODENAME="$NODENAME"' >> ~/.profile
+
 source ~/.profile
 ```
 
@@ -40,6 +43,8 @@ Always remember to pick the latest chain version listed inside [chains repo](htt
 Compile binaries 
 
 ```bash
+pkill cnd
+pkill cncli
 git init . 
 git remote add origin https://github.com/commercionetwork/commercionetwork.git
 git pull
@@ -51,30 +56,27 @@ Test if you have the correct binaries version:
 
 ```bash
 cnd version
-# Should output the same version written inside the .data file
+# Should output the same version written inside the .data file.
+# cat .data | grep -oP 'Release\s+\K\S+'
 ```
 
 Setup the validator node name. We will use the same name for node as well as the wallet key:
 
 ```bash
-export NODENAME="<your-moniker>"
 export CHAINID=commercio-$(cat .data | grep -oP 'Name\s+\K\S+')
 cat <<EOF >> ~/.profile
-export NODENAME="$NODENAME"
 export CHAINID="$CHAINID"
-export GOPATH="\$HOME/go"
-export PATH="\$GOPATH/bin:\$PATH"
 EOF
 ```
 
 Init the `.cnd` folder with the basic configuration
 
 ```bash
-pkill cnd
 cnd unsafe-reset-all
-
 # If you get a error because .cnd folder is not present don't worry 
+
 cnd init $NODENAME
+# If you get a error because .cnd folder is present don't worry 
 ```
 
 Install `genesis.json` file
