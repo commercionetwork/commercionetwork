@@ -31,3 +31,12 @@ func (addresses Addresses) Contains(address sdk.Address) bool {
 func (addresses Addresses) Empty() bool {
 	return len(addresses) == 0
 }
+
+func (addresses Addresses) GetAddress(address sdk.AccAddress) sdk.AccAddress {
+	for _, ele := range addresses {
+		if ele.Equals(address) {
+			return address
+		}
+	}
+	return nil
+}

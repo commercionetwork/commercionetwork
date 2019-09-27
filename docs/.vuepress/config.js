@@ -48,7 +48,8 @@ module.exports = {
                     "x/government/",
                     "x/docs/",
                     "x/id/",
-                    "x/tbr/"
+                    "x/tbr/",
+                    "x/pricefeed/",
                 ]
             }
         ],
