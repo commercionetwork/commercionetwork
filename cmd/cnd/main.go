@@ -18,6 +18,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
+	comgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -53,7 +54,7 @@ func main() {
 	// Build root command
 	rootCmd.AddCommand(genutilcli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome))
 	rootCmd.AddCommand(genutilcli.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, app.DefaultNodeHome))
-	rootCmd.AddCommand(genutilcli.MigrateGenesisCmd(ctx, cdc))
+	rootCmd.AddCommand(comgenutilcli.MigrateGenesisCmd(ctx, cdc))
 	rootCmd.AddCommand(genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics))
 	rootCmd.AddCommand(genaccscli.AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(gencmds.SetGenesisGovernmentAddressCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
