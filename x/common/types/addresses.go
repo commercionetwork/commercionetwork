@@ -12,9 +12,9 @@ type Addresses []sdk.AccAddress
 // address if it wasn't already present
 func (addresses Addresses) AppendIfMissing(address sdk.AccAddress) (Addresses, bool) {
 	if addresses.Contains(address) {
-		return nil, true
+		return addresses, false
 	} else {
-		return append(addresses, address), false
+		return append(addresses, address), true
 	}
 }
 

@@ -21,20 +21,24 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg MsgSetPrice) sdk.Result {
-	err := keeper.SetRawPrice(ctx, msg.Price)
-	if err != nil {
-		return err.Result()
+	// Check the signer
+	if !keeper.IsOracle(ctx, msg.Oracle) {
+		return sdk.ErrInvalidAddress(fmt.Sprintf("%s is not an oracle", msg.Oracle.String())).Result()
+	}
+
+	// Set the raw price
+	if err := keeper.SetRawPrice(ctx, RawPrice(msg)); err != nil {
+		return sdk.ErrUnknownRequest(err.Error()).Result()
 	}
 	return sdk.Result{}
 }
 
 func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, msg MsgAddOracle) sdk.Result {
-
 	gov := keeper.GovernmentKeeper.GetGovernmentAddress(ctx)
 
-	//Someone who's not the government trying to add an oracle
+	// Someone who's not the government is trying to add an oracle
 	if !(gov.Equals(msg.Signer)) {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("%s haven't got the rights to add an oracle", msg.Signer)).Result()
+		return sdk.ErrInvalidAddress(fmt.Sprintf("%s hasn't the rights to add an oracle", msg.Signer)).Result()
 	}
 
 	keeper.AddOracle(ctx, msg.Oracle)

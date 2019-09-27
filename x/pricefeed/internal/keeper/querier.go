@@ -26,8 +26,12 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 	}
 }
 
-func queryGetCurrentPrices(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetCurrentPrices(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
 	prices := keeper.GetCurrentPrices(ctx)
+	if prices == nil {
+		prices = make(types.CurrentPrices, 0)
+	}
+
 	pricesBz, err := codec.MarshalJSONIndent(keeper.cdc, prices)
 	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
@@ -37,11 +41,13 @@ func queryGetCurrentPrices(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 }
 
 func queryGetCurrentPrice(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
-	tokenName := path[0]
-	price, err2 := keeper.GetCurrentPrice(ctx, tokenName)
-	if err2 != nil {
-		return nil, err2
+	asset := path[0]
+
+	price, found := keeper.GetCurrentPrice(ctx, asset)
+	if !found {
+		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Could not find price for asset %s", asset))
 	}
+
 	priceBz, err := codec.MarshalJSONIndent(keeper.cdc, price)
 	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
@@ -50,9 +56,12 @@ func queryGetCurrentPrice(ctx sdk.Context, path []string, keeper Keeper) ([]byte
 	return priceBz, nil
 }
 
-func queryGetOracles(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
-
+func queryGetOracles(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
 	oracles := keeper.GetOracles(ctx)
+	if oracles == nil {
+		oracles = make([]sdk.AccAddress, 0)
+	}
+
 	oraclesBz, err := codec.MarshalJSONIndent(keeper.cdc, oracles)
 	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")

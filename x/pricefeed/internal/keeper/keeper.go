@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
@@ -16,84 +17,99 @@ type Keeper struct {
 	cdc              *codec.Codec
 }
 
-func NewKeeper(storekey sdk.StoreKey, govK government.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, govK government.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
-		StoreKey:         storekey,
+		StoreKey:         storeKey,
 		GovernmentKeeper: govK,
 		cdc:              cdc,
 	}
 }
 
-func GetRawPricesKey(assetName string) []byte {
-	return []byte(types.RawPricesPrefix + assetName)
+// --------------
+// --- Assets
+// --------------
+
+// AddAsset add a new priced asset to the assets list
+func (keeper Keeper) AddAsset(ctx sdk.Context, assetName string) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	assets := keeper.GetAssets(ctx)
+	if assets, updated := assets.AppendIfMissing(assetName); updated {
+		store.Set([]byte(types.AssetsStoreKey), keeper.cdc.MustMarshalBinaryBare(&assets))
+	}
 }
 
-//GetAssets retrieves all the assets
-func (keeper Keeper) GetAssets(ctx sdk.Context) ctypes.Strings {
+// GetAssets retrieves all the assets
+func (keeper Keeper) GetAssets(ctx sdk.Context) (assets ctypes.Strings) {
 	store := ctx.KVStore(keeper.StoreKey)
-	assetsBz := store.Get([]byte(types.AssetsPrefix))
-	var assets []string
-	keeper.cdc.MustUnmarshalBinaryBare(assetsBz, &assets)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.AssetsStoreKey)), &assets)
 	return assets
 }
 
-//AddAsset add a new priced asset to the assets list
-func (keeper Keeper) AddAsset(ctx sdk.Context, assetName string) {
-	store := ctx.KVStore(keeper.StoreKey)
-	assets := keeper.GetAssets(ctx)
-	assets, found := assets.AppendIfMissing(assetName)
-	if !found {
-		store.Set([]byte(types.AssetsPrefix), keeper.cdc.MustMarshalBinaryBare(&assets))
-	}
+// -----------------
+// --- Raw prices
+// -----------------
+
+func (keeper Keeper) getRawPricesKey(assetName string) []byte {
+	return []byte(types.RawPricesPrefix + assetName)
 }
 
-//SetRawPrice sets the raw price for a given token after checking the validity of the signer
-//If the signer hasn't the rights to set the price, then function returns error
-func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) sdk.Error {
+// SetRawPrice sets the raw price for a given token after checking the validity of the signer.
+// If the signer hasn't the rights to set the price, then function returns error.
+func (keeper Keeper) SetRawPrice(ctx sdk.Context, price types.RawPrice) error {
 	store := ctx.KVStore(keeper.StoreKey)
-	err := keeper.ValidateSigner(ctx, price.Oracle)
-	if err != nil {
-		return err
+
+	// Check the signer
+	if !keeper.IsOracle(ctx, price.Oracle) {
+		return fmt.Errorf("%s is not an oracle", price.Oracle.String())
 	}
 
-	//add Asset's identifiers if it's the first time that it's been priced
+	// Add the asset's identifiers if it's the first time that it's been priced
 	keeper.AddAsset(ctx, price.PriceInfo.AssetName)
 
+	// Update the raw prices
 	rawPrices := keeper.GetRawPrices(ctx, price.PriceInfo.AssetName)
-	rawPrices, found := rawPrices.UpdatePriceOrAppendIfMissing(price)
-	if found {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("%s, is already been inserted by %s", price, price.Oracle))
+	if rawPrices, updated := rawPrices.UpdatePriceOrAppendIfMissing(price); updated {
+		store.Set(keeper.getRawPricesKey(price.PriceInfo.AssetName), keeper.cdc.MustMarshalBinaryBare(rawPrices))
+	} else {
+		return errors.New("price already present")
 	}
-
-	store.Set(GetRawPricesKey(price.PriceInfo.AssetName),
-		keeper.cdc.MustMarshalBinaryBare(rawPrices))
 
 	return nil
 }
 
-//GetRawPrices retrieves all the raw prices of the given asset
-func (keeper Keeper) GetRawPrices(ctx sdk.Context, assetName string) types.RawPrices {
+// GetRawPrices retrieves all the raw prices of the given asset
+func (keeper Keeper) GetRawPrices(ctx sdk.Context, assetName string) (rawPrices types.RawPrices) {
 	store := ctx.KVStore(keeper.StoreKey)
-	var rawPrices types.RawPrices
-	pricesBz := store.Get(GetRawPricesKey(assetName))
-	keeper.cdc.MustUnmarshalBinaryBare(pricesBz, &rawPrices)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(keeper.getRawPricesKey(assetName)), &rawPrices)
 	return rawPrices
 }
 
-func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
+// ---------------------
+// --- Current prices
+// ---------------------
 
-	//Get all listed assets
+func (keeper Keeper) getCurrentPriceKey(assetName string) []byte {
+	return []byte(types.CurrentPricesPrefix + assetName)
+}
+
+func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) error {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	// Get all the listed assets
 	assets := keeper.GetAssets(ctx)
 
-	//For every asset, get all its not expired prices and calculate a median price that will be the current one
+	// For every asset, get all its not expired prices and calculate a median price that will be the current one
 	for _, asset := range assets {
+
 		// Get all raw prices posted by oracles
 		rawPrices := keeper.GetRawPrices(ctx, asset)
+
 		var notExpiredPrices = types.RawPrices{}
-		var rawPricesSum = sdk.NewInt(0)
+		var rawPricesSum = sdk.NewDec(0)
 		var rawExpirySum = sdk.NewInt(0)
 
-		// filter out expired prices
+		// Filter out expired prices
 		for index, price := range rawPrices {
 			if price.PriceInfo.Expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
 				rawPricesSum = rawPricesSum.Add(rawPrices[index].PriceInfo.Price)
@@ -103,90 +119,88 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) sdk.Error {
 		}
 
 		pricesLength := len(notExpiredPrices)
-		var medianPrice sdk.Int
+		var medianPrice sdk.Dec
 		var expiry sdk.Int
+
 		// TODO KAVA suggestion : make threshold for acceptance (ie. require 51% of oracles to have posted valid prices)
 		if pricesLength == 0 {
 			// Error if there are no valid prices in the raw prices store
-			return sdk.ErrInternal("no valid raw prices to calculate current prices")
+			return errors.New("no valid raw prices to calculate current prices")
 		} else if pricesLength == 1 {
 			// Return if there's only one price
 			medianPrice = notExpiredPrices[0].PriceInfo.Price
 			expiry = notExpiredPrices[0].PriceInfo.Expiry
 		} else {
-			pLength := sdk.NewInt(int64(pricesLength))
-			medianPrice = rawPricesSum.Quo(pLength)
-			expiry = rawExpirySum.Quo(pLength)
+			pLength := int64(pricesLength)
+			medianPrice = rawPricesSum.Quo(sdk.NewDec(pLength))
+			expiry = rawExpirySum.Quo(sdk.NewInt(pLength))
 		}
-		store := ctx.KVStore(keeper.StoreKey)
+
+		// Compute the new current price
 		currentPrice := types.CurrentPrice{
 			AssetName: asset,
 			Price:     medianPrice,
 			Expiry:    expiry,
 		}
-		store.Set([]byte(types.CurrentPricesPrefix+asset),
-			keeper.cdc.MustMarshalBinaryBare(currentPrice))
+
+		// Set the price
+		store.Set(keeper.getCurrentPriceKey(asset), keeper.cdc.MustMarshalBinaryBare(currentPrice))
 
 	}
 	return nil
 }
 
-//GetCurrentPrices retrieves all the current prices
-func (keeper Keeper) GetCurrentPrices(ctx sdk.Context) types.CurrentPrices {
-	var curPrices = types.CurrentPrices{}
+// GetCurrentPrice retrieves the current price for the given asset
+func (keeper Keeper) GetCurrentPrice(ctx sdk.Context, asset string) (currentPrice types.CurrentPrice, found bool) {
 	store := ctx.KVStore(keeper.StoreKey)
+
+	currentPrice = types.CurrentPrice{}
+	if !store.Has(keeper.getCurrentPriceKey(asset)) {
+		return currentPrice, false
+	}
+
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(keeper.getCurrentPriceKey(asset)), &currentPrice)
+	return currentPrice, true
+}
+
+// GetCurrentPrices retrieves all the current prices
+func (keeper Keeper) GetCurrentPrices(ctx sdk.Context) types.CurrentPrices {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	var curPrices = types.CurrentPrices{}
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CurrentPricesPrefix))
 	for ; iterator.Valid(); iterator.Next() {
 		var currentPrice types.CurrentPrice
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &currentPrice)
 		curPrices, _ = curPrices.AppendIfMissing(currentPrice)
 	}
+
 	return curPrices
 }
 
-//GetCurrentPrice retrieves the current price for the given token name and code
-func (keeper Keeper) GetCurrentPrice(ctx sdk.Context, tokenName string) (types.CurrentPrice, sdk.Error) {
-	currentPrices := keeper.GetCurrentPrices(ctx)
-	price, err := currentPrices.GetPrice(tokenName)
-	if err != nil {
-		return types.CurrentPrice{}, err
-	}
-	return price, nil
-}
-
-//ValidateSigner makes sure the signer posting the price is an oracle
-func (keeper Keeper) ValidateSigner(ctx sdk.Context, signer sdk.AccAddress) sdk.Error {
-	oracles := keeper.GetOracles(ctx)
-	isOracle := oracles.Contains(signer)
-	if !isOracle {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("%s isn't an Oracle", signer))
-	}
-	return nil
-}
+// ------------------
+// --- Oracles
+// ------------------
 
 // AddOracle adds an Oracle to the store
 func (keeper Keeper) AddOracle(ctx sdk.Context, oracle sdk.AccAddress) {
+	store := ctx.KVStore(keeper.StoreKey)
+
 	oracles := keeper.GetOracles(ctx)
-	oracles, found := oracles.AppendIfMissing(oracle)
-	if !found {
-		store := ctx.KVStore(keeper.StoreKey)
+	if oracles, success := oracles.AppendIfMissing(oracle); success {
 		store.Set([]byte(types.OraclePrefix), keeper.cdc.MustMarshalBinaryBare(&oracles))
 	}
 }
 
-func (keeper Keeper) GetOracles(ctx sdk.Context) ctypes.Addresses {
-	store := ctx.KVStore(keeper.StoreKey)
-	oraclesBz := store.Get([]byte(types.OraclePrefix))
-	var oracles ctypes.Addresses
-	keeper.cdc.MustUnmarshalBinaryBare(oraclesBz, &oracles)
-	return oracles
+// IsOracle returns true iif the given address is a valid oracle
+func (keeper Keeper) IsOracle(ctx sdk.Context, address sdk.AccAddress) bool {
+	oracles := keeper.GetOracles(ctx)
+	return oracles.Contains(address)
 }
 
-func (keeper Keeper) GetOracle(ctx sdk.Context, oracle sdk.AccAddress) (sdk.AccAddress, error) {
-	oracles := keeper.GetOracles(ctx)
-	found := oracles.GetAddress(oracle)
-	if found == nil {
-		return nil, sdk.ErrUnknownAddress("Oracle address not found")
-	}
-	return found, nil
+// GetOracles returns the list of all the currently present oracles
+func (keeper Keeper) GetOracles(ctx sdk.Context) (oracles ctypes.Addresses) {
+	store := ctx.KVStore(keeper.StoreKey)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.OraclePrefix)), &oracles)
+	return oracles
 }

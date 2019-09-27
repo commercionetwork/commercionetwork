@@ -5,34 +5,13 @@ import (
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
-	"github.com/stretchr/testify/assert"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestGetRawPricesKey(t *testing.T) {
-	expected := []byte(types.RawPricesPrefix + TestRawPrice1.PriceInfo.AssetName)
-	actual := GetRawPricesKey(TestRawPrice1.PriceInfo.AssetName)
-	assert.Equal(t, expected, actual)
-}
-
-func TestKeeper_GetAssets(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	expected := ctypes.Strings{TestAsset, TestAsset2}
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.AssetsPrefix), k.cdc.MustMarshalBinaryBare(expected))
-
-	actual := k.GetAssets(ctx)
-	assert.Equal(t, expected, actual)
-}
-
-func TestKeeper_GetAssets_empty(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	var expected ctypes.Strings
-	actual := k.GetAssets(ctx)
-	assert.Equal(t, expected, actual)
-}
+// --------------
+// --- Assets
+// --------------
 
 func TestKeeper_AddAsset(t *testing.T) {
 	_, ctx, k := SetupTestInput()
@@ -46,11 +25,11 @@ func TestKeeper_AddAsset(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_AddAsset_alreadyPresent(t *testing.T) {
+func TestKeeper_AddAsset_AlreadyPresent(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 	assets := ctypes.Strings{TestAsset}
-	store.Set([]byte(types.AssetsPrefix), k.cdc.MustMarshalBinaryBare(assets))
+	store.Set([]byte(types.AssetsStoreKey), k.cdc.MustMarshalBinaryBare(assets))
 	expected := len(assets)
 
 	k.AddAsset(ctx, TestAsset)
@@ -59,23 +38,29 @@ func TestKeeper_AddAsset_alreadyPresent(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_ValidateSigner_validSigner(t *testing.T) {
+func TestKeeper_GetAssets(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	oracles := ctypes.Addresses{TestOracle2, TestOracle1}
+	expected := ctypes.Strings{TestAsset, TestAsset2}
+
 	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.OraclePrefix), k.cdc.MustMarshalBinaryBare(oracles))
+	store.Set([]byte(types.AssetsStoreKey), k.cdc.MustMarshalBinaryBare(expected))
 
-	err := k.ValidateSigner(ctx, TestOracle1)
-	assert.Nil(t, err)
+	actual := k.GetAssets(ctx)
+	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_ValidateSigner_invalidSigner(t *testing.T) {
+func TestKeeper_GetAssets_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	err := k.ValidateSigner(ctx, TestOracle1)
-	assert.Error(t, err)
+	var expected ctypes.Strings
+	actual := k.GetAssets(ctx)
+	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_SetRawPrice_withValidSigner_pricesNotAlreadyPresent(t *testing.T) {
+// -----------------
+// --- Raw prices
+// -----------------
+
+func TestKeeper_SetRawPrice_withValidSigner_PricesNotAlreadyPresent(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	k.AddOracle(ctx, TestOracle1)
 	k.AddOracle(ctx, TestOracle2)
@@ -93,19 +78,21 @@ func TestKeeper_SetRawPrice_withValidSigner_pricesNotAlreadyPresent(t *testing.T
 
 }
 
-func TestKeeper_SetRawPrice_withValidSigner_priceAlreadyPresent(t *testing.T) {
+func TestKeeper_SetRawPrice_withValidSigner_PriceAlreadyPresent(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	k.AddOracle(ctx, TestOracle1)
+
 	store := ctx.KVStore(k.StoreKey)
+
+	k.AddOracle(ctx, TestOracle1)
+
 	expected := types.RawPrices{TestRawPrice1}
-	store.Set(GetRawPricesKey(TestRawPrice1.PriceInfo.AssetName),
-		k.cdc.MustMarshalBinaryBare(expected))
+	store.Set(k.getRawPricesKey(TestRawPrice1.PriceInfo.AssetName), k.cdc.MustMarshalBinaryBare(&expected))
 
 	err := k.SetRawPrice(ctx, TestRawPrice1)
 	assert.Error(t, err)
 }
 
-func TestKeeper_SetRawPrice_withInvalidSigner(t *testing.T) {
+func TestKeeper_SetRawPrice_WithInvalidSigner(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	err := k.SetRawPrice(ctx, TestRawPrice1)
 	assert.Error(t, err)
@@ -122,9 +109,12 @@ func TestKeeper_GetRawPrices(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+// ---------------------
+// --- Current prices
+// ---------------------
+
 func TestKeeper_SetCurrentPrices_MoreThanOneNotExpiredPrice(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	//test setup
 
 	k.AddOracle(ctx, TestOracle1)
 	k.AddOracle(ctx, TestOracle2)
@@ -133,18 +123,18 @@ func TestKeeper_SetCurrentPrices_MoreThanOneNotExpiredPrice(t *testing.T) {
 
 	sumPrice := TestRawPrice1.PriceInfo.Price.Add(TestRawPrice3.PriceInfo.Price)
 	sumExpiry := TestRawPrice1.PriceInfo.Expiry.Add(TestRawPrice3.PriceInfo.Expiry)
-	expectedMedianPrice := sumPrice.Quo(sdk.NewInt(2))
+	expectedMedianPrice := sumPrice.Quo(sdk.NewDec(2))
 	expectedMedianExpiry := sumExpiry.Quo(sdk.NewInt(2))
 
 	_ = k.SetCurrentPrices(ctx)
 
-	actual, _ := k.GetCurrentPrice(ctx, TestRawPrice1.PriceInfo.AssetName)
-
+	actual, found := k.GetCurrentPrice(ctx, TestRawPrice1.PriceInfo.AssetName)
+	assert.True(t, found)
 	assert.Equal(t, expectedMedianPrice, actual.Price)
 	assert.Equal(t, expectedMedianExpiry, actual.Expiry)
 }
 
-func TestKeeper_SetCurrentPrices_allExpiredRawPrices(t *testing.T) {
+func TestKeeper_SetCurrentPrices_AllExpiredRawPrices(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	k.AddOracle(ctx, TestOracle1)
 	_ = k.SetRawPrice(ctx, TestRawPriceE)
@@ -183,9 +173,13 @@ func TestKeeper_GetCurrentPrice_Found(t *testing.T) {
 
 func TestKeeper_GetCurrentPrice_NotFound(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	_, err := k.GetCurrentPrice(ctx, TestPriceInfo.AssetName)
-	assert.Error(t, err)
+	_, found := k.GetCurrentPrice(ctx, TestPriceInfo.AssetName)
+	assert.False(t, found)
 }
+
+// ------------------
+// --- Oracles
+// ------------------
 
 func TestKeeper_AddOracle(t *testing.T) {
 	_, ctx, k := SetupTestInput()
@@ -204,23 +198,25 @@ func TestKeeper_AddOracle(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestKeeper_IsOracle_ValidOracle(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.OraclePrefix), k.cdc.MustMarshalBinaryBare(ctypes.Addresses{TestOracle1}))
+
+	isOracle := k.IsOracle(ctx, TestOracle1)
+	assert.True(t, isOracle)
+}
+
+func TestKeeper_IsOracle_InvalidOracle(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	isOracle := k.IsOracle(ctx, TestOracle1)
+	assert.False(t, isOracle)
+}
+
 func TestKeeper_GetOracles(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	expected := ctypes.Addresses{TestOracle1}
 	k.AddOracle(ctx, TestOracle1)
 	actual := k.GetOracles(ctx)
 	assert.Equal(t, expected, actual)
-}
-
-func TestKeeper_GetOracle_Found(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	k.AddOracle(ctx, TestOracle1)
-	actual, _ := k.GetOracle(ctx, TestOracle1)
-	assert.Equal(t, TestOracle1, actual)
-}
-
-func TestKeeper_GetOracle_NotFound(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	_, err := k.GetOracle(ctx, TestOracle1)
-	assert.Error(t, err)
 }

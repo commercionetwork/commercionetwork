@@ -65,24 +65,24 @@ var TestOracle2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz
 var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
 var TestPriceInfo = types.CurrentPrice{
 	AssetName: "test",
-	Price:     sdk.NewInt(10),
+	Price:     sdk.NewDec(10),
 	Expiry:    sdk.NewInt(5000),
 }
 var TestPriceInfo2 = types.CurrentPrice{
 	AssetName: "test2",
-	Price:     sdk.NewInt(8),
+	Price:     sdk.NewDec(8),
 	Expiry:    sdk.NewInt(4000),
 }
 
 var TestPriceInfo3 = types.CurrentPrice{
 	AssetName: TestPriceInfo.AssetName,
-	Price:     sdk.NewInt(20),
+	Price:     sdk.NewDec(20),
 	Expiry:    sdk.NewInt(7000),
 }
 
 var TestPriceInfoE = types.CurrentPrice{
 	AssetName: "test",
-	Price:     sdk.NewInt(0),
+	Price:     sdk.NewDec(0),
 	Expiry:    sdk.NewInt(-1),
 }
 var TestRawPriceE = types.RawPrice{
@@ -93,11 +93,6 @@ var TestRawPriceE = types.RawPrice{
 var TestRawPrice1 = types.RawPrice{
 	PriceInfo: TestPriceInfo,
 	Oracle:    TestOracle1,
-}
-
-var TestRawPrice2 = types.RawPrice{
-	PriceInfo: TestPriceInfo2,
-	Oracle:    TestOracle2,
 }
 
 var TestRawPrice3 = types.RawPrice{

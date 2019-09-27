@@ -16,10 +16,11 @@ var (
 	NewQuerier    = keeper.NewQuerier
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
-	//test vars
+
 	NewMsgSetPrice  = types.NewMsgSetPrice
 	NewMsgAddOracle = types.NewMsgAddOracle
 
+	// Testing
 	TestInput      = keeper.SetupTestInput
 	TestOracle1    = keeper.TestOracle1
 	TestGovernment = keeper.TestGovernment
@@ -27,9 +28,11 @@ var (
 )
 
 type (
-	Keeper       = keeper.Keeper
-	MsgSetPrice  = types.MsgSetPrice
+	Keeper = keeper.Keeper
+
 	CurrentPrice = types.CurrentPrice
 	RawPrice     = types.RawPrice
+
+	MsgSetPrice  = types.MsgSetPrice
 	MsgAddOracle = types.MsgAddOracle
 )

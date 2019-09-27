@@ -6,9 +6,8 @@ import (
 
 type CurrentPrice struct {
 	AssetName string  `json:"token_name"`
-	Price     sdk.Int `json:"price"`
-	//Block height after that price is invalid
-	Expiry sdk.Int `json:"expiry"`
+	Price     sdk.Dec `json:"price"`
+	Expiry    sdk.Int `json:"expiry"` //Block height after which the price is to be considered invalid
 }
 
 func (currentPrice CurrentPrice) Equals(cp CurrentPrice) bool {
@@ -42,9 +41,9 @@ type RawPrice struct {
 	PriceInfo CurrentPrice   `json:"price"`
 }
 
-func (rawprice RawPrice) Equals(rp RawPrice) bool {
-	return rawprice.Oracle.Equals(rp.Oracle) &&
-		rawprice.PriceInfo.Equals(rp.PriceInfo)
+func (rawPrice RawPrice) Equals(rp RawPrice) bool {
+	return rawPrice.Oracle.Equals(rp.Oracle) &&
+		rawPrice.PriceInfo.Equals(rp.PriceInfo)
 }
 
 type RawPrices []RawPrice
@@ -52,15 +51,15 @@ type RawPrices []RawPrice
 func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) (RawPrices, bool) {
 	for index, ele := range rawPrices {
 		if ele.Equals(rp) {
-			return nil, true
+			return rawPrices, false
 		}
 		if ele.Oracle.Equals(rp.Oracle) &&
 			ele.PriceInfo.AssetName == rp.PriceInfo.AssetName &&
 			ele.PriceInfo.Expiry.LTE(rp.PriceInfo.Expiry) &&
 			ele.PriceInfo.Price != rp.PriceInfo.Price {
 			rawPrices[index] = rp
-			return rawPrices, false
+			return rawPrices, true
 		}
 	}
-	return append(rawPrices, rp), false
+	return append(rawPrices, rp), true
 }

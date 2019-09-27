@@ -15,7 +15,7 @@ func TestCurrentPrice_Equals_true(t *testing.T) {
 func TestCurrentPrice_Equals_false(t *testing.T) {
 	curPrice := CurrentPrice{
 		AssetName: TestPriceInfo.AssetName,
-		Price:     sdk.NewInt(2),
+		Price:     sdk.NewDec(2),
 		Expiry:    sdk.NewInt(5),
 	}
 
@@ -53,11 +53,11 @@ func TestCurrentPrices_AppendIfMissing_found(t *testing.T) {
 func TestRawPrice_Equals_false(t *testing.T) {
 	curPrice := CurrentPrice{
 		AssetName: TestPriceInfo.AssetName,
-		Price:     sdk.NewInt(2),
+		Price:     sdk.NewDec(2),
 		Expiry:    sdk.NewInt(5),
 	}
 	rawPrice := RawPrice{
-		Oracle:    testOracle1,
+		Oracle:    TestOracle,
 		PriceInfo: curPrice,
 	}
 
@@ -72,22 +72,22 @@ func TestRawPrice_Equals_true(t *testing.T) {
 
 func TestRawPrices_UpdatePriceOrAppendIfMissing_appendNewRawPrice(t *testing.T) {
 	rawPrices := RawPrices{}
-	actual, found := rawPrices.UpdatePriceOrAppendIfMissing(TestRawPrice)
+	actual, updated := rawPrices.UpdatePriceOrAppendIfMissing(TestRawPrice)
+	assert.True(t, updated)
 	assert.Equal(t, TestRawPrice, actual[0])
-	assert.False(t, found)
 }
 
 func TestRawPrices_UpdatePriceOrAppendIfMissing_priceAlreadyInserted(t *testing.T) {
 	rawPrices := RawPrices{TestRawPrice}
-	actual, found := rawPrices.UpdatePriceOrAppendIfMissing(TestRawPrice)
-	assert.Nil(t, actual)
-	assert.True(t, found)
+	actual, updated := rawPrices.UpdatePriceOrAppendIfMissing(TestRawPrice)
+	assert.False(t, updated)
+	assert.Equal(t, rawPrices, actual)
 }
 
 func TestRawPrices_UpdatePriceOrAppendIfMissing_updatedPrice(t *testing.T) {
 	curPrice := CurrentPrice{
 		AssetName: TestPriceInfo.AssetName,
-		Price:     sdk.NewInt(200),
+		Price:     sdk.NewDec(200),
 		Expiry:    sdk.NewInt(6000),
 	}
 	rawPrice := RawPrice{
@@ -95,7 +95,7 @@ func TestRawPrices_UpdatePriceOrAppendIfMissing_updatedPrice(t *testing.T) {
 		PriceInfo: curPrice,
 	}
 	rawPrices := RawPrices{TestRawPrice}
-	actual, found := rawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
+	actual, updated := rawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
 	assert.Equal(t, rawPrice, actual[0])
-	assert.False(t, found)
+	assert.True(t, updated)
 }

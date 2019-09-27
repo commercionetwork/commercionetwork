@@ -16,7 +16,7 @@ import (
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "CommercioMINT transactions subcommands",
+		Short:                      "Pricefeed transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -37,12 +37,13 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 
 			oracle := cliCtx.GetFromAddress()
 			tokenName := args[0]
-			tokenPrice, err := sdk.NewIntFromString(args[1])
-			if !err {
-				return sdk.ErrInternal("Can't get integer from string")
+			tokenPrice, err := sdk.NewDecFromStr(args[1])
+			if err != nil {
+				return sdk.ErrInternal(err.Error())
 			}
-			expiry, err := sdk.NewIntFromString(args[2])
-			if !err {
+
+			expiry, ok := sdk.NewIntFromString(args[2])
+			if !ok {
 				return sdk.ErrInternal("Can't get integer from string")
 			}
 
