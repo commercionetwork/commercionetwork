@@ -106,11 +106,11 @@ func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress
 // STAKE 		 staked token's amount of n-esim validator
 // TOTALSTAKE	 indicates all staked token's amount of all validators
 var (
-	TPY    = sdk.NewDecWithPrec(25000, 0) //Tokens Per Year
-	DPY, _ = sdk.NewDecFromStr("365.24")  // Days Per Year
-	HPD    = sdk.NewDecWithPrec(24, 0)    //  Hours Per Day
-	MPH    = sdk.NewDecWithPrec(60, 0)    //  Minutes Per Hour
-	BPM    = sdk.NewDecWithPrec(12, 0)    // Blocks Per Minutes
+	TPY = sdk.NewDecWithPrec(25000, 0) //Tokens Per Year
+	DPY = sdk.NewDecWithPrec(36524, 2) // Days Per Year
+	HPD = sdk.NewDecWithPrec(24, 0)    //  Hours Per Day
+	MPH = sdk.NewDecWithPrec(60, 0)    //  Minutes Per Hour
+	BPM = sdk.NewDecWithPrec(12, 0)    // Blocks Per Minutes
 )
 
 // computeRawReward computes the raw reward for proposer, assuming that raw reward is the Reward(n, V)
