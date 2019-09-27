@@ -42,7 +42,8 @@ module.exports = {
                 children: [
                     "x/government/",
                     "x/docs/",
-                    "x/id/"
+                    "x/id/",
+                    "x/pricefeed/"
                 ]
             },
             "chain-start/"

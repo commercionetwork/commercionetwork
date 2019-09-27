@@ -1,13 +1,13 @@
 package types
 
+type Strings []string
+
 func (elements Strings) AppendIfMissing(element string) (Strings, bool) {
 	for _, ele := range elements {
 		if ele == element {
-			return nil, true
+			return elements, false
 		}
 	}
-	return append(elements, element), false
+	return append(elements, element), true
 
 }
-
-type Strings []string

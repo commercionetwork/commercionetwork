@@ -8,54 +8,42 @@ import (
 )
 
 // Test variables
-var testOracle1, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-
+var TestOracle, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestPriceInfo = CurrentPrice{
-	AssetName: "test",
-	Price:     sdk.NewInt(10),
-	Expiry:    sdk.NewInt(5000),
+	AssetName: "uatom",
+	Price:     sdk.NewDecWithPrec(15423, 2),
+	Expiry:    sdk.NewInt(1100),
 }
+var TestRawPrice = RawPrice{PriceInfo: TestPriceInfo, Oracle: TestOracle}
 
-var TestRawPrice = RawPrice{
-	PriceInfo: TestPriceInfo,
-	Oracle:    testOracle1,
-}
+// -------------------
+// --- MsgSetPrice
+// -------------------
 
 var msgSetPrice = NewMsgSetPrice(TestRawPrice)
 
 func TestMsgSetPrice_Route(t *testing.T) {
-	expected := RouterKey
-	actual := msgSetPrice.Route()
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, RouterKey, msgSetPrice.Route())
 }
 
 func TestMsgSetPrice_Type(t *testing.T) {
-	expected := MsgTypeSetPrice
-	actual := msgSetPrice.Type()
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, MsgTypeSetPrice, msgSetPrice.Type())
 }
 
 func TestMsgSetPrice_ValidateBasic_ValidMessage(t *testing.T) {
-	actual := msgSetPrice.ValidateBasic()
-	assert.Nil(t, actual)
+	assert.Nil(t, msgSetPrice.ValidateBasic())
 }
 
 func TestMsgSetPrice_ValidateBasic_InvalidMessage(t *testing.T) {
-	priceInfo := CurrentPrice{
-		AssetName: "    ",
-		Price:     sdk.NewInt(10),
-		Expiry:    sdk.Int{},
-	}
-
 	msgInvalid := MsgSetPrice{
-		Price: RawPrice{
-			Oracle:    testOracle1,
-			PriceInfo: priceInfo},
+		Oracle: TestOracle,
+		PriceInfo: CurrentPrice{
+			AssetName: "    ",
+			Price:     sdk.NewDec(10),
+			Expiry:    sdk.Int{},
+		},
 	}
-
-	actual := msgInvalid.ValidateBasic()
-
-	assert.Error(t, actual)
+	assert.Error(t, msgInvalid.ValidateBasic())
 }
 
 func TestMsgSetPrice_GetSignBytes(t *testing.T) {
@@ -65,56 +53,49 @@ func TestMsgSetPrice_GetSignBytes(t *testing.T) {
 }
 
 func TestMsgSetPrice_GetSigners(t *testing.T) {
-	actual := msgSetPrice.GetSigners()
-	expected := []sdk.AccAddress{msgSetPrice.Price.Oracle}
-	assert.Equal(t, expected, actual)
+	expected := []sdk.AccAddress{msgSetPrice.Oracle}
+	assert.Equal(t, expected, msgSetPrice.GetSigners())
 }
 
-///////////////////////////
-//////MsgAddOracle////////
-/////////////////////////
-var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-var msgAddOracle = MsgAddOracle{
-	Signer: TestGovernment,
-	Oracle: testOracle1,
+func TestMsgSetPrice_ParseJson(t *testing.T) {
+	json := `{"type":"commercio/MsgTypeSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","price":"154.23","expiry":"1100"}}}`
+
+	var msg MsgSetPrice
+	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
+
+	assert.Equal(t, msgSetPrice, msg)
 }
+
+// -------------------
+// --- MsgAddOracle
+// -------------------
+
+var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+var msgAddOracle = NewMsgAddOracle(TestOracle, TestGovernment)
 
 func TestMsgAddOracle_Route(t *testing.T) {
-	actual := msgAddOracle.Route()
-	expected := RouterKey
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, RouterKey, msgAddOracle.Route())
 }
 
 func TestMsgAddOracle_Type(t *testing.T) {
-	actual := msgAddOracle.Type()
-	expected := MsgTypeAddOracle
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, MsgTypeAddOracle, msgAddOracle.Type())
 }
 
 func TestMsgAddOracle_ValidateBasic_ValidMessage(t *testing.T) {
-	actual := msgAddOracle.ValidateBasic()
-	assert.Nil(t, actual)
+	assert.Nil(t, msgAddOracle.ValidateBasic())
 }
 
 func TestMsgAddOracle_ValidateBasic_InvalidMessage(t *testing.T) {
-	msgInvalid := MsgAddOracle{
-		Signer: nil,
-		Oracle: nil,
-	}
-	actual := msgInvalid.ValidateBasic()
-	assert.Error(t, actual)
+	msgInvalid := MsgAddOracle{Signer: nil, Oracle: nil}
+	assert.Error(t, msgInvalid.ValidateBasic())
 }
 
 func TestMsgAddOracle_GetSignBytes(t *testing.T) {
-	actual := msgAddOracle.GetSignBytes()
 	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddOracle))
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, msgAddOracle.GetSignBytes())
 }
 
 func TestMsgAddOracle_GetSigners(t *testing.T) {
-	actual := msgAddOracle.GetSigners()
 	expected := []sdk.AccAddress{msgAddOracle.Signer}
-
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, msgAddOracle.GetSigners())
 }

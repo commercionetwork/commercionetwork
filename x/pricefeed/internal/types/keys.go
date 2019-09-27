@@ -13,11 +13,10 @@ const (
 	QueryGetCurrentPrices = "prices"
 	QueryGetOracles       = "oracles"
 
-	//CurrentPricesPrefix store prefix for the current price of an asset
-	AssetsPrefix        = StoreKey + ":tokeninfo:"
-	CurrentPricesPrefix = StoreKey + ":currentprices:"
-	RawPricesPrefix     = StoreKey + ":rawprices:"
+	AssetsStoreKey = StoreKey + ":assets:"
 
-	//OraclePrefix store prefix for the oracle accounts
+	CurrentPricesPrefix = StoreKey + ":currentPrices:"
+	RawPricesPrefix     = StoreKey + ":rawPrices:"
+
 	OraclePrefix = StoreKey + ":oracles:"
 )
