@@ -154,9 +154,8 @@ the following procedure must be followed.
      "encryption_data": {
        "keys": [
          {
-           "recipient": "<recipient_address>",
-           "value": "<encoded_encryption_key>",
-           "encoding": "hex"
+           "recipient": "<Recipient address>",
+           "value": "<Hex encoded encryption key>"
          }
        ],
        "encrypted_data": [
@@ -165,10 +164,7 @@ the following procedure must be followed.
      }
    }
    ```
-   
-### Supported encoding methods
-Only the `hex` encoding method is supported when encoding the encrypted AES-256 key.
-   
+ 
 ### Supported encrypted data
 Please note that when specifying which data you have encrypted for the document recipient, you need to use one or 
 more of the following identifiers inside the `encryption_data.encrypted_data` field.  
