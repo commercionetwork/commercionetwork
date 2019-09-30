@@ -3,17 +3,16 @@ package pricefeed
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
+func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case MsgSetPrice:
 			return handleMsgSetPrice(ctx, keeper, msg)
 		case MsgAddOracle:
-			return handleMsgAddOracle(ctx, keeper, govKeeper, msg)
+			return handleMsgAddOracle(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -34,8 +33,8 @@ func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg MsgSetPrice) sdk.Resu
 	return sdk.Result{}
 }
 
-func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg MsgAddOracle) sdk.Result {
-	gov := govKeeper.GetGovernmentAddress(ctx)
+func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, msg MsgAddOracle) sdk.Result {
+	gov := keeper.GovernmentKeeper.GetGovernmentAddress(ctx)
 
 	// Someone who's not the government is trying to add an oracle
 	if !(gov.Equals(msg.Signer)) {
