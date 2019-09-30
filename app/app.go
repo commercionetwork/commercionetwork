@@ -13,6 +13,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/id"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
@@ -118,6 +119,9 @@ var (
 		id.AppModuleBasic{},
 		memberships.AppModuleBasic{},
 		pricefeed.AppModuleBasic{},
+		tbr.AppModuleBasic{
+			RewardDenom: DefaultBondDenom,
+		},
 	)
 
 	maccPerms = map[string][]string{
@@ -181,6 +185,7 @@ type CommercioNetworkApp struct {
 	governmentKeeper    government.Keeper
 	membershipKeeper    memberships.Keeper
 	pricefeedKeeper     pricefeed.Keeper
+	tbrKeeper           tbr.Keeper
 
 	mm *module.Manager
 }
@@ -205,7 +210,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 		// Custom modules
 		accreditations.StoreKey, docs.StoreKey, government.StoreKey,
-		id.StoreKey, memberships.StoreKey, pricefeed.StoreKey,
+		id.StoreKey, memberships.StoreKey, pricefeed.StoreKey, tbr.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -253,6 +258,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.idKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper)
 	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
+	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -294,6 +300,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		id.NewAppModule(app.idKeeper),
 		memberships.NewAppModule(app.membershipKeeper),
 		pricefeed.NewAppModule(app.pricefeedKeeper, app.governmentKeeper),
+		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -303,10 +310,11 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		mint.ModuleName, distr.ModuleName, slashing.ModuleName,
 
 		// Custom modules
+		tbr.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
-		gov.ModuleName, staking.ModuleName,
+		crisis.ModuleName, gov.ModuleName, staking.ModuleName,
 
 		// Custom modules
 		pricefeed.ModuleName,
@@ -314,14 +322,15 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
-	app.mm.SetOrderInitGenesis(genaccounts.ModuleName, distr.ModuleName,
+	app.mm.SetOrderInitGenesis(
+		genaccounts.ModuleName, distr.ModuleName,
 		staking.ModuleName, auth.ModuleName, bank.ModuleName, slashing.ModuleName,
 		gov.ModuleName, mint.ModuleName, supply.ModuleName, crisis.ModuleName, genutil.ModuleName,
 		nft.ModuleName,
 
 		// Custom modules
 		government.ModuleName, accreditations.ModuleName, docs.ModuleName,
-		id.ModuleName, memberships.ModuleName, pricefeed.ModuleName,
+		id.ModuleName, memberships.ModuleName, pricefeed.ModuleName, tbr.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

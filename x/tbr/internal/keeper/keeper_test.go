@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	types2 "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	dist "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 
 	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
 	store := ctx.KVStore(k.StoreKey)
-	poolBz := store.Get([]byte(types.BlockRewardsPoolPrefix))
+	poolBz := store.Get([]byte(types.PoolStoreKey))
 	k.Cdc.MustUnmarshalBinaryBare(poolBz, &pool)
 
 	assert.Equal(t, pool, TestBlockRewardsPool)
@@ -35,7 +35,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
 	tpy := sdk.NewDecWithPrec(25000, 0)
-	tpy = tpy.Mul(sdk.NewDecWithPrec(1000000, 0))
+	tpy = tpy.Mul(sdk.NewDecWithPrec(100000, 0))
 
 	dpy, _ := sdk.NewDecFromStr("365.24")
 	hpd := sdk.NewDecWithPrec(24, 0)
@@ -54,13 +54,11 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 	validatorStakedTokens := TestValidator.GetBondedTokens().ToDec()
 
 	firstMember := tpy.Quo(dpy).Mul(averageValidatorsNumber.Quo(vNumber))
-	println(firstMember.String())
 	secondMember := validatorStakedTokens.Quo(totalStakedToken.ToDec())
-	println(secondMember.String())
 
 	concreteReward := firstMember.Mul(secondMember)
 
-	expected := sdk.DecCoins{sdk.DecCoin{Denom: types.DefaultBondDenom, Amount: concreteReward}}
+	expected := sdk.DecCoins{sdk.DecCoin{Denom: k.GetRewardDenom(ctx), Amount: concreteReward}}
 
 	actual := k.ComputeProposerReward(ctx, 32, TestValidator, totalStakedToken)
 
@@ -70,11 +68,11 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
-	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(1000))}
+	reward := sdk.DecCoins{sdk.NewDecCoin(k.GetRewardDenom(ctx), sdk.NewInt(1000))}
 
 	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
 
-	validatorRewards := types2.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
+	validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
 
 	_ = k.DistributeBlockRewards(ctx, TestValidator, reward)
@@ -87,8 +85,8 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
-	reward := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(12000))}
-	brPool := sdk.DecCoins{sdk.NewDecCoin(types.DefaultBondDenom, sdk.NewInt(10000))}
+	reward := sdk.DecCoins{sdk.NewDecCoin(k.StakingKeeper.BondDenom(ctx), sdk.NewInt(12000))}
+	brPool := sdk.DecCoins{sdk.NewDecCoin(k.StakingKeeper.BondDenom(ctx), sdk.NewInt(10000))}
 
 	k.SetBlockRewardsPool(ctx, brPool)
 
@@ -104,7 +102,7 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 
 	acc := ak.NewAccountWithAddress(ctx, TestFunder)
 	ak.SetAccount(ctx, acc)
-	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1000), Denom: types.DefaultBondDenom})
+	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1000), Denom: k.StakingKeeper.BondDenom(ctx)})
 	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
 
 	_ = k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
@@ -112,7 +110,7 @@ func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
 
 	var greater bool
 
-	if TestBlockRewardsPool.AmountOf(types.DefaultBondDenom).LT(actual.AmountOf(types.DefaultBondDenom)) {
+	if TestBlockRewardsPool.AmountOf(k.StakingKeeper.BondDenom(ctx)).LT(actual.AmountOf(k.StakingKeeper.BondDenom(ctx))) {
 		greater = true
 	}
 
@@ -126,7 +124,7 @@ func TestKeeper_IncrementBlockRewardsPool_InsufficientUserFunds(t *testing.T) {
 
 	acc := ak.NewAccountWithAddress(ctx, TestFunder)
 	ak.SetAccount(ctx, acc)
-	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1), Denom: types.DefaultBondDenom})
+	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1), Denom: k.StakingKeeper.BondDenom(ctx)})
 	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
 
 	err := k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)

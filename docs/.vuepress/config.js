@@ -3,8 +3,11 @@ module.exports = {
     description: "Documentation for the Commercio.network blockchain.",
     ga: "UA-51029217-2",
     markdown: {
-        lineNumbers: true
+        lineNumbers: true,
     },
+    plugins: [
+        'latex'
+    ],
     themeConfig: {
         repo: "commercionetwork/commercionetwork",
         editLinks: true,
@@ -45,7 +48,8 @@ module.exports = {
                     "x/government/",
                     "x/docs/",
                     "x/id/",
-                    "x/pricefeed/"
+                    "x/tbr/",
+                    "x/pricefeed/",
                 ]
             }
         ],
