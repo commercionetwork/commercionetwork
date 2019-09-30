@@ -1,7 +1,7 @@
 # Trusted metadata scheme proposers
 
 ## Officially recognized metadata schemes
-When [sharing a document](tx/share-document.md) with a user, you can decide to adopt a metadata schema 
+When [sharing a document](tx/send-document.md) with a user, you can decide to adopt a metadata schema 
 that is officially recognized inside the chain. 
 
 Those schemes are composed of few information and are proposed by **trusted proposers**. 

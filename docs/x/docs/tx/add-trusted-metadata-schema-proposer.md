@@ -10,8 +10,8 @@ Please note that using the term *government* we're referring to the entity of
 when adding new trusted accounts having particular permissions inside the chain itself. 
 
 ## Transaction message
-In order to add a new trusted schema proposer, the government must create and 
-sign a `commercio/MsgAddTrustedMetadataSchemaProposer` message:
+In order to properly send a transaction to share a document, you will need to create and sign the
+following message.
 
 ```json
 {
@@ -23,5 +23,19 @@ sign a `commercio/MsgAddTrustedMetadataSchemaProposer` message:
 }
 ```
 
-Please note that the `signer` address must be the one of the government account that has been set 
-during the genesis using the `set-genesis-government-address` command.  
+### Fields requirements
+| Field | Required | 
+| :---: | :------: |
+| `proposer` | Yes |
+| `signer` | Yes *<sup>1</sup> |  
+
+- *<sup>1</sup> Please note that the `signer` address must be the one of the government account that has been set 
+during the genesis using the `set-genesis-government-address` command.
+
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+addTrustedMetadataSchemaProposer
+```  

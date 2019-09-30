@@ -1,5 +1,5 @@
 # Adding a metadata schema as officially supported
-When [sharing a document](share-document.md), you have the option to specify an officially recognized metadata schema
+When [sharing a document](send-document.md), you have the option to specify an officially recognized metadata schema
 using the `schema_type` field. 
 
 In this page we describe how to add a new schema specification as officially recognized. 
@@ -28,5 +28,26 @@ In order to add a metadata schema as officially recognized, you need to use the
 }
 ```
 
-Please note that the `signer` value should be the address of the account used to sign the transaction, 
-which should also be a **trusted metadata schema proposer**. Read the [requirements](#requirements) for more details. 
+### Fields requirements
+| Field | Required | 
+| :---: | :------: | 
+| `signer` | Yes *<sup>1</sup> |
+| `schema` | Yes |
+
+- *<sup>1</sup> The `signer` value should be the address of the account used to sign the transaction, 
+which should also be a **trusted metadata schema proposer**. Read the [requirements](#requirements) for more details.
+
+#### `metadata`
+| Field | Required | 
+| :---: | :------: |
+| `type` | Yes |
+| `schema_uri` | Yes | 
+| `version` | Yes |
+
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+addSupportedMetadataSchema
+```  
