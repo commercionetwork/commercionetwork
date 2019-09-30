@@ -1,5 +1,5 @@
-# CommercioID
-CommercioID is the module that allows you to create a new identity and associate to it a 
+# Id
+The `id` module is the one that allows you to create a new identity and associate to it a 
 Did Document.
 
 ## Transactions
