@@ -12,24 +12,38 @@ following message.
 
 ```json
 {
-  "type": "commercio/MsgSendDocument",
+  "type": "commercio/MsgShareDocument",
   "value": {
-    "sender": "<Your address>",
-    "recipient": "<Recipient address>",
-    "uuid": "<Document UUID>",
-    "content_uri": "<Document content URI>",
-    "metadata": {
-      "content_uri": "<Metadata content URI>",
-      "schema_type": "<Officially recognized schema type>",
-      "schema": {
-        "uri": "<Metadata schema URI>",
-        "version": "<Metadata schema version>"
+    "sender": "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0",
+    "recipients": [
+      "<Recipient address>"
+    ],
+    "document": {
+      "uuid": "<Document UUID>",
+      "content_uri": "<Document content URI>",
+      "metadata": {
+        "content_uri": "<Metadata content URI>",
+        "schema": {
+          "uri": "<Metadata schema definition URI>",
+          "version": "<Metadata schema version>"
+        },
+        "schema_type": "<Metadata schema type>"
       },
-      "proof": "<Metadata validation proof>"
-    },
-    "checksum": {
-      "value": "<Document content checksum value>",
-      "algorithm": "<Checksum algorithm>"
+      "checksum": {
+        "value": "<Document content checksum value>",
+        "algorithm": "<Document content checksum algorithm>"
+      },
+      "encryption_data": {
+        "keys": [
+          {
+            "recipient": "<Recipient address>",
+            "value": "<Encrypted and encoded symmetric key value>"
+          }
+        ],
+        "encrypted_data": [
+          "<Encrypted field identifier>"
+        ]
+      }
     }
   }
 }
@@ -39,19 +53,24 @@ following message.
 | Field | Required | 
 | :---: | :------: |
 | `sender` | Yes | 
-| `recipient` | Yes |
+| `recipients` | Yes |
+| `document` | Yes |
+
+#### `document`
+| Field | Required | 
+| :---: | :------: |
 | `uuid` | Yes | 
 | `content_uri` | No | 
 | `metadata` | Yes |
 | `checksum` | No | 
+| `encryption_data` | No | 
 
-#### `metadata`
+##### `metadata`
 | Field | Required | 
 | :---: | :------: |
 | `content_uri` | Yes | 
 | `schema_type` | No *<sup>1</sup> *<sup>2</sup>  | 
 | `schema` | No *<sup>1</sup> |
-| `proof` | Yes | 
 
 - *<sup>1</sup> The `schema_type` and `schema` fields are mutually exclusive.
 This means that if the first one exists the second will not be used.
@@ -59,13 +78,13 @@ This means that if the first one exists the second will not be used.
 - *<sup>2</sup> You can read which `schema_type` values are supported inside 
    the [supported metadata schemes section](../metadata-schemes.md#supported-metadata-schemes)
    
-##### `metadata.schema`
+###### `metadata.schema`
 | Field | Required | 
 | :---: | :------: |
 | `uri` | Yes | 
 | `version` | Yes | 
 
-#### `checksum`
+##### `checksum`
 | Field | Required | 
 | :---: | :------: |
 | `value` | Yes |
@@ -73,6 +92,12 @@ This means that if the first one exists the second will not be used.
 
 - *<sup>1</sup> You can read which `checksum.algorithm` values are supported inside the
 [supported checksum algorithms section](#supported-checksum-algorithm)  
+
+##### `encryption_data`
+| Field | Required | 
+| :---: | :------: |
+| `key` | Yes |
+| `encrypted_data` | Yes |
 
 ## Supported checksum algorithm
 When computing the checksum of a document's contents, you must use one of the following supported checksum algorithms.  
@@ -92,6 +117,69 @@ Please note that, when sending a document that has an associated checksum, the v
 checked only formally. This means that we only check that the hash value has a valid length, but we do not check 
 if the given has is indeed the hash of the document's content. It should be the client responsibility to perform this 
 check.  
+
+## Encrypting the data
+In order to properly encrypting the data that you want to avoid being shared publicly, 
+the following procedure must be followed. 
+
+1. Generate a safe AES-256 encryption key. A key size of 256 bits is recommended.
+   ```
+   aes_key = get_random_aes_key(key_size = 256)
+   ```
+
+2. Use the AES key to encrypt the data you desire using the AES-256 CBC method.  
+   ```
+   encrypted_data = aes_encrypt_cbc(
+     key = aes_key, 
+     initialization_vector = null
+   )
+   ```
+   
+3. Encrypt the AES-256 key using the recipient's public encryption key  
+   ```
+   encrypted_aes_key = rsa_encrypt(
+     key = recipient.public_rsa_encryption_key,
+     value = aes_key
+   )    
+   ```
+   
+4. Encode the encrypted AES-256 key  
+   ```
+   encoded_encryption_key = hex_encode(encrypted_aes_key)
+   ```
+   
+4. Compose the encryption data  
+   ```json
+   {
+     "encryption_data": {
+       "keys": [
+         {
+           "recipient": "<recipient_address>",
+           "value": "<encoded_encryption_key>",
+           "encoding": "hex"
+         }
+       ],
+       "encrypted_data": [
+         "<Your encrypted data identifier>"
+       ]
+     }
+   }
+   ```
+   
+### Supported encoding methods
+Only the `hex` encoding method is supported when encoding the encrypted AES-256 key.
+   
+### Supported encrypted data
+Please note that when specifying which data you have encrypted for the document recipient, you need to use one or 
+more of the following identifiers inside the `encryption_data.encrypted_data` field.  
+Inserting other non supported values inside such a field will result in the transactions being rejected as not valid.   
+
+| Identifier | Referenced data | 
+| :--------: | :-------------- |
+| `content` | Document's file contents |
+| `content_uri` | Value of the `content_uri` field |
+| `metadata.content_uri` | Value of the `content_uri` field inside the `metadata` object |
+| `metadata.schema.uri` | Value of the `uri` field inside the `metadata`'s `schema` sub-object |
 
 ## Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
