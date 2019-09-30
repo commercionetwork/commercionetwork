@@ -27,8 +27,7 @@ following message.
           "uri": "<Metadata schema definition URI>",
           "version": "<Metadata schema version>"
         },
-        "schema_type": "<Metadata schema type>",
-        "proof": "<Metadata verification proof>"
+        "schema_type": "<Metadata schema type>"
       },
       "checksum": {
         "value": "<Document content checksum value>",
@@ -72,7 +71,6 @@ following message.
 | `content_uri` | Yes | 
 | `schema_type` | No *<sup>1</sup> *<sup>2</sup>  | 
 | `schema` | No *<sup>1</sup> |
-| `proof` | Yes | 
 
 - *<sup>1</sup> The `schema_type` and `schema` fields are mutually exclusive.
 This means that if the first one exists the second will not be used.
