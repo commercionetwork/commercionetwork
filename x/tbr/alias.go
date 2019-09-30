@@ -12,14 +12,13 @@ const (
 )
 
 var (
-	//function aliases
-	NewKeeper     = keeper.NewKeeper
-	NewQuerier    = keeper.NewQuerier
-	TestSetup     = keeper.SetupTestInput
-	RegisterCodec = types.RegisterCodec
+	NewKeeper  = keeper.NewKeeper
+	NewQuerier = keeper.NewQuerier
 
-	//variable aliases
-	ModuleCdc = types.ModuleCdc
+	TestSetup = keeper.SetupTestInput
+
+	ModuleCdc     = types.ModuleCdc
+	RegisterCodec = types.RegisterCodec
 )
 
 type (

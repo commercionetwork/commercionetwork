@@ -5,23 +5,20 @@ import (
 	"fmt"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Keeper struct {
-	StoreKey         sdk.StoreKey
-	GovernmentKeeper government.Keeper
-	cdc              *codec.Codec
+	StoreKey sdk.StoreKey
+	cdc      *codec.Codec
 }
 
-func NewKeeper(storeKey sdk.StoreKey, govK government.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey) Keeper {
 	return Keeper{
-		StoreKey:         storeKey,
-		GovernmentKeeper: govK,
-		cdc:              cdc,
+		StoreKey: storeKey,
+		cdc:      cdc,
 	}
 }
 

@@ -10,8 +10,8 @@ import (
 )
 
 var msgSetId = MsgSetIdentity{
-	DidDocumentUri: TestDidDocumentUri,
-	Owner:          TestOwnerAddress,
+	Owner:       TestOwnerAddress,
+	DidDocument: TestDidDocument,
 }
 
 func TestValidMsg_StoreDoc(t *testing.T) {

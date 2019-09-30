@@ -12,7 +12,7 @@ import (
 var request abci.RequestQuery
 
 func TestQuerier_getCurrentPrices(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, _, k := SetupTestInput()
 
 	//setup the keystore with two current prices
 	store := ctx.KVStore(k.StoreKey)
@@ -31,7 +31,7 @@ func TestQuerier_getCurrentPrices(t *testing.T) {
 }
 
 func TestQuerier_getCurrentPrice(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, _, k := SetupTestInput()
 
 	//setup the keystore with two current prices
 	store := ctx.KVStore(k.StoreKey)
@@ -49,7 +49,7 @@ func TestQuerier_getCurrentPrice(t *testing.T) {
 }
 
 func TestQuerier_getOracles(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, _, k := SetupTestInput()
 	var expected = ctypes.Addresses{TestOracle1}
 
 	store := ctx.KVStore(k.StoreKey)
@@ -66,7 +66,7 @@ func TestQuerier_getOracles(t *testing.T) {
 }
 
 func TestQuerier_unknownEndpoint(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
 	path := []string{"test"}

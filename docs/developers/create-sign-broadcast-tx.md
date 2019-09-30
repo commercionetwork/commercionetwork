@@ -331,38 +331,26 @@ The first thing that needs to be done in order to create a transaction, is to cr
 {
   "msg": [
     {
-      "account_number": "0",
-      "chain_id": "test-chain-eDSCSs",
-      "fee": {
-        "amount": [],
-        "gas": "20000"
-      },
-      "memo": "",
-      "msgs": [
-        {
-          "type": "commercio/MsgSendDocument",
-          "value": {
-            "sender": "<Your address>",
-            "recipient": "<Recipient address>",
-            "uuid": "<Document UUID>",
-            "content_uri": "<Document content URI>",
-            "metadata": {
-              "content_uri": "<Metadata content URI>",
-              "schema_type": "<Officially recognized schema type>",
-              "schema": {
-                "uri": "<Metadata schema URI>",
-                "version": "<Metadata schema version>"
-              },
-              "proof": "<Metadata validation proof>"
-            },
-            "checksum": {
-              "value": "<Document content checksum value>",
-              "algorithm": "<Checksum algorithm>"
-            }
-          }
+      "type": "commercio/MsgSendDocument",
+      "value": {
+        "sender": "<Your address>",
+        "recipient": "<Recipient address>",
+        "uuid": "<Document UUID>",
+        "content_uri": "<Document content URI>",
+        "metadata": {
+          "content_uri": "<Metadata content URI>",
+          "schema_type": "<Officially recognized schema type>",
+          "schema": {
+            "uri": "<Metadata schema URI>",
+            "version": "<Metadata schema version>"
+          },
+          "proof": "<Metadata validation proof>"
+        },
+        "checksum": {
+          "value": "<Document content checksum value>",
+          "algorithm": "<Checksum algorithm>"
         }
-      ],
-      "sequence": "1"
+      }
     }
   ],
   "fee": {
