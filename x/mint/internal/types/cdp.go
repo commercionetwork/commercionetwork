@@ -1,8 +1,6 @@
 package types
 
 import (
-	"math/big"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -11,7 +9,16 @@ type CDP struct {
 	Owner           sdk.AccAddress `json:"owner"`
 	DepositedAmount sdk.Coins      `json:"deposited_amount"`
 	LiquidityAmount sdk.Coins      `json:"liquidity_amount"`
-	Timestamp       *big.Int       `json:"timestamp"`
+	Timestamp       string         `json:"timestamp"`
+}
+
+func NewCDP(request CDPRequest, liquidityAmount sdk.Coins) CDP {
+	return CDP{
+		Owner:           request.Signer,
+		DepositedAmount: request.DepositedAmount,
+		LiquidityAmount: liquidityAmount,
+		Timestamp:       request.Timestamp,
+	}
 }
 
 func (current CDP) Equals(cdp CDP) bool {

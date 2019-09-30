@@ -21,7 +21,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgDepositToken(ctx sdk.Context, keeper Keeper, msg MsgDepositToken) sdk.Result {
-	credits, err := keeper.DepositToken(ctx, msg.Signer, msg.Tokens)
+	credits, err := keeper.OpenCDP(ctx, msg.Signer, msg.Tokens)
 	if err != nil {
 		return sdk.ResultFromError(err)
 	}
@@ -31,7 +31,7 @@ func handleMsgDepositToken(ctx sdk.Context, keeper Keeper, msg MsgDepositToken) 
 }
 
 func handleMsgWithdrawToken(ctx sdk.Context, keeper Keeper, msg MsgWithdrawToken) sdk.Result {
-	token, err := keeper.WithdrawToken(ctx, msg.Signer, msg.Amount)
+	token, err := keeper.CloseCDP(ctx, msg.Signer, msg.Amount)
 	if err != nil {
 		return sdk.ResultFromError(err)
 	}

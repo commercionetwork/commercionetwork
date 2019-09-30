@@ -1,14 +1,14 @@
 package keeper
 
 import (
+	"fmt"
+
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 type Keeper struct {
@@ -30,84 +30,91 @@ func NewKeeper(sk sdk.StoreKey, bk bank.BaseKeeper, pk pricefeed.Keeper, stk sta
 	}
 }
 
-// DepositToken subtract the given token amount from user's wallet and deposit it into the liquidity pool then,
-// send him the corresponding commercio cash credits amount.
-// If user's wallet hasn't got enough funds or if there will be some problems while adding credits to the wallet,
-// an error will occur.
-func (keeper Keeper) DepositToken(ctx sdk.Context, user sdk.AccAddress, depositAmount sdk.Coins) (sdk.Coins, sdk.Error) {
-
+func (keeper Keeper) SetCreditsDenom(ctx sdk.Context, denom string) {
 	store := ctx.KVStore(keeper.StoreKey)
+	store.Set([]byte(types.CreditsDenomStoreKey), []byte(denom))
+}
 
-	//get deposit amount's current price
-	assetPrice, found := keeper.PriceFeedKeeper.GetCurrentPrice(ctx, keeper.StakingKeeper.BondDenom(ctx))
-	if found == false {
-		return nil, sdk.ErrInvalidCoins("no current price for given tokens")
+func (keeper Keeper) GetCreditsDenom(ctx sdk.Context) string {
+	store := ctx.KVStore(keeper.StoreKey)
+	return string(store.Get([]byte(types.CreditsDenomStoreKey)))
+}
+
+func (keeper Keeper) getCDPkey(address sdk.AccAddress) []byte {
+	return []byte(types.CDPStoreKey + address.String())
+}
+
+func (keeper Keeper) AddCDP(ctx sdk.Context, cdp types.CDP) {
+	var cdps types.CDPs
+	store := ctx.KVStore(keeper.StoreKey)
+	cdpsBz := store.Get(keeper.getCDPkey(cdp.Owner))
+	keeper.cdc.MustUnmarshalBinaryBare(cdpsBz, &cdps)
+	cdps, found := cdps.AppendIfMissing(cdp)
+	if !found {
+		store.Set(keeper.getCDPkey(cdp.Owner), keeper.cdc.MustMarshalBinaryBare(cdps))
+	}
+}
+
+func (keeper Keeper) DeleteCDP(ctx, cdp types.CDP) bool {
+	return true
+}
+
+// OpenCDP subtract the given token amount from user's wallet and deposit it into the liquidity pool then,
+// send him the corresponding commercio cash credits amount.
+// Errors occurs if:
+// 1) deposited tokens haven't been priced yet, or are negatives or invalid
+// 2) signer's funds are not enough
+// 3)
+func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) (sdk.Coins, sdk.Error) {
+
+	if !cdpRequest.DepositedAmount.IsValid() || cdpRequest.DepositedAmount.IsAnyNegative() {
+		return nil, sdk.ErrInvalidCoins(cdpRequest.DepositedAmount.String())
 	}
 
-	//get credits' current price
-	creditsPrice, found := keeper.PriceFeedKeeper.GetCurrentPrice(ctx, types.CreditsDenom)
-	if found == false {
-		return nil, sdk.ErrInvalidCoins("no current price for given tokens")
+	store := ctx.KVStore(keeper.StoreKey)
+	fiatValue := sdk.NewInt(0)
+
+	//Check if all tokens in deposit amount have a price and calculate the total FIAT value of them
+	for _, token := range cdpRequest.DepositedAmount {
+		assetPrice, found := keeper.PriceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
+		if found == false {
+			return nil, sdk.ErrInvalidCoins(fmt.Sprintf("no current price for given token: %s", token.Denom))
+		}
+		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Price.RoundInt()))
 	}
 
 	//Subtract the given deposit amount from user's wallet
-	_, err := keeper.BankKeeper.SubtractCoins(ctx, user, depositAmount)
+	_, err := keeper.BankKeeper.SubtractCoins(ctx, cdpRequest.Signer, cdpRequest.DepositedAmount)
 	if err != nil {
 		return nil, err
 	}
 
-	poolBz := store.Get([]byte(types.LiquidityPoolKey))
-	var liquidityPool = sdk.DecCoins{}
+	poolBz := store.Get([]byte(types.LiquidityPoolStoreKey))
+	var liquidityPool = sdk.Coins{}
 	keeper.cdc.MustUnmarshalBinaryBare(poolBz, &liquidityPool)
 
-	//get the depositAmount value = deposit amount * asset price
-	da := sdk.NewDecCoins(depositAmount)
-	//depositing the amount to pool
-	liquidityPool = liquidityPool.Add(da)
-	store.Set([]byte(types.LiquidityPoolKey), keeper.cdc.MustMarshalBinaryBare(liquidityPool))
+	//depositing the amount to the liquidity pool
+	liquidityPool = liquidityPool.Add(cdpRequest.DepositedAmount)
+	store.Set([]byte(types.LiquidityPoolStoreKey), keeper.cdc.MustMarshalBinaryBare(liquidityPool))
 
-	//calculating deposit amount value
-	depositAmountValue := da.MulDec(assetPrice.Price)
-
-	//get credits' amount = depositAmount value / credits price
-	creditsAmount := depositAmountValue.QuoDec(creditsPrice.Price)
+	//get credits' amount = DepositAmount value / credits price (always 1 euro) / 2 is the power of collateral which is 2:1 (comm -> ccc)
+	creditsAmount := fiatValue.Quo(sdk.NewInt(2))
 
 	//add credits to users wallet
-	credits := sdk.NewCoins(sdk.NewCoin(types.CreditsDenom, creditsAmount.TruncateDecimal()))
-	credits, err = keeper.BankKeeper.AddCoins(ctx, user, credits)
+	credits := sdk.NewCoins(sdk.NewCoin(keeper.GetCreditsDenom(ctx), creditsAmount))
+	credits, err = keeper.BankKeeper.AddCoins(ctx, cdpRequest.Signer, credits)
 	if err != nil {
 		return nil, err
 	}
+
+	cdp := types.NewCDP(cdpRequest, credits)
+	keeper.AddCDP(ctx, cdp)
 
 	return credits, nil
 }
 
 //Withdraw token subtract the given credits amount from user's wallet and send to it the corresponding value in commercio tokens.
 //If user's wallet hasn't enought credits, an error will occur.
-func (keeper Keeper) WithdrawToken(ctx sdk.Context, user sdk.AccAddress, credits sdk.Coins) (sdk.Coins, error) {
-
-	//Subtract credits amount from user's wallet
-	_, err := keeper.BankKeeper.SubtractCoins(ctx, user, credits)
-	if err != nil {
-		return nil, err
-	}
-
-	//get credit's current price
-	creditsPrice := keeper.PriceFeedKeeper.GetPrice(ctx, ctypes.DefaultCreditsDenom)
-
-	//get the credits' value = credits amount * credits price
-	creditsValue := creditsPrice.Mul(credits.AmountOf(ctypes.DefaultCreditsDenom))
-
-	//get token's current price
-	tokenPrice := keeper.PriceFeedKeeper.GetPrice(ctx, ctypes.DefaultBondDenom)
-
-	//get tokens' amount = credits value / token price
-	tokensAmount := creditsValue.Quo(tokenPrice)
-	tokens := sdk.NewCoins(sdk.NewCoin(ctypes.DefaultBondDenom, tokensAmount))
-	credits, err = keeper.BankKeeper.AddCoins(ctx, user, tokens)
-	if err != nil {
-		return nil, err
-	}
-
-	return tokens, err
+func (keeper Keeper) CloseCDP(ctx sdk.Context, user sdk.AccAddress, credits sdk.Coins) (sdk.Coins, error) {
+	return nil, nil
 }
