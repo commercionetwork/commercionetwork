@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -57,4 +58,7 @@ func testCodec() *codec.Codec {
 
 // Test variables
 var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestDidDocumentUri = "https://test.example.com/did-document#1"
+var TestDidDocument = types.DidDocument{
+	Uri:         "https://test.example.com/did-document#1",
+	ContentHash: "6a40d9907d256795096b57d4bea23c0560aa3fe8f8a66c8207623f774c09c3a6",
+}
