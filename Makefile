@@ -19,8 +19,13 @@ install: go.sum
 ### Build
 
 build: go.sum
-	GO111MODULE=on go build -mod=readonly -o "build/cnd" -tags "$(build_tags)" ./cmd/cnd/main.go
-	GO111MODULE=on go build -mod=readonly -o "build/cncli" -tags "$(build_tags)" ./cmd/cncli/main.go
+ifeq ($(OS),Windows_NT)
+	GO111MODULE=on go build -mod=readonly -o ./build/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
+	GO111MODULE=on go build -mod=readonly -o ./build/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
+else
+	GO111MODULE=on go build -mod=readonly -o ./build/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+	GO111MODULE=on go build -mod=readonly -o ./build/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+endif
 
 # TODO: Note:386 builds are disabled due to a bug inside the Cosmos SDK:
 # github.com/cosmos/cosmos-sdk@v0.28.2-0.20190826165445-eeb847c8455b/simapp/state.go:75:46: constant 1000000000000 overflows
