@@ -19,7 +19,6 @@ type Membership struct {
 }
 
 // IsMembershipTypeValid returns true iff the given membership type if valid
-// TODO: Test this
 func IsMembershipTypeValid(membershipType string) bool {
 	return membershipType == MembershipTypeGreen ||
 		membershipType == MembershipTypeBronze ||

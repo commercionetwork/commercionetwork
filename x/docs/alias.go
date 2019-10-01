@@ -9,19 +9,32 @@ const (
 	ModuleName   = types.ModuleName
 	StoreKey     = types.StoreKey
 	QuerierRoute = types.QuerierRoute
+
+	MetadataSchemaProposersStoreKey = types.MetadataSchemaProposersStoreKey
 )
 
 var (
 	NewKeeper     = keeper.NewKeeper
 	NewQuerier    = keeper.NewQuerier
-	TestSetup     = keeper.SetupTestInput
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
+
+	NewMsgShareDocument = types.NewMsgShareDocument
+
+	SetupTestInput         = keeper.SetupTestInput
+	TestingSender          = keeper.TestingSender
+	TestingRecipient       = keeper.TestingRecipient
+	TestingDocument        = keeper.TestingDocument
+	TestingDocumentReceipt = keeper.TestingDocumentReceipt
 )
 
 type (
 	Keeper                              = keeper.Keeper
 	Document                            = types.Document
+	DocumentMetadata                    = types.DocumentMetadata
+	MetadataSchema                      = types.MetadataSchema
+	DocumentChecksum                    = types.DocumentChecksum
+	DocumentIds                         = types.DocumentIds
 	DocumentReceipt                     = types.DocumentReceipt
 	MsgShareDocument                    = types.MsgShareDocument
 	MsgSendDocumentReceipt              = types.MsgSendDocumentReceipt

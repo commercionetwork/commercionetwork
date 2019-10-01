@@ -1,6 +1,6 @@
-# Chain government
+# Government
 In order to allow some specific operations to be performed only by a small set of individuals, 
-inside Commercio.network we introduced the [`x/government`](../../../x/government) module. 
+inside Commercio.network we introduced the `government` module. 
 
 This module allows for two simple operations: 
 

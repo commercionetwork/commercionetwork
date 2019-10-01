@@ -148,7 +148,7 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress
 
 	// Save the updated pool
 	if liquidity.Empty() {
-		store.Delete([]byte(types.LiquidityPoolKey))
+
 	} else {
 		store.Set([]byte(types.LiquidityPoolKey), keeper.cdc.MustMarshalBinaryBare(&liquidity))
 	}
@@ -165,11 +165,11 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, accrediter sdk.AccAddress
 func (keeper Keeper) AddTrustedSigner(ctx sdk.Context, signer sdk.AccAddress) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	signers := ctypes.Addresses(keeper.GetTrustedSigners(ctx))
-	signers = signers.AppendIfMissing(signer)
-
-	newSignersBz := keeper.cdc.MustMarshalBinaryBare(&signers)
-	store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
+	signers := keeper.GetTrustedSigners(ctx)
+	if signers, success := signers.AppendIfMissing(signer); success {
+		newSignersBz := keeper.cdc.MustMarshalBinaryBare(&signers)
+		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
+	}
 }
 
 // GetTrustedSigners returns the list of signers that are allowed to sign

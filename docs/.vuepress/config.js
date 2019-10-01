@@ -2,9 +2,15 @@ module.exports = {
     title: "Commercio.network Documentation",
     description: "Documentation for the Commercio.network blockchain.",
     ga: "UA-51029217-2",
+    head: [
+        ['link', {rel: 'icon', href: '/icon.png'}]
+    ],
     markdown: {
-        lineNumbers: true
+        lineNumbers: true,
     },
+    plugins: [
+        'latex'
+    ],
     themeConfig: {
         repo: "commercionetwork/commercionetwork",
         editLinks: true,
@@ -42,9 +48,11 @@ module.exports = {
                 title: "Modules",
                 collapsable: false,
                 children: [
-                    "x/government/",
                     "x/docs/",
-                    "x/id/"
+                    "x/government/",
+                    "x/id/",
+                    "x/pricefeed/",
+                    "x/tbr/",
                 ]
             }
         ],
