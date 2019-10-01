@@ -17,11 +17,9 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	NewMsgSetIdentity = types.NewMsgSetIdentity
-
-	TestSetup          = keeper.SetupTestInput
-	TestDidDocumentUri = keeper.TestDidDocumentUri
-	TestOwnerAddress   = keeper.TestOwnerAddress
+	TestSetup        = keeper.SetupTestInput
+	TestDidDocument  = keeper.TestDidDocument
+	TestOwnerAddress = keeper.TestOwnerAddress
 )
 
 type (

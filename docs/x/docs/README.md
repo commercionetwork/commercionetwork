@@ -1,5 +1,5 @@
-# CommercioDOCS
-CommercioDOCS is the module that allows you to send a document to another user, and retrieve the list of documents
+# Docs
+The `docs` module is the one that allows you to send a document to another user, and retrieve the list of documents
 that you have received. 
 
 ## Transactions

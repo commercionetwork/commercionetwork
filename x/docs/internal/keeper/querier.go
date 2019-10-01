@@ -40,7 +40,11 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
-	receivedResult := keeper.GetUserReceivedDocuments(ctx, address)
+	receivedResult, err := keeper.GetUserReceivedDocuments(ctx, address)
+	if err != nil {
+		return nil, sdk.ErrUnknownRequest(err.Error())
+	}
+
 	if receivedResult == nil {
 		receivedResult = make([]types.Document, 0)
 	}
@@ -57,7 +61,11 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
-	receivedResult := keeper.GetUserSentDocuments(ctx, address)
+	receivedResult, err := keeper.GetUserSentDocuments(ctx, address)
+	if err != nil {
+		return nil, sdk.ErrUnknownRequest(err.Error())
+	}
+
 	if receivedResult == nil {
 		receivedResult = make([]types.Document, 0)
 	}

@@ -9,47 +9,23 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
+const (
+	identityParam = "identity"
+)
+
+func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, querierRoute string) {
 	r.HandleFunc(fmt.Sprintf(
-		"/%s/identities/{%s}", storeName, restName),
-		resolveIdentityHandler(cliCtx, storeName)).
-		Methods("GET")
-	r.HandleFunc(fmt.Sprintf(
-		"/%s/identities/{%s}/connections", storeName, restName),
-		getConnectionsHandler(cliCtx, storeName)).
+		"/identities/{%s}", identityParam),
+		resolveIdentityHandler(cliCtx, querierRoute)).
 		Methods("GET")
 }
 
-// ----------------------------------
-// --- ResolveIdentity
-// ----------------------------------
-
-func resolveIdentityHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+func resolveIdentityHandler(cliCtx context.CLIContext, querierRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		paramType := vars[restName]
+		paramType := vars[identityParam]
 
-		route := fmt.Sprintf("custom/%s/identities/%s", storeName, paramType)
-		res, _, err := cliCtx.QueryWithData(route, nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		rest.PostProcessResponse(w, cliCtx, res)
-	}
-}
-
-// ----------------------------------
-// --- GetConnections
-// ----------------------------------
-
-func getConnectionsHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		paramType := vars[restName]
-
-		route := fmt.Sprintf("custom/%s/connections/%s", storeName, paramType)
+		route := fmt.Sprintf("custom/%s/identities/%s", querierRoute, paramType)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())

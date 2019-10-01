@@ -100,6 +100,9 @@ cnd add-genesis-account $(cncli keys show jack --address) 10000000000000ucommerc
 # Set the account to be the government
 cnd set-genesis-government-address $(cncli keys show jack --address)
 
+# Set the initial TBR pool amount
+cnd set-genesis-tbr-pool-amount 10000000000ucommercio
+
 # Optional - Set the account to be a membership minter
 cnd add-genesis-membership-minter $(cncli keys show jack --address)
 ```
