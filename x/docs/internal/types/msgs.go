@@ -103,7 +103,7 @@ func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
 
 type MsgSendDocumentReceipt DocumentReceipt
 
-func NewMsgDocumentReceipt(receipt DocumentReceipt) MsgSendDocumentReceipt {
+func NewMsgSendDocumentReceipt(receipt DocumentReceipt) MsgSendDocumentReceipt {
 	return MsgSendDocumentReceipt(receipt)
 }
 

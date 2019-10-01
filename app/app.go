@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/commercionetwork/commercionetwork/x/accreditations"
+	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
@@ -48,9 +49,10 @@ import (
 
 const (
 	appName = "Commercio.network"
-	Version = "1.2.0"
+	Version = "1.3.0"
 
-	DefaultBondDenom = "ucommercio"
+	DefaultBondDenom   = "ucommercio"
+	StableCreditsDenom = "uccc"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
 	Bech32MainPrefix = "did:com:"
@@ -343,7 +345,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.supplyKeeper, auth.DefaultSigVerificationGasConsumer))
+	app.SetAnteHandler(
+		ante.NewAnteHandler(
+			app.accountKeeper, app.supplyKeeper,
+			auth.DefaultSigVerificationGasConsumer, StableCreditsDenom,
+		),
+	)
 	app.SetEndBlocker(app.EndBlocker)
 
 	if loadLatest {
