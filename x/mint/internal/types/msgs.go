@@ -1,96 +1,84 @@
 package types
 
 import (
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type MsgDepositToken struct {
-	Signer sdk.AccAddress `json:"sender"`
-	Tokens sdk.Coins      `json:"token"`
+type MsgOpenCDP struct {
+	Request CDPRequest `json:"cdp_request"`
 }
 
-func NewMsgDepositToken(signer sdk.AccAddress, amount sdk.Coins) MsgDepositToken {
-	return MsgDepositToken{
-		Signer: signer,
-		Tokens: amount,
+func NewMsgOpenCDP(request CDPRequest) MsgOpenCDP {
+	return MsgOpenCDP{
+		Request: request,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgDepositToken) Route() string { return RouterKey }
+func (msg MsgOpenCDP) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgDepositToken) Type() string { return MsgTypeDepositToken }
+func (msg MsgOpenCDP) Type() string { return MsgTypeOpenCDP }
 
-func (msg MsgDepositToken) ValidateBasic() sdk.Error {
-	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+func (msg MsgOpenCDP) ValidateBasic() sdk.Error {
+	if msg.Request.Signer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Request.Signer.String())
 	}
-	if msg.Tokens.Empty() || msg.Tokens.IsAnyNegative() {
-		return sdk.ErrUnknownRequest("Token's amount cannot be empty or negative")
+	if msg.Request.DepositedAmount.Empty() || msg.Request.DepositedAmount.IsAnyNegative() {
+		return sdk.ErrInvalidCoins("Deposited amount cannot be empty or negative")
 	}
-
-	for _, ele := range msg.Tokens {
-		if ele.Denom != ctypes.DefaultBondDenom {
-			return sdk.ErrUnknownRequest("Only commercio tokens can be deposited")
-		}
+	if len(strings.TrimSpace(msg.Request.Timestamp)) == 0 {
+		return sdk.ErrUnknownRequest("Cdp request's timestamp can't be empty")
 	}
-
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgDepositToken) GetSignBytes() []byte {
+func (msg MsgOpenCDP) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgDepositToken) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
+func (msg MsgOpenCDP) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Request.Signer}
 }
 
-type MsgWithdrawToken struct {
-	Signer sdk.AccAddress `json:"sender"`
-	Amount sdk.Coins      `json:"amount"`
+type MsgCloseCDP struct {
+	Signer    sdk.AccAddress `json:"sender"`
+	Timestamp string         `json:"timestamp"`
 }
 
-func NewMsgWithdrawToken(signer sdk.AccAddress, amount sdk.Coins) MsgDepositToken {
-	return MsgDepositToken{
-		Signer: signer,
-		Tokens: amount,
+func NewMsgCloseCDP(signer sdk.AccAddress, timestamp string) MsgCloseCDP {
+	return MsgCloseCDP{
+		Signer:    signer,
+		Timestamp: timestamp,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgWithdrawToken) Route() string { return RouterKey }
+func (msg MsgCloseCDP) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgWithdrawToken) Type() string { return MsgTypeWithdrawToken }
+func (msg MsgCloseCDP) Type() string { return MsgTypeCloseCDP }
 
-func (msg MsgWithdrawToken) ValidateBasic() sdk.Error {
+func (msg MsgCloseCDP) ValidateBasic() sdk.Error {
 	if msg.Signer.Empty() {
 		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
-	if msg.Amount.Empty() || msg.Amount.IsAnyNegative() {
-		return sdk.ErrUnknownRequest("You can't withdraw an empty or negative amount")
+	if len(strings.TrimSpace(msg.Timestamp)) == 0 {
+		return sdk.ErrUnknownRequest("Cdp's timestamp can't be empty")
 	}
-
-	for _, ele := range msg.Amount {
-		if ele.Denom != ctypes.DefaultBondDenom {
-			return sdk.ErrUnknownRequest("Only commercio tokens can be withdrawed")
-		}
-	}
-
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgWithdrawToken) GetSignBytes() []byte {
+func (msg MsgCloseCDP) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgWithdrawToken) GetSigners() []sdk.AccAddress {
+func (msg MsgCloseCDP) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Signer}
 }

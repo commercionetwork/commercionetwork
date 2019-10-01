@@ -30,9 +30,9 @@ func NewKeeper(sk sdk.StoreKey, bk bank.BaseKeeper, pk pricefeed.Keeper, stk sta
 	}
 }
 
-func (keeper Keeper) SetCreditsDenom(ctx sdk.Context, denom string) {
+func (keeper Keeper) SetCreditsDenom(ctx sdk.Context, den string) {
 	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.CreditsDenomStoreKey), []byte(denom))
+	store.Set([]byte(types.CreditsDenomStoreKey), []byte(den))
 }
 
 func (keeper Keeper) GetCreditsDenom(ctx sdk.Context) string {
@@ -44,31 +44,58 @@ func (keeper Keeper) getCDPkey(address sdk.AccAddress) []byte {
 	return []byte(types.CDPStoreKey + address.String())
 }
 
+//add a CDPs to user's CDPs list
 func (keeper Keeper) AddCDP(ctx sdk.Context, cdp types.CDP) {
-	var cdps types.CDPs
+	var cdpS types.CDPs
 	store := ctx.KVStore(keeper.StoreKey)
-	cdpsBz := store.Get(keeper.getCDPkey(cdp.Owner))
-	keeper.cdc.MustUnmarshalBinaryBare(cdpsBz, &cdps)
-	cdps, found := cdps.AppendIfMissing(cdp)
+	cdpSBz := store.Get(keeper.getCDPkey(cdp.Owner))
+	keeper.cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
+	cdpS, found := cdpS.AppendIfMissing(cdp)
 	if !found {
-		store.Set(keeper.getCDPkey(cdp.Owner), keeper.cdc.MustMarshalBinaryBare(cdps))
+		store.Set(keeper.getCDPkey(cdp.Owner), keeper.cdc.MustMarshalBinaryBare(cdpS))
 	}
 }
 
-func (keeper Keeper) DeleteCDP(ctx, cdp types.CDP) bool {
-	return true
+func (keeper Keeper) GetCDPs(ctx sdk.Context, owner sdk.AccAddress) types.CDPs {
+	var cdpS types.CDPs
+	store := ctx.KVStore(keeper.StoreKey)
+	cdpSBz := store.Get(keeper.getCDPkey(owner))
+	keeper.cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
+	return cdpS
 }
 
-// OpenCDP subtract the given token amount from user's wallet and deposit it into the liquidity pool then,
-// send him the corresponding commercio cash credits amount.
+func (keeper Keeper) GetCDP(ctx sdk.Context, owner sdk.AccAddress, timestamp string) *types.CDP {
+	cdpS := keeper.GetCDPs(ctx, owner)
+	cdp, found := cdpS.GetCdpFromTimestamp(timestamp)
+	if !found {
+		return nil
+	}
+	return cdp
+}
+
+func (keeper Keeper) DeleteCDP(ctx sdk.Context, owner sdk.AccAddress, timestamp string) bool {
+	var cdpS types.CDPs
+	store := ctx.KVStore(keeper.StoreKey)
+	cdpSBz := store.Get(keeper.getCDPkey(owner))
+	keeper.cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
+	cdpS, found := cdpS.RemoveWhenFound(timestamp)
+	if found {
+		store.Set(keeper.getCDPkey(owner), keeper.cdc.MustMarshalBinaryBare(cdpS))
+		return true
+	}
+	return false
+}
+
+// OpenCDP subtract the given token's amount from user's wallet and deposit it into the liquidity pool then,
+// sending him the corresponding commercio cash credits amount.
+// If all these operations are done correctly, a Collateralized Debt Position is opened.
 // Errors occurs if:
-// 1) deposited tokens haven't been priced yet, or are negatives or invalid
+// 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
-// 3)
-func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) (sdk.Coins, sdk.Error) {
+func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.Error {
 
 	if !cdpRequest.DepositedAmount.IsValid() || cdpRequest.DepositedAmount.IsAnyNegative() {
-		return nil, sdk.ErrInvalidCoins(cdpRequest.DepositedAmount.String())
+		return sdk.ErrInvalidCoins(cdpRequest.DepositedAmount.String())
 	}
 
 	store := ctx.KVStore(keeper.StoreKey)
@@ -78,7 +105,7 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) (sdk.
 	for _, token := range cdpRequest.DepositedAmount {
 		assetPrice, found := keeper.PriceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
 		if found == false {
-			return nil, sdk.ErrInvalidCoins(fmt.Sprintf("no current price for given token: %s", token.Denom))
+			return sdk.ErrInvalidCoins(fmt.Sprintf("no current price for given token: %s", token.Denom))
 		}
 		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Price.RoundInt()))
 	}
@@ -86,7 +113,7 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) (sdk.
 	//Subtract the given deposit amount from user's wallet
 	_, err := keeper.BankKeeper.SubtractCoins(ctx, cdpRequest.Signer, cdpRequest.DepositedAmount)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	poolBz := store.Get([]byte(types.LiquidityPoolStoreKey))
@@ -102,19 +129,38 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) (sdk.
 
 	//add credits to users wallet
 	credits := sdk.NewCoins(sdk.NewCoin(keeper.GetCreditsDenom(ctx), creditsAmount))
-	credits, err = keeper.BankKeeper.AddCoins(ctx, cdpRequest.Signer, credits)
-	if err != nil {
-		return nil, err
-	}
+	credits, _ = keeper.BankKeeper.AddCoins(ctx, cdpRequest.Signer, credits)
 
+	//Creating CDP and adding to the store
 	cdp := types.NewCDP(cdpRequest, credits)
 	keeper.AddCDP(ctx, cdp)
 
-	return credits, nil
+	return nil
 }
 
-//Withdraw token subtract the given credits amount from user's wallet and send to it the corresponding value in commercio tokens.
-//If user's wallet hasn't enought credits, an error will occur.
-func (keeper Keeper) CloseCDP(ctx sdk.Context, user sdk.AccAddress, credits sdk.Coins) (sdk.Coins, error) {
-	return nil, nil
+//CloseCDP subtract the CDP's liquidity amount (commercio cash credits) from user's wallet, after that sends the
+//deposited amount back to it. If these two operations ends without errors, the CDP get closed.
+//Errors occurs if:
+//- cdp doesnt exist
+//- subtracting or adding fund to account don't end well
+func (keeper Keeper) CloseCDP(ctx sdk.Context, user sdk.AccAddress, timestamp string) sdk.Error {
+	cdp := keeper.GetCDP(ctx, user, timestamp)
+	if cdp == nil {
+		return sdk.ErrInternal("cannot close an inexistent cdp")
+	}
+
+	//subtracting liquidity amount from user's wallet
+	_, err := keeper.BankKeeper.SubtractCoins(ctx, user, cdp.LiquidityAmount)
+	if err != nil {
+		return err
+	}
+	//adding back the deposited amount to user's wallet
+	_, err = keeper.BankKeeper.AddCoins(ctx, user, cdp.DepositedAmount)
+	if err != nil {
+		return err
+	}
+
+	_ = keeper.DeleteCDP(ctx, user, timestamp)
+
+	return nil
 }

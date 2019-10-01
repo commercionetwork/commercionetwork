@@ -10,9 +10,9 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case MsgDepositToken:
-			return handleMsgDepositToken(ctx, keeper, msg)
+			return handleMsgOpenCDP(ctx, keeper, msg)
 		case MsgWithdrawToken:
-			return handleMsgWithdrawToken(ctx, keeper, msg)
+			return handleMsgCloseCDP(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -20,22 +20,20 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgDepositToken(ctx sdk.Context, keeper Keeper, msg MsgDepositToken) sdk.Result {
-	credits, err := keeper.OpenCDP(ctx, msg.Signer, msg.Tokens)
+func handleMsgOpenCDP(ctx sdk.Context, keeper Keeper, msg MsgDepositToken) sdk.Result {
+	err := keeper.OpenCDP(ctx, msg.Request)
 	if err != nil {
 		return sdk.ResultFromError(err)
 	}
 
-	goodRes := fmt.Sprintf("Token deposit successful, credits' transfered amount: %s", credits.AmountOf(DefaultCreditsDenom))
-	return sdk.Result{Log: goodRes}
+	return sdk.Result{Log: "CDP opened successfully"}
 }
 
-func handleMsgWithdrawToken(ctx sdk.Context, keeper Keeper, msg MsgWithdrawToken) sdk.Result {
-	token, err := keeper.CloseCDP(ctx, msg.Signer, msg.Amount)
+func handleMsgCloseCDP(ctx sdk.Context, keeper Keeper, msg MsgWithdrawToken) sdk.Result {
+	err := keeper.CloseCDP(ctx, msg.Signer, msg.Timestamp)
 	if err != nil {
 		return sdk.ResultFromError(err)
 	}
 
-	goodRes := fmt.Sprintf("Token withdrawal successful, tokens' withdrawed amount: %s", token.AmountOf(DefaultBondDenom))
-	return sdk.Result{Log: goodRes}
+	return sdk.Result{Log: "CDP closed successfully"}
 }

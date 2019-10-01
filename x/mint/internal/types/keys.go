@@ -10,6 +10,6 @@ const (
 	CDPStoreKey           = ":cdp:"
 	CreditsDenomStoreKey  = "uccc"
 
-	MsgTypeDepositToken  = "depositToken"
-	MsgTypeWithdrawToken = "withdrawToken"
+	MsgTypeOpenCDP  = "openCDP"
+	MsgTypeCloseCDP = "closeCDP"
 )

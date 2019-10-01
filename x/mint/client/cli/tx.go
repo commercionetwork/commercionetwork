@@ -21,30 +21,33 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	txCmd.AddCommand(getCmdDepositToken(cdc), getCmdWithdrawToken(cdc))
+	txCmd.AddCommand(getCmdOpenCDP(cdc), getCmdCloseCDP(cdc))
 
 	return txCmd
 }
 
-func getCmdDepositToken(cdc *codec.Codec) *cobra.Command {
+func getCmdOpenCDP(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deposit-token [amount]",
-		Short: "Deposit the given tokens and send the corresponding value in commercio credits to user's wallet",
-		Args:  cobra.ExactArgs(1),
+		Use:   "open-cdp [deposit-amount] [timestamp]",
+		Short: "Deposit the given amount, open a CDP and give to the signer the consideration liquidity amount",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			user := cliCtx.GetFromAddress()
-			token, err := sdk.ParseCoins(args[0])
+			depositedAmount, err := sdk.ParseCoins(args[0])
 			if err != nil {
 				return err
 			}
 
-			msg := types.MsgDepositToken{
-				Signer: user,
-				Tokens: token,
+			cdpRequest := types.CDPRequest{
+				Signer:          user,
+				DepositedAmount: depositedAmount,
+				Timestamp:       args[1],
 			}
+
+			msg := types.NewMsgOpenCDP(cdpRequest)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -57,26 +60,20 @@ func getCmdDepositToken(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdWithdrawToken(cdc *codec.Codec) *cobra.Command {
+func getCmdCloseCDP(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deposit-credits [amount]",
-		Short: "Deposit the given credits and send the corresponding value in commercio tokens to user's wallet",
-		Args:  cobra.ExactArgs(1),
+		Use: "deposit-credits [timestamp]",
+		Short: "Close the CDP with the given timestamp, withdraw the liquidity amount from signer's wallet and send the " +
+			"previous deposited amount to it",
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			user := cliCtx.GetFromAddress()
-			token, err := sdk.ParseCoins(args[0])
-			if err != nil {
-				return err
-			}
 
-			msg := types.MsgWithdrawToken{
-				Signer: user,
-				Amount: token,
-			}
-			err = msg.ValidateBasic()
+			msg := types.NewMsgCloseCDP(user, args[0])
+			err := msg.ValidateBasic()
 			if err != nil {
 				return err
 			}

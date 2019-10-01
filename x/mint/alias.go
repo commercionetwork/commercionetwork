@@ -21,6 +21,6 @@ var (
 
 type (
 	Keeper           = keeper.Keeper
-	MsgDepositToken  = types.MsgDepositToken
-	MsgWithdrawToken = types.MsgWithdrawToken
+	MsgDepositToken  = types.MsgOpenCDP
+	MsgWithdrawToken = types.MsgCloseCDP
 )
