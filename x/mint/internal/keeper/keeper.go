@@ -2,7 +2,9 @@ package keeper
 
 import (
 	"fmt"
+	"strings"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -42,6 +44,19 @@ func (keeper Keeper) GetCreditsDenom(ctx sdk.Context) string {
 
 func (keeper Keeper) getCDPkey(address sdk.AccAddress) []byte {
 	return []byte(types.CDPStoreKey + address.String())
+}
+
+// GetUsersSet returns the list of all the users that open at least one CDP.
+func (keeper Keeper) GetUsersSet(ctx sdk.Context) ctypes.Addresses {
+	store := ctx.KVStore(keeper.StoreKey)
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CDPStoreKey))
+	var users = ctypes.Addresses{}
+	for ; iterator.Valid(); iterator.Next() {
+		addressStr := strings.ReplaceAll(string(iterator.Key()), types.CDPStoreKey, "")
+		address, _ := sdk.AccAddressFromBech32(addressStr)
+		users, _ = users.AppendIfMissing(address)
+	}
+	return users
 }
 
 //add a CDPs to user's CDPs list

@@ -28,7 +28,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 func getCmdOpenCDP(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "open-cdp [deposit-amount] [timestamp]",
+		Use:   "open-CDP [deposit-amount] [timestamp]",
 		Short: "Deposit the given amount, open a CDP and give to the signer the consideration liquidity amount",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -62,7 +62,7 @@ func getCmdOpenCDP(cdc *codec.Codec) *cobra.Command {
 
 func getCmdCloseCDP(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "deposit-credits [timestamp]",
+		Use: "close-CDP [timestamp]",
 		Short: "Close the CDP with the given timestamp, withdraw the liquidity amount from signer's wallet and send the " +
 			"previous deposited amount to it",
 		Args: cobra.ExactArgs(1),

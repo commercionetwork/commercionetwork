@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -10,6 +12,22 @@ type CDP struct {
 	DepositedAmount sdk.Coins      `json:"deposited_amount"`
 	LiquidityAmount sdk.Coins      `json:"liquidity_amount"`
 	Timestamp       string         `json:"timestamp"`
+}
+
+func (current CDP) Validate() error {
+	if current.Owner.Empty() {
+		return sdk.ErrInvalidAddress(current.Owner.String())
+	}
+	if current.DepositedAmount.Empty() || current.DepositedAmount.IsAnyNegative() {
+		return sdk.ErrInvalidCoins(current.DepositedAmount.String())
+	}
+	if current.LiquidityAmount.Empty() || current.LiquidityAmount.IsAnyNegative() {
+		return sdk.ErrInvalidCoins(current.LiquidityAmount.String())
+	}
+	if len(strings.TrimSpace(current.Timestamp)) == 0 {
+		return sdk.ErrUnknownRequest("timestamp cant be empty")
+	}
+	return nil
 }
 
 func NewCDP(request CDPRequest, liquidityAmount sdk.Coins) CDP {

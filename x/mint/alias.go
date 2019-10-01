@@ -14,9 +14,14 @@ const (
 var (
 	NewKeeper     = keeper.NewKeeper
 	NewQuerier    = keeper.NewQuerier
-	TestSetup     = keeper.SetupTestInput
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
+
+	NewMsgOpenCDP  = types.NewMsgOpenCDP
+	NewMsgCloseCDP = types.NewMsgCloseCDP
+
+	//Testing
+	TestInput = keeper.SetupTestInput
 )
 
 type (

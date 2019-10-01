@@ -10,6 +10,9 @@ const (
 	CDPStoreKey           = ":cdp:"
 	CreditsDenomStoreKey  = "uccc"
 
+	QueryGetCDP  = "CDP"
+	QueryGetCDPs = "CDPs"
+
 	MsgTypeOpenCDP  = "openCDP"
 	MsgTypeCloseCDP = "closeCDP"
 )
