@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -19,7 +20,9 @@ var (
 	_ module.AppModuleSimulation = AppModuleSimulation{}
 )
 
-type AppModuleBasic struct{}
+type AppModuleBasic struct {
+	RewardDenom string
+}
 
 var _ module.AppModuleBasic = AppModuleBasic{}
 
@@ -34,8 +37,8 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 }
 
 //genesis default state
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
+	return ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.RewardDenom))
 }
 
 //genesis validation
@@ -74,15 +77,17 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper Keeper
+	keeper      Keeper
+	stakeKeeper staking.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper) AppModule {
+func NewAppModule(keeper Keeper, stakingKeeper staking.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
+		stakeKeeper:         stakingKeeper,
 	}
 }
 
@@ -125,7 +130,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 
 // module begin-block
 func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
-	BeginBlocker(ctx, rbb, am.keeper)
+	BeginBlocker(ctx, rbb, am.keeper, am.stakeKeeper)
 }
 
 // module end-block

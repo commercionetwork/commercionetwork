@@ -8,12 +8,12 @@ import (
 )
 
 var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestDidDocumentUri = "https://test.example.com/did-document#1"
-var TestConnectionAddress, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-
 var msgSetId = MsgSetIdentity{
-	Owner:          TestOwnerAddress,
-	DidDocumentUri: TestDidDocumentUri,
+	Owner: TestOwnerAddress,
+	DidDocument: DidDocument{
+		Uri:         "https://test.example.com/did-document#1",
+		ContentHash: "ebd7cfd95e67f57b4f5bcb3cf4554741a9b5ea666052106625a93a6f8881dc43",
+	},
 }
 
 // ----------------------------------
@@ -37,8 +37,8 @@ func TestMsgSetIdentity_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 
 func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DidDocumentUri: TestDidDocumentUri,
-		Owner:          sdk.AccAddress{},
+		Owner:       sdk.AccAddress{},
+		DidDocument: msgSetId.DidDocument,
 	}
 
 	actual := invalidMsg.ValidateBasic()
@@ -47,8 +47,24 @@ func TestMsgSetIdentity_ValidateBasic_InvalidAddress(t *testing.T) {
 
 func TestMsgSetIdentity_ValidateBasic_InvalidDidDocumentUri(t *testing.T) {
 	invalidMsg := MsgSetIdentity{
-		DidDocumentUri: "",
-		Owner:          TestConnectionAddress,
+		Owner: TestOwnerAddress,
+		DidDocument: DidDocument{
+			Uri:         "",
+			ContentHash: "ebd7cfd95e67f57b4f5bcb3cf4554741a9b5ea666052106625a93a6f8881dc43",
+		},
+	}
+
+	actual := invalidMsg.ValidateBasic()
+	assert.Error(t, actual)
+}
+
+func TestMsgSetIdentity_ValidateBasic_InvalidDidDocumentContentHash(t *testing.T) {
+	invalidMsg := MsgSetIdentity{
+		Owner: TestOwnerAddress,
+		DidDocument: DidDocument{
+			Uri:         msgSetId.DidDocument.Uri,
+			ContentHash: "ebd7cfd95e67f57b4f5bcb3cf4554741a9b5ea6662106625a93a6f8881dc43",
+		},
 	}
 
 	actual := invalidMsg.ValidateBasic()
@@ -56,7 +72,7 @@ func TestMsgSetIdentity_ValidateBasic_InvalidDidDocumentUri(t *testing.T) {
 }
 
 func TestMsgSetIdentity_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgSetIdentity","value":{"did_document_uri":"https://test.example.com/did-document#1","owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
+	expected := `{"type":"commercio/MsgSetIdentity","value":{"did_document":{"content_hash":"ebd7cfd95e67f57b4f5bcb3cf4554741a9b5ea666052106625a93a6f8881dc43","uri":"https://test.example.com/did-document#1"},"owner":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 
 	actual := msgSetId.GetSignBytes()
 	assert.Equal(t, expected, string(actual))

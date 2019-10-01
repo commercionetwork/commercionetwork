@@ -1,7 +1,7 @@
 package types
 
 const (
-	ModuleName   = "txBlockReward"
+	ModuleName   = "tbr"
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
@@ -9,7 +9,6 @@ const (
 
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 
-	BlockRewardsPoolPrefix = StoreKey + ":pool:"
-
-	DefaultBondDenom = "ucommercio"
+	PoolStoreKey        = StoreKey + ":pool:"
+	RewardDenomStoreKey = StoreKey + ":reward_denom:"
 )

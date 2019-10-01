@@ -17,7 +17,11 @@ type GenesisState struct {
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
-	return GenesisState{}
+	return GenesisState{
+		LiquidityPoolAmount: sdk.Coins{},
+		Accreditations:      []types.Accreditation{},
+		TrustedSigners:      ctypes.Addresses{},
+	}
 }
 
 // InitGenesis sets docs information for genesis.

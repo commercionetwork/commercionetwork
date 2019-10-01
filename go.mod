@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/cosmos/cosmos-sdk v0.28.2-0.20190826165445-eeb847c8455b
 	github.com/gorilla/mux v1.7.0
+	github.com/magiconair/properties v1.8.0
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5

@@ -17,8 +17,6 @@ import (
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
-
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 var (
@@ -26,20 +24,13 @@ var (
 )
 
 var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+
 var valAddr, _ = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var pubKey = ed25519.GenPrivKey().PubKey()
 var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
 
-var TestAmount = sdk.NewCoins(sdk.Coin{
-	Denom:  "ucommercio",
-	Amount: sdk.NewInt(100),
-})
-
-var coin = sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.DefaultBondDenom}
-var coins = sdk.NewCoins(coin)
-var TestBlockRewardsPool = sdk.NewDecCoins(coins)
-
-var TestFunders = ctypes.Addresses{TestFunder}
+var TestAmount = sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100)))
+var TestBlockRewardsPool = sdk.NewDecCoins(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"}))
 
 func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
 	memDB := db.NewMemDB()
@@ -56,7 +47,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	distrKey := sdk.NewKVStoreKey("distrKey")
 
 	//TBR
-	tbrStoreKey := sdk.NewKVStoreKey(types.BlockRewardsPoolPrefix)
+	tbrStoreKey := sdk.NewKVStoreKey(types.PoolStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(authKey, sdk.StoreTypeIAVL, memDB)
@@ -107,7 +98,8 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())
 
-	tbrKeeper := NewKeeper(tbrStoreKey, bk, sk, dk, cdc)
+	tbrKeeper := NewKeeper(cdc, tbrStoreKey, bk, sk, dk)
+	tbrKeeper.SetRewardDenom(ctx, "stake")
 
 	return cdc, ctx, tbrKeeper, ak, bk
 }

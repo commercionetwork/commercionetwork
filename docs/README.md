@@ -1,5 +1,9 @@
 # Commercio.network Documentation
 
+::: tip  
+This documentation is valid for the **v1.2.0** software version  
+:::
+
 ## What is `cn`
 `cn` is the name of the Commercio.network application for the [Cosmos Hub](https://hub.cosmos.network/). It is shipped
 with two different entrypoints: 
