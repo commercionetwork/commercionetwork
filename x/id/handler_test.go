@@ -15,16 +15,20 @@ var msgSetId = MsgSetIdentity{
 }
 
 func TestValidMsg_StoreDoc(t *testing.T) {
-	_, ctx, k := TestSetup()
-	var handler = NewHandler(k)
+	_, ctx, govK, k := TestSetup()
+
+	var handler = NewHandler(k, govK)
 	res := handler(ctx, msgSetId)
+
 	require.True(t, res.IsOK())
 }
 
 func TestInvalidMsg(t *testing.T) {
-	_, ctx, k := TestSetup()
-	var handler = NewHandler(k)
+	_, ctx, govK, k := TestSetup()
+
+	var handler = NewHandler(k, govK)
 	res := handler(ctx, sdk.NewTestMsg())
+
 	require.False(t, res.IsOK())
 	require.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", ModuleName)))
 }

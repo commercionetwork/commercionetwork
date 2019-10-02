@@ -55,6 +55,10 @@ func (msg MsgSetIdentity) GetSigners() []sdk.AccAddress {
 
 type MsgRequestDidDeposit DidDepositRequest
 
+func NewMsgRequestDidDeposit(request DidDepositRequest) MsgRequestDidDeposit {
+	return MsgRequestDidDeposit(request)
+}
+
 // Route Implements Msg.
 func (msg MsgRequestDidDeposit) Route() string { return ModuleName }
 
@@ -86,11 +90,20 @@ type MsgChangeDidDepositRequestStatus struct {
 	Status       DidDepositRequestStatus `json:"status"`
 }
 
+func NewMsgChangeDidDepositRequestStatus(status DidDepositRequestStatus, proof string,
+	editor sdk.AccAddress) MsgChangeDidDepositRequestStatus {
+	return MsgChangeDidDepositRequestStatus{
+		Editor:       editor,
+		DepositProof: proof,
+		Status:       status,
+	}
+}
+
 // Route Implements Msg.
 func (msg MsgChangeDidDepositRequestStatus) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgChangeDidDepositRequestStatus) Type() string { return MsgTypeEditDidDepositRequest }
+func (msg MsgChangeDidDepositRequestStatus) Type() string { return MsgTypeChangeDidDepositRequestStatus }
 
 // ValidateBasic Implements Msg.
 func (msg MsgChangeDidDepositRequestStatus) ValidateBasic() sdk.Error {
@@ -125,6 +138,10 @@ func (msg MsgChangeDidDepositRequestStatus) GetSigners() []sdk.AccAddress {
 
 type MsgRequestDidPowerUp DidPowerUpRequest
 
+func NewMsgRequestDidPowerUp(request DidPowerUpRequest) MsgRequestDidPowerUp {
+	return MsgRequestDidPowerUp(request)
+}
+
 // Route Implements Msg.
 func (msg MsgRequestDidPowerUp) Route() string { return ModuleName }
 
@@ -151,16 +168,25 @@ func (msg MsgRequestDidPowerUp) GetSigners() []sdk.AccAddress {
 // ---------------------------------------
 
 type MsgChangeDidPowerUpRequestStatus struct {
-	PowerUpProof string                  `json:"PowerUp_proof"`
+	PowerUpProof string                  `json:"power_up_proof"`
 	Status       DidPowerUpRequestStatus `json:"status"`
-	Editor       sdk.AccAddress          `json:"signer"`
+	Editor       sdk.AccAddress          `json:"editor"`
+}
+
+func NewMsgChangeDidPowerUpRequestStatus(status DidPowerUpRequestStatus, proof string,
+	editor sdk.AccAddress) MsgChangeDidPowerUpRequestStatus {
+	return MsgChangeDidPowerUpRequestStatus{
+		Editor:       editor,
+		PowerUpProof: proof,
+		Status:       status,
+	}
 }
 
 // Route Implements Msg.
 func (msg MsgChangeDidPowerUpRequestStatus) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgChangeDidPowerUpRequestStatus) Type() string { return MsgTypeEditDidPowerUpRequest }
+func (msg MsgChangeDidPowerUpRequestStatus) Type() string { return MsgTypeChangeDidPowerUpRequestStatus }
 
 // ValidateBasic Implements Msg.
 func (msg MsgChangeDidPowerUpRequestStatus) ValidateBasic() sdk.Error {

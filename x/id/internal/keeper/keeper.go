@@ -100,6 +100,8 @@ func (keeper Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDe
 		return sdk.ErrUnknownRequest("Did deposit request with the same proof already exists")
 	}
 
+	// Set the initial status to null and store the request
+	request.Status = nil
 	store.Set(requestKey, keeper.Cdc.MustMarshalBinaryBare(&request))
 
 	return nil
@@ -164,6 +166,8 @@ func (keeper Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPower
 		return sdk.ErrUnknownRequest("PowerUp request with the same proof already exists")
 	}
 
+	// Set the initial status to null and store the request
+	request.Status = nil
 	store.Set(requestStoreKey, keeper.Cdc.MustMarshalBinaryBare(&request))
 
 	return nil

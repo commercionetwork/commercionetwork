@@ -13,11 +13,11 @@ const (
 	StatusRejected = "rejected"
 	StatusCanceled = "canceled"
 
-	MsgTypeSetIdentity           = "setIdentity"
-	MsgTypeRequestDidDeposit     = "requestDidDeposit"
-	MsgTypeEditDidDepositRequest = "editDidDepositRequest"
-	MsgTypeRequestDidPowerUp     = "requestDidPowerUp"
-	MsgTypeEditDidPowerUpRequest = "editDidPowerUpRequest"
+	MsgTypeSetIdentity                   = "setIdentity"
+	MsgTypeRequestDidDeposit             = "requestDidDeposit"
+	MsgTypeChangeDidDepositRequestStatus = "editDidDepositRequest"
+	MsgTypeRequestDidPowerUp             = "requestDidPowerUp"
+	MsgTypeChangeDidPowerUpRequestStatus = "editDidPowerUpRequest"
 
 	IdentitiesStorePrefix        = StoreKey + ":identities:"
 	DidDepositRequestStorePrefix = StoreKey + "depositRequest"

@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,8 +13,8 @@ type DidPowerUpRequestStatus struct {
 
 func (status DidPowerUpRequestStatus) Validate() sdk.Error {
 	statusType := strings.ToLower(status.Type)
-	if statusType != StatusApproved && statusType != StatusRejected && statusType != StatusCanceled {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Status type not valid: %s", status.Type))
+	if err := ValidateStatus(statusType); err != nil {
+		return err
 	}
 
 	return nil
