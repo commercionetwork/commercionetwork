@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	v038 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v0_38"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/types"
 
@@ -15,8 +16,9 @@ import (
 	extypes "github.com/cosmos/cosmos-sdk/x/genutil"
 )
 
-var migrationMap = extypes.MigrationMap{
-	"v1.2.0": v120.Migrate,
+var migrationMap = map[string][]extypes.MigrationCallback{
+	"v1.2.0": {v038.Migrate, v120.Migrate},
+	"v1.2.1": {v038.Migrate, v120.Migrate},
 }
 
 const (
@@ -31,7 +33,7 @@ func MigrateGenesisCmd(_ *server.Context, cdc *codec.Codec) *cobra.Command {
 		Long: fmt.Sprintf(`Migrate the source genesis into the target version and print to STDOUT.
 
 Example:
-$ %s migrate v1.2.0 /path/to/genesis.json --chain-id=commercio-testnet3000 --genesis-time=2019-04-22T17:00:00Z
+$ %s migrate v1.2.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --genesis-time=2019-04-22T17:00:00Z
 `, version.ServerName),
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -46,11 +48,16 @@ $ %s migrate v1.2.0 /path/to/genesis.json --chain-id=commercio-testnet3000 --gen
 			var initialState extypes.AppMap
 			cdc.MustUnmarshalJSON(genDoc.AppState, &initialState)
 
-			if migrationMap[target] == nil {
+			migrations := migrationMap[target]
+			if migrations == nil {
 				return fmt.Errorf("unknown migration function version: %s", target)
 			}
 
-			newGenState := migrationMap[target](initialState)
+			newGenState := initialState
+			for _, migration := range migrations {
+				newGenState = migration(newGenState)
+			}
+
 			genDoc.AppState = cdc.MustMarshalJSON(newGenState)
 
 			genesisTime := cmd.Flag(flagGenesisTime).Value.String()

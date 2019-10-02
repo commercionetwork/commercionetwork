@@ -43,7 +43,9 @@ func handleMsgShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument
 	}
 
 	// Share the document
-	keeper.ShareDocument(ctx, msg.Sender, msg.Recipients, msg.Document)
+	if err := keeper.ShareDocument(ctx, msg.Sender, msg.Recipients, msg.Document); err != nil {
+		return err.Result()
+	}
 	return sdk.Result{}
 }
 
