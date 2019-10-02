@@ -27,5 +27,9 @@ type (
 
 	Identity = types.Identity
 
-	MsgSetIdentity = types.MsgSetIdentity
+	MsgSetIdentity                   = types.MsgSetIdentity
+	MsgRequestDidDeposit             = types.MsgRequestDidDeposit
+	MsgChangeDidDepositRequestStatus = types.MsgChangeDidDepositRequestStatus
+	MsgRequestDidPowerup             = types.MsgRequestDidPowerup
+	MsgChangeDidPowerupRequestStatus = types.MsgChangeDidPowerupRequestStatus
 )
