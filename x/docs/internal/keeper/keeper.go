@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -120,13 +119,13 @@ func (keeper Keeper) getReceivedDocumentsStoreKey(user sdk.AccAddress) []byte {
 }
 
 // ShareDocument allows the sharing of a document
-func (keeper Keeper) ShareDocument(ctx sdk.Context, sender sdk.AccAddress, recipients []sdk.AccAddress, document types.Document) error {
+func (keeper Keeper) ShareDocument(ctx sdk.Context, sender sdk.AccAddress, recipients []sdk.AccAddress, document types.Document) sdk.Error {
 	store := ctx.KVStore(keeper.StoreKey)
 	sentDocumentsStoreKey := keeper.getSentDocumentsStoreKey(sender)
 
 	// Check any existing document
 	if _, found := keeper.GetDocumentById(ctx, document.Uuid); found {
-		return errors.New(fmt.Sprintf("document with uuid %s already present", document.Uuid))
+		return sdk.ErrUnknownRequest(fmt.Sprintf("document with uuid %s already present", document.Uuid))
 	}
 
 	// Store the document object
@@ -166,7 +165,7 @@ func (keeper Keeper) GetDocumentById(ctx sdk.Context, id string) (document types
 }
 
 // GetUserReceivedDocuments returns a list of all the documents that has been received from a user
-func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, error) {
+func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, sdk.Error) {
 	store := ctx.KVStore(keeper.StoreKey)
 	receivedDocumentsStoreKey := keeper.getReceivedDocumentsStoreKey(user)
 
@@ -189,7 +188,7 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddre
 }
 
 // GetUserSentDocuments returns a list of all documents sent by user
-func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, error) {
+func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, sdk.Error) {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	var sentDocsIds types.DocumentIds
