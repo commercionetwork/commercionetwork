@@ -5,6 +5,10 @@ const (
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
+	QueryResolveDid            = "identities"
+	QueryResolveDepositRequest = "depositRequest"
+	QueryResolvePowerUpRequest = "powerUpRequest"
+
 	StatusApproved = "approved"
 	StatusRejected = "rejected"
 	StatusCanceled = "canceled"
