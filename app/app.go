@@ -12,6 +12,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
+	commint "github.com/commercionetwork/commercionetwork/x/mint"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -119,6 +120,7 @@ var (
 		id.AppModuleBasic{},
 		memberships.AppModuleBasic{},
 		pricefeed.AppModuleBasic{},
+		commint.AppModuleBasic{},
 		tbr.AppModuleBasic{
 			RewardDenom: DefaultBondDenom,
 		},
@@ -185,6 +187,7 @@ type CommercioNetworkApp struct {
 	governmentKeeper    government.Keeper
 	membershipKeeper    memberships.Keeper
 	pricefeedKeeper     pricefeed.Keeper
+	comMintKeeper       commint.Keeper
 	tbrKeeper           tbr.Keeper
 
 	mm *module.Manager
@@ -210,7 +213,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 		// Custom modules
 		accreditations.StoreKey, docs.StoreKey, government.StoreKey,
-		id.StoreKey, memberships.StoreKey, pricefeed.StoreKey, tbr.StoreKey,
+		id.StoreKey, memberships.StoreKey, pricefeed.StoreKey, commint.StoreKey, tbr.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -257,7 +260,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper)
-	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
+	app.pricefeedKeeper = pricefeed.NewKeeper(app.keys[pricefeed.StoreKey], app.governmentKeeper, app.cdc)
+	app.comMintKeeper = commint.NewKeeper(app.keys[commint.StoreKey], app.bankKeeper, app.pricefeedKeeper, app.cdc)
 	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
 
 	// register the proposal types
@@ -300,6 +304,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		id.NewAppModule(app.idKeeper),
 		memberships.NewAppModule(app.membershipKeeper),
 		pricefeed.NewAppModule(app.pricefeedKeeper, app.governmentKeeper),
+		commint.NewAppModule(app.comMintKeeper),
 		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
 	)
 
@@ -330,7 +335,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 		// Custom modules
 		government.ModuleName, accreditations.ModuleName, docs.ModuleName,
-		id.ModuleName, memberships.ModuleName, pricefeed.ModuleName, tbr.ModuleName,
+		id.ModuleName, memberships.ModuleName, pricefeed.ModuleName, commint.ModuleName, tbr.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

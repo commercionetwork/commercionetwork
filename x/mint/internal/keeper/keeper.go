@@ -10,24 +10,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 type Keeper struct {
 	StoreKey        sdk.StoreKey
-	BankKeeper      bank.BaseKeeper
+	BankKeeper      bank.Keeper
 	PriceFeedKeeper pricefeed.Keeper
-	StakingKeeper   staking.Keeper
-
-	cdc *codec.Codec
+	cdc             *codec.Codec
 }
 
-func NewKeeper(sk sdk.StoreKey, bk bank.BaseKeeper, pk pricefeed.Keeper, stk staking.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(sk sdk.StoreKey, bk bank.Keeper, pk pricefeed.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
 		StoreKey:        sk,
 		BankKeeper:      bk,
 		PriceFeedKeeper: pk,
-		StakingKeeper:   stk,
 		cdc:             cdc,
 	}
 }
