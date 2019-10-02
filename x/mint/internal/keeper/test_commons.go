@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"github.com/commercionetwork/commercionetwork/x/government"
-	comMint "github.com/commercionetwork/commercionetwork/x/mint"
+	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -17,6 +17,24 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 )
+
+var TestDepositedAmount = sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100)))
+var TestLiquidityAmount = sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50)))
+var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestTimestamp = "timestamp-test"
+
+var TestCdpRequest = types.CDPRequest{
+	Signer:          TestOwner,
+	DepositedAmount: TestDepositedAmount,
+	Timestamp:       TestTimestamp,
+}
+
+var TestCdp = types.CDP{
+	Owner:           TestOwner,
+	DepositedAmount: TestDepositedAmount,
+	LiquidityAmount: TestLiquidityAmount,
+	Timestamp:       TestTimestamp,
+}
 
 func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper, pricefeedKeeper pricefeed.Keeper,
 	keeper Keeper) {
@@ -36,7 +54,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper
 	//custom modules keys
 	govKey := sdk.NewKVStoreKey(government.StoreKey)
 	pricefeedKey := sdk.NewKVStoreKey(pricefeed.StoreKey)
-	cMintKey := sdk.NewKVStoreKey(comMint.StoreKey)
+	cMintKey := sdk.NewKVStoreKey(types.StoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(authKey, sdk.StoreTypeIAVL, memDB)
@@ -62,9 +80,8 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, nil)
 
-	govkeeper := government.NewKeeper(govKey, cdc)
-	pricefeedK := pricefeed.NewKeeper(pricefeedKey, govkeeper, cdc)
-	mintK := comMint.NewKeeper(cMintKey, bankKeeper, pricefeedK, cdc)
+	pricefeedK := pricefeed.NewKeeper(cdc, pricefeedKey)
+	mintK := NewKeeper(cMintKey, bankKeeper, pricefeedK, cdc)
 
 	return cdc, ctx, bk, pricefeedK, mintK
 }

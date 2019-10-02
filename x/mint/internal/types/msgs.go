@@ -27,7 +27,7 @@ func (msg MsgOpenCDP) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Request.Signer.String())
 	}
 	if msg.Request.DepositedAmount.Empty() || msg.Request.DepositedAmount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins("Deposited amount cannot be empty or negative")
+		return sdk.ErrInvalidCoins(msg.Request.DepositedAmount.String())
 	}
 	if len(strings.TrimSpace(msg.Request.Timestamp)) == 0 {
 		return sdk.ErrUnknownRequest("Cdp request's timestamp can't be empty")

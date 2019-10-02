@@ -60,15 +60,15 @@ func (cdps CDPs) AppendIfMissing(cdp CDP) (CDPs, bool) {
 //This method filters a slice without allocating a new underlying array
 func (cdps CDPs) RemoveWhenFound(timestamp string) (CDPs, bool) {
 	tmp := cdps[:0]
-	found := false
+	removed := false
 	for _, ele := range cdps {
 		if ele.Timestamp != timestamp {
 			tmp = append(tmp, ele)
 		} else {
-			found = true
+			removed = true
 		}
 	}
-	return tmp, found
+	return tmp, removed
 }
 
 func (cdps CDPs) GetCdpFromTimestamp(timestamp string) (*CDP, bool) {
