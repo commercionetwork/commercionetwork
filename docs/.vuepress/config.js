@@ -2,6 +2,9 @@ module.exports = {
     title: "Commercio.network Documentation",
     description: "Documentation for the Commercio.network blockchain.",
     ga: "UA-51029217-2",
+    head: [
+        ['link', {rel: 'icon', href: '/icon.png'}]
+    ],
     markdown: {
         lineNumbers: true,
     },
