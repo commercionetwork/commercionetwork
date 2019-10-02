@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -14,7 +15,7 @@ import (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, governmentKeeper government.Keeper, keeper Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc = testCodec()
@@ -23,6 +24,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
+	govKey := sdk.NewKVStoreKey("govnerment")
 
 	// CommercioID
 	storeKey := sdk.NewKVStoreKey("commercioid")
@@ -34,14 +36,18 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
 	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(govKey, sdk.StoreTypeIAVL, memDB)
 
 	_ = ms.LoadLatestVersion()
 
 	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
+	govK := government.NewKeeper(govKey, cdc)
+	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
+
 	idk := NewKeeper(storeKey, cdc)
 
-	return cdc, ctx, idk
+	return cdc, ctx, govK, idk
 
 }
 
@@ -57,6 +63,7 @@ func testCodec() *codec.Codec {
 }
 
 // Test variables
+var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos15dnqp80tmkkkqdqx9ryky82cdasydtr5t9pgyx")
 var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestDidDocument = types.DidDocument{
 	Uri:         "https://test.example.com/did-document#1",

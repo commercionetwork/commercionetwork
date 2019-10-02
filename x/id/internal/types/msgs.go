@@ -120,51 +120,51 @@ func (msg MsgChangeDidDepositRequestStatus) GetSigners() []sdk.AccAddress {
 }
 
 // ---------------------------
-// --- MsgRequestDidPowerup
+// --- MsgRequestDidPowerUp
 // ---------------------------
 
-type MsgRequestDidPowerup DidPowerupRequest
+type MsgRequestDidPowerUp DidPowerUpRequest
 
 // Route Implements Msg.
-func (msg MsgRequestDidPowerup) Route() string { return ModuleName }
+func (msg MsgRequestDidPowerUp) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgRequestDidPowerup) Type() string { return MsgTypeRequestDidPowerup }
+func (msg MsgRequestDidPowerUp) Type() string { return MsgTypeRequestDidPowerUp }
 
 // ValidateBasic Implements Msg.
-func (msg MsgRequestDidPowerup) ValidateBasic() sdk.Error {
-	return DidPowerupRequest(msg).Validate()
+func (msg MsgRequestDidPowerUp) ValidateBasic() sdk.Error {
+	return DidPowerUpRequest(msg).Validate()
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgRequestDidPowerup) GetSignBytes() []byte {
+func (msg MsgRequestDidPowerUp) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgRequestDidPowerup) GetSigners() []sdk.AccAddress {
+func (msg MsgRequestDidPowerUp) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Claimant}
 }
 
 // ---------------------------------------
-// --- MsgChangeDidPowerupRequestStatus
+// --- MsgChangeDidPowerUpRequestStatus
 // ---------------------------------------
 
-type MsgChangeDidPowerupRequestStatus struct {
-	PowerupProof string                  `json:"powerup_proof"`
-	Status       DidPowerupRequestStatus `json:"status"`
-	Signer       sdk.AccAddress          `json:"signer"`
+type MsgChangeDidPowerUpRequestStatus struct {
+	PowerUpProof string                  `json:"PowerUp_proof"`
+	Status       DidPowerUpRequestStatus `json:"status"`
+	Editor       sdk.AccAddress          `json:"signer"`
 }
 
 // Route Implements Msg.
-func (msg MsgChangeDidPowerupRequestStatus) Route() string { return ModuleName }
+func (msg MsgChangeDidPowerUpRequestStatus) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgChangeDidPowerupRequestStatus) Type() string { return MsgTypeEditDidPowerupRequest }
+func (msg MsgChangeDidPowerUpRequestStatus) Type() string { return MsgTypeEditDidPowerUpRequest }
 
 // ValidateBasic Implements Msg.
-func (msg MsgChangeDidPowerupRequestStatus) ValidateBasic() sdk.Error {
-	if err := ValidateProof(msg.PowerupProof); err != nil {
+func (msg MsgChangeDidPowerUpRequestStatus) ValidateBasic() sdk.Error {
+	if err := ValidateProof(msg.PowerUpProof); err != nil {
 		return err
 	}
 
@@ -172,19 +172,19 @@ func (msg MsgChangeDidPowerupRequestStatus) ValidateBasic() sdk.Error {
 		return err
 	}
 
-	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+	if msg.Editor.Empty() {
+		return sdk.ErrInvalidAddress(msg.Editor.String())
 	}
 
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgChangeDidPowerupRequestStatus) GetSignBytes() []byte {
+func (msg MsgChangeDidPowerUpRequestStatus) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgChangeDidPowerupRequestStatus) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
+func (msg MsgChangeDidPowerUpRequestStatus) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Editor}
 }

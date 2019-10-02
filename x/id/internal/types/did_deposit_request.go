@@ -14,11 +14,9 @@ type DidDepositRequestStatus struct {
 }
 
 func (status DidDepositRequestStatus) Validate() sdk.Error {
-	statusType := strings.ToLower(status.Type)
-	if statusType != "approved" && statusType != "rejected" && statusType != "canceled" {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status type: %s", status.Type))
+	if err := ValidateStatus(status.Type); err != nil {
+		return err
 	}
-
 	return nil
 }
 
@@ -62,6 +60,14 @@ func (request DidDepositRequest) Validate() sdk.Error {
 		return sdk.ErrInvalidAddress(request.FromAddress.String())
 	}
 
+	return nil
+}
+
+func ValidateStatus(status string) sdk.Error {
+	statusType := strings.ToLower(status)
+	if statusType != StatusApproved && statusType != StatusRejected && statusType != StatusCanceled {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status type: %s", status))
+	}
 	return nil
 }
 

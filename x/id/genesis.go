@@ -6,7 +6,9 @@ import (
 
 // GenesisState - id genesis state
 type GenesisState struct {
-	Identities []Identity `json:"identities"`
+	Identities      []Identity          `json:"identities"`
+	DepositRequests []DidDepositRequest `json:"deposit_requests"`
+	PowerUpRequests []DidPowerUpRequest `json:"power_up_requests"`
 }
 
 // DefaultGenesisState returns a default genesis state

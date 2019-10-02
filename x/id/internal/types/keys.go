@@ -5,11 +5,17 @@ const (
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
+	StatusApproved = "approved"
+	StatusRejected = "rejected"
+	StatusCanceled = "canceled"
+
 	MsgTypeSetIdentity           = "setIdentity"
 	MsgTypeRequestDidDeposit     = "requestDidDeposit"
 	MsgTypeEditDidDepositRequest = "editDidDepositRequest"
-	MsgTypeRequestDidPowerup     = "requestDidPowerup"
-	MsgTypeEditDidPowerupRequest = "editDidPowerupRequest"
+	MsgTypeRequestDidPowerUp     = "requestDidPowerUp"
+	MsgTypeEditDidPowerUpRequest = "editDidPowerUpRequest"
 
-	IdentitiesStorePrefix = StoreKey + ":identities:"
+	IdentitiesStorePrefix        = StoreKey + ":identities:"
+	DidDepositRequestStorePrefix = StoreKey + "depositRequest"
+	DidPowerUpRequestStorePrefix = StoreKey + "PowerUpRequest"
 )
