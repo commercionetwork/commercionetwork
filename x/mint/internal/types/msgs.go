@@ -30,7 +30,7 @@ func (msg MsgOpenCDP) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidCoins(msg.Request.DepositedAmount.String())
 	}
 	if len(strings.TrimSpace(msg.Request.Timestamp)) == 0 {
-		return sdk.ErrUnknownRequest("Cdp request's timestamp can't be empty")
+		return sdk.ErrUnknownRequest("cdp request's timestamp can't be empty")
 	}
 	return nil
 }
@@ -45,6 +45,9 @@ func (msg MsgOpenCDP) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Request.Signer}
 }
 
+///////////////////
+///MsgCloseCDP////
+/////////////////
 type MsgCloseCDP struct {
 	Signer    sdk.AccAddress `json:"sender"`
 	Timestamp string         `json:"timestamp"`
@@ -68,7 +71,7 @@ func (msg MsgCloseCDP) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
 	if len(strings.TrimSpace(msg.Timestamp)) == 0 {
-		return sdk.ErrUnknownRequest("Cdp's timestamp can't be empty")
+		return sdk.ErrUnknownRequest("cdp's timestamp can't be empty")
 	}
 	return nil
 }

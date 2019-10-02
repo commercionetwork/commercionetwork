@@ -28,4 +28,6 @@ type (
 	Keeper           = keeper.Keeper
 	MsgDepositToken  = types.MsgOpenCDP
 	MsgWithdrawToken = types.MsgCloseCDP
+	CDPRequest       = types.CDPRequest
+	CDP              = types.CDP
 )

@@ -36,8 +36,8 @@ var TestCdp = types.CDP{
 	Timestamp:       TestTimestamp,
 }
 
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper, pricefeedKeeper pricefeed.Keeper,
-	keeper Keeper) {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper,
+	pricefeedKeeper pricefeed.Keeper, keeper Keeper) {
 	memDB := db.NewMemDB()
 	cdc = testCodec()
 
@@ -81,7 +81,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, nil)
 
 	pricefeedK := pricefeed.NewKeeper(cdc, pricefeedKey)
-	mintK := NewKeeper(cMintKey, bankKeeper, pricefeedK, cdc)
+	mintK := NewKeeper(cMintKey, bk, pricefeedK, cdc)
 
 	return cdc, ctx, bk, pricefeedK, mintK
 }
