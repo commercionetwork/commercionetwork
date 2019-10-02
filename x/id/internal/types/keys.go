@@ -5,13 +5,11 @@ const (
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
-	MsgTypeSetIdentity              = "setIdentity"
-	MsgTypeRequestDidDeposit        = "requestDidDeposit"
-	MsgTypeSetDepositRequestHandled = "setDepositRequestHandled"
-	MsgTypeEditDidDepositRequest    = "editDidDepositRequest"
-	MsgTypeRequestDidPowerup        = "requestDidPowerup"
-	MsgTypePowerupDid               = "powerupDid"
-	MsgTypeEditDidPowerupRequest    = "editDidPowerupRequest"
+	MsgTypeSetIdentity           = "setIdentity"
+	MsgTypeRequestDidDeposit     = "requestDidDeposit"
+	MsgTypeEditDidDepositRequest = "editDidDepositRequest"
+	MsgTypeRequestDidPowerup     = "requestDidPowerup"
+	MsgTypeEditDidPowerupRequest = "editDidPowerupRequest"
 
 	IdentitiesStorePrefix = StoreKey + ":identities:"
 )

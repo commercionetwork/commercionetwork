@@ -18,7 +18,7 @@ func (status DidDepositRequestStatus) Validate() sdk.Error {
 		return sdk.ErrUnknownRequest("Status type cannot be empty")
 	}
 
-	if status.Type != "rejected" && status.Type != "canceled" {
+	if status.Type != "approved" && status.Type != "rejected" && status.Type != "canceled" {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status type: %s", status.Type))
 	}
 
