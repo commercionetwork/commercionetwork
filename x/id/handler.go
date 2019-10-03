@@ -69,7 +69,7 @@ func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKee
 
 	// Check the signer if status is approved or rejected
 	validGovernment := govKeeper.GetGovernmentAddress(ctx).Equals(msg.Editor)
-	if (msg.Status.Type == StatusApproved || msg.Status.Type == StatusRejected) && !validGovernment {
+	if msg.Status.Type == StatusRejected && !validGovernment {
 		msg := fmt.Sprintf("Cannot set status of type %s without being the government", msg.Status.Type)
 		return sdk.ErrInvalidAddress(msg).Result()
 	}

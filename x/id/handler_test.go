@@ -75,7 +75,7 @@ func Test_handleMsgRequestDidDeposit_ExistingRequest(t *testing.T) {
 	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
 }
 
-func Test_handleMsgChangeDidDepositRequestStatus_Approved_InvalidGovernment(t *testing.T) {
+func Test_handleMsgChangeDidDepositRequestStatus_Approved_ReturnsError(t *testing.T) {
 	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
@@ -86,21 +86,8 @@ func Test_handleMsgChangeDidDepositRequestStatus_Approved_InvalidGovernment(t *t
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
 	assert.Contains(t, res.Log, msg.Status.Type)
-}
-
-func Test_handleMsgChangeDidDepositRequestStatus_Approved_ValidGovernment(t *testing.T) {
-	_, ctx, govK, _, k := TestSetup()
-	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
-
-	status := RequestStatus{Type: StatusApproved, Message: ""}
-	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
-
-	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
-
-	assert.True(t, res.IsOK())
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Rejected_InvalidGovernment(t *testing.T) {
@@ -256,7 +243,7 @@ func Test_handleMsgRequestDidPowerUp_ExistingRequest(t *testing.T) {
 	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
 }
 
-func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_InvalidGovernment(t *testing.T) {
+func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_ReturnsError(t *testing.T) {
 	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
@@ -267,21 +254,8 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_InvalidGovernment(t *t
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
 	assert.Contains(t, res.Log, msg.Status.Type)
-}
-
-func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_ValidGovernment(t *testing.T) {
-	_, ctx, govK, _, k := TestSetup()
-	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
-
-	status := RequestStatus{Type: StatusApproved, Message: ""}
-	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, govK.GetGovernmentAddress(ctx))
-
-	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
-
-	assert.True(t, res.IsOK())
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_InvalidGovernment(t *testing.T) {
