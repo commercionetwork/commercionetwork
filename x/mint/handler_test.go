@@ -12,6 +12,7 @@ import (
 var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestTimestamp = "timestamp-test"
 var TestDepositedAmount = sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100)))
+var TestLiquidityAmount = sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50)))
 
 var TestCdpRequest = CDPRequest{
 	Signer:          TestOwner,
@@ -27,13 +28,21 @@ var TestCurrentPrice = pricefeed.CurrentPrice{
 	Expiry:    sdk.NewInt(1000),
 }
 
+var TestCdp = CDP{
+	Owner:           TestOwner,
+	DepositedAmount: TestDepositedAmount,
+	LiquidityAmount: TestLiquidityAmount,
+	Timestamp:       TestTimestamp,
+}
+
 func TestHandler_handleMsgOpenCDP(t *testing.T) {
-	cdc, ctx, bk, pfk, k := TestInput()
+	ctx, bk, pfk, k := TestInput()
 	handler := NewHandler(k)
 
+	//tests setup
 	_, _ = bk.AddCoins(ctx, TestOwner, TestDepositedAmount)
 	store := ctx.KVStore(pfk.StoreKey)
-	store.Set([]byte("pricefeed:currentPrices:ucommercio"), cdc.MustMarshalBinaryBare(TestCurrentPrice))
+	store.Set([]byte("pricefeed:currentPrices:ucommercio"), k.Cdc.MustMarshalBinaryBare(TestCurrentPrice))
 	k.SetCreditsDenom(ctx, "uccc")
 
 	expected := sdk.Result{Log: "CDP opened successfully"}
@@ -42,8 +51,11 @@ func TestHandler_handleMsgOpenCDP(t *testing.T) {
 }
 
 func TestHandler_handleMsgCloseCDP(t *testing.T) {
-	_, ctx, _, _, k := TestInput()
+	ctx, bk, _, k := TestInput()
 	handler := NewHandler(k)
+
+	_, _ = bk.AddCoins(ctx, TestOwner, TestLiquidityAmount)
+	k.AddCDP(ctx, TestCdp)
 
 	expected := sdk.Result{Log: "CDP closed successfully"}
 	actual := handler(ctx, testMsgCloseCDP)
@@ -51,7 +63,7 @@ func TestHandler_handleMsgCloseCDP(t *testing.T) {
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
-	_, ctx, _, _, k := TestInput()
+	ctx, _, _, k := TestInput()
 	handler := NewHandler(k)
 
 	invalidMsg := sdk.NewTestMsg()

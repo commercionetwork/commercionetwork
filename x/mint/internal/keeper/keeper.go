@@ -16,7 +16,7 @@ type Keeper struct {
 	StoreKey        sdk.StoreKey
 	BankKeeper      bank.Keeper
 	PriceFeedKeeper pricefeed.Keeper
-	cdc             *codec.Codec
+	Cdc             *codec.Codec
 }
 
 func NewKeeper(sk sdk.StoreKey, bk bank.Keeper, pk pricefeed.Keeper, cdc *codec.Codec) Keeper {
@@ -24,7 +24,7 @@ func NewKeeper(sk sdk.StoreKey, bk bank.Keeper, pk pricefeed.Keeper, cdc *codec.
 		StoreKey:        sk,
 		BankKeeper:      bk,
 		PriceFeedKeeper: pk,
-		cdc:             cdc,
+		Cdc:             cdc,
 	}
 }
 
@@ -38,7 +38,7 @@ func (keeper Keeper) GetCreditsDenom(ctx sdk.Context) string {
 	return string(store.Get([]byte(types.CreditsDenomStoreKey)))
 }
 
-func (keeper Keeper) getCDPkey(address sdk.AccAddress) []byte {
+func (keeper Keeper) GetCDPkey(address sdk.AccAddress) []byte {
 	return []byte(types.CDPStoreKey + address.String())
 }
 
@@ -55,23 +55,23 @@ func (keeper Keeper) GetUsersSet(ctx sdk.Context) ctypes.Addresses {
 	return users
 }
 
-//add a CDPs to user's CDPs list
+//add a CDP to user's CDPs list
 func (keeper Keeper) AddCDP(ctx sdk.Context, cdp types.CDP) {
 	var cdpS types.CDPs
 	store := ctx.KVStore(keeper.StoreKey)
-	cdpSBz := store.Get(keeper.getCDPkey(cdp.Owner))
-	keeper.cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
+	cdpSBz := store.Get(keeper.GetCDPkey(cdp.Owner))
+	keeper.Cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
 	cdpS, found := cdpS.AppendIfMissing(cdp)
 	if !found {
-		store.Set(keeper.getCDPkey(cdp.Owner), keeper.cdc.MustMarshalBinaryBare(cdpS))
+		store.Set(keeper.GetCDPkey(cdp.Owner), keeper.Cdc.MustMarshalBinaryBare(cdpS))
 	}
 }
 
 func (keeper Keeper) GetCDPs(ctx sdk.Context, owner sdk.AccAddress) types.CDPs {
 	var cdpS types.CDPs
 	store := ctx.KVStore(keeper.StoreKey)
-	cdpSBz := store.Get(keeper.getCDPkey(owner))
-	keeper.cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
+	cdpSBz := store.Get(keeper.GetCDPkey(owner))
+	keeper.Cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
 	return cdpS
 }
 
@@ -84,14 +84,18 @@ func (keeper Keeper) GetCDP(ctx sdk.Context, owner sdk.AccAddress, timestamp str
 	return cdp
 }
 
-func (keeper Keeper) DeleteCDP(ctx sdk.Context, owner sdk.AccAddress, timestamp string) bool {
+func (keeper Keeper) DeleteCDP(ctx sdk.Context, cdp types.CDP) bool {
 	var cdpS types.CDPs
 	store := ctx.KVStore(keeper.StoreKey)
-	cdpSBz := store.Get(keeper.getCDPkey(owner))
-	keeper.cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
-	cdpS, found := cdpS.RemoveWhenFound(timestamp)
+	cdpSBz := store.Get(keeper.GetCDPkey(cdp.Owner))
+	keeper.Cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
+	cdpS, found := cdpS.RemoveWhenFound(cdp.Timestamp)
 	if found {
-		store.Set(keeper.getCDPkey(owner), keeper.cdc.MustMarshalBinaryBare(cdpS))
+		if len(cdpS) == 0 {
+			store.Delete(keeper.GetCDPkey(cdp.Owner))
+		} else {
+			store.Set(keeper.GetCDPkey(cdp.Owner), keeper.Cdc.MustMarshalBinaryBare(cdpS))
+		}
 		return true
 	}
 	return false
@@ -105,7 +109,8 @@ func (keeper Keeper) DeleteCDP(ctx sdk.Context, owner sdk.AccAddress, timestamp 
 // 2) signer's funds are not enough
 func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.Error {
 
-	if !cdpRequest.DepositedAmount.IsValid() || cdpRequest.DepositedAmount.IsAnyNegative() {
+	if !cdpRequest.DepositedAmount.IsValid() || cdpRequest.DepositedAmount.IsAnyNegative() ||
+		cdpRequest.DepositedAmount.IsZero() {
 		return sdk.ErrInvalidCoins(cdpRequest.DepositedAmount.String())
 	}
 
@@ -129,11 +134,11 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.E
 
 	poolBz := store.Get([]byte(types.LiquidityPoolStoreKey))
 	var liquidityPool = sdk.Coins{}
-	keeper.cdc.MustUnmarshalBinaryBare(poolBz, &liquidityPool)
+	keeper.Cdc.MustUnmarshalBinaryBare(poolBz, &liquidityPool)
 
 	//depositing the amount to the liquidity pool
 	liquidityPool = liquidityPool.Add(cdpRequest.DepositedAmount)
-	store.Set([]byte(types.LiquidityPoolStoreKey), keeper.cdc.MustMarshalBinaryBare(liquidityPool))
+	store.Set([]byte(types.LiquidityPoolStoreKey), keeper.Cdc.MustMarshalBinaryBare(liquidityPool))
 
 	//get credits' amount = DepositAmount value / credits price (always 1 euro) / 2 is the power of collateral which is 2:1 (comm -> ccc)
 	creditsAmount := fiatValue.Quo(sdk.NewInt(2))
@@ -171,7 +176,7 @@ func (keeper Keeper) CloseCDP(ctx sdk.Context, user sdk.AccAddress, timestamp st
 		return err
 	}
 
-	_ = keeper.DeleteCDP(ctx, user, timestamp)
+	_ = keeper.DeleteCDP(ctx, *cdp)
 
 	return nil
 }

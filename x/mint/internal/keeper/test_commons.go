@@ -36,10 +36,9 @@ var TestCdp = types.CDP{
 	Timestamp:       TestTimestamp,
 }
 
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper,
-	pricefeedKeeper pricefeed.Keeper, keeper Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	memDB := db.NewMemDB()
-	cdc = testCodec()
+	cdc := testCodec()
 
 	authKey := sdk.NewKVStoreKey("authCapKey")
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
@@ -74,7 +73,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper
 
 	_ = ms.LoadLatestVersion()
 
-	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
@@ -83,7 +82,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, bankKeeper bank.Keeper
 	pricefeedK := pricefeed.NewKeeper(cdc, pricefeedKey)
 	mintK := NewKeeper(cMintKey, bk, pricefeedK, cdc)
 
-	return cdc, ctx, bk, pricefeedK, mintK
+	return ctx, bk, pricefeedK, mintK
 }
 
 func testCodec() *codec.Codec {
