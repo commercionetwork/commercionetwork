@@ -12,7 +12,7 @@ import (
 // ------------------
 
 func Test_handleMsgSetIdentity(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 
 	msg := NewMsgSetIdentity(TestOwnerAddress, TestDidDocument)
 
@@ -22,12 +22,12 @@ func Test_handleMsgSetIdentity(t *testing.T) {
 	assert.True(t, res.IsOK())
 }
 
-// ------------------
-// --- Pairwise Did
-// ------------------
+// ----------------------------
+// --- Did deposit requests
+// ----------------------------
 
 func Test_handleMsgRequestDidDeposit_NewRequest(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 
 	msg := NewMsgRequestDidDeposit(TestDidDepositRequest)
 
@@ -41,7 +41,7 @@ func Test_handleMsgRequestDidDeposit_NewRequest(t *testing.T) {
 }
 
 func Test_handleMsgRequestDidDeposit_NewRequest_ExistingStatusIsReplaced(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 
 	request := DidDepositRequest{
 		Status:        &RequestStatus{Type: StatusApproved},
@@ -63,7 +63,7 @@ func Test_handleMsgRequestDidDeposit_NewRequest_ExistingStatusIsReplaced(t *test
 }
 
 func Test_handleMsgRequestDidDeposit_ExistingRequest(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	msg := NewMsgRequestDidDeposit(TestDidDepositRequest)
@@ -76,11 +76,11 @@ func Test_handleMsgRequestDidDeposit_ExistingRequest(t *testing.T) {
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Approved_InvalidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	status := RequestStatus{Type: StatusApproved, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, TestDidDepositRequest.Recipient)
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.Recipient)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -91,11 +91,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_Approved_InvalidGovernment(t *t
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Approved_ValidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	status := RequestStatus{Type: StatusApproved, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -104,11 +104,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_Approved_ValidGovernment(t *tes
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Rejected_InvalidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	status := RequestStatus{Type: StatusRejected, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, TestDidDepositRequest.Recipient)
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.Recipient)
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
 
@@ -118,11 +118,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_Rejected_InvalidGovernment(t *t
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Rejected_ValidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	status := RequestStatus{Type: StatusRejected, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -131,12 +131,12 @@ func Test_handleMsgChangeDidDepositRequestStatus_Rejected_ValidGovernment(t *tes
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Canceled_InvalidAddress(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	addr, _ := sdk.AccAddressFromBech32("cosmos1elzra8xnfqhqg2dh5ae9x45tnmud5wazkp92r9")
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, addr)
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, addr)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -147,11 +147,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_Canceled_InvalidAddress(t *test
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Cancel_ValidAddress(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -164,7 +164,7 @@ func Test_handleMsgChangeDidDepositRequestStatus_Cancel_ValidAddress(t *testing.
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_StatusAlreadySet(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 
 	request := DidDepositRequest{
 		Status:        &RequestStatus{Type: StatusApproved, Message: ""},
@@ -177,7 +177,7 @@ func Test_handleMsgChangeDidDepositRequestStatus_StatusAlreadySet(t *testing.T) 
 	_ = k.StoreDidDepositRequest(ctx, request)
 
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -188,11 +188,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_StatusAlreadySet(t *testing.T) 
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_AllGood(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidDepositRequestStatus(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
+	msg := NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -204,8 +204,12 @@ func Test_handleMsgChangeDidDepositRequestStatus_AllGood(t *testing.T) {
 	assert.Equal(t, status, *stored.Status)
 }
 
+// ----------------------------
+// --- Did power up requests
+// --------------------------
+
 func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 
 	msg := NewMsgRequestDidPowerUp(TestDidPowerUpRequest)
 
@@ -219,7 +223,7 @@ func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
 }
 
 func Test_handleMsgRequestDidPowerUp_NewRequest_ExistingStatusIsReplaced(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 
 	request := DidPowerUpRequest{
 		Status:        &RequestStatus{Type: StatusApproved},
@@ -240,7 +244,7 @@ func Test_handleMsgRequestDidPowerUp_NewRequest_ExistingStatusIsReplaced(t *test
 }
 
 func Test_handleMsgRequestDidPowerUp_ExistingRequest(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	msg := NewMsgRequestDidPowerUp(TestDidPowerUpRequest)
@@ -253,11 +257,11 @@ func Test_handleMsgRequestDidPowerUp_ExistingRequest(t *testing.T) {
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_InvalidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	status := RequestStatus{Type: StatusApproved, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -268,11 +272,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_InvalidGovernment(t *t
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_ValidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	status := RequestStatus{Type: StatusApproved, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, govK.GetGovernmentAddress(ctx))
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, govK.GetGovernmentAddress(ctx))
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -281,11 +285,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_ValidGovernment(t *tes
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_InvalidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	status := RequestStatus{Type: StatusRejected, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
 
@@ -295,11 +299,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_InvalidGovernment(t *t
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_ValidGovernment(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	status := RequestStatus{Type: StatusRejected, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, govK.GetGovernmentAddress(ctx))
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, govK.GetGovernmentAddress(ctx))
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -308,12 +312,12 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_ValidGovernment(t *tes
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Canceled_InvalidAddress(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	addr, _ := sdk.AccAddressFromBech32("cosmos1elzra8xnfqhqg2dh5ae9x45tnmud5wazkp92r9")
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, addr)
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, addr)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -324,11 +328,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Canceled_InvalidAddress(t *test
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Cancel_ValidAddress(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -341,7 +345,7 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Cancel_ValidAddress(t *testing.
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_StatusAlreadySet(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 
 	request := DidPowerUpRequest{
 		Status:        &RequestStatus{Type: StatusApproved, Message: ""},
@@ -353,7 +357,7 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_StatusAlreadySet(t *testing.T) 
 	_ = k.StorePowerUpRequest(ctx, request)
 
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
@@ -364,11 +368,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_StatusAlreadySet(t *testing.T) 
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_AllGood(t *testing.T) {
-	_, ctx, govK, k := TestSetup()
+	_, ctx, govK, _, k := TestSetup()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	status := RequestStatus{Type: StatusCanceled, Message: ""}
-	msg := NewMsgChangeDidPowerUpRequestStatus(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
+	msg := NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)

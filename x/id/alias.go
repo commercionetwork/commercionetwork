@@ -21,12 +21,13 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	NewMsgSetIdentity                   = types.NewMsgSetIdentity
-	NewMsgRequestDidDeposit             = types.NewMsgRequestDidDeposit
-	NewMsgChangeDidDepositRequestStatus = types.NewMsgChangeDidDepositRequestStatus
-	NewMsgRequestDidPowerUp             = types.NewMsgRequestDidPowerUp
-	NewMsgChangeDidPowerUpRequestStatus = types.NewMsgChangeDidPowerUpRequestStatus
-	ValidateStatus                      = types.ValidateStatus
+	NewMsgSetIdentity = types.NewMsgSetIdentity
+
+	NewMsgRequestDidDeposit           = types.NewMsgRequestDidDeposit
+	NewMsgInvalidateDidDepositRequest = types.NewMsgInvalidateDidDepositRequest
+
+	NewMsgRequestDidPowerUp           = types.NewMsgRequestDidPowerUp
+	NewMsgInvalidateDidPowerUpRequest = types.NewMsgInvalidateDidPowerUpRequest
 
 	// Test
 	TestSetup             = keeper.SetupTestInput
@@ -44,9 +45,15 @@ type (
 	DidPowerUpRequest = types.DidPowerUpRequest
 	RequestStatus     = types.RequestStatus
 
-	MsgSetIdentity                   = types.MsgSetIdentity
-	MsgRequestDidDeposit             = types.MsgRequestDidDeposit
-	MsgChangeDidDepositRequestStatus = types.MsgChangeDidDepositRequestStatus
-	MsgRequestDidPowerUp             = types.MsgRequestDidPowerUp
-	MsgChangeDidPowerUpRequestStatus = types.MsgChangeDidPowerUpRequestStatus
+	// ---------------
+	// --- Messages
+	// ---------------
+
+	MsgSetIdentity                 = types.MsgSetIdentity
+	MsgRequestDidDeposit           = types.MsgRequestDidDeposit
+	MsgInvalidateDidDepositRequest = types.MsgInvalidateDidDepositRequest
+	MsgRequestDidPowerUp           = types.MsgRequestDidPowerUp
+	MsgInvalidateDidPowerUpRequest = types.MsgInvalidateDidPowerUpRequest
+	MsgWithdrawDeposit             = types.MsgWithdrawDeposit
+	MsgPowerUpDid                  = types.MsgPowerUpDid
 )

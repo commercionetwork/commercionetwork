@@ -31,8 +31,8 @@ func (request DidDepositRequest) Validate() sdk.Error {
 		return sdk.ErrInvalidAddress(request.Recipient.String())
 	}
 
-	if request.Amount.Empty() {
-		return sdk.ErrInvalidCoins("Deposit amount cannot be empty")
+	if !request.Amount.IsValid() || request.Amount.Empty() {
+		return sdk.ErrInvalidCoins(fmt.Sprintf("Deposit amount not valid: %s", request.Amount.String()))
 	}
 
 	if request.Amount.IsAnyNegative() {
@@ -51,14 +51,6 @@ func (request DidDepositRequest) Validate() sdk.Error {
 		return sdk.ErrInvalidAddress(request.FromAddress.String())
 	}
 
-	return nil
-}
-
-func ValidateStatus(status string) sdk.Error {
-	statusType := strings.ToLower(status)
-	if statusType != StatusApproved && statusType != StatusRejected && statusType != StatusCanceled {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status type: %s", status))
-	}
 	return nil
 }
 

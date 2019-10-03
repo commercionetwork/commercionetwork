@@ -13,7 +13,7 @@ import (
 // ------------------
 
 func TestKeeper_CreateIdentity(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 
@@ -27,7 +27,7 @@ func TestKeeper_CreateIdentity(t *testing.T) {
 }
 
 func TestKeeper_EditIdentity(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
@@ -43,7 +43,7 @@ func TestKeeper_EditIdentity(t *testing.T) {
 }
 
 func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
@@ -55,7 +55,7 @@ func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
 }
 
 func TestKeeper_GetIdentities(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	first, _ := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
@@ -82,7 +82,7 @@ func TestKeeper_GetIdentities(t *testing.T) {
 }
 
 func TestKeeper_SetIdentities(t *testing.T) {
-	_, ctx, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	first, _ := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
@@ -108,11 +108,11 @@ func TestKeeper_SetIdentities(t *testing.T) {
 }
 
 // ----------------------------
-// --- Did deposit didDepositRequests
+// --- Did deposit requests
 // ----------------------------
 
 func TestKeeper_StoreDidDepositRequest_NewRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	err := k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 	assert.Nil(t, err)
@@ -126,7 +126,7 @@ func TestKeeper_StoreDidDepositRequest_NewRequest(t *testing.T) {
 }
 
 func TestKeeper_StoreDidDepositRequest_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
@@ -138,14 +138,14 @@ func TestKeeper_StoreDidDepositRequest_ExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_GetDidDepositRequestByProof_NonExistingRequest(t *testing.T) {
-	_, ctx, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 
 	_, found := k.GetDidDepositRequestByProof(ctx, "")
 	assert.False(t, found)
 }
 
 func TestKeeper_GetDidDepositRequestByProof_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
@@ -156,7 +156,7 @@ func TestKeeper_GetDidDepositRequestByProof_ExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_ChangeDepositRequestStatus_NonExistingRequest(t *testing.T) {
-	_, ctx, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 
 	status := types.RequestStatus{
 		Type:    "status-type",
@@ -171,7 +171,7 @@ func TestKeeper_ChangeDepositRequestStatus_NonExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_ChangeDepositRequestStatus_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
@@ -196,14 +196,14 @@ func TestKeeper_ChangeDepositRequestStatus_ExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_GetDepositRequests_EmptyList(t *testing.T) {
-	_, ctx, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 
 	didDepositRequests := k.GetDepositRequests(ctx)
 	assert.Empty(t, didDepositRequests)
 }
 
 func TestKeeper_GetDepositRequests_ExistingList(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
@@ -214,11 +214,11 @@ func TestKeeper_GetDepositRequests_ExistingList(t *testing.T) {
 }
 
 // ----------------------------
-// --- Did PowerUp didDepositRequests
+// --- Did power up requests
 // ----------------------------
 
 func TestKeeper_StorePowerUpRequest_NewRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	err := k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 	assert.Nil(t, err)
@@ -232,7 +232,7 @@ func TestKeeper_StorePowerUpRequest_NewRequest(t *testing.T) {
 }
 
 func TestKeeper_StorePowerUpRequest_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
@@ -244,14 +244,14 @@ func TestKeeper_StorePowerUpRequest_ExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_GetPowerUpRequestByProof_NonExistingRequest(t *testing.T) {
-	_, ctx, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 
 	_, found := k.GetPowerUpRequestByProof(ctx, "")
 	assert.False(t, found)
 }
 
 func TestKeeper_GetPowerUpRequestByProof_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
@@ -262,7 +262,7 @@ func TestKeeper_GetPowerUpRequestByProof_ExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_ChangePowerUpRequestStatus_NonExistingRequest(t *testing.T) {
-	_, ctx, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 
 	status := types.RequestStatus{
 		Type:    "status-type",
@@ -276,7 +276,7 @@ func TestKeeper_ChangePowerUpRequestStatus_NonExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_ChangePowerUpRequestStatus_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
@@ -304,14 +304,14 @@ func TestKeeper_ChangePowerUpRequestStatus_ExistingRequest(t *testing.T) {
 }
 
 func TestKeeper_GetPowerUpRequests_EmptyList(t *testing.T) {
-	_, ctx, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 
 	didPowerUpRequests := k.GetPowerUpRequests(ctx)
 	assert.Empty(t, didPowerUpRequests)
 }
 
 func TestKeeper_GetPowerUpRequests_ExistingList(t *testing.T) {
-	cdc, ctx, _, k := SetupTestInput()
+	cdc, ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
@@ -319,4 +319,66 @@ func TestKeeper_GetPowerUpRequests_ExistingList(t *testing.T) {
 	didPowerUpRequests := k.GetPowerUpRequests(ctx)
 	assert.Equal(t, 1, len(didPowerUpRequests))
 	assert.Contains(t, didPowerUpRequests, TestDidPowerUpRequest)
+}
+
+// ------------------------
+// --- Deposits handling
+// ------------------------
+
+func TestKeeper_DepositIntoPool_InvalidAmount(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	err := k.DepositIntoPool(ctx, TestDepositor, sdk.NewCoins())
+	assert.Error(t, err)
+	assert.Equal(t, sdk.CodeInvalidCoins, err.Code())
+}
+
+func TestKeeper_DepositIntoPool_InsufficientFunds(t *testing.T) {
+	_, ctx, _, bk, k := SetupTestInput()
+	_ = bk.SetCoins(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)))
+
+	err := k.DepositIntoPool(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
+	assert.Error(t, err)
+	assert.Equal(t, sdk.CodeInsufficientCoins, err.Code())
+}
+
+func TestKeeper_DepositIntoPool_ValidRequest(t *testing.T) {
+	_, ctx, _, bk, k := SetupTestInput()
+	_ = bk.SetCoins(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)))
+
+	err := k.DepositIntoPool(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 25)))
+	assert.Nil(t, err)
+
+	pool := k.GetPoolAmount(ctx)
+	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 25)), pool)
+	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 75)), bk.GetCoins(ctx, TestDepositor))
+}
+
+func TestKeeper_FundAccount_InvalidAmount(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins())
+	assert.Error(t, err)
+	assert.Equal(t, sdk.CodeInvalidCoins, err.Code())
+}
+
+func TestKeeper_FundAccount_InsufficientPoolFunds(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+	_ = k.SetPoolAmount(ctx, sdk.NewCoins(sdk.NewInt64Coin("uatom", 10)))
+
+	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
+	assert.Error(t, err)
+	assert.Equal(t, sdk.CodeInsufficientFunds, err.Code())
+}
+
+func TestKeeper_FundAccount_ValidRequest(t *testing.T) {
+	_, ctx, _, bk, k := SetupTestInput()
+	_ = k.SetPoolAmount(ctx, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
+
+	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)))
+	assert.Nil(t, err)
+
+	pool := k.GetPoolAmount(ctx)
+	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 900)), pool)
+	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)), bk.GetCoins(ctx, TestDepositor))
 }

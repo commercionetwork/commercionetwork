@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -26,8 +28,8 @@ func (request DidPowerUpRequest) Validate() sdk.Error {
 		return sdk.ErrInvalidAddress(request.Claimant.String())
 	}
 
-	if request.Amount.Empty() {
-		return sdk.ErrInvalidCoins("PowerUp request amount cannot be empty")
+	if !request.Amount.IsValid() || request.Amount.Empty() {
+		return sdk.ErrInvalidCoins(fmt.Sprintf("PowerUp request amount not valid: %s", request.Amount.String()))
 	}
 
 	if request.Amount.IsAnyNegative() {

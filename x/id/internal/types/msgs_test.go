@@ -152,11 +152,11 @@ func TestMsgRequestDidDeposit_JSON_NonNullStatus(t *testing.T) {
 }
 
 // --------------------------
-// --- MsgChangeDidDepositRequestStatus
+// --- MsgInvalidateDidDepositRequest
 // --------------------------
 
 var editor, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
-var msgChangeDidDepositRequestStatus = NewMsgChangeDidDepositRequestStatus(
+var msgChangeDidDepositRequestStatus = NewMsgInvalidateDidDepositRequest(
 	RequestStatus{
 		Type:    "canceled",
 		Message: "Don't want this anymore",
@@ -172,7 +172,7 @@ func TestMsgChangeDidDepositRequestStatus_Route(t *testing.T) {
 
 func TestMsgChangeDidDepositRequestStatus_Type(t *testing.T) {
 	actual := msgChangeDidDepositRequestStatus.Type()
-	assert.Equal(t, MsgTypeChangeDidDepositRequestStatus, actual)
+	assert.Equal(t, MsgTypeInvalidateDidDepositRequest, actual)
 }
 
 func TestMsgChangeDidDepositRequestStatus_ValidateBasic_AllFieldsCorrect(t *testing.T) {
@@ -181,7 +181,7 @@ func TestMsgChangeDidDepositRequestStatus_ValidateBasic_AllFieldsCorrect(t *test
 }
 
 func TestMsgChangeDidDepositRequestStatus_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgChangeDidDepositRequestStatus","value":{"deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","status":{"message":"Don't want this anymore","type":"canceled"}}}`
+	expected := `{"type":"commercio/MsgInvalidateDidDepositRequest","value":{"deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","status":{"message":"Don't want this anymore","type":"canceled"}}}`
 
 	actual := msgChangeDidDepositRequestStatus.GetSignBytes()
 	assert.Equal(t, expected, string(actual))
@@ -194,9 +194,9 @@ func TestMsgChangeDidDepositRequestStatus_GetSigners(t *testing.T) {
 }
 
 func TestMsgChangeDidDepositRequestStatus_JSON(t *testing.T) {
-	json := `{"type":"commercio/MsgChangeDidDepositRequestStatus","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
+	json := `{"type":"commercio/MsgInvalidateDidDepositRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
 
-	var actual MsgChangeDidDepositRequestStatus
+	var actual MsgInvalidateDidDepositRequest
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 	assert.Equal(t, msgChangeDidDepositRequestStatus, actual)
 }
@@ -276,10 +276,10 @@ func TestMsgRequestDidPowerUp_JSON_NonNullStatus(t *testing.T) {
 }
 
 // --------------------------
-// --- MsgChangeDidPowerUpRequestStatus
+// --- MsgInvalidateDidPowerUpRequest
 // --------------------------
 
-var msgChangeDidPowerUpRequestStatus = NewMsgChangeDidPowerUpRequestStatus(
+var msgChangeDidPowerUpRequestStatus = NewMsgInvalidateDidPowerUpRequest(
 	RequestStatus{
 		Type:    "canceled",
 		Message: "Don't want this anymore",
@@ -295,7 +295,7 @@ func TestMsgChangeDidPowerUpRequestStatus_Route(t *testing.T) {
 
 func TestMsgChangeDidPowerUpRequestStatus_Type(t *testing.T) {
 	actual := msgChangeDidPowerUpRequestStatus.Type()
-	assert.Equal(t, MsgTypeChangeDidPowerUpRequestStatus, actual)
+	assert.Equal(t, MsgTypeInvalidateDidPowerUpRequest, actual)
 }
 
 func TestMsgChangeDidPowerUpRequestStatus_ValidateBasic_AllFieldsCorrect(t *testing.T) {
@@ -304,7 +304,7 @@ func TestMsgChangeDidPowerUpRequestStatus_ValidateBasic_AllFieldsCorrect(t *test
 }
 
 func TestMsgChangeDidPowerUpRequestStatus_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgChangeDidPowerUpRequestStatus","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"message":"Don't want this anymore","type":"canceled"}}}`
+	expected := `{"type":"commercio/MsgInvalidateDidPowerUpRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"message":"Don't want this anymore","type":"canceled"}}}`
 
 	actual := msgChangeDidPowerUpRequestStatus.GetSignBytes()
 	assert.Equal(t, expected, string(actual))
@@ -317,9 +317,9 @@ func TestMsgChangeDidPowerUpRequestStatus_GetSigners(t *testing.T) {
 }
 
 func TestMsgChangeDidPowerUpRequestStatus_JSON(t *testing.T) {
-	json := `{"type":"commercio/MsgChangeDidPowerUpRequestStatus","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
+	json := `{"type":"commercio/MsgInvalidateDidPowerUpRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
 
-	var actual MsgChangeDidPowerUpRequestStatus
+	var actual MsgInvalidateDidPowerUpRequest
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 	assert.Equal(t, msgChangeDidPowerUpRequestStatus, actual)
 }

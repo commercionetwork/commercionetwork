@@ -5,21 +5,40 @@ const (
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
-	QueryResolveDid            = "identities"
-	QueryResolveDepositRequest = "depositRequest"
-	QueryResolvePowerUpRequest = "powerUpRequest"
+	// -----------------
+	// --- Store keys
+	// -----------------
+
+	IdentitiesStorePrefix = StoreKey + ":identities:"
+
+	DepositsPoolStoreKey         = StoreKey + "depositsPool"
+	DidDepositRequestStorePrefix = StoreKey + "depositRequest"
+	DidPowerUpRequestStorePrefix = StoreKey + "powerUpRequest"
 
 	StatusApproved = "approved"
 	StatusRejected = "rejected"
 	StatusCanceled = "canceled"
 
-	MsgTypeSetIdentity                   = "setIdentity"
-	MsgTypeRequestDidDeposit             = "requestDidDeposit"
-	MsgTypeChangeDidDepositRequestStatus = "editDidDepositRequest"
-	MsgTypeRequestDidPowerUp             = "requestDidPowerUp"
-	MsgTypeChangeDidPowerUpRequestStatus = "editDidPowerUpRequest"
+	// --------------
+	// --- Queries
+	// --------------
 
-	IdentitiesStorePrefix        = StoreKey + ":identities:"
-	DidDepositRequestStorePrefix = StoreKey + "depositRequest"
-	DidPowerUpRequestStorePrefix = StoreKey + "PowerUpRequest"
+	QueryResolveDid = "identities"
+
+	QueryResolveDepositRequest = "depositRequest"
+	QueryResolvePowerUpRequest = "powerUpRequest"
+
+	// --------------
+	// --- Messages
+	// --------------
+
+	MsgTypeSetIdentity = "setIdentity"
+
+	MsgTypeRequestDidDeposit           = "requestDidDeposit"
+	MsgTypeInvalidateDidDepositRequest = "invalidateDidDepositRequest"
+	MsgTypeRequestDidPowerUp           = "requestDidPowerUp"
+	MsgTypeInvalidateDidPowerUpRequest = "invalidateDidPowerUpRequest"
+
+	MsgTypeWithdrawDeposit = "withdrawDeposit"
+	MsgTypePowerUpDid      = "powerUpDid"
 )

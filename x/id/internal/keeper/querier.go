@@ -44,7 +44,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 		response.DidDocument = &didDocument
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, response)
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, response)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -69,7 +69,7 @@ func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (
 		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Deposit request with proof %s not found", path[0]))
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, &request)
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -85,7 +85,7 @@ func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (
 		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Poer up request with proof %s not found", path[0]))
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, &request)
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}

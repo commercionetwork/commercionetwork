@@ -16,12 +16,16 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 			return handleMsgSetIdentity(ctx, keeper, msg)
 		case MsgRequestDidDeposit:
 			return handleMsgRequestDidDeposit(ctx, keeper, msg)
-		case MsgChangeDidDepositRequestStatus:
-			return handleMsgChangeDidDepositRequestStatus(ctx, keeper, govKeeper, msg)
+		case MsgInvalidateDidDepositRequest:
+			return handleMsgInvalidateDidDepositRequest(ctx, keeper, govKeeper, msg)
 		case MsgRequestDidPowerUp:
 			return handleMsgRequestDidPowerUp(ctx, keeper, msg)
-		case MsgChangeDidPowerUpRequestStatus:
-			return handleMsgChangeDidPowerUpRequestStatus(ctx, keeper, govKeeper, msg)
+		case MsgInvalidateDidPowerUpRequest:
+			return handleMsgInvalidateDidPowerUpRequest(ctx, keeper, govKeeper, msg)
+		case MsgWithdrawDeposit:
+			return handleMsgWithdrawDeposit(ctx, keeper, govKeeper, msg)
+		case MsgPowerUpDid:
+			return handleMsgPowerUpDid(ctx, keeper, govKeeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -29,10 +33,18 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 	}
 }
 
+// ------------------
+// --- Identities
+// ------------------
+
 func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity) sdk.Result {
 	keeper.SaveIdentity(ctx, msg.Owner, msg.DidDocument)
 	return sdk.Result{}
 }
+
+// ----------------------------
+// --- Did deposit requests
+// ----------------------------
 
 func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg MsgRequestDidDeposit) sdk.Result {
 
@@ -47,8 +59,13 @@ func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg MsgRequestDi
 	return sdk.Result{}
 }
 
-func handleMsgChangeDidDepositRequestStatus(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg MsgChangeDidDepositRequestStatus) sdk.Result {
+func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
+	msg MsgInvalidateDidDepositRequest) sdk.Result {
+
+	// Check the status
+	if msg.Status.Type != StatusRejected && msg.Status.Type != StatusCanceled {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status: %s", msg.Status.Type)).Result()
+	}
 
 	// Check the signer if status is approved or rejected
 	validGovernment := govKeeper.GetGovernmentAddress(ctx).Equals(msg.Editor)
@@ -83,6 +100,10 @@ func handleMsgChangeDidDepositRequestStatus(ctx sdk.Context, keeper Keeper, govK
 	return sdk.Result{}
 }
 
+// ----------------------------
+// --- Did power up requests
+// ----------------------------
+
 func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg MsgRequestDidPowerUp) sdk.Result {
 
 	// Set the initial status to nil and save it
@@ -96,12 +117,17 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg MsgRequestDi
 	return sdk.Result{}
 }
 
-func handleMsgChangeDidPowerUpRequestStatus(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg MsgChangeDidPowerUpRequestStatus) sdk.Result {
+func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
+	msg MsgInvalidateDidPowerUpRequest) sdk.Result {
+
+	// Check the status
+	if msg.Status.Type != StatusRejected && msg.Status.Type != StatusCanceled {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status: %s", msg.Status.Type)).Result()
+	}
 
 	// Check the signer if status is approved or rejected
 	validGovernment := govKeeper.GetGovernmentAddress(ctx).Equals(msg.Editor)
-	if (msg.Status.Type == StatusApproved || msg.Status.Type == StatusRejected) && !validGovernment {
+	if msg.Status.Type == StatusRejected && !validGovernment {
 		msg := fmt.Sprintf("Cannot set status of type %s without being the government", msg.Status.Type)
 		return sdk.ErrInvalidAddress(msg).Result()
 	}
@@ -126,6 +152,82 @@ func handleMsgChangeDidPowerUpRequestStatus(ctx sdk.Context, keeper Keeper, govK
 
 	// Change the status, return any result
 	if err := keeper.ChangePowerUpRequestStatus(ctx, msg.PowerUpProof, msg.Status); err != nil {
+		return err.Result()
+	}
+
+	return sdk.Result{}
+}
+
+// ------------------------
+// --- Deposits handling
+// ------------------------
+
+func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
+	msg MsgWithdrawDeposit) sdk.Result {
+
+	// Validate the signer
+	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
+		msg := fmt.Sprintf("Invalid signer, must be government: %s", msg.Signer)
+		return sdk.ErrInvalidAddress(msg).Result()
+	}
+
+	// Get the existing request
+	existing, found := keeper.GetDidDepositRequestByProof(ctx, msg.DepositProof)
+	if !found {
+		msg := fmt.Sprintf("Deposit request with proof %s not found", msg.DepositProof)
+		return sdk.ErrUnknownRequest(msg).Result()
+	}
+
+	// Check that the existing request does not have a status set yet
+	if existing.Status != nil {
+		msg := fmt.Sprintf("Did deposit request with proof %s already has a valid status", existing.Proof)
+		return sdk.ErrUnknownRequest(msg).Result()
+	}
+
+	// Move the deposit amount
+	if err := keeper.DepositIntoPool(ctx, msg.Depositor, msg.Amount); err != nil {
+		return err.Result()
+	}
+
+	// Update the request
+	status := RequestStatus{Type: StatusApproved}
+	if err := keeper.ChangeDepositRequestStatus(ctx, existing.Proof, status); err != nil {
+		return err.Result()
+	}
+
+	return sdk.Result{}
+}
+
+func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
+	msg MsgPowerUpDid) sdk.Result {
+
+	// Validate the signer
+	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
+		msg := fmt.Sprintf("Invalid signer, must be government: %s", msg.Signer)
+		return sdk.ErrInvalidAddress(msg).Result()
+	}
+
+	// Get the existing request
+	existing, found := keeper.GetPowerUpRequestByProof(ctx, msg.PowerUpProof)
+	if !found {
+		msg := fmt.Sprintf("Power up request with proof %s not found", msg.PowerUpProof)
+		return sdk.ErrUnknownRequest(msg).Result()
+	}
+
+	// Check that the existing request does not have a status set yet
+	if existing.Status != nil {
+		msg := fmt.Sprintf("Did power up request with proof %s already has a valid status", existing.Proof)
+		return sdk.ErrUnknownRequest(msg).Result()
+	}
+
+	// Move the deposit amount
+	if err := keeper.FundAccount(ctx, msg.Recipient, msg.Amount); err != nil {
+		return err.Result()
+	}
+
+	// Update the request
+	status := RequestStatus{Type: StatusApproved}
+	if err := keeper.ChangePowerUpRequestStatus(ctx, existing.Proof, status); err != nil {
 		return err.Result()
 	}
 

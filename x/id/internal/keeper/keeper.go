@@ -7,20 +7,21 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 )
 
 type Keeper struct {
-	StoreKey sdk.StoreKey
-
-	// Pointer to the codec that is used by Amino to encode and decode binary structs.
-	Cdc *codec.Codec
+	StoreKey   sdk.StoreKey
+	cdc        *codec.Codec
+	bankKeeper bank.Keeper
 }
 
 // NewKeeper creates new instances of the CommercioID Keeper
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, bankKeeper bank.Keeper) Keeper {
 	return Keeper{
-		StoreKey: storeKey,
-		Cdc:      cdc,
+		StoreKey:   storeKey,
+		cdc:        cdc,
+		bankKeeper: bankKeeper,
 	}
 }
 
@@ -35,7 +36,7 @@ func (keeper Keeper) getIdentityStoreKey(owner sdk.AccAddress) []byte {
 // SaveIdentity saves the given didDocumentUri associating it with the given owner, replacing any existent one.
 func (keeper Keeper) SaveIdentity(ctx sdk.Context, owner sdk.AccAddress, document types.DidDocument) {
 	identitiesStore := ctx.KVStore(keeper.StoreKey)
-	identitiesStore.Set(keeper.getIdentityStoreKey(owner), keeper.Cdc.MustMarshalBinaryBare(document))
+	identitiesStore.Set(keeper.getIdentityStoreKey(owner), keeper.cdc.MustMarshalBinaryBare(document))
 }
 
 // GetDidDocumentByOwner returns the Did Document reference associated to a given Did
@@ -47,7 +48,7 @@ func (keeper Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress
 		return types.DidDocument{}, false
 	}
 
-	keeper.Cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &didDocument)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &didDocument)
 	return didDocument, true
 }
 
@@ -65,7 +66,7 @@ func (keeper Keeper) GetIdentities(ctx sdk.Context) ([]types.Identity, error) {
 		}
 
 		var didDocument types.DidDocument
-		keeper.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &didDocument)
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &didDocument)
 
 		identity := types.Identity{
 			Owner:       address,
@@ -92,6 +93,8 @@ func (keeper Keeper) getDepositRequestStoreKey(proof string) []byte {
 	return []byte(types.DidDepositRequestStorePrefix + proof)
 }
 
+// StorePowerUpRequest allows to save the given request. Returns an error if a request with
+// the same proof already exists
 func (keeper Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) sdk.Error {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -100,11 +103,12 @@ func (keeper Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDe
 		return sdk.ErrUnknownRequest("Did deposit request with the same proof already exists")
 	}
 
-	store.Set(requestKey, keeper.Cdc.MustMarshalBinaryBare(&request))
+	store.Set(requestKey, keeper.cdc.MustMarshalBinaryBare(&request))
 
 	return nil
 }
 
+// GetDidDepositRequestByProof returns the request having the same proof.
 func (keeper Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (request types.DidDepositRequest, found bool) {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -113,10 +117,12 @@ func (keeper Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) 
 		return types.DidDepositRequest{}, false
 	}
 
-	keeper.Cdc.MustUnmarshalBinaryBare(store.Get(requestKey), &request)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(requestKey), &request)
 	return request, true
 }
 
+// ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
+// if no request with the given proof could be found
 func (keeper Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -127,7 +133,7 @@ func (keeper Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, s
 
 	// Update and store the request
 	request.Status = &status
-	store.Set(keeper.getDepositRequestStoreKey(request.Proof), keeper.Cdc.MustMarshalBinaryBare(request))
+	store.Set(keeper.getDepositRequestStoreKey(request.Proof), keeper.cdc.MustMarshalBinaryBare(request))
 
 	return nil
 }
@@ -139,7 +145,7 @@ func (keeper Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDe
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidDepositRequestStorePrefix))
 	for ; iterator.Valid(); iterator.Next() {
 		var request types.DidDepositRequest
-		keeper.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
 		requests = append(requests, request)
 	}
 
@@ -147,7 +153,7 @@ func (keeper Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDe
 }
 
 // ----------------------------
-// --- Did PowerUp requests
+// --- Did power up requests
 // ----------------------------
 
 func (keeper Keeper) getDidPowerUpRequestStoreKey(proof string) []byte {
@@ -164,11 +170,12 @@ func (keeper Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPower
 		return sdk.ErrUnknownRequest("PowerUp request with the same proof already exists")
 	}
 
-	store.Set(requestStoreKey, keeper.Cdc.MustMarshalBinaryBare(&request))
+	store.Set(requestStoreKey, keeper.cdc.MustMarshalBinaryBare(&request))
 
 	return nil
 }
 
+// GetDidDepositRequestByProof returns the request having the same proof.
 func (keeper Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (request types.DidPowerUpRequest, found bool) {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -177,7 +184,7 @@ func (keeper Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (re
 		return types.DidPowerUpRequest{}, false
 	}
 
-	keeper.Cdc.MustUnmarshalBinaryBare(store.Get(requestStoreKey), &request)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(requestStoreKey), &request)
 	return request, true
 }
 
@@ -193,7 +200,7 @@ func (keeper Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, s
 
 	// Update and store the request
 	request.Status = &status
-	store.Set(keeper.getDidPowerUpRequestStoreKey(proof), keeper.Cdc.MustMarshalBinaryBare(&request))
+	store.Set(keeper.getDidPowerUpRequestStoreKey(proof), keeper.cdc.MustMarshalBinaryBare(&request))
 
 	return nil
 }
@@ -205,9 +212,84 @@ func (keeper Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPo
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidPowerUpRequestStorePrefix))
 	for ; iterator.Valid(); iterator.Next() {
 		var request types.DidPowerUpRequest
-		keeper.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
 		requests = append(requests, request)
 	}
 
 	return requests
+}
+
+// ------------------------
+// --- Deposits handling
+// ------------------------
+
+// DepositIntoPool allows to deposit the specified amount into the liquidity pool, taking it from the
+// specified depositor balance
+func (keeper Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
+	// Check the amount
+	if !amount.IsValid() || amount.Empty() || amount.IsAnyNegative() {
+		return sdk.ErrInvalidCoins(amount.String())
+	}
+
+	// Subtract the coins from the user
+	if _, err := keeper.bankKeeper.SubtractCoins(ctx, depositor, amount); err != nil {
+		return err
+	}
+
+	// Get the current pool
+	currentPool := keeper.GetPoolAmount(ctx)
+	if err := keeper.SetPoolAmount(ctx, currentPool.Add(amount)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// FundAccount allows to take the specified amount from the liquidity pool and move them into the
+// specified account balance
+func (keeper Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) sdk.Error {
+	// Check the amount
+	if !amount.IsValid() || amount.Empty() || amount.IsAnyNegative() {
+		return sdk.ErrInvalidCoins(amount.String())
+	}
+
+	// Get the current pool
+	currentPool := keeper.GetPoolAmount(ctx)
+
+	// Check that the pool has enough funds
+	if amount.IsAnyGT(currentPool) {
+		return sdk.ErrInsufficientFunds("Pool does not have enough funds")
+	}
+
+	// Update the pool
+	currentPool = currentPool.Sub(amount)
+	if err := keeper.SetPoolAmount(ctx, currentPool); err != nil {
+		return err
+	}
+
+	// Add the coins to the user
+	if _, err := keeper.bankKeeper.AddCoins(ctx, account, amount); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SetPoolAmount allows to set the pool amount to the given one
+func (keeper Keeper) SetPoolAmount(ctx sdk.Context, amount sdk.Coins) sdk.Error {
+	if amount == nil || !amount.IsValid() || amount.IsAnyNegative() {
+		return sdk.ErrInvalidCoins("Invalid pool amount")
+	}
+
+	store := ctx.KVStore(keeper.StoreKey)
+	store.Set([]byte(types.DepositsPoolStoreKey), keeper.cdc.MustMarshalBinaryBare(&amount))
+
+	return nil
+}
+
+// GetPoolAmount returns the current pool amount
+func (keeper Keeper) GetPoolAmount(ctx sdk.Context) (pool sdk.Coins) {
+	store := ctx.KVStore(keeper.StoreKey)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.DepositsPoolStoreKey)), &pool)
+	return pool
 }
