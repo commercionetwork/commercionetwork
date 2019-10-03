@@ -22,7 +22,7 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 			return handleMsgRequestDidPowerUp(ctx, keeper, msg)
 		case MsgInvalidateDidPowerUpRequest:
 			return handleMsgInvalidateDidPowerUpRequest(ctx, keeper, govKeeper, msg)
-		case MsgWithdrawDeposit:
+		case MsgMoveDeposit:
 			return handleMsgWithdrawDeposit(ctx, keeper, govKeeper, msg)
 		case MsgPowerUpDid:
 			return handleMsgPowerUpDid(ctx, keeper, govKeeper, msg)
@@ -162,8 +162,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 // --- Deposits handling
 // ------------------------
 
-func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg MsgWithdrawDeposit) sdk.Result {
+func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg MsgMoveDeposit) sdk.Result {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
@@ -185,7 +184,7 @@ func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper governme
 	}
 
 	// Move the deposit amount
-	if err := keeper.DepositIntoPool(ctx, msg.Depositor, msg.Amount); err != nil {
+	if err := keeper.DepositIntoPool(ctx, existing.FromAddress, existing.Amount); err != nil {
 		return err.Result()
 	}
 
@@ -198,8 +197,7 @@ func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper governme
 	return sdk.Result{}
 }
 
-func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg MsgPowerUpDid) sdk.Result {
+func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg MsgPowerUpDid) sdk.Result {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
@@ -207,16 +205,10 @@ func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Ke
 		return sdk.ErrInvalidAddress(msg).Result()
 	}
 
-	// Get the existing request
-	existing, found := keeper.GetPowerUpRequestByProof(ctx, msg.PowerUpProof)
-	if !found {
-		msg := fmt.Sprintf("Power up request with proof %s not found", msg.PowerUpProof)
-		return sdk.ErrUnknownRequest(msg).Result()
-	}
-
-	// Check that the existing request does not have a status set yet
-	if existing.Status != nil {
-		msg := fmt.Sprintf("Did power up request with proof %s already has a valid status", existing.Proof)
+	// Get the existing references
+	references := keeper.GetHandledPowerUpRequestsReferences(ctx)
+	if references.Contains(msg.ActivationReference) {
+		msg := fmt.Sprintf("Power up with reference %s already handled", msg.ActivationReference)
 		return sdk.ErrUnknownRequest(msg).Result()
 	}
 
@@ -225,11 +217,8 @@ func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Ke
 		return err.Result()
 	}
 
-	// Update the request
-	status := RequestStatus{Type: StatusApproved}
-	if err := keeper.ChangePowerUpRequestStatus(ctx, existing.Proof, status); err != nil {
-		return err.Result()
-	}
+	// Set the request as handled
+	keeper.SetPowerUpRequestHandled(ctx, msg.ActivationReference)
 
 	return sdk.Result{}
 }

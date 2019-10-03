@@ -36,7 +36,7 @@ func (request DidPowerUpRequest) Validate() sdk.Error {
 		return sdk.ErrInvalidCoins("PowerUp request amount cannot contain negative values")
 	}
 
-	if err := ValidateProof(request.Proof); err != nil {
+	if err := ValidateHex(request.Proof); err != nil {
 		return err
 	}
 

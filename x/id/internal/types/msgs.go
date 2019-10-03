@@ -111,7 +111,7 @@ func (msg MsgInvalidateDidDepositRequest) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Editor.String())
 	}
 
-	if err := ValidateProof(msg.DepositProof); err != nil {
+	if err := ValidateHex(msg.DepositProof); err != nil {
 		return err
 	}
 
@@ -190,7 +190,7 @@ func (msg MsgInvalidateDidPowerUpRequest) Type() string { return MsgTypeInvalida
 
 // ValidateBasic Implements Msg.
 func (msg MsgInvalidateDidPowerUpRequest) ValidateBasic() sdk.Error {
-	if err := ValidateProof(msg.PowerUpProof); err != nil {
+	if err := ValidateHex(msg.PowerUpProof); err != nil {
 		return err
 	}
 
@@ -216,33 +216,30 @@ func (msg MsgInvalidateDidPowerUpRequest) GetSigners() []sdk.AccAddress {
 }
 
 // ------------------------
-// --- MsgWithdrawDeposit
+// --- MsgMoveDeposit
 // ------------------------
 
-type MsgWithdrawDeposit struct {
-	Depositor    sdk.AccAddress `json:"depositor"`
-	Amount       sdk.Coins      `json:"amount"`
+type MsgMoveDeposit struct {
 	DepositProof string         `json:"deposit_proof"`
 	Signer       sdk.AccAddress `json:"signer"`
 }
 
+func NewMsgMoveDeposit(proof string, signer sdk.AccAddress) MsgMoveDeposit {
+	return MsgMoveDeposit{
+		DepositProof: proof,
+		Signer:       signer,
+	}
+}
+
 // Route Implements Msg.
-func (msg MsgWithdrawDeposit) Route() string { return ModuleName }
+func (msg MsgMoveDeposit) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgWithdrawDeposit) Type() string { return MsgTypeWithdrawDeposit }
+func (msg MsgMoveDeposit) Type() string { return MsgTypeWithdrawDeposit }
 
 // ValidateBasic Implements Msg.
-func (msg MsgWithdrawDeposit) ValidateBasic() sdk.Error {
-	if msg.Depositor.Empty() {
-		return sdk.ErrInvalidAddress(msg.Depositor.String())
-	}
-
-	if msg.Amount.IsValid() || msg.Amount.Empty() || msg.Amount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins(msg.Amount.String())
-	}
-
-	if err := ValidateProof(msg.DepositProof); err != nil {
+func (msg MsgMoveDeposit) ValidateBasic() sdk.Error {
+	if err := ValidateHex(msg.DepositProof); err != nil {
 		return err
 	}
 
@@ -254,12 +251,12 @@ func (msg MsgWithdrawDeposit) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgWithdrawDeposit) GetSignBytes() []byte {
+func (msg MsgMoveDeposit) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgWithdrawDeposit) GetSigners() []sdk.AccAddress {
+func (msg MsgMoveDeposit) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Signer}
 }
 
@@ -268,10 +265,10 @@ func (msg MsgWithdrawDeposit) GetSigners() []sdk.AccAddress {
 // ------------------------
 
 type MsgPowerUpDid struct {
-	Recipient    sdk.AccAddress `json:"recipient"`
-	Amount       sdk.Coins      `json:"amount"`
-	PowerUpProof string         `json:"power_up_proof"`
-	Signer       sdk.AccAddress `json:"signer"`
+	Recipient           sdk.AccAddress `json:"recipient"`
+	Amount              sdk.Coins      `json:"amount"`
+	ActivationReference string         `json:"activation_reference"`
+	Signer              sdk.AccAddress `json:"signer"`
 }
 
 // Route Implements Msg.
@@ -290,7 +287,7 @@ func (msg MsgPowerUpDid) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidCoins(msg.Amount.String())
 	}
 
-	if err := ValidateProof(msg.PowerUpProof); err != nil {
+	if err := ValidateHex(msg.ActivationReference); err != nil {
 		return err
 	}
 

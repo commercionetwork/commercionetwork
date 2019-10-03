@@ -25,9 +25,9 @@ var (
 
 	NewMsgRequestDidDeposit           = types.NewMsgRequestDidDeposit
 	NewMsgInvalidateDidDepositRequest = types.NewMsgInvalidateDidDepositRequest
-
 	NewMsgRequestDidPowerUp           = types.NewMsgRequestDidPowerUp
 	NewMsgInvalidateDidPowerUpRequest = types.NewMsgInvalidateDidPowerUpRequest
+	NewMsgMoveDeposit                 = types.NewMsgMoveDeposit
 
 	// Test
 	TestSetup             = keeper.SetupTestInput
@@ -54,6 +54,6 @@ type (
 	MsgInvalidateDidDepositRequest = types.MsgInvalidateDidDepositRequest
 	MsgRequestDidPowerUp           = types.MsgRequestDidPowerUp
 	MsgInvalidateDidPowerUpRequest = types.MsgInvalidateDidPowerUpRequest
-	MsgWithdrawDeposit             = types.MsgWithdrawDeposit
+	MsgMoveDeposit                 = types.MsgMoveDeposit
 	MsgPowerUpDid                  = types.MsgPowerUpDid
 )

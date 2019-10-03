@@ -39,7 +39,7 @@ func (request DidDepositRequest) Validate() sdk.Error {
 		return sdk.ErrInvalidCoins("Deposit amount cannot be contain negative values")
 	}
 
-	if err := ValidateProof(request.Proof); err != nil {
+	if err := ValidateHex(request.Proof); err != nil {
 		return err
 	}
 
@@ -54,15 +54,15 @@ func (request DidDepositRequest) Validate() sdk.Error {
 	return nil
 }
 
-func ValidateProof(proof string) sdk.Error {
+func ValidateHex(proof string) sdk.Error {
 
 	depositProof := strings.TrimSpace(proof)
 	if len(depositProof) == 0 {
-		return sdk.ErrUnknownRequest("Deposit proof cannot be empty")
+		return sdk.ErrUnknownRequest("Hex value cannot be empty")
 	}
 
 	if _, err := hex.DecodeString(depositProof); err != nil {
-		return sdk.ErrUnknownRequest("Deposit proof must be hex encoded")
+		return sdk.ErrUnknownRequest("Hex value must be hex encoded")
 	}
 
 	return nil

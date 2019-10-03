@@ -382,3 +382,41 @@ func TestKeeper_FundAccount_ValidRequest(t *testing.T) {
 	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 900)), pool)
 	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)), bk.GetCoins(ctx, TestDepositor))
 }
+
+func TestKeeper_SetPoolAmount_EmptyCoins(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	err := k.SetPoolAmount(ctx, nil)
+	assert.Nil(t, err)
+}
+
+func TestKeeper_SetPoolAmount_NonEmptyCoins(t *testing.T) {
+	cdc, ctx, _, _, k := SetupTestInput()
+
+	pool := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
+	err := k.SetPoolAmount(ctx, pool)
+	assert.Nil(t, err)
+
+	var stored sdk.Coins
+	store := ctx.KVStore(k.StoreKey)
+	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.DepositsPoolStoreKey)), &stored)
+	assert.Equal(t, pool, stored)
+}
+
+func TestKeeper_GetPoolAmount_EmptyCoins(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	pool := k.GetPoolAmount(ctx)
+	assert.Empty(t, pool)
+}
+
+func TestKeeper_GetPoolAmount_NonEmptyCoins(t *testing.T) {
+	cdc, ctx, _, _, k := SetupTestInput()
+
+	pool := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.DepositsPoolStoreKey), cdc.MustMarshalBinaryBare(&pool))
+
+	stored := k.GetPoolAmount(ctx)
+	assert.Equal(t, pool, stored)
+}

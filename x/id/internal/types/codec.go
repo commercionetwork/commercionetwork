@@ -11,7 +11,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgInvalidateDidDepositRequest{}, "commercio/MsgInvalidateDidDepositRequest", nil)
 	cdc.RegisterConcrete(MsgRequestDidPowerUp{}, "commercio/MsgRequestDidPowerUp", nil)
 	cdc.RegisterConcrete(MsgInvalidateDidPowerUpRequest{}, "commercio/MsgInvalidateDidPowerUpRequest", nil)
-	cdc.RegisterConcrete(MsgWithdrawDeposit{}, "commercio/MsgWithdrawDeposit", nil)
+	cdc.RegisterConcrete(MsgMoveDeposit{}, "commercio/MsgMoveDeposit", nil)
 	cdc.RegisterConcrete(MsgPowerUpDid{}, "commercio/MsgPowerUpDid", nil)
 }
 

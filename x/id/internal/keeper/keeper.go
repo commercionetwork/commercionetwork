@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -223,6 +224,26 @@ func (keeper Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPo
 // --- Deposits handling
 // ------------------------
 
+func (keeper Keeper) SetPowerUpRequestHandled(ctx sdk.Context, activationReference string) {
+	handledRequests := keeper.GetHandledPowerUpRequestsReferences(ctx)
+	if requests, edited := handledRequests.AppendIfMissing(activationReference); edited {
+		keeper.SetHandledPowerUpRequestsReferences(ctx, requests)
+	}
+}
+
+func (keeper Keeper) GetHandledPowerUpRequestsReferences(ctx sdk.Context) ctypes.Strings {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	var handledRequests ctypes.Strings
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.HandledPowerUpRequestsStoreKey)), &handledRequests)
+	return handledRequests
+}
+
+func (keeper Keeper) SetHandledPowerUpRequestsReferences(ctx sdk.Context, references ctypes.Strings) {
+	store := ctx.KVStore(keeper.StoreKey)
+	store.Set([]byte(types.HandledPowerUpRequestsStoreKey), keeper.cdc.MustMarshalBinaryBare(&references))
+}
+
 // DepositIntoPool allows to deposit the specified amount into the liquidity pool, taking it from the
 // specified depositor balance
 func (keeper Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
@@ -277,12 +298,13 @@ func (keeper Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount
 
 // SetPoolAmount allows to set the pool amount to the given one
 func (keeper Keeper) SetPoolAmount(ctx sdk.Context, amount sdk.Coins) sdk.Error {
-	if amount == nil || !amount.IsValid() || amount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins("Invalid pool amount")
-	}
-
 	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.DepositsPoolStoreKey), keeper.cdc.MustMarshalBinaryBare(&amount))
+
+	if amount == nil {
+		store.Delete([]byte(types.DepositsPoolStoreKey))
+	} else {
+		store.Set([]byte(types.DepositsPoolStoreKey), keeper.cdc.MustMarshalBinaryBare(&amount))
+	}
 
 	return nil
 }

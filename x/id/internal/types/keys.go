@@ -11,9 +11,10 @@ const (
 
 	IdentitiesStorePrefix = StoreKey + ":identities:"
 
-	DepositsPoolStoreKey         = StoreKey + "depositsPool"
-	DidDepositRequestStorePrefix = StoreKey + "depositRequest"
-	DidPowerUpRequestStorePrefix = StoreKey + "powerUpRequest"
+	DepositsPoolStoreKey           = StoreKey + "depositsPool"
+	DidDepositRequestStorePrefix   = StoreKey + "depositRequest"
+	DidPowerUpRequestStorePrefix   = StoreKey + "powerUpRequest"
+	HandledPowerUpRequestsStoreKey = StoreKey + "handledPowerUpRequests"
 
 	StatusApproved = "approved"
 	StatusRejected = "rejected"

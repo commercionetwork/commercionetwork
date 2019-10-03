@@ -357,3 +357,139 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_AllGood(t *testing.T) {
 	assert.True(t, found)
 	assert.Equal(t, status, *stored.Status)
 }
+
+// ------------------------
+// --- Deposits handling
+// ------------------------
+
+func Test_handleMsgWithdrawDeposit_InvalidGovernment(t *testing.T) {
+	_, ctx, govK, _, k := TestSetup()
+	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
+
+	msg := NewMsgMoveDeposit("", TestDidDepositRequest.FromAddress)
+	handler := NewHandler(k, govK)
+	res := handler(ctx, msg)
+
+	assert.False(t, res.IsOK())
+	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	assert.Contains(t, res.Log, "government")
+}
+
+func Test_handleMsgWithdrawDeposit_InvalidRequestProof(t *testing.T) {
+	_, ctx, govK, _, k := TestSetup()
+
+	msg := NewMsgMoveDeposit("", govK.GetGovernmentAddress(ctx))
+	handler := NewHandler(k, govK)
+	res := handler(ctx, msg)
+
+	assert.False(t, res.IsOK())
+	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
+	assert.Contains(t, res.Log, "not found")
+}
+
+func Test_handleMsgWithdrawDeposit_RequestAlreadyHasAStatus(t *testing.T) {
+	_, ctx, govK, _, k := TestSetup()
+
+	request := DidDepositRequest{
+		Status: &RequestStatus{
+			Type:    "accepted",
+			Message: "",
+		},
+		Recipient:     TestDidDepositRequest.Recipient,
+		Amount:        TestDidDepositRequest.Amount,
+		Proof:         TestDidDepositRequest.Proof,
+		EncryptionKey: TestDidDepositRequest.EncryptionKey,
+		FromAddress:   TestDidDepositRequest.FromAddress,
+	}
+	_ = k.StoreDidDepositRequest(ctx, request)
+
+	msg := NewMsgMoveDeposit(request.Proof, govK.GetGovernmentAddress(ctx))
+	handler := NewHandler(k, govK)
+	res := handler(ctx, msg)
+
+	assert.False(t, res.IsOK())
+	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
+	assert.Contains(t, res.Log, "already has a valid status")
+}
+
+func Test_handleMsgWithdrawDeposit_AllGood(t *testing.T) {
+	_, ctx, govK, bk, k := TestSetup()
+	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
+	_ = bk.SetCoins(ctx, TestDidDepositRequest.FromAddress, TestDidDepositRequest.Amount)
+
+	msg := NewMsgMoveDeposit(TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
+	handler := NewHandler(k, govK)
+	res := handler(ctx, msg)
+	assert.True(t, res.IsOK())
+
+	// Check the balances
+	assert.Equal(t, TestDidDepositRequest.Amount, k.GetPoolAmount(ctx))
+	assert.True(t, bk.GetCoins(ctx, TestDidDepositRequest.FromAddress).Empty())
+	assert.True(t, bk.GetCoins(ctx, TestDidDepositRequest.Recipient).Empty())
+
+	// Check the request
+	request, _ := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
+	assert.NotNil(t, request.Status)
+	assert.Equal(t, StatusApproved, request.Status.Type)
+}
+
+func Test_handleMsgPowerUpDid_InvalidGovernment(t *testing.T) {
+	_, ctx, govK, _, k := TestSetup()
+
+	msg := MsgPowerUpDid{
+		Recipient:           TestDidPowerUpRequest.Claimant,
+		Amount:              TestDidPowerUpRequest.Amount,
+		ActivationReference: "xxxxxx",
+		Signer:              TestDidPowerUpRequest.Claimant,
+	}
+	handler := NewHandler(k, govK)
+	res := handler(ctx, msg)
+
+	assert.False(t, res.IsOK())
+	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	assert.Contains(t, res.Log, "government")
+}
+
+func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
+	_, ctx, govK, _, k := TestSetup()
+
+	reference := "xxxxxx"
+	k.SetHandledPowerUpRequestsReferences(ctx, []string{reference})
+
+	msg := MsgPowerUpDid{
+		Recipient:           TestDidPowerUpRequest.Claimant,
+		Amount:              TestDidPowerUpRequest.Amount,
+		ActivationReference: reference,
+		Signer:              govK.GetGovernmentAddress(ctx),
+	}
+	handler := NewHandler(k, govK)
+	res := handler(ctx, msg)
+
+	assert.False(t, res.IsOK())
+	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
+	assert.Contains(t, res.Log, "already handled")
+}
+
+func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
+	_, ctx, govK, bk, k := TestSetup()
+
+	msg := MsgPowerUpDid{
+		Recipient:           TestDidPowerUpRequest.Claimant,
+		Amount:              TestDidPowerUpRequest.Amount,
+		ActivationReference: "test-reference",
+		Signer:              govK.GetGovernmentAddress(ctx),
+	}
+
+	_ = k.SetPoolAmount(ctx, msg.Amount)
+	handler := NewHandler(k, govK)
+	res := handler(ctx, msg)
+
+	assert.True(t, res.IsOK())
+
+	// Check the balances
+	assert.Equal(t, msg.Amount, bk.GetCoins(ctx, msg.Recipient))
+	assert.True(t, k.GetPoolAmount(ctx).Empty())
+
+	// Check the request
+	assert.True(t, k.GetHandledPowerUpRequestsReferences(ctx).Contains(msg.ActivationReference))
+}
