@@ -255,7 +255,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.governmentKeeper = government.NewKeeper(app.keys[government.StoreKey], app.cdc)
 	app.accreditationKeeper = accreditations.NewKeeper(app.keys[accreditations.StoreKey], app.bankKeeper, app.cdc)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
-	app.idKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
+	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.bankKeeper)
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper)
 	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
 	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
