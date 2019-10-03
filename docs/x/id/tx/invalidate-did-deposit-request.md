@@ -4,7 +4,6 @@ Once a [Did deposit request has been created](./request-did-deposit.md), it can 
 1. The user wants to cancel it. 
 2. The external centralized identity invalidates it for different reasons (insufficient funds, errors, etc.). 
 
-
 ## Transaction message
 ```json
 {

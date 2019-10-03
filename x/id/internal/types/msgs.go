@@ -235,7 +235,7 @@ func NewMsgMoveDeposit(proof string, signer sdk.AccAddress) MsgMoveDeposit {
 func (msg MsgMoveDeposit) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgMoveDeposit) Type() string { return MsgTypeWithdrawDeposit }
+func (msg MsgMoveDeposit) Type() string { return MsgTypeMoveDeposit }
 
 // ValidateBasic Implements Msg.
 func (msg MsgMoveDeposit) ValidateBasic() sdk.Error {

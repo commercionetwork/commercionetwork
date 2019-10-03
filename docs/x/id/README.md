@@ -16,7 +16,7 @@ Using the `id` module you can perform the following transactions.
 **Accessible to the government**
 - [Reject a Did deposit request](tx/invalidate-did-deposit-request.md)
 - [Reject a pairwise Did power up request](tx/invalidate-did-power-up-request.md)
-- [Move a deposit into the liquidity pool](tx/move-deposit.md)
+- [Accept a deposit request](tx/move-deposit.md)
 - [Power up a Did](tx/did-power-up.md)
 
 ## Queries

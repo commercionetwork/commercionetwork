@@ -21,7 +21,7 @@ If you wish to know more about the overall pairwise Did creation sequence, pleas
     "amount": [
       {
         "amount": "<Amount to send>",
-        "denom": "<Denom of the coin to invest>"
+        "denom": "<Denom of the coin to send>"
       }
     ],
     "proof": "<Deposit proof>",

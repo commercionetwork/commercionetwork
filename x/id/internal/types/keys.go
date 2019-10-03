@@ -40,6 +40,6 @@ const (
 	MsgTypeRequestDidPowerUp           = "requestDidPowerUp"
 	MsgTypeInvalidateDidPowerUpRequest = "invalidateDidPowerUpRequest"
 
-	MsgTypeWithdrawDeposit = "withdrawDeposit"
-	MsgTypePowerUpDid      = "powerUpDid"
+	MsgTypeMoveDeposit = "moveDeposit"
+	MsgTypePowerUpDid  = "powerUpDid"
 )
