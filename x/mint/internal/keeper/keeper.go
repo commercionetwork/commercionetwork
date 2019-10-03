@@ -101,6 +101,20 @@ func (keeper Keeper) DeleteCDP(ctx sdk.Context, cdp types.CDP) bool {
 	return false
 }
 
+func (keeper Keeper) SetLiquidityPool(ctx sdk.Context, updatedPool sdk.Coins) {
+	store := ctx.KVStore(keeper.StoreKey)
+	store.Set([]byte(types.LiquidityPoolStoreKey), keeper.Cdc.MustMarshalBinaryBare(&updatedPool))
+}
+
+//Return the Block Rewards Pool if exists
+func (keeper Keeper) GetLiquidityPool(ctx sdk.Context) sdk.Coins {
+	var lPool sdk.Coins
+	store := ctx.KVStore(keeper.StoreKey)
+	lpBz := store.Get([]byte(types.LiquidityPoolStoreKey))
+	keeper.Cdc.MustUnmarshalBinaryBare(lpBz, &lPool)
+	return lPool
+}
+
 // OpenCDP subtract the given token's amount from user's wallet and deposit it into the liquidity pool then,
 // sending him the corresponding commercio cash credits amount.
 // If all these operations are done correctly, a Collateralized Debt Position is opened.
@@ -114,7 +128,6 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.E
 		return sdk.ErrInvalidCoins(cdpRequest.DepositedAmount.String())
 	}
 
-	store := ctx.KVStore(keeper.StoreKey)
 	fiatValue := sdk.NewInt(0)
 
 	//Check if all tokens in deposit amount have a price and calculate the total FIAT value of them
@@ -132,13 +145,10 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.E
 		return err
 	}
 
-	poolBz := store.Get([]byte(types.LiquidityPoolStoreKey))
-	var liquidityPool = sdk.Coins{}
-	keeper.Cdc.MustUnmarshalBinaryBare(poolBz, &liquidityPool)
-
+	liquidityPool := keeper.GetLiquidityPool(ctx)
 	//depositing the amount to the liquidity pool
 	liquidityPool = liquidityPool.Add(cdpRequest.DepositedAmount)
-	store.Set([]byte(types.LiquidityPoolStoreKey), keeper.Cdc.MustMarshalBinaryBare(liquidityPool))
+	keeper.SetLiquidityPool(ctx, liquidityPool)
 
 	//get credits' amount = DepositAmount value / credits price (always 1 euro) / 2 is the power of collateral which is 2:1 (comm -> ccc)
 	creditsAmount := fiatValue.Quo(sdk.NewInt(2))
@@ -171,6 +181,13 @@ func (keeper Keeper) CloseCDP(ctx sdk.Context, user sdk.AccAddress, timestamp st
 		return err
 	}
 	//adding back the deposited amount to user's wallet
+
+	//first, withdraw the previous deposited amount from the liquidity pool
+	liquidityPool := keeper.GetLiquidityPool(ctx)
+	liquidityPool = liquidityPool.Sub(cdp.DepositedAmount)
+	keeper.SetLiquidityPool(ctx, liquidityPool)
+
+	//then add it to the user's wallet
 	_, err = keeper.BankKeeper.AddCoins(ctx, user, cdp.DepositedAmount)
 	if err != nil {
 		return err

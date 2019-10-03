@@ -7,7 +7,8 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	UsersCDPs []types.CDPs
+	UsersCDPs           []types.CDPs `json:"users_cdpS"`
+	LiquidityPoolAmount sdk.Coins    `json:"pool_amount"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -17,6 +18,8 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+
+	keeper.SetLiquidityPool(ctx, data.LiquidityPoolAmount)
 
 	for _, userCDPs := range data.UsersCDPs {
 		for _, cdp := range userCDPs {
@@ -36,8 +39,11 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 		usersCDPs = append(usersCDPs, CDPs)
 	}
 
+	liquidityPool := keeper.GetLiquidityPool(ctx)
+
 	return GenesisState{
-		UsersCDPs: usersCDPs,
+		UsersCDPs:           usersCDPs,
+		LiquidityPoolAmount: liquidityPool,
 	}
 }
 

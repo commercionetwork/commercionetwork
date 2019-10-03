@@ -36,6 +36,14 @@ var TestCdp = types.CDP{
 	Timestamp:       TestTimestamp,
 }
 
+var TestLiquidityPool = sdk.Coins{sdk.NewInt64Coin("ucommercio", 10000)}
+
+var TestCurrentPrice = pricefeed.CurrentPrice{
+	AssetName: "ucommercio",
+	Price:     sdk.NewDecFromInt(sdk.NewInt(10)),
+	Expiry:    sdk.NewInt(1000),
+}
+
 func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()

@@ -13,6 +13,7 @@ var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50a
 var TestTimestamp = "timestamp-test"
 var TestDepositedAmount = sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100)))
 var TestLiquidityAmount = sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50)))
+var TestLiquidityPool = sdk.Coins{sdk.NewInt64Coin("ucommercio", 10000)}
 
 var TestCdpRequest = CDPRequest{
 	Signer:          TestOwner,
@@ -54,6 +55,7 @@ func TestHandler_handleMsgCloseCDP(t *testing.T) {
 	ctx, bk, _, k := TestInput()
 	handler := NewHandler(k)
 
+	k.SetLiquidityPool(ctx, TestLiquidityPool)
 	_, _ = bk.AddCoins(ctx, TestOwner, TestLiquidityAmount)
 	k.AddCDP(ctx, TestCdp)
 
