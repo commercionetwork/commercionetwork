@@ -100,8 +100,6 @@ func (keeper Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDe
 		return sdk.ErrUnknownRequest("Did deposit request with the same proof already exists")
 	}
 
-	// Set the initial status to null and store the request
-	request.Status = nil
 	store.Set(requestKey, keeper.Cdc.MustMarshalBinaryBare(&request))
 
 	return nil
@@ -119,7 +117,7 @@ func (keeper Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) 
 	return request, true
 }
 
-func (keeper Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.DidDepositRequestStatus) sdk.Error {
+func (keeper Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	request, found := keeper.GetDidDepositRequestByProof(ctx, proof)
@@ -166,8 +164,6 @@ func (keeper Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPower
 		return sdk.ErrUnknownRequest("PowerUp request with the same proof already exists")
 	}
 
-	// Set the initial status to null and store the request
-	request.Status = nil
 	store.Set(requestStoreKey, keeper.Cdc.MustMarshalBinaryBare(&request))
 
 	return nil
@@ -187,7 +183,7 @@ func (keeper Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (re
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
-func (keeper Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.DidPowerUpRequestStatus) sdk.Error {
+func (keeper Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	request, found := keeper.GetPowerUpRequestByProof(ctx, proof)

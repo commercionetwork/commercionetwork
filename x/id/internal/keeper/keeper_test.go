@@ -108,49 +108,30 @@ func TestKeeper_SetIdentities(t *testing.T) {
 }
 
 // ----------------------------
-// --- Did deposit requests
+// --- Did deposit didDepositRequests
 // ----------------------------
-
-var requestSender, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
-var requestRecipient, _ = sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
 
 func TestKeeper_StoreDidDepositRequest_NewRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
-	request := types.DidDepositRequest{
-		Recipient:     requestRecipient,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-		FromAddress:   requestSender,
-	}
-
-	err := k.StoreDidDepositRequest(ctx, request)
+	err := k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 	assert.Nil(t, err)
 
 	var stored types.DidDepositRequest
 	store := ctx.KVStore(k.StoreKey)
-	storedBz := store.Get(k.getDepositRequestStoreKey(request.Proof))
+	storedBz := store.Get(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
-	assert.Equal(t, request, stored)
+	assert.Equal(t, TestDidDepositRequest, stored)
 }
 
 func TestKeeper_StoreDidDepositRequest_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
-	request := types.DidDepositRequest{
-		Recipient:     requestRecipient,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-		FromAddress:   requestSender,
-	}
-
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getDepositRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
+	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
-	err := k.StoreDidDepositRequest(ctx, request)
+	err := k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 	assert.Error(t, err)
 	assert.Equal(t, sdk.CodeUnknownRequest, err.Code())
 	assert.Contains(t, err.Error(), "same proof")
@@ -166,26 +147,18 @@ func TestKeeper_GetDidDepositRequestByProof_NonExistingRequest(t *testing.T) {
 func TestKeeper_GetDidDepositRequestByProof_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
-	request := types.DidDepositRequest{
-		Recipient:     requestRecipient,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-		FromAddress:   requestSender,
-	}
-
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getDepositRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
+	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
-	stored, found := k.GetDidDepositRequestByProof(ctx, request.Proof)
+	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
 	assert.True(t, found)
-	assert.Equal(t, request, stored)
+	assert.Equal(t, TestDidDepositRequest, stored)
 }
 
 func TestKeeper_ChangeDepositRequestStatus_NonExistingRequest(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
-	status := types.DidDepositRequestStatus{
+	status := types.RequestStatus{
 		Type:    "status-type",
 		Message: "status-message",
 	}
@@ -199,32 +172,25 @@ func TestKeeper_ChangeDepositRequestStatus_NonExistingRequest(t *testing.T) {
 
 func TestKeeper_ChangeDepositRequestStatus_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
+
 	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
-	request := types.DidDepositRequest{
-		Recipient:     requestRecipient,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-		FromAddress:   requestSender,
-	}
-	store.Set(k.getDepositRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
-
-	status := types.DidDepositRequestStatus{Type: "status-type", Message: "status-message"}
-	err := k.ChangeDepositRequestStatus(ctx, request.Proof, status)
+	status := types.RequestStatus{Type: "status-type", Message: "status-message"}
+	err := k.ChangeDepositRequestStatus(ctx, TestDidDepositRequest.Proof, status)
 	assert.Nil(t, err)
 
 	expected := types.DidDepositRequest{
-		Recipient:     requestRecipient,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-		FromAddress:   requestSender,
+		Recipient:     TestDidDepositRequest.Recipient,
+		Amount:        TestDidDepositRequest.Amount,
+		Proof:         TestDidDepositRequest.Proof,
+		EncryptionKey: TestDidDepositRequest.EncryptionKey,
+		FromAddress:   TestDidDepositRequest.FromAddress,
 		Status:        &status,
 	}
 
 	var stored types.DidDepositRequest
-	storedBz := store.Get(k.getDepositRequestStoreKey(request.Proof))
+	storedBz := store.Get(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 	assert.Equal(t, expected, stored)
 }
@@ -232,66 +198,46 @@ func TestKeeper_ChangeDepositRequestStatus_ExistingRequest(t *testing.T) {
 func TestKeeper_GetDepositRequests_EmptyList(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
-	requests := k.GetDepositRequests(ctx)
-	assert.Empty(t, requests)
+	didDepositRequests := k.GetDepositRequests(ctx)
+	assert.Empty(t, didDepositRequests)
 }
 
 func TestKeeper_GetDepositRequests_ExistingList(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
+
 	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
-	request := types.DidDepositRequest{
-		Recipient:     requestRecipient,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-		FromAddress:   requestSender,
-	}
-	store.Set(k.getDepositRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
-
-	requests := k.GetDepositRequests(ctx)
-	assert.Equal(t, 1, len(requests))
-	assert.Contains(t, requests, request)
+	didDepositRequests := k.GetDepositRequests(ctx)
+	assert.Equal(t, 1, len(didDepositRequests))
+	assert.Contains(t, didDepositRequests, TestDidDepositRequest)
 }
 
 // ----------------------------
-// --- Did PowerUp requests
+// --- Did PowerUp didDepositRequests
 // ----------------------------
 
 func TestKeeper_StorePowerUpRequest_NewRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
-	request := types.DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-	}
-
-	err := k.StorePowerUpRequest(ctx, request)
+	err := k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 	assert.Nil(t, err)
 
 	var stored types.DidPowerUpRequest
 	store := ctx.KVStore(k.StoreKey)
-	storedBz := store.Get(k.getDidPowerUpRequestStoreKey(request.Proof))
+	storedBz := store.Get(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
-	assert.Equal(t, request, stored)
+	assert.Equal(t, TestDidPowerUpRequest, stored)
 }
 
 func TestKeeper_StorePowerUpRequest_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
+
 	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
-	request := types.DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-	}
-	store.Set(k.getDidPowerUpRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
-
-	err := k.StorePowerUpRequest(ctx, request)
+	err := k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 	assert.Error(t, err)
 	assert.Equal(t, sdk.CodeUnknownRequest, err.Code())
 	assert.Contains(t, err.Error(), "same proof")
@@ -306,25 +252,19 @@ func TestKeeper_GetPowerUpRequestByProof_NonExistingRequest(t *testing.T) {
 
 func TestKeeper_GetPowerUpRequestByProof_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
+
 	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
-	request := types.DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-	}
-	store.Set(k.getDidPowerUpRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
-
-	stored, found := k.GetPowerUpRequestByProof(ctx, request.Proof)
+	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
 	assert.True(t, found)
-	assert.Equal(t, request, stored)
+	assert.Equal(t, TestDidPowerUpRequest, stored)
 }
 
 func TestKeeper_ChangePowerUpRequestStatus_NonExistingRequest(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
-	status := types.DidPowerUpRequestStatus{
+	status := types.RequestStatus{
 		Type:    "status-type",
 		Message: "status-messsge",
 	}
@@ -337,34 +277,28 @@ func TestKeeper_ChangePowerUpRequestStatus_NonExistingRequest(t *testing.T) {
 
 func TestKeeper_ChangePowerUpRequestStatus_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
+
 	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
-	request := types.DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-	}
-	store.Set(k.getDidPowerUpRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
-
-	status := types.DidPowerUpRequestStatus{
+	status := types.RequestStatus{
 		Type:    "status-type",
 		Message: "status-messsge",
 	}
 
-	err := k.ChangePowerUpRequestStatus(ctx, request.Proof, status)
+	err := k.ChangePowerUpRequestStatus(ctx, TestDidPowerUpRequest.Proof, status)
 	assert.Nil(t, err)
 
 	expected := types.DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
+		Claimant:      TestDidPowerUpRequest.Claimant,
+		Amount:        TestDidDepositRequest.Amount,
+		Proof:         TestDidDepositRequest.Proof,
+		EncryptionKey: TestDidDepositRequest.EncryptionKey,
 		Status:        &status,
 	}
 
 	var stored types.DidPowerUpRequest
-	storedBz := store.Get(k.getDidPowerUpRequestStoreKey(request.Proof))
+	storedBz := store.Get(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 	assert.Equal(t, expected, stored)
 }
@@ -372,23 +306,17 @@ func TestKeeper_ChangePowerUpRequestStatus_ExistingRequest(t *testing.T) {
 func TestKeeper_GetPowerUpRequests_EmptyList(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
-	requests := k.GetPowerUpRequests(ctx)
-	assert.Empty(t, requests)
+	didPowerUpRequests := k.GetPowerUpRequests(ctx)
+	assert.Empty(t, didPowerUpRequests)
 }
 
 func TestKeeper_GetPowerUpRequests_ExistingList(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
+
 	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
-	request := types.DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-	}
-	store.Set(k.getDidPowerUpRequestStoreKey(request.Proof), cdc.MustMarshalBinaryBare(&request))
-
-	requests := k.GetPowerUpRequests(ctx)
-	assert.Equal(t, 1, len(requests))
-	assert.Contains(t, requests, request)
+	didPowerUpRequests := k.GetPowerUpRequests(ctx)
+	assert.Equal(t, 1, len(didPowerUpRequests))
+	assert.Contains(t, didPowerUpRequests, TestDidPowerUpRequest)
 }

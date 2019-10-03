@@ -23,7 +23,7 @@ func TestDidDepositRequest_Validate_EmptyStatus(t *testing.T) {
 
 func TestDidDepositRequest_Validate_InvalidStatusType(t *testing.T) {
 	request := DidDepositRequest{
-		Status: &DidDepositRequestStatus{
+		Status: &RequestStatus{
 			Type:    "",
 			Message: "message",
 		},

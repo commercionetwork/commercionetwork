@@ -69,3 +69,19 @@ var TestDidDocument = types.DidDocument{
 	Uri:         "https://test.example.com/did-document#1",
 	ContentHash: "6a40d9907d256795096b57d4bea23c0560aa3fe8f8a66c8207623f774c09c3a6",
 }
+
+var didDepositRequestSender, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
+var didDepositRequestRecipient, _ = sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
+var TestDidDepositRequest = types.DidDepositRequest{
+	Recipient:     didDepositRequestRecipient,
+	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
+	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
+	EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
+	FromAddress:   didDepositRequestSender,
+}
+var TestDidPowerUpRequest = types.DidPowerUpRequest{
+	Claimant:      didDepositRequestSender,
+	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
+	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
+	EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
+}

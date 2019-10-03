@@ -19,7 +19,7 @@ func TestDidPowerUpRequest_Validate_EmptyStatus(t *testing.T) {
 
 func TestDidPowerUpRequest_Validate_InvalidStatusType(t *testing.T) {
 	request := DidPowerUpRequest{
-		Status: &DidPowerUpRequestStatus{
+		Status: &RequestStatus{
 			Type:    "",
 			Message: "message",
 		},

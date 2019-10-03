@@ -21,21 +21,28 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	TestSetup        = keeper.SetupTestInput
-	TestDidDocument  = keeper.TestDidDocument
-	TestOwnerAddress = keeper.TestOwnerAddress
+	NewMsgSetIdentity                   = types.NewMsgSetIdentity
+	NewMsgRequestDidDeposit             = types.NewMsgRequestDidDeposit
+	NewMsgChangeDidDepositRequestStatus = types.NewMsgChangeDidDepositRequestStatus
+	NewMsgRequestDidPowerUp             = types.NewMsgRequestDidPowerUp
+	NewMsgChangeDidPowerUpRequestStatus = types.NewMsgChangeDidPowerUpRequestStatus
+	ValidateStatus                      = types.ValidateStatus
 
-	ValidateStatus = types.ValidateStatus
+	// Test
+	TestSetup             = keeper.SetupTestInput
+	TestDidDocument       = keeper.TestDidDocument
+	TestOwnerAddress      = keeper.TestOwnerAddress
+	TestDidDepositRequest = keeper.TestDidDepositRequest
+	TestDidPowerUpRequest = keeper.TestDidPowerUpRequest
 )
 
 type (
 	Keeper = keeper.Keeper
 
-	Identity                = types.Identity
-	DidDepositRequest       = types.DidDepositRequest
-	DidDepositRequestStatus = types.DidDepositRequestStatus
-	DidPowerUpRequest       = types.DidPowerUpRequest
-	DidPowerUpRequestStatus = types.DidPowerUpRequestStatus
+	Identity          = types.Identity
+	DidDepositRequest = types.DidDepositRequest
+	DidPowerUpRequest = types.DidPowerUpRequest
+	RequestStatus     = types.RequestStatus
 
 	MsgSetIdentity                   = types.MsgSetIdentity
 	MsgRequestDidDeposit             = types.MsgRequestDidDeposit

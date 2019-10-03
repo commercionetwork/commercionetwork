@@ -57,25 +57,17 @@ func Test_queryResolveDepositRequest_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
-
-	depositRequest := types.DidDepositRequest{
-		Recipient:     requestRecipient,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-		FromAddress:   requestSender,
-	}
-	store.Set(k.getDepositRequestStoreKey(depositRequest.Proof), cdc.MustMarshalBinaryBare(&depositRequest))
+	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
 	var querier = NewQuerier(k)
-	path := []string{types.QueryResolveDepositRequest, depositRequest.Proof}
+	path := []string{types.QueryResolveDepositRequest, TestDidDepositRequest.Proof}
 	actualBz, err := querier(ctx, path, request)
 
 	var actual types.DidDepositRequest
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Nil(t, err)
-	assert.Equal(t, depositRequest, actual)
+	assert.Equal(t, TestDidDepositRequest, actual)
 }
 
 func Test_queryResolveDepositRequest_NonExistingRequest(t *testing.T) {
@@ -94,24 +86,17 @@ func Test_queryResolvePowerUpRequest_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
-
-	powerUpRequest := types.DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "proof",
-		EncryptionKey: "encryption_key",
-	}
-	store.Set(k.getDidPowerUpRequestStoreKey(powerUpRequest.Proof), cdc.MustMarshalBinaryBare(&powerUpRequest))
+	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
 	var querier = NewQuerier(k)
-	path := []string{types.QueryResolvePowerUpRequest, powerUpRequest.Proof}
+	path := []string{types.QueryResolvePowerUpRequest, TestDidPowerUpRequest.Proof}
 	actualBz, err := querier(ctx, path, request)
 
 	var actual types.DidPowerUpRequest
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Nil(t, err)
-	assert.Equal(t, powerUpRequest, actual)
+	assert.Equal(t, TestDidPowerUpRequest, actual)
 }
 
 func Test_queryResolvePowerUpRequest_NonExistingRequest(t *testing.T) {

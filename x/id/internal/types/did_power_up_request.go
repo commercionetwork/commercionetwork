@@ -1,31 +1,18 @@
 package types
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type DidPowerUpRequestStatus struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
-}
-
-func (status DidPowerUpRequestStatus) Validate() sdk.Error {
-	statusType := strings.ToLower(status.Type)
-	if err := ValidateStatus(statusType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
+// DidDepositRequest represents the request that is sent from a user when he wants to send
+// something to his pairwise Did. This request will be read and unencrypted from a central
+// identity that will later update the status and send the funds to the pairwise Did
 type DidPowerUpRequest struct {
-	Status        *DidPowerUpRequestStatus `json:"status"`
-	Claimant      sdk.AccAddress           `json:"claimant"`
-	Amount        sdk.Coins                `json:"amount"`
-	Proof         string                   `json:"proof"`
-	EncryptionKey string                   `json:"encryption_key"`
+	Status        *RequestStatus `json:"status"`
+	Claimant      sdk.AccAddress `json:"claimant"`
+	Amount        sdk.Coins      `json:"amount"`
+	Proof         string         `json:"proof"`
+	EncryptionKey string         `json:"encryption_key"`
 }
 
 func (request DidPowerUpRequest) Validate() sdk.Error {

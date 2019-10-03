@@ -85,12 +85,12 @@ func (msg MsgRequestDidDeposit) GetSigners() []sdk.AccAddress {
 // ---------------------------------------
 
 type MsgChangeDidDepositRequestStatus struct {
-	Editor       sdk.AccAddress          `json:"editor"`
-	DepositProof string                  `json:"deposit_proof"`
-	Status       DidDepositRequestStatus `json:"status"`
+	Editor       sdk.AccAddress `json:"editor"`
+	DepositProof string         `json:"deposit_proof"`
+	Status       RequestStatus  `json:"status"`
 }
 
-func NewMsgChangeDidDepositRequestStatus(status DidDepositRequestStatus, proof string,
+func NewMsgChangeDidDepositRequestStatus(status RequestStatus, proof string,
 	editor sdk.AccAddress) MsgChangeDidDepositRequestStatus {
 	return MsgChangeDidDepositRequestStatus{
 		Editor:       editor,
@@ -168,12 +168,12 @@ func (msg MsgRequestDidPowerUp) GetSigners() []sdk.AccAddress {
 // ---------------------------------------
 
 type MsgChangeDidPowerUpRequestStatus struct {
-	PowerUpProof string                  `json:"power_up_proof"`
-	Status       DidPowerUpRequestStatus `json:"status"`
-	Editor       sdk.AccAddress          `json:"editor"`
+	PowerUpProof string         `json:"power_up_proof"`
+	Status       RequestStatus  `json:"status"`
+	Editor       sdk.AccAddress `json:"editor"`
 }
 
-func NewMsgChangeDidPowerUpRequestStatus(status DidPowerUpRequestStatus, proof string,
+func NewMsgChangeDidPowerUpRequestStatus(status RequestStatus, proof string,
 	editor sdk.AccAddress) MsgChangeDidPowerUpRequestStatus {
 	return MsgChangeDidPowerUpRequestStatus{
 		Editor:       editor,

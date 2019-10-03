@@ -143,7 +143,7 @@ func TestMsgRequestDidDeposit_JSON_NonNullStatus(t *testing.T) {
 		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
 		Recipient:     requestRecipient,
-		Status: &DidDepositRequestStatus{
+		Status: &RequestStatus{
 			Type:    "canceled",
 			Message: "Don't want this anymore",
 		},
@@ -157,7 +157,7 @@ func TestMsgRequestDidDeposit_JSON_NonNullStatus(t *testing.T) {
 
 var editor, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
 var msgChangeDidDepositRequestStatus = NewMsgChangeDidDepositRequestStatus(
-	DidDepositRequestStatus{
+	RequestStatus{
 		Type:    "canceled",
 		Message: "Don't want this anymore",
 	},
@@ -267,7 +267,7 @@ func TestMsgRequestDidPowerUp_JSON_NonNullStatus(t *testing.T) {
 		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
-		Status: &DidPowerUpRequestStatus{
+		Status: &RequestStatus{
 			Type:    "canceled",
 			Message: "Don't want this anymore",
 		},
@@ -280,7 +280,7 @@ func TestMsgRequestDidPowerUp_JSON_NonNullStatus(t *testing.T) {
 // --------------------------
 
 var msgChangeDidPowerUpRequestStatus = NewMsgChangeDidPowerUpRequestStatus(
-	DidPowerUpRequestStatus{
+	RequestStatus{
 		Type:    "canceled",
 		Message: "Don't want this anymore",
 	},
