@@ -1,0 +1,13 @@
+#Close a CDP
+##Transaction message
+To close a previously opened CDP you need to create and sign the following message.
+
+```json
+{
+  "type": "commercio/MsgCloseCDP",
+  "value": {
+    "signer": "<User address>",
+    "timestamp": "<Timestamp of when the CDP request was made>"
+  }
+}
+```

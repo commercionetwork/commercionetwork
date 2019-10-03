@@ -49,7 +49,7 @@ func (msg MsgOpenCDP) GetSigners() []sdk.AccAddress {
 ///MsgCloseCDP////
 /////////////////
 type MsgCloseCDP struct {
-	Signer    sdk.AccAddress `json:"sender"`
+	Signer    sdk.AccAddress `json:"signer"`
 	Timestamp string         `json:"timestamp"`
 }
 
