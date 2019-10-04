@@ -21,12 +21,12 @@ http://localhost:1317/mint/CDP/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1
   "height": "0",
   "result": {
     "deposited_amount": {
-      "denom": "ucommercio",
-      "amount": "10000000"
+      "amount": "10000000",
+      "denom": "ucommercio"
     },
     "liquidity_amount": {
-      "denom": "uccc",
-      "amount": "500000"
+      "amount": "500000",
+      "denom": "uccc"
     },
     "owner": "did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686",
     "timestamp": "1570177686"
