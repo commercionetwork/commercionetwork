@@ -1,3 +1,7 @@
+# Version 1.2.1
+## Bug fixes
+- Fixed a bug inside the migration command 
+
 # Version 1.2.0
 ## Changes
 **CommercioID (#30)**
