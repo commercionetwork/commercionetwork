@@ -14,7 +14,7 @@ func TestKeeper_SetCreditsDenom(t *testing.T) {
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 	store := ctx.KVStore(k.StoreKey)
-	denomBz := store.Get([]byte(types.CreditsDenomStoreKey))
+	denomBz := store.Get([]byte(types.CreditsDenom))
 	assert.Equal(t, denom, string(denomBz))
 }
 
@@ -28,7 +28,7 @@ func TestKeeper_GetCreditsDenom(t *testing.T) {
 
 func TestKeeper_GetCDPkey(t *testing.T) {
 	_, _, _, k := SetupTestInput()
-	expected := types.CDPStoreKey + TestOwner.String()
+	expected := types.CDPSPrefix + TestOwner.String()
 	actual := k.GetCDPkey(TestOwner)
 	assert.Equal(t, []byte(expected), actual)
 }
@@ -102,7 +102,7 @@ func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
 
 	k.SetLiquidityPool(ctx, TestLiquidityPool)
 	store := ctx.KVStore(k.StoreKey)
-	poolBz := store.Get([]byte(types.LiquidityPoolStoreKey))
+	poolBz := store.Get([]byte(types.LiquidityPoolPrefix))
 	k.Cdc.MustUnmarshalBinaryBare(poolBz, &pool)
 
 	assert.Equal(t, pool, TestLiquidityPool)

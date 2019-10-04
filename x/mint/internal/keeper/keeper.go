@@ -30,25 +30,25 @@ func NewKeeper(sk sdk.StoreKey, bk bank.Keeper, pk pricefeed.Keeper, cdc *codec.
 
 func (keeper Keeper) SetCreditsDenom(ctx sdk.Context, den string) {
 	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.CreditsDenomStoreKey), []byte(den))
+	store.Set([]byte(types.CreditsDenom), []byte(den))
 }
 
 func (keeper Keeper) GetCreditsDenom(ctx sdk.Context) string {
 	store := ctx.KVStore(keeper.StoreKey)
-	return string(store.Get([]byte(types.CreditsDenomStoreKey)))
+	return string(store.Get([]byte(types.CreditsDenom)))
 }
 
 func (keeper Keeper) GetCDPkey(address sdk.AccAddress) []byte {
-	return []byte(types.CDPStoreKey + address.String())
+	return []byte(types.CDPSPrefix + address.String())
 }
 
 // GetUsersSet returns the list of all the users that open at least one CDP.
 func (keeper Keeper) GetUsersSet(ctx sdk.Context) ctypes.Addresses {
 	store := ctx.KVStore(keeper.StoreKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CDPStoreKey))
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CDPSPrefix))
 	var users = ctypes.Addresses{}
 	for ; iterator.Valid(); iterator.Next() {
-		addressStr := strings.ReplaceAll(string(iterator.Key()), types.CDPStoreKey, "")
+		addressStr := strings.ReplaceAll(string(iterator.Key()), types.CDPSPrefix, "")
 		address, _ := sdk.AccAddressFromBech32(addressStr)
 		users, _ = users.AppendIfMissing(address)
 	}
@@ -103,14 +103,14 @@ func (keeper Keeper) DeleteCDP(ctx sdk.Context, cdp types.CDP) bool {
 
 func (keeper Keeper) SetLiquidityPool(ctx sdk.Context, updatedPool sdk.Coins) {
 	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.LiquidityPoolStoreKey), keeper.Cdc.MustMarshalBinaryBare(&updatedPool))
+	store.Set([]byte(types.LiquidityPoolPrefix), keeper.Cdc.MustMarshalBinaryBare(&updatedPool))
 }
 
 //Return the Block Rewards Pool if exists
 func (keeper Keeper) GetLiquidityPool(ctx sdk.Context) sdk.Coins {
 	var lPool sdk.Coins
 	store := ctx.KVStore(keeper.StoreKey)
-	lpBz := store.Get([]byte(types.LiquidityPoolStoreKey))
+	lpBz := store.Get([]byte(types.LiquidityPoolPrefix))
 	keeper.Cdc.MustUnmarshalBinaryBare(lpBz, &lPool)
 	return lPool
 }
