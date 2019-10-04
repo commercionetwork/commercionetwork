@@ -19,5 +19,6 @@ To open a new CDP you need to create and sign the following message.
 ```
 
 ##About the Timestamp
-
+The timestamp is a way to track time as a running total of seconds.  
+In this case the timestamp has to be the running total of seconds from when the CDP request was made.
 
