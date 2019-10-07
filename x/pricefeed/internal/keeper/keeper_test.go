@@ -126,7 +126,7 @@ func TestKeeper_SetCurrentPrices_MoreThanOneNotExpiredPrice(t *testing.T) {
 	expectedMedianPrice := sumPrice.Quo(sdk.NewDec(2))
 	expectedMedianExpiry := sumExpiry.Quo(sdk.NewInt(2))
 
-	_ = k.SetCurrentPrices(ctx)
+	_ = k.ComputeAndUpdateCurrentPrices(ctx)
 
 	actual, found := k.GetCurrentPrice(ctx, TestRawPrice1.PriceInfo.AssetName)
 	assert.True(t, found)
@@ -138,7 +138,7 @@ func TestKeeper_SetCurrentPrices_AllExpiredRawPrices(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 	k.AddOracle(ctx, TestOracle1)
 	_ = k.SetRawPrice(ctx, TestRawPriceE)
-	err := k.SetCurrentPrices(ctx)
+	err := k.ComputeAndUpdateCurrentPrices(ctx)
 	assert.Error(t, err)
 }
 
@@ -146,7 +146,7 @@ func TestKeeper_SetCurrentPrice_OneNotExpiredPrice(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 	k.AddOracle(ctx, TestOracle1)
 	_ = k.SetRawPrice(ctx, TestRawPrice1)
-	_ = k.SetCurrentPrices(ctx)
+	_ = k.ComputeAndUpdateCurrentPrices(ctx)
 	actual, _ := k.GetCurrentPrice(ctx, TestRawPrice1.PriceInfo.AssetName)
 	assert.Equal(t, TestRawPrice1.PriceInfo.Price, actual.Price)
 	assert.Equal(t, TestRawPrice1.PriceInfo.Expiry, actual.Expiry)

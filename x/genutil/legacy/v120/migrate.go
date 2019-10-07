@@ -1,4 +1,4 @@
-package v036
+package v120
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"

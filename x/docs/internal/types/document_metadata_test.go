@@ -108,3 +108,19 @@ func TestDocumentMetadata_Validate_EmptySchemaVersion(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "metadata.schema.version can't be empty", err.Error())
 }
+
+func TestDocumentMetadata_JSONUnmarshal(t *testing.T) {
+	json := `{"content_uri":"http://www.contentUri.com","schema":{"uri":"http://www.contentUri.com","version":"1.0.0"}}`
+
+	var metadata DocumentMetadata
+	ModuleCdc.MustUnmarshalJSON([]byte(json), &metadata)
+
+	expected := DocumentMetadata{
+		ContentUri: "http://www.contentUri.com",
+		Schema: &DocumentMetadataSchema{
+			Uri:     "http://www.contentUri.com",
+			Version: "1.0.0",
+		},
+	}
+	assert.Equal(t, expected, metadata)
+}
