@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -19,7 +20,11 @@ func GetQueryCmd(cdc *codec.Codec, moduleName, querierRoute string) *cobra.Comma
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(getCmdResolveIdentity(cdc, querierRoute))
+	cmd.AddCommand(
+		getCmdResolveIdentity(cdc, querierRoute),
+		getCmdResolveDepositRequest(cdc, querierRoute),
+		getCmdResolvePowerUpRequest(cdc, querierRoute),
+	)
 
 	return cmd
 }
@@ -31,12 +36,55 @@ func getCmdResolveIdentity(cdc *codec.Codec, querierRoute string) *cobra.Command
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			name := args[0]
 
-			route := fmt.Sprintf("custom/%s/identities/%s", querierRoute, name)
+			route := fmt.Sprintf("custom/%s/%s/%s", querierRoute, types.QueryResolveDid, args[0])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
-				fmt.Printf("Could not resolve identity - %s \n", string(name))
+				fmt.Printf("Could not resolve identity - %s \n", args[0])
+				return nil
+			}
+
+			fmt.Println(string(res))
+
+			return nil
+		},
+	}
+}
+
+func getCmdResolveDepositRequest(cdc *codec.Codec, querierRoute string) *cobra.Command {
+	return &cobra.Command{
+		Use:   "deposit-request [proof]",
+		Short: "Returns the deposit request having the given proof",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			route := fmt.Sprintf("custom/%s/%s/%s", querierRoute, types.QueryResolveDepositRequest, args[0])
+			res, _, err := cliCtx.QueryWithData(route, nil)
+			if err != nil {
+				fmt.Printf("Could not resolve identity - %s \n", args[0])
+				return nil
+			}
+
+			fmt.Println(string(res))
+
+			return nil
+		},
+	}
+}
+
+func getCmdResolvePowerUpRequest(cdc *codec.Codec, querierRoute string) *cobra.Command {
+	return &cobra.Command{
+		Use:   "power-up-request [proof]",
+		Short: "Returns the power up request having the given proof",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			route := fmt.Sprintf("custom/%s/%s/%s", querierRoute, types.QueryResolvePowerUpRequest, args[0])
+			res, _, err := cliCtx.QueryWithData(route, nil)
+			if err != nil {
+				fmt.Printf("Could not resolve identity - %s \n", args[0])
 				return nil
 			}
 

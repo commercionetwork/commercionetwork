@@ -17,7 +17,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -49,7 +48,7 @@ import (
 
 const (
 	appName = "Commercio.network"
-	Version = "1.3.0"
+	Version = "1.2.1"
 
 	DefaultBondDenom   = "ucommercio"
 	StableCreditsDenom = "uccc"
@@ -86,7 +85,6 @@ var (
 	DefaultNodeHome = os.ExpandEnv("$HOME/.cnd")
 
 	ModuleBasics = module.NewBasicManager(
-		genaccounts.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
@@ -241,7 +239,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, bank.DefaultCodespace, app.ModuleAccountAddrs())
 	app.supplyKeeper = supply.NewKeeper(app.cdc, keys[supply.StoreKey], app.accountKeeper, app.bankKeeper, maccPerms)
 	stakingKeeper := staking.NewKeeper(
-		app.cdc, keys[staking.StoreKey], tkeys[staking.TStoreKey],
+		app.cdc, keys[staking.StoreKey],
 		app.supplyKeeper, stakingSubspace, staking.DefaultCodespace,
 	)
 	app.mintKeeper = mint.NewKeeper(app.cdc, keys[mint.StoreKey], mintSubspace, &stakingKeeper, app.supplyKeeper, auth.FeeCollectorName)
@@ -257,7 +255,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.governmentKeeper = government.NewKeeper(app.keys[government.StoreKey], app.cdc)
 	app.accreditationKeeper = accreditations.NewKeeper(app.keys[accreditations.StoreKey], app.bankKeeper, app.cdc)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
-	app.idKeeper = id.NewKeeper(app.keys[id.StoreKey], app.cdc)
+	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.bankKeeper)
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper)
 	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
 	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
@@ -280,7 +278,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// Create default modules to be used from customs during encapsulation
 	app.mm = module.NewManager(
-		genaccounts.NewAppModule(app.accountKeeper),
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
@@ -299,7 +296,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		government.NewAppModule(app.governmentKeeper),
 		accreditations.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
 		docs.NewAppModule(app.docsKeeper),
-		id.NewAppModule(app.idKeeper),
+		id.NewAppModule(app.idKeeper, app.governmentKeeper),
 		memberships.NewAppModule(app.membershipKeeper),
 		pricefeed.NewAppModule(app.pricefeedKeeper, app.governmentKeeper),
 		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
@@ -325,9 +322,9 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(
-		genaccounts.ModuleName, distr.ModuleName,
-		staking.ModuleName, auth.ModuleName, bank.ModuleName, slashing.ModuleName,
-		gov.ModuleName, mint.ModuleName, supply.ModuleName, crisis.ModuleName, genutil.ModuleName,
+		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
+		slashing.ModuleName, gov.ModuleName, mint.ModuleName, supply.ModuleName,
+		crisis.ModuleName, genutil.ModuleName,
 		nft.ModuleName,
 
 		// Custom modules

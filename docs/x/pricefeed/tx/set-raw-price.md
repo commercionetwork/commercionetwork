@@ -14,7 +14,7 @@ In order to set a raw price for a specific asset, you need to create and sign th
 
 ```json
 {
-  "type": "commercio/MsgTypeSetPrice",
+  "type": "commercio/MsgSetPrice",
   "value": {
     "oracle": "<Did of the oracle>",
     "price": {

@@ -26,7 +26,7 @@ func Test_queryGetAccrediter_NonExistent(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, TestUser, actual.User)
-	assert.True(t, actual.Accrediter.Empty())
+	assert.Empty(t, actual.Accrediter)
 }
 
 func Test_queryGetAccrediter_Existent(t *testing.T) {
