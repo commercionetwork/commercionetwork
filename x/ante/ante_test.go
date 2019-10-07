@@ -86,11 +86,11 @@ func consumeMultisignatureVerificationGas(meter sdk.GasMeter,
 
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	// setup
-	app, ctx := createTestApp(true)
+	app, ctx, pfk := createTestApp(true)
 	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper,
+		app.AccountKeeper, app.SupplyKeeper, pfk,
 		defaultSigVerificationGasConsumer,
-		"uccc",
+		"ucommercio", "uccc",
 	)
 
 	// keys and addresses
