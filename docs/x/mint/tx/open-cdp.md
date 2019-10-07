@@ -10,7 +10,7 @@ To open a new CDP you need to create and sign the following message.
   
 ```json
 {
-  "type": "commercio/MsgOpenCDP",
+  "type": "commercio/MsgOpenCdp",
   "value": {
     "cdp_request": {
       "deposited_amount": "<Token to be deposited as a collateral (supports only integers)>",

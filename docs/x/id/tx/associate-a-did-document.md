@@ -10,7 +10,7 @@ to create and sign the following message:
 
 ```json
 {
-  "type": "commercio/SetIdentity",
+  "type": "commercio/MsgSetIdentity",
   "value": {
     "owner": "<Your Did>",
     "did_document": {

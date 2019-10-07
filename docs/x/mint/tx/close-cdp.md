@@ -4,7 +4,7 @@ To close a previously opened CDP you need to create and sign the following messa
 
 ```json
 {
-  "type": "commercio/MsgCloseCDP",
+  "type": "commercio/MsgCloseCdp",
   "value": {
     "signer": "<User address>",
     "timestamp": "<Timestamp of when the CDP request was made>"
