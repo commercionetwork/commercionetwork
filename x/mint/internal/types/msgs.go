@@ -6,23 +6,23 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type MsgOpenCDP struct {
-	Request CDPRequest `json:"cdp_request"`
+type MsgOpenCdp struct {
+	Request CdpRequest `json:"cdp_request"`
 }
 
-func NewMsgOpenCDP(request CDPRequest) MsgOpenCDP {
-	return MsgOpenCDP{
+func NewMsgOpenCdp(request CdpRequest) MsgOpenCdp {
+	return MsgOpenCdp{
 		Request: request,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgOpenCDP) Route() string { return RouterKey }
+func (msg MsgOpenCdp) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgOpenCDP) Type() string { return MsgTypeOpenCDP }
+func (msg MsgOpenCdp) Type() string { return MsgTypeOpenCdp }
 
-func (msg MsgOpenCDP) ValidateBasic() sdk.Error {
+func (msg MsgOpenCdp) ValidateBasic() sdk.Error {
 	if msg.Request.Signer.Empty() {
 		return sdk.ErrInvalidAddress(msg.Request.Signer.String())
 	}
@@ -36,37 +36,37 @@ func (msg MsgOpenCDP) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgOpenCDP) GetSignBytes() []byte {
+func (msg MsgOpenCdp) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgOpenCDP) GetSigners() []sdk.AccAddress {
+func (msg MsgOpenCdp) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Request.Signer}
 }
 
 ///////////////////
-///MsgCloseCDP////
+///MsgCloseCdp////
 /////////////////
-type MsgCloseCDP struct {
+type MsgCloseCdp struct {
 	Signer    sdk.AccAddress `json:"signer"`
 	Timestamp string         `json:"timestamp"`
 }
 
-func NewMsgCloseCDP(signer sdk.AccAddress, timestamp string) MsgCloseCDP {
-	return MsgCloseCDP{
+func NewMsgCloseCdp(signer sdk.AccAddress, timestamp string) MsgCloseCdp {
+	return MsgCloseCdp{
 		Signer:    signer,
 		Timestamp: timestamp,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgCloseCDP) Route() string { return RouterKey }
+func (msg MsgCloseCdp) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgCloseCDP) Type() string { return MsgTypeCloseCDP }
+func (msg MsgCloseCdp) Type() string { return MsgTypeCloseCdp }
 
-func (msg MsgCloseCDP) ValidateBasic() sdk.Error {
+func (msg MsgCloseCdp) ValidateBasic() sdk.Error {
 	if msg.Signer.Empty() {
 		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
@@ -77,11 +77,11 @@ func (msg MsgCloseCDP) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgCloseCDP) GetSignBytes() []byte {
+func (msg MsgCloseCdp) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgCloseCDP) GetSigners() []sdk.AccAddress {
+func (msg MsgCloseCdp) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Signer}
 }

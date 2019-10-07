@@ -1,10 +1,12 @@
-#Reading a user opened CDP
-##Rest API
-###Endpoint     
+# Reading a user opened CDP
+
+## Rest API
+### Endpoint     
 ```
 /cdp/${address}/${timestamp}
 ```
-###Parameters
+
+### Parameters
 | Parameter | Description |
 | :-------: | :---------- | 
 | `address` | Address of the user for which to read the CDP |

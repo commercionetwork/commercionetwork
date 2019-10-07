@@ -18,33 +18,26 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-var TestDepositedAmount = sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100)))
-var TestLiquidityAmount = sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50)))
+var TestCreditsDenom = "stake"
+var TestLiquidityDenom = "ucommercio"
 var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestTimestamp = "timestamp-test"
 
-var TestCdpRequest = types.CDPRequest{
+var TestCdpRequest = types.CdpRequest{
 	Signer:          TestOwner,
-	DepositedAmount: TestDepositedAmount,
-	Timestamp:       TestTimestamp,
+	DepositedAmount: sdk.NewCoins(sdk.NewCoin(TestLiquidityDenom, sdk.NewInt(100))),
+	Timestamp:       "timestamp-test",
 }
 
-var TestCdp = types.CDP{
+var TestCdp = types.Cdp{
 	Owner:           TestOwner,
-	DepositedAmount: TestDepositedAmount,
-	LiquidityAmount: TestLiquidityAmount,
-	Timestamp:       TestTimestamp,
+	DepositedAmount: sdk.NewCoins(sdk.NewCoin(TestLiquidityDenom, sdk.NewInt(100))),
+	CreditsAmount:   sdk.NewCoins(sdk.NewCoin(TestCreditsDenom, sdk.NewInt(50))),
+	Timestamp:       "timestamp-test",
 }
 
-var TestLiquidityPool = sdk.Coins{sdk.NewInt64Coin("ucommercio", 10000)}
+var TestLiquidityPool = sdk.Coins{sdk.NewInt64Coin(TestLiquidityDenom, 10000)}
 
-var TestCurrentPrice = pricefeed.CurrentPrice{
-	AssetName: "ucommercio",
-	Price:     sdk.NewDecFromInt(sdk.NewInt(10)),
-	Expiry:    sdk.NewInt(1000),
-}
-
-func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
+func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -88,9 +81,11 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, nil)
 
 	pricefeedK := pricefeed.NewKeeper(cdc, pricefeedKey)
-	mintK := NewKeeper(cMintKey, bk, pricefeedK, cdc)
 
-	return ctx, bk, pricefeedK, mintK
+	mintK := NewKeeper(cMintKey, bk, pricefeedK, cdc)
+	mintK.SetCreditsDenom(ctx, TestCreditsDenom)
+
+	return cdc, ctx, bk, pricefeedK, mintK
 }
 
 func testCodec() *codec.Codec {

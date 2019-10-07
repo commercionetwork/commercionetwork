@@ -19,23 +19,23 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(getCmdGetCDPs(cdc), getCmdGetCDP(cdc))
+	cmd.AddCommand(getCmdGetCdps(cdc), getCmdGetCdp(cdc))
 
 	return cmd
 }
 
-func getCmdGetCDP(cdc *codec.Codec) *cobra.Command {
+func getCmdGetCdp(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "CDP [owner-address] [timestamp]",
-		Short: "Get the CDP associated with the given address and timestamp",
+		Use:   "Cdp [owner-address] [timestamp]",
+		Short: "Get the Cdp associated with the given address and timestamp",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryGetCDP, args[0], args[1])
+			route := fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QueryGetCdp, args[0], args[1])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
-				fmt.Printf("Could not get CDP with %s timestamp", args[0])
+				fmt.Printf("Could not get Cdp with %s timestamp", args[0])
 			}
 
 			fmt.Println(string(res))
@@ -45,18 +45,18 @@ func getCmdGetCDP(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func getCmdGetCDPs(cdc *codec.Codec) *cobra.Command {
+func getCmdGetCdps(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "CDPs [owner-address]",
-		Short: "Get all the CDPs associated with the given address",
+		Use:   "Cdps [owner-address]",
+		Short: "Get all the Cdps associated with the given address",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetCDPs, args[0])
+			route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetCdps, args[0])
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
-				fmt.Printf("Could not get CDPs of %s", args[0])
+				fmt.Printf("Could not get Cdps of %s", args[0])
 			}
 
 			fmt.Println(string(res))

@@ -21,15 +21,15 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	txCmd.AddCommand(getCmdOpenCDP(cdc), getCmdCloseCDP(cdc))
+	txCmd.AddCommand(getCmdOpenCdp(cdc), getCmdCloseCdp(cdc))
 
 	return txCmd
 }
 
-func getCmdOpenCDP(cdc *codec.Codec) *cobra.Command {
+func getCmdOpenCdp(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "open-CDP [deposit-amount] [timestamp]",
-		Short: "Deposit the given amount, open a CDP and give to the signer the consideration liquidity amount",
+		Use:   "open-cdp [deposit-amount] [timestamp]",
+		Short: "Deposit the given amount, open a Cdp and give to the signer the consideration liquidity amount",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -41,13 +41,13 @@ func getCmdOpenCDP(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			cdpRequest := types.CDPRequest{
+			cdpRequest := types.CdpRequest{
 				Signer:          user,
 				DepositedAmount: depositedAmount,
 				Timestamp:       args[1],
 			}
 
-			msg := types.NewMsgOpenCDP(cdpRequest)
+			msg := types.NewMsgOpenCdp(cdpRequest)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -60,11 +60,11 @@ func getCmdOpenCDP(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdCloseCDP(cdc *codec.Codec) *cobra.Command {
+func getCmdCloseCdp(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "close-CDP [timestamp]",
-		Short: "Close the CDP with the given timestamp, withdraw the liquidity amount from signer's wallet and send the " +
-			"previous deposited amount to it",
+		Use: "close-cdp [timestamp]",
+		Short: "Close the Cdp with the given timestamp, withdrawing the liquidity amount from signer's wallet and" +
+			" sending the previously deposited amount back into it",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -72,7 +72,7 @@ func getCmdCloseCDP(cdc *codec.Codec) *cobra.Command {
 
 			user := cliCtx.GetFromAddress()
 
-			msg := types.NewMsgCloseCDP(user, args[0])
+			msg := types.NewMsgCloseCdp(user, args[0])
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err

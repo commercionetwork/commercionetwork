@@ -7,8 +7,8 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	UsersCDPs           []types.CDPs `json:"users_cdpS"`
-	LiquidityPoolAmount sdk.Coins    `json:"pool_amount"`
+	Cdps                types.Cdps `json:"cdps"`
+	LiquidityPoolAmount sdk.Coins  `json:"pool_amount"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -18,44 +18,28 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-
 	keeper.SetLiquidityPool(ctx, data.LiquidityPoolAmount)
 
-	for _, userCDPs := range data.UsersCDPs {
-		for _, cdp := range userCDPs {
-			keeper.AddCDP(ctx, cdp)
-		}
+	for _, cdp := range data.Cdps {
+		keeper.AddCdp(ctx, cdp)
 	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	users := keeper.GetUsersSet(ctx)
-
-	var usersCDPs = make([]types.CDPs, 0)
-
-	for _, user := range users {
-		CDPs := keeper.GetCDPs(ctx, user)
-		usersCDPs = append(usersCDPs, CDPs)
-	}
-
-	liquidityPool := keeper.GetLiquidityPool(ctx)
-
 	return GenesisState{
-		UsersCDPs:           usersCDPs,
-		LiquidityPoolAmount: liquidityPool,
+		Cdps:                keeper.GetTotalCdps(ctx),
+		LiquidityPoolAmount: keeper.GetLiquidityPool(ctx),
 	}
 }
 
 // ValidateGenesis performs basic validation of genesis data returning an
 // error for any failed validation criteria.
 func ValidateGenesis(state GenesisState) error {
-	for _, userCDPs := range state.UsersCDPs {
-		for _, cdp := range userCDPs {
-			err := cdp.Validate()
-			if err != nil {
-				return err
-			}
+	for _, cdp := range state.Cdps {
+		err := cdp.Validate()
+		if err != nil {
+			return err
 		}
 	}
 	return nil

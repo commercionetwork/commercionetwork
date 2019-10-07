@@ -13,25 +13,25 @@ import (
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case types.QueryGetCDP:
-			return queryGetCDP(ctx, path[1:], keeper)
-		case types.QueryGetCDPs:
-			return queryGetCDPs(ctx, path[1:], keeper)
+		case types.QueryGetCdp:
+			return queryGetCdp(ctx, path[1:], keeper)
+		case types.QueryGetCdps:
+			return queryGetCdps(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
 
-func queryGetCDP(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetCdp(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
 	timestamp := path[1]
-	cdp := keeper.GetCDP(ctx, ownerAddr, timestamp)
-	if cdp == nil {
+	cdp, found := keeper.GetCdpByOwnerAndTimeStamp(ctx, ownerAddr, timestamp)
+	if !found {
 		return nil, sdk.ErrUnknownRequest("couldn't find any cdp associated with the given address and timestamp")
 	}
 
-	cdpBz, err := codec.MarshalJSONIndent(keeper.Cdc, &cdp)
+	cdpBz, err := codec.MarshalJSONIndent(keeper.cdc, &cdp)
 	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -39,11 +39,11 @@ func queryGetCDP(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Err
 	return cdpBz, nil
 }
 
-func queryGetCDPs(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetCdps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
-	cdps := keeper.GetCDPs(ctx, ownerAddr)
+	cdps := keeper.GetCdpsByOwner(ctx, ownerAddr)
 
-	cdpsBz, err := codec.MarshalJSONIndent(keeper.Cdc, cdps)
+	cdpsBz, err := codec.MarshalJSONIndent(keeper.cdc, cdps)
 	if err != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}

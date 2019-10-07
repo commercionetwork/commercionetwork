@@ -1,5 +1,5 @@
-#Close a CDP
-##Transaction message
+# Close a CDP
+## Transaction message
 To close a previously opened CDP you need to create and sign the following message.
 
 ```json
@@ -11,3 +11,11 @@ To close a previously opened CDP you need to create and sign the following messa
   }
 }
 ```
+
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+closeCdp
+```  

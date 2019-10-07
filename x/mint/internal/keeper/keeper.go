@@ -2,9 +2,7 @@ package keeper
 
 import (
 	"fmt"
-	"strings"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -14,114 +12,86 @@ import (
 
 type Keeper struct {
 	StoreKey        sdk.StoreKey
-	BankKeeper      bank.Keeper
-	PriceFeedKeeper pricefeed.Keeper
-	Cdc             *codec.Codec
+	bankKeeper      bank.Keeper
+	priceFeedKeeper pricefeed.Keeper
+	cdc             *codec.Codec
 }
 
 func NewKeeper(sk sdk.StoreKey, bk bank.Keeper, pk pricefeed.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
 		StoreKey:        sk,
-		BankKeeper:      bk,
-		PriceFeedKeeper: pk,
-		Cdc:             cdc,
+		bankKeeper:      bk,
+		priceFeedKeeper: pk,
+		cdc:             cdc,
 	}
 }
 
+// ---------------------
+// --- Liquidity pool
+// ---------------------
+
+// SetLiquidityPool allows to set the given pool amount as the current liquidity pool amount
+func (keeper Keeper) SetLiquidityPool(ctx sdk.Context, poolAmount sdk.Coins) {
+	store := ctx.KVStore(keeper.StoreKey)
+	storeKey := []byte(types.LiquidityPoolStorePrefix)
+
+	if poolAmount == nil || poolAmount.Empty() {
+		store.Delete(storeKey)
+	} else {
+		store.Set(storeKey, keeper.cdc.MustMarshalBinaryBare(&poolAmount))
+	}
+}
+
+// GetLiquidityPool returns the amount of the liquidity pool for the given context
+func (keeper Keeper) GetLiquidityPool(ctx sdk.Context) sdk.Coins {
+	var lPool sdk.Coins
+	store := ctx.KVStore(keeper.StoreKey)
+	lpBz := store.Get([]byte(types.LiquidityPoolStorePrefix))
+	keeper.cdc.MustUnmarshalBinaryBare(lpBz, &lPool)
+	return lPool
+}
+
+// --------------
+// --- Credits
+// --------------
+
 func (keeper Keeper) SetCreditsDenom(ctx sdk.Context, den string) {
 	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.CreditsDenom), []byte(den))
+	store.Set([]byte(types.CreditsDenomStoreKey), []byte(den))
 }
 
 func (keeper Keeper) GetCreditsDenom(ctx sdk.Context) string {
 	store := ctx.KVStore(keeper.StoreKey)
-	return string(store.Get([]byte(types.CreditsDenom)))
+	return string(store.Get([]byte(types.CreditsDenomStoreKey)))
 }
 
-func (keeper Keeper) GetCDPkey(address sdk.AccAddress) []byte {
-	return []byte(types.CDPSPrefix + address.String())
+// --------------
+// --- CDPs
+// --------------
+
+func (keeper Keeper) getCdpKey(address sdk.AccAddress) []byte {
+	return []byte(types.UserCdpsStorePrefix + address.String())
 }
 
-// GetUsersSet returns the list of all the users that open at least one CDP.
-func (keeper Keeper) GetUsersSet(ctx sdk.Context) ctypes.Addresses {
+// AddCdp adds a Cdp to the user's Cdps list
+func (keeper Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
+	var cdps types.Cdps
 	store := ctx.KVStore(keeper.StoreKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CDPSPrefix))
-	var users = ctypes.Addresses{}
-	for ; iterator.Valid(); iterator.Next() {
-		addressStr := strings.ReplaceAll(string(iterator.Key()), types.CDPSPrefix, "")
-		address, _ := sdk.AccAddressFromBech32(addressStr)
-		users, _ = users.AppendIfMissing(address)
-	}
-	return users
-}
-
-//add a CDP to user's CDPs list
-func (keeper Keeper) AddCDP(ctx sdk.Context, cdp types.CDP) {
-	var cdpS types.CDPs
-	store := ctx.KVStore(keeper.StoreKey)
-	cdpSBz := store.Get(keeper.GetCDPkey(cdp.Owner))
-	keeper.Cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
-	cdpS, found := cdpS.AppendIfMissing(cdp)
+	cdpsBz := store.Get(keeper.getCdpKey(cdp.Owner))
+	keeper.cdc.MustUnmarshalBinaryBare(cdpsBz, &cdps)
+	cdps, found := cdps.AppendIfMissing(cdp)
 	if !found {
-		store.Set(keeper.GetCDPkey(cdp.Owner), keeper.Cdc.MustMarshalBinaryBare(cdpS))
+		store.Set(keeper.getCdpKey(cdp.Owner), keeper.cdc.MustMarshalBinaryBare(cdps))
 	}
 }
 
-func (keeper Keeper) GetCDPs(ctx sdk.Context, owner sdk.AccAddress) types.CDPs {
-	var cdpS types.CDPs
-	store := ctx.KVStore(keeper.StoreKey)
-	cdpSBz := store.Get(keeper.GetCDPkey(owner))
-	keeper.Cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
-	return cdpS
-}
-
-func (keeper Keeper) GetCDP(ctx sdk.Context, owner sdk.AccAddress, timestamp string) *types.CDP {
-	cdpS := keeper.GetCDPs(ctx, owner)
-	cdp, found := cdpS.GetCdpFromTimestamp(timestamp)
-	if !found {
-		return nil
-	}
-	return cdp
-}
-
-func (keeper Keeper) DeleteCDP(ctx sdk.Context, cdp types.CDP) bool {
-	var cdpS types.CDPs
-	store := ctx.KVStore(keeper.StoreKey)
-	cdpSBz := store.Get(keeper.GetCDPkey(cdp.Owner))
-	keeper.Cdc.MustUnmarshalBinaryBare(cdpSBz, &cdpS)
-	cdpS, found := cdpS.RemoveWhenFound(cdp.Timestamp)
-	if found {
-		if len(cdpS) == 0 {
-			store.Delete(keeper.GetCDPkey(cdp.Owner))
-		} else {
-			store.Set(keeper.GetCDPkey(cdp.Owner), keeper.Cdc.MustMarshalBinaryBare(cdpS))
-		}
-		return true
-	}
-	return false
-}
-
-func (keeper Keeper) SetLiquidityPool(ctx sdk.Context, updatedPool sdk.Coins) {
-	store := ctx.KVStore(keeper.StoreKey)
-	store.Set([]byte(types.LiquidityPoolPrefix), keeper.Cdc.MustMarshalBinaryBare(&updatedPool))
-}
-
-//Return the Block Rewards Pool if exists
-func (keeper Keeper) GetLiquidityPool(ctx sdk.Context) sdk.Coins {
-	var lPool sdk.Coins
-	store := ctx.KVStore(keeper.StoreKey)
-	lpBz := store.Get([]byte(types.LiquidityPoolPrefix))
-	keeper.Cdc.MustUnmarshalBinaryBare(lpBz, &lPool)
-	return lPool
-}
-
-// OpenCDP subtract the given token's amount from user's wallet and deposit it into the liquidity pool then,
-// sending him the corresponding commercio cash credits amount.
+// OpenCdp subtract the given token's amount from user's wallet and deposit it into the liquidity pool then,
+// sending him the corresponding credits amount.
 // If all these operations are done correctly, a Collateralized Debt Position is opened.
 // Errors occurs if:
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
-func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.Error {
+func (keeper Keeper) OpenCdp(ctx sdk.Context, cdpRequest types.CdpRequest) sdk.Error {
 
 	if !cdpRequest.DepositedAmount.IsValid() || cdpRequest.DepositedAmount.IsAnyNegative() ||
 		cdpRequest.DepositedAmount.IsZero() {
@@ -132,7 +102,7 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.E
 
 	//Check if all tokens in deposit amount have a price and calculate the total FIAT value of them
 	for _, token := range cdpRequest.DepositedAmount {
-		assetPrice, found := keeper.PriceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
+		assetPrice, found := keeper.priceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
 		if found == false {
 			return sdk.ErrInvalidCoins(fmt.Sprintf("no current price for given token: %s", token.Denom))
 		}
@@ -140,7 +110,7 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.E
 	}
 
 	//Subtract the given deposit amount from user's wallet
-	_, err := keeper.BankKeeper.SubtractCoins(ctx, cdpRequest.Signer, cdpRequest.DepositedAmount)
+	_, err := keeper.bankKeeper.SubtractCoins(ctx, cdpRequest.Signer, cdpRequest.DepositedAmount)
 	if err != nil {
 		return err
 	}
@@ -155,45 +125,91 @@ func (keeper Keeper) OpenCDP(ctx sdk.Context, cdpRequest types.CDPRequest) sdk.E
 
 	//add credits to users wallet
 	credits := sdk.NewCoins(sdk.NewCoin(keeper.GetCreditsDenom(ctx), creditsAmount))
-	credits, _ = keeper.BankKeeper.AddCoins(ctx, cdpRequest.Signer, credits)
+	credits, _ = keeper.bankKeeper.AddCoins(ctx, cdpRequest.Signer, credits)
 
-	//Creating CDP and adding to the store
-	cdp := types.NewCDP(cdpRequest, credits)
-	keeper.AddCDP(ctx, cdp)
+	//Creating Cdp and adding to the store
+	cdp := types.NewCdp(cdpRequest, credits)
+	keeper.AddCdp(ctx, cdp)
 
 	return nil
 }
 
-//CloseCDP subtract the CDP's liquidity amount (commercio cash credits) from user's wallet, after that sends the
-//deposited amount back to it. If these two operations ends without errors, the CDP get closed.
-//Errors occurs if:
-//- cdp doesnt exist
-//- subtracting or adding fund to account don't end well
-func (keeper Keeper) CloseCDP(ctx sdk.Context, user sdk.AccAddress, timestamp string) sdk.Error {
-	cdp := keeper.GetCDP(ctx, user, timestamp)
-	if cdp == nil {
-		return sdk.ErrInternal("cannot close an inexistent cdp")
+func (keeper Keeper) GetCdpsByOwner(ctx sdk.Context, owner sdk.AccAddress) (cdps types.Cdps) {
+	store := ctx.KVStore(keeper.StoreKey)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(keeper.getCdpKey(owner)), &cdps)
+	return cdps
+}
+
+func (keeper Keeper) GetCdpByOwnerAndTimeStamp(ctx sdk.Context, owner sdk.AccAddress, timestamp string) (cdp types.Cdp, found bool) {
+	cdps := keeper.GetCdpsByOwner(ctx, owner)
+	for _, ele := range cdps {
+		if ele.Timestamp == timestamp {
+			return ele, true
+		}
+	}
+	return types.Cdp{}, false
+}
+
+func (keeper Keeper) GetTotalCdps(ctx sdk.Context) types.Cdps {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	cdps := types.Cdps{}
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.UserCdpsStorePrefix))
+	for ; iterator.Valid(); iterator.Next() {
+		var cdp types.Cdp
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &cdp)
+		cdps = append(cdps, cdp)
 	}
 
-	//subtracting liquidity amount from user's wallet
-	_, err := keeper.BankKeeper.SubtractCoins(ctx, user, cdp.LiquidityAmount)
+	return cdps
+}
+
+// CloseCdp subtract the Cdp's liquidity amount (commercio cash credits) from user's wallet, after that sends the
+// deposited amount back to it. If these two operations ends without errors, the Cdp get closed.
+// Errors occurs if:
+// - cdp doesnt exist
+// - subtracting or adding fund to account don't end well
+func (keeper Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp string) sdk.Error {
+	cdp, found := keeper.GetCdpByOwnerAndTimeStamp(ctx, user, timestamp)
+	if !found {
+		msg := fmt.Sprintf("CDP for user with address %s and timestamp %s does not exist", user.String(), timestamp)
+		return sdk.ErrUnknownRequest(msg)
+	}
+
+	// Subtract the liquidity amount from the user's wallet
+	_, err := keeper.bankKeeper.SubtractCoins(ctx, user, cdp.CreditsAmount)
 	if err != nil {
 		return err
 	}
-	//adding back the deposited amount to user's wallet
 
-	//first, withdraw the previous deposited amount from the liquidity pool
+	// Withdraw the previously deposited amount from the liquidity pool
 	liquidityPool := keeper.GetLiquidityPool(ctx)
 	liquidityPool = liquidityPool.Sub(cdp.DepositedAmount)
 	keeper.SetLiquidityPool(ctx, liquidityPool)
 
-	//then add it to the user's wallet
-	_, err = keeper.BankKeeper.AddCoins(ctx, user, cdp.DepositedAmount)
+	// Add the liquidity amount to the user's wallet
+	_, err = keeper.bankKeeper.AddCoins(ctx, user, cdp.DepositedAmount)
 	if err != nil {
 		return err
 	}
 
-	_ = keeper.DeleteCDP(ctx, *cdp)
+	keeper.deleteCdp(ctx, cdp)
 
 	return nil
+}
+
+func (keeper Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	var cdps types.Cdps
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get(keeper.getCdpKey(cdp.Owner)), &cdps)
+	cdps, found := cdps.RemoveWhenFound(cdp.Timestamp)
+
+	if found {
+		if len(cdps) == 0 {
+			store.Delete(keeper.getCdpKey(cdp.Owner))
+		} else {
+			store.Set(keeper.getCdpKey(cdp.Owner), keeper.cdc.MustMarshalBinaryBare(cdps))
+		}
+	}
 }

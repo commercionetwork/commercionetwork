@@ -424,8 +424,8 @@ func Test_handleMsgWithdrawDeposit_AllGood(t *testing.T) {
 
 	// Check the balances
 	assert.Equal(t, TestDidDepositRequest.Amount, k.GetPoolAmount(ctx))
-	assert.True(t, bk.GetCoins(ctx, TestDidDepositRequest.FromAddress).Empty())
-	assert.True(t, bk.GetCoins(ctx, TestDidDepositRequest.Recipient).Empty())
+	assert.Empty(t, bk.GetCoins(ctx, TestDidDepositRequest.FromAddress))
+	assert.Empty(t, bk.GetCoins(ctx, TestDidDepositRequest.Recipient))
 
 	// Check the request
 	request, _ := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
@@ -488,7 +488,7 @@ func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
 
 	// Check the balances
 	assert.Equal(t, msg.Amount, bk.GetCoins(ctx, msg.Recipient))
-	assert.True(t, k.GetPoolAmount(ctx).Empty())
+	assert.Empty(t, k.GetPoolAmount(ctx))
 
 	// Check the request
 	assert.True(t, k.GetHandledPowerUpRequestsReferences(ctx).Contains(msg.ActivationReference))

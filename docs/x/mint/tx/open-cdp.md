@@ -1,10 +1,13 @@
-#Open a CDP (Collateralized Debt Position)
+# Open a CDP
+
 :::warning  
-Before doing this type of transaction be sure to understand what a CDP is, and how it's works.  
-You could loose your token if you don't be careful.  
+Before performing this type of transaction be sure to understand what a CDP is, and how it works.  
+You could loose your token if you aren't be careful.  
 :::
-##Transaction message
-To open a new CDP you need to create and sign the following message.  
+
+## Transaction message
+To open a new CDP you need to create and sign the following message.
+  
 ```json
 {
   "type": "commercio/MsgOpenCDP",
@@ -18,7 +21,14 @@ To open a new CDP you need to create and sign the following message.
 }
 ```
 
-##About the Timestamp
+### About the Timestamp
 The timestamp is a way to track time as a running total of seconds.  
 In this case the timestamp has to be the running total of seconds from when the CDP request was made.
 
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+openCdp
+```  

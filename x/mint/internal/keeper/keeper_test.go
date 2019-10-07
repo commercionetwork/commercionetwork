@@ -4,192 +4,203 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/stretchr/testify/assert"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// ---------------------
+// --- Liquidity pool
+// ---------------------
+
+func TestKeeper_SetLiquidityPool(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	k.SetLiquidityPool(ctx, TestLiquidityPool)
+
+	store := ctx.KVStore(k.StoreKey)
+	var stored sdk.Coins
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolStorePrefix)), &stored)
+
+	assert.Equal(t, TestLiquidityPool, stored)
+}
+
+func TestKeeper_SetLiquidityPool_EmptyPool(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	k.SetLiquidityPool(ctx, sdk.NewCoins())
+
+	store := ctx.KVStore(k.StoreKey)
+	var stored sdk.Coins
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolStorePrefix)), &stored)
+	assert.Empty(t, stored)
+}
+
+func TestKeeper_GetBlockRewardsPool(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.LiquidityPoolStorePrefix), k.cdc.MustMarshalBinaryBare(TestLiquidityPool))
+
+	actual := k.GetLiquidityPool(ctx)
+	assert.Equal(t, TestLiquidityPool, actual)
+}
+
+// --------------
+// --- Credits
+// --------------
+
 func TestKeeper_SetCreditsDenom(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
+
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
+
 	store := ctx.KVStore(k.StoreKey)
-	denomBz := store.Get([]byte(types.CreditsDenom))
+	denomBz := store.Get([]byte(types.CreditsDenomStoreKey))
 	assert.Equal(t, denom, string(denomBz))
 }
 
 func TestKeeper_GetCreditsDenom(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	_, ctx, _, _, k := SetupTestInput()
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 	actual := k.GetCreditsDenom(ctx)
 	assert.Equal(t, denom, actual)
 }
 
-func TestKeeper_GetCDPkey(t *testing.T) {
-	_, _, _, k := SetupTestInput()
-	expected := types.CDPSPrefix + TestOwner.String()
-	actual := k.GetCDPkey(TestOwner)
-	assert.Equal(t, []byte(expected), actual)
-}
+// --------------
+// --- CDPs
+// --------------
 
-func TestKeeper_GetUsersSet(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.GetCDPkey(TestOwner), k.Cdc.MustMarshalBinaryBare(TestCdp))
-	users := k.GetUsersSet(ctx)
-	assert.Equal(t, TestOwner, users[0])
-}
-
-func TestKeeper_AddCDP_notAlreadyAdded(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	var cdps types.CDPs
-	k.AddCDP(ctx, TestCdp)
+func TestKeeper_AddCdp_Existing(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+	var cdps types.Cdps
+	k.AddCdp(ctx, TestCdp)
+	k.AddCdp(ctx, TestCdp)
 
 	store := ctx.KVStore(k.StoreKey)
-	actualBz := store.Get(k.GetCDPkey(TestOwner))
-	k.Cdc.MustUnmarshalBinaryBare(actualBz, &cdps)
-
-	assert.Equal(t, TestCdp, cdps[0])
-}
-
-func TestKeeper_AddCDP_AlreadyAdded(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	var cdps types.CDPs
-	k.AddCDP(ctx, TestCdp)
-	k.AddCDP(ctx, TestCdp)
-
-	store := ctx.KVStore(k.StoreKey)
-	actualBz := store.Get(k.GetCDPkey(TestOwner))
-	k.Cdc.MustUnmarshalBinaryBare(actualBz, &cdps)
+	actualBz := store.Get(k.getCdpKey(TestOwner))
+	k.cdc.MustUnmarshalBinaryBare(actualBz, &cdps)
 
 	assert.Len(t, cdps, 1)
 }
 
-func TestKeeper_GetCDPs(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	var expected = types.CDPs{TestCdp}
-	k.AddCDP(ctx, TestCdp)
+func TestKeeper_AddCdp_NotExisting(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+	var cdps types.Cdps
+	k.AddCdp(ctx, TestCdp)
 
-	actual := k.GetCDPs(ctx, TestOwner)
-	assert.Equal(t, expected, actual)
-}
-
-func TestKeeper_GetCDPs_empty(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	var expected = types.CDPs(nil)
-
-	actual := k.GetCDPs(ctx, TestOwner)
-	assert.Equal(t, expected, actual)
-}
-
-func TestKeeper_DeleteCDP_deleted(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	k.AddCDP(ctx, TestCdp)
-	actual := k.DeleteCDP(ctx, TestCdp)
-	assert.True(t, actual)
-}
-
-func TestKeeper_DeleteCDP_notDeleted(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	actual := k.DeleteCDP(ctx, TestCdp)
-	assert.False(t, actual)
-}
-
-func TestKeeper_setBlockRewardsPool_UtilityFunction(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	var pool sdk.Coins
-
-	k.SetLiquidityPool(ctx, TestLiquidityPool)
 	store := ctx.KVStore(k.StoreKey)
-	poolBz := store.Get([]byte(types.LiquidityPoolPrefix))
-	k.Cdc.MustUnmarshalBinaryBare(poolBz, &pool)
+	actualBz := store.Get(k.getCdpKey(TestOwner))
+	k.cdc.MustUnmarshalBinaryBare(actualBz, &cdps)
 
-	assert.Equal(t, pool, TestLiquidityPool)
+	assert.Equal(t, TestCdp, cdps[0])
 }
 
-func TestKeeper_GetBlockRewardsPool(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestKeeper_OpenCdp_InvalidDepositedAmount(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
 
-	k.SetLiquidityPool(ctx, TestLiquidityPool)
-	actual := k.GetLiquidityPool(ctx)
-
-	assert.Equal(t, TestLiquidityPool, actual)
-}
-
-func TestKeeper_OpenCDP_InvalidDepositedAmount(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	invalidReq := types.CDPRequest{
+	invalidReq := types.CdpRequest{
 		Signer:          TestOwner,
 		DepositedAmount: sdk.NewCoins(sdk.NewInt64Coin("testcoin", 0)),
 		Timestamp:       "",
 	}
-	err := k.OpenCDP(ctx, invalidReq)
+	err := k.OpenCdp(ctx, invalidReq)
+
 	assert.Error(t, err)
-	expected := sdk.ErrInvalidCoins(invalidReq.DepositedAmount.String())
-	assert.Equal(t, expected, err)
+	assert.Equal(t, sdk.ErrInvalidCoins(invalidReq.DepositedAmount.String()), err)
 }
 
-func TestKeeper_OpenCDP_TokenPriceNotFound(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestKeeper_OpenCdp_TokenPriceNotFound(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
 
-	err := k.OpenCDP(ctx, TestCdpRequest)
+	err := k.OpenCdp(ctx, TestCdpRequest)
 	expected := sdk.ErrInvalidCoins("no current price for given token: ucommercio")
 	assert.Error(t, err)
 	assert.Equal(t, expected, err)
 }
 
-func TestKeeper_OpenCDP_NotEnoughFundsInUsersWallet(t *testing.T) {
-	ctx, _, pfk, k := SetupTestInput()
+func TestKeeper_OpenCdp_NotEnoughFundsInUsersWallet(t *testing.T) {
+	_, ctx, _, pfk, k := SetupTestInput()
 
-	//tests setup
-	store := ctx.KVStore(pfk.StoreKey)
-	store.Set([]byte("pricefeed:currentPrices:ucommercio"), k.Cdc.MustMarshalBinaryBare(TestCurrentPrice))
+	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice("ucommercio", 10, 1000))
 	k.SetCreditsDenom(ctx, "uccc")
 
-	err := k.OpenCDP(ctx, TestCdpRequest)
-
+	err := k.OpenCdp(ctx, TestCdpRequest)
 	assert.Error(t, err)
+	assert.Equal(t, sdk.CodeInsufficientCoins, err.Code())
 }
 
-func TestKeeper_OpenCDP_Successfully(t *testing.T) {
-	ctx, bk, pfk, k := SetupTestInput()
+func TestKeeper_OpenCdp_Successful(t *testing.T) {
+	_, ctx, bk, pfk, k := SetupTestInput()
 
-	_, _ = bk.AddCoins(ctx, TestOwner, TestDepositedAmount)
-	store := ctx.KVStore(pfk.StoreKey)
-	store.Set([]byte("pricefeed:currentPrices:ucommercio"), k.Cdc.MustMarshalBinaryBare(TestCurrentPrice))
-	k.SetCreditsDenom(ctx, "uccc")
+	// Setup
+	_ = bk.SetCoins(ctx, TestOwner, TestCdpRequest.DepositedAmount)
+	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(TestLiquidityDenom, 10, 1000))
 
-	err := k.OpenCDP(ctx, TestCdpRequest)
-
+	// Cdp opening
+	err := k.OpenCdp(ctx, TestCdpRequest)
 	assert.Nil(t, err)
-	//check if the correct amount of credits has been transfered to user's wallet
-	creditsAmount := TestLiquidityAmount.AmountOf("uccc").Quo(sdk.NewInt(2))
-	credits := sdk.NewCoins(sdk.NewCoin("uccc", creditsAmount))
-	creditsTransfered := bk.HasCoins(ctx, TestOwner, credits)
 
-	assert.True(t, creditsTransfered)
+	// Check that the correct amount of credits has been transferred to the user's wallet
+	expected := sdk.NewCoins(sdk.NewInt64Coin(TestCreditsDenom, 10*50))
+	actual := bk.GetCoins(ctx, TestCdpRequest.Signer)
+	assert.Equal(t, expected, actual)
 }
 
-func TestKeeper_CloseCDP_InexistentCDP(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestKeeper_GetCdpsByOwner_EmptyList(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
 
-	err := k.CloseCDP(ctx, TestOwner, TestTimestamp)
-	expected := sdk.ErrInternal("cannot close an inexistent cdp")
+	actual := k.GetCdpsByOwner(ctx, TestOwner)
+	assert.Empty(t, actual)
+}
+
+func TestKeeper_GetCdpsByOwner_NonEmptyList(t *testing.T) {
+	cdc, ctx, _, _, k := SetupTestInput()
+
+	k.AddCdp(ctx, TestCdp)
+
+	store := ctx.KVStore(k.StoreKey)
+	var cdps types.Cdps
+	cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(TestCdp.Owner)), &cdps)
+	assert.Equal(t, types.Cdps{TestCdp}, k.GetCdpsByOwner(ctx, TestOwner))
+}
+
+func TestKeeper_CloseCdp_NonExistentCdp(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	err := k.CloseCdp(ctx, TestOwner, TestCdpRequest.Timestamp)
 	assert.Error(t, err)
-	assert.Equal(t, expected, err)
+	assert.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	assert.Contains(t, err.Error(), "does not exist")
 }
 
-func TestKeeper_CloseCDP_Successfully(t *testing.T) {
-	ctx, bk, _, k := SetupTestInput()
+func TestKeeper_CloseCdp_ExistentCdp(t *testing.T) {
+	_, ctx, bk, _, k := SetupTestInput()
 
-	k.AddCDP(ctx, TestCdp)
+	k.AddCdp(ctx, TestCdp)
 	k.SetLiquidityPool(ctx, TestLiquidityPool)
+	_, _ = bk.AddCoins(ctx, TestOwner, TestCdp.CreditsAmount)
 
-	_, _ = bk.AddCoins(ctx, TestOwner, TestLiquidityAmount)
-
-	err := k.CloseCDP(ctx, TestOwner, TestTimestamp)
+	err := k.CloseCdp(ctx, TestOwner, TestCdp.Timestamp)
 	assert.Nil(t, err)
-	creditsTransfered := bk.HasCoins(ctx, TestOwner, TestDepositedAmount)
-	assert.True(t, creditsTransfered)
+
+	assert.Equal(t, TestCdp.DepositedAmount, bk.GetCoins(ctx, TestOwner))
+}
+
+func TestKeeper_DeleteCdp_ExistentCdp(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+
+	k.AddCdp(ctx, TestCdp)
+	k.deleteCdp(ctx, TestCdp)
+
+	assert.NotContains(t, k.GetTotalCdps(ctx), TestCdp)
+}
+
+func TestKeeper_DeleteCdp_NonExistentCdp(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
+	k.deleteCdp(ctx, TestCdp)
+	assert.NotContains(t, k.GetTotalCdps(ctx), TestCdp)
 }

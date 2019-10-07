@@ -1,10 +1,12 @@
-#Reading all user opened CDPs
-##Rest API
-###Endpoint     
+# Reading all user opened CDPs
+
+## Rest API
+### Endpoint     
 ```
 /cdp/${address}
 ```
-###Parameters
+
+### Parameters
 | Parameter | Description |
 | :-------: | :---------- | 
 | `address` | Address of the user for which to read all the CDPs |

@@ -17,17 +17,19 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	NewMsgOpenCDP  = types.NewMsgOpenCDP
-	NewMsgCloseCDP = types.NewMsgCloseCDP
+	NewMsgOpenCdp  = types.NewMsgOpenCdp
+	NewMsgCloseCdp = types.NewMsgCloseCdp
 
 	//Testing
-	TestInput = keeper.SetupTestInput
+	TestInput      = keeper.SetupTestInput
+	TestCdpRequest = keeper.TestCdpRequest
+	TestCdp        = keeper.TestCdp
 )
 
 type (
 	Keeper           = keeper.Keeper
-	MsgDepositToken  = types.MsgOpenCDP
-	MsgWithdrawToken = types.MsgCloseCDP
-	CDPRequest       = types.CDPRequest
-	CDP              = types.CDP
+	MsgDepositToken  = types.MsgOpenCdp
+	MsgWithdrawToken = types.MsgCloseCdp
+	CdpRequest       = types.CdpRequest
+	Cdp              = types.Cdp
 )

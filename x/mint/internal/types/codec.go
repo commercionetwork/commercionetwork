@@ -4,8 +4,8 @@ import "github.com/cosmos/cosmos-sdk/codec"
 
 // RegisterCodec registers concrete types on wire codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgOpenCDP{}, "commercio/MsgOpenCDP", nil)
-	cdc.RegisterConcrete(MsgCloseCDP{}, "commercio/MsgCloseCDP", nil)
+	cdc.RegisterConcrete(MsgOpenCdp{}, "commercio/MsgOpenCdp", nil)
+	cdc.RegisterConcrete(MsgCloseCdp{}, "commercio/MsgCloseCdp", nil)
 }
 
 var ModuleCdc *codec.Codec

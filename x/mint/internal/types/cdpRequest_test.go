@@ -6,20 +6,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var TestCdpRequest = CDPRequest{
+var TestCdpRequest = CdpRequest{
 	Signer:          TestOwner,
 	DepositedAmount: TestDepositedAmount,
 	Timestamp:       TestTimestamp,
 }
 
-func TestCDPRequest_Equals_true(t *testing.T) {
+func TestCdpRequest_Equals_true(t *testing.T) {
 	cdpReq := TestCdpRequest
 	actual := TestCdpRequest.Equals(cdpReq)
 	assert.True(t, actual)
 }
 
-func TestCDPRequest_Equals_false(t *testing.T) {
-	cdpReq := CDPRequest{
+func TestCdpRequest_Equals_false(t *testing.T) {
+	cdpReq := CdpRequest{
 		Signer:          nil,
 		DepositedAmount: nil,
 		Timestamp:       "",

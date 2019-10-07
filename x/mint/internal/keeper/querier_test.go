@@ -11,55 +11,57 @@ import (
 
 var req abci.RequestQuery
 
-func TestQuerier_queryGetCDP_foundCDP(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
+	cdc, ctx, _, _, k := SetupTestInput()
+
+	k.AddCdp(ctx, TestCdp)
+
 	querier := NewQuerier(k)
-
-	k.AddCDP(ctx, TestCdp)
-
-	path := []string{types.QueryGetCDP, TestOwner.String(), TestTimestamp}
-
-	var cdp types.CDP
+	path := []string{types.QueryGetCdp, TestOwner.String(), TestCdp.Timestamp}
 	actualBz, err := querier(ctx, path, req)
-	k.Cdc.MustUnmarshalJSON(actualBz, &cdp)
+
+	var cdp types.Cdp
+	cdc.MustUnmarshalJSON(actualBz, &cdp)
 	assert.Nil(t, err)
 	assert.Equal(t, TestCdp, cdp)
 }
 
-func TestQuerier_queryGetCDP_notFound(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestQuerier_queryGetCdp_notFound(t *testing.T) {
+	_, ctx, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	path := []string{types.QueryGetCDP, TestOwner.String(), TestTimestamp}
+	path := []string{types.QueryGetCdp, TestOwner.String(), TestCdp.Timestamp}
 	_, err := querier(ctx, path, req)
+
 	assert.Error(t, err)
 	expected := sdk.ErrUnknownRequest("couldn't find any cdp associated with the given address and timestamp")
 	assert.Equal(t, expected, err)
 }
 
-func TestQuerier_queryGetCDPs_found(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestQuerier_queryGetCdps_found(t *testing.T) {
+	cdc, ctx, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	k.AddCDP(ctx, TestCdp)
+	k.AddCdp(ctx, TestCdp)
 
-	var cdps types.CDPs
-	path := []string{types.QueryGetCDPs, TestOwner.String(), TestTimestamp}
+	path := []string{types.QueryGetCdps, TestOwner.String(), TestCdp.Timestamp}
 	actualBz, err := querier(ctx, path, req)
-	k.Cdc.MustUnmarshalJSON(actualBz, &cdps)
 	assert.Nil(t, err)
-	assert.Equal(t, types.CDPs{TestCdp}, cdps)
+
+	var cdps types.Cdps
+	cdc.MustUnmarshalJSON(actualBz, &cdps)
+	assert.Equal(t, types.Cdps{TestCdp}, cdps)
 }
 
-func TestQuerier_queryGetCDPs_notFound(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestQuerier_queryGetCdps_notFound(t *testing.T) {
+	cdc, ctx, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	var cdps types.CDPs
-	path := []string{types.QueryGetCDPs, TestOwner.String(), TestTimestamp}
+	path := []string{types.QueryGetCdps, TestOwner.String(), TestCdp.Timestamp}
 	actualBz, err := querier(ctx, path, req)
-	k.Cdc.MustUnmarshalJSON(actualBz, &cdps)
 	assert.Nil(t, err)
-	assert.Equal(t, types.CDPs(nil), cdps)
 
+	var cdps types.Cdps
+	cdc.MustUnmarshalJSON(actualBz, &cdps)
+	assert.Equal(t, types.Cdps(nil), cdps)
 }
