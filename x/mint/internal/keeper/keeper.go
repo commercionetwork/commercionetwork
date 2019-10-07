@@ -93,41 +93,45 @@ func (keeper Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
 // 2) signer's funds are not enough
 func (keeper Keeper) OpenCdp(ctx sdk.Context, cdpRequest types.CdpRequest) sdk.Error {
 
-	if !cdpRequest.DepositedAmount.IsValid() || cdpRequest.DepositedAmount.IsAnyNegative() ||
-		cdpRequest.DepositedAmount.IsZero() {
-		return sdk.ErrInvalidCoins(cdpRequest.DepositedAmount.String())
+	depositAmount := cdpRequest.DepositedAmount
+	if !depositAmount.IsValid() || depositAmount.IsAnyNegative() || depositAmount.IsZero() {
+		return sdk.ErrInvalidCoins(depositAmount.String())
 	}
 
+	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them
 	fiatValue := sdk.NewInt(0)
-
-	//Check if all tokens in deposit amount have a price and calculate the total FIAT value of them
-	for _, token := range cdpRequest.DepositedAmount {
+	for _, token := range depositAmount {
 		assetPrice, found := keeper.priceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
 		if found == false {
-			return sdk.ErrInvalidCoins(fmt.Sprintf("no current price for given token: %s", token.Denom))
+			return sdk.ErrUnknownRequest(fmt.Sprintf("No current price for given token: %s", token.Denom))
 		}
 		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Price.RoundInt()))
 	}
 
-	//Subtract the given deposit amount from user's wallet
-	_, err := keeper.bankKeeper.SubtractCoins(ctx, cdpRequest.Signer, cdpRequest.DepositedAmount)
+	// Subtract the given deposit amount from the user's wallet
+	_, err := keeper.bankKeeper.SubtractCoins(ctx, cdpRequest.Signer, depositAmount)
 	if err != nil {
 		return err
 	}
 
+	// Deposit the amount into the liquidity pool
 	liquidityPool := keeper.GetLiquidityPool(ctx)
-	//depositing the amount to the liquidity pool
-	liquidityPool = liquidityPool.Add(cdpRequest.DepositedAmount)
+	liquidityPool = liquidityPool.Add(depositAmount)
 	keeper.SetLiquidityPool(ctx, liquidityPool)
 
-	//get credits' amount = DepositAmount value / credits price (always 1 euro) / 2 is the power of collateral which is 2:1 (comm -> ccc)
+	// Get the credits amount
+	// creditsAmount = (DepositAmount value / credits price) / 2
+	// Our credit price is always 1 euro, so we simply divide the fiat value by 2
 	creditsAmount := fiatValue.Quo(sdk.NewInt(2))
 
-	//add credits to users wallet
+	// Add the credits to the user's wallet
 	credits := sdk.NewCoins(sdk.NewCoin(keeper.GetCreditsDenom(ctx), creditsAmount))
-	credits, _ = keeper.bankKeeper.AddCoins(ctx, cdpRequest.Signer, credits)
+	_, err = keeper.bankKeeper.AddCoins(ctx, cdpRequest.Signer, credits)
+	if err != nil {
+		return err
+	}
 
-	//Creating Cdp and adding to the store
+	// Create the CDP and save it
 	cdp := types.NewCdp(cdpRequest, credits)
 	keeper.AddCdp(ctx, cdp)
 

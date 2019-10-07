@@ -117,9 +117,8 @@ func TestKeeper_OpenCdp_TokenPriceNotFound(t *testing.T) {
 	_, ctx, _, _, k := SetupTestInput()
 
 	err := k.OpenCdp(ctx, TestCdpRequest)
-	expected := sdk.ErrInvalidCoins("no current price for given token: ucommercio")
 	assert.Error(t, err)
-	assert.Equal(t, expected, err)
+	assert.Equal(t, sdk.CodeUnknownRequest, err.Code())
 }
 
 func TestKeeper_OpenCdp_NotEnoughFundsInUsersWallet(t *testing.T) {
