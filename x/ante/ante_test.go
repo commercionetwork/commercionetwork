@@ -90,7 +90,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	anteHandler := ante.NewAnteHandler(
 		app.AccountKeeper, app.SupplyKeeper, pfk,
 		defaultSigVerificationGasConsumer,
-		"ucommercio", "uccc",
+		"uccc",
 	)
 
 	// keys and addresses
