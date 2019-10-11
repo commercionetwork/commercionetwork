@@ -67,22 +67,37 @@ func checkMinimumFees(
 	stableCreditsDenom string,
 	messagesCount int64,
 ) (enoughFees bool) {
+
+	// ----
 	// Each message should cost 0.01€, which can be paid:
 	// 1 .Using stable credits worth 1€ (10.000 ustable)
 	// 2. Using other tokens (their required quantity is based on their value)
+	// ----
+
+	// ----
+	// Try using stable credits
+	// ----
 
 	// Token quantity is always set as millionth of units
+	// We use 10,000 as 1,000,000 * 0,01 = 10,000
 	stableRequiredQty := messagesCount * 10000
 	cccFee := sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, stableRequiredQty))
 	if messagesCount > 0 && stdTx.Fee.Amount.IsAllGTE(cccFee) {
 		return true
 	}
 
+	// ----
 	// Stable credits where not sufficient, fall back to normal ones
+	// ----
 
 	minFeeFiatAmount := sdk.NewDecWithPrec(1, 2).MulInt64(messagesCount) // 0.01 per message
 	fiatAmount := sdk.NewDecWithPrec(0, 2)                               // 0.00
 	for _, fee := range stdTx.Fee.Amount {
+
+		// Skip stable credits
+		if fee.Denom == stableCreditsDenom {
+			continue
+		}
 
 		// Search for the token price
 		if ctPrice, found := pfk.GetCurrentPrice(ctx, fee.Denom); found {

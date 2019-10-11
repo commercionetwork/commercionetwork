@@ -6,6 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/docs"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -85,43 +86,61 @@ func consumeMultisignatureVerificationGas(meter sdk.GasMeter,
 }
 
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
-	// setup
+
+	// Setup
 	app, ctx, pfk := createTestApp(true)
+
+	tokenDenom := "ucommercio"
+	stableCreditsDenom := "uccc"
+
 	anteHandler := ante.NewAnteHandler(
 		app.AccountKeeper, app.SupplyKeeper, pfk,
 		defaultSigVerificationGasConsumer,
-		"uccc",
+		stableCreditsDenom,
 	)
 
-	// keys and addresses
+	// Keys and addresses
 	priv1, _, addr1 := types.KeyTestPubAddr()
 
-	// set the accounts
+	// Set the accounts
 	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
 	_ = acc1.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
 	app.AccountKeeper.SetAccount(ctx, acc1)
 
-	// msg and signatures
-	document := docs.Document{
-		Uuid: "asdasdasd",
-		Metadata: docs.DocumentMetadata{
-			ContentUri: "asdasd",
-			SchemaType: "asdasd",
-			Schema:     nil,
-		},
-		ContentUri: "asdasd",
-		Checksum:   nil,
-	}
-	msg := docs.NewMsgShareDocument(acc1.GetAddress(), []sdk.AccAddress{acc1.GetAddress()}, document)
+	// Msg and signatures
+	msg := docs.NewMsgShareDocument(acc1.GetAddress(), []sdk.AccAddress{acc1.GetAddress()}, docs.TestingDocument)
 	privs, accnums, seqs := []crypto.PrivKey{priv1}, []uint64{0}, []uint64{0}
 	msgs := []sdk.Msg{msg}
 
-	// signer has not specified enough fees
+	// Signer has not specified the fees
 	var tx sdk.Tx
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(50000, sdk.NewCoins()))
+	fees := auth.NewStdFee(200000, sdk.NewCoins())
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
 
-	// signer has specified enough fees
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(50000, sdk.NewCoins(sdk.NewInt64Coin("uccc", 10000))))
+	// Signer has not specified enough stable credits
+	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 9999)))
+	seqs = []uint64{1}
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
+
+	// Signer has specified enough stable credits
+	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 10000)))
+	seqs = []uint64{2}
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has not specified enough token frees
+	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 5, 1000))
+	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 1)))
+	seqs = []uint64{3}
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
+
+	// Signer has specified enough token fees
+	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 2, 1000))
+	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 5000)))
+	seqs = []uint64{2}
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
 	checkValidTx(t, anteHandler, ctx, tx, true)
 }
