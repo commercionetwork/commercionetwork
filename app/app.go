@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/commercionetwork/commercionetwork/x/accreditations"
+	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
@@ -49,7 +50,8 @@ const (
 	appName = "Commercio.network"
 	Version = "1.2.1"
 
-	DefaultBondDenom = "ucommercio"
+	DefaultBondDenom   = "ucommercio"
+	StableCreditsDenom = "uccc"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
 	Bech32MainPrefix = "did:com:"
@@ -250,7 +252,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.nftKeeper = nft.NewKeeper(app.cdc, app.keys[nft.StoreKey])
 
 	// Custom modules
-	app.governmentKeeper = government.NewKeeper(app.keys[government.StoreKey], app.cdc)
+	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
 	app.accreditationKeeper = accreditations.NewKeeper(app.keys[accreditations.StoreKey], app.bankKeeper, app.cdc)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.bankKeeper)
@@ -340,7 +342,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.supplyKeeper, auth.DefaultSigVerificationGasConsumer))
+	app.SetAnteHandler(
+		ante.NewAnteHandler(
+			app.accountKeeper, app.supplyKeeper, app.pricefeedKeeper,
+			auth.DefaultSigVerificationGasConsumer, StableCreditsDenom,
+		),
+	)
 	app.SetEndBlocker(app.EndBlocker)
 
 	if loadLatest {

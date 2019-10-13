@@ -47,7 +47,7 @@ func GetTestInput() (sdk.Context, *codec.Codec, auth.AccountKeeper, bank.Keeper,
 	accountKeeper := auth.NewAccountKeeper(cdc, keyAcc, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bankKeeper := bank.NewBaseKeeper(accountKeeper, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
 
-	governmentKeeper := government.NewKeeper(governmentKey, cdc)
+	governmentKeeper := government.NewKeeper(cdc, governmentKey)
 	accreditationKeeper := NewKeeper(accreditationKey, bankKeeper, cdc)
 
 	return ctx, cdc, accountKeeper, bankKeeper, governmentKeeper, accreditationKeeper
