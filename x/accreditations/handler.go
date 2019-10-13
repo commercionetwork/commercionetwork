@@ -3,6 +3,7 @@ package accreditations
 import (
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -11,14 +12,14 @@ import (
 func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
-		case MsgSetAccrediter:
-			return handleSetAccrediter(ctx, keeper, msg)
-		case MsgDistributeReward:
-			return handleDistributeReward(ctx, keeper, msg)
+		case MsgInviteUser:
+			return handleMsgInviteUser(ctx, keeper, msg)
+		case MsgSetUserVerified:
+			return handleMsgSetUserVerified(ctx, keeper, msg)
 		case MsgDepositIntoLiquidityPool:
-			return handleDepositIntoPool(ctx, keeper, msg)
+			return handleMsgDepositIntoPool(ctx, keeper, msg)
 		case MsgAddTrustedSigner:
-			return handleAddTrustedSigner(ctx, keeper, governmentKeeper, msg)
+			return handleMsgAddTrustedSigner(ctx, keeper, governmentKeeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -26,54 +27,32 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 	}
 }
 
-func handleSetAccrediter(ctx sdk.Context, keeper Keeper, msg MsgSetAccrediter) sdk.Result {
+func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg MsgInviteUser) sdk.Result {
 
-	// Check the signer
-	if !keeper.IsTrustedSigner(ctx, msg.Signer) {
-		errMsg := fmt.Sprintf("The signer %s is not trusted", msg.Signer.String())
-		return sdk.ErrInvalidAddress(errMsg).Result()
-	}
-
-	// Check the accreditation
-	if accreditation := keeper.GetAccreditation(ctx, msg.User); accreditation.Accrediter != nil {
-		errMsg := fmt.Sprintf(
-			"User %s already has an accreditation (%s)",
-			msg.User.String(),
-			accreditation.Accrediter.String(),
-		)
-		return sdk.ErrUnknownRequest(errMsg).Result()
-	}
-
-	// If everything passes the checks, set the accreditation
-	if err := keeper.SetAccrediter(ctx, msg.User, msg.Accrediter); err != nil {
-		return sdk.ErrUnknownRequest(err.Error()).Result()
+	// Try inviting the user
+	if err := keeper.InviteUser(ctx, msg.Recipient, msg.Sender); err != nil {
+		return err.Result()
 	}
 
 	return sdk.Result{}
 }
 
-func handleDistributeReward(ctx sdk.Context, keeper Keeper, msg MsgDistributeReward) sdk.Result {
+func handleMsgSetUserVerified(ctx sdk.Context, keeper Keeper, msg MsgSetUserVerified) sdk.Result {
 
 	// Check the accreditation
-	accreditation := keeper.GetAccreditation(ctx, msg.User)
-	if accreditation.Rewarded {
-		return sdk.ErrUnknownRequest("Accrediter has already been rewarded").Result()
+	if !keeper.IsTrustedServiceProvider(ctx, msg.Verifier) {
+		msg := fmt.Sprintf("User %s is not a valid TSP", msg.Verifier.String())
+		return sdk.ErrUnauthorized(msg).Result()
 	}
 
-	if accreditation.Accrediter == nil || !accreditation.Accrediter.Equals(msg.Accrediter) {
-		errMsg := fmt.Sprintf("Accrediter of %s does not match with the given one", msg.User.String())
-		return sdk.ErrInvalidAddress(errMsg).Result()
-	}
-
-	// Distribute the reward
-	if err := keeper.DistributeReward(ctx, msg.Accrediter, msg.Reward, msg.User); err != nil {
-		return sdk.ErrUnknownRequest(err.Error()).Result()
-	}
+	// Create a credentials and store it
+	credential := types.Credential{Timestamp: msg.Timestamp, User: msg.User, Verifier: msg.Verifier}
+	keeper.SaveCredential(ctx, credential)
 
 	return sdk.Result{}
 }
 
-func handleDepositIntoPool(ctx sdk.Context, keeper Keeper, msg MsgDepositIntoLiquidityPool) sdk.Result {
+func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg MsgDepositIntoLiquidityPool) sdk.Result {
 	if err := keeper.DepositIntoPool(ctx, msg.Depositor, msg.Amount); err != nil {
 		return sdk.ErrUnknownRequest(err.Error()).Result()
 	}
@@ -81,11 +60,11 @@ func handleDepositIntoPool(ctx sdk.Context, keeper Keeper, msg MsgDepositIntoLiq
 	return sdk.Result{}
 }
 
-func handleAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg MsgAddTrustedSigner) sdk.Result {
-	if msg.Government == nil || !governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.Government) {
+func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg MsgAddTrustedSigner) sdk.Result {
+	if !governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.Government) {
 		return sdk.ErrInvalidAddress("invalid government address").Result()
 	}
 
-	keeper.AddTrustedSigner(ctx, msg.TrustedSigner)
+	keeper.AddTrustedServiceProvider(ctx, msg.Tsp)
 	return sdk.Result{}
 }

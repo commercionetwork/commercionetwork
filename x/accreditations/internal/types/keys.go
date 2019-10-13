@@ -6,15 +6,17 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	LiquidityPoolKey       = StoreKey + ":liquidityPool:"
+	InviteStorePrefix      = "invite:"
+	LiquidityPoolStoreKey  = StoreKey + ":liquidityPool:"
 	TrustedSignersStoreKey = StoreKey + ":signers:"
+	CredentialsStorePrefix = "credentials:"
 
-	MsgTypeSetAccrediter             = "setAccrediter"
-	MsgTypeDistributeReward          = "distributeReward"
+	MsgTypeInviteUser                = "inviteUser"
+	MsgTypeSetUserVerified           = "setUserVerified"
 	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
-	MsgTypeAddTrustedSigner          = "addTrustedSigner"
+	MsgTypeAddTsp                    = "addTsp"
 
-	QueryGetAccrediter = "accrediter"
-	QueryGetSigners    = "signers"
-	QueryGetPoolFunds  = "getPoolFunds"
+	QueryGetInvites                 = "invites"
+	QueryGetTrustedServiceProviders = "tsps"
+	QueryGetPoolFunds               = "poolFunds"
 )

@@ -2,6 +2,7 @@ package types
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -9,136 +10,113 @@ import (
 
 // Test vars
 var user, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var accrediter, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var signer, _ = sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
+var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
 // ----------------------
-// --- MsgSetAccrediter
+// --- MsgInviteUser
 // ----------------------
 
-var msgSetAccrediter = MsgSetAccrediter{
-	User:       user,
-	Accrediter: accrediter,
-	Signer:     signer,
+var msgInviteUser = NewMsgInviteUser(user, sender)
+
+func TestMsgInviteUser_Route(t *testing.T) {
+	assert.Equal(t, QuerierRoute, msgInviteUser.Route())
 }
 
-func TestMsgSetAccrediter_Route(t *testing.T) {
-	assert.Equal(t, QuerierRoute, msgSetAccrediter.Route())
+func TestMsgInviteUser_Type(t *testing.T) {
+	assert.Equal(t, MsgTypeInviteUser, msgInviteUser.Type())
 }
 
-func TestMsgSetAccrediter_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeSetAccrediter, msgSetAccrediter.Type())
+func TestMsgInviteUser_ValidateBasic_ValidMsg(t *testing.T) {
+	assert.Nil(t, msgInviteUser.ValidateBasic())
 }
 
-func TestMsgSetAccrediter_ValidateBasic_ValidMsg(t *testing.T) {
-	assert.Nil(t, msgSetAccrediter.ValidateBasic())
-}
-
-func TestMsgSetAccrediter_ValidateBasic_MissingUser(t *testing.T) {
-	msg := MsgSetAccrediter{User: nil, Accrediter: accrediter, Signer: signer}
+func TestMsgInviteUser_ValidateBasic_MissingRecipient(t *testing.T) {
+	msg := MsgInviteUser{Recipient: nil, Sender: sender}
 	assert.NotNil(t, msg.ValidateBasic())
 }
 
-func TestMsgSetAccrediter_ValidateBasic_MissingAccrediter(t *testing.T) {
-	msg := MsgSetAccrediter{User: user, Accrediter: nil, Signer: signer}
+func TestMsgInviteUser_ValidateBasic_MissingSender(t *testing.T) {
+	msg := MsgInviteUser{Recipient: user, Sender: nil}
 	assert.NotNil(t, msg.ValidateBasic())
 }
 
-func TestMsgSetAccrediter_GetSignBytes(t *testing.T) {
-	actual := msgSetAccrediter.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgSetAccrediter))
+func TestMsgInviteUser_GetSignBytes(t *testing.T) {
+	actual := msgInviteUser.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgInviteUser))
 	assert.Equal(t, expected, actual)
 }
 
-func TestMsgSetAccrediter_GetSigners(t *testing.T) {
-	actual := msgSetAccrediter.GetSigners()
+func TestMsgInviteUser_GetSigners(t *testing.T) {
+	actual := msgInviteUser.GetSigners()
 	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgSetAccrediter.Signer, actual[0])
+	assert.Equal(t, msgInviteUser.Recipient, actual[0])
 }
 
-func TestMsgSetAccrediter_UnmarshalJson(t *testing.T) {
-	json := `{"type":"commercio/MsgSetAccrediter","value":{"user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","accrediter":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","signer":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+func TestMsgInviteUser_UnmarshalJson(t *testing.T) {
+	json := `{"type":"commercio/MsgInviteUser","value":{"recipient":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 
-	var msg MsgSetAccrediter
+	var msg MsgInviteUser
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, user, msg.User)
-	assert.Equal(t, accrediter, msg.Accrediter)
-	assert.Equal(t, signer, msg.Signer)
+	assert.Equal(t, user, msg.Recipient)
+	assert.Equal(t, sender, msg.Sender)
 }
 
-// --------------------------
-// --- MsgDistributeReward
-// --------------------------
+// ---------------------------
+// --- MsgSetUserVerified
+// ---------------------------
 
-var reward = sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
-var msgDistributeReward = MsgDistributeReward{
-	User:       user,
-	Accrediter: accrediter,
-	Signer:     signer,
-	Reward:     reward,
+var timezone, _ = time.LoadLocation("UTC")
+var timestamp = time.Date(1990, 01, 01, 20, 20, 00, 0, timezone)
+var msgSetUserVerified = NewMsgSetUserVerified(user, timestamp, tsp)
+
+func TestMsgSetUserVerified_Route(t *testing.T) {
+	assert.Equal(t, QuerierRoute, msgSetUserVerified.Route())
 }
 
-func TestMsgDistributeReward_Route(t *testing.T) {
-	assert.Equal(t, QuerierRoute, msgDistributeReward.Route())
+func TestMsgSetUserVerified_Type(t *testing.T) {
+	assert.Equal(t, MsgTypeSetUserVerified, msgSetUserVerified.Type())
 }
 
-func TestMsgDistributeReward_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeDistributeReward, msgDistributeReward.Type())
+func TestMsgSetUserVerified_ValidateBasic_ValidMsg(t *testing.T) {
+	assert.Nil(t, msgSetUserVerified.ValidateBasic())
 }
 
-func TestMsgDistributeReward_ValidateBasic_ValidMsg(t *testing.T) {
-	assert.Nil(t, msgDistributeReward.ValidateBasic())
+func TestMsgSetUserVerified_ValidateBasic_MissingTimestamp(t *testing.T) {
+	msg := MsgSetUserVerified{Timestamp: time.Time{}, User: user, Verifier: tsp}
+	assert.Error(t, msg.ValidateBasic())
 }
 
-func TestMsgDistributeReward_ValidateBasic_MissingAccrediter(t *testing.T) {
-	msg := MsgDistributeReward{Accrediter: nil, User: user, Signer: signer, Reward: reward}
-	assert.NotNil(t, msg.ValidateBasic())
+func TestMsgSetUserVerified_ValidateBasic_MissingUser(t *testing.T) {
+	msg := MsgSetUserVerified{Timestamp: timestamp, User: nil, Verifier: tsp}
+	assert.Error(t, msg.ValidateBasic())
 }
 
-func TestMsgDistributeReward_ValidateBasic_MissingUser(t *testing.T) {
-	msg := MsgDistributeReward{Accrediter: accrediter, User: nil, Signer: signer, Reward: reward}
-	assert.NotNil(t, msg.ValidateBasic())
+func TestMsgSetUserVerified_ValidateBasic_MissingVerifier(t *testing.T) {
+	msg := MsgSetUserVerified{Timestamp: timestamp, User: user, Verifier: nil}
+	assert.Error(t, msg.ValidateBasic())
 }
 
-func TestMsgDistributeReward_ValidateBasic_MissingSinger(t *testing.T) {
-	msg := MsgDistributeReward{Accrediter: accrediter, User: user, Signer: nil, Reward: reward}
-	assert.NotNil(t, msg.ValidateBasic())
-}
-
-func TestMsgDistributeReward_ValidateBasic_MissingReward(t *testing.T) {
-	msg := MsgDistributeReward{Accrediter: accrediter, User: user, Signer: signer, Reward: nil}
-	assert.NotNil(t, msg.ValidateBasic())
-}
-
-func TestMsgDistributeReward_ValidateBasic_NegativeReward(t *testing.T) {
-	reward := sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(-100)}}
-	msg := MsgDistributeReward{Accrediter: accrediter, User: user, Signer: signer, Reward: reward}
-	assert.NotNil(t, msg.ValidateBasic())
-}
-
-func TestMsgDistributeReward_GetSignBytes(t *testing.T) {
-	actual := msgDistributeReward.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgDistributeReward))
+func TestMsgSetUserVerified_GetSignBytes(t *testing.T) {
+	actual := msgSetUserVerified.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgSetUserVerified))
 	assert.Equal(t, expected, actual)
 }
 
-func TestMsgDistributeReward_GetSigners(t *testing.T) {
-	actual := msgDistributeReward.GetSigners()
+func TestMsgSetUserVerified_GetSigners(t *testing.T) {
+	actual := msgSetUserVerified.GetSigners()
 	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgDistributeReward.Signer, actual[0])
+	assert.Equal(t, msgSetUserVerified.Verifier, actual[0])
 }
 
-func TestMsgDistributeReward_UnmarshalJson(t *testing.T) {
-	json := `{"type":"commercio/MsgDistributeReward","value":{"user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","accrediter":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","signer":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee","reward":[{"denom":"uatom","amount":"100"}]}}`
+func TestMsgSetUserVerified_UnmarshalJson(t *testing.T) {
+	json := `{"type":"commercio/MsgSetUserVerified","value":{"timestamp": "1990-01-01T20:20:00.000Z", "user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","verifier":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
 
-	var msg MsgDistributeReward
+	var msg MsgSetUserVerified
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
 	assert.Equal(t, user, msg.User)
-	assert.Equal(t, accrediter, msg.Accrediter)
-	assert.Equal(t, signer, msg.Signer)
-	assert.Equal(t, reward, msg.Reward)
+	assert.Equal(t, tsp, msg.Verifier)
 }
 
 // --------------------------------
@@ -146,10 +124,7 @@ func TestMsgDistributeReward_UnmarshalJson(t *testing.T) {
 // --------------------------------
 
 var amount = sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
-var msgDepositIntoLiquidityPool = MsgDepositIntoLiquidityPool{
-	Depositor: user,
-	Amount:    amount,
-}
+var msgDepositIntoLiquidityPool = NewMsgDepositIntoLiquidityPool(amount, user)
 
 func TestMsgDepositIntoLiquidityPool_Route(t *testing.T) {
 	assert.Equal(t, QuerierRoute, msgDepositIntoLiquidityPool.Route())
@@ -202,13 +177,14 @@ func TestMsgDepositIntoLiquidityPool_UnmarshalJson(t *testing.T) {
 }
 
 // --------------------------------
-// --- MsgAddTrustedSigner
+// --- MsgAddTsp
 // --------------------------------
 
 var government, _ = sdk.AccAddressFromBech32("cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg")
-var msgAddTrustedSigner = MsgAddTrustedSigner{
-	Government:    government,
-	TrustedSigner: signer,
+var tsp, _ = sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
+var msgAddTrustedSigner = MsgAddTsp{
+	Government: government,
+	Tsp:        tsp,
 }
 
 func TestMsgAddTrustedSigner_Route(t *testing.T) {
@@ -216,7 +192,7 @@ func TestMsgAddTrustedSigner_Route(t *testing.T) {
 }
 
 func TestMsgAddTrustedSigner_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeAddTrustedSigner, msgAddTrustedSigner.Type())
+	assert.Equal(t, MsgTypeAddTsp, msgAddTrustedSigner.Type())
 }
 
 func TestMsgAddTrustedSigner_ValidateBasic_ValidMsg(t *testing.T) {
@@ -224,12 +200,12 @@ func TestMsgAddTrustedSigner_ValidateBasic_ValidMsg(t *testing.T) {
 }
 
 func TestMsgAddTrustedSigner_ValidateBasic_MissingGovernment(t *testing.T) {
-	msg := MsgAddTrustedSigner{Government: nil, TrustedSigner: signer}
+	msg := MsgAddTsp{Government: nil, Tsp: tsp}
 	assert.NotNil(t, msg.ValidateBasic())
 }
 
 func TestMsgAddTrustedSigner_ValidateBasic_MissingSigner(t *testing.T) {
-	msg := MsgAddTrustedSigner{Government: government, TrustedSigner: nil}
+	msg := MsgAddTsp{Government: government, Tsp: nil}
 	assert.NotNil(t, msg.ValidateBasic())
 }
 
@@ -246,11 +222,11 @@ func TestMsgAddTrustedSigner_GetSigners(t *testing.T) {
 }
 
 func TestMsgAddTrustedSigner_UnmarshalJson(t *testing.T) {
-	json := `{"type":"commercio/MsgAddTrustedSigner","value":{"government":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","signer":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+	json := `{"type":"commercio/MsgAddTsp","value":{"government":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","tsp":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
 
-	var msg MsgAddTrustedSigner
+	var msg MsgAddTsp
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, signer, msg.TrustedSigner)
+	assert.Equal(t, tsp, msg.Tsp)
 	assert.Equal(t, government, msg.Government)
 }

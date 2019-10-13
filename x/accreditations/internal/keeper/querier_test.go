@@ -9,45 +9,77 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
+var request abci.RequestQuery
+
 // ---------------------
-// --- Accrediters
+// --- Invites
 // ---------------------
 
-func Test_queryGetAccrediter_NonExistent(t *testing.T) {
+func Test_queryGetInvites_SpecificUser_Empty(t *testing.T) {
 	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
-	path := []string{types.QueryGetAccrediter, TestUser.String()}
+	path := []string{types.QueryGetInvites, TestUser.String()}
 
 	var querier = NewQuerier(accreditationKeeper)
-	var request abci.RequestQuery
 	actualBz, _ := querier(ctx, path, request)
 
-	var actual AccrediterResponse
+	var actual []types.Invite
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, TestUser, actual.User)
-	assert.Empty(t, actual.Accrediter)
+	assert.Empty(t, actual)
 }
 
-func Test_queryGetAccrediter_Existent(t *testing.T) {
-	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
+func Test_queryGetInvites_SpecificUser_Existing(t *testing.T) {
+	ctx, cdc, _, _, _, k := GetTestInput()
 
-	store := ctx.KVStore(accreditationKeeper.StoreKey)
+	invite := types.Invite{User: TestUser, Sender: TestInviteSender}
+	k.SaveInvite(ctx, invite)
 
-	accreditation := types.Accreditation{User: TestUser, Accrediter: TestAccrediter}
-	store.Set(TestUser, cdc.MustMarshalBinaryBare(&accreditation))
+	path := []string{types.QueryGetInvites, TestUser.String()}
 
-	path := []string{types.QueryGetAccrediter, TestUser.String()}
-
-	var querier = NewQuerier(accreditationKeeper)
-	var request abci.RequestQuery
+	var querier = NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
 
-	var actual AccrediterResponse
+	var actual []types.Invite
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, TestUser, actual.User)
-	assert.Equal(t, TestAccrediter, actual.Accrediter)
+	assert.Equal(t, 1, len(actual))
+	assert.Contains(t, actual, invite)
+}
+
+func Test_queryGetInvites_Generic_Empty(t *testing.T) {
+	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
+
+	path := []string{types.QueryGetInvites}
+
+	var querier = NewQuerier(accreditationKeeper)
+	actualBz, _ := querier(ctx, path, request)
+
+	var actual []types.Invite
+	cdc.MustUnmarshalJSON(actualBz, &actual)
+
+	assert.Empty(t, actual)
+}
+
+func Test_queryGetInvites_Generic_Existing(t *testing.T) {
+	ctx, cdc, _, _, _, k := GetTestInput()
+
+	invite1 := types.Invite{User: TestUser, Sender: TestInviteSender}
+	invite2 := types.Invite{User: TestUser2, Sender: TestInviteSender}
+	k.SaveInvite(ctx, invite1)
+	k.SaveInvite(ctx, invite2)
+
+	path := []string{types.QueryGetInvites}
+
+	var querier = NewQuerier(k)
+	actualBz, _ := querier(ctx, path, request)
+
+	var actual []types.Invite
+	cdc.MustUnmarshalJSON(actualBz, &actual)
+
+	assert.Equal(t, 2, len(actual))
+	assert.Contains(t, actual, invite1)
+	assert.Contains(t, actual, invite2)
 }
 
 // ---------------------
@@ -57,7 +89,7 @@ func Test_queryGetAccrediter_Existent(t *testing.T) {
 func Test_queryGetSigners_EmptyList(t *testing.T) {
 	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
-	path := []string{types.QueryGetSigners}
+	path := []string{types.QueryGetTrustedServiceProviders}
 
 	var querier = NewQuerier(accreditationKeeper)
 	var request abci.RequestQuery
@@ -73,12 +105,12 @@ func Test_queryGetSigners_EmptyList(t *testing.T) {
 func Test_queryGetSigners_ExistingList(t *testing.T) {
 	ctx, cdc, _, _, _, accreditationKeeper := GetTestInput()
 
-	expected := []sdk.AccAddress{TestSigner, TestAccrediter}
+	expected := []sdk.AccAddress{TestTsp, TestInviteSender}
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
 	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&expected))
 
-	path := []string{types.QueryGetSigners}
+	path := []string{types.QueryGetTrustedServiceProviders}
 
 	var querier = NewQuerier(accreditationKeeper)
 	var request abci.RequestQuery
@@ -88,8 +120,8 @@ func Test_queryGetSigners_ExistingList(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, 2, len(actual))
-	assert.Contains(t, actual, TestSigner)
-	assert.Contains(t, actual, TestAccrediter)
+	assert.Contains(t, actual, TestTsp)
+	assert.Contains(t, actual, TestInviteSender)
 }
 
 // ---------------------
@@ -121,7 +153,7 @@ func Test_queryGetPoolFunds_ExistingPool(t *testing.T) {
 	)
 
 	store := ctx.KVStore(accreditationKeeper.StoreKey)
-	store.Set([]byte(types.LiquidityPoolKey), cdc.MustMarshalBinaryBare(&expected))
+	store.Set([]byte(types.LiquidityPoolStoreKey), cdc.MustMarshalBinaryBare(&expected))
 
 	path := []string{types.QueryGetPoolFunds}
 

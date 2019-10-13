@@ -8,20 +8,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GenesisState - docs genesis state
+// GenesisState - accreditations genesis state
 type GenesisState struct {
-	LiquidityPoolAmount sdk.Coins             `json:"liquidity_pool_amount"`
-	Accreditations      []types.Accreditation `json:"users_data"`
-	TrustedSigners      ctypes.Addresses      `json:"trustworthy_signers"`
+	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`
+	Invites                 []types.Invite    `json:"invites"`
+	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"`
+	Credentials             types.Credentials `json:"credentials"`
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
-	return GenesisState{
-		LiquidityPoolAmount: sdk.Coins{},
-		Accreditations:      []types.Accreditation{},
-		TrustedSigners:      ctypes.Addresses{},
-	}
+	return GenesisState{}
 }
 
 // InitGenesis sets docs information for genesis.
@@ -32,24 +29,28 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	}
 
 	// Import the signers
-	for _, signer := range data.TrustedSigners {
-		keeper.AddTrustedSigner(ctx, signer)
+	for _, signer := range data.TrustedServiceProviders {
+		keeper.AddTrustedServiceProvider(ctx, signer)
 	}
 
-	// Import all the accreditations
-	for _, accreditation := range data.Accreditations {
-		if err := keeper.SetAccrediter(ctx, accreditation.User, accreditation.Accrediter); err != nil {
-			panic(err)
-		}
+	// Import all the invites
+	for _, invite := range data.Invites {
+		keeper.SaveInvite(ctx, invite)
+	}
+
+	// Import the credentials
+	for _, credential := range data.Credentials {
+		keeper.SaveCredential(ctx, credential)
 	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
-		LiquidityPoolAmount: keeper.GetPoolFunds(ctx),
-		Accreditations:      keeper.GetAccreditations(ctx),
-		TrustedSigners:      keeper.GetTrustedSigners(ctx),
+		LiquidityPoolAmount:     keeper.GetPoolFunds(ctx),
+		Invites:                 keeper.GetInvites(ctx),
+		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
+		Credentials:             keeper.GetCredentials(ctx),
 	}
 }
 

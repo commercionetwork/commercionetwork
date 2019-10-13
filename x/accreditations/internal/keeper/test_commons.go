@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -70,5 +72,8 @@ func testCodec() *codec.Codec {
 
 // Testing variables
 var TestUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-var TestAccrediter, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-var TestSigner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
+var TestInviteSender, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+var TestTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var zone, _ = time.LoadLocation("UTC")
+var TestTimestamp = time.Date(1990, 10, 10, 20, 20, 0, 0, zone)

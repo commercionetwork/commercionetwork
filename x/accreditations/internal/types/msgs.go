@@ -1,120 +1,105 @@
 package types
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // --------------------------
-// --- MsgSetAccrediter
+// --- MsgInviteUser
 // --------------------------
 
-// MsgSetAccrediter should be used when wanting to set a specific accrediter
-// for a specific user.
-// Note that the associated signer should be a trustworthy one in order to avoid
-// unauthorized users to perform such assignment.
-type MsgSetAccrediter struct {
-	User       sdk.AccAddress `json:"user"`
-	Accrediter sdk.AccAddress `json:"accrediter"`
-	Signer     sdk.AccAddress `json:"signer"`
+// MsgInviteUser allows to properly invite a user.
+// Te invitation system should be a one-invite-only system, where invites
+// consecutive to the first one should be discarded.
+type MsgInviteUser struct {
+	Recipient sdk.AccAddress `json:"recipient"`
+	Sender    sdk.AccAddress `json:"sender"`
 }
 
-func NewMsgSetAccrediter(user, accrediter, signer sdk.AccAddress) MsgSetAccrediter {
-	return MsgSetAccrediter{
-		User:       user,
-		Accrediter: accrediter,
-		Signer:     signer,
+func NewMsgInviteUser(recipient, sender sdk.AccAddress) MsgInviteUser {
+	return MsgInviteUser{
+		Recipient: recipient,
+		Sender:    sender,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgSetAccrediter) Route() string { return RouterKey }
+func (msg MsgInviteUser) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgSetAccrediter) Type() string { return MsgTypeSetAccrediter }
+func (msg MsgInviteUser) Type() string { return MsgTypeInviteUser }
 
 // ValidateBasic Implements Msg.
-func (msg MsgSetAccrediter) ValidateBasic() sdk.Error {
-	if msg.User.Empty() {
-		return sdk.ErrInvalidAddress(msg.User.String())
+func (msg MsgInviteUser) ValidateBasic() sdk.Error {
+	if msg.Recipient.Empty() {
+		return sdk.ErrInvalidAddress(msg.Recipient.String())
 	}
-	if msg.Accrediter.Empty() {
-		return sdk.ErrInvalidAddress(msg.Accrediter.String())
-	}
-	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+	if msg.Sender.Empty() {
+		return sdk.ErrInvalidAddress(msg.Sender.String())
 	}
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgSetAccrediter) GetSignBytes() []byte {
+func (msg MsgInviteUser) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgSetAccrediter) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
+func (msg MsgInviteUser) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Sender}
 }
 
 // --------------------------
-// --- MsgDistributeReward
+// --- MsgSetUserVerified
 // --------------------------
 
-// MsgDistributeReward should be used when wanting to distribute a
-// specific reward to an accrediter verifying that he has previously
-// accreditated all the users.
-// Note that the signer should be a trustworthy one in order to avoid
-// unauthorized reward distributions.
-type MsgDistributeReward struct {
-	Accrediter sdk.AccAddress `json:"accrediter"`
-	User       sdk.AccAddress `json:"user"`
-	Signer     sdk.AccAddress `json:"signer"`
-	Reward     sdk.Coins      `json:"reward"`
+// MsgSetUserVerified is used to set a specific user as properly verified.
+// Note that the verifier address should identify a Trusted Service Provider account.
+type MsgSetUserVerified struct {
+	Timestamp time.Time      `json:"timestamp"` // Timestamp of the verification
+	User      sdk.AccAddress `json:"user"`      // Recipient that has been verified
+	Verifier  sdk.AccAddress `json:"verifier"`  // Trusted Service Provider
 }
 
-func NewMsgDistributeReward(accrediter sdk.AccAddress, reward sdk.Coins, user, signer sdk.AccAddress) MsgDistributeReward {
-	return MsgDistributeReward{
-		Accrediter: accrediter,
-		User:       user,
-		Signer:     signer,
-		Reward:     reward,
+func NewMsgSetUserVerified(user sdk.AccAddress, timestamp time.Time, verifier sdk.AccAddress) MsgSetUserVerified {
+	return MsgSetUserVerified{
+		Timestamp: timestamp,
+		User:      user,
+		Verifier:  verifier,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgDistributeReward) Route() string { return RouterKey }
+func (msg MsgSetUserVerified) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgDistributeReward) Type() string { return MsgTypeDistributeReward }
+func (msg MsgSetUserVerified) Type() string { return MsgTypeSetUserVerified }
 
 // ValidateBasic Implements Msg.
-func (msg MsgDistributeReward) ValidateBasic() sdk.Error {
-	if msg.Accrediter.Empty() {
-		return sdk.ErrInvalidAddress(msg.Accrediter.String())
+func (msg MsgSetUserVerified) ValidateBasic() sdk.Error {
+	if msg.Timestamp.IsZero() {
+		return sdk.ErrUnknownRequest("Timestamp not valid")
 	}
 	if msg.User.Empty() {
 		return sdk.ErrInvalidAddress(msg.User.String())
 	}
-	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
-	}
-	if msg.Reward.Empty() {
-		return sdk.ErrUnknownRequest("reward cannot be empty")
-	}
-	if msg.Reward.IsAnyNegative() {
-		return sdk.ErrUnknownRequest("rewards cannot be negative")
+	if msg.Verifier.Empty() {
+		return sdk.ErrInvalidAddress(msg.Verifier.String())
 	}
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgDistributeReward) GetSignBytes() []byte {
+func (msg MsgSetUserVerified) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgDistributeReward) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
+func (msg MsgSetUserVerified) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Verifier}
 }
 
 // --------------------------------
@@ -167,28 +152,28 @@ func (msg MsgDepositIntoLiquidityPool) GetSigners() []sdk.AccAddress {
 }
 
 // --------------------------------
-// --- MsgAddTrustedSigner
+// --- MsgAddTsp
 // --------------------------------
 
-// MsgAddTrustedSigner should be used when wanting to add a new address
-// as a trusted signer.
-// Trusted signers will be able to sign rewarding-giving transactions
+// MsgAddTsp should be used when wanting to add a new address
+// as a Trusted Service Provider (TSP).
+// TSPs will be able to sign rewarding-giving transactions
 // so should be only a handful of very trusted accounts.
-type MsgAddTrustedSigner struct {
-	TrustedSigner sdk.AccAddress `json:"signer"`
-	Government    sdk.AccAddress `json:"government"`
+type MsgAddTsp struct {
+	Tsp        sdk.AccAddress `json:"tsp"`
+	Government sdk.AccAddress `json:"government"`
 }
 
 // Route Implements Msg.
-func (msg MsgAddTrustedSigner) Route() string { return RouterKey }
+func (msg MsgAddTsp) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgAddTrustedSigner) Type() string { return MsgTypeAddTrustedSigner }
+func (msg MsgAddTsp) Type() string { return MsgTypeAddTsp }
 
 // ValidateBasic Implements Msg.
-func (msg MsgAddTrustedSigner) ValidateBasic() sdk.Error {
-	if msg.TrustedSigner.Empty() {
-		return sdk.ErrInvalidAddress(msg.TrustedSigner.String())
+func (msg MsgAddTsp) ValidateBasic() sdk.Error {
+	if msg.Tsp.Empty() {
+		return sdk.ErrInvalidAddress(msg.Tsp.String())
 	}
 	if msg.Government.Empty() {
 		return sdk.ErrInvalidAddress(msg.Government.String())
@@ -197,11 +182,11 @@ func (msg MsgAddTrustedSigner) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgAddTrustedSigner) GetSignBytes() []byte {
+func (msg MsgAddTsp) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgAddTrustedSigner) GetSigners() []sdk.AccAddress {
+func (msg MsgAddTsp) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Government}
 }

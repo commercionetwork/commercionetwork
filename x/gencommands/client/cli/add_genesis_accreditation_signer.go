@@ -53,11 +53,11 @@ func AddGenesisAccreditationSigner(ctx *server.Context, cdc *codec.Codec,
 
 			cdc.MustUnmarshalJSON(appState[accreditations.ModuleName], &genState)
 
-			if genState.TrustedSigners.Contains(minterAddr) {
+			if genState.TrustedServiceProviders.Contains(minterAddr) {
 				return fmt.Errorf("cannot add already existing signer %v", minterAddr)
 			}
 
-			genState.TrustedSigners, _ = genState.TrustedSigners.AppendIfMissing(minterAddr)
+			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(minterAddr)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
 			appState[accreditations.ModuleName] = genesisStateBz

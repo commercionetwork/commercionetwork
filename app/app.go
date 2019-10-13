@@ -297,7 +297,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		accreditations.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
 		docs.NewAppModule(app.docsKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper),
-		memberships.NewAppModule(app.membershipKeeper),
+		memberships.NewAppModule(StableCreditsDenom, app.membershipKeeper, app.accreditationKeeper, app.bankKeeper),
 		pricefeed.NewAppModule(app.pricefeedKeeper, app.governmentKeeper),
 		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
 	)

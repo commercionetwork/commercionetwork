@@ -3,6 +3,9 @@ package memberships
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/accreditations"
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -12,8 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
-	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
 )
 
 var (
@@ -53,18 +54,17 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	// TODO
-	//rest.RegisterRoutes(ctx, rtr, ModuleName)
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(cdc)
+	return nil
 }
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc)
+	return nil
 }
 
 //____________________________________________________________________________
@@ -80,15 +80,23 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper Keeper
+	keeper             Keeper
+	accKeeper          accreditations.Keeper
+	bankKeeper         bank.Keeper
+	stableCreditsDenom string
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper) AppModule {
+func NewAppModule(stableCreditsDenom string,
+	keeper Keeper, accKeeper accreditations.Keeper, bankKeeper bank.Keeper,
+) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
+		stableCreditsDenom:  stableCreditsDenom,
 		keeper:              keeper,
+		accKeeper:           accKeeper,
+		bankKeeper:          bankKeeper,
 	}
 }
 
@@ -107,7 +115,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.stableCreditsDenom, am.keeper, am.accKeeper, am.bankKeeper)
 }
 
 // module querier route name

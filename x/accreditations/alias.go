@@ -9,9 +9,6 @@ const (
 	ModuleName   = types.ModuleName
 	StoreKey     = types.StoreKey
 	QuerierRoute = types.QuerierRoute
-
-	TrustedSignersStoreKey = types.TrustedSignersStoreKey
-	LiquidityPoolKey       = types.LiquidityPoolKey
 )
 
 var (
@@ -21,20 +18,27 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	// Tests
-	GetTestInput   = keeper.GetTestInput
-	TestUser       = keeper.TestUser
-	TestAccrediter = keeper.TestAccrediter
-	TestSigner     = keeper.TestSigner
+	// --- Messages
+	NewMsgInviteUser      = types.NewMsgInviteUser
+	NewMsgSetUserVerified = types.NewMsgSetUserVerified
+
+	// --- Tests
+	GetTestInput     = keeper.GetTestInput
+	TestUser         = keeper.TestUser
+	TestInviteSender = keeper.TestInviteSender
+	TestTsp          = keeper.TestTsp
+	TestTimestamp    = keeper.TestTimestamp
 )
 
 type (
 	Keeper = keeper.Keeper
 
-	Accreditation = types.Accreditation
+	Invite      = types.Invite
+	Credential  = types.Credential
+	Credentials = types.Credentials
 
-	MsgSetAccrediter            = types.MsgSetAccrediter
-	MsgDistributeReward         = types.MsgDistributeReward
+	MsgInviteUser               = types.MsgInviteUser
+	MsgSetUserVerified          = types.MsgSetUserVerified
 	MsgDepositIntoLiquidityPool = types.MsgDepositIntoLiquidityPool
-	MsgAddTrustedSigner         = types.MsgAddTrustedSigner
+	MsgAddTrustedSigner         = types.MsgAddTsp
 )

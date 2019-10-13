@@ -14,9 +14,9 @@ import (
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case types.QueryGetAccrediter:
-			return queryGetAccrediter(ctx, path[1:], keeper)
-		case types.QueryGetSigners:
+		case types.QueryGetInvites:
+			return queryGetInvites(ctx, path[1:], keeper)
+		case types.QueryGetTrustedServiceProviders:
 			return queryGetSigners(ctx, path[1:], keeper)
 		case types.QueryGetPoolFunds:
 			return queryGetPoolFunds(ctx, path[1:], keeper)
@@ -26,22 +26,34 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 	}
 }
 
-type AccrediterResponse struct {
-	User       sdk.AccAddress `json:"user"`
-	Accrediter sdk.AccAddress `json:"accrediter"`
+type InviteResponse struct {
+	Recipient sdk.AccAddress `json:"recipient"`
+	Sender    sdk.AccAddress `json:"sender"`
 }
 
-func queryGetAccrediter(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
+func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 
-	accreditation := keeper.GetAccreditation(ctx, address)
-	response := AccrediterResponse{
-		Accrediter: accreditation.Accrediter,
-		User:       address,
+	// Get the list of invites
+	var invites []types.Invite
+	if len(path) == 0 {
+
+		// Get all the invites
+		invites = keeper.GetInvites(ctx)
+
+	} else {
+
+		// A user has been specified, get only his invites
+		address, _ := sdk.AccAddressFromBech32(path[0])
+		if invite, found := keeper.GetInvite(ctx, address); found {
+			invites = []types.Invite{invite}
+		}
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, response)
+	if invites == nil {
+		invites = make([]types.Invite, 0)
+	}
+
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, invites)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -50,7 +62,7 @@ func queryGetAccrediter(ctx sdk.Context, path []string, keeper Keeper) (res []by
 }
 
 func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err sdk.Error) {
-	signers := keeper.GetTrustedSigners(ctx)
+	signers := keeper.GetTrustedServiceProviders(ctx)
 	if signers == nil {
 		signers = make([]sdk.AccAddress, 0)
 	}

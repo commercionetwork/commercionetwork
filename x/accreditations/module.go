@@ -3,7 +3,7 @@ package accreditations
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/accreditations/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -52,16 +52,17 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(cdc)
+	return nil
 }
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc)
+	return nil
 }
 
 //____________________________________________________________________________

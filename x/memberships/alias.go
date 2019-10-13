@@ -9,23 +9,27 @@ const (
 	ModuleName   = types.ModuleName
 	StoreKey     = types.StoreKey
 	QuerierRoute = types.QuerierRoute
+
+	MembershipTypeBronze = types.MembershipTypeBronze
 )
 
 var (
-	//function aliases
-	NewKeeper     = keeper.NewKeeper
-	NewQuerier    = keeper.NewQuerier
-	TestSetup     = keeper.SetupTestInput
-	RegisterCodec = types.RegisterCodec
+	NewKeeper  = keeper.NewKeeper
+	NewQuerier = keeper.NewQuerier
+	TestSetup  = keeper.SetupTestInput
 
-	//variable aliases
-	ModuleCdc = types.ModuleCdc
+	RegisterCodec = types.RegisterCodec
+	ModuleCdc     = types.ModuleCdc
+
+	NewMsgBuyMembership = types.NewMsgBuyMembership
+
+	// --- Tests
+	TestUserAddress    = keeper.TestUserAddress
+	TestMembershipType = keeper.TestMembershipType
 )
 
 type (
-	Keeper = keeper.Keeper
-
-	Minters = types.Minters
-
-	MsgAssignMembership = types.MsgAssignMembership
+	Keeper           = keeper.Keeper
+	Minters          = types.Minters
+	MsgBuyMembership = types.MsgBuyMembership
 )

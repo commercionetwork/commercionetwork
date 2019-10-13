@@ -31,34 +31,6 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, nftKeeper nft.Keeper) Ke
 	}
 }
 
-// AddTrustedMinter allows to add the given minter as a trusted address that can sign the
-// minting of new memberships tokens
-func (keeper Keeper) AddTrustedMinter(ctx sdk.Context, minter sdk.AccAddress) {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	// Save the minter
-	key := []byte(types.TrustedMinterPrefix + minter.String())
-	store.Set(key, minter)
-}
-
-// GetTrustedMinters returns the list of the current addresses that are allowed to mint
-// a new membership token when necessary
-func (keeper Keeper) GetTrustedMinters(ctx sdk.Context) types.Minters {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	var minters []sdk.AccAddress
-
-	// Iterate over all the keys having the minter prefix
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.TrustedMinterPrefix))
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		// Add each minter to the list
-		minters = append(minters, iterator.Value())
-	}
-
-	return minters
-}
-
 // Utility method that allows to retrieve the id of a token representing a membership associated to the given user
 func (keeper Keeper) getMembershipTokenId(user sdk.AccAddress) string {
 	return "membership-" + user.String()

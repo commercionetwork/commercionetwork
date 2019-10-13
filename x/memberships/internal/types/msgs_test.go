@@ -7,13 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var TestSignerAddress, _ = sdk.AccAddressFromBech32("cosmos1u4zeemkg5pytfr7l3vn7uz3arlfppy5yyxeand")
-var TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestMembershipType = "green"
+var TestBuyer, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestMembershipType = "bronze"
 
-var msgSetId = MsgAssignMembership{
-	Signer:         TestSignerAddress,
-	User:           TestOwnerAddress,
+var msgSetId = MsgBuyMembership{
+	Buyer:          TestBuyer,
 	MembershipType: TestMembershipType,
 }
 
@@ -26,50 +24,32 @@ func TestMsgAssignMembership_Route(t *testing.T) {
 }
 
 func TestMsgAssignMembership_Type(t *testing.T) {
-	assert.Equal(t, "assign_membership", msgSetId.Type())
+	assert.Equal(t, MsgTypeBuyMembership, msgSetId.Type())
 }
 
 func TestMsgAssignMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	assert.Nil(t, msgSetId.ValidateBasic())
 }
 
-func TestMsgAssignMembership_ValidateBasic_InvalidSigner(t *testing.T) {
-	invalidMsg := MsgAssignMembership{
-		Signer:         sdk.AccAddress{},
-		User:           TestOwnerAddress,
-		MembershipType: TestMembershipType,
-	}
-	assert.Error(t, invalidMsg.ValidateBasic())
-}
-
-func TestMsgAssignMembership_ValidateBasic_InvalidUser(t *testing.T) {
-	invalidMsg := MsgAssignMembership{
-		Signer:         TestSignerAddress,
-		User:           sdk.AccAddress{},
-		MembershipType: TestMembershipType,
-	}
+func TestMsgAssignMembership_ValidateBasic_InvalidBuyer(t *testing.T) {
+	invalidMsg := NewMsgBuyMembership(TestMembershipType, nil)
 	assert.Error(t, invalidMsg.ValidateBasic())
 }
 
 func TestMsgAssignMembership_ValidateBasic_InvalidTypes(t *testing.T) {
-	types := []string{"gren", "bronz", "slver", "gld", "blck"}
+	types := []string{"green", "bronz", "slver", "gld", "blck"}
 	for _, memType := range types {
-		invalidMsg := MsgAssignMembership{
-			Signer:         TestSignerAddress,
-			User:           sdk.AccAddress{},
-			MembershipType: memType,
-		}
+		invalidMsg := NewMsgBuyMembership(memType, TestBuyer)
 		assert.Error(t, invalidMsg.ValidateBasic())
 	}
 }
 
 func TestMsgAssignMembership_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/AssignMembership","value":{"membership_type":"green","signer":"cosmos1u4zeemkg5pytfr7l3vn7uz3arlfppy5yyxeand","user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
-
+	expected := `{"type":"commercio/MsgBuyMembership","value":{"buyer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","membership_type":"bronze"}}`
 	assert.Equal(t, expected, string(msgSetId.GetSignBytes()))
 }
 
 func TestNewMsgSetIdentity_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{msgSetId.Signer}
+	expected := []sdk.AccAddress{msgSetId.Buyer}
 	assert.Equal(t, expected, msgSetId.GetSigners())
 }
