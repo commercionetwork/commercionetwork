@@ -252,7 +252,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.nftKeeper = nft.NewKeeper(app.cdc, app.keys[nft.StoreKey])
 
 	// Custom modules
-	app.governmentKeeper = government.NewKeeper(app.keys[government.StoreKey], app.cdc)
+	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
 	app.accreditationKeeper = accreditations.NewKeeper(app.keys[accreditations.StoreKey], app.bankKeeper, app.cdc)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.bankKeeper)
