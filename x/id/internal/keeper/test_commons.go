@@ -45,7 +45,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, govK government.Keeper
 
 	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	govK = government.NewKeeper(govKey, cdc)
+	govK = government.NewKeeper(cdc, govKey)
 	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)

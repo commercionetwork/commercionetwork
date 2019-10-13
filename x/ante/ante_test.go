@@ -88,13 +88,13 @@ func consumeMultisignatureVerificationGas(meter sdk.GasMeter,
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 
 	// Setup
-	app, ctx, pfk := createTestApp(true)
+	app, ctx := createTestApp(true)
 
 	tokenDenom := "ucommercio"
 	stableCreditsDenom := "uccc"
 
 	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper, pfk,
+		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper,
 		defaultSigVerificationGasConsumer,
 		stableCreditsDenom,
 	)
@@ -114,33 +114,36 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 
 	// Signer has not specified the fees
 	var tx sdk.Tx
-	fees := auth.NewStdFee(200000, sdk.NewCoins())
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	fees := sdk.NewCoins()
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
 
 	// Signer has not specified enough stable credits
-	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 9999)))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 9999))
 	seqs = []uint64{1}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
 
 	// Signer has specified enough stable credits
-	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 10000)))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 10000))
+	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{2}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has not specified enough token frees
-	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 5, 1000))
-	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 1)))
+	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 5, 1000))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 1))
+	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{3}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
 
 	// Signer has specified enough token fees
-	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 2, 1000))
-	fees = auth.NewStdFee(200000, sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 5000)))
+	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 2, 1000))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 5000))
+	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{2}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, fees)
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
 	checkValidTx(t, anteHandler, ctx, tx, true)
 }

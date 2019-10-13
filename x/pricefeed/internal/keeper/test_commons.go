@@ -41,7 +41,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, govKeeper government.K
 
 	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	govkeeper := government.NewKeeper(govKey, cdc)
+	govkeeper := government.NewKeeper(cdc, govKey)
 	pfk := NewKeeper(cdc, pricefeedKey)
 
 	return cdc, ctx, govkeeper, pfk
