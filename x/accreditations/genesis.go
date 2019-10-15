@@ -10,15 +10,19 @@ import (
 
 // GenesisState - accreditations genesis state
 type GenesisState struct {
-	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`
-	Invites                 []types.Invite    `json:"invites"`
-	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"`
-	Credentials             types.Credentials `json:"credentials"`
+	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
+	Invites                 []types.Invite    `json:"invites"`                   // List of invites
+	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"` // List of trusted service providers
+	Credentials             types.Credentials `json:"credentials"`               // List of verifiable credentials
+	StableCreditsDenom      string            `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
+	Memberships             []Membership      `json:"memberships"`               // List of all the existing memberships
 }
 
 // DefaultGenesisState returns a default genesis state
-func DefaultGenesisState() GenesisState {
-	return GenesisState{}
+func DefaultGenesisState(stableCreditsDenom string) GenesisState {
+	return GenesisState{
+		StableCreditsDenom: stableCreditsDenom,
+	}
 }
 
 // InitGenesis sets docs information for genesis.
@@ -42,6 +46,17 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	for _, credential := range data.Credentials {
 		keeper.SaveCredential(ctx, credential)
 	}
+
+	// Import the memberships
+	for _, membership := range data.Memberships {
+		_, err := keeper.AssignMembership(ctx, membership.Owner, membership.MembershipType)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Set the stable credits denom
+	keeper.SetStableCreditsDenom(ctx, data.StableCreditsDenom)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -51,6 +66,8 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 		Invites:                 keeper.GetInvites(ctx),
 		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
 		Credentials:             keeper.GetCredentials(ctx),
+		Memberships:             keeper.GetMembershipsSet(ctx),
+		StableCreditsDenom:      keeper.GetStableCreditsDenom(ctx),
 	}
 }
 

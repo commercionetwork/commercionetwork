@@ -21,7 +21,15 @@ var (
 )
 
 // AppModuleBasic defines the basic application module used by the docs module.
-type AppModuleBasic struct{}
+type AppModuleBasic struct {
+	stableCreditsDenom string
+}
+
+func NewAppModuleBasic(stableCreditsDenom string) AppModuleBasic {
+	return AppModuleBasic{
+		stableCreditsDenom: stableCreditsDenom,
+	}
+}
 
 var _ module.AppModuleBasic = AppModuleBasic{}
 
@@ -36,8 +44,8 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 }
 
 // default genesis state
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
+	return ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.stableCreditsDenom))
 }
 
 // module genesis validation
@@ -79,17 +87,17 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper           Keeper
-	governmentKeeper government.Keeper
+	keeper Keeper
+	govK   government.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, governmentKeeper government.Keeper) AppModule {
+func NewAppModule(keeper Keeper, govK government.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
-		governmentKeeper:    governmentKeeper,
+		govK:                govK,
 	}
 }
 
@@ -108,7 +116,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper, am.governmentKeeper)
+	return NewHandler(am.keeper, am.govK)
 }
 
 // module querier route name

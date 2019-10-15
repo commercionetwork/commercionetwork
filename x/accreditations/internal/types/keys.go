@@ -6,17 +6,24 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
+	NftDenom = "membership"
+
+	// --- Keeper
+	StableCreditsStoreKey  = StoreKey + ":stableCreditsDenom"
+	LiquidityPoolStoreKey  = StoreKey + ":liquidityPool"
+	TrustedSignersStoreKey = StoreKey + ":signers"
 	InviteStorePrefix      = "invite:"
-	LiquidityPoolStoreKey  = StoreKey + ":liquidityPool:"
-	TrustedSignersStoreKey = StoreKey + ":signers:"
 	CredentialsStorePrefix = "credentials:"
 
+	// --- Messages
 	MsgTypeInviteUser                = "inviteUser"
 	MsgTypeSetUserVerified           = "setUserVerified"
 	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
 	MsgTypeAddTsp                    = "addTsp"
+	MsgTypeBuyMembership             = "buyMembership"
 
 	QueryGetInvites                 = "invites"
 	QueryGetTrustedServiceProviders = "tsps"
 	QueryGetPoolFunds               = "poolFunds"
+	QueryGetMembership              = "memberships"
 )

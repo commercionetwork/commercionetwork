@@ -230,3 +230,46 @@ func TestMsgAddTrustedSigner_UnmarshalJson(t *testing.T) {
 	assert.Equal(t, tsp, msg.Tsp)
 	assert.Equal(t, government, msg.Government)
 }
+
+// ---------------------------
+// --- MsgBuyMemberships
+// ---------------------------
+
+var TestBuyer, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestMembershipType = "bronze"
+var msgBuyMembership = NewMsgBuyMembership(TestMembershipType, TestBuyer)
+
+func TestMsgBuyMembership_Route(t *testing.T) {
+	assert.Equal(t, ModuleName, msgBuyMembership.Route())
+}
+
+func TestMsgBuyMembership_Type(t *testing.T) {
+	assert.Equal(t, MsgTypeBuyMembership, msgBuyMembership.Type())
+}
+
+func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
+	assert.Nil(t, msgBuyMembership.ValidateBasic())
+}
+
+func TestMsgBuyMembership_ValidateBasic_InvalidBuyer(t *testing.T) {
+	invalidMsg := NewMsgBuyMembership(TestMembershipType, nil)
+	assert.Error(t, invalidMsg.ValidateBasic())
+}
+
+func TestMsgBuyMembership_ValidateBasic_InvalidTypes(t *testing.T) {
+	types := []string{"green", "bronz", "slver", "gld", "blck"}
+	for _, memType := range types {
+		invalidMsg := NewMsgBuyMembership(memType, TestBuyer)
+		assert.Error(t, invalidMsg.ValidateBasic())
+	}
+}
+
+func TestMsgBuyMembership_GetSignBytes(t *testing.T) {
+	expected := `{"type":"commercio/MsgBuyMembership","value":{"buyer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","membership_type":"bronze"}}`
+	assert.Equal(t, expected, string(msgBuyMembership.GetSignBytes()))
+}
+
+func TestMsgBuyMembership_GetSigners(t *testing.T) {
+	expected := []sdk.AccAddress{msgBuyMembership.Buyer}
+	assert.Equal(t, expected, msgBuyMembership.GetSigners())
+}

@@ -20,6 +20,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryGetSigners(ctx, path[1:], keeper)
 		case types.QueryGetPoolFunds:
 			return queryGetPoolFunds(ctx, path[1:], keeper)
+		case types.QueryGetMembership:
+			return queryResolveMembership(ctx, path[1:], keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
@@ -82,6 +84,37 @@ func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, 
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, value)
+	if err2 != nil {
+		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}
+
+// MembershipResult represents the data returned when a search is performed to know the membership of a given user
+type MembershipResult struct {
+	User           sdk.AccAddress `json:"user"`
+	MembershipType string         `json:"membership_type"`
+}
+
+// queryResolveMembership allows to retrieve the current membership of a user having a specified address
+func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+	address, err2 := sdk.AccAddressFromBech32(path[0])
+	if err2 != nil {
+		return nil, sdk.ErrInvalidAddress(path[0])
+	}
+
+	// Create the result type
+	result := MembershipResult{
+		User: address,
+	}
+
+	// Search the membership
+	if membership, found := keeper.GetMembership(ctx, address); found {
+		result.MembershipType = keeper.GetMembershipType(membership)
+	}
+
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, result)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
