@@ -42,7 +42,7 @@ jobs:
         #      - run:
         #          name: Cache go modules
         #          command: make go-mod-cache
-        #      - run:
+      - run:
           name: Build
           command: make build
       - run:
