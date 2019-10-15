@@ -5,15 +5,16 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.
-func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
+func NewHandler(keeper Keeper, membershipKeeper memberships.Keeper, governmentKeeper government.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case MsgInviteUser:
-			return handleMsgInviteUser(ctx, keeper, msg)
+			return handleMsgInviteUser(ctx, keeper, membershipKeeper, msg)
 		case MsgSetUserVerified:
 			return handleMsgSetUserVerified(ctx, keeper, msg)
 		case MsgDepositIntoLiquidityPool:
@@ -27,7 +28,11 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg MsgInviteUser) sdk.Result {
+func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, membershipKeeper memberships.Keeper, msg MsgInviteUser) sdk.Result {
+	// Verify that the user that is inviting has already a membership
+	if _, found := membershipKeeper.GetMembership(ctx, msg.Sender); !found {
+		return sdk.ErrUnauthorized("Cannot send an invitation without having a membership").Result()
+	}
 
 	// Try inviting the user
 	if err := keeper.InviteUser(ctx, msg.Recipient, msg.Sender); err != nil {
