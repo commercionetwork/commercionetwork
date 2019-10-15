@@ -3,8 +3,8 @@ package keeper
 import (
 	"time"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

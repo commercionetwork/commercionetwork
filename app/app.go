@@ -4,7 +4,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations"
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
@@ -12,6 +11,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customstaking"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -104,7 +104,7 @@ var (
 		customstaking.NewAppModuleBasic(DefaultBondDenom),
 
 		// Custom modules
-		accreditations.NewAppModuleBasic(StableCreditsDenom),
+		memberships.NewAppModuleBasic(StableCreditsDenom),
 		docs.AppModuleBasic{},
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
@@ -167,7 +167,7 @@ type CommercioNetworkApp struct {
 	nftKeeper      nft.Keeper
 
 	// Custom modules
-	accreditationKeeper accreditations.Keeper
+	accreditationKeeper memberships.Keeper
 	docsKeeper          docs.Keeper
 	idKeeper            id.Keeper
 	governmentKeeper    government.Keeper
@@ -196,7 +196,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		gov.StoreKey, params.StoreKey, nft.StoreKey,
 
 		// Custom modules
-		accreditations.StoreKey, docs.StoreKey, government.StoreKey,
+		memberships.StoreKey, docs.StoreKey, government.StoreKey,
 		id.StoreKey, pricefeed.StoreKey, tbr.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -240,7 +240,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// Custom modules
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
-	app.accreditationKeeper = accreditations.NewKeeper(app.cdc, app.keys[accreditations.StoreKey], app.nftKeeper, app.bankKeeper)
+	app.accreditationKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.bankKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.bankKeeper)
 	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
@@ -280,7 +280,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 		// Custom modules
 		government.NewAppModule(app.governmentKeeper),
-		accreditations.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
+		memberships.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
 		docs.NewAppModule(app.docsKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper),
 		pricefeed.NewAppModule(app.pricefeedKeeper, app.governmentKeeper),
@@ -313,7 +313,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		nft.ModuleName,
 
 		// Custom modules
-		government.ModuleName, accreditations.ModuleName, docs.ModuleName,
+		government.ModuleName, memberships.ModuleName, docs.ModuleName,
 		id.ModuleName, pricefeed.ModuleName, tbr.ModuleName,
 	)
 

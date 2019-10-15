@@ -1,10 +1,10 @@
-package accreditations
+package memberships
 
 import (
 	"errors"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

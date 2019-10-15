@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"

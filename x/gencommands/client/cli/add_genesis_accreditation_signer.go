@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -49,9 +49,9 @@ func AddGenesisAccreditationSigner(ctx *server.Context, cdc *codec.Codec,
 			}
 
 			// add minter to the app state
-			var genState accreditations.GenesisState
+			var genState memberships.GenesisState
 
-			cdc.MustUnmarshalJSON(appState[accreditations.ModuleName], &genState)
+			cdc.MustUnmarshalJSON(appState[memberships.ModuleName], &genState)
 
 			if genState.TrustedServiceProviders.Contains(minterAddr) {
 				return fmt.Errorf("cannot add already existing signer %v", minterAddr)
@@ -60,7 +60,7 @@ func AddGenesisAccreditationSigner(ctx *server.Context, cdc *codec.Codec,
 			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(minterAddr)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[accreditations.ModuleName] = genesisStateBz
+			appState[memberships.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

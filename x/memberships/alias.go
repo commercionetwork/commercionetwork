@@ -1,8 +1,8 @@
-package accreditations
+package memberships
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/accreditations/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 )
 
 const (

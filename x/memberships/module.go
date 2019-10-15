@@ -1,10 +1,10 @@
-package accreditations
+package memberships
 
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
