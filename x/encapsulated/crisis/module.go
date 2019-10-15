@@ -2,6 +2,7 @@ package customcrisis
 
 import (
 	"encoding/json"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,6 +21,13 @@ func DefaultGenesis(defaultBondDenom string) crisis.GenesisState {
 type AppModuleBasic struct {
 	CrisisModule     crisis.AppModuleBasic
 	DefaultBondDenom string
+}
+
+func NewAppModuleBasic(defaultBondDenom string) AppModuleBasic {
+	return AppModuleBasic{
+		CrisisModule:     crisis.AppModuleBasic{},
+		DefaultBondDenom: defaultBondDenom,
+	}
 }
 
 func (am AppModuleBasic) Name() string {
