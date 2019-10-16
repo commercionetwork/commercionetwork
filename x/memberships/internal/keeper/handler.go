@@ -83,38 +83,37 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 // 4. The user has enough stable credits in his wallet
 func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMembership) sdk.Result {
 
-	// -------------
-	// --- 1. Check the invitation and the invitee membership type
-
-	_, found := keeper.GetInvite(ctx, msg.Buyer)
+	// 1. Check the invitation and the invitee membership type
+	invite, found := keeper.GetInvite(ctx, msg.Buyer)
 	if !found {
 		return sdk.ErrUnauthorized("Cannot buy a membership without being invited").Result()
 	}
 
-	// -------------
-	// --- 2. Make sure the user has properly being verified
-
+	// 2. Make sure the user has properly being verified
 	if credentials := keeper.GetUserCredentials(ctx, msg.Buyer); len(credentials) == 0 {
 		msg := "User has not yet been verified by a Trusted Service Provider"
 		return sdk.ErrUnknownRequest(msg).Result()
 	}
 
-	// -------------
-	// --- 3. Verify the membership validity
-
-	// Check the type
+	// 3. Verify the membership validity
 	if !types.IsMembershipTypeValid(msg.MembershipType) {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", msg.MembershipType)).Result()
 	}
 
-	// Get the current membership
+	// Make sure the user can upgrade
 	membership, found := keeper.GetMembership(ctx, msg.Buyer)
 	if found && !types.CanUpgrade(keeper.GetMembershipType(membership), msg.MembershipType) {
 		errMsg := fmt.Sprintf("Cannot upgrade from %s membership to %s", keeper.GetMembershipType(membership), msg.MembershipType)
 		return sdk.ErrUnknownRequest(errMsg).Result()
 	}
 
+	// Allow him to buy the membership
 	if err := keeper.BuyMembership(ctx, msg.Buyer, msg.MembershipType); err != nil {
+		return err.Result()
+	}
+
+	// Give the reward to the invitee
+	if err := keeper.DistributeReward(ctx, invite, msg.MembershipType); err != nil {
 		return err.Result()
 	}
 
