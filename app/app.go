@@ -4,7 +4,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/commercionetwork/commercionetwork/x/accreditations"
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
@@ -99,29 +98,18 @@ var (
 		nft.AppModuleBasic{},
 
 		// Encapsulated modules
-		customcrisis.AppModuleBasic{
-			DefaultBondDenom: DefaultBondDenom,
-		},
-		customgov.AppModuleBasic{
-			DefaultBondName: DefaultBondDenom,
-		},
-		custommint.AppModuleBasic{
-			DefaultBondDenom: DefaultBondDenom,
-		},
-		customstaking.AppModuleBasic{
-			DefaultBondDenom: DefaultBondDenom,
-		},
+		customcrisis.NewAppModuleBasic(DefaultBondDenom),
+		customgov.NewAppModuleBasic(DefaultBondDenom),
+		custommint.NewAppModuleBasic(DefaultBondDenom),
+		customstaking.NewAppModuleBasic(DefaultBondDenom),
 
 		// Custom modules
-		accreditations.AppModuleBasic{},
+		memberships.NewAppModuleBasic(StableCreditsDenom),
 		docs.AppModuleBasic{},
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
-		memberships.AppModuleBasic{},
 		pricefeed.AppModuleBasic{},
-		tbr.AppModuleBasic{
-			RewardDenom: DefaultBondDenom,
-		},
+		tbr.NewAppModuleBasic(DefaultBondDenom),
 	)
 
 	maccPerms = map[string][]string{
@@ -179,11 +167,10 @@ type CommercioNetworkApp struct {
 	nftKeeper      nft.Keeper
 
 	// Custom modules
-	accreditationKeeper accreditations.Keeper
+	accreditationKeeper memberships.Keeper
 	docsKeeper          docs.Keeper
 	idKeeper            id.Keeper
 	governmentKeeper    government.Keeper
-	membershipKeeper    memberships.Keeper
 	pricefeedKeeper     pricefeed.Keeper
 	tbrKeeper           tbr.Keeper
 
@@ -209,8 +196,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		gov.StoreKey, params.StoreKey, nft.StoreKey,
 
 		// Custom modules
-		accreditations.StoreKey, docs.StoreKey, government.StoreKey,
-		id.StoreKey, memberships.StoreKey, pricefeed.StoreKey, tbr.StoreKey,
+		memberships.StoreKey, docs.StoreKey, government.StoreKey,
+		id.StoreKey, pricefeed.StoreKey, tbr.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -253,10 +240,9 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// Custom modules
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
-	app.accreditationKeeper = accreditations.NewKeeper(app.keys[accreditations.StoreKey], app.bankKeeper, app.cdc)
+	app.accreditationKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.bankKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.bankKeeper)
-	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper)
 	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
 	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
 
@@ -294,10 +280,9 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 		// Custom modules
 		government.NewAppModule(app.governmentKeeper),
-		accreditations.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
+		memberships.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
 		docs.NewAppModule(app.docsKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper),
-		memberships.NewAppModule(app.membershipKeeper),
 		pricefeed.NewAppModule(app.pricefeedKeeper, app.governmentKeeper),
 		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
 	)
@@ -328,8 +313,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		nft.ModuleName,
 
 		// Custom modules
-		government.ModuleName, accreditations.ModuleName, docs.ModuleName,
-		id.ModuleName, memberships.ModuleName, pricefeed.ModuleName, tbr.ModuleName,
+		government.ModuleName, memberships.ModuleName, docs.ModuleName,
+		id.ModuleName, pricefeed.ModuleName, tbr.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

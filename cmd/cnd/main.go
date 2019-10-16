@@ -67,7 +67,6 @@ func main() {
 	rootCmd.AddCommand(comgenutilcli.MigrateGenesisCmd(ctx, cdc))
 	rootCmd.AddCommand(gencmds.SetGenesisGovernmentAddressCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(gencmds.SetGenesisTbrPoolAmount(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
-	rootCmd.AddCommand(gencmds.AddGenesisMembershipMinterCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(gencmds.AddGenesisAccreditationSigner(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(version.Cmd)
 

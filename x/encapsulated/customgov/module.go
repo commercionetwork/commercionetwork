@@ -2,6 +2,7 @@ package customgov
 
 import (
 	"encoding/json"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,8 +31,15 @@ func DefaultGenesis(defaultBondName string) gov.GenesisState {
 }
 
 type AppModuleBasic struct {
-	govModule       gov.AppModuleBasic
-	DefaultBondName string
+	govModule        gov.AppModuleBasic
+	DefaultBondDenom string
+}
+
+func NewAppModuleBasic(defaultBondDenom string) AppModuleBasic {
+	return AppModuleBasic{
+		govModule:        gov.AppModuleBasic{},
+		DefaultBondDenom: defaultBondDenom,
+	}
 }
 
 func (am AppModuleBasic) Name() string {
@@ -43,7 +51,7 @@ func (am AppModuleBasic) RegisterCodec(arg *codec.Codec) {
 }
 
 func (am AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return gov.ModuleCdc.MustMarshalJSON(DefaultGenesis(am.DefaultBondName))
+	return gov.ModuleCdc.MustMarshalJSON(DefaultGenesis(am.DefaultBondDenom))
 }
 
 func (am AppModuleBasic) ValidateGenesis(arg json.RawMessage) error {
