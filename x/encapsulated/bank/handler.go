@@ -23,6 +23,9 @@ func NewHandler(h sdk.Handler, k Keeper, govKeeper government.Keeper) sdk.Handle
 		case MsgBlockAddressSend:
 			return handleMsgBlockAddressSend(ctx, k, govKeeper, msg)
 
+		case MsgUnlockAddressSend:
+			return handleMsgUnlockAddressSend(ctx, k, govKeeper, msg)
+
 		default:
 			errMsg := fmt.Sprintf("unrecognized bank message type: %T", msg)
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -64,6 +67,20 @@ func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.K
 
 	// Block the address
 	k.AddBlockedAddresses(ctx, msg.Address)
+
+	return sdk.Result{}
+}
+
+// Handle MsgUnlockAccountSend.
+func handleMsgUnlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.Keeper, msg MsgUnlockAddressSend) sdk.Result {
+
+	// Check the signer
+	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
+		return sdk.ErrUnauthorized("Cannot block an address without being the government").Result()
+	}
+
+	// Block the address
+	k.RemoveBlockedAddress(ctx, msg.Address)
 
 	return sdk.Result{}
 }

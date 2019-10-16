@@ -49,10 +49,10 @@ module.exports = {
                 collapsable: false,
                 children: [
                     "x/bank/",
-                    "x/memberships/",
                     "x/docs/",
                     "x/government/",
                     "x/id/",
+                    "x/memberships/",
                     "x/mint/",
                     "x/pricefeed/",
                     "x/tbr/"

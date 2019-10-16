@@ -42,6 +42,33 @@ func TestKeeper_AddBlockedAddresses_ExistingList(t *testing.T) {
 	assert.Contains(t, addresses, TestAddress2)
 }
 
+func TestKeeper_RemoveBlockedAddress_EmptyList(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+
+	existing := []sdk.AccAddress{TestAddress}
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.BlockedAddressesStoreKey), cdc.MustMarshalBinaryBare(&existing))
+
+	k.RemoveBlockedAddress(ctx, TestAddress)
+
+	var addresses []sdk.AccAddress
+	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.BlockedAddressesStoreKey)), &addresses)
+
+	assert.Empty(t, addresses)
+}
+
+func TestKeeper_RemoveBlockedAddress_ExistingList(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+
+	k.RemoveBlockedAddress(ctx, TestAddress)
+
+	var addresses []sdk.AccAddress
+	store := ctx.KVStore(k.storeKey)
+	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.BlockedAddressesStoreKey)), &addresses)
+
+	assert.Empty(t, addresses)
+}
+
 func TestKeeper_GetBlockedAddresses_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	stored := k.GetBlockedAddresses(ctx)

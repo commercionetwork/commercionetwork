@@ -1,17 +1,17 @@
-# Blocking an account 
+# Unlocking an account 
 
 :::warning  
 This transaction can only be performed by the [government](../../government/README.md).  
 :::
 
 ## Transaction message
-In order to prevent a specific user from being able to send any token, you must use the following message: 
+In order to allow a blocked user to send tokens again, you must use the following message:
 
 ```json
 {
-  "type": "commercio/MsgBlockAccountSend",
+  "type": "commercio/MsgUnlockAccountSend",
   "value": {
-    "address": "<Address of the user to be blocked>",
+    "address": "<Address of the user to be unlocked>",
     "signer": "<Government address>"
   }
 }
@@ -28,5 +28,5 @@ If you want to [list past transactions](../../../developers/listing-transactions
 you need to use the following `message.action` value: 
 
 ```
-blockAccountSend
+unlockAccountSend
 ```  

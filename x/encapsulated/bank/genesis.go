@@ -23,10 +23,7 @@ func DefaultGenesisState() GenesisState {
 // InitGenesis sets bank information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
 	bank.InitGenesis(ctx, keeper, genState.GenesisState)
-
-	if !genState.BlockedAccounts.Empty() {
-		keeper.SetBlockedAddresses(ctx, genState.BlockedAccounts)
-	}
+	keeper.SetBlockedAddresses(ctx, genState.BlockedAccounts)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

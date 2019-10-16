@@ -31,6 +31,15 @@ func (keeper Keeper) AddBlockedAddresses(ctx sdk.Context, address sdk.AccAddress
 	}
 }
 
+// RemoveBlockedAddress removes the given address from the list of blocked addresses
+func (keeper Keeper) RemoveBlockedAddress(ctx sdk.Context, address sdk.AccAddress) {
+	addresses := keeper.GetBlockedAddresses(ctx)
+
+	if newBlocked, edited := addresses.RemoveIfExisting(address); edited {
+		keeper.SetBlockedAddresses(ctx, newBlocked)
+	}
+}
+
 // IsAddressBlocked returns true iff
 func (keeper Keeper) IsAddressBlocked(ctx sdk.Context, address sdk.AccAddress) bool {
 	return keeper.GetBlockedAddresses(ctx).Contains(address)
@@ -48,5 +57,10 @@ func (keeper Keeper) GetBlockedAddresses(ctx sdk.Context) cmtypes.Addresses {
 // SetBlockedAddresses allows to set the given addresses as the blocked ones
 func (keeper Keeper) SetBlockedAddresses(ctx sdk.Context, addresses cmtypes.Addresses) {
 	store := ctx.KVStore(keeper.storeKey)
-	store.Set([]byte(types.BlockedAddressesStoreKey), keeper.cdc.MustMarshalBinaryBare(&addresses))
+
+	if addresses == nil || addresses.Empty() {
+		store.Delete([]byte(types.BlockedAddressesStoreKey))
+	} else {
+		store.Set([]byte(types.BlockedAddressesStoreKey), keeper.cdc.MustMarshalBinaryBare(&addresses))
+	}
 }

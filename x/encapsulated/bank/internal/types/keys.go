@@ -13,5 +13,6 @@ const (
 
 	QueryBlockedAccounts = "blockedAccounts"
 
-	MsgTypeBlockAccountSend = "blockAccountSend"
+	MsgTypeBlockAccountSend  = "blockAccountSend"
+	MsgTypeUnlockAccountSend = "unlockAccountSend"
 )

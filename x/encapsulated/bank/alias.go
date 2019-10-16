@@ -20,5 +20,6 @@ var (
 type (
 	Keeper = keeper.Keeper
 
-	MsgBlockAddressSend = types.MsgBlockAccountSend
+	MsgBlockAddressSend  = types.MsgBlockAccountSend
+	MsgUnlockAddressSend = types.MsgUnlockAccountSend
 )
