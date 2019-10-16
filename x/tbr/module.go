@@ -23,6 +23,12 @@ type AppModuleBasic struct {
 	RewardDenom string
 }
 
+func NewAppModuleBasic(rewardDenom string) AppModuleBasic {
+	return AppModuleBasic{
+		RewardDenom: rewardDenom,
+	}
+}
+
 var _ module.AppModuleBasic = AppModuleBasic{}
 
 //module name

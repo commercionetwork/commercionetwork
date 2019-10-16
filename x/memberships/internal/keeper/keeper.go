@@ -1,85 +1,81 @@
 package keeper
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/nft/exported"
 )
 
+var membershipCosts = map[string]int64{
+	types.MembershipTypeBronze: 25,
+	types.MembershipTypeSilver: 250,
+	types.MembershipTypeGold:   2500,
+	types.MembershipTypeBlack:  25000,
+}
+
 type Keeper struct {
-	StoreKey sdk.StoreKey
-
-	// NFT keeper to mint tokens
-	NftKeeper nft.Keeper
-
-	// Pointer to the codec that is used by Amino to encode and decode binary structs.
-	Cdc *codec.Codec
+	cdc        *codec.Codec
+	StoreKey   sdk.StoreKey
+	BankKeeper bank.Keeper
+	NftKeeper  nft.Keeper
 }
 
-// NewKeeper creates new instances of the membership module Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, nftKeeper nft.Keeper) Keeper {
+// NewKeeper creates new instances of the accreditation module Keeper
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, nftK nft.Keeper, bankK bank.Keeper) Keeper {
 	return Keeper{
-		StoreKey:  storeKey,
-		NftKeeper: nftKeeper,
-		Cdc:       cdc,
+		StoreKey:   storeKey,
+		BankKeeper: bankK,
+		NftKeeper:  nftK,
+		cdc:        cdc,
 	}
 }
 
-// AddTrustedMinter allows to add the given minter as a trusted address that can sign the
-// minting of new memberships tokens
-func (keeper Keeper) AddTrustedMinter(ctx sdk.Context, minter sdk.AccAddress) {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	// Save the minter
-	key := []byte(types.TrustedMinterPrefix + minter.String())
-	store.Set(key, minter)
-}
-
-// GetTrustedMinters returns the list of the current addresses that are allowed to mint
-// a new membership token when necessary
-func (keeper Keeper) GetTrustedMinters(ctx sdk.Context) types.Minters {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	var minters []sdk.AccAddress
-
-	// Iterate over all the keys having the minter prefix
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.TrustedMinterPrefix))
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		// Add each minter to the list
-		minters = append(minters, iterator.Value())
-	}
-
-	return minters
-}
-
-// Utility method that allows to retrieve the id of a token representing a membership associated to the given user
+// getMembershipTokenId allows to retrieve the id of a token representing a membership associated to the given user
 func (keeper Keeper) getMembershipTokenId(user sdk.AccAddress) string {
 	return "membership-" + user.String()
 }
 
+// getMembershipUri allows to returns the URI of the NFT that represents a membership of the
+// given membershipType and having the given id
 func (keeper Keeper) getMembershipUri(membershipType string, id string) string {
 	return fmt.Sprintf("membership:%s:%s", membershipType, id)
 }
 
+// BuyMembership allow to mint and assign a membership of the given membershipType to the specified user.
+// If the user already has a membership assigned, deletes the current one and assigns to it the new one.
+func (keeper Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) sdk.Error {
+	// Get the tokens from the buyer account
+	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
+	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(keeper.GetStableCreditsDenom(ctx), membershipPrice))
+	if _, err := keeper.BankKeeper.SubtractCoins(ctx, buyer, membershipCost); err != nil {
+		return err
+	}
+
+	if _, err := keeper.AssignMembership(ctx, buyer, membershipType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // AssignMembership allow to mint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
-// Returns the URI of the new minted token represented the assigned membership, or an error if something goes wrong
-func (keeper Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) (string, error) {
+// Returns the URI of the new minted token represented the assigned membership, or an error if something goes w
+func (keeper Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) (string, sdk.Error) {
 	// Check the membership type validity
 	if !types.IsMembershipTypeValid(membershipType) {
-		return "", errors.New("invalid membership type")
+		return "", sdk.ErrUnknownRequest("Invalid membership type")
 	}
 
 	// Find any existing membership
 	if _, err := keeper.RemoveMembership(ctx, user); err != nil {
-		return "", err
+		return "", sdk.ErrUnknownRequest(err.Error())
 	}
 
 	// Build the token information
@@ -112,7 +108,7 @@ func (keeper Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (export
 }
 
 // RemoveMembership allows to remove any existing membership associated with the given user.
-func (keeper Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) (bool, error) {
+func (keeper Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) (bool, sdk.Error) {
 	id := keeper.getMembershipTokenId(user)
 
 	if found, _ := keeper.NftKeeper.GetNFT(ctx, types.NftDenom, id); found == nil {
@@ -134,10 +130,6 @@ func (keeper Keeper) GetMembershipType(membership exported.NFT) string {
 	return strings.Split(membership.GetTokenURI(), ":")[1]
 }
 
-// ----------------------
-// --- Genesis utils
-// ----------------------
-
 // Get GetMembershipsSet returns the list of all the memberships
 // that have been minted and are currently stored inside the store
 func (keeper Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
@@ -157,4 +149,19 @@ func (keeper Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
 	}
 
 	return memberships
+}
+
+// GetStableCreditsDenom returns the denom that must be used when referring to stable credits
+// that can be used to purchase a membership
+func (keeper Keeper) GetStableCreditsDenom(ctx sdk.Context) (denom string) {
+	store := ctx.KVStore(keeper.StoreKey)
+	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.StableCreditsStoreKey)), &denom)
+	return denom
+}
+
+// SetStableCreditsDenom allows to set the denom of the coins that must be used as stable credits
+// when purchasing a membership.
+func (keeper Keeper) SetStableCreditsDenom(ctx sdk.Context, denom string) {
+	store := ctx.KVStore(keeper.StoreKey)
+	store.Set([]byte(types.StableCreditsStoreKey), keeper.cdc.MustMarshalBinaryBare(&denom))
 }
