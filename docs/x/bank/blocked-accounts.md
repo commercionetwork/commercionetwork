@@ -8,4 +8,8 @@ If they try to do so, the transaction will simply fail and will not be considere
 
 ## Adding a blocked account
 In order to add an account as blocked you need to be the [government](../government/README.md).  
-If you are, you can then perform the [account blocking transaction](./tx/account-blocking.md). 
+If you are, you can then perform the [account blocking transaction](./tx/account-blocking.md).
+
+## Unlocking a blocked account
+In order to unlock a previously blocked account you need to be the [government](../government/README.md).  
+If you are, you can then perform the [account unlocking transaction](./tx/account-unlock.md).
