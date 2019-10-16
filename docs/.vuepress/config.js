@@ -48,6 +48,7 @@ module.exports = {
                 title: "Modules",
                 collapsable: false,
                 children: [
+                    "x/bank/",
                     "x/docs/",
                     "x/government/",
                     "x/id/",
