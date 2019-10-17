@@ -13,13 +13,10 @@ const (
 
 var (
 	NewKeeper     = keeper.NewKeeper
+	NewHandler    = keeper.NewHandler
 	NewQuerier    = keeper.NewQuerier
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
-
-	TestSetup        = keeper.SetupTestInput
-	TestDidDocument  = keeper.TestDidDocument
-	TestOwnerAddress = keeper.TestOwnerAddress
 )
 
 type (

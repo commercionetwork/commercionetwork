@@ -40,7 +40,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 		response.DidDocument = &didDocument
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, response)
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, response)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}

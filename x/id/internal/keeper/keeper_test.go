@@ -11,7 +11,7 @@ import (
 func TestKeeper_CreateIdentity(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	k.SaveIdentity(ctx, TestOwnerAddress, TestDidDocument)
 
@@ -25,7 +25,7 @@ func TestKeeper_CreateIdentity(t *testing.T) {
 func TestKeeper_EditIdentity(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
 
 	updatedDidDocument := types.DidDocument{Uri: "ddo-reference-update", ContentHash: TestDidDocument.ContentHash}
@@ -41,7 +41,7 @@ func TestKeeper_EditIdentity(t *testing.T) {
 func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
 
 	actual, found := k.GetDidDocumentByOwner(ctx, TestOwnerAddress)
@@ -56,7 +56,7 @@ func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
 
 func TestKeeper_GetIdentities(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	first, _ := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
 	second, _ := sdk.AccAddressFromBech32("cosmos18t0e6fevehhjv682gkxpchvmnl7z7ue4t4w0nd")
@@ -83,7 +83,7 @@ func TestKeeper_GetIdentities(t *testing.T) {
 
 func TestKeeper_SetIdentities(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	first, _ := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
 	second, _ := sdk.AccAddressFromBech32("cosmos18t0e6fevehhjv682gkxpchvmnl7z7ue4t4w0nd")

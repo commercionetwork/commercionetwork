@@ -8,6 +8,20 @@ func (elements Strings) AppendIfMissing(element string) (Strings, bool) {
 			return elements, false
 		}
 	}
-	return append(elements, element), true
 
+	return append(elements, element), true
+}
+
+func (elements Strings) Equals(other Strings) bool {
+	if len(elements) != len(other) {
+		return false
+	}
+
+	for index, element := range elements {
+		if element != other[index] {
+			return false
+		}
+	}
+
+	return true
 }

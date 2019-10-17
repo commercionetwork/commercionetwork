@@ -13,7 +13,7 @@ var request abci.RequestQuery
 func Test_queryResolveIdentity_ExistingIdentity(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
 
 	var querier = NewQuerier(k)
