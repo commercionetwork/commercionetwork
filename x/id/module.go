@@ -13,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 )
 
@@ -59,12 +58,12 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(cdc, ModuleName)
+	return nil
 }
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc, ModuleName, QuerierRoute)
+	return nil
 }
 
 //____________________________________________________________________________

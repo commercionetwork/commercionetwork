@@ -1,21 +1,22 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestKeeper_CreateIdentity(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, _, k := SetupTestInput()
 
-	store := ctx.KVStore(k.storeKey)
-
-	k.SaveIdentity(ctx, TestOwnerAddress, TestDidDocument)
+	err := k.SaveDidDocument(ctx, TestDidDocument)
+	assert.NoError(t, err)
 
 	var stored types.DidDocument
+	store := ctx.KVStore(k.storeKey)
 	storedBz := store.Get(k.getIdentityStoreKey(TestOwnerAddress))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
@@ -23,23 +24,38 @@ func TestKeeper_CreateIdentity(t *testing.T) {
 }
 
 func TestKeeper_EditIdentity(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, ak, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
 
-	updatedDidDocument := types.DidDocument{Uri: "ddo-reference-update", ContentHash: TestDidDocument.ContentHash}
-	k.SaveIdentity(ctx, TestOwnerAddress, updatedDidDocument)
+	updatedDocument := types.DidDocument{}
+	err := copier.Copy(&updatedDocument, &TestDidDocument)
+	assert.NoError(t, err)
+
+	account := ak.GetAccount(ctx, TestOwnerAddress)
+	updatedDocument.PubKeys = types.PubKeys{
+		types.PubKey{
+			Id:           "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
+			Type:         "Secp256k1VerificationKey2018",
+			Controller:   TestOwnerAddress,
+			PublicKeyHex: hex.EncodeToString(account.GetPubKey().Bytes()),
+		},
+	}
+
+	err = k.SaveDidDocument(ctx, updatedDocument)
+	assert.NoError(t, err)
 
 	var stored types.DidDocument
 	storedBz := store.Get(k.getIdentityStoreKey(TestOwnerAddress))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
-	assert.Equal(t, updatedDidDocument, stored)
+	assert.Equal(t, updatedDocument, stored)
+	assert.Len(t, stored.PubKeys, 1)
 }
 
 func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
@@ -50,59 +66,29 @@ func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
 	assert.Equal(t, TestDidDocument, actual)
 }
 
-// -------------------------
-// --- Genesis utils
-// -------------------------
-
-func TestKeeper_GetIdentities(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+func TestKeeper_GetDidDocuments(t *testing.T) {
+	cdc, ctx, ak, k := SetupTestInput()
 	store := ctx.KVStore(k.storeKey)
 
-	first, _ := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
-	second, _ := sdk.AccAddressFromBech32("cosmos18t0e6fevehhjv682gkxpchvmnl7z7ue4t4w0nd")
-	third, _ := sdk.AccAddressFromBech32("cosmos1zt9etyl07asvf32g0d7ddjanres2qt9cr0fek6")
-	fourth, _ := sdk.AccAddressFromBech32("cosmos177ap6yqt87znxmep5l7vdaac59uxyn582kv0gl")
-	fifth, _ := sdk.AccAddressFromBech32("cosmos1ajv8j3e0ud2uduzdqmxfcvwm3nwdgr447yvu5m")
+	first := setupDidDocument(ctx, ak, "cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
+	second := setupDidDocument(ctx, ak, "cosmos18t0e6fevehhjv682gkxpchvmnl7z7ue4t4w0nd")
+	third := setupDidDocument(ctx, ak, "cosmos1zt9etyl07asvf32g0d7ddjanres2qt9cr0fek6")
+	fourth := setupDidDocument(ctx, ak, "cosmos177ap6yqt87znxmep5l7vdaac59uxyn582kv0gl")
+	fifth := setupDidDocument(ctx, ak, "cosmos1ajv8j3e0ud2uduzdqmxfcvwm3nwdgr447yvu5m")
 
-	store.Set(k.getIdentityStoreKey(first), cdc.MustMarshalBinaryBare(TestDidDocument))
-	store.Set(k.getIdentityStoreKey(second), cdc.MustMarshalBinaryBare(TestDidDocument))
-	store.Set(k.getIdentityStoreKey(third), cdc.MustMarshalBinaryBare(TestDidDocument))
-	store.Set(k.getIdentityStoreKey(fourth), cdc.MustMarshalBinaryBare(TestDidDocument))
-	store.Set(k.getIdentityStoreKey(fifth), cdc.MustMarshalBinaryBare(TestDidDocument))
+	store.Set(k.getIdentityStoreKey(first.Id), cdc.MustMarshalBinaryBare(first))
+	store.Set(k.getIdentityStoreKey(second.Id), cdc.MustMarshalBinaryBare(second))
+	store.Set(k.getIdentityStoreKey(third.Id), cdc.MustMarshalBinaryBare(third))
+	store.Set(k.getIdentityStoreKey(fourth.Id), cdc.MustMarshalBinaryBare(fourth))
+	store.Set(k.getIdentityStoreKey(fifth.Id), cdc.MustMarshalBinaryBare(fifth))
 
-	actual, err := k.GetIdentities(ctx)
+	actual, err := k.GetDidDocuments(ctx)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 5, len(actual))
-	assert.Contains(t, actual, types.Identity{Owner: first, DidDocument: TestDidDocument})
-	assert.Contains(t, actual, types.Identity{Owner: second, DidDocument: TestDidDocument})
-	assert.Contains(t, actual, types.Identity{Owner: third, DidDocument: TestDidDocument})
-	assert.Contains(t, actual, types.Identity{Owner: fourth, DidDocument: TestDidDocument})
-	assert.Contains(t, actual, types.Identity{Owner: fifth, DidDocument: TestDidDocument})
-}
-
-func TestKeeper_SetIdentities(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.storeKey)
-
-	first, _ := sdk.AccAddressFromBech32("cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
-	second, _ := sdk.AccAddressFromBech32("cosmos18t0e6fevehhjv682gkxpchvmnl7z7ue4t4w0nd")
-	third, _ := sdk.AccAddressFromBech32("cosmos1zt9etyl07asvf32g0d7ddjanres2qt9cr0fek6")
-	fourth, _ := sdk.AccAddressFromBech32("cosmos177ap6yqt87znxmep5l7vdaac59uxyn582kv0gl")
-	fifth, _ := sdk.AccAddressFromBech32("cosmos1ajv8j3e0ud2uduzdqmxfcvwm3nwdgr447yvu5m")
-
-	identities := []types.Identity{
-		{Owner: first, DidDocument: TestDidDocument},
-		{Owner: second, DidDocument: TestDidDocument},
-		{Owner: third, DidDocument: TestDidDocument},
-		{Owner: fourth, DidDocument: TestDidDocument},
-		{Owner: fifth, DidDocument: TestDidDocument},
-	}
-	k.SetIdentities(ctx, identities)
-
-	assert.True(t, store.Has(k.getIdentityStoreKey(first)))
-	assert.True(t, store.Has(k.getIdentityStoreKey(second)))
-	assert.True(t, store.Has(k.getIdentityStoreKey(third)))
-	assert.True(t, store.Has(k.getIdentityStoreKey(fourth)))
-	assert.True(t, store.Has(k.getIdentityStoreKey(fifth)))
+	assert.Contains(t, actual, first)
+	assert.Contains(t, actual, second)
+	assert.Contains(t, actual, third)
+	assert.Contains(t, actual, fourth)
+	assert.Contains(t, actual, fifth)
 }

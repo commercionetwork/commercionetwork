@@ -6,6 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// A proof on a DID Document is cryptographic proof of the integrity of the DID Document according to either:
+// 1. The subject, or:
+// 1. The controller, if present.
 type Proof struct {
 	Type           string    `json:"type"`
 	Created        time.Time `json:"created"`
@@ -13,6 +16,7 @@ type Proof struct {
 	SignatureValue string    `json:"signatureValue"`
 }
 
+// Equals returns true iff proof and other contain the same data.
 func (proof Proof) Equals(other Proof) bool {
 	return proof.Type == other.Type &&
 		proof.Created.Equal(other.Created) &&
@@ -20,6 +24,8 @@ func (proof Proof) Equals(other Proof) bool {
 		proof.SignatureValue == other.SignatureValue
 }
 
+// Validate checks for the content contained inside the proof and
+// returns an error if something is invalid
 func (proof Proof) Validate() sdk.Error {
 
 	if proof.Type != "LinkedDataSignature2015" {

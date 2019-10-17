@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -33,9 +32,16 @@ func (keeper Keeper) getIdentityStoreKey(owner sdk.AccAddress) []byte {
 	return []byte(types.IdentitiesStorePrefix + owner.String())
 }
 
-// SaveIdentity saves the given didDocumentUri associating it with the given owner, replacing any existent one.
-func (keeper Keeper) SaveIdentity(ctx sdk.Context, owner sdk.AccAddress, document types.DidDocument) sdk.Error {
+// SaveDidDocument saves the given didDocumentUri associating it with the given owner, replacing any existent one.
+func (keeper Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk.Error {
+	owner := document.Id
+
+	// Get the account and its public key
 	account := keeper.accKeeper.GetAccount(ctx, owner)
+	if account == nil {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Could not find account %s", owner.String()))
+	}
+
 	accountPubKey := account.GetPubKey()
 
 	// --------------------------------------------
@@ -107,35 +113,17 @@ func (keeper Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress
 // --- Genesis utils
 // -------------------------
 
-// GetIdentities returns the list of all identities for the given context
-func (keeper Keeper) GetIdentities(ctx sdk.Context) ([]types.Identity, error) {
+// GetDidDocuments returns the list of all identities for the given context
+func (keeper Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
 	store := ctx.KVStore(keeper.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
 
-	var identities []types.Identity
+	var didDocuments []types.DidDocument
 	for ; iterator.Valid(); iterator.Next() {
-		addressString := strings.ReplaceAll(string(iterator.Key()), types.IdentitiesStorePrefix, "")
-		address, err := sdk.AccAddressFromBech32(addressString)
-		if err != nil {
-			return nil, err
-		}
-
 		var didDocument types.DidDocument
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &didDocument)
-
-		identity := types.Identity{
-			Owner:       address,
-			DidDocument: didDocument,
-		}
-		identities = append(identities, identity)
+		didDocuments = append(didDocuments, didDocument)
 	}
 
-	return identities, nil
-}
-
-// SetIdentities allows to bulk save a bunch of identities inside the store
-func (keeper Keeper) SetIdentities(ctx sdk.Context, identities []types.Identity) {
-	for _, identity := range identities {
-		keeper.SaveIdentity(ctx, identity.Owner, identity.DidDocument)
-	}
+	return didDocuments, nil
 }

@@ -11,7 +11,7 @@ import (
 var request abci.RequestQuery
 
 func Test_queryResolveIdentity_ExistingIdentity(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
@@ -29,7 +29,7 @@ func Test_queryResolveIdentity_ExistingIdentity(t *testing.T) {
 }
 
 func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, _, k := SetupTestInput()
 
 	var querier = NewQuerier(k)
 	path := []string{"identities", TestOwnerAddress.String()}

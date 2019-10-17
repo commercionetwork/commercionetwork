@@ -9,6 +9,7 @@ require (
 	github.com/go-kit/kit v0.9.0 // indirect
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.3
+	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect

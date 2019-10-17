@@ -6,7 +6,7 @@ import (
 
 // GenesisState - id genesis state
 type GenesisState struct {
-	Identities []Identity `json:"identities"`
+	DidDocuments []DidDocument `json:"did_documents"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -16,17 +16,21 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets ids information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	keeper.SetIdentities(ctx, data.Identities)
+	for _, didDocument := range data.DidDocuments {
+		if err := keeper.SaveDidDocument(ctx, didDocument); err != nil {
+			panic(err)
+		}
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	identities, err := keeper.GetIdentities(ctx)
+	identities, err := keeper.GetDidDocuments(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return GenesisState{
-		Identities: identities,
+		DidDocuments: identities,
 	}
 }
 

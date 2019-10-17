@@ -20,9 +20,7 @@ var (
 )
 
 type (
-	Keeper = keeper.Keeper
-
-	Identity = types.Identity
-
+	Keeper         = keeper.Keeper
+	DidDocument    = types.DidDocument
 	MsgSetIdentity = types.MsgSetIdentity
 )

@@ -5,27 +5,27 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/id"
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
-var msgSetId = id.MsgSetIdentity{
-	Owner:       id.TestOwnerAddress,
-	DidDocument: id.TestDidDocument,
-}
-
 func TestValidMsg_StoreDoc(t *testing.T) {
-	_, ctx, k := id.TestSetup()
-	var handler = NewHandler(k)
+	_, ctx, _, k := SetupTestInput()
+
+	handler := NewHandler(k)
+	msgSetId := types.MsgSetIdentity(TestDidDocument)
 	res := handler(ctx, msgSetId)
-	require.True(t, res.IsOK())
+
+	assert.True(t, res.IsOK())
 }
 
 func TestInvalidMsg(t *testing.T) {
-	_, ctx, k := id.TestSetup()
-	var handler = NewHandler(k)
+	_, ctx, _, k := SetupTestInput()
+
+	handler := NewHandler(k)
 	res := handler(ctx, sdk.NewTestMsg())
-	require.False(t, res.IsOK())
-	require.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", id.ModuleName)))
+
+	assert.False(t, res.IsOK())
+	assert.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
 }

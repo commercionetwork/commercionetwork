@@ -7,27 +7,35 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// DidDocument represents the data related to a single Did Document
+// DidDocument is the concrete serialization of the data model, according to a particular syntax.
+// The Did Document contains attributes or claims about the DID Subject, and the DID itself is contained in
+// the id property.
 type DidDocument struct {
 	Context        string         `json:"@context"`
 	Id             sdk.AccAddress `json:"id"`
 	PubKeys        PubKeys        `json:"publicKey"`
 	Authentication ctypes.Strings `json:"authentication"`
 	Proof          Proof          `json:"proof"`
+	Services       Services       `json:"service"`
 }
 
-// Equals returns true iff this didDocument and other contain the same data
+// Equals returns true iff didDocument and other contain the same data
 func (didDocument DidDocument) Equals(other DidDocument) bool {
 	return didDocument.Context == other.Context &&
 		didDocument.Id.Equals(other.Id) &&
 		didDocument.PubKeys.Equals(other.PubKeys) &&
 		didDocument.Authentication.Equals(other.Authentication) &&
-		didDocument.Proof.Equals(other.Proof)
+		didDocument.Proof.Equals(other.Proof) &&
+		didDocument.Services.Equals(other.Services)
 }
 
 // Validate checks the data present inside this Did Document and returns an
 // error if something is wrong
 func (didDocument DidDocument) Validate() sdk.Error {
+
+	if didDocument.Id.Empty() {
+		return sdk.ErrInvalidAddress(didDocument.Id.String())
+	}
 
 	if didDocument.Context != "https://www.w3.org/2019/did/v1" {
 		return sdk.ErrUnknownRequest("Invalid context, must be https://www.w3.org/2019/did/v1")
@@ -75,6 +83,16 @@ func (didDocument DidDocument) Validate() sdk.Error {
 
 	if didDocument.Proof.Creator != didDocument.Authentication[0] {
 		return sdk.ErrUnknownRequest("Invalid proof key, must be the authentication one")
+	}
+
+	// -----------------------------
+	// --- Validate the services
+	// -----------------------------
+
+	for _, service := range didDocument.Services {
+		if err := service.Validate(); err != nil {
+			return err
+		}
 	}
 
 	return nil
