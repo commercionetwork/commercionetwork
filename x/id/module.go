@@ -3,6 +3,7 @@ package id
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -79,15 +80,17 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper Keeper
+	keeper    Keeper
+	govKeeper government.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper) AppModule {
+func NewAppModule(keeper Keeper, govKeeper government.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
+		govKeeper:           govKeeper,
 	}
 }
 
@@ -106,7 +109,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.keeper, am.govKeeper)
 }
 
 // module querier route name

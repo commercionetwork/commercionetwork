@@ -2,6 +2,7 @@ package customstaking
 
 import (
 	"encoding/json"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -24,6 +25,13 @@ func DefaultGenesis(defaultBondDenom string) staking.GenesisState {
 type AppModuleBasic struct {
 	stakingModule    staking.AppModuleBasic
 	DefaultBondDenom string
+}
+
+func NewAppModuleBasic(defaultBondDenom string) AppModuleBasic {
+	return AppModuleBasic{
+		stakingModule:    staking.AppModuleBasic{},
+		DefaultBondDenom: defaultBondDenom,
+	}
 }
 
 func (am AppModuleBasic) Name() string {

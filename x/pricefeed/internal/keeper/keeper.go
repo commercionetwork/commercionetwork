@@ -90,9 +90,7 @@ func (keeper Keeper) getCurrentPriceKey(assetName string) []byte {
 	return []byte(types.CurrentPricesPrefix + assetName)
 }
 
-func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) error {
-	store := ctx.KVStore(keeper.StoreKey)
-
+func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 	// Get all the listed assets
 	assets := keeper.GetAssets(ctx)
 
@@ -141,10 +139,17 @@ func (keeper Keeper) SetCurrentPrices(ctx sdk.Context) error {
 		}
 
 		// Set the price
-		store.Set(keeper.getCurrentPriceKey(asset), keeper.cdc.MustMarshalBinaryBare(currentPrice))
+		keeper.SetCurrentPrice(ctx, currentPrice)
 
 	}
 	return nil
+}
+
+// SetCurrentPrice allows to set the current price of a specific asset.
+// WARNING: This method should be used for testing purposes only
+func (keeper Keeper) SetCurrentPrice(ctx sdk.Context, currentPrice types.CurrentPrice) {
+	store := ctx.KVStore(keeper.StoreKey)
+	store.Set(keeper.getCurrentPriceKey(currentPrice.AssetName), keeper.cdc.MustMarshalBinaryBare(currentPrice))
 }
 
 // GetCurrentPrice retrieves the current price for the given asset

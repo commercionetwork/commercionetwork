@@ -5,7 +5,6 @@ import (
 )
 
 const (
-	MembershipTypeGreen  = "green"
 	MembershipTypeBronze = "bronze"
 	MembershipTypeSilver = "silver"
 	MembershipTypeGold   = "gold"
@@ -20,8 +19,7 @@ type Membership struct {
 
 // IsMembershipTypeValid returns true iff the given membership type if valid
 func IsMembershipTypeValid(membershipType string) bool {
-	return membershipType == MembershipTypeGreen ||
-		membershipType == MembershipTypeBronze ||
+	return membershipType == MembershipTypeBronze ||
 		membershipType == MembershipTypeSilver ||
 		membershipType == MembershipTypeGold ||
 		membershipType == MembershipTypeBlack
@@ -35,16 +33,12 @@ func CanUpgrade(currentMembershipType string, newMembershipType string) bool {
 		return false
 	}
 
-	if currentMembershipType == MembershipTypeGreen {
+	if currentMembershipType == MembershipTypeBronze {
 		return true
 	}
 
-	if currentMembershipType == MembershipTypeBronze {
-		return newMembershipType != MembershipTypeGreen
-	}
-
 	if currentMembershipType == MembershipTypeSilver {
-		return newMembershipType != MembershipTypeGreen && newMembershipType != MembershipTypeSilver
+		return newMembershipType != MembershipTypeSilver
 	}
 
 	if currentMembershipType == MembershipTypeGold {

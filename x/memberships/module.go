@@ -3,17 +3,16 @@ package memberships
 import (
 	"encoding/json"
 
-	"github.com/gorilla/mux"
-	"github.com/spf13/cobra"
-
+	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
-	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
+	"github.com/gorilla/mux"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -21,8 +20,16 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// AppModuleBasic defines the basic application module used by the id module.
-type AppModuleBasic struct{}
+// AppModuleBasic defines the basic application module used by the docs module.
+type AppModuleBasic struct {
+	stableCreditsDenom string
+}
+
+func NewAppModuleBasic(stableCreditsDenom string) AppModuleBasic {
+	return AppModuleBasic{
+		stableCreditsDenom: stableCreditsDenom,
+	}
+}
 
 var _ module.AppModuleBasic = AppModuleBasic{}
 
@@ -37,8 +44,8 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 }
 
 // default genesis state
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
+	return ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.stableCreditsDenom))
 }
 
 // module genesis validation
@@ -53,18 +60,17 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	// TODO
-	//rest.RegisterRoutes(ctx, rtr, ModuleName)
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(cdc)
+	return nil
 }
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc)
+	return nil
 }
 
 //____________________________________________________________________________
@@ -75,20 +81,23 @@ type AppModuleSimulation struct{}
 // RegisterStoreDecoder registers a decoder for auth module's types
 func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 
-//___________________________
-// app module
+//____________________________________________________________________________
+
+// AppModule implements an application module for the id module.
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
 	keeper Keeper
+	govK   government.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper) AppModule {
+func NewAppModule(keeper Keeper, govK government.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
+		govK:                govK,
 	}
 }
 
@@ -107,7 +116,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.keeper, am.govK)
 }
 
 // module querier route name
@@ -135,7 +144,8 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // module begin-block
-func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {}
+func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
+}
 
 // module end-block
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {

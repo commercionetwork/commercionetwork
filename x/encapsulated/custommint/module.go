@@ -2,6 +2,7 @@ package custommint
 
 import (
 	"encoding/json"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,6 +28,13 @@ func DefaultGenesis(defaultBondDenom string) mint.GenesisState {
 type AppModuleBasic struct {
 	mintModule       mint.AppModuleBasic
 	DefaultBondDenom string
+}
+
+func NewAppModuleBasic(defaultBondDenom string) AppModuleBasic {
+	return AppModuleBasic{
+		mintModule:       mint.AppModuleBasic{},
+		DefaultBondDenom: defaultBondDenom,
+	}
 }
 
 func (am AppModuleBasic) Name() string {

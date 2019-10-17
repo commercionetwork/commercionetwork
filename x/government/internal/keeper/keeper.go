@@ -13,7 +13,7 @@ type Keeper struct {
 	cdc      *codec.Codec
 }
 
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey) Keeper {
 	return Keeper{
 		StoreKey: storeKey,
 		cdc:      cdc,
