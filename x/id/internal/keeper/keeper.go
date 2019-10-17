@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-	"strings"
 	"bytes"
 	"encoding/hex"
 	"fmt"
@@ -12,23 +10,24 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 )
 
 type Keeper struct {
-	storeKey  sdk.StoreKey
-	cdc       *codec.Codec
-	accKeeper auth.AccountKeeper
+	storeKey   sdk.StoreKey
+	cdc        *codec.Codec
+	accKeeper  auth.AccountKeeper
 	bankKeeper bank.Keeper
 }
 
 // NewKeeper creates new instances of the CommercioID Keeper
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, accKeeper auth.AccountKeeper, bankKeeper bank.Keeper) Keeper {
 	return Keeper{
-		StoreKey:   storeKey,
+		storeKey:   storeKey,
 		cdc:        cdc,
+		accKeeper:  accKeeper,
 		bankKeeper: bankKeeper,
 	}
 }
@@ -148,7 +147,7 @@ func (keeper Keeper) getDepositRequestStoreKey(proof string) []byte {
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
 func (keeper Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) sdk.Error {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	requestKey := keeper.getDepositRequestStoreKey(request.Proof)
 	if store.Has(requestKey) {
@@ -162,7 +161,7 @@ func (keeper Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDe
 
 // GetDidDepositRequestByProof returns the request having the same proof.
 func (keeper Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (request types.DidDepositRequest, found bool) {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	requestKey := keeper.getDepositRequestStoreKey(proof)
 	if !store.Has(requestKey) {
@@ -176,7 +175,7 @@ func (keeper Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
 func (keeper Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	request, found := keeper.GetDidDepositRequestByProof(ctx, proof)
 	if !found {
@@ -192,7 +191,7 @@ func (keeper Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, s
 
 // GetDepositRequests returns the list of the deposit requests existing inside the given context
 func (keeper Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDepositRequest) {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidDepositRequestStorePrefix))
 	for ; iterator.Valid(); iterator.Next() {
@@ -215,7 +214,7 @@ func (keeper Keeper) getDidPowerUpRequestStoreKey(proof string) []byte {
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
 func (keeper Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) sdk.Error {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	requestStoreKey := keeper.getDidPowerUpRequestStoreKey(request.Proof)
 	if store.Has(requestStoreKey) {
@@ -229,7 +228,7 @@ func (keeper Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPower
 
 // GetDidDepositRequestByProof returns the request having the same proof.
 func (keeper Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (request types.DidPowerUpRequest, found bool) {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	requestStoreKey := keeper.getDidPowerUpRequestStoreKey(proof)
 	if !store.Has(requestStoreKey) {
@@ -243,7 +242,7 @@ func (keeper Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (re
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
 func (keeper Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	request, found := keeper.GetPowerUpRequestByProof(ctx, proof)
 	if !found {
@@ -259,7 +258,7 @@ func (keeper Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, s
 
 // GetPowerUpRequests returns the list the requests saved inside the given context
 func (keeper Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidPowerUpRequestStorePrefix))
 	for ; iterator.Valid(); iterator.Next() {
@@ -283,7 +282,7 @@ func (keeper Keeper) SetPowerUpRequestHandled(ctx sdk.Context, activationReferen
 }
 
 func (keeper Keeper) GetHandledPowerUpRequestsReferences(ctx sdk.Context) ctypes.Strings {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	var handledRequests ctypes.Strings
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.HandledPowerUpRequestsStoreKey)), &handledRequests)
@@ -291,7 +290,7 @@ func (keeper Keeper) GetHandledPowerUpRequestsReferences(ctx sdk.Context) ctypes
 }
 
 func (keeper Keeper) SetHandledPowerUpRequestsReferences(ctx sdk.Context, references ctypes.Strings) {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 	store.Set([]byte(types.HandledPowerUpRequestsStoreKey), keeper.cdc.MustMarshalBinaryBare(&references))
 }
 
@@ -349,7 +348,7 @@ func (keeper Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount
 
 // SetPoolAmount allows to set the pool amount to the given one
 func (keeper Keeper) SetPoolAmount(ctx sdk.Context, amount sdk.Coins) sdk.Error {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 
 	if amount == nil {
 		store.Delete([]byte(types.DepositsPoolStoreKey))
@@ -362,7 +361,7 @@ func (keeper Keeper) SetPoolAmount(ctx sdk.Context, amount sdk.Coins) sdk.Error 
 
 // GetPoolAmount returns the current pool amount
 func (keeper Keeper) GetPoolAmount(ctx sdk.Context) (pool sdk.Coins) {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.DepositsPoolStoreKey)), &pool)
 	return pool
 }

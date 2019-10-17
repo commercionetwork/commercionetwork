@@ -16,15 +16,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, Keeper) {
+func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keeper, government.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -53,41 +51,28 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, Keeper) {
 
 	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
 	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	idk := NewKeeper(cdc, storeKey, ak)
-	govK = government.NewKeeper(cdc, govKey)
+	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
+	govK := government.NewKeeper(cdc, govKey)
 	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
-
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk = bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
 
 	// Setup the Did Document
 	TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 	TestDidDocument = setupDidDocument(ctx, ak, "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
-	return cdc, ctx, ak, idk
-	idk := NewKeeper(cdc, storeKey, bk)
+	idk := NewKeeper(cdc, storeKey, ak, bk)
 
-	return cdc, ctx, govK, bk, idk
-
+	return cdc, ctx, ak, bk, govK, idk
 }
 
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
+
 	bank.RegisterCodec(cdc)
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
-
-	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
-	cdc.RegisterConcrete(secp256k1.PubKeySecp256k1{}, secp256k1.PubKeyAminoName, nil)
-	cdc.RegisterConcrete(secp256k1.PrivKeySecp256k1{}, secp256k1.PrivKeyAminoName, nil)
-	cdc.RegisterConcrete(ed25519.PubKeyEd25519{}, ed25519.PubKeyAminoName, nil)
-	cdc.RegisterConcrete(ed25519.PrivKeyEd25519{}, ed25519.PrivKeyAminoName, nil)
-
-	auth.RegisterCodec(cdc)
 	types.RegisterCodec(cdc)
 
 	cdc.Seal()
@@ -139,11 +124,12 @@ func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address stri
 	}
 }
 
-// Test variables
+// Identities
 var TestOwnerAddress sdk.AccAddress
 var TestDidDocument types.DidDocument
 
 // Deposit requests
+var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos1gdpsu89prllyw49eehskv6t8800p6chefyuuwe")
 var TestDepositor, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
 var TestPairwiseDid, _ = sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
 var TestDidDepositRequest = types.DidDepositRequest{
