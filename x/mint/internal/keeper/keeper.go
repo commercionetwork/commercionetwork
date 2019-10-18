@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -144,10 +145,10 @@ func (keeper Keeper) GetCdpsByOwner(ctx sdk.Context, owner sdk.AccAddress) (cdps
 	return cdps
 }
 
-func (keeper Keeper) GetCdpByOwnerAndTimeStamp(ctx sdk.Context, owner sdk.AccAddress, timestamp string) (cdp types.Cdp, found bool) {
+func (keeper Keeper) GetCdpByOwnerAndTimeStamp(ctx sdk.Context, owner sdk.AccAddress, timestamp time.Time) (cdp types.Cdp, found bool) {
 	cdps := keeper.GetCdpsByOwner(ctx, owner)
 	for _, ele := range cdps {
-		if ele.Timestamp == timestamp {
+		if ele.Timestamp.Equal(timestamp) {
 			return ele, true
 		}
 	}
@@ -173,7 +174,7 @@ func (keeper Keeper) GetTotalCdps(ctx sdk.Context) types.Cdps {
 // Errors occurs if:
 // - cdp doesnt exist
 // - subtracting or adding fund to account don't end well
-func (keeper Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp string) sdk.Error {
+func (keeper Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp time.Time) sdk.Error {
 	cdp, found := keeper.GetCdpByOwnerAndTimeStamp(ctx, user, timestamp)
 	if !found {
 		msg := fmt.Sprintf("CDP for user with address %s and timestamp %s does not exist", user.String(), timestamp)

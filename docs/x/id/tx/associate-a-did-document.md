@@ -12,37 +12,62 @@ to create and sign the following message:
 {
   "type": "commercio/MsgSetIdentity",
   "value": {
-    "owner": "<Your Did>",
-    "did_document": {
-      "uri": "<Uri of the Did Document content>",
-      "content_hash": "<Sha256 hash of the Did document content, hex encoded>"
-    }
+    "@context": "https://www.w3.org/2019/did/v1",
+    "id": "<Your Address>",
+    "publicKey": [
+      {
+        "id": "<Your Address>#keys-1",
+        "type": "Secp256k1VerificationKey2018",
+        "controller": "<Your Address>",
+        "publicKeyHex": "<Public key value, hex encoded>"
+      },
+      {
+        "id": "<Your Address>#keys-2",
+        "type": "RsaVerificationKey2018",
+        "controller": "<Your Address>",
+        "publicKeyHex": "<Public key value, hex encoded>"
+      },
+      {
+        "id": "<Your Address>#keys-3",
+        "type": "Secp256k1VerificationKey2018",
+        "controller": "<Your Address>",
+        "publicKeyHex": "<Public key value, hex encoded>"
+      }
+    ],
+    "authentication": [
+      "<Authentication key id>"
+    ],
+    "proof": {
+      "type": "LinkedDataSignature2015",
+      "created": "<Creation time, in ISO 8601 format>",
+      "creator": "<Authentication key id>",
+      "signatureValue": "<Signature value, Base64 encoded>"
+    },
+    "service": [
+      {
+        "id": "<Service id reference>",
+        "type": "<Service type>",
+        "serviceEndpoint": "<Service endpoint>"
+      }
+    ]
   }
 }
 ```
 
-### Transaction example
-```json
-{
-  "chain_id": "test-chain-GrNuU0",
-  "account_number": "0",
-  "sequence": "1",
-  "fee": {
-    "amount": [],
-    "gas": "200000"
-  },
-  "msgs": [
-    {
-      "type": "commercio/SetIdentity",
-      "value" : {
-        "owner": "did:com:1flzcn7yy9p04qwhh67hu8r38ar7ylxde2k47pr",
-        "did_document": {
-          "uri": "https://example.com/my-did",
-          "content_hash": "9c5ef543dc05e7927da16e8d8a24372f0d064979e226a70cdea40a031d1daf51"
-        }
-      }
-    }
-  ],
-  "memo": ""
-}
+### Fields requirements
+| Field | Required | 
+| :---: | :------: | 
+| `@context` | Yes (Must be `https://www.w3.org/2019/did/v1`) |
+| `id` | Yes |
+| `publicKey` | Yes (Must be of length 3) |
+| `authentication` | Yes |
+| `proof` | Yes |
+| `service` | No |
+
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
 ```
+setIdentity
+```  

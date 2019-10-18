@@ -5,10 +5,11 @@ import (
 	"os"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/customcrisis"
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/customgov"
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/custommint"
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/customstaking"
+	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
+	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
+	customgov "github.com/commercionetwork/commercionetwork/x/encapsulated/gov"
+	custommint "github.com/commercionetwork/commercionetwork/x/encapsulated/mint"
+	customstaking "github.com/commercionetwork/commercionetwork/x/encapsulated/staking"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
@@ -86,7 +87,6 @@ var (
 	ModuleBasics = module.NewBasicManager(
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
-		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
@@ -102,6 +102,7 @@ var (
 		customgov.NewAppModuleBasic(DefaultBondDenom),
 		custommint.NewAppModuleBasic(DefaultBondDenom),
 		customstaking.NewAppModuleBasic(DefaultBondDenom),
+		custombank.NewAppModuleBasic(bank.AppModuleBasic{}),
 
 		// Custom modules
 		memberships.NewAppModuleBasic(StableCreditsDenom),
@@ -173,6 +174,7 @@ type CommercioNetworkApp struct {
 	governmentKeeper    government.Keeper
 	pricefeedKeeper     pricefeed.Keeper
 	tbrKeeper           tbr.Keeper
+	customBankKeeper    custombank.Keeper
 
 	mm *module.Manager
 }
@@ -198,6 +200,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Custom modules
 		memberships.StoreKey, docs.StoreKey, government.StoreKey,
 		id.StoreKey, pricefeed.StoreKey, tbr.StoreKey,
+		custombank.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -242,9 +245,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
 	app.accreditationKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.bankKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
-	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.bankKeeper)
+	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.bankKeeper)
 	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
 	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
+	app.customBankKeeper = custombank.NewKeeper(app.cdc, app.keys[custombank.StoreKey], app.bankKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -266,13 +270,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.mm = module.NewManager(
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
-		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
 		nft.NewAppModule(app.nftKeeper),
 
 		// Encapsulating modules
+		custombank.NewAppModule(bank.NewAppModule(app.bankKeeper, app.accountKeeper), app.customBankKeeper, app.governmentKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		mint.NewAppModule(app.mintKeeper),
 		gov.NewAppModule(app.govKeeper, app.supplyKeeper),

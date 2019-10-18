@@ -2,6 +2,7 @@ package types
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -22,7 +23,7 @@ func TestCdpRequest_Equals_false(t *testing.T) {
 	cdpReq := CdpRequest{
 		Signer:          nil,
 		DepositedAmount: nil,
-		Timestamp:       "",
+		Timestamp:       time.Time{},
 	}
 
 	actual := TestCdpRequest.Equals(cdpReq)

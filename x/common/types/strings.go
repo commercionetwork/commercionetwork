@@ -17,3 +17,17 @@ func (elements Strings) Contains(element string) bool {
 	}
 	return false
 }
+
+func (elements Strings) Equals(other Strings) bool {
+	if len(elements) != len(other) {
+		return false
+	}
+
+	for index, element := range elements {
+		if element != other[index] {
+			return false
+		}
+	}
+
+	return true
+}

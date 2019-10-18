@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"testing"
+	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -105,7 +106,7 @@ func TestKeeper_OpenCdp_InvalidDepositedAmount(t *testing.T) {
 	invalidReq := types.CdpRequest{
 		Signer:          TestOwner,
 		DepositedAmount: sdk.NewCoins(sdk.NewInt64Coin("testcoin", 0)),
-		Timestamp:       "",
+		Timestamp:       time.Time{},
 	}
 	err := k.OpenCdp(ctx, invalidReq)
 

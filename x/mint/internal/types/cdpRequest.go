@@ -1,13 +1,15 @@
 package types
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type CdpRequest struct {
 	Signer          sdk.AccAddress `json:"signer"`
 	DepositedAmount sdk.Coins      `json:"deposit_amount"`
-	Timestamp       string         `json:"timestamp"`
+	Timestamp       time.Time      `json:"timestamp"`
 }
 
 func (cdpr CdpRequest) Equals(request CdpRequest) bool {

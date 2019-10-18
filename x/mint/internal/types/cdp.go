@@ -1,7 +1,7 @@
 package types
 
 import (
-	"strings"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -11,7 +11,7 @@ type Cdp struct {
 	Owner           sdk.AccAddress `json:"owner"`
 	DepositedAmount sdk.Coins      `json:"deposited_amount"`
 	CreditsAmount   sdk.Coins      `json:"credits_amount"`
-	Timestamp       string         `json:"timestamp"`
+	Timestamp       time.Time      `json:"timestamp"`
 }
 
 func (current Cdp) Validate() error {
@@ -24,8 +24,8 @@ func (current Cdp) Validate() error {
 	if current.CreditsAmount.Empty() || current.CreditsAmount.IsAnyNegative() {
 		return sdk.ErrInvalidCoins(current.CreditsAmount.String())
 	}
-	if len(strings.TrimSpace(current.Timestamp)) == 0 {
-		return sdk.ErrUnknownRequest("timestamp cant be empty")
+	if current.Timestamp.IsZero() {
+		return sdk.ErrUnknownRequest("timestamp not valid")
 	}
 	return nil
 }
@@ -58,11 +58,11 @@ func (cdps Cdps) AppendIfMissing(cdp Cdp) (Cdps, bool) {
 }
 
 //This method filters a slice without allocating a new underlying array
-func (cdps Cdps) RemoveWhenFound(timestamp string) (Cdps, bool) {
+func (cdps Cdps) RemoveWhenFound(timestamp time.Time) (Cdps, bool) {
 	tmp := cdps[:0]
 	removed := false
 	for _, ele := range cdps {
-		if ele.Timestamp != timestamp {
+		if !ele.Timestamp.Equal(timestamp) {
 			tmp = append(tmp, ele)
 		} else {
 			removed = true

@@ -1,9 +1,10 @@
-package id
+package keeper
 
 import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -12,33 +13,35 @@ import (
 func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
-		case MsgSetIdentity:
+		case types.MsgSetIdentity:
 			return handleMsgSetIdentity(ctx, keeper, msg)
-		case MsgRequestDidDeposit:
+		case types.MsgRequestDidDeposit:
 			return handleMsgRequestDidDeposit(ctx, keeper, msg)
-		case MsgInvalidateDidDepositRequest:
+		case types.MsgInvalidateDidDepositRequest:
 			return handleMsgInvalidateDidDepositRequest(ctx, keeper, govKeeper, msg)
-		case MsgRequestDidPowerUp:
+		case types.MsgRequestDidPowerUp:
 			return handleMsgRequestDidPowerUp(ctx, keeper, msg)
-		case MsgInvalidateDidPowerUpRequest:
+		case types.MsgInvalidateDidPowerUpRequest:
 			return handleMsgInvalidateDidPowerUpRequest(ctx, keeper, govKeeper, msg)
-		case MsgMoveDeposit:
+		case types.MsgMoveDeposit:
 			return handleMsgWithdrawDeposit(ctx, keeper, govKeeper, msg)
-		case MsgPowerUpDid:
+		case types.MsgPowerUpDid:
 			return handleMsgPowerUpDid(ctx, keeper, govKeeper, msg)
 		default:
-			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
+			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 	}
 }
 
-// ------------------
-// --- Identities
-// ------------------
+// handleMsgSetIdentity allows to handle a MsgSetIdentity checking that the user that wants to set an identity is
+// the real owner of that identity.
+// If the user is not allowed to use that identity, returns an error.
+func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdentity) sdk.Result {
+	if err := keeper.SaveDidDocument(ctx, types.DidDocument(msg)); err != nil {
+		return err.Result()
+	}
 
-func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity) sdk.Result {
-	keeper.SaveIdentity(ctx, msg.Owner, msg.DidDocument)
 	return sdk.Result{}
 }
 
@@ -46,10 +49,10 @@ func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg MsgSetIdentity) sd
 // --- Did deposit requests
 // ----------------------------
 
-func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg MsgRequestDidDeposit) sdk.Result {
+func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidDeposit) sdk.Result {
 
 	// Set the initial status to nil and save it
-	request := DidDepositRequest(msg)
+	request := types.DidDepositRequest(msg)
 	request.Status = nil
 
 	if err := keeper.StoreDidDepositRequest(ctx, request); err != nil {
@@ -60,16 +63,16 @@ func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg MsgRequestDi
 }
 
 func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg MsgInvalidateDidDepositRequest) sdk.Result {
+	msg types.MsgInvalidateDidDepositRequest) sdk.Result {
 
 	// Check the status
-	if msg.Status.Type != StatusRejected && msg.Status.Type != StatusCanceled {
+	if msg.Status.Type != types.StatusRejected && msg.Status.Type != types.StatusCanceled {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status: %s", msg.Status.Type)).Result()
 	}
 
 	// Check the signer if status is approved or rejected
 	validGovernment := govKeeper.GetGovernmentAddress(ctx).Equals(msg.Editor)
-	if msg.Status.Type == StatusRejected && !validGovernment {
+	if msg.Status.Type == types.StatusRejected && !validGovernment {
 		msg := fmt.Sprintf("Cannot set status of type %s without being the government", msg.Status.Type)
 		return sdk.ErrInvalidAddress(msg).Result()
 	}
@@ -82,7 +85,7 @@ func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKee
 	}
 
 	// Check the signer if status is canceled
-	if msg.Status.Type == StatusCanceled && !existing.FromAddress.Equals(msg.Editor) {
+	if msg.Status.Type == types.StatusCanceled && !existing.FromAddress.Equals(msg.Editor) {
 		return sdk.ErrInvalidAddress("Cannot edit this request without being the original poster").Result()
 	}
 
@@ -104,10 +107,10 @@ func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKee
 // --- Did power up requests
 // ----------------------------
 
-func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg MsgRequestDidPowerUp) sdk.Result {
+func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidPowerUp) sdk.Result {
 
 	// Set the initial status to nil and save it
-	request := DidPowerUpRequest(msg)
+	request := types.DidPowerUpRequest(msg)
 	request.Status = nil
 
 	if err := keeper.StorePowerUpRequest(ctx, request); err != nil {
@@ -118,16 +121,16 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg MsgRequestDi
 }
 
 func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg MsgInvalidateDidPowerUpRequest) sdk.Result {
+	msg types.MsgInvalidateDidPowerUpRequest) sdk.Result {
 
 	// Check the status
-	if msg.Status.Type != StatusRejected && msg.Status.Type != StatusCanceled {
+	if msg.Status.Type != types.StatusRejected && msg.Status.Type != types.StatusCanceled {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid status: %s", msg.Status.Type)).Result()
 	}
 
 	// Check the signer if status is approved or rejected
 	validGovernment := govKeeper.GetGovernmentAddress(ctx).Equals(msg.Editor)
-	if msg.Status.Type == StatusRejected && !validGovernment {
+	if msg.Status.Type == types.StatusRejected && !validGovernment {
 		msg := fmt.Sprintf("Cannot set status of type %s without being the government", msg.Status.Type)
 		return sdk.ErrInvalidAddress(msg).Result()
 	}
@@ -140,7 +143,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 	}
 
 	// Check the signer if status is canceled
-	if msg.Status.Type == StatusCanceled && !existing.Claimant.Equals(msg.Editor) {
+	if msg.Status.Type == types.StatusCanceled && !existing.Claimant.Equals(msg.Editor) {
 		return sdk.ErrInvalidAddress("Cannot edit this request without being the original poster").Result()
 	}
 
@@ -162,7 +165,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 // --- Deposits handling
 // ------------------------
 
-func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg MsgMoveDeposit) sdk.Result {
+func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgMoveDeposit) sdk.Result {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
@@ -189,7 +192,7 @@ func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper governme
 	}
 
 	// Update the request
-	status := RequestStatus{Type: StatusApproved}
+	status := types.RequestStatus{Type: types.StatusApproved}
 	if err := keeper.ChangeDepositRequestStatus(ctx, existing.Proof, status); err != nil {
 		return err.Result()
 	}
@@ -197,7 +200,7 @@ func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper governme
 	return sdk.Result{}
 }
 
-func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg MsgPowerUpDid) sdk.Result {
+func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgPowerUpDid) sdk.Result {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {

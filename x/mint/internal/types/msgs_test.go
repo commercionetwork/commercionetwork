@@ -2,6 +2,7 @@ package types
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +33,7 @@ func TestMsgOpenCdp_ValidateBasic_InvalidOwnerAddr(t *testing.T) {
 	invalidMsg := MsgOpenCdp(CdpRequest{
 		Signer:          nil,
 		DepositedAmount: nil,
-		Timestamp:       "",
+		Timestamp:       time.Time{},
 	})
 	err := invalidMsg.ValidateBasic()
 	assert.Error(t, err)
@@ -43,7 +44,7 @@ func TestMsgOpenCdp_ValidateBasic_InvalidDepositedAmount(t *testing.T) {
 	invalidMsg := MsgOpenCdp(CdpRequest{
 		Signer:          TestOwner,
 		DepositedAmount: nil,
-		Timestamp:       "",
+		Timestamp:       time.Time{},
 	})
 	err := invalidMsg.ValidateBasic()
 	assert.Error(t, err)
@@ -54,11 +55,11 @@ func TestMsgOpenCdp_ValidateBasic_InvalidTimestamp(t *testing.T) {
 	invalidMsg := MsgOpenCdp(CdpRequest{
 		Signer:          TestOwner,
 		DepositedAmount: TestDepositedAmount,
-		Timestamp:       "  ",
+		Timestamp:       time.Time{},
 	})
 	err := invalidMsg.ValidateBasic()
 	assert.Error(t, err)
-	assert.Equal(t, sdk.ErrUnknownRequest("cdp request's timestamp can't be empty"), err)
+	assert.Equal(t, sdk.ErrUnknownRequest("cdp request's timestamp is invalid"), err)
 }
 
 func TestMsgOpenCdp_GetSignBytes(t *testing.T) {
@@ -94,7 +95,7 @@ func TestMsgCloseCdp_ValidateBasic_Valid(t *testing.T) {
 func TestMsgCloseCdp_ValidateBasic_InvalidSigner(t *testing.T) {
 	msg := MsgCloseCdp{
 		Signer:    nil,
-		Timestamp: "",
+		Timestamp: time.Time{},
 	}
 	actual := msg.ValidateBasic()
 	assert.Equal(t, sdk.ErrInvalidAddress(msg.Signer.String()), actual)
@@ -104,10 +105,10 @@ func TestMsgCloseCdp_ValidateBasic_InvalidSigner(t *testing.T) {
 func TestMsgCloseCdp_ValidateBasic_InvalidTimestamp(t *testing.T) {
 	msg := MsgCloseCdp{
 		Signer:    TestOwner,
-		Timestamp: "    ",
+		Timestamp: time.Time{},
 	}
 	actual := msg.ValidateBasic()
-	assert.Equal(t, sdk.ErrUnknownRequest("cdp's timestamp can't be empty"), actual)
+	assert.Equal(t, sdk.ErrUnknownRequest("cdp's timestamp is invalid"), actual)
 	assert.Error(t, actual)
 }
 

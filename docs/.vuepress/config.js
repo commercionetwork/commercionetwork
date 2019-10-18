@@ -48,10 +48,11 @@ module.exports = {
                 title: "Modules",
                 collapsable: false,
                 children: [
-                    "x/memberships/",
+                    "x/bank/",
                     "x/docs/",
                     "x/government/",
                     "x/id/",
+                    "x/memberships/",
                     "x/mint/",
                     "x/pricefeed/",
                     "x/tbr/"

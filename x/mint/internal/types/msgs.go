@@ -1,7 +1,7 @@
 package types
 
 import (
-	"strings"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -25,8 +25,8 @@ func (msg MsgOpenCdp) ValidateBasic() sdk.Error {
 	if msg.DepositedAmount.Empty() || msg.DepositedAmount.IsAnyNegative() {
 		return sdk.ErrInvalidCoins(msg.DepositedAmount.String())
 	}
-	if len(strings.TrimSpace(msg.Timestamp)) == 0 {
-		return sdk.ErrUnknownRequest("cdp request's timestamp can't be empty")
+	if msg.Timestamp.IsZero() {
+		return sdk.ErrUnknownRequest("cdp request's timestamp is invalid")
 	}
 	return nil
 }
@@ -46,10 +46,10 @@ func (msg MsgOpenCdp) GetSigners() []sdk.AccAddress {
 /////////////////
 type MsgCloseCdp struct {
 	Signer    sdk.AccAddress `json:"signer"`
-	Timestamp string         `json:"timestamp"`
+	Timestamp time.Time      `json:"timestamp"`
 }
 
-func NewMsgCloseCdp(signer sdk.AccAddress, timestamp string) MsgCloseCdp {
+func NewMsgCloseCdp(signer sdk.AccAddress, timestamp time.Time) MsgCloseCdp {
 	return MsgCloseCdp{
 		Signer:    signer,
 		Timestamp: timestamp,
@@ -66,8 +66,8 @@ func (msg MsgCloseCdp) ValidateBasic() sdk.Error {
 	if msg.Signer.Empty() {
 		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
-	if len(strings.TrimSpace(msg.Timestamp)) == 0 {
-		return sdk.ErrUnknownRequest("cdp's timestamp can't be empty")
+	if msg.Timestamp.IsZero() {
+		return sdk.ErrUnknownRequest("cdp's timestamp is invalid")
 	}
 	return nil
 }

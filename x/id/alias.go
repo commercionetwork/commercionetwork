@@ -10,37 +10,21 @@ const (
 	StoreKey     = types.StoreKey
 	QuerierRoute = types.QuerierRoute
 
-	StatusApproved = types.StatusApproved
 	StatusRejected = types.StatusRejected
-	StatusCanceled = types.StatusCanceled
 )
 
 var (
 	NewKeeper     = keeper.NewKeeper
+	NewHandler    = keeper.NewHandler
 	NewQuerier    = keeper.NewQuerier
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
-
-	NewMsgSetIdentity = types.NewMsgSetIdentity
-
-	NewMsgRequestDidDeposit           = types.NewMsgRequestDidDeposit
-	NewMsgInvalidateDidDepositRequest = types.NewMsgInvalidateDidDepositRequest
-	NewMsgRequestDidPowerUp           = types.NewMsgRequestDidPowerUp
-	NewMsgInvalidateDidPowerUpRequest = types.NewMsgInvalidateDidPowerUpRequest
-	NewMsgMoveDeposit                 = types.NewMsgMoveDeposit
-
-	// Test
-	TestSetup             = keeper.SetupTestInput
-	TestDidDocument       = keeper.TestDidDocument
-	TestOwnerAddress      = keeper.TestOwnerAddress
-	TestDidDepositRequest = keeper.TestDidDepositRequest
-	TestDidPowerUpRequest = keeper.TestDidPowerUpRequest
 )
 
 type (
 	Keeper = keeper.Keeper
 
-	Identity          = types.Identity
+	DidDocument       = types.DidDocument
 	DidDepositRequest = types.DidDepositRequest
 	DidPowerUpRequest = types.DidPowerUpRequest
 	RequestStatus     = types.RequestStatus
