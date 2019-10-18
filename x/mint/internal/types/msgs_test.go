@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testMsgOpenCdp = MsgOpenCdp{Request: TestCdpRequest}
+var testMsgOpenCdp = MsgOpenCdp(TestCdpRequest)
 var testMsgCloseCdp = MsgCloseCdp{
 	Signer:    TestOwner,
 	Timestamp: TestTimestamp,
@@ -29,33 +29,33 @@ func TestMsgOpenCdp_ValidateBasic_Valid(t *testing.T) {
 }
 
 func TestMsgOpenCdp_ValidateBasic_InvalidOwnerAddr(t *testing.T) {
-	invalidMsg := MsgOpenCdp{Request: CdpRequest{
+	invalidMsg := MsgOpenCdp(CdpRequest{
 		Signer:          nil,
 		DepositedAmount: nil,
 		Timestamp:       "",
-	}}
+	})
 	err := invalidMsg.ValidateBasic()
 	assert.Error(t, err)
-	assert.Equal(t, sdk.ErrInvalidAddress(invalidMsg.Request.Signer.String()), err)
+	assert.Equal(t, sdk.ErrInvalidAddress(invalidMsg.Signer.String()), err)
 }
 
 func TestMsgOpenCdp_ValidateBasic_InvalidDepositedAmount(t *testing.T) {
-	invalidMsg := MsgOpenCdp{Request: CdpRequest{
+	invalidMsg := MsgOpenCdp(CdpRequest{
 		Signer:          TestOwner,
 		DepositedAmount: nil,
 		Timestamp:       "",
-	}}
+	})
 	err := invalidMsg.ValidateBasic()
 	assert.Error(t, err)
-	assert.Equal(t, sdk.ErrInvalidCoins(invalidMsg.Request.DepositedAmount.String()), err)
+	assert.Equal(t, sdk.ErrInvalidCoins(invalidMsg.DepositedAmount.String()), err)
 }
 
 func TestMsgOpenCdp_ValidateBasic_InvalidTimestamp(t *testing.T) {
-	invalidMsg := MsgOpenCdp{Request: CdpRequest{
+	invalidMsg := MsgOpenCdp(CdpRequest{
 		Signer:          TestOwner,
 		DepositedAmount: TestDepositedAmount,
 		Timestamp:       "  ",
-	}}
+	})
 	err := invalidMsg.ValidateBasic()
 	assert.Error(t, err)
 	assert.Equal(t, sdk.ErrUnknownRequest("cdp request's timestamp can't be empty"), err)
@@ -69,7 +69,7 @@ func TestMsgOpenCdp_GetSignBytes(t *testing.T) {
 
 func TestMsgOpenCdp_GetSigners(t *testing.T) {
 	actual := testMsgOpenCdp.GetSigners()
-	expected := []sdk.AccAddress{testMsgOpenCdp.Request.Signer}
+	expected := []sdk.AccAddress{testMsgOpenCdp.Signer}
 	assert.Equal(t, expected, actual)
 }
 

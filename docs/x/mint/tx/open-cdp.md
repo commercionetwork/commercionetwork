@@ -12,11 +12,14 @@ To open a new CDP you need to create and sign the following message.
 {
   "type": "commercio/MsgOpenCdp",
   "value": {
-    "cdp_request": {
-      "deposited_amount": "<Token to be deposited as a collateral (supports only integers)>",
-      "signer": "<User address>",
-      "timestamp": "<Timestamp of when the CDP request was made>"
-    }
+    "deposited_amount": [
+      {
+        "amount": "<Amount to be deposited>",
+        "denom": "<Token denom to be deposited>"
+      }
+    ],
+    "signer": "<User address>",
+    "timestamp": "<Timestamp of when the CDP request was made>"
   }
 }
 ```

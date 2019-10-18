@@ -6,14 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type MsgOpenCdp struct {
-	Request CdpRequest `json:"cdp_request"`
-}
+type MsgOpenCdp CdpRequest
 
 func NewMsgOpenCdp(request CdpRequest) MsgOpenCdp {
-	return MsgOpenCdp{
-		Request: request,
-	}
+	return MsgOpenCdp(request)
 }
 
 // Route Implements Msg.
@@ -23,13 +19,13 @@ func (msg MsgOpenCdp) Route() string { return RouterKey }
 func (msg MsgOpenCdp) Type() string { return MsgTypeOpenCdp }
 
 func (msg MsgOpenCdp) ValidateBasic() sdk.Error {
-	if msg.Request.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Request.Signer.String())
+	if msg.Signer.Empty() {
+		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
-	if msg.Request.DepositedAmount.Empty() || msg.Request.DepositedAmount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins(msg.Request.DepositedAmount.String())
+	if msg.DepositedAmount.Empty() || msg.DepositedAmount.IsAnyNegative() {
+		return sdk.ErrInvalidCoins(msg.DepositedAmount.String())
 	}
-	if len(strings.TrimSpace(msg.Request.Timestamp)) == 0 {
+	if len(strings.TrimSpace(msg.Timestamp)) == 0 {
 		return sdk.ErrUnknownRequest("cdp request's timestamp can't be empty")
 	}
 	return nil
@@ -42,7 +38,7 @@ func (msg MsgOpenCdp) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgOpenCdp) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Request.Signer}
+	return []sdk.AccAddress{msg.Signer}
 }
 
 ///////////////////

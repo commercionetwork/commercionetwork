@@ -6,7 +6,7 @@ import (
 
 type CdpRequest struct {
 	Signer          sdk.AccAddress `json:"signer"`
-	DepositedAmount sdk.Coins      `json:"deposited_amount"`
+	DepositedAmount sdk.Coins      `json:"deposit_amount"`
 	Timestamp       string         `json:"timestamp"`
 }
 

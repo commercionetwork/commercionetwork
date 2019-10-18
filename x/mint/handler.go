@@ -21,7 +21,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg MsgDepositToken) sdk.Result {
-	err := keeper.OpenCdp(ctx, msg.Request)
+	err := keeper.OpenCdp(ctx, CdpRequest(msg))
 	if err != nil {
 		return sdk.ResultFromError(err)
 	}
