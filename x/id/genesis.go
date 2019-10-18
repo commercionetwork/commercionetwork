@@ -6,7 +6,7 @@ import (
 
 // GenesisState - id genesis state
 type GenesisState struct {
-	Identities             []Identity          `json:"identities"`
+	DidDocuments           []DidDocument       `json:"did_documents"`
 	DepositRequests        []DidDepositRequest `json:"deposit_requests"`
 	PowerUpRequests        []DidPowerUpRequest `json:"power_up_requests"`
 	DepositPool            sdk.Coins           `json:"deposit_pool"`
@@ -20,7 +20,11 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets ids information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	keeper.SetIdentities(ctx, data.Identities)
+	for _, didDocument := range data.DidDocuments {
+		if err := keeper.SaveDidDocument(ctx, didDocument); err != nil {
+			panic(err)
+		}
+	}
 
 	for _, deposit := range data.DepositRequests {
 		if err := keeper.StoreDidDepositRequest(ctx, deposit); err != nil {
@@ -45,12 +49,13 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	identities, err := keeper.GetIdentities(ctx)
+	identities, err := keeper.GetDidDocuments(ctx)
 	if err != nil {
 		panic(err)
 	}
+
 	return GenesisState{
-		Identities:             identities,
+		DidDocuments:           identities,
 		DepositRequests:        keeper.GetDepositRequests(ctx),
 		PowerUpRequests:        keeper.GetPowerUpRequests(ctx),
 		DepositPool:            keeper.GetPoolAmount(ctx),

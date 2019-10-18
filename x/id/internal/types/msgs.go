@@ -4,20 +4,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// ----------------------
-// --- MsgSetIdentity
-// ----------------------
+type MsgSetIdentity DidDocument
 
-type MsgSetIdentity struct {
-	Owner       sdk.AccAddress `json:"owner"`
-	DidDocument DidDocument    `json:"did_document"`
-}
-
-func NewMsgSetIdentity(owner sdk.AccAddress, document DidDocument) MsgSetIdentity {
-	return MsgSetIdentity{
-		Owner:       owner,
-		DidDocument: document,
-	}
+func NewMsgSetIdentity(document DidDocument) MsgSetIdentity {
+	return MsgSetIdentity(document)
 }
 
 // Route Implements Msg.
@@ -28,15 +18,7 @@ func (msg MsgSetIdentity) Type() string { return MsgTypeSetIdentity }
 
 // ValidateBasic Implements Msg.
 func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
-	if msg.Owner.Empty() {
-		return sdk.ErrInvalidAddress(msg.Owner.String())
-	}
-
-	if err := msg.DidDocument.Validate(); err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
-	}
-
-	return nil
+	return DidDocument(msg).Validate()
 }
 
 // GetSignBytes Implements Msg.
@@ -46,7 +28,7 @@ func (msg MsgSetIdentity) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgSetIdentity) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Owner}
+	return []sdk.AccAddress{msg.Id}
 }
 
 // ---------------------------

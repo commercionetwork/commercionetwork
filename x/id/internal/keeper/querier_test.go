@@ -17,9 +17,9 @@ var request abci.RequestQuery
 // -----------------
 
 func Test_queryResolveIdentity_ExistingIdentity(t *testing.T) {
-	cdc, ctx, _, _, k := SetupTestInput()
+	cdc, ctx, _, _, _, k := SetupTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
 
 	var querier = NewQuerier(k)
@@ -35,7 +35,7 @@ func Test_queryResolveIdentity_ExistingIdentity(t *testing.T) {
 }
 
 func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
-	cdc, ctx, _, _, k := SetupTestInput()
+	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	var querier = NewQuerier(k)
 	path := []string{types.QueryResolveDid, TestOwnerAddress.String()}
@@ -54,9 +54,9 @@ func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
 // -------------------
 
 func Test_queryResolveDepositRequest_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, _, k := SetupTestInput()
+	cdc, ctx, _, _, _, k := SetupTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
 	var querier = NewQuerier(k)
@@ -71,7 +71,7 @@ func Test_queryResolveDepositRequest_ExistingRequest(t *testing.T) {
 }
 
 func Test_queryResolveDepositRequest_NonExistingRequest(t *testing.T) {
-	_, ctx, _, _, k := SetupTestInput()
+	_, ctx, _, _, _, k := SetupTestInput()
 
 	var querier = NewQuerier(k)
 	path := []string{types.QueryResolveDepositRequest, ""}
@@ -83,9 +83,9 @@ func Test_queryResolveDepositRequest_NonExistingRequest(t *testing.T) {
 }
 
 func Test_queryResolvePowerUpRequest_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, _, k := SetupTestInput()
+	cdc, ctx, _, _, _, k := SetupTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
 	var querier = NewQuerier(k)
@@ -100,7 +100,7 @@ func Test_queryResolvePowerUpRequest_ExistingRequest(t *testing.T) {
 }
 
 func Test_queryResolvePowerUpRequest_NonExistingRequest(t *testing.T) {
-	_, ctx, _, _, k := SetupTestInput()
+	_, ctx, _, _, _, k := SetupTestInput()
 
 	var querier = NewQuerier(k)
 	path := []string{types.QueryResolvePowerUpRequest, ""}
