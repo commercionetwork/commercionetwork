@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -21,18 +23,20 @@ import (
 var TestCreditsDenom = "stake"
 var TestLiquidityDenom = "ucommercio"
 var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var timezone, _ = time.LoadLocation("UTC")
+var TestTimestamp = time.Date(1990, 01, 01, 20, 20, 00, 0, timezone)
 
 var TestCdpRequest = types.CdpRequest{
 	Signer:          TestOwner,
 	DepositedAmount: sdk.NewCoins(sdk.NewCoin(TestLiquidityDenom, sdk.NewInt(100))),
-	Timestamp:       "timestamp-test",
+	Timestamp:       TestTimestamp,
 }
 
 var TestCdp = types.Cdp{
 	Owner:           TestOwner,
 	DepositedAmount: sdk.NewCoins(sdk.NewCoin(TestLiquidityDenom, sdk.NewInt(100))),
 	CreditsAmount:   sdk.NewCoins(sdk.NewCoin(TestCreditsDenom, sdk.NewInt(50))),
-	Timestamp:       "timestamp-test",
+	Timestamp:       TestTimestamp,
 }
 
 var TestLiquidityPool = sdk.Coins{sdk.NewInt64Coin(TestLiquidityDenom, 10000)}

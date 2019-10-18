@@ -2,6 +2,7 @@ package types
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -10,7 +11,8 @@ import (
 var TestDepositedAmount = sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100)))
 var TestLiquidityAmount = sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50)))
 var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestTimestamp = "timestamp-test"
+var timezone, _ = time.LoadLocation("UTC")
+var TestTimestamp = time.Date(1990, 01, 01, 20, 20, 00, 0, timezone)
 
 var TestCdp = Cdp{
 	Owner:           TestOwner,
@@ -68,11 +70,11 @@ func TestCdp_Validate_InvalidCdpTimestamp(t *testing.T) {
 		Owner:           TestOwner,
 		DepositedAmount: TestDepositedAmount,
 		CreditsAmount:   TestLiquidityAmount,
-		Timestamp:       "    ",
+		Timestamp:       time.Time{},
 	}
 
 	err := TestCdp.Validate()
-	assert.Equal(t, sdk.ErrUnknownRequest("timestamp cant be empty"), err)
+	assert.Equal(t, sdk.ErrUnknownRequest("timestamp not valid"), err)
 	assert.Error(t, err)
 }
 
@@ -92,7 +94,7 @@ func TestCdp_Equals_false(t *testing.T) {
 		Owner:           TestOwner,
 		DepositedAmount: TestDepositedAmount,
 		CreditsAmount:   TestLiquidityAmount,
-		Timestamp:       "    ",
+		Timestamp:       time.Time{},
 	}
 	actual := TestCdp.Equals(TestCdp2)
 	assert.False(t, actual)
@@ -118,7 +120,7 @@ func TestCdps_RemoveWhenFound_removed(t *testing.T) {
 }
 
 func TestCdps_RemoveWhenFound_notRemoved(t *testing.T) {
-	cdps, removed := TestCdpS.RemoveWhenFound("tt")
+	cdps, removed := TestCdpS.RemoveWhenFound(time.Time{})
 	assert.False(t, removed)
 	assert.Len(t, cdps, 1)
 }
