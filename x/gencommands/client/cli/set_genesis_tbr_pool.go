@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"errors"
+
 	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -27,6 +29,10 @@ func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 				return err
 			}
 
+			if coins.Len() > 1 {
+				return errors.New("cannot have multiple coins inside the TBR pool")
+			}
+
 			// retrieve the app state
 			genFile := config.GenesisFile()
 			appState, genDoc, err := genutil.GenesisStateFromGenFile(cdc, genFile)
@@ -38,6 +44,7 @@ func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			var genState tbr.GenesisState
 			cdc.MustUnmarshalJSON(appState[tbr.ModuleName], &genState)
 			genState.PoolAmount = sdk.NewDecCoins(coins)
+			genState.RewardDenom = coins[0].Denom
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
 			appState[tbr.ModuleName] = genesisStateBz
