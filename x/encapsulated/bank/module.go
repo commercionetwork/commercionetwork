@@ -67,12 +67,12 @@ func (amb AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Ro
 
 // GetTxCmd returns the root tx command for the bank module.
 func (amb AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return amb.AppModuleBasic.GetQueryCmd(cdc)
+	return amb.AppModuleBasic.GetTxCmd(cdc)
 }
 
 // GetQueryCmd returns no root query command for the bank module.
 func (amb AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return amb.AppModuleBasic.GetTxCmd(cdc)
+	return amb.AppModuleBasic.GetQueryCmd(cdc)
 }
 
 //____________________________________________________________________________
