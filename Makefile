@@ -8,7 +8,10 @@ include Makefile.ledger
 
 export GO111MODULE = on
 
-all: test build
+all: tools build lint test
+
+# The below include contains the tools and runsim targets.
+include contrib/devtools/Makefile
 
 ########################################
 ### Install
@@ -76,6 +79,12 @@ go-mod-cache: go.sum
 go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	go mod verify
+
+lint: golangci-lint
+	$(BINDIR)/golangci-lint run
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
+	go mod verify
+.PHONY: lint
 
 ########################################
 ### Testing
