@@ -10,11 +10,9 @@ The REST API endpoint that must be called is the following:
 ``` 
 
 ### Supported actions
-#### CommercioDOCS
-- [Send documents](../x/docs/tx/send-document-receipt.md#action-type)
-- [Send document receipt](../x/docs/tx/send-document-receipt.md#action-type)
-- [Add supported metadata schema](../x/docs/tx/add-supported-metadata-schema.md#action-type)
-- [Add trusted schema proposer](../x/docs/tx/add-trusted-metadata-schema-proposer.md#action-type)
+Please refer to the [supported messages section](./message-types.md) to know more about all the supported
+transaction messages. Inside each one page there's the `Action type` section which tells you the action type identifier
+to use for transactions that include that message. 
 
 ### Examples
 **Endpoint**   
