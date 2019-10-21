@@ -1,8 +1,7 @@
 package keeper
 
 import (
-	"errors"
-
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,153 +12,193 @@ import (
 )
 
 type Keeper struct {
-	StoreKey sdk.StoreKey
+	storeKey sdk.StoreKey
+	cdc      *codec.Codec
 
-	BankKeeper         bank.Keeper
-	StakingKeeper      staking.Keeper
+	bankKeeper         bank.Keeper
+	stakingKeeper      staking.Keeper
 	DistributionKeeper distribution.Keeper
-
-	Cdc *codec.Codec
 }
 
 func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk distribution.Keeper) Keeper {
 	return Keeper{
-		StoreKey:           storeKey,
-		BankKeeper:         bk,
+		storeKey:           storeKey,
+		bankKeeper:         bk,
 		DistributionKeeper: dk,
-		StakingKeeper:      sk,
-		Cdc:                cdc,
+		stakingKeeper:      sk,
+		cdc:                cdc,
 	}
 }
 
-func (k Keeper) SetRewardDenom(ctx sdk.Context, denom string) {
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.RewardDenomStoreKey), []byte(denom))
+// -------------
+// --- Pool
+// -------------
+
+// SetTotalRewardPool allows to set the value of the total rewards pool that has left
+func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
+	store := ctx.KVStore(k.storeKey)
+	if !updatedPool.Empty() {
+		store.Set([]byte(types.PoolStoreKey), k.cdc.MustMarshalBinaryBare(&updatedPool))
+	}
 }
 
-func (k Keeper) GetRewardDenom(ctx sdk.Context) string {
-	store := ctx.KVStore(k.StoreKey)
-	return string(store.Get([]byte(types.RewardDenomStoreKey)))
-}
-
-// Utility method to set Block Reward Pool
-func (k Keeper) SetBlockRewardsPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.PoolStoreKey), k.Cdc.MustMarshalBinaryBare(&updatedPool))
-}
-
-//Return the Block Rewards Pool if exists
-func (k Keeper) GetBlockRewardsPool(ctx sdk.Context) sdk.DecCoins {
+// GetTotalRewardPool returns the current total rewards pool amount
+func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	var brPool sdk.DecCoins
-	store := ctx.KVStore(k.StoreKey)
-	brpBz := store.Get([]byte(types.PoolStoreKey))
-	k.Cdc.MustUnmarshalBinaryBare(brpBz, &brPool)
+	store := ctx.KVStore(k.storeKey)
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.PoolStoreKey)), &brPool)
 	return brPool
 }
 
 // IncrementBlockRewardsPool increases the block rewards pool with the specified coin amount
-func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coins) error {
-	bk := k.BankKeeper
-	brPool := sdk.DecCoins{}
+func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coins) sdk.Error {
 
-	if bk.HasCoins(ctx, funder, amount) {
-		brPool = k.GetBlockRewardsPool(ctx)
-		_, err := bk.SubtractCoins(ctx, funder, amount)
-		if err != nil {
-			return err
-		}
-		brPool = brPool.Add(sdk.NewDecCoins(amount))
-		k.SetBlockRewardsPool(ctx, brPool)
+	// Subtract the coins from the account
+	bk := k.bankKeeper
+	if _, err := bk.SubtractCoins(ctx, funder, amount); err != nil {
+		return err
 	}
-	return errors.New("not enough tokens to supply the given funds' amount")
 
+	// Set the total rewards pool
+	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(sdk.NewDecCoins(amount)))
+
+	return nil
 }
 
-// Compute the reward of proposer validator as following:
-//
-// With 100 or less active validators, we calculate the reward like this:
-//
-// TPY = Tokens Per Year
-// Divider =  (365 * 24 * 60 * 12)
-//
-// Reward100 = TPY / Divider
-//
-// Instead, if the active validators will be more than 100, we calculate the reward like this:
-//
-// V = Validators Number (assuming it's greater than 100)
-//
-// RewardVN = (Reward100 / V) * 100
-//
-// Summarizing these formulas we obtain:
-//
-// Reward(n, V) = TPY / Divider * 100 / V * STAKE / TOTALSTAKE
-//
-// Divider's members:
-// 365 years' days
-// 24 hours per day
-// 60 minutes per hour
-// 12 blocks per minutes
-//
-// where:
-// Reward(n, V) indicates the reward for the n validator considering a set of V validators
-// V 			 indicates the Validators Number
-// STAKE 		 staked token's amount of n-esim validator
-// TOTALSTAKE	 indicates all staked token's amount of all validators
+// --------------------------
+// --- Yearly reward pool
+// --------------------------
+
+// GetYearlyRewardPool returns the reward pool that has been assigned for the current year or rewards
+func (k Keeper) GetYearlyRewardPool(ctx sdk.Context) (pool sdk.DecCoins) {
+	store := ctx.KVStore(k.storeKey)
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.YearlyPoolStoreKey)), &pool)
+	return pool
+}
+
+// SetYearlyRewardPool sets the given yearlyPool to be the current year's reward pool
+func (k Keeper) SetYearlyRewardPool(ctx sdk.Context, yearlyPool sdk.DecCoins) {
+	store := ctx.KVStore(k.storeKey)
+	if !yearlyPool.Empty() {
+		store.Set([]byte(types.YearlyPoolStoreKey), k.cdc.MustMarshalBinaryBare(&yearlyPool))
+	}
+}
+
+// --------------------
+// --- Year number
+// --------------------
+
 var (
-	TPY = sdk.NewDecWithPrec(25000, 0) //Tokens Per Year
-	DPY = sdk.NewDecWithPrec(36524, 2) // Days Per Year
+	DPY = sdk.NewDecWithPrec(36525, 2) // Days Per Year
 	HPD = sdk.NewDecWithPrec(24, 0)    //  Hours Per Day
 	MPH = sdk.NewDecWithPrec(60, 0)    //  Minutes Per Hour
 	BPM = sdk.NewDecWithPrec(12, 0)    // Blocks Per Minutes
+
+	BPY = DPY.Mul(HPD).Mul(MPH).Mul(BPM) // Blocks Per Year
 )
 
-// computeRawReward computes the raw reward for proposer, assuming that raw reward is the Reward(n, V)
-// equation's result without the last multiplication between the (Stake/TotalStake) value
-func computeRawReward(validatorsNumber int64) sdk.Dec {
-	tokensPerYear := TPY.Mul(sdk.NewDecWithPrec(100000, 0))
-	divider := DPY.Mul(HPD).Mul(MPH).Mul(BPM)
-
-	firstMember := tokensPerYear.Quo(divider)
-
-	averageValidatorsNumber := sdk.NewDecWithPrec(100, 0)
-	vNumber := sdk.NewDecWithPrec(validatorsNumber, 0)
-
-	secondMember := averageValidatorsNumber.Quo(vNumber)
-
-	firstMember = firstMember.Mul(secondMember)
-
-	return firstMember
+func computeYearFromBlockHeight(blockHeight int64) int64 {
+	// Divide the current block number to the number of blocks per year to get the year value
+	// Truncate the result so that 1.99 years = 1 year and not 2
+	blocksPerYear := DPY.Mul(HPD).Mul(MPH).Mul(BPM)
+	return sdk.NewDec(blockHeight).Quo(blocksPerYear).TruncateInt64()
 }
 
+// SetYearNumber set the given year to be the current year number
+func (k Keeper) SetYearNumber(ctx sdk.Context, year int64) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.YearNumberStoreKey), k.cdc.MustMarshalBinaryBare(year))
+}
+
+// GetYearNumber returns the current year number
+func (k Keeper) GetYearNumber(ctx sdk.Context) (year int64) {
+	store := ctx.KVStore(k.storeKey)
+	actualBz := store.Get([]byte(types.YearNumberStoreKey))
+	if actualBz == nil {
+		return 0
+	} else {
+		k.cdc.MustUnmarshalBinaryBare(actualBz, &year)
+		return year
+	}
+}
+
+// UpdateYearlyPool allows to update the current yearly pool based on whenever we
+// are now in a new year or not.
+// If we are in the same year, we do nothing. Otherwise, we set the new year's pool to be the
+// 20% of the total reward pool.
+func (k Keeper) UpdateYearlyPool(ctx sdk.Context, blockHeight int64) {
+	previousYearNumber := k.GetYearNumber(ctx)
+	currentYearNumber := computeYearFromBlockHeight(blockHeight)
+
+	// Check if the year number has changed and thus we need to update the yearly reward pool
+	if previousYearNumber != currentYearNumber {
+
+		// Get the reward pool
+		rewardPool := k.GetTotalRewardPool(ctx)
+
+		// Compute a pool in which each coin is 20% of the total pool
+		yearlyRewardPool := make(sdk.DecCoins, len(rewardPool))
+		for index, coin := range rewardPool {
+			// Each new coin amount must be 20% (= 1/5) of the previous
+			yearlyRewardPool[index] = sdk.NewDecCoinFromDec(coin.Denom, coin.Amount.QuoInt64(5))
+		}
+
+		// Set the new yearly reward pool and year number
+		k.SetYearlyRewardPool(ctx, yearlyRewardPool)
+		k.SetYearNumber(ctx, currentYearNumber)
+	}
+}
+
+// ---------------------------
+// --- Reward distribution
+// ---------------------------
+
 // ComputeProposerReward computes the final reward for the validator block's proposer
-func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorNumber int64, proposer exported.ValidatorI,
-	totalStakedTokens sdk.Int) sdk.DecCoins {
+func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorsCount int64,
+	proposer exported.ValidatorI, totalStakedTokens sdk.Int) sdk.DecCoins {
 
-	// Get the raw reward for proposer
-	rawReward := computeRawReward(validatorNumber)
+	// Get the maximum year reward by multiplying the yearly pool by V/100
+	Ry := k.GetYearlyRewardPool(ctx).MulDec(sdk.NewDec(validatorsCount)).QuoDec(sdk.NewDec(100))
 
-	// Retrieve staked tokens by proposer
-	validatorStakedTokens := proposer.GetBondedTokens().ToDec()
+	// Cap the yearly reward limit per validator by dividing the yearly reward by 100
+	RLyn := Ry.QuoDec(sdk.NewDec(100))
 
-	// Compute his validation power
-	validatorPower := validatorStakedTokens.Quo(totalStakedTokens.ToDec())
+	// Compute the voting power for this validator at the current block
+	VPnb := proposer.GetBondedTokens().Quo(totalStakedTokens)
 
-	// Calculate the final reward for this proposer
-	concreteReward := rawReward.Mul(validatorPower)
+	// Compute the half validator set
+	halfV := sdk.NewDec(1).QuoInt64(validatorsCount)
+	isTopValidator := VPnb.ToDec().GT(halfV)
 
-	coinReward := sdk.DecCoin{Denom: k.GetRewardDenom(ctx), Amount: concreteReward}
-	return sdk.DecCoins{coinReward}
+	// Compute the multiplying factor based on whenever the validator is in the top half or not.
+	// If it's in the top half list, the validator should receive a lower quantity of tokens as it
+	// will validate more blocks.
+	// If it's in the bottom half of the list it should receive a higher amount as it will validate
+	// less blocks
+	var multiplyingFactor sdk.Dec
+	if isTopValidator {
+		multiplyingFactor = sdk.NewDec(1).QuoInt(VPnb)
+	} else {
+		multiplyingFactor = sdk.NewDec(validatorsCount)
+	}
+
+	// Compute the final reward
+	Rnb := RLyn.QuoDec(BPY).MulDec(multiplyingFactor)
+
+	return Rnb
 }
 
 // DistributeBlockRewards distributes the computed reward to the block proposer
 func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) error {
-	brPool := k.GetBlockRewardsPool(ctx)
+	rewardPool := k.GetTotalRewardPool(ctx)
+	yearlyPool := k.GetYearlyRewardPool(ctx)
 
-	// Check if the pool has enough funds
+	// Check if the yearly pool and the total pool have enough funds
+	if ctypes.IsAllGTE(rewardPool, reward) && ctypes.IsAllGTE(yearlyPool, reward) {
 
-	if brPool.AmountOf(k.GetRewardDenom(ctx)).GTE(reward.AmountOf(k.GetRewardDenom(ctx))) {
-		brPool = brPool.Sub(reward)
-		k.SetBlockRewardsPool(ctx, brPool)
+		// Decrement the total rewards pool and the yearly pool
+		k.SetTotalRewardPool(ctx, rewardPool.Sub(reward))
+		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(rewardPool))
 
 		// Get his current reward and then add the new one
 		currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
@@ -170,5 +209,6 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 	} else {
 		return sdk.ErrInsufficientFunds("Pool hasn't got enough funds to supply validator's rewards")
 	}
+
 	return nil
 }

@@ -99,7 +99,6 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	sk.SetHooks(dk.Hooks())
 
 	tbrKeeper := NewKeeper(cdc, tbrStoreKey, bk, sk, dk)
-	tbrKeeper.SetRewardDenom(ctx, "stake")
 
 	return cdc, ctx, tbrKeeper, ak, bk
 }

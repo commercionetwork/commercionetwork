@@ -309,13 +309,13 @@ func (keeper Keeper) GetUsersSet(ctx sdk.Context) ctypes.Addresses {
 func (keeper Keeper) SetUserDocuments(ctx sdk.Context, user sdk.AccAddress, sentDocuments, receivedDocuments types.Documents) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	sentDocsBz := keeper.cdc.MustMarshalBinaryBare(&sentDocuments)
-	if sentDocsBz != nil {
+	if !sentDocuments.IsEmpty() {
+		sentDocsBz := keeper.cdc.MustMarshalBinaryBare(&sentDocuments)
 		store.Set(keeper.getSentDocumentsStoreKey(user), sentDocsBz)
 	}
 
-	receivedDocsBz := keeper.cdc.MustMarshalBinaryBare(&receivedDocuments)
-	if receivedDocsBz != nil {
+	if !receivedDocuments.IsEmpty() {
+		receivedDocsBz := keeper.cdc.MustMarshalBinaryBare(&receivedDocuments)
 		store.Set(keeper.getReceivedDocumentsStoreKey(user), receivedDocsBz)
 	}
 }
@@ -325,13 +325,13 @@ func (keeper Keeper) SetUserDocuments(ctx sdk.Context, user sdk.AccAddress, sent
 func (keeper Keeper) SetUserReceipts(ctx sdk.Context, user sdk.AccAddress, sentReceipts, receivedReceipts types.DocumentReceipts) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	sentReceiptsBz := keeper.cdc.MustMarshalBinaryBare(&sentReceipts)
-	if sentReceiptsBz != nil {
+	if !sentReceipts.IsEmpty() {
+		sentReceiptsBz := keeper.cdc.MustMarshalBinaryBare(&sentReceipts)
 		store.Set(keeper.getSentReceiptsStoreKey(user), sentReceiptsBz)
 	}
 
-	receivedReceiptsBz := keeper.cdc.MustMarshalBinaryBare(&receivedReceipts)
-	if receivedReceiptsBz != nil {
+	if !receivedReceipts.IsEmpty() {
+		receivedReceiptsBz := keeper.cdc.MustMarshalBinaryBare(&receivedReceipts)
 		store.Set(keeper.getReceivedReceiptsStoreKey(user), receivedReceiptsBz)
 	}
 }
