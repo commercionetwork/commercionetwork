@@ -13,7 +13,7 @@ If you wish to know more about the overall pairwise Did creation sequence, pleas
 ## Transaction message
 ```json
 {
-  "type": "commercio/MsgRequirePowerUpDid",
+  "type": "commercio/MsgRequestDidPowerUp",
   "value": {
     "claimant": "<Address that is able to spend the funds (the recipient used during the deposit procedure)>",
     "amount": [
