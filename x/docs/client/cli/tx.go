@@ -109,7 +109,7 @@ func getCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 				Proof:        args[3],
 			}
 
-			msg := types.NewMsgDocumentReceipt(receipt)
+			msg := types.NewMsgSendDocumentReceipt(receipt)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

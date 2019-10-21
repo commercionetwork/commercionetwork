@@ -18,6 +18,28 @@ func (addresses Addresses) AppendIfMissing(address sdk.AccAddress) (Addresses, b
 	}
 }
 
+// RemoveIfExisting returns a new Addresses instance that does not contain the
+// given address.
+func (addresses Addresses) RemoveIfExisting(address sdk.AccAddress) (Addresses, bool) {
+	indexOf := addresses.IndexOf(address)
+	if indexOf > -1 {
+		return append(addresses[:indexOf], addresses[indexOf+1:]...), true
+	} else {
+		return append(addresses, address), false
+	}
+}
+
+// IndexOf returns the index of the given address inside the addresses array,
+// or -1 if such an address was not found
+func (addresses Addresses) IndexOf(address sdk.AccAddress) int {
+	for i, a := range addresses {
+		if a.Equals(address) {
+			return i
+		}
+	}
+	return -1
+}
+
 // Contains returns true iff the addresses list contains the given address
 func (addresses Addresses) Contains(address sdk.Address) bool {
 	for _, ele := range addresses {

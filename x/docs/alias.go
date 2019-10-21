@@ -11,6 +11,8 @@ const (
 	QuerierRoute = types.QuerierRoute
 
 	MetadataSchemaProposersStoreKey = types.MetadataSchemaProposersStoreKey
+
+	MsgTypeShareDocument = types.MsgTypeShareDocument
 )
 
 var (

@@ -11,8 +11,8 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Oracles ctypes.Addresses
-	Assets  ctypes.Strings
+	Oracles ctypes.Addresses `json:"oracles"`
+	Assets  ctypes.Strings   `json:"assets"`
 }
 
 // DefaultGenesisState returns a default genesis state

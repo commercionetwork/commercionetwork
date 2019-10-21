@@ -26,8 +26,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, govKeeper government.K
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
 	govKey := sdk.NewKVStoreKey("government")
-
-	storeKey := sdk.NewKVStoreKey("pricefeed")
+	pricefeedKey := sdk.NewKVStoreKey("pricefeed")
 
 	ms := store.NewCommitMultiStore(memDB)
 	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
@@ -36,14 +35,14 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, govKeeper government.K
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
 	ms.MountStoreWithDB(govKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(pricefeedKey, sdk.StoreTypeIAVL, memDB)
 
 	_ = ms.LoadLatestVersion()
 
 	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	govkeeper := government.NewKeeper(govKey, cdc)
-	pfk := NewKeeper(cdc, storeKey)
+	govkeeper := government.NewKeeper(cdc, govKey)
+	pfk := NewKeeper(cdc, pricefeedKey)
 
 	return cdc, ctx, govkeeper, pfk
 }

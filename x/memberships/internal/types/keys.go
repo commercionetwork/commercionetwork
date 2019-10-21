@@ -1,14 +1,29 @@
 package types
 
 const (
-	ModuleName   = "memberships"
+	ModuleName   = "accreditations"
 	StoreKey     = ModuleName
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	TrustedMinterPrefix = "minter:"
-
 	NftDenom = "membership"
 
-	QueryGetMembership = "membership"
+	// --- Keeper
+	StableCreditsStoreKey  = StoreKey + ":stableCreditsDenom"
+	LiquidityPoolStoreKey  = StoreKey + ":liquidityPool"
+	TrustedSignersStoreKey = StoreKey + ":signers"
+	InviteStorePrefix      = "invite:"
+	CredentialsStorePrefix = "credentials:"
+
+	// --- Messages
+	MsgTypeInviteUser                = "inviteUser"
+	MsgTypeSetUserVerified           = "setUserVerified"
+	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
+	MsgTypeAddTsp                    = "addTsp"
+	MsgTypeBuyMembership             = "buyMembership"
+
+	QueryGetInvites                 = "invites"
+	QueryGetTrustedServiceProviders = "tsps"
+	QueryGetPoolFunds               = "poolFunds"
+	QueryGetMembership              = "memberships"
 )
