@@ -95,6 +95,7 @@ func (app *CommercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWh
 	// reinitialize all delegations
 	for _, del := range dels {
 		app.distrKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddress, del.ValidatorAddress)
+		app.distrKeeper.Hooks().AfterDelegationModified(ctx, del.DelegatorAddress, del.ValidatorAddress)
 	}
 
 	// reset context height
