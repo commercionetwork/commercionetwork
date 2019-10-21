@@ -20,7 +20,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k Keeper, stakeKe
 		// Get the validator who proposed the block
 		previousProposer := k.DistributionKeeper.GetPreviousProposerConsAddr(ctx)
 
-		// Retrieve the validator from its consesus address
+		// Retrieve the validator from its consensus address
 		validator := stakeKeeper.ValidatorByConsAddr(ctx, previousProposer)
 
 		// Compute the reward based on the number of validators, the validator's staked tokens and the total staked tokens
