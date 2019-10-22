@@ -3,7 +3,7 @@ In order to send a document you are required to have an identity with some token
 
 ::: tip  
 To know what an identity is, how to create it and how to get tokens, please refer to the 
-[*"Creating an identity"* section](../../id/README.md#creating-an-identity).  
+[*"Creating an identity"* section](../../id/tx/create-an-identity.md).  
 :::  
 
 ## Transaction message
@@ -184,3 +184,14 @@ you need to use the following `message.action` value:
 ```
 shareDocument
 ```
+
+## Transaction cost
+To make sure every person on the network has predictable costs when sending a document, you are required to set 
+a minimum `fee.amount` value inside the transaction when using the `commercio/MsgShareDocument` message type.  
+
+This minimum fee value is always equivalent at 0.01 euro and can be paid in two different methods: 
+
+1. Using `10000uccc`, which are millionth of Commercio Cash Credits
+2. Using the 0.01 euro equivalent of Commercio Tokens.  
+   Please note that the usage of such tokens is discouraged as it is more difficult to properly have an estimate on how
+   many tokens are needed. When using it you should set a 10% more of the minimum tokens required.     
