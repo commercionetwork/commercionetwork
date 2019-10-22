@@ -1,23 +1,22 @@
 {
   "name": "docs",
   "version": "1.0.0",
-  "description": "## Get Started",
+  "description": "Commercio.network documentation",
   "main": "index.js",
   "scripts": {
     "docs:serve": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "lodash": "^4.17.11",
     "markdown-it": "^8.4.2",
     "markdown-it-meta": "0.0.1",
-    "vuepress": "^1.0.2"
+    "vuepress": "^1.2.0"
   },
   "dependencies": {
     "axios": "^0.19.0",
-    "vuepress-plugin-latex": "^0.1.3",
-    "vuepress-plugin-mathjax": "^1.2.8"
+    "vuepress-plugin-latex": "^0.1.3"
   }
 }
