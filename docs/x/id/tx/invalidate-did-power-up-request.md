@@ -1,4 +1,4 @@
-# Invalidating a Did deposit request
+# Invalidating a Did power up request
 Once a [Did power up request has been created](./request-did-power-up.md), it can be invalidated in two different cases: 
  
 1. The user wants to cancel it. 
