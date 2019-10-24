@@ -14,7 +14,7 @@ following message.
 {
   "type": "commercio/MsgShareDocument",
   "value": {
-    "sender": "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0",
+    "sender": "<Sender Did>",
     "recipients": [
       "<Recipient address>"
     ],
