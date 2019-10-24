@@ -41,6 +41,10 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 
 type DocumentReceipts []DocumentReceipt
 
+func (receipts DocumentReceipts) IsEmpty() bool {
+	return len(receipts) == 0
+}
+
 func (receipts DocumentReceipts) AppendIfMissing(receipt DocumentReceipt) (DocumentReceipts, bool) {
 	for _, ele := range receipts {
 		if ele.Equals(receipt) {

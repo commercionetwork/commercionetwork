@@ -10,7 +10,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-//Querier unused
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
@@ -22,10 +21,10 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 	}
 }
 
-func queryGetBlockRewardsPoolFunds(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
-	funds := keeper.GetBlockRewardsPool(ctx)
+func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err sdk.Error) {
+	funds := keeper.GetTotalRewardPool(ctx)
 
-	fundsBz, err2 := codec.MarshalJSONIndent(keeper.Cdc, funds)
+	fundsBz, err2 := codec.MarshalJSONIndent(keeper.cdc, funds)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}

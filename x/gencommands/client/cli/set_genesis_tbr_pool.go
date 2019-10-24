@@ -44,7 +44,6 @@ func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			var genState tbr.GenesisState
 			cdc.MustUnmarshalJSON(appState[tbr.ModuleName], &genState)
 			genState.PoolAmount = sdk.NewDecCoins(coins)
-			genState.RewardDenom = coins[0].Denom
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
 			appState[tbr.ModuleName] = genesisStateBz

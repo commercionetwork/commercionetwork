@@ -19,15 +19,7 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-type AppModuleBasic struct {
-	RewardDenom string
-}
-
-func NewAppModuleBasic(rewardDenom string) AppModuleBasic {
-	return AppModuleBasic{
-		RewardDenom: rewardDenom,
-	}
-}
+type AppModuleBasic struct{}
 
 var _ module.AppModuleBasic = AppModuleBasic{}
 
@@ -43,7 +35,7 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 
 //genesis default state
 func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.RewardDenom))
+	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 
 //genesis validation

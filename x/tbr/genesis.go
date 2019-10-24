@@ -2,54 +2,59 @@ package tbr
 
 import (
 	"errors"
-	"strings"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type GenesisState struct {
-	RewardDenom string       `json:"reward_denom"`
-	PoolAmount  sdk.DecCoins `json:"pool_amount"`
+	PoolAmount       sdk.DecCoins `json:"pool_amount"`
+	YearlyPoolAmount sdk.DecCoins `json:"yearly_pool_amount"`
+	YearNumber       int64        `json:"year_number"`
 }
 
 // DefaultGenesisState returns a default genesis state
-func DefaultGenesisState(rewardDenom string) GenesisState {
-	return GenesisState{
-		RewardDenom: rewardDenom,
-		PoolAmount:  sdk.DecCoins{},
-	}
+func DefaultGenesisState() GenesisState {
+	return GenesisState{}
 }
 
 // InitGenesis sets the initial Block Reward Pool amount for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	if data.PoolAmount != nil {
-		keeper.SetBlockRewardsPool(ctx, data.PoolAmount)
+	// Set the reward pool - Should never be nil as its validated inside the ValidateGenesis method
+	keeper.SetTotalRewardPool(ctx, data.PoolAmount)
+
+	// Default yearly reward pool amount
+	if data.YearlyPoolAmount == nil {
+		data.YearlyPoolAmount = data.PoolAmount.QuoDec(sdk.NewDec(5))
 	}
 
-	keeper.SetRewardDenom(ctx, data.RewardDenom)
+	// Set the yearly reward pool and year number
+	keeper.SetYearlyRewardPool(ctx, data.YearlyPoolAmount)
+	keeper.SetYearNumber(ctx, data.YearNumber)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
-		RewardDenom: keeper.GetRewardDenom(ctx),
-		PoolAmount:  keeper.GetBlockRewardsPool(ctx),
+		PoolAmount:       keeper.GetTotalRewardPool(ctx),
+		YearlyPoolAmount: keeper.GetYearlyRewardPool(ctx),
+		YearNumber:       keeper.GetYearNumber(ctx),
 	}
 }
 
 // ValidateGenesis performs basic validation of genesis data returning an
 // error for any failed validation criteria.
 func ValidateGenesis(data GenesisState) error {
-	if len(strings.TrimSpace(data.RewardDenom)) == 0 {
-		return errors.New("transaction block reward reward denom cannot be empty")
-	}
-
-	if data.PoolAmount.Empty() {
+	if data.PoolAmount == nil || data.PoolAmount.Empty() {
 		return errors.New("transaction block reward pool cannot be empty")
 	}
 
-	if data.PoolAmount.IsAnyNegative() {
-		return errors.New("transaction block reward pool cannot contain negative funds")
+	if !data.PoolAmount.IsValid() {
+		return errors.New(fmt.Sprintf("invalid transaction block reward pool: %s", data.PoolAmount.String()))
+	}
+
+	if !data.YearlyPoolAmount.IsValid() {
+		return errors.New(fmt.Sprintf("invalid yearly transaction block reward pool: %s", data.YearlyPoolAmount.String()))
 	}
 
 	return nil

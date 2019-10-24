@@ -110,7 +110,7 @@ var (
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
 		pricefeed.AppModuleBasic{},
-		tbr.NewAppModuleBasic(DefaultBondDenom),
+		tbr.AppModuleBasic{},
 	)
 
 	maccPerms = map[string][]string{

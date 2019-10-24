@@ -86,3 +86,7 @@ func (documents Documents) AppendIfMissing(i Document) Documents {
 	}
 	return append(documents, i)
 }
+
+func (documents Documents) IsEmpty() bool {
+	return len(documents) == 0
+}
