@@ -39,6 +39,8 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	store := ctx.KVStore(k.storeKey)
 	if !updatedPool.Empty() {
 		store.Set([]byte(types.PoolStoreKey), k.cdc.MustMarshalBinaryBare(&updatedPool))
+	} else {
+		store.Delete([]byte(types.PoolStoreKey))
 	}
 }
 
@@ -81,6 +83,8 @@ func (k Keeper) SetYearlyRewardPool(ctx sdk.Context, yearlyPool sdk.DecCoins) {
 	store := ctx.KVStore(k.storeKey)
 	if !yearlyPool.Empty() {
 		store.Set([]byte(types.YearlyPoolStoreKey), k.cdc.MustMarshalBinaryBare(&yearlyPool))
+	} else {
+		store.Delete([]byte(types.YearlyPoolStoreKey))
 	}
 }
 
@@ -198,7 +202,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 		// Decrement the total rewards pool and the yearly pool
 		k.SetTotalRewardPool(ctx, rewardPool.Sub(reward))
-		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(rewardPool))
+		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(reward))
 
 		// Get his current reward and then add the new one
 		currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())

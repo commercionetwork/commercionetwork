@@ -210,8 +210,9 @@ func TestKeeper_ComputeProposerReward_100ValidatorsBalanced(t *testing.T) {
 func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
-	k.SetTotalRewardPool(ctx, TestBlockRewardsPool)
-	k.SetYearlyRewardPool(ctx, TestBlockRewardsPool)
+	pool := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100000)}
+	k.SetTotalRewardPool(ctx, pool)
+	k.SetYearlyRewardPool(ctx, pool)
 
 	validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
@@ -221,6 +222,10 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 
 	actual := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, TestValidator.OperatorAddress)
 	assert.Equal(t, reward, actual.Rewards)
+
+	remaining := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 99000)}
+	assert.Equal(t, remaining, k.GetTotalRewardPool(ctx))
+	assert.Equal(t, remaining, k.GetYearlyRewardPool(ctx))
 }
 
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
