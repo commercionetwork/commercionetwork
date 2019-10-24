@@ -10,7 +10,7 @@ import (
 type GenesisState struct {
 	PoolAmount       sdk.DecCoins `json:"pool_amount"`
 	YearlyPoolAmount sdk.DecCoins `json:"yearly_pool_amount"`
-	YearNumber       int64        `json:"year_number"`
+	YearlyRemains    sdk.DecCoins `json:"yearly_remains"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -24,13 +24,22 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	keeper.SetTotalRewardPool(ctx, data.PoolAmount)
 
 	// Default yearly reward pool amount
-	if data.YearlyPoolAmount == nil {
+	if data.YearlyPoolAmount.Empty() {
 		data.YearlyPoolAmount = data.PoolAmount.QuoDec(sdk.NewDec(5))
 	}
 
-	// Set the yearly reward pool and year number
+	// Default yearly remains
+	if data.YearlyRemains.Empty() {
+		data.YearlyRemains = data.YearlyPoolAmount
+	}
+
+	// Set the yearly reward pool and the remains
 	keeper.SetYearlyRewardPool(ctx, data.YearlyPoolAmount)
-	keeper.SetYearNumber(ctx, data.YearNumber)
+	keeper.SetYearlyPoolRemains(ctx, data.YearlyRemains)
+
+	// Compute and set the year number
+	yearNumber := keeper.ComputeYearFromBlockHeight(ctx.BlockHeight())
+	keeper.SetYearNumber(ctx, yearNumber)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -38,7 +47,7 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
 		PoolAmount:       keeper.GetTotalRewardPool(ctx),
 		YearlyPoolAmount: keeper.GetYearlyRewardPool(ctx),
-		YearNumber:       keeper.GetYearNumber(ctx),
+		YearlyRemains:    keeper.GetRemainingYearlyPool(ctx),
 	}
 }
 
