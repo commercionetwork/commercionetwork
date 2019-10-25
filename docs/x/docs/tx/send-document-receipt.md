@@ -10,6 +10,7 @@ following message.
 {
   "type": "commercio/MsgSendDocumentReceipt",
   "value": {
+    "uuid": "<Unique receipt identifier>",
     "sender": "<Document sender address>",
     "recipient": "<Document recipient address>",
     "tx_hash": "<Tx hash in which the document has been sent>",
@@ -22,6 +23,7 @@ following message.
 ### Fields requirements
 | Field | Required | 
 | :---: | :------: | 
+| `uuid` | Yes |
 | `sender` | Yes | 
 | `recipient` | Yes | 
 | `tx_hash` | Yes | 
