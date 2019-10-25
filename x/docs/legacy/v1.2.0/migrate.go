@@ -11,7 +11,6 @@ func Migrate(oldGenState v110docs.GenesisState) GenesisState {
 
 	usersData := make([]UserDocumentsData, len(oldGenState.UsersData))
 	for i, userData := range oldGenState.UsersData {
-
 		usersData[i] = UserDocumentsData{
 			User:              userData.User,
 			SentDocuments:     migrateDocuments(userData.SentDocuments),

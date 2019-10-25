@@ -37,7 +37,7 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 	// Setup the store
 	metadataStore := ctx.KVStore(k.StoreKey)
 	documentIds := types.DocumentIds{TestingDocument.Uuid}
-	metadataStore.Set(k.getReceivedDocumentsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentIds))
+	metadataStore.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentIds))
 	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	// Compose the path
@@ -71,7 +71,7 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 	//Setup the store
 	metadataStore := ctx.KVStore(k.StoreKey)
 	documentIds := types.DocumentIds{TestingDocument.Uuid}
-	metadataStore.Set(k.getSentDocumentsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentIds))
+	metadataStore.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentIds))
 	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	// Compose the path

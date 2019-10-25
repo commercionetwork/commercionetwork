@@ -106,22 +106,22 @@ func (keeper Keeper) getDocumentStoreKey(uuid string) []byte {
 	return []byte(types.DocumentStorePrefix + uuid)
 }
 
-// getSentDocumentsStoreKey returns the byte representation of the key that should be used when updating the
+// getSentDocumentsIdsStoreKey returns the byte representation of the key that should be used when updating the
 // list of documents that the given user has sent
-func (keeper Keeper) getSentDocumentsStoreKey(user sdk.AccAddress) []byte {
+func (keeper Keeper) getSentDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
 	return []byte(types.SentDocumentsPrefix + user.String())
 }
 
-// getReceivedDocumentsStoreKey returns the byte representation of the key that should be used when updating the
+// getReceivedDocumentsIdsStoreKey returns the byte representation of the key that should be used when updating the
 // list of documents that the given user has received
-func (keeper Keeper) getReceivedDocumentsStoreKey(user sdk.AccAddress) []byte {
+func (keeper Keeper) getReceivedDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
 	return []byte(types.ReceivedDocumentsPrefix + user.String())
 }
 
 // ShareDocument allows the sharing of a document
 func (keeper Keeper) ShareDocument(ctx sdk.Context, sender sdk.AccAddress, recipients []sdk.AccAddress, document types.Document) sdk.Error {
 	store := ctx.KVStore(keeper.StoreKey)
-	sentDocumentsStoreKey := keeper.getSentDocumentsStoreKey(sender)
+	sentDocumentsStoreKey := keeper.getSentDocumentsIdsStoreKey(sender)
 
 	// Check any existing document
 	if _, found := keeper.GetDocumentById(ctx, document.Uuid); found {
@@ -140,7 +140,7 @@ func (keeper Keeper) ShareDocument(ctx sdk.Context, sender sdk.AccAddress, recip
 
 	// Store the documents as received for all the recipients
 	for _, recipient := range recipients {
-		receivedDocumentsStoreKey := keeper.getReceivedDocumentsStoreKey(recipient)
+		receivedDocumentsStoreKey := keeper.getReceivedDocumentsIdsStoreKey(recipient)
 
 		var recipientDocsList types.DocumentIds
 		keeper.cdc.MustUnmarshalBinaryBare(store.Get(receivedDocumentsStoreKey), &recipientDocsList)
@@ -167,7 +167,7 @@ func (keeper Keeper) GetDocumentById(ctx sdk.Context, id string) (document types
 // GetUserReceivedDocuments returns a list of all the documents that has been received from a user
 func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, sdk.Error) {
 	store := ctx.KVStore(keeper.StoreKey)
-	receivedDocumentsStoreKey := keeper.getReceivedDocumentsStoreKey(user)
+	receivedDocumentsStoreKey := keeper.getReceivedDocumentsIdsStoreKey(user)
 
 	var receivedDocsIds types.DocumentIds
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(receivedDocumentsStoreKey), &receivedDocsIds)
@@ -192,7 +192,7 @@ func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) 
 	store := ctx.KVStore(keeper.StoreKey)
 
 	var sentDocsIds types.DocumentIds
-	sentDocsIdsBz := store.Get(keeper.getSentDocumentsStoreKey(user))
+	sentDocsIdsBz := store.Get(keeper.getSentDocumentsIdsStoreKey(user))
 	keeper.cdc.MustUnmarshalBinaryBare(sentDocsIdsBz, &sentDocsIds)
 
 	docs := types.Documents{}
@@ -309,14 +309,29 @@ func (keeper Keeper) GetUsersSet(ctx sdk.Context) ctypes.Addresses {
 func (keeper Keeper) SetUserDocuments(ctx sdk.Context, user sdk.AccAddress, sentDocuments, receivedDocuments types.Documents) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	if !sentDocuments.IsEmpty() {
-		sentDocsBz := keeper.cdc.MustMarshalBinaryBare(&sentDocuments)
-		store.Set(keeper.getSentDocumentsStoreKey(user), sentDocsBz)
+	sentDocsIds := types.DocumentIds{}
+	for _, sentDoc := range sentDocuments {
+		sentDocsIds, _ = sentDocsIds.AppendIfMissing(sentDoc.Uuid)
+
+		// Store the document
+		store.Set(keeper.getDocumentStoreKey(sentDoc.Uuid), keeper.cdc.MustMarshalBinaryBare(&sentDoc))
 	}
 
-	if !receivedDocuments.IsEmpty() {
-		receivedDocsBz := keeper.cdc.MustMarshalBinaryBare(&receivedDocuments)
-		store.Set(keeper.getReceivedDocumentsStoreKey(user), receivedDocsBz)
+	receivedDocsIds := types.DocumentIds{}
+	for _, receivedDoc := range receivedDocuments {
+		receivedDocsIds, _ = receivedDocsIds.AppendIfMissing(receivedDoc.Uuid)
+
+		// Store the document
+		store.Set(keeper.getDocumentStoreKey(receivedDoc.Uuid), keeper.cdc.MustMarshalBinaryBare(&receivedDoc))
+	}
+
+	// Store the sent and received docs ids
+	if !sentDocsIds.Empty() {
+		store.Set(keeper.getSentDocumentsIdsStoreKey(user), keeper.cdc.MustMarshalBinaryBare(&sentDocsIds))
+	}
+
+	if !receivedDocsIds.Empty() {
+		store.Set(keeper.getReceivedDocumentsIdsStoreKey(user), keeper.cdc.MustMarshalBinaryBare(&receivedDocsIds))
 	}
 }
 

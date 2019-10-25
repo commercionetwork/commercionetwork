@@ -67,7 +67,7 @@ var TestingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvz
 var TestingDocument = types.Document{
 	ContentUri: "https://example.com/document",
 	Metadata: types.DocumentMetadata{
-		ContentUri: "",
+		ContentUri: "https://example.com/document/metadata",
 		Schema: &types.DocumentMetadataSchema{
 			Uri:     "https://example.com/document/metadata/schema",
 			Version: "1.0.0",
