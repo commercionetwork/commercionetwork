@@ -106,45 +106,45 @@ func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
 
 func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
+
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
 
-	var stored = types.DocumentReceipts{TestingDocumentReceipt}
-	store.Set(
-		k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
-		cdc.MustMarshalBinaryBare(&stored),
-	)
+	ids := types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
+	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
 
 	// Get the returned receipts
-	var actual types.DocumentReceipts
+	querier := NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
+
+	var actual types.DocumentReceipts
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, stored, actual)
+	expected := types.DocumentReceipts{TestingDocumentReceipt}
+	assert.Equal(t, expected, actual)
 }
 
 func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
 
-	var stored = types.DocumentReceipts{TestingDocumentReceipt}
-	store.Set(
-		k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
-		cdc.MustMarshalBinaryBare(&stored),
-	)
+	var ids = types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
+	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUuid}
 
 	// Get the returned receipts
-	var actual types.DocumentReceipts
+	querier := NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
+
+	var actual types.DocumentReceipts
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	var expected = types.DocumentReceipts{TestingDocumentReceipt}
@@ -167,23 +167,24 @@ func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
 
 func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
+
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
 
-	var stored = types.DocumentReceipts{TestingDocumentReceipt}
-	store.Set(
-		k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender),
-		cdc.MustMarshalBinaryBare(&stored),
-	)
+	var ids = types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
+	store.Set(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&ids))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
-	var actual types.DocumentReceipts
+	querier := NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
+
+	var actual types.DocumentReceipts
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, stored, actual)
+	expected := types.DocumentReceipts{TestingDocumentReceipt}
+	assert.Equal(t, expected, actual)
 }
 
 // ----------------------------------

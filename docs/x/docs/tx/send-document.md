@@ -18,32 +18,30 @@ following message.
     "recipients": [
       "<Recipient address>"
     ],
-    "document": {
-      "uuid": "<Document UUID>",
-      "content_uri": "<Document content URI>",
-      "metadata": {
-        "content_uri": "<Metadata content URI>",
-        "schema": {
-          "uri": "<Metadata schema definition URI>",
-          "version": "<Metadata schema version>"
-        },
-        "schema_type": "<Metadata schema type>"
+    "uuid": "<Document UUID>",
+    "content_uri": "<Document content URI>",
+    "metadata": {
+      "content_uri": "<Metadata content URI>",
+      "schema": {
+        "uri": "<Metadata schema definition URI>",
+        "version": "<Metadata schema version>"
       },
-      "checksum": {
-        "value": "<Document content checksum value>",
-        "algorithm": "<Document content checksum algorithm>"
-      },
-      "encryption_data": {
-        "keys": [
-          {
-            "recipient": "<Recipient address>",
-            "value": "<Encrypted and encoded symmetric key value>"
-          }
-        ],
-        "encrypted_data": [
-          "<Encrypted field identifier>"
-        ]
-      }
+      "schema_type": "<Metadata schema type>"
+    },
+    "checksum": {
+      "value": "<Document content checksum value>",
+      "algorithm": "<Document content checksum algorithm>"
+    },
+    "encryption_data": {
+      "keys": [
+        {
+          "recipient": "<Recipient address>",
+          "value": "<Encrypted and encoded symmetric key value>"
+        }
+      ],
+      "encrypted_data": [
+        "<Encrypted field identifier>"
+      ]
     }
   }
 }
@@ -54,11 +52,6 @@ following message.
 | :---: | :------: |
 | `sender` | Yes | 
 | `recipients` | Yes |
-| `document` | Yes |
-
-#### `document`
-| Field | Required | 
-| :---: | :------: |
 | `uuid` | Yes | 
 | `content_uri` | No | 
 | `metadata` | Yes |

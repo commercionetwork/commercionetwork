@@ -10,9 +10,9 @@ const (
 
 // v1.1.0 docs genesis state
 type GenesisState struct {
-	UsersData                      []UserData               `json:"users_data"`
-	SupportedMetadataSchemes       []DocumentMetadataSchema `json:"supported_metadata_schemes"`
-	TrustedMetadataSchemaProposers []sdk.AccAddress         `json:"trusted_metadata_schema_proposers"`
+	UsersData                      []UserData       `json:"users_data"`
+	SupportedMetadataSchemes       []MetadataSchema `json:"supported_metadata_schemes"`
+	TrustedMetadataSchemaProposers []sdk.AccAddress `json:"trusted_metadata_schema_proposers"`
 }
 
 type UserData struct {
@@ -62,4 +62,14 @@ type DocumentReceipt struct {
 	TxHash       string         `json:"tx_hash"`
 	DocumentUuid string         `json:"document_uuid"`
 	Proof        string         `json:"proof"`
+}
+
+// ------------------------
+// --- Metadata schemes
+// -------------------------
+
+type MetadataSchema struct {
+	Type      string `json:"type"`
+	SchemaUri string `json:"schema_uri"`
+	Version   string `json:"version"`
 }

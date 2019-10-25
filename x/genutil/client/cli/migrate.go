@@ -8,7 +8,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/types"
 
-	v120 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v120"
+	v120 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v1.2.0"
+	v130 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v1.3.0"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,6 +20,7 @@ import (
 var migrationMap = map[string][]extypes.MigrationCallback{
 	"v1.2.0": {v038.Migrate, v120.Migrate},
 	"v1.2.1": {v038.Migrate, v120.Migrate},
+	"v1.3.0": {v130.Migrate},
 }
 
 const (

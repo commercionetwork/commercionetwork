@@ -8,11 +8,11 @@ const (
 	SupportedMetadataSchemesStoreKey = StoreKey + "supportedMetadata"
 	MetadataSchemaProposersStoreKey  = StoreKey + "metadataSchemaProposers"
 
-	DocumentStorePrefix = StoreKey + ":document:"
-
+	DocumentStorePrefix     = StoreKey + ":document:"
 	SentDocumentsPrefix     = StoreKey + ":documents:sent:"
 	ReceivedDocumentsPrefix = StoreKey + ":documents:received:"
 
+	ReceiptsStorePrefix             = StoreKey + ":receipts:"
 	SentDocumentsReceiptsPrefix     = StoreKey + ":receipts:sent:"
 	ReceivedDocumentsReceiptsPrefix = StoreKey + ":receipts:received:"
 

@@ -19,6 +19,12 @@
 - Implemented the `mint` module (#42)
 - Implemented the possibility for the government to block specific accounts from sending tokens (#46)
 
+## Migration
+In order to migrate from v1.2.x to v1.3.0 you can use the following command:
+
+```shell
+cnd migrate v1.3.0 [genesis-file-path] --chain-id=<chain_id>
+```
 
 # Version 1.2.1
 ## Bug fixes

@@ -20,11 +20,12 @@ func Migrate(oldGenState v110docs.GenesisState) GenesisState {
 		}
 	}
 
-	supportedMetadataSchemes := make([]DocumentMetadataSchema, len(oldGenState.SupportedMetadataSchemes))
+	supportedMetadataSchemes := make([]MetadataSchema, len(oldGenState.SupportedMetadataSchemes))
 	for i, schema := range oldGenState.SupportedMetadataSchemes {
-		supportedMetadataSchemes[i] = DocumentMetadataSchema{
-			Uri:     schema.Uri,
-			Version: schema.Uri,
+		supportedMetadataSchemes[i] = MetadataSchema{
+			Type:      schema.Type,
+			SchemaUri: schema.SchemaUri,
+			Version:   schema.Version,
 		}
 	}
 

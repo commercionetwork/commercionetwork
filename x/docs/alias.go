@@ -33,11 +33,14 @@ var (
 type (
 	Keeper                              = keeper.Keeper
 	Document                            = types.Document
+	Documents                           = types.Documents
 	DocumentMetadata                    = types.DocumentMetadata
 	MetadataSchema                      = types.MetadataSchema
+	MetadataSchemes                     = types.MetadataSchemes
 	DocumentChecksum                    = types.DocumentChecksum
 	DocumentIds                         = types.DocumentIds
 	DocumentReceipt                     = types.DocumentReceipt
+	DocumentReceipts                    = types.DocumentReceipts
 	MsgShareDocument                    = types.MsgShareDocument
 	MsgSendDocumentReceipt              = types.MsgSendDocumentReceipt
 	MsgAddSupportedMetadataSchema       = types.MsgAddSupportedMetadataSchema

@@ -108,7 +108,16 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	app.AccountKeeper.SetAccount(ctx, acc1)
 
 	// Msg and signatures
-	msg := docs.NewMsgShareDocument(acc1.GetAddress(), []sdk.AccAddress{acc1.GetAddress()}, docs.TestingDocument)
+
+	msg := docs.NewMsgShareDocument(docs.Document{
+		Uuid:           docs.TestingDocument.Uuid,
+		Metadata:       docs.TestingDocument.Metadata,
+		ContentUri:     docs.TestingDocument.ContentUri,
+		Checksum:       docs.TestingDocument.Checksum,
+		EncryptionData: docs.TestingDocument.EncryptionData,
+		Sender:         acc1.GetAddress(),
+		Recipients:     docs.TestingDocument.Recipients,
+	})
 	privs, accnums, seqs := []crypto.PrivKey{priv1}, []uint64{0}, []uint64{0}
 	msgs := []sdk.Msg{msg}
 

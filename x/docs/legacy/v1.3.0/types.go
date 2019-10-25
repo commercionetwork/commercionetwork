@@ -1,6 +1,7 @@
-package v1_2_0
+package v1_3_0
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -12,19 +13,12 @@ const (
 // --- Genesis
 // ---------------
 
-// v1.2.0 docs genesis state
+// v1.3.0 docs genesis state
 type GenesisState struct {
-	UsersData                      []UserDocumentsData `json:"users_data"`
-	SupportedMetadataSchemes       []MetadataSchema    `json:"supported_metadata_schemes"`
-	TrustedMetadataSchemaProposers []sdk.AccAddress    `json:"trusted_metadata_schema_proposers"`
-}
-
-type UserDocumentsData struct {
-	User              sdk.AccAddress    `json:"user"`
-	SentDocuments     []Document        `json:"sent_documents"`
-	ReceivedDocuments []Document        `json:"received_documents"`
-	SentReceipts      []DocumentReceipt `json:"sent_receipts"`
-	ReceivedReceipts  []DocumentReceipt `json:"received_receipts"`
+	Documents                      []Document        `json:"documents"`
+	Receipts                       []DocumentReceipt `json:"receipts"`
+	SupportedMetadataSchemes       []MetadataSchema  `json:"supported_metadata_schemes"`
+	TrustedMetadataSchemaProposers []sdk.AccAddress  `json:"trusted_metadata_schema_proposers"`
 }
 
 // -----------------
@@ -37,6 +31,8 @@ type Document struct {
 	ContentUri     string                  `json:"content_uri"`     // Optional
 	Checksum       *DocumentChecksum       `json:"checksum"`        // Optional
 	EncryptionData *DocumentEncryptionData `json:"encryption_data"` // Optional
+	Sender         sdk.AccAddress          `json:"sender"`
+	Recipients     types.Addresses         `json:"recipients"`
 }
 
 type DocumentMetadata struct {
@@ -70,6 +66,7 @@ type DocumentEncryptionKey struct {
 // ---------------------
 
 type DocumentReceipt struct {
+	Uuid         string         `json:"uuid"`
 	Sender       sdk.AccAddress `json:"sender"`
 	Recipient    sdk.AccAddress `json:"recipient"`
 	TxHash       string         `json:"tx_hash"`

@@ -13,6 +13,7 @@ import (
 // transaction hash need to be referred to an existing transaction on chain and the uuid associated with document
 // has to be non-empty and unique.
 type DocumentReceipt struct {
+	Uuid         string         `json:"uuid"`
 	Sender       sdk.AccAddress `json:"sender"`
 	Recipient    sdk.AccAddress `json:"recipient"`
 	TxHash       string         `json:"tx_hash"`
@@ -52,6 +53,14 @@ func (receipts DocumentReceipts) AppendIfMissing(receipt DocumentReceipt) (Docum
 		}
 	}
 	return append(receipts, receipt), true
+}
+
+func (receipts DocumentReceipts) AppendAllIfMissing(other DocumentReceipts) DocumentReceipts {
+	result := receipts
+	for _, receipt := range other {
+		result, _ = result.AppendIfMissing(receipt)
+	}
+	return result
 }
 
 func (receipts DocumentReceipts) FindByDocumentId(docId string) DocumentReceipts {
