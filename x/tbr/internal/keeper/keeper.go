@@ -88,23 +88,6 @@ func (k Keeper) SetYearlyRewardPool(ctx sdk.Context, yearlyPool sdk.DecCoins) {
 	}
 }
 
-// GetRemainingYearlyPool returns the amount of DecCoins that are left to be distributed during the current year
-func (k Keeper) GetRemainingYearlyPool(ctx sdk.Context) (pool sdk.DecCoins) {
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.YearlyPoolRemains)), &pool)
-	return pool
-}
-
-// SetYearlyPoolRemains allows to set the amount of DecCoins that are left to be distributed during the current year
-func (k Keeper) SetYearlyPoolRemains(ctx sdk.Context, remains sdk.DecCoins) {
-	store := ctx.KVStore(k.storeKey)
-	if !remains.Empty() {
-		store.Set([]byte(types.YearlyPoolRemains), k.cdc.MustMarshalBinaryBare(&remains))
-	} else {
-		store.Delete([]byte(types.YearlyPoolRemains))
-	}
-}
-
 // --------------------
 // --- Year number
 // --------------------
@@ -118,7 +101,7 @@ var (
 	BPY = DPY.Mul(HPD).Mul(MPH).Mul(BPM) // Blocks Per Year
 )
 
-func (k Keeper) ComputeYearFromBlockHeight(blockHeight int64) int64 {
+func computeYearFromBlockHeight(blockHeight int64) int64 {
 	// Divide the current block number to the number of blocks per year to get the year value
 	// Truncate the result so that 1.99 years = 1 year and not 2
 	blocksPerYear := DPY.Mul(HPD).Mul(MPH).Mul(BPM)
@@ -149,7 +132,7 @@ func (k Keeper) GetYearNumber(ctx sdk.Context) (year int64) {
 // 20% of the total reward pool.
 func (k Keeper) UpdateYearlyPool(ctx sdk.Context, blockHeight int64) {
 	previousYearNumber := k.GetYearNumber(ctx)
-	currentYearNumber := k.ComputeYearFromBlockHeight(blockHeight)
+	currentYearNumber := computeYearFromBlockHeight(blockHeight)
 
 	// Check if the year number has changed and thus we need to update the yearly reward pool
 	if previousYearNumber != currentYearNumber {
@@ -166,7 +149,6 @@ func (k Keeper) UpdateYearlyPool(ctx sdk.Context, blockHeight int64) {
 
 		// Set the new yearly reward pool and year number
 		k.SetYearlyRewardPool(ctx, yearlyRewardPool)
-		k.SetYearlyPoolRemains(ctx, yearlyRewardPool)
 		k.SetYearNumber(ctx, currentYearNumber)
 	}
 }
@@ -212,15 +194,15 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorsCount int64,
 
 // DistributeBlockRewards distributes the computed reward to the block proposer
 func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) error {
-	totalRewardPool := k.GetTotalRewardPool(ctx)
-	yearlyPoolRemains := k.GetRemainingYearlyPool(ctx)
+	rewardPool := k.GetTotalRewardPool(ctx)
+	yearlyPool := k.GetYearlyRewardPool(ctx)
 
 	// Check if the yearly pool and the total pool have enough funds
-	if ctypes.IsAllGTE(yearlyPoolRemains, reward) && ctypes.IsAllGTE(totalRewardPool, reward) {
+	if ctypes.IsAllGTE(rewardPool, reward) && ctypes.IsAllGTE(yearlyPool, reward) {
 
-		// Subtract the reward from the remains and the total reward pool
-		k.SetYearlyPoolRemains(ctx, yearlyPoolRemains.Sub(reward))
-		k.SetTotalRewardPool(ctx, totalRewardPool.Sub(reward))
+		// Decrement the total rewards pool and the yearly pool
+		k.SetTotalRewardPool(ctx, rewardPool.Sub(reward))
+		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(reward))
 
 		// Get his current reward and then add the new one
 		currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())

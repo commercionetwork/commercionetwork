@@ -113,13 +113,11 @@ func TestKeeper_SetYearlyRewardPool(t *testing.T) {
 // --------------------
 
 func Test_computeYearFromBlockHeight(t *testing.T) {
-	_, _, k, _, _ := SetupTestInput()
-
-	assert.Equal(t, int64(0), k.ComputeYearFromBlockHeight(0))
-	assert.Equal(t, int64(0), k.ComputeYearFromBlockHeight(6311519))
-	assert.Equal(t, int64(1), k.ComputeYearFromBlockHeight(6311520))
-	assert.Equal(t, int64(2), k.ComputeYearFromBlockHeight(12624040))
-	assert.Equal(t, int64(5), k.ComputeYearFromBlockHeight(31557600))
+	assert.Equal(t, int64(0), computeYearFromBlockHeight(0))
+	assert.Equal(t, int64(0), computeYearFromBlockHeight(6311519))
+	assert.Equal(t, int64(1), computeYearFromBlockHeight(6311520))
+	assert.Equal(t, int64(2), computeYearFromBlockHeight(12624040))
+	assert.Equal(t, int64(5), computeYearFromBlockHeight(31557600))
 }
 
 func TestKeeper_SetYearNumber(t *testing.T) {
@@ -215,7 +213,6 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	pool := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100000)}
 	k.SetTotalRewardPool(ctx, pool)
 	k.SetYearlyRewardPool(ctx, pool)
-	k.SetYearlyPoolRemains(ctx, pool)
 
 	validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
@@ -228,8 +225,7 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 
 	remaining := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 99000)}
 	assert.Equal(t, remaining, k.GetTotalRewardPool(ctx))
-	assert.Equal(t, remaining, k.GetRemainingYearlyPool(ctx))
-	assert.Equal(t, pool, k.GetYearlyRewardPool(ctx))
+	assert.Equal(t, remaining, k.GetYearlyRewardPool(ctx))
 }
 
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
