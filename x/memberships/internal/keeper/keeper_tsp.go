@@ -32,7 +32,7 @@ func (keeper Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers ctypes
 }
 
 // IsTrustedServiceProvider tells if the given signer is a trusted one or not
-func (keeper Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.AccAddress) bool {
+func (keeper Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
 	signers := keeper.GetTrustedServiceProviders(ctx)
 	return signers.Contains(signer)
 }
