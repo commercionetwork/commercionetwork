@@ -126,7 +126,7 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) sdk.
 	}
 
 	// Check any existing document
-	if _, found := keeper.GetDocumentById(ctx, document.UUID); found {
+	if _, found := keeper.GetDocumentByID(ctx, document.UUID); found {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Document with uuid %s already present", document.UUID))
 	}
 
@@ -157,8 +157,8 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) sdk.
 	return nil
 }
 
-// GetDocumentById returns the document having the given id, or false if no document has been found
-func (keeper Keeper) GetDocumentById(ctx sdk.Context, id string) (types.Document, bool) {
+// GetDocumentByID returns the document having the given id, or false if no document has been found
+func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, bool) {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	documentKey := keeper.getDocumentStoreKey(id)
@@ -285,8 +285,8 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	return nil
 }
 
-// GetReceiptById returns the document receipt having the given id, or false if such receipt could not be found
-func (keeper Keeper) GetReceiptById(ctx sdk.Context, id string) (types.DocumentReceipt, bool) {
+// GetReceiptByID returns the document receipt having the given id, or false if such receipt could not be found
+func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentReceipt, bool) {
 	store := ctx.KVStore(keeper.StoreKey)
 	key := keeper.getReceiptStoreKey(id)
 
@@ -308,7 +308,7 @@ func (keeper Keeper) GetUserReceivedReceipts(ctx sdk.Context, user sdk.AccAddres
 
 	receipts := types.DocumentReceipts{}
 	for _, id := range ids {
-		if receipt, found := keeper.GetReceiptById(ctx, id); found {
+		if receipt, found := keeper.GetReceiptByID(ctx, id); found {
 			receipts, _ = receipts.AppendIfMissing(receipt)
 		}
 	}
@@ -332,7 +332,7 @@ func (keeper Keeper) GetUserSentReceipts(ctx sdk.Context, user sdk.AccAddress) t
 
 	receipts := types.DocumentReceipts{}
 	for _, id := range ids {
-		if receipt, found := keeper.GetReceiptById(ctx, id); found {
+		if receipt, found := keeper.GetReceiptByID(ctx, id); found {
 			receipts, _ = receipts.AppendIfMissing(receipt)
 		}
 	}

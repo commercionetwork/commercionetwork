@@ -85,7 +85,7 @@ func (keeper Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument
 	}
 
 	// Check that the authentication key bytes are the same of the key associated with the account
-	if !bytes.Equal(accountPubKey.Bytes(), authKeyBytes[:]) {
+	if !bytes.Equal(accountPubKey.Bytes(), authKeyBytes) {
 		return sdk.ErrUnknownRequest("Authentication key is not the one associated with the account")
 	}
 

@@ -37,8 +37,8 @@ func TestKeeper_AssignMembership_NotExisting(t *testing.T) {
 	tokenURI, err := k.AssignMembership(ctx, TestUser, "black")
 	assert.Nil(t, err)
 
-	expectedId := k.getMembershipTokenId(TestUser)
-	assert.Equal(t, fmt.Sprintf("membership:black:%s", expectedId), tokenURI)
+	expectedID := k.getMembershipTokenId(TestUser)
+	assert.Equal(t, fmt.Sprintf("membership:black:%s", expectedID), tokenURI)
 }
 
 func TestKeeper_AssignMembership_Existing(t *testing.T) {

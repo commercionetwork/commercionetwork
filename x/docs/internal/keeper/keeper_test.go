@@ -303,7 +303,7 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
 
 func TestKeeper_GetDocumentById_NonExisting(t *testing.T) {
 	_, ctx, k := SetupTestInput()
-	_, found := k.GetDocumentById(ctx, "non-existing")
+	_, found := k.GetDocumentByID(ctx, "non-existing")
 	assert.False(t, found)
 }
 
@@ -313,7 +313,7 @@ func TestKeeper_GetDocumentById_Existing(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(&TestingDocument))
 
-	doc, found := k.GetDocumentById(ctx, TestingDocument.UUID)
+	doc, found := k.GetDocumentByID(ctx, TestingDocument.UUID)
 	assert.True(t, found)
 	assert.Equal(t, TestingDocument, doc)
 }

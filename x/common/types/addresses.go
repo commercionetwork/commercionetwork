@@ -29,7 +29,7 @@ func (addresses Addresses) RemoveIfExisting(address sdk.AccAddress) (Addresses, 
 
 // IndexOf returns the index of the given address inside the addresses array,
 // or -1 if such an address was not found
-func (addresses Addresses) IndexOf(address sdk.AccAddress) int {
+func (addresses Addresses) IndexOf(address sdk.Address) int {
 	for i, a := range addresses {
 		if a.Equals(address) {
 			return i
@@ -39,7 +39,7 @@ func (addresses Addresses) IndexOf(address sdk.AccAddress) int {
 }
 
 // Contains returns true iff the addresses list contains the given address
-func (addresses Addresses) Contains(address sdk.AccAddress) bool {
+func (addresses Addresses) Contains(address sdk.Address) bool {
 	for _, ele := range addresses {
 		if ele.Equals(address) {
 			return true
