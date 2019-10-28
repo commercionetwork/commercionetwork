@@ -50,7 +50,7 @@ func Test_handleMsgSetUserVerified_InvalidSigner(t *testing.T) {
 	_, ctx, _, govK, k := GetTestInput()
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(TestUser, TestTimestamp, nil)
+	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: nil})
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
@@ -64,7 +64,7 @@ func Test_handleMsgSetUserVerified_ExistingCredential(t *testing.T) {
 	k.SaveCredential(ctx, credential)
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(TestUser, TestTimestamp, TestTsp)
+	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: TestTsp})
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
@@ -74,7 +74,7 @@ func Test_handleMsgSetUserVerified_NewCredential(t *testing.T) {
 	_, ctx, _, govK, k := GetTestInput()
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(TestUser, TestTimestamp, TestTsp)
+	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: TestTsp})
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())

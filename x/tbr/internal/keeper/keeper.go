@@ -120,10 +120,10 @@ func (k Keeper) GetYearNumber(ctx sdk.Context) (year int64) {
 	actualBz := store.Get([]byte(types.YearNumberStoreKey))
 	if actualBz == nil {
 		return 0
-	} else {
-		k.cdc.MustUnmarshalBinaryBare(actualBz, &year)
-		return year
 	}
+
+	k.cdc.MustUnmarshalBinaryBare(actualBz, &year)
+	return year
 }
 
 // UpdateYearlyPool allows to update the current yearly pool based on whenever we

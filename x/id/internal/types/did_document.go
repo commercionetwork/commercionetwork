@@ -12,7 +12,7 @@ import (
 // the id property.
 type DidDocument struct {
 	Context        string         `json:"@context"`
-	Id             sdk.AccAddress `json:"id"`
+	ID             sdk.AccAddress `json:"id"`
 	PubKeys        PubKeys        `json:"publicKey"`
 	Authentication ctypes.Strings `json:"authentication"`
 	Proof          Proof          `json:"proof"`
@@ -22,7 +22,7 @@ type DidDocument struct {
 // Equals returns true iff didDocument and other contain the same data
 func (didDocument DidDocument) Equals(other DidDocument) bool {
 	return didDocument.Context == other.Context &&
-		didDocument.Id.Equals(other.Id) &&
+		didDocument.ID.Equals(other.ID) &&
 		didDocument.PubKeys.Equals(other.PubKeys) &&
 		didDocument.Authentication.Equals(other.Authentication) &&
 		didDocument.Proof.Equals(other.Proof) &&
@@ -33,8 +33,8 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 // error if something is wrong
 func (didDocument DidDocument) Validate() sdk.Error {
 
-	if didDocument.Id.Empty() {
-		return sdk.ErrInvalidAddress(didDocument.Id.String())
+	if didDocument.ID.Empty() {
+		return sdk.ErrInvalidAddress(didDocument.ID.String())
 	}
 
 	if didDocument.Context != "https://www.w3.org/2019/did/v1" {
@@ -53,7 +53,7 @@ func (didDocument DidDocument) Validate() sdk.Error {
 		return sdk.ErrUnknownRequest("Array authentication cannot have more than one item")
 	}
 
-	authKey, found := didDocument.PubKeys.FindById(didDocument.Authentication[0])
+	authKey, found := didDocument.PubKeys.FindByID(didDocument.Authentication[0])
 	if !found {
 		return sdk.ErrUnknownRequest("Authentication key not found inside publicKey array")
 	}
@@ -72,7 +72,7 @@ func (didDocument DidDocument) Validate() sdk.Error {
 			return err
 		}
 
-		if !didDocument.Id.Equals(key.Controller) {
+		if !didDocument.ID.Equals(key.Controller) {
 			return sdk.ErrUnknownRequest("Public key controller must match did document id")
 		}
 	}

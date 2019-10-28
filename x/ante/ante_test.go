@@ -110,9 +110,9 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	// Msg and signatures
 
 	msg := docs.NewMsgShareDocument(docs.Document{
-		Uuid:           docs.TestingDocument.Uuid,
+		UUID:           docs.TestingDocument.UUID,
 		Metadata:       docs.TestingDocument.Metadata,
-		ContentUri:     docs.TestingDocument.ContentUri,
+		ContentURI:     docs.TestingDocument.ContentURI,
 		Checksum:       docs.TestingDocument.Checksum,
 		EncryptionData: docs.TestingDocument.EncryptionData,
 		Sender:         acc1.GetAddress(),

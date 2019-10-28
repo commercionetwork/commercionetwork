@@ -49,8 +49,8 @@ func TestKeeper_AssignMembership_Existing(t *testing.T) {
 		tokenURI, err := k.AssignMembership(ctx, TestUser, membership)
 		assert.Nil(t, err)
 
-		expectedId := k.getMembershipTokenId(TestUser)
-		expectedURI := k.getMembershipUri(membership, expectedId)
+		expectedID := k.getMembershipTokenId(TestUser)
+		expectedURI := k.getMembershipUri(membership, expectedID)
 		assert.Equal(t, expectedURI, tokenURI)
 	}
 }
@@ -94,9 +94,9 @@ func TestKeeper_GetMembership_Existing(t *testing.T) {
 	assert.True(t, found)
 	assert.Equal(t, TestUser, foundMembership.GetOwner())
 
-	expectedId := k.getMembershipTokenId(TestUser)
-	assert.Equal(t, expectedId, foundMembership.GetID())
-	assert.Equal(t, k.getMembershipUri(membershipType, expectedId), foundMembership.GetTokenURI())
+	expectedID := k.getMembershipTokenId(TestUser)
+	assert.Equal(t, expectedID, foundMembership.GetID())
+	assert.Equal(t, k.getMembershipUri(membershipType, expectedID), foundMembership.GetTokenURI())
 }
 
 func TestKeeper_GetMembershipType(t *testing.T) {

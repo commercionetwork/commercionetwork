@@ -10,14 +10,14 @@ import (
 // including decentralized identity management services for further discovery,
 // authentication, authorization, or interaction.
 type Service struct {
-	Id              string `json:"id"`
+	ID              string `json:"id"`
 	Type            string `json:"type"`
 	ServiceEndpoint string `json:"serviceEndpoint"`
 }
 
 // Equals returns true service and other contain the same data
 func (service Service) Equals(other Service) bool {
-	return service.Id == other.Id &&
+	return service.ID == other.ID &&
 		service.Type == other.Type &&
 		service.ServiceEndpoint == other.ServiceEndpoint
 }
@@ -25,7 +25,7 @@ func (service Service) Equals(other Service) bool {
 // Validate checks the data present inside service and returns an
 // error if something is invalid
 func (service Service) Validate() sdk.Error {
-	if len(strings.TrimSpace(service.Id)) == 0 {
+	if len(strings.TrimSpace(service.ID)) == 0 {
 		return sdk.ErrUnknownRequest("Service id cannot be empty")
 	}
 

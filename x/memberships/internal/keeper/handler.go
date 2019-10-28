@@ -52,9 +52,7 @@ func handleMsgSetUserVerified(ctx sdk.Context, keeper Keeper, msg types.MsgSetUs
 	}
 
 	// Create a credentials and store it
-	credential := types.Credential{Timestamp: msg.Timestamp, User: msg.User, Verifier: msg.Verifier}
-	keeper.SaveCredential(ctx, credential)
-
+	keeper.SaveCredential(ctx, types.Credential(msg))
 	return sdk.Result{}
 }
 

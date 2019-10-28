@@ -8,25 +8,25 @@ import (
 // DocumentMetadataSchema represents the information about the schema that should be used in order to
 // validate the metadata associated with a document.
 type DocumentMetadataSchema struct {
-	Uri     string `json:"uri"`
+	URI     string `json:"uri"`
 	Version string `json:"version"`
 }
 
 func (metaSchema DocumentMetadataSchema) Equals(metSchema2 DocumentMetadataSchema) bool {
-	return metaSchema.Uri == metSchema2.Uri &&
+	return metaSchema.URI == metSchema2.URI &&
 		metaSchema.Version == metSchema2.Version
 }
 
 // DocumentMetadata represents the information about the metadata associated to a document
 type DocumentMetadata struct {
-	ContentUri string                  `json:"content_uri"`
+	ContentURI string                  `json:"content_uri"`
 	SchemaType string                  `json:"schema_type"` // Optional - Either this or schema must be defined
 	Schema     *DocumentMetadataSchema `json:"schema"`      // Optional - Either this or schema_type must be defined
 }
 
 // Equals returns true iff this metadata and other contain the same data
 func (metadata DocumentMetadata) Equals(other DocumentMetadata) bool {
-	if metadata.ContentUri != other.ContentUri {
+	if metadata.ContentURI != other.ContentURI {
 		return false
 	}
 
@@ -40,7 +40,7 @@ func (metadata DocumentMetadata) Equals(other DocumentMetadata) bool {
 // Validate tries to validate all the data contained inside the given
 // DocumentMetadata and returns an error if something is wrong
 func (metadata DocumentMetadata) Validate() error {
-	if len(strings.TrimSpace(metadata.ContentUri)) == 0 {
+	if len(strings.TrimSpace(metadata.ContentURI)) == 0 {
 		return errors.New("metadata.content_uri can't be empty")
 	}
 
@@ -49,7 +49,7 @@ func (metadata DocumentMetadata) Validate() error {
 	}
 
 	if metadata.Schema != nil {
-		if len(strings.TrimSpace(metadata.Schema.Uri)) == 0 {
+		if len(strings.TrimSpace(metadata.Schema.URI)) == 0 {
 			return errors.New("metadata.schema.uri can't be empty")
 		}
 		if len(strings.TrimSpace(metadata.Schema.Version)) == 0 {

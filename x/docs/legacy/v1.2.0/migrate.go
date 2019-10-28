@@ -24,7 +24,7 @@ func Migrate(oldGenState v110docs.GenesisState) GenesisState {
 	for i, schema := range oldGenState.SupportedMetadataSchemes {
 		supportedMetadataSchemes[i] = MetadataSchema{
 			Type:      schema.Type,
-			SchemaUri: schema.SchemaUri,
+			SchemaURI: schema.SchemaURI,
 			Version:   schema.Version,
 		}
 	}
@@ -44,19 +44,19 @@ func migrateDocuments(oldDocs []v110docs.Document) []Document {
 		var metadataSchema *DocumentMetadataSchema
 		if doc.Metadata.Schema != nil {
 			metadataSchema = &DocumentMetadataSchema{
-				Uri:     doc.Metadata.Schema.Uri,
+				URI:     doc.Metadata.Schema.URI,
 				Version: doc.Metadata.Schema.Version,
 			}
 		}
 
 		documents[i] = Document{
-			Uuid: doc.Uuid,
+			UUID: doc.UUID,
 			Metadata: DocumentMetadata{
-				ContentUri: doc.Metadata.ContentUri,
+				ContentURI: doc.Metadata.ContentURI,
 				SchemaType: doc.Metadata.SchemaType,
 				Schema:     metadataSchema,
 			},
-			ContentUri: doc.ContentUri,
+			ContentURI: doc.ContentURI,
 			Checksum: &DocumentChecksum{
 				Value:     doc.Checksum.Value,
 				Algorithm: doc.Checksum.Algorithm,
@@ -76,7 +76,7 @@ func migrateReceipts(oldReceipts []v110docs.DocumentReceipt) []DocumentReceipt {
 			Sender:       receipt.Sender,
 			Recipient:    receipt.Recipient,
 			TxHash:       receipt.TxHash,
-			DocumentUuid: receipt.DocumentUuid,
+			DocumentUUID: receipt.DocumentUUID,
 			Proof:        receipt.Proof,
 		}
 	}

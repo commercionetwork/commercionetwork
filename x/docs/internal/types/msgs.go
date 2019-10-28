@@ -56,8 +56,8 @@ func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeSendDocumentRece
 
 // ValidateBasic Implements Msg.
 func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
-	if !validateUuid(msg.Uuid) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid uuid: %s", msg.Uuid))
+	if !validateUuid(msg.UUID) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid uuid: %s", msg.UUID))
 	}
 
 	if msg.Sender.Empty() {
@@ -72,7 +72,7 @@ func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 		return sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty")
 	}
 
-	if !validateUuid(msg.DocumentUuid) {
+	if !validateUuid(msg.DocumentUUID) {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
 
