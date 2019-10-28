@@ -223,6 +223,7 @@ func (keeper Keeper) GetDocuments(ctx sdk.Context) types.Documents {
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DocumentStorePrefix))
 
 	documents := types.Documents{}
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var document types.Document
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &document)

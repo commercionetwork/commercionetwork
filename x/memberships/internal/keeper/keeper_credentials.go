@@ -26,6 +26,7 @@ func (keeper Keeper) GetCredentials(ctx sdk.Context) (credentials types.Credenti
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CredentialsStorePrefix))
 
 	credentials = types.Credentials{}
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var credential types.Credential
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &credential)

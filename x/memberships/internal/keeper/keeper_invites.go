@@ -51,6 +51,7 @@ func (keeper Keeper) GetInvites(ctx sdk.Context) (invites []types.Invite) {
 	store := ctx.KVStore(keeper.StoreKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
 
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var invite types.Invite
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &invite)

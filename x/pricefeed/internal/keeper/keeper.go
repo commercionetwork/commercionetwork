@@ -168,9 +168,10 @@ func (keeper Keeper) GetCurrentPrice(ctx sdk.Context, asset string) (currentPric
 // GetCurrentPrices retrieves all the current prices
 func (keeper Keeper) GetCurrentPrices(ctx sdk.Context) types.CurrentPrices {
 	store := ctx.KVStore(keeper.StoreKey)
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CurrentPricesPrefix))
 
 	var curPrices = types.CurrentPrices{}
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CurrentPricesPrefix))
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var currentPrice types.CurrentPrice
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &currentPrice)

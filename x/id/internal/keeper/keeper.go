@@ -127,6 +127,7 @@ func (keeper Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, erro
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
 
 	var didDocuments []types.DidDocument
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var didDocument types.DidDocument
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &didDocument)
@@ -192,8 +193,9 @@ func (keeper Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, s
 // GetDepositRequests returns the list of the deposit requests existing inside the given context
 func (keeper Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDepositRequest) {
 	store := ctx.KVStore(keeper.storeKey)
-
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidDepositRequestStorePrefix))
+
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var request types.DidDepositRequest
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
@@ -259,8 +261,9 @@ func (keeper Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, s
 // GetPowerUpRequests returns the list the requests saved inside the given context
 func (keeper Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
 	store := ctx.KVStore(keeper.storeKey)
-
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidPowerUpRequestStorePrefix))
+
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var request types.DidPowerUpRequest
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)

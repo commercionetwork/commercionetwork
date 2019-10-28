@@ -160,6 +160,8 @@ func (keeper Keeper) GetTotalCdps(ctx sdk.Context) types.Cdps {
 
 	cdps := types.Cdps{}
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.UserCdpsStorePrefix))
+
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var cdp types.Cdp
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &cdp)
