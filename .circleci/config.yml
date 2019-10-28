@@ -141,6 +141,6 @@ workflows:
       - test-cover:
           requires:
             - setup-dependencies
-            - upload-coverage:
-                requires:
-                  - test-cover
+      - upload-coverage:
+          requires:
+            - test-cover
