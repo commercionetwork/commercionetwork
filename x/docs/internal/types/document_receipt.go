@@ -63,10 +63,10 @@ func (receipts DocumentReceipts) AppendAllIfMissing(other DocumentReceipts) Docu
 	return result
 }
 
-func (receipts DocumentReceipts) FindByDocumentId(docId string) DocumentReceipts {
+func (receipts DocumentReceipts) FindByDocumentID(docID string) DocumentReceipts {
 	var foundReceipts DocumentReceipts
 	for _, ele := range receipts {
-		if ele.DocumentUUID == docId {
+		if ele.DocumentUUID == docID {
 			foundReceipts = append(foundReceipts, ele)
 		}
 	}

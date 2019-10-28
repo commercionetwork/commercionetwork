@@ -104,17 +104,17 @@ func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
 // ----------------------
 
 func TestValidateUuid_valid(t *testing.T) {
-	actual := validateUuid("6a2f41a3-c54c-fce8-32d2-0324e1c32e22")
+	actual := validateUUID("6a2f41a3-c54c-fce8-32d2-0324e1c32e22")
 	assert.True(t, actual)
 }
 
 func TestValidateUuid_empty(t *testing.T) {
-	actual := validateUuid("")
+	actual := validateUUID("")
 	assert.False(t, actual)
 }
 
 func TestValidateUuid_invalid(t *testing.T) {
-	actual := validateUuid("ebkfkd")
+	actual := validateUUID("ebkfkd")
 	assert.False(t, actual)
 }
 

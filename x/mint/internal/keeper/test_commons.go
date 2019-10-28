@@ -47,7 +47,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper,
 	keys := sdk.NewKVStoreKeys(
 		auth.StoreKey,
 		params.StoreKey,
-		staking.StoreKey,
+		supply.StoreKey,
 		pricefeed.StoreKey,
 
 		types.StoreKey,
@@ -75,7 +75,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper,
 	maccPerms := map[string][]string{
 		types.ModuleName: {supply.Minter, supply.Burner},
 	}
-	sk := supply.NewKeeper(cdc, keys[staking.StoreKey], ak, bk, maccPerms)
+	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey])
 
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk)

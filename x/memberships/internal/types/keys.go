@@ -10,7 +10,6 @@ const (
 
 	// --- Keeper
 	StableCreditsStoreKey  = StoreKey + ":stableCreditsDenom"
-	LiquidityPoolStoreKey  = StoreKey + ":liquidityPool"
 	TrustedSignersStoreKey = StoreKey + ":signers"
 	InviteStorePrefix      = "invite:"
 	CredentialsStorePrefix = "credentials:"

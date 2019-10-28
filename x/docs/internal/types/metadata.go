@@ -64,7 +64,6 @@ func (metadataSchemes MetadataSchemes) IsTypeSupported(metadataType string) bool
 func (metadataSchemes MetadataSchemes) AppendIfMissing(schema MetadataSchema) (MetadataSchemes, bool) {
 	if metadataSchemes.Contains(schema) {
 		return metadataSchemes, false
-	} else {
-		return append(metadataSchemes, schema), true
 	}
+	return append(metadataSchemes, schema), true
 }

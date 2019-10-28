@@ -107,7 +107,7 @@ func Test_queryGetSigners_ExistingList(t *testing.T) {
 
 	expected := []sdk.AccAddress{TestTsp, TestUser2}
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&expected))
 
 	path := []string{types.QueryGetTrustedServiceProviders}
@@ -151,9 +151,7 @@ func Test_queryGetPoolFunds_ExistingPool(t *testing.T) {
 		sdk.NewCoin("uatom", sdk.NewInt(100)),
 		sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
 	)
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.LiquidityPoolStoreKey), cdc.MustMarshalBinaryBare(&expected))
+	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, expected)
 
 	path := []string{types.QueryGetPoolFunds}
 

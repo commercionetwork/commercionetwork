@@ -49,9 +49,9 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 			}
 
 			var checksum *types.DocumentChecksum
-			var contentUri string
+			var contentURI string
 			if len(args) > 6 {
-				contentUri = args[6]
+				contentURI = args[6]
 				checksum = &types.DocumentChecksum{
 					Value:     args[7],
 					Algorithm: args[8],
@@ -59,7 +59,7 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 			}
 
 			document := types.Document{
-				ContentURI: contentUri,
+				ContentURI: contentURI,
 				UUID:       args[1],
 				Metadata: types.DocumentMetadata{
 					ContentURI: args[2],

@@ -180,11 +180,11 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddre
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(receivedDocumentsStoreKey), &receivedDocsIds)
 
 	docs := types.Documents{}
-	for _, docUuid := range receivedDocsIds {
+	for _, docUUID := range receivedDocsIds {
 
 		// Read the document
 		var document types.Document
-		documentStoreKey := keeper.getDocumentStoreKey(docUuid)
+		documentStoreKey := keeper.getDocumentStoreKey(docUUID)
 		keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentStoreKey), &document)
 
 		// Append it to the list
@@ -203,11 +203,11 @@ func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) 
 	keeper.cdc.MustUnmarshalBinaryBare(sentDocsIdsBz, &sentDocsIds)
 
 	docs := types.Documents{}
-	for _, docUuid := range sentDocsIds {
+	for _, docUUID := range sentDocsIds {
 
 		// Read the document
 		var document types.Document
-		documentStoreKey := keeper.getDocumentStoreKey(docUuid)
+		documentStoreKey := keeper.getDocumentStoreKey(docUUID)
 		keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentStoreKey), &document)
 
 		// Append it to the list
@@ -318,9 +318,9 @@ func (keeper Keeper) GetUserReceivedReceipts(ctx sdk.Context, user sdk.AccAddres
 
 // GetUserReceivedReceiptsForDocument returns the receipts that the given recipient has received for the document having the
 // given uuid
-func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipient sdk.AccAddress, docUuid string) types.DocumentReceipts {
+func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipient sdk.AccAddress, docUUID string) types.DocumentReceipts {
 	receivedReceipts := keeper.GetUserReceivedReceipts(ctx, recipient)
-	return receivedReceipts.FindByDocumentId(docUuid)
+	return receivedReceipts.FindByDocumentID(docUUID)
 }
 
 // GetUserSentDocuments returns a list of all documents sent by user

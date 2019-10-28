@@ -33,61 +33,29 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 }
 
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool
-func (keeper Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
-	if !amount.IsValid() || amount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins(amount.String())
-	}
-
-	store := ctx.KVStore(keeper.StoreKey)
-
-	// Remove the coins from the user wallet
-	if _, err := keeper.BankKeeper.SubtractCoins(ctx, depositor, amount); err != nil {
+func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
+	// Send the coins from the user wallet to the pool
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amount); err != nil {
 		return err
 	}
-
-	// Add the amount to the pool
-	var pool sdk.Coins
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolStoreKey)), &pool)
-	pool = pool.Add(amount)
-	store.Set([]byte(types.LiquidityPoolStoreKey), keeper.cdc.MustMarshalBinaryBare(&pool))
-
 	return nil
-}
-
-// SetPoolFunds allows to set the current pool funds amount
-func (keeper Keeper) SetPoolFunds(ctx sdk.Context, pool sdk.Coins) {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	if pool == nil {
-		store.Delete([]byte(types.LiquidityPoolStoreKey))
-	} else {
-		store.Set([]byte(types.LiquidityPoolStoreKey), keeper.cdc.MustMarshalBinaryBare(&pool))
-	}
-}
-
-// GetPoolFunds return the current pool funds for the given context
-func (keeper Keeper) GetPoolFunds(ctx sdk.Context) sdk.Coins {
-	store := ctx.KVStore(keeper.StoreKey)
-	var pool sdk.Coins
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolStoreKey)), &pool)
-	return pool
 }
 
 // DistributeReward allows to distribute the rewards to the sender of the specified invite upon the receiver has
 // properly bought a membership of the given membershipType
-func (keeper Keeper) DistributeReward(ctx sdk.Context, invite types.Invite, membershipType string) sdk.Error {
-	senderMembership, found := keeper.GetMembership(ctx, invite.Sender)
+func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite, membershipType string) sdk.Error {
+	senderMembership, found := k.GetMembership(ctx, invite.Sender)
 	if !found {
 		return sdk.ErrUnauthorized("Invite sender does not have a membership")
 	}
 
-	recipientMembership, found := keeper.GetMembership(ctx, invite.User)
+	recipientMembership, found := k.GetMembership(ctx, invite.User)
 	if !found {
 		return sdk.ErrUnauthorized("Invite recipient does not have a membership")
 	}
 
-	senderMembershipType := keeper.GetMembershipType(senderMembership)
-	recipientMembershipType := keeper.GetMembershipType(recipientMembership)
+	senderMembershipType := k.GetMembershipType(senderMembership)
+	recipientMembershipType := k.GetMembershipType(recipientMembership)
 	if recipientMembershipType != membershipType {
 		return sdk.ErrUnknownRequest("Invite recipient membership is not the same as the bought membership")
 	}
@@ -97,11 +65,10 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, invite types.Invite, memb
 	rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
 
 	// Create the coins that represent the reward
-	stableCreditsDenom := keeper.GetStableCreditsDenom(ctx)
+	stableCreditsDenom := k.GetStableCreditsDenom(ctx)
 
 	// Get the pool amount
-	poolFunds := keeper.GetPoolFunds(ctx)
-	poolAmount := poolFunds.AmountOf(stableCreditsDenom)
+	poolAmount := k.GetPoolFunds(ctx).AmountOf(stableCreditsDenom)
 
 	// Distribute the reward taking it from the pool amount
 	if poolAmount.GT(sdk.ZeroInt()) {
@@ -112,19 +79,15 @@ func (keeper Keeper) DistributeReward(ctx sdk.Context, invite types.Invite, memb
 		}
 		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditsDenom, rewardAmount))
 
-		// Subtract the amount from the pool
-		poolFunds = poolFunds.Sub(rewardCoins)
-		keeper.SetPoolFunds(ctx, poolFunds)
-
 		// Send the reward to the invite sender
-		if _, err := keeper.BankKeeper.AddCoins(ctx, invite.Sender, rewardCoins); err != nil {
+		if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
 			return err
 		}
 	}
 
 	// Set the invitation as rewarded
 	newInvite := types.Invite{Sender: invite.Sender, User: invite.User, Rewarded: true}
-	keeper.SaveInvite(ctx, newInvite)
+	k.SaveInvite(ctx, newInvite)
 
 	return nil
 }

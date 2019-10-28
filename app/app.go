@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs"
 	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
@@ -118,7 +119,13 @@ var (
 		gov.ModuleName:            {supply.Burner},
 
 		// Custom modules
-		mint.ModuleName: {supply.Minter, supply.Burner},
+		mint.ModuleName:        {supply.Minter, supply.Burner},
+		memberships.ModuleName: {supply.Burner},
+	}
+
+	allowedModuleReceivers = types.Strings{
+		mint.ModuleName,
+		memberships.ModuleName,
 	}
 )
 
@@ -252,7 +259,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// Custom modules
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
-	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.bankKeeper)
+	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.supplyKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.bankKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
@@ -292,7 +299,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		docs.NewAppModule(app.docsKeeper),
 		government.NewAppModule(app.governmentKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper),
-		memberships.NewAppModule(app.membershipKeeper, app.governmentKeeper),
+		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
 		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
 		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
@@ -392,7 +399,7 @@ func (app *CommercioNetworkApp) ModuleAccountAddrs() map[string]bool {
 func (app *CommercioNetworkApp) BlacklistedModuleAccAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		if acc != mint.ModuleName {
+		if !allowedModuleReceivers.Contains(acc) {
 			modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = true
 		}
 	}

@@ -15,7 +15,7 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-//This function create an enviroment to test modules
+//This function create an environment to test modules
 func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	memDB := db.NewMemDB()

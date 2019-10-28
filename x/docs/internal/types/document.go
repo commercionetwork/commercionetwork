@@ -47,7 +47,7 @@ func (doc Document) Equals(other Document) bool {
 }
 
 // TODO: Test
-func validateUuid(uuid string) bool {
+func validateUUID(uuid string) bool {
 	regex := regexp.MustCompile(`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
 	return regex.MatchString(uuid)
 }
@@ -68,7 +68,7 @@ func (doc Document) Validate() sdk.Error {
 		}
 	}
 
-	if !validateUuid(doc.UUID) {
+	if !validateUUID(doc.UUID) {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
 	if len(strings.TrimSpace(doc.ContentURI)) == 0 {
@@ -81,14 +81,14 @@ func (doc Document) Validate() sdk.Error {
 	}
 
 	if doc.Checksum != nil {
-		err = (*doc.Checksum).Validate()
+		err = doc.Checksum.Validate()
 		if err != nil {
 			return sdk.ErrUnknownRequest(err.Error())
 		}
 	}
 
 	if doc.EncryptionData != nil {
-		err = (*doc.EncryptionData).Validate()
+		err = doc.EncryptionData.Validate()
 		if err != nil {
 			return sdk.ErrUnknownRequest(err.Error())
 		}

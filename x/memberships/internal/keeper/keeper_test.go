@@ -12,14 +12,14 @@ import (
 
 func TestKeeper_getMembershipTokenId(t *testing.T) {
 	_, _, _, _, k := GetTestInput()
-	actual := k.getMembershipTokenId(TestUser)
+	actual := k.getMembershipTokenID(TestUser)
 	assert.Equal(t, fmt.Sprintf("membership-%s", TestUser.String()), actual)
 }
 
 func TestKeeper_getMembershipUri(t *testing.T) {
 	_, _, _, _, k := GetTestInput()
-	id := k.getMembershipTokenId(TestUser)
-	actual := k.getMembershipUri("black", id)
+	id := k.getMembershipTokenID(TestUser)
+	actual := k.getMembershipURI("black", id)
 	assert.Equal(t, fmt.Sprintf("membership:black:%s", id), actual)
 }
 
@@ -37,7 +37,7 @@ func TestKeeper_AssignMembership_NotExisting(t *testing.T) {
 	tokenURI, err := k.AssignMembership(ctx, TestUser, "black")
 	assert.Nil(t, err)
 
-	expectedID := k.getMembershipTokenId(TestUser)
+	expectedID := k.getMembershipTokenID(TestUser)
 	assert.Equal(t, fmt.Sprintf("membership:black:%s", expectedID), tokenURI)
 }
 
@@ -49,8 +49,8 @@ func TestKeeper_AssignMembership_Existing(t *testing.T) {
 		tokenURI, err := k.AssignMembership(ctx, TestUser, membership)
 		assert.Nil(t, err)
 
-		expectedID := k.getMembershipTokenId(TestUser)
-		expectedURI := k.getMembershipUri(membership, expectedID)
+		expectedID := k.getMembershipTokenID(TestUser)
+		expectedURI := k.getMembershipURI(membership, expectedID)
 		assert.Equal(t, expectedURI, tokenURI)
 	}
 }
@@ -94,9 +94,9 @@ func TestKeeper_GetMembership_Existing(t *testing.T) {
 	assert.True(t, found)
 	assert.Equal(t, TestUser, foundMembership.GetOwner())
 
-	expectedID := k.getMembershipTokenId(TestUser)
+	expectedID := k.getMembershipTokenID(TestUser)
 	assert.Equal(t, expectedID, foundMembership.GetID())
-	assert.Equal(t, k.getMembershipUri(membershipType, expectedID), foundMembership.GetTokenURI())
+	assert.Equal(t, k.getMembershipURI(membershipType, expectedID), foundMembership.GetTokenURI())
 }
 
 func TestKeeper_GetMembershipType(t *testing.T) {
@@ -104,7 +104,7 @@ func TestKeeper_GetMembershipType(t *testing.T) {
 
 	id := "123"
 	membershipType := "black"
-	membership := nft.NewBaseNFT(id, TestUser, k.getMembershipUri(membershipType, id))
+	membership := nft.NewBaseNFT(id, TestUser, k.getMembershipURI(membershipType, id))
 
 	assert.Equal(t, membershipType, k.GetMembershipType(&membership))
 }
