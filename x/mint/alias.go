@@ -14,22 +14,20 @@ const (
 var (
 	NewKeeper     = keeper.NewKeeper
 	NewQuerier    = keeper.NewQuerier
+	NewHandler    = keeper.NewHandler
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
 	NewMsgOpenCdp  = types.NewMsgOpenCdp
 	NewMsgCloseCdp = types.NewMsgCloseCdp
-
-	//Testing
-	TestInput      = keeper.SetupTestInput
-	TestCdpRequest = keeper.TestCdpRequest
-	TestCdp        = keeper.TestCdp
 )
 
 type (
-	Keeper           = keeper.Keeper
-	MsgDepositToken  = types.MsgOpenCdp
-	MsgWithdrawToken = types.MsgCloseCdp
-	CdpRequest       = types.CdpRequest
-	Cdp              = types.Cdp
+	Keeper = keeper.Keeper
+
+	Cdp        = types.Cdp
+	CdpRequest = types.CdpRequest
+
+	MsgOpenCdp  = types.MsgOpenCdp
+	MsgCloseCdp = types.MsgCloseCdp
 )

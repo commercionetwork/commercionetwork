@@ -6,9 +6,8 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	LiquidityPoolStorePrefix = ":liquidityPool:"
-	UserCdpsStorePrefix      = ":cdp:"
-	CreditsDenomStoreKey     = StoreKey + ":creditsDenom:"
+	UserCdpsStorePrefix  = ":cdp:"
+	CreditsDenomStoreKey = StoreKey + ":creditsDenom:"
 
 	QueryGetCdp  = "Cdp"
 	QueryGetCdps = "Cdps"

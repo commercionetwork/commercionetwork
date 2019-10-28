@@ -1,27 +1,28 @@
-package mint
+package keeper
 
 import (
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
-		case MsgDepositToken:
+		case types.MsgOpenCdp:
 			return handleMsgOpenCdp(ctx, keeper, msg)
-		case MsgWithdrawToken:
+		case types.MsgCloseCdp:
 			return handleMsgCloseCdp(ctx, keeper, msg)
 		default:
-			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", ModuleName, msg.Type())
+			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 	}
 }
 
-func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg MsgDepositToken) sdk.Result {
-	err := keeper.OpenCdp(ctx, CdpRequest(msg))
+func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) sdk.Result {
+	err := keeper.OpenCdp(ctx, types.CdpRequest(msg))
 	if err != nil {
 		return sdk.ResultFromError(err)
 	}
@@ -29,7 +30,7 @@ func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg MsgDepositToken) sdk.R
 	return sdk.Result{Log: "Cdp opened successfully"}
 }
 
-func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg MsgWithdrawToken) sdk.Result {
+func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) sdk.Result {
 	err := keeper.CloseCdp(ctx, msg.Signer, msg.Timestamp)
 	if err != nil {
 		return sdk.ResultFromError(err)

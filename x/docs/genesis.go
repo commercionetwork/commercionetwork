@@ -20,11 +20,15 @@ func DefaultGenesisState() GenesisState {
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	for _, doc := range data.Documents {
-		keeper.SaveDocument(ctx, doc)
+		if err := keeper.SaveDocument(ctx, doc); err != nil {
+			panic(err)
+		}
 	}
 
 	for _, receipt := range data.Receipts {
-		keeper.SaveReceipt(ctx, receipt)
+		if err := keeper.SaveReceipt(ctx, receipt); err != nil {
+			panic(err)
+		}
 	}
 
 	for _, schema := range data.SupportedMetadataSchemes {

@@ -1,8 +1,11 @@
 package mint
 
 import (
+	"fmt"
+
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 // GenesisState - docs genesis state
@@ -17,8 +20,18 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets docs information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	keeper.SetLiquidityPool(ctx, data.LiquidityPoolAmount)
+func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
+	moduleAcc := keeper.GetMintModuleAccount(ctx)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
+
+	if moduleAcc.GetCoins().IsZero() {
+		if err := moduleAcc.SetCoins(data.LiquidityPoolAmount); err != nil {
+			panic(err)
+		}
+		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
+	}
 
 	for _, cdp := range data.Cdps {
 		keeper.AddCdp(ctx, cdp)
@@ -27,9 +40,10 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+	moduleAcc := keeper.GetMintModuleAccount(ctx)
 	return GenesisState{
 		Cdps:                keeper.GetTotalCdps(ctx),
-		LiquidityPoolAmount: keeper.GetLiquidityPool(ctx),
+		LiquidityPoolAmount: moduleAcc.GetCoins(),
 	}
 }
 

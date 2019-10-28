@@ -47,12 +47,12 @@ func (checksum DocumentChecksum) Validate() error {
 	// Check that the algorithm is valid
 	length, ok := algorithms[algorithm]
 	if !ok {
-		return errors.New(fmt.Sprintf("invalid algorithm type %s", algorithm))
+		return fmt.Errorf("invalid algorithm type %s", algorithm)
 	}
 
 	// Check the validity of the checksum value
 	if len(strings.TrimSpace(checksum.Value)) != length {
-		return errors.New(fmt.Sprintf("invalid checksum length for algorithm %s", algorithm))
+		return fmt.Errorf("invalid checksum length for algorithm %s", algorithm)
 	}
 
 	return nil
