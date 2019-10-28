@@ -31,7 +31,7 @@ commands:
 
 
 jobs:
-  setup_dependencies:
+  setup-dependencies:
     executor: golang
     steps:
       - checkout
@@ -123,7 +123,7 @@ workflows:
   version: 2
   test-suite:
     jobs:
-      - setup_dependencies:
+      - setup-dependencies:
           filters:
             tags:
               only:
@@ -137,7 +137,7 @@ workflows:
               ignore:
                 - gh-pages
           requires:
-            - setup_dependencies
+            - setup-dependencies
       - test-cover:
           requires:
             - setup-dependencies
