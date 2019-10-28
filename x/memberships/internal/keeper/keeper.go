@@ -149,12 +149,11 @@ func (k Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
 	}
 
 	memberships := make([]types.Membership, len(collection.NFTs))
-	for _, membershipNft := range collection.NFTs {
-		membership := types.Membership{
+	for index, membershipNft := range collection.NFTs {
+		memberships[index] = types.Membership{
 			Owner:          membershipNft.GetOwner(),
 			MembershipType: k.GetMembershipType(membershipNft),
 		}
-		memberships = append(memberships, membership)
 	}
 
 	return memberships

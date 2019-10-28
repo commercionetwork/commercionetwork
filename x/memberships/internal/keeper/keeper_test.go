@@ -134,7 +134,7 @@ func TestKeeper_GetMembershipsSet_FilledSet(t *testing.T) {
 	secondMembership := types.Membership{Owner: second, MembershipType: "silver"}
 	thirdMembership := types.Membership{Owner: third, MembershipType: "bronze"}
 
-	assert.Equal(t, 3, len(set))
+	assert.Len(t, set, 3)
 	assert.Contains(t, set, firstMembership)
 	assert.Contains(t, set, secondMembership)
 	assert.Contains(t, set, thirdMembership)
