@@ -32,17 +32,17 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 	msgShareDocument := MsgShareDocument(Document{
 		Sender:     TestingSender,
 		Recipients: types.Addresses{TestingRecipient},
-		Uuid:       TestingDocument.Uuid,
+		UUID:       TestingDocument.UUID,
 		Metadata: DocumentMetadata{
-			ContentUri: TestingDocument.Metadata.ContentUri,
+			ContentURI: TestingDocument.Metadata.ContentURI,
 			SchemaType: "metadata-schema",
 		},
-		ContentUri: TestingDocument.ContentUri,
+		ContentURI: TestingDocument.ContentURI,
 		Checksum:   TestingDocument.Checksum,
 	})
 	supportedSchema := MetadataSchema{
 		Type:      "metadata-schema",
-		SchemaUri: "https://example.com/schema",
+		SchemaURI: "https://example.com/schema",
 		Version:   "1.0.0",
 	}
 	k.AddSupportedMetadataScheme(ctx, supportedSchema)
@@ -57,12 +57,12 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 	msgShareDocument := MsgShareDocument(Document{
 		Sender:     TestingSender,
 		Recipients: types.Addresses{TestingRecipient},
-		Uuid:       TestingDocument.Uuid,
+		UUID:       TestingDocument.UUID,
 		Metadata: DocumentMetadata{
-			ContentUri: TestingDocument.Metadata.ContentUri,
+			ContentURI: TestingDocument.Metadata.ContentURI,
 			SchemaType: "non-existent-schema-type",
 		},
-		ContentUri: TestingDocument.ContentUri,
+		ContentURI: TestingDocument.ContentURI,
 		Checksum:   TestingDocument.Checksum,
 	})
 
@@ -96,7 +96,7 @@ func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
 		Signer: TestingSender,
 		Schema: MetadataSchema{
 			Type:      "schema-type",
-			SchemaUri: "https://example.com/schema",
+			SchemaURI: "https://example.com/schema",
 			Version:   "1.0.0",
 		},
 	}
@@ -117,7 +117,7 @@ func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
 		Signer: TestingSender,
 		Schema: MetadataSchema{
 			Type:      "schema-type",
-			SchemaUri: "https://example.com/schema",
+			SchemaURI: "https://example.com/schema",
 			Version:   "1.0.0",
 		},
 	}

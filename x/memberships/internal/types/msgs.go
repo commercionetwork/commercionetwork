@@ -2,7 +2,6 @@ package types
 
 import (
 	"strings"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -59,18 +58,10 @@ func (msg MsgInviteUser) GetSigners() []sdk.AccAddress {
 
 // MsgSetUserVerified is used to set a specific user as properly verified.
 // Note that the verifier address should identify a Trusted Service Provider account.
-type MsgSetUserVerified struct {
-	Timestamp time.Time      `json:"timestamp"` // Timestamp of the verification
-	User      sdk.AccAddress `json:"user"`      // Recipient that has been verified
-	Verifier  sdk.AccAddress `json:"verifier"`  // Trusted Service Provider
-}
+type MsgSetUserVerified Credential
 
-func NewMsgSetUserVerified(user sdk.AccAddress, timestamp time.Time, verifier sdk.AccAddress) MsgSetUserVerified {
-	return MsgSetUserVerified{
-		Timestamp: timestamp,
-		User:      user,
-		Verifier:  verifier,
-	}
+func NewMsgSetUserVerified(credential Credential) MsgSetUserVerified {
+	return MsgSetUserVerified(credential)
 }
 
 // Route Implements Msg.

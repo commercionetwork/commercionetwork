@@ -6,6 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -50,7 +51,7 @@ func Test_handleMsgSetUserVerified_InvalidSigner(t *testing.T) {
 	_, ctx, _, govK, k := GetTestInput()
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(TestUser, TestTimestamp, nil)
+	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: nil})
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
@@ -64,7 +65,7 @@ func Test_handleMsgSetUserVerified_ExistingCredential(t *testing.T) {
 	k.SaveCredential(ctx, credential)
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(TestUser, TestTimestamp, TestTsp)
+	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: TestTsp})
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
@@ -74,7 +75,7 @@ func Test_handleMsgSetUserVerified_NewCredential(t *testing.T) {
 	_, ctx, _, govK, k := GetTestInput()
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(TestUser, TestTimestamp, TestTsp)
+	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: TestTsp})
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
@@ -135,7 +136,9 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 	credentials := types.Credential{Timestamp: TestTimestamp, User: TestUser, Verifier: testInviteSender}
 	k.SaveCredential(ctx, credentials)
 
-	_ = bankK.SetCoins(ctx, TestUser, sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 1000000000)))
+	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 1000000000))
+	_ = bankK.SetCoins(ctx, TestUser, creditsAmnt)
+	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
 
 	// Perform the call
 	var handler = NewHandler(k, govK)
@@ -189,7 +192,9 @@ func TestHandler_MembershipUpgrade(t *testing.T) {
 	credentials := types.Credential{Timestamp: TestTimestamp, User: TestUser, Verifier: testInviteSender}
 	k.SaveCredential(ctx, credentials)
 
-	_ = bankK.SetCoins(ctx, TestUser, sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 100000000000000)))
+	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 100000000000000))
+	_ = bankK.SetCoins(ctx, TestUser, creditsAmnt)
+	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
 
 	// Perform the calls
 	var handler = NewHandler(k, govK)

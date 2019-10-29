@@ -3,12 +3,10 @@ package custombank
 import (
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/keeper"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 )
 
 const (
-	ModuleName = bank.ModuleName
-	StoreKey   = types.StoreKey
+	StoreKey = types.StoreKey
 )
 
 var (

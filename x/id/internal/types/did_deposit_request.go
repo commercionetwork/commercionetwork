@@ -22,7 +22,7 @@ type DidDepositRequest struct {
 
 func (request DidDepositRequest) Validate() sdk.Error {
 	if request.Status != nil {
-		if err := (*request.Status).Validate(); err != nil {
+		if err := request.Status.Validate(); err != nil {
 			return err
 		}
 	}

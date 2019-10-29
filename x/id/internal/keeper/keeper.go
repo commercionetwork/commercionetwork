@@ -42,7 +42,7 @@ func (keeper Keeper) getIdentityStoreKey(owner sdk.AccAddress) []byte {
 
 // SaveDidDocument saves the given didDocumentUri associating it with the given owner, replacing any existent one.
 func (keeper Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk.Error {
-	owner := document.Id
+	owner := document.ID
 
 	// Get the account and its public key
 	account := keeper.accKeeper.GetAccount(ctx, owner)
@@ -57,7 +57,7 @@ func (keeper Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument
 	// --------------------------------------------
 
 	// Get the authentication key
-	authKey, found := document.PubKeys.FindById(document.Authentication[0])
+	authKey, found := document.PubKeys.FindByID(document.Authentication[0])
 	if !found {
 		return sdk.ErrUnknownRequest("Authentication key not found inside publicKey array")
 	}
@@ -85,7 +85,7 @@ func (keeper Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument
 	}
 
 	// Check that the authentication key bytes are the same of the key associated with the account
-	if !bytes.Equal(accountPubKey.Bytes()[:], authKeyBytes[:]) {
+	if !bytes.Equal(accountPubKey.Bytes(), authKeyBytes) {
 		return sdk.ErrUnknownRequest("Authentication key is not the one associated with the account")
 	}
 

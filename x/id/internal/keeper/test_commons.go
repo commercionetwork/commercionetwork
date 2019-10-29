@@ -97,7 +97,7 @@ func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address stri
 
 	return types.DidDocument{
 		Context: "https://www.w3.org/2019/did/v1",
-		Id:      address,
+		ID:      address,
 		Authentication: []string{
 			fmt.Sprintf("%s#keys-1", address),
 		},
@@ -109,13 +109,13 @@ func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address stri
 		},
 		PubKeys: types.PubKeys{
 			types.PubKey{
-				Id:           fmt.Sprintf("%s#keys-1", address),
+				ID:           fmt.Sprintf("%s#keys-1", address),
 				Type:         "Secp256k1VerificationKey2018",
 				Controller:   address,
 				PublicKeyHex: hex.EncodeToString(account.GetPubKey().Bytes()),
 			},
 			types.PubKey{
-				Id:           fmt.Sprintf("%s#keys-2", address),
+				ID:           fmt.Sprintf("%s#keys-2", address),
 				Type:         "RsaVerificationKey2018",
 				Controller:   address,
 				PublicKeyHex: "04418834f5012c808a11830819f300d06092a864886f70d010101050003818d0030818902818100ccaf757e02ec9cfb3beddaa5fe8e9c24df033e9b60db7cb8e2981cb340321faf348731343c7ab2f4920ebd62c5c7617557f66219291ce4e95370381390252b080dfda319bb84808f04078737ab55f291a9024ef3b72aedcf26067d3cee2a470ed056f4e409b73dd6b4fddffa43dff02bf30a9de29357b606df6f0246be267a910203010001a",

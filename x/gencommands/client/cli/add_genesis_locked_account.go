@@ -1,29 +1,44 @@
 package cli
 
 import (
-	bank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"fmt"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/cosmos/cosmos-sdk/client/keys"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/server"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 )
 
-// AddGenesisTspCmd returns add-genesis-tsp cobra Command.
-func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
+// SetGenesisGovernmentAddressCmd returns add-genesis-minter cobra Command.
+func AddGenesisAccreditationSigner(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-locked-account [account_address_or_key]",
-		Short: "Adds the given account to the list of locked accounts inside the genesis.json",
+		Use:   "add-genesis-accreditation-signer [signer_address_or_key]",
+		Short: "Add a trusted accreditation signer to genesis.json",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
-			address, err := getAddressFromString(args[0])
+			minterAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
-				return err
+				kb, err := keys.NewKeyBaseFromDir(viper.GetString(flagClientHome))
+				if err != nil {
+					return err
+				}
+
+				info, err := kb.Get(args[0])
+				if err != nil {
+					return err
+				}
+
+				minterAddr = info.GetAddress()
 			}
 
 			// retrieve the app state
@@ -34,13 +49,18 @@ func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
 			}
 
 			// add minter to the app state
-			var genState bank.GenesisState
-			cdc.MustUnmarshalJSON(appState[bank.ModuleName], &genState)
+			var genState memberships.GenesisState
 
-			genState.BlockedAccounts, _ = genState.BlockedAccounts.AppendIfMissing(address)
+			cdc.MustUnmarshalJSON(appState[memberships.ModuleName], &genState)
+
+			if genState.TrustedServiceProviders.Contains(minterAddr) {
+				return fmt.Errorf("cannot add already existing signer %v", minterAddr)
+			}
+
+			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(minterAddr)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[bank.ModuleName] = genesisStateBz
+			appState[memberships.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

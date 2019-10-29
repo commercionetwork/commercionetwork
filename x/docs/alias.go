@@ -38,7 +38,7 @@ type (
 	MetadataSchema                      = types.MetadataSchema
 	MetadataSchemes                     = types.MetadataSchemes
 	DocumentChecksum                    = types.DocumentChecksum
-	DocumentIds                         = types.DocumentIds
+	DocumentIds                         = types.DocumentIDs
 	DocumentReceipt                     = types.DocumentReceipt
 	DocumentReceipts                    = types.DocumentReceipts
 	MsgShareDocument                    = types.MsgShareDocument

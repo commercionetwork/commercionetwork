@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"errors"
+
 	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -25,6 +27,10 @@ func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			coins, err := sdk.ParseCoins(args[0])
 			if err != nil {
 				return err
+			}
+
+			if coins.Len() > 1 {
+				return errors.New("cannot have multiple coins inside the TBR pool")
 			}
 
 			// retrieve the app state

@@ -5,6 +5,7 @@ package v1_3_0
 import (
 	"strconv"
 
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 	v120docs "github.com/commercionetwork/commercionetwork/x/docs/legacy/v1.2.0"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	uuid "github.com/satori/go.uuid"
@@ -38,7 +39,7 @@ func Migrate(oldGenState v120docs.GenesisState) GenesisState {
 	for i, schema := range oldGenState.SupportedMetadataSchemes {
 		supportedMetadataSchemes[i] = MetadataSchema{
 			Type:      schema.Type,
-			SchemaUri: schema.SchemaUri,
+			SchemaURI: schema.SchemaURI,
 			Version:   schema.Version,
 		}
 	}
@@ -58,7 +59,7 @@ func migrateDocument(doc v120docs.Document) Document {
 	var metadataSchema *DocumentMetadataSchema
 	if doc.Metadata.Schema != nil {
 		metadataSchema = &DocumentMetadataSchema{
-			Uri:     doc.Metadata.Schema.Uri,
+			URI:     doc.Metadata.Schema.URI,
 			Version: doc.Metadata.Schema.Version,
 		}
 	}
@@ -84,13 +85,13 @@ func migrateDocument(doc v120docs.Document) Document {
 
 	// Return a new document
 	return Document{
-		Uuid: doc.Uuid,
+		UUID: doc.UUID,
 		Metadata: DocumentMetadata{
-			ContentUri: doc.Metadata.ContentUri,
+			ContentURI: doc.Metadata.ContentURI,
 			SchemaType: doc.Metadata.SchemaType,
 			Schema:     metadataSchema,
 		},
-		ContentUri: doc.ContentUri,
+		ContentURI: doc.ContentURI,
 		Checksum: &DocumentChecksum{
 			Value:     doc.Checksum.Value,
 			Algorithm: doc.Checksum.Algorithm,
@@ -101,13 +102,13 @@ func migrateDocument(doc v120docs.Document) Document {
 
 // findDocumentRecipients returns the list of all the sdk.AccAddress that are the
 // recipients of the given document
-func findDocumentRecipients(document Document, userData []v120docs.UserDocumentsData) []sdk.AccAddress {
-	var recipients []sdk.AccAddress
+func findDocumentRecipients(document Document, userData []v120docs.UserDocumentsData) types.Addresses {
+	var recipients types.Addresses
 
 	// Iterate over all the users' received documents searching for one with the same uuid
 	for _, data := range userData {
 		for _, receivedDoc := range data.ReceivedDocuments {
-			if receivedDoc.Uuid == document.Uuid {
+			if receivedDoc.UUID == document.UUID {
 				recipients = appendIfMissing(recipients, data.User)
 			}
 		}
@@ -118,7 +119,7 @@ func findDocumentRecipients(document Document, userData []v120docs.UserDocuments
 
 // appendIfMissing returns a new sdk.AccAddress list that is made of the addresses list and the given address
 // if such address does not exist inside the list. Otherwise the original list is returned
-func appendIfMissing(addresses []sdk.AccAddress, address sdk.AccAddress) []sdk.AccAddress {
+func appendIfMissing(addresses types.Addresses, address sdk.AccAddress) types.Addresses {
 	for _, a := range addresses {
 		if a.Equals(address) {
 			return addresses
@@ -132,11 +133,11 @@ func appendIfMissing(addresses []sdk.AccAddress, address sdk.AccAddress) []sdk.A
 func migrateReceipt(index int, receipt v120docs.DocumentReceipt) DocumentReceipt {
 	ns, _ := uuid.FromString("cfbb5b51-6ac0-43b0-8e09-022236285e31")
 	return DocumentReceipt{
-		Uuid:         uuid.NewV3(ns, strconv.Itoa(index)).String(),
+		UUID:         uuid.NewV3(ns, strconv.Itoa(index)).String(),
 		Sender:       receipt.Sender,
 		Recipient:    receipt.Recipient,
 		TxHash:       receipt.TxHash,
-		DocumentUuid: receipt.DocumentUuid,
+		DocumentUUID: receipt.DocumentUUID,
 		Proof:        receipt.Proof,
 	}
 }

@@ -14,7 +14,7 @@ func TestKeeper_AddTrustedServiceProvider_EmptyList(t *testing.T) {
 	k.AddTrustedServiceProvider(ctx, TestTsp)
 
 	var signers ctypes.Addresses
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
 	cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 
@@ -25,7 +25,7 @@ func TestKeeper_AddTrustedServiceProvider_EmptyList(t *testing.T) {
 func TestKeeper_AddTrustedServiceProvider_ExistingList(t *testing.T) {
 	cdc, ctx, _, _, k := GetTestInput()
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	signers := ctypes.Addresses{TestTsp}
 	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&signers))
 
@@ -51,7 +51,7 @@ func TestKeeper_GetTrustedServiceProviders_ExistingList(t *testing.T) {
 
 	signers := ctypes.Addresses{TestTsp, TestUser, TestUser2}
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&signers))
 
 	actual := k.GetTrustedServiceProviders(ctx)
@@ -73,7 +73,7 @@ func TestKeeper_IsTrustedServiceProvider_ExistingList(t *testing.T) {
 
 	signers := ctypes.Addresses{TestUser, TestTsp}
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.TrustedSignersStoreKey), cdc.MustMarshalBinaryBare(&signers))
 
 	assert.True(t, k.IsTrustedServiceProvider(ctx, TestUser))

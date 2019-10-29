@@ -14,8 +14,8 @@ func TestValidMsg_StoreDoc(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
 	handler := NewHandler(k, govK)
-	msgSetId := types.MsgSetIdentity(TestDidDocument)
-	res := handler(ctx, msgSetId)
+	msgSetIdentity := types.MsgSetIdentity(TestDidDocument)
+	res := handler(ctx, msgSetIdentity)
 
 	assert.True(t, res.IsOK())
 }

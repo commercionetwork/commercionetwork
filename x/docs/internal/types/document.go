@@ -16,17 +16,17 @@ import (
 type Document struct {
 	Sender         sdk.AccAddress          `json:"sender"`
 	Recipients     types.Addresses         `json:"recipients"`
-	Uuid           string                  `json:"uuid"`
+	UUID           string                  `json:"uuid"`
 	Metadata       DocumentMetadata        `json:"metadata"`
-	ContentUri     string                  `json:"content_uri"`     // Optional
+	ContentURI     string                  `json:"content_uri"`     // Optional
 	Checksum       *DocumentChecksum       `json:"checksum"`        // Optional
 	EncryptionData *DocumentEncryptionData `json:"encryption_data"` // Optional
 }
 
 // TODO: Test
 func (doc Document) Equals(other Document) bool {
-	validContent := doc.Uuid == other.Uuid &&
-		doc.ContentUri == other.ContentUri &&
+	validContent := doc.UUID == other.UUID &&
+		doc.ContentURI == other.ContentURI &&
 		doc.Metadata.Equals(other.Metadata)
 
 	var validChecksum bool
@@ -47,7 +47,7 @@ func (doc Document) Equals(other Document) bool {
 }
 
 // TODO: Test
-func validateUuid(uuid string) bool {
+func validateUUID(uuid string) bool {
 	regex := regexp.MustCompile(`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
 	return regex.MatchString(uuid)
 }
@@ -68,11 +68,11 @@ func (doc Document) Validate() sdk.Error {
 		}
 	}
 
-	if !validateUuid(doc.Uuid) {
+	if !validateUUID(doc.UUID) {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
-	if len(strings.TrimSpace(doc.ContentUri)) == 0 {
-		return sdk.ErrUnknownRequest("Document content Uri can't be empty")
+	if len(strings.TrimSpace(doc.ContentURI)) == 0 {
+		return sdk.ErrUnknownRequest("Document content URI can't be empty")
 	}
 
 	err := doc.Metadata.Validate()
@@ -81,14 +81,14 @@ func (doc Document) Validate() sdk.Error {
 	}
 
 	if doc.Checksum != nil {
-		err = (*doc.Checksum).Validate()
+		err = doc.Checksum.Validate()
 		if err != nil {
 			return sdk.ErrUnknownRequest(err.Error())
 		}
 	}
 
 	if doc.EncryptionData != nil {
-		err = (*doc.EncryptionData).Validate()
+		err = doc.EncryptionData.Validate()
 		if err != nil {
 			return sdk.ErrUnknownRequest(err.Error())
 		}

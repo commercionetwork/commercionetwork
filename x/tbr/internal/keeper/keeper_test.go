@@ -42,39 +42,6 @@ func TestKeeper_GetTotalRewardPool_ExistingPool(t *testing.T) {
 	assert.Equal(t, TestBlockRewardsPool, actual)
 }
 
-func TestKeeper_IncrementBlockRewardsPool(t *testing.T) {
-	_, ctx, k, ak, bk := SetupTestInput()
-
-	k.SetTotalRewardPool(ctx, TestBlockRewardsPool)
-
-	acc := ak.NewAccountWithAddress(ctx, TestFunder)
-	ak.SetAccount(ctx, acc)
-	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1000), Denom: k.stakingKeeper.BondDenom(ctx)})
-	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
-
-	_ = k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
-	actual := k.GetTotalRewardPool(ctx)
-
-	blockReward := TestBlockRewardsPool.AmountOf(k.stakingKeeper.BondDenom(ctx))
-	actualReward := actual.AmountOf(k.stakingKeeper.BondDenom(ctx))
-	assert.True(t, blockReward.LT(actualReward))
-}
-
-func TestKeeper_IncrementBlockRewardsPool_InsufficientUserFunds(t *testing.T) {
-	_, ctx, k, ak, bk := SetupTestInput()
-
-	k.SetTotalRewardPool(ctx, TestBlockRewardsPool)
-
-	acc := ak.NewAccountWithAddress(ctx, TestFunder)
-	ak.SetAccount(ctx, acc)
-	accountCoins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(1), Denom: k.stakingKeeper.BondDenom(ctx)})
-	_ = bk.SetCoins(ctx, acc.GetAddress(), accountCoins)
-
-	err := k.IncrementBlockRewardsPool(ctx, TestFunder, TestAmount)
-
-	assert.Error(t, err)
-}
-
 // --------------------------
 // --- Yearly reward pool
 // --------------------------
@@ -215,12 +182,12 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	k.SetYearlyRewardPool(ctx, pool)
 
 	validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
-	k.DistributionKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
+	k.distKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
 
 	reward := sdk.DecCoins{sdk.NewDecCoin("stake", sdk.NewInt(1000))}
 	_ = k.DistributeBlockRewards(ctx, TestValidator, reward)
 
-	actual := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, TestValidator.OperatorAddress)
+	actual := k.distKeeper.GetValidatorCurrentRewards(ctx, TestValidator.OperatorAddress)
 	assert.Equal(t, reward, actual.Rewards)
 
 	remaining := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 99000)}
@@ -231,7 +198,7 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
-	reward := sdk.DecCoins{sdk.NewDecCoin(k.stakingKeeper.BondDenom(ctx), sdk.NewInt(12000))}
+	reward := sdk.DecCoins{sdk.NewDecCoin("stake", sdk.NewInt(12000))}
 	err := k.DistributeBlockRewards(ctx, TestValidator, reward)
 
 	assert.Error(t, err)

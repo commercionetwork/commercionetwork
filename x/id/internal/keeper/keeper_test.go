@@ -41,7 +41,7 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	account := aK.GetAccount(ctx, TestOwnerAddress)
 	updatedDocument.PubKeys = types.PubKeys{
 		types.PubKey{
-			Id:           "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
+			ID:           "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
 			Type:         "Secp256k1VerificationKey2018",
 			Controller:   TestOwnerAddress,
 			PublicKeyHex: hex.EncodeToString(account.GetPubKey().Bytes()),
@@ -81,11 +81,11 @@ func TestKeeper_GetDidDocuments(t *testing.T) {
 	fourth := setupDidDocument(ctx, aK, "cosmos177ap6yqt87znxmep5l7vdaac59uxyn582kv0gl")
 	fifth := setupDidDocument(ctx, aK, "cosmos1ajv8j3e0ud2uduzdqmxfcvwm3nwdgr447yvu5m")
 
-	store.Set(k.getIdentityStoreKey(first.Id), cdc.MustMarshalBinaryBare(first))
-	store.Set(k.getIdentityStoreKey(second.Id), cdc.MustMarshalBinaryBare(second))
-	store.Set(k.getIdentityStoreKey(third.Id), cdc.MustMarshalBinaryBare(third))
-	store.Set(k.getIdentityStoreKey(fourth.Id), cdc.MustMarshalBinaryBare(fourth))
-	store.Set(k.getIdentityStoreKey(fifth.Id), cdc.MustMarshalBinaryBare(fifth))
+	store.Set(k.getIdentityStoreKey(first.ID), cdc.MustMarshalBinaryBare(first))
+	store.Set(k.getIdentityStoreKey(second.ID), cdc.MustMarshalBinaryBare(second))
+	store.Set(k.getIdentityStoreKey(third.ID), cdc.MustMarshalBinaryBare(third))
+	store.Set(k.getIdentityStoreKey(fourth.ID), cdc.MustMarshalBinaryBare(fourth))
+	store.Set(k.getIdentityStoreKey(fifth.ID), cdc.MustMarshalBinaryBare(fifth))
 
 	actual, err := k.GetDidDocuments(ctx)
 

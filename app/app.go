@@ -5,14 +5,16 @@ import (
 	"os"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
+	"github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/docs"
 	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
 	customgov "github.com/commercionetwork/commercionetwork/x/encapsulated/gov"
-	custommint "github.com/commercionetwork/commercionetwork/x/encapsulated/mint"
 	customstaking "github.com/commercionetwork/commercionetwork/x/encapsulated/staking"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
+	"github.com/commercionetwork/commercionetwork/x/mint"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -20,8 +22,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-
-	"github.com/commercionetwork/commercionetwork/x/docs"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -35,7 +35,6 @@ import (
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 
 	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
@@ -88,7 +87,6 @@ var (
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
 		params.AppModuleBasic{},
@@ -100,15 +98,15 @@ var (
 		// Encapsulated modules
 		customcrisis.NewAppModuleBasic(DefaultBondDenom),
 		customgov.NewAppModuleBasic(DefaultBondDenom),
-		custommint.NewAppModuleBasic(DefaultBondDenom),
 		customstaking.NewAppModuleBasic(DefaultBondDenom),
 		custombank.NewAppModuleBasic(bank.AppModuleBasic{}),
 
 		// Custom modules
-		memberships.NewAppModuleBasic(StableCreditsDenom),
 		docs.AppModuleBasic{},
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
+		memberships.NewAppModuleBasic(StableCreditsDenom),
+		mint.AppModuleBasic{},
 		pricefeed.AppModuleBasic{},
 		tbr.AppModuleBasic{},
 	)
@@ -116,10 +114,18 @@ var (
 	maccPerms = map[string][]string{
 		auth.FeeCollectorName:     nil,
 		distr.ModuleName:          nil,
-		mint.ModuleName:           {supply.Minter},
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
 		gov.ModuleName:            {supply.Burner},
+
+		// Custom modules
+		mint.ModuleName:        {supply.Minter, supply.Burner},
+		memberships.ModuleName: {supply.Burner},
+	}
+
+	allowedModuleReceivers = types.Strings{
+		mint.ModuleName,
+		memberships.ModuleName,
 	}
 )
 
@@ -160,21 +166,23 @@ type CommercioNetworkApp struct {
 	supplyKeeper   supply.Keeper
 	stakingKeeper  staking.Keeper
 	slashingKeeper slashing.Keeper
-	mintKeeper     mint.Keeper
 	distrKeeper    distr.Keeper
 	govKeeper      gov.Keeper
 	crisisKeeper   crisis.Keeper
 	paramsKeeper   params.Keeper
 	nftKeeper      nft.Keeper
 
+	// Encapsulated modules
+	customBankKeeper custombank.Keeper
+
 	// Custom modules
-	accreditationKeeper memberships.Keeper
-	docsKeeper          docs.Keeper
-	idKeeper            id.Keeper
-	governmentKeeper    government.Keeper
-	pricefeedKeeper     pricefeed.Keeper
-	tbrKeeper           tbr.Keeper
-	customBankKeeper    custombank.Keeper
+	docsKeeper       docs.Keeper
+	governmentKeeper government.Keeper
+	idKeeper         id.Keeper
+	membershipKeeper memberships.Keeper
+	mintKeeper       mint.Keeper
+	priceFeedKeeper  pricefeed.Keeper
+	tbrKeeper        tbr.Keeper
 
 	mm *module.Manager
 }
@@ -194,13 +202,20 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	keys := sdk.NewKVStoreKeys(
 		// Basics
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
-		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
+		supply.StoreKey, distr.StoreKey, slashing.StoreKey,
 		gov.StoreKey, params.StoreKey, nft.StoreKey,
 
-		// Custom modules
-		memberships.StoreKey, docs.StoreKey, government.StoreKey,
-		id.StoreKey, pricefeed.StoreKey, tbr.StoreKey,
+		// Encapsulated modules
 		custombank.StoreKey,
+
+		// Custom modules
+		docs.StoreKey,
+		government.StoreKey,
+		id.StoreKey,
+		memberships.StoreKey,
+		mint.StoreKey,
+		pricefeed.StoreKey,
+		tbr.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -218,7 +233,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
 	bankSubspace := app.paramsKeeper.Subspace(bank.DefaultParamspace)
 	stakingSubspace := app.paramsKeeper.Subspace(staking.DefaultParamspace)
-	mintSubspace := app.paramsKeeper.Subspace(mint.DefaultParamspace)
 	distrSubspace := app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	slashingSubspace := app.paramsKeeper.Subspace(slashing.DefaultParamspace)
 	govSubspace := app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
@@ -226,13 +240,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// add keepers
 	app.accountKeeper = auth.NewAccountKeeper(app.cdc, keys[auth.StoreKey], authSubspace, auth.ProtoBaseAccount)
-	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, bank.DefaultCodespace, app.ModuleAccountAddrs())
+	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, bank.DefaultCodespace, app.BlacklistedModuleAccAddrs())
 	app.supplyKeeper = supply.NewKeeper(app.cdc, keys[supply.StoreKey], app.accountKeeper, app.bankKeeper, maccPerms)
 	stakingKeeper := staking.NewKeeper(
 		app.cdc, keys[staking.StoreKey],
 		app.supplyKeeper, stakingSubspace, staking.DefaultCodespace,
 	)
-	app.mintKeeper = mint.NewKeeper(app.cdc, keys[mint.StoreKey], mintSubspace, &stakingKeeper, app.supplyKeeper, auth.FeeCollectorName)
 	app.distrKeeper = distr.NewKeeper(app.cdc, keys[distr.StoreKey], distrSubspace, &stakingKeeper,
 		app.supplyKeeper, distr.DefaultCodespace, auth.FeeCollectorName, app.ModuleAccountAddrs())
 	app.slashingKeeper = slashing.NewKeeper(
@@ -241,14 +254,17 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
 	app.nftKeeper = nft.NewKeeper(app.cdc, app.keys[nft.StoreKey])
 
+	// Encapsulated modules
+	app.customBankKeeper = custombank.NewKeeper(app.cdc, app.keys[custombank.StoreKey], app.bankKeeper)
+
 	// Custom modules
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
-	app.accreditationKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.bankKeeper)
+	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.supplyKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.bankKeeper)
-	app.pricefeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
-	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
-	app.customBankKeeper = custombank.NewKeeper(app.cdc, app.keys[custombank.StoreKey], app.bankKeeper)
+	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
+	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.distrKeeper)
+	app.mintKeeper = mint.NewKeeper(app.cdc, app.keys[mint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -272,28 +288,28 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
 		nft.NewAppModule(app.nftKeeper),
-
-		// Encapsulating modules
-		custombank.NewAppModule(bank.NewAppModule(app.bankKeeper, app.accountKeeper), app.customBankKeeper, app.governmentKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		mint.NewAppModule(app.mintKeeper),
 		gov.NewAppModule(app.govKeeper, app.supplyKeeper),
 		crisis.NewAppModule(&app.crisisKeeper),
 
+		// Encapsulating modules
+		custombank.NewAppModule(bank.NewAppModule(app.bankKeeper, app.accountKeeper), app.customBankKeeper, app.governmentKeeper),
+
 		// Custom modules
-		government.NewAppModule(app.governmentKeeper),
-		memberships.NewAppModule(app.accreditationKeeper, app.governmentKeeper),
 		docs.NewAppModule(app.docsKeeper),
+		government.NewAppModule(app.governmentKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper),
-		pricefeed.NewAppModule(app.pricefeedKeeper, app.governmentKeeper),
-		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
+		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
+		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
+		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
+		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper, app.bankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
 	app.mm.SetOrderBeginBlockers(
-		mint.ModuleName, distr.ModuleName, slashing.ModuleName,
+		distr.ModuleName, slashing.ModuleName,
 
 		// Custom modules
 		tbr.ModuleName,
@@ -310,7 +326,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// properly initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
-		slashing.ModuleName, gov.ModuleName, mint.ModuleName, supply.ModuleName,
+		slashing.ModuleName, gov.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
 		nft.ModuleName,
 
@@ -331,7 +347,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
 		ante.NewAnteHandler(
-			app.accountKeeper, app.supplyKeeper, app.pricefeedKeeper,
+			app.accountKeeper, app.supplyKeeper, app.priceFeedKeeper,
 			auth.DefaultSigVerificationGasConsumer, StableCreditsDenom,
 		),
 	)
@@ -373,6 +389,19 @@ func (app *CommercioNetworkApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = true
+	}
+
+	return modAccAddrs
+}
+
+// BlacklistedModuleAccAddrs returns all the app's module account addresses that
+// are black listed from received tokens from the users.
+func (app *CommercioNetworkApp) BlacklistedModuleAccAddrs() map[string]bool {
+	modAccAddrs := make(map[string]bool)
+	for acc := range maccPerms {
+		if !allowedModuleReceivers.Contains(acc) {
+			modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = true
+		}
 	}
 
 	return modAccAddrs

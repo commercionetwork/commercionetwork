@@ -118,14 +118,17 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 		var expiry sdk.Int
 
 		// TODO KAVA suggestion : make threshold for acceptance (ie. require 51% of oracles to have posted valid prices)
-		if pricesLength == 0 {
+		switch pricesLength {
+		case 0:
 			// Error if there are no valid prices in the raw prices store
 			return errors.New("no valid raw prices to calculate current prices")
-		} else if pricesLength == 1 {
+
+		case 1:
 			// Return if there's only one price
 			medianPrice = notExpiredPrices[0].PriceInfo.Price
 			expiry = notExpiredPrices[0].PriceInfo.Expiry
-		} else {
+
+		default:
 			pLength := int64(pricesLength)
 			medianPrice = rawPricesSum.Quo(sdk.NewDec(pLength))
 			expiry = rawExpirySum.Quo(sdk.NewInt(pLength))
@@ -196,7 +199,7 @@ func (keeper Keeper) AddOracle(ctx sdk.Context, oracle sdk.AccAddress) {
 }
 
 // IsOracle returns true iif the given address is a valid oracle
-func (keeper Keeper) IsOracle(ctx sdk.Context, address sdk.AccAddress) bool {
+func (keeper Keeper) IsOracle(ctx sdk.Context, address sdk.Address) bool {
 	oracles := keeper.GetOracles(ctx)
 	return oracles.Contains(address)
 }

@@ -13,9 +13,8 @@ type Addresses []sdk.AccAddress
 func (addresses Addresses) AppendIfMissing(address sdk.AccAddress) (Addresses, bool) {
 	if addresses.Contains(address) {
 		return addresses, false
-	} else {
-		return append(addresses, address), true
 	}
+	return append(addresses, address), true
 }
 
 // RemoveIfExisting returns a new Addresses instance that does not contain the
@@ -24,14 +23,13 @@ func (addresses Addresses) RemoveIfExisting(address sdk.AccAddress) (Addresses, 
 	indexOf := addresses.IndexOf(address)
 	if indexOf > -1 {
 		return append(addresses[:indexOf], addresses[indexOf+1:]...), true
-	} else {
-		return append(addresses, address), false
 	}
+	return append(addresses, address), false
 }
 
 // IndexOf returns the index of the given address inside the addresses array,
 // or -1 if such an address was not found
-func (addresses Addresses) IndexOf(address sdk.AccAddress) int {
+func (addresses Addresses) IndexOf(address sdk.Address) int {
 	for i, a := range addresses {
 		if a.Equals(address) {
 			return i

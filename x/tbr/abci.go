@@ -18,7 +18,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k Keeper, stakeKe
 	//Get the block height
 	if ctx.BlockHeight() > 1 {
 		// Get the validator who proposed the block
-		previousProposer := k.DistributionKeeper.GetPreviousProposerConsAddr(ctx)
+		previousProposer := k.GetPreviousProposerConsAddr(ctx)
 
 		// Retrieve the validator from its consensus address
 		validator := stakeKeeper.ValidatorByConsAddr(ctx, previousProposer)
@@ -34,7 +34,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k Keeper, stakeKe
 
 	// Record the proposer for when we payout on the next block
 	consAddr := sdk.ConsAddress(req.Header.ProposerAddress)
-	k.DistributionKeeper.SetPreviousProposerConsAddr(ctx, consAddr)
+	k.SetPreviousProposerConsAddr(ctx, consAddr)
 
 	// Update the block height
 	k.UpdateYearlyPool(ctx, ctx.BlockHeight())

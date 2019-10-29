@@ -6,7 +6,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,51 +44,53 @@ func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper,
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
-	authKey := sdk.NewKVStoreKey("authCapKey")
-	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
-	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
-	keyParams := sdk.NewKVStoreKey(params.StoreKey)
-	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
-	keySupply := sdk.NewKVStoreKey(supply.StoreKey)
-	tkeyStaking := sdk.NewTransientStoreKey(staking.TStoreKey)
-	keyStaking := sdk.NewKVStoreKey(staking.StoreKey)
-	distrKey := sdk.NewKVStoreKey("distrKey")
+	keys := sdk.NewKVStoreKeys(
+		auth.StoreKey,
+		params.StoreKey,
+		supply.StoreKey,
+		pricefeed.StoreKey,
 
-	//custom modules keys
-	govKey := sdk.NewKVStoreKey(government.StoreKey)
-	pricefeedKey := sdk.NewKVStoreKey(pricefeed.StoreKey)
-	cMintKey := sdk.NewKVStoreKey(types.StoreKey)
+		types.StoreKey,
+	)
+	tkeys := sdk.NewTransientStoreKeys(
+		staking.TStoreKey,
+		params.TStoreKey,
+	)
 
 	ms := store.NewCommitMultiStore(memDB)
-	ms.MountStoreWithDB(authKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(keySupply, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(tkeyStaking, sdk.StoreTypeTransient, nil)
-	ms.MountStoreWithDB(keyStaking, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(distrKey, sdk.StoreTypeIAVL, memDB)
-
-	//custom modules loading
-	ms.MountStoreWithDB(pricefeedKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(cMintKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(govKey, sdk.StoreTypeIAVL, memDB)
+	for _, key := range keys {
+		ms.MountStoreWithDB(key, sdk.StoreTypeIAVL, memDB)
+	}
+	for _, tkey := range tkeys {
+		ms.MountStoreWithDB(tkey, sdk.StoreTypeTransient, nil)
+	}
 
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
+	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
+	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, nil)
+	maccPerms := map[string][]string{
+		types.ModuleName: {supply.Minter, supply.Burner},
+	}
+	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
+	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey])
 
-	pricefeedK := pricefeed.NewKeeper(cdc, pricefeedKey)
+	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk)
 
-	mintK := NewKeeper(cMintKey, bk, pricefeedK, cdc)
+	// Set initial supply
+	sk.SetSupply(ctx, supply.NewSupply(TestCdp.CreditsAmount))
+
+	// Set module accounts
+	mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
+	mintK.supplyKeeper.SetModuleAccount(ctx, mintAcc)
+
+	// Set the credits denom
 	mintK.SetCreditsDenom(ctx, TestCreditsDenom)
 
-	return cdc, ctx, bk, pricefeedK, mintK
+	return cdc, ctx, bk, pfk, mintK
 }
 
 func testCodec() *codec.Codec {
@@ -100,14 +101,10 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
-
-	//custom modules codecs
 	pricefeed.RegisterCodec(cdc)
 	government.RegisterCodec(cdc)
-
 	codec.RegisterCrypto(cdc)
 
 	cdc.Seal()
-
 	return cdc
 }

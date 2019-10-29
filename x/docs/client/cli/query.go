@@ -147,7 +147,6 @@ func getCmdSentReceipts(cdc *codec.Codec) *cobra.Command {
 			}
 
 			fmt.Print(string(res))
-
 			return nil
 		},
 	}
@@ -173,7 +172,6 @@ func getCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
 			}
 
 			fmt.Print(string(res))
-
 			return nil
 		},
 	}

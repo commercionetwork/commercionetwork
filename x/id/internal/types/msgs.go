@@ -28,7 +28,7 @@ func (msg MsgSetIdentity) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgSetIdentity) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Id}
+	return []sdk.AccAddress{msg.ID}
 }
 
 // ---------------------------

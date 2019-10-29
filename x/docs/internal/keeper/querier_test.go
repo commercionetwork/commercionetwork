@@ -36,9 +36,9 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 
 	// Setup the store
 	metadataStore := ctx.KVStore(k.StoreKey)
-	documentIds := types.DocumentIds{TestingDocument.Uuid}
+	documentIds := types.DocumentIDs{TestingDocument.UUID}
 	metadataStore.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentIds))
-	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
+	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	// Compose the path
 	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
@@ -70,9 +70,9 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 	var querier = NewQuerier(k)
 	//Setup the store
 	metadataStore := ctx.KVStore(k.StoreKey)
-	documentIds := types.DocumentIds{TestingDocument.Uuid}
+	documentIds := types.DocumentIDs{TestingDocument.UUID}
 	metadataStore.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentIds))
-	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
+	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	// Compose the path
 	path := []string{types.QuerySentDocuments, TestingSender.String()}
@@ -110,9 +110,9 @@ func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
 
-	ids := types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
+	ids := types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
 	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
@@ -133,12 +133,12 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
 
-	var ids = types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
+	var ids = types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
 	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	// Compose the path
-	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUuid}
+	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUUID}
 
 	// Get the returned receipts
 	querier := NewQuerier(k)
@@ -171,9 +171,9 @@ func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 	//Setup the store
 	store := ctx.KVStore(k.StoreKey)
 
-	var ids = types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
+	var ids = types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
 	store.Set(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
@@ -212,8 +212,8 @@ func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 
 	schemes := []types.MetadataSchema{
-		{Type: "schema", SchemaUri: "https://example.com/schema", Version: "1.0.0"},
-		{Type: "other-schema", SchemaUri: "https://example.com/other-schema", Version: "1.0.0"},
+		{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"},
+		{Type: "other-schema", SchemaURI: "https://example.com/other-schema", Version: "1.0.0"},
 	}
 	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), cdc.MustMarshalBinaryBare(&schemes))
 

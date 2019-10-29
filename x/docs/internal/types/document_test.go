@@ -8,12 +8,12 @@ import (
 
 func TestDocument_Equals_NilValues(t *testing.T) {
 	document := Document{
-		Uuid: "uuid",
+		UUID: "uuid",
 		Metadata: DocumentMetadata{
-			ContentUri: "document_metadata_content_uri",
+			ContentURI: "document_metadata_content_uri",
 			SchemaType: "document_metadata_schema_type",
 		},
-		ContentUri:     "",
+		ContentURI:     "",
 		Checksum:       nil,
 		EncryptionData: nil,
 	}

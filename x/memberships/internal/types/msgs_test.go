@@ -68,7 +68,7 @@ func TestMsgInviteUser_UnmarshalJson(t *testing.T) {
 
 var timezone, _ = time.LoadLocation("UTC")
 var timestamp = time.Date(1990, 01, 01, 20, 20, 00, 0, timezone)
-var msgSetUserVerified = NewMsgSetUserVerified(user, timestamp, tsp)
+var msgSetUserVerified = NewMsgSetUserVerified(Credential{Timestamp: timestamp, User: user, Verifier: tsp})
 
 func TestMsgSetUserVerified_Route(t *testing.T) {
 	assert.Equal(t, QuerierRoute, msgSetUserVerified.Route())
