@@ -9,7 +9,6 @@ import (
 
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -36,20 +35,9 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
-			addr, err := sdk.AccAddressFromBech32(args[0])
+			addr, err := getAddressFromString(args[0])
 			if err != nil {
-				// attempt to lookup address from Keybase if no address was provided
-				kb, err := keys.NewKeyBaseFromDir(viper.GetString(flagClientHome))
-				if err != nil {
-					return err
-				}
-
-				info, err := kb.Get(args[0])
-				if err != nil {
-					return fmt.Errorf("failed to get address from Keybase: %s", err.Error())
-				}
-
-				addr = info.GetAddress()
+				return err
 			}
 
 			coins, err := sdk.ParseCoins(args[1])
