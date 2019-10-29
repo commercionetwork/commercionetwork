@@ -1,7 +1,7 @@
 # Commercio.network Documentation
 
 ::: tip  
-This documentation is valid for the **v1.2.1** software version  
+This documentation is valid for the **v1.3.0** software version  
 :::
 
 ## What is `cn`

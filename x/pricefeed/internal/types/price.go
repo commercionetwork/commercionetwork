@@ -10,6 +10,14 @@ type CurrentPrice struct {
 	Expiry    sdk.Int `json:"expiry"` //Block height after which the price is to be considered invalid
 }
 
+func NewCurrentPrice(assetName string, price int64, expiry int64) CurrentPrice {
+	return CurrentPrice{
+		AssetName: assetName,
+		Price:     sdk.NewDec(price),
+		Expiry:    sdk.NewInt(expiry),
+	}
+}
+
 func (currentPrice CurrentPrice) Equals(cp CurrentPrice) bool {
 	return currentPrice.AssetName == cp.AssetName &&
 		currentPrice.Price.Equal(cp.Price) &&

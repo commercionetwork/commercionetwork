@@ -7,6 +7,12 @@ import (
 // RegisterCodec registers concrete types on wire codec
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgSetIdentity{}, "commercio/MsgSetIdentity", nil)
+	cdc.RegisterConcrete(MsgRequestDidDeposit{}, "commercio/MsgRequestDidDeposit", nil)
+	cdc.RegisterConcrete(MsgInvalidateDidDepositRequest{}, "commercio/MsgInvalidateDidDepositRequest", nil)
+	cdc.RegisterConcrete(MsgRequestDidPowerUp{}, "commercio/MsgRequestDidPowerUp", nil)
+	cdc.RegisterConcrete(MsgInvalidateDidPowerUpRequest{}, "commercio/MsgInvalidateDidPowerUpRequest", nil)
+	cdc.RegisterConcrete(MsgMoveDeposit{}, "commercio/MsgMoveDeposit", nil)
+	cdc.RegisterConcrete(MsgPowerUpDid{}, "commercio/MsgPowerUpDid", nil)
 }
 
 var ModuleCdc *codec.Codec

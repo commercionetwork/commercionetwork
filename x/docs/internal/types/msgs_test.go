@@ -11,41 +11,38 @@ import (
 // Test vars
 var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var recipient, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
-var msgShareDocumentSchema = MsgShareDocument{
-	Sender:     sender,
-	Recipients: types.Addresses{recipient},
-	Document: Document{
-		Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+var msgShareDocumentSchema = MsgShareDocument(Document{
+	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	ContentUri: "http://www.contentUri.com",
+	Metadata: DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Metadata: DocumentMetadata{
-			ContentUri: "http://www.contentUri.com",
-			Schema: &DocumentMetadataSchema{
-				Uri:     "http://www.contentUri.com",
-				Version: "test",
-			},
-		},
-		Checksum: &DocumentChecksum{
-			Value:     "48656c6c6f20476f7068657221234567",
-			Algorithm: "md5",
+		Schema: &DocumentMetadataSchema{
+			Uri:     "http://www.contentUri.com",
+			Version: "test",
 		},
 	},
-}
-var msgShareDocumentSchemaType = MsgShareDocument{
+	Checksum: &DocumentChecksum{
+		Value:     "48656c6c6f20476f7068657221234567",
+		Algorithm: "md5",
+	},
 	Sender:     sender,
 	Recipients: types.Addresses{recipient},
-	Document: Document{
-		Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+})
+
+var msgShareDocumentSchemaType = MsgShareDocument(Document{
+	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	ContentUri: "http://www.contentUri.com",
+	Metadata: DocumentMetadata{
 		ContentUri: "http://www.contentUri.com",
-		Metadata: DocumentMetadata{
-			ContentUri: "http://www.contentUri.com",
-			SchemaType: "uni-sincro",
-		},
-		Checksum: &DocumentChecksum{
-			Value:     "48656c6c6f20476f7068657221234567",
-			Algorithm: "md5",
-		},
+		SchemaType: "uni-sincro",
 	},
-}
+	Checksum: &DocumentChecksum{
+		Value:     "48656c6c6f20476f7068657221234567",
+		Algorithm: "md5",
+	},
+	Sender:     sender,
+	Recipients: types.Addresses{recipient},
+})
 
 // ----------------------
 // --- MsgShareDocument
@@ -84,22 +81,22 @@ func TestMsgShareDocument_GetSigners(t *testing.T) {
 }
 
 func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
-	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipients":["cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"],"document":{"uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema":{"uri":"http://www.contentUri.com","version":"test"},"proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}}`
+	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipients":["cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"], "uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema":{"uri":"http://www.contentUri.com","version":"test"},"proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}`
 
 	var msg MsgShareDocument
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, "http://www.contentUri.com", msg.Document.Metadata.Schema.Uri)
-	assert.Equal(t, "test", msg.Document.Metadata.Schema.Version)
+	assert.Equal(t, "http://www.contentUri.com", msg.Metadata.Schema.Uri)
+	assert.Equal(t, "test", msg.Metadata.Schema.Version)
 }
 
 func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
-	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipients":["cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"],"document":{"uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema_type":"uni-sincro","proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}}`
+	json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipients":["cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"],"uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com","metadata":{"content_uri":"http://www.contentUri.com","schema_type":"uni-sincro","proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}`
 
 	var msg MsgShareDocument
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, "uni-sincro", msg.Document.Metadata.SchemaType)
+	assert.Equal(t, "uni-sincro", msg.Metadata.SchemaType)
 }
 
 // ----------------------
@@ -126,6 +123,7 @@ func TestValidateUuid_invalid(t *testing.T) {
 // -----------------------------
 
 var msgDocumentReceipt = MsgSendDocumentReceipt{
+	Uuid:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
 	Sender:       sender,
 	Recipient:    recipient,
 	TxHash:       "txHash",

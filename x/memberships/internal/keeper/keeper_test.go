@@ -10,171 +10,131 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKeeper_AddTrustedMinter(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	membershipsStore := ctx.KVStore(k.StoreKey)
-	storeData := membershipsStore.Get([]byte(types.TrustedMinterPrefix + TestSignerAddress.String()))
-	assert.Nil(t, storeData)
-
-	k.AddTrustedMinter(ctx, TestSignerAddress)
-
-	afterOpLen := membershipsStore.Get([]byte(types.TrustedMinterPrefix + TestSignerAddress.String()))
-	assert.Equal(t, TestSignerAddress.Bytes(), afterOpLen)
-}
-
-func TestKeeper_GetTrustedMinters(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	membershipsStore := ctx.KVStore(k.StoreKey)
-	membershipsStore.Set([]byte(types.TrustedMinterPrefix+TestSignerAddress.String()), TestSignerAddress.Bytes())
-	membershipsStore.Set([]byte(types.TrustedMinterPrefix+TestUserAddress.String()), TestUserAddress.Bytes())
-
-	minters := k.GetTrustedMinters(ctx)
-
-	assert.True(t, minters.Contains(TestSignerAddress))
-	assert.True(t, minters.Contains(TestUserAddress))
-}
-
 func TestKeeper_getMembershipTokenId(t *testing.T) {
-	_, _, k := SetupTestInput()
-	actual := k.getMembershipTokenId(TestSignerAddress)
-	assert.Equal(t, "membership-cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0", actual)
+	_, _, _, _, k := GetTestInput()
+	actual := k.getMembershipTokenId(TestUser)
+	assert.Equal(t, fmt.Sprintf("membership-%s", TestUser.String()), actual)
 }
 
 func TestKeeper_getMembershipUri(t *testing.T) {
-	_, _, k := SetupTestInput()
-	id := k.getMembershipTokenId(TestSignerAddress)
+	_, _, _, _, k := GetTestInput()
+	id := k.getMembershipTokenId(TestUser)
 	actual := k.getMembershipUri("black", id)
 	assert.Equal(t, fmt.Sprintf("membership:black:%s", id), actual)
 }
 
 func TestKeeper_AssignMembership_InvalidType(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, _, _, k := GetTestInput()
 	invalidTypes := []string{"", "grn", "slver", "   ", "blck"}
 	for _, test := range invalidTypes {
-		_, err := k.AssignMembership(ctx, TestSignerAddress, test)
+		_, err := k.AssignMembership(ctx, TestUser, test)
 		assert.NotNil(t, err)
 	}
 }
 
 func TestKeeper_AssignMembership_NotExisting(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	tokenURI, err := k.AssignMembership(ctx, TestSignerAddress, "green")
+	_, ctx, _, _, k := GetTestInput()
+	tokenURI, err := k.AssignMembership(ctx, TestUser, "black")
 	assert.Nil(t, err)
 
-	expectedId := k.getMembershipTokenId(TestSignerAddress)
-	assert.Equal(t, fmt.Sprintf("membership:green:%s", expectedId), tokenURI)
+	expectedId := k.getMembershipTokenId(TestUser)
+	assert.Equal(t, fmt.Sprintf("membership:black:%s", expectedId), tokenURI)
 }
 
 func TestKeeper_AssignMembership_Existing(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	memberships := []string{"green", "bronze", "silver", "gold", "black"}
+	_, ctx, _, _, k := GetTestInput()
+	memberships := []string{"black", "bronze", "silver", "gold", "black"}
 
 	for _, membership := range memberships {
-		tokenURI, err := k.AssignMembership(ctx, TestSignerAddress, membership)
+		tokenURI, err := k.AssignMembership(ctx, TestUser, membership)
 		assert.Nil(t, err)
 
-		expectedId := k.getMembershipTokenId(TestSignerAddress)
+		expectedId := k.getMembershipTokenId(TestUser)
 		expectedURI := k.getMembershipUri(membership, expectedId)
 		assert.Equal(t, expectedURI, tokenURI)
 	}
 }
 
 func TestKeeper_RemoveMembership_NotExisting(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+	_, ctx, _, _, k := GetTestInput()
 
-	deleted, err := k.RemoveMembership(ctx, TestSignerAddress)
+	deleted, err := k.RemoveMembership(ctx, TestUser)
 	assert.Nil(t, err)
 	assert.True(t, deleted)
 }
 
 func TestKeeper_RemoveMembership_Existing(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	_, err := k.AssignMembership(ctx, TestSignerAddress, "green")
+	_, ctx, _, _, k := GetTestInput()
+	_, err := k.AssignMembership(ctx, TestUser, "black")
 	assert.Nil(t, err)
 
-	deleted, err := k.RemoveMembership(ctx, TestSignerAddress)
+	deleted, err := k.RemoveMembership(ctx, TestUser)
 	assert.Nil(t, err)
 	assert.True(t, deleted)
 
-	_, found := k.GetMembership(ctx, TestSignerAddress)
+	_, found := k.GetMembership(ctx, TestUser)
 	assert.False(t, found)
 }
 
 func TestKeeper_GetMembership_NotExisting(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	_, _ = k.RemoveMembership(ctx, TestSignerAddress)
-	foundMembership, found := k.GetMembership(ctx, TestSignerAddress)
+	_, ctx, _, _, k := GetTestInput()
+	_, _ = k.RemoveMembership(ctx, TestUser)
+	foundMembership, found := k.GetMembership(ctx, TestUser)
 	assert.Nil(t, foundMembership)
 	assert.False(t, found)
 }
 
 func TestKeeper_GetMembership_Existing(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	membershipType := "green"
-	_, err := k.AssignMembership(ctx, TestSignerAddress, membershipType)
+	_, ctx, _, _, k := GetTestInput()
+	membershipType := "black"
+	_, err := k.AssignMembership(ctx, TestUser, membershipType)
 	assert.Nil(t, err)
 
-	foundMembership, found := k.GetMembership(ctx, TestSignerAddress)
+	foundMembership, found := k.GetMembership(ctx, TestUser)
 	assert.True(t, found)
-	assert.Equal(t, TestSignerAddress, foundMembership.GetOwner())
+	assert.Equal(t, TestUser, foundMembership.GetOwner())
 
-	expectedId := k.getMembershipTokenId(TestSignerAddress)
+	expectedId := k.getMembershipTokenId(TestUser)
 	assert.Equal(t, expectedId, foundMembership.GetID())
 	assert.Equal(t, k.getMembershipUri(membershipType, expectedId), foundMembership.GetTokenURI())
 }
 
 func TestKeeper_GetMembershipType(t *testing.T) {
-	_, _, k := SetupTestInput()
+	_, _, _, _, k := GetTestInput()
 
 	id := "123"
-	membershipType := "green"
-	membership := nft.NewBaseNFT(id, TestSignerAddress, k.getMembershipUri(membershipType, id))
+	membershipType := "black"
+	membership := nft.NewBaseNFT(id, TestUser, k.getMembershipUri(membershipType, id))
 
 	assert.Equal(t, membershipType, k.GetMembershipType(&membership))
 }
 
-// ----------------------
-// --- Genesis utils
-// ----------------------
-
-func clearNFTs(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	if collection, found := k.NftKeeper.GetCollection(ctx, types.NftDenom); found {
-		for _, membershipNft := range collection.NFTs {
-			err := k.NftKeeper.DeleteNFT(ctx, types.NftDenom, membershipNft.GetID())
-			assert.Nil(t, err)
-		}
-	}
-}
-
 func TestKeeper_GetMembershipsSet_EmptySet(t *testing.T) {
-	//clearNFTs(t)
-	_, ctx, k := SetupTestInput()
+	_, ctx, _, _, k := GetTestInput()
 
 	set := k.GetMembershipsSet(ctx)
 	assert.Empty(t, set)
 }
 
 func TestKeeper_GetMembershipsSet_FilledSet(t *testing.T) {
-	//clearNFTs(t)
-	_, ctx, k := SetupTestInput()
+	_, ctx, _, _, k := GetTestInput()
 
-	first, err := sdk.AccAddressFromBech32("cosmos18v6sv92yrxdxck4hvw0gyfccu7dggweyrsqcx9")
-	second, err := sdk.AccAddressFromBech32("cosmos1e2zdv8l45mstf8uexgcyk54g87jmrx8sjn0g24")
-	third, err := sdk.AccAddressFromBech32("cosmos1e2cc3x2z7ku282kmh2x7jczylkajge0s2num6q")
-	assert.Nil(t, err)
+	first, _ := sdk.AccAddressFromBech32("cosmos18v6sv92yrxdxck4hvw0gyfccu7dggweyrsqcx9")
+	_, _ = k.AssignMembership(ctx, first, "black")
 
-	_, err = k.AssignMembership(ctx, first, "green")
-	_, err = k.AssignMembership(ctx, second, "silver")
-	_, err = k.AssignMembership(ctx, third, "bronze")
+	second, _ := sdk.AccAddressFromBech32("cosmos1e2zdv8l45mstf8uexgcyk54g87jmrx8sjn0g24")
+	_, _ = k.AssignMembership(ctx, second, "silver")
+
+	third, _ := sdk.AccAddressFromBech32("cosmos1e2cc3x2z7ku282kmh2x7jczylkajge0s2num6q")
+	_, _ = k.AssignMembership(ctx, third, "bronze")
 
 	set := k.GetMembershipsSet(ctx)
 
-	firstMembership := types.Membership{Owner: first, MembershipType: "green"}
+	firstMembership := types.Membership{Owner: first, MembershipType: "black"}
 	secondMembership := types.Membership{Owner: second, MembershipType: "silver"}
 	thirdMembership := types.Membership{Owner: third, MembershipType: "bronze"}
 
-	assert.Equal(t, 3, len(set))
+	assert.Len(t, set, 3)
 	assert.Contains(t, set, firstMembership)
 	assert.Contains(t, set, secondMembership)
 	assert.Contains(t, set, thirdMembership)

@@ -19,7 +19,7 @@ func Test_handleMsgShareDocument_CustomMetadataSpecs(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
 
-	msgShareDocument := NewMsgShareDocument(TestingSender, types.Addresses{TestingRecipient}, TestingDocument)
+	msgShareDocument := NewMsgShareDocument(TestingDocument)
 
 	res := handler(ctx, msgShareDocument)
 	require.True(t, res.IsOK())
@@ -29,19 +29,17 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
 
-	msgShareDocument := MsgShareDocument{
+	msgShareDocument := MsgShareDocument(Document{
 		Sender:     TestingSender,
 		Recipients: types.Addresses{TestingRecipient},
-		Document: Document{
-			Uuid: TestingDocument.Uuid,
-			Metadata: DocumentMetadata{
-				ContentUri: TestingDocument.Metadata.ContentUri,
-				SchemaType: "metadata-schema",
-			},
-			ContentUri: TestingDocument.ContentUri,
-			Checksum:   TestingDocument.Checksum,
+		Uuid:       TestingDocument.Uuid,
+		Metadata: DocumentMetadata{
+			ContentUri: TestingDocument.Metadata.ContentUri,
+			SchemaType: "metadata-schema",
 		},
-	}
+		ContentUri: TestingDocument.ContentUri,
+		Checksum:   TestingDocument.Checksum,
+	})
 	supportedSchema := MetadataSchema{
 		Type:      "metadata-schema",
 		SchemaUri: "https://example.com/schema",
@@ -56,19 +54,17 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
-	msgShareDocument := MsgShareDocument{
+	msgShareDocument := MsgShareDocument(Document{
 		Sender:     TestingSender,
 		Recipients: types.Addresses{TestingRecipient},
-		Document: Document{
-			Uuid: TestingDocument.Uuid,
-			Metadata: DocumentMetadata{
-				ContentUri: TestingDocument.Metadata.ContentUri,
-				SchemaType: "non-existent-schema-type",
-			},
-			ContentUri: TestingDocument.ContentUri,
-			Checksum:   TestingDocument.Checksum,
+		Uuid:       TestingDocument.Uuid,
+		Metadata: DocumentMetadata{
+			ContentUri: TestingDocument.Metadata.ContentUri,
+			SchemaType: "non-existent-schema-type",
 		},
-	}
+		ContentUri: TestingDocument.ContentUri,
+		Checksum:   TestingDocument.Checksum,
+	})
 
 	res := handler(ctx, msgShareDocument)
 	assert.False(t, res.IsOK())

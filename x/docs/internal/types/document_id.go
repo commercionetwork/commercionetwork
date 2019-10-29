@@ -13,3 +13,8 @@ func (documentIds DocumentIds) AppendIfMissing(id string) (DocumentIds, bool) {
 	}
 	return append(documentIds, id), true
 }
+
+// Empty tells if the list of document ids is empty or not
+func (documentIds DocumentIds) Empty() bool {
+	return len(documentIds) == 0
+}

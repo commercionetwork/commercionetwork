@@ -15,7 +15,7 @@ func TestQuerier_getBlockRewardsPoolFunds(t *testing.T) {
 	var cdc, ctx, k, _, _ = SetupTestInput()
 	var querier = NewQuerier(k)
 
-	k.SetBlockRewardsPool(ctx, TestBlockRewardsPool)
+	k.SetTotalRewardPool(ctx, TestBlockRewardsPool)
 
 	path := []string{types.QueryBlockRewardsPoolFunds}
 	actual, _ := querier(ctx, path, request)

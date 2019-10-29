@@ -1,6 +1,7 @@
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
-GOBIN ?= $(GOPATH)/bin
-GOSUM := $(shell which gosum)
+BINDIR ?= $(GOPATH)/bin
+
+export GO111MODULE = on
 
 include Makefile.ledger
 
@@ -15,41 +16,33 @@ include contrib/devtools/Makefile
 ### Install
 
 install: go.sum
-	GO111MODULE=on go install -mod=readonly -tags "$(build_tags)" ./cmd/cnd
-	GO111MODULE=on go install -mod=readonly -tags "$(build_tags)" ./cmd/cncli
+	go install -mod=readonly -tags "$(build_tags)" ./cmd/cnd
+	go install -mod=readonly -tags "$(build_tags)" ./cmd/cncli
 
 ########################################
 ### Build
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
-	GO111MODULE=on go build -mod=readonly -o ./build/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
-	GO111MODULE=on go build -mod=readonly -o ./build/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
+	go build -mod=readonly -o ./build/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
 else
-	GO111MODULE=on go build -mod=readonly -o ./build/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
-	GO111MODULE=on go build -mod=readonly -o ./build/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+	go build -mod=readonly -o ./build/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
 endif
 
-# TODO: Note:386 builds are disabled due to a bug inside the Cosmos SDK:
-# github.com/cosmos/cosmos-sdk@v0.28.2-0.20190826165445-eeb847c8455b/simapp/state.go:75:46: constant 1000000000000 overflows
 
 build-darwin: go.sum
-	env GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
-# 	env GO111MODULE=on GOOS=darwin GOARCH=386 go build -mod=readonly -o ./build/Darwin-386/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
-# 	env GO111MODULE=on GOOS=darwin GOARCH=386 go build -mod=readonly -o ./build/Darwin-386/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
 
 build-linux: go.sum
-	env GO111MODULE=on GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
-# 	env GO111MODULE=on GOOS=linux GOARCH=386 go build -mod=readonly -o ./build/Linux-386/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
-# 	env GO111MODULE=on GOOS=linux GOARCH=386 go build -mod=readonly -o ./build/Linux-386/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
 
 build-windows: go.sum
-	env GO111MODULE=on GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GO111MODULE=on GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
-# 	env GO111MODULE=on GOOS=windows GOARCH=386 go build -mod=readonly -o ./build/Windows-386/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
-# 	env GO111MODULE=on GOOS=windows GOARCH=386 go build -mod=readonly -o ./build/Windows-386/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
+	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
 
 build-all: go.sum
 	make build-darwin
@@ -63,9 +56,6 @@ prepare-release: go.sum build-all
 	zip -jr ./build/Darwin-AMD64.zip ./build/Darwin-AMD64/cncli ./build/Darwin-AMD64/cnd
 	zip -jr ./build/Linux-AMD64.zip ./build/Linux-AMD64/cncli ./build/Linux-AMD64/cnd
 	zip -jr ./build/Windows-AMD64.zip ./build/Windows-AMD64/cncli.exe ./build/Windows-AMD64/cnd.exe
-# 	zip -jr ./build/Darwin-386.zip ./build/Darwin-386/cncli ./build/Darwin-386/cnd
-# 	zip -jr ./build/Linux-386.zip ./build/Linux-386/cncli ./build/Linux-386/cnd
-# 	zip -jr ./build/Windows-386.zip ./build/Windows-386/cncli.exe ./build/Windows-386/cnd.exe
 
 ########################################
 ### Tools & dependencies
@@ -76,7 +66,7 @@ go-mod-cache: go.sum
 
 go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
-	GO111MODULE=on go mod verify
+	go mod verify
 
 lint: golangci-lint
 	$(BINDIR)/golangci-lint run

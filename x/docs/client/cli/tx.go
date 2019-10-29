@@ -68,10 +68,12 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 						Version: args[4],
 					},
 				},
-				Checksum: checksum,
+				Checksum:   checksum,
+				Sender:     sender,
+				Recipients: ctypes.Addresses{recipient},
 			}
 
-			msg := types.NewMsgShareDocument(sender, ctypes.Addresses{recipient}, document)
+			msg := types.NewMsgShareDocument(document)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -109,7 +111,7 @@ func getCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 				Proof:        args[3],
 			}
 
-			msg := types.NewMsgDocumentReceipt(receipt)
+			msg := types.NewMsgSendDocumentReceipt(receipt)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

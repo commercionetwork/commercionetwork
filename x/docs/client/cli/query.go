@@ -146,7 +146,7 @@ func getCmdSentReceipts(cdc *codec.Codec) *cobra.Command {
 				fmt.Printf("Could not get any sent receipt for the given user: \n %s", err2)
 			}
 
-			fmt.Printf(string(res))
+			fmt.Print(string(res))
 
 			return nil
 		},
@@ -172,7 +172,7 @@ func getCmdReceivedReceipts(cdc *codec.Codec) *cobra.Command {
 				fmt.Printf("Could not get any received receipt for the given user or uuid: \n %s", err2)
 			}
 
-			fmt.Printf(string(res))
+			fmt.Print(string(res))
 
 			return nil
 		},

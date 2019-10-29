@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 )
 
-// SetGenesisTbrPoolAmount returns add-genesis-minter cobra Command.
+// SetGenesisTbrPoolAmount returns set-genesis-tbr-pool-amount cobra Command.
 func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{

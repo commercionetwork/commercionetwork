@@ -3,6 +3,7 @@ package id
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -13,7 +14,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 )
 
@@ -59,12 +59,12 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(cdc, ModuleName)
+	return nil
 }
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc, ModuleName, QuerierRoute)
+	return nil
 }
 
 //____________________________________________________________________________
@@ -80,15 +80,17 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper Keeper
+	keeper    Keeper
+	govKeeper government.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper) AppModule {
+func NewAppModule(keeper Keeper, govKeeper government.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
+		govKeeper:           govKeeper,
 	}
 }
 
@@ -107,7 +109,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.keeper, am.govKeeper)
 }
 
 // module querier route name
@@ -136,7 +138,6 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 
 // module begin-block
 func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
-	BeginBlocker(ctx, rbb, am.keeper)
 }
 
 // module end-block

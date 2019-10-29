@@ -12,20 +12,25 @@ const (
 )
 
 var (
-	//function aliases
-	NewKeeper     = keeper.NewKeeper
-	NewQuerier    = keeper.NewQuerier
-	TestSetup     = keeper.SetupTestInput
-	RegisterCodec = types.RegisterCodec
+	NewKeeper  = keeper.NewKeeper
+	NewQuerier = keeper.NewQuerier
+	NewHandler = keeper.NewHandler
 
-	//variable aliases
-	ModuleCdc = types.ModuleCdc
+	RegisterCodec = types.RegisterCodec
+	ModuleCdc     = types.ModuleCdc
 )
 
 type (
 	Keeper = keeper.Keeper
 
-	Minters = types.Minters
+	Invite      = types.Invite
+	Credential  = types.Credential
+	Credentials = types.Credentials
+	Membership  = types.Membership
 
-	MsgAssignMembership = types.MsgAssignMembership
+	MsgInviteUser               = types.MsgInviteUser
+	MsgSetUserVerified          = types.MsgSetUserVerified
+	MsgDepositIntoLiquidityPool = types.MsgDepositIntoLiquidityPool
+	MsgAddTrustedSigner         = types.MsgAddTsp
+	MsgBuyMembership            = types.MsgBuyMembership
 )

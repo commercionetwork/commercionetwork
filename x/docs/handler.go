@@ -30,27 +30,29 @@ func NewHandler(keeper Keeper) sdk.Handler {
 func handleMsgShareDocument(ctx sdk.Context, keeper Keeper, msg MsgShareDocument) sdk.Result {
 
 	// The metadata schema type is being specified
-	if len(strings.TrimSpace(msg.Document.Metadata.SchemaType)) != 0 {
+	if len(strings.TrimSpace(msg.Metadata.SchemaType)) != 0 {
 
 		// Check its validity
-		if !keeper.IsMetadataSchemeTypeSupported(ctx, msg.Document.Metadata.SchemaType) {
-			errMsg := fmt.Sprintf("Unsupported metadata schema: %s", msg.Document.Metadata.SchemaType)
+		if !keeper.IsMetadataSchemeTypeSupported(ctx, msg.Metadata.SchemaType) {
+			errMsg := fmt.Sprintf("Unsupported metadata schema: %s", msg.Metadata.SchemaType)
 			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 
 		// Delete the custom data
-		msg.Document.Metadata.Schema = nil
+		msg.Metadata.Schema = nil
 	}
 
 	// Share the document
-	if err := keeper.ShareDocument(ctx, msg.Sender, msg.Recipients, msg.Document); err != nil {
+	if err := keeper.SaveDocument(ctx, Document(msg)); err != nil {
 		return err.Result()
 	}
 	return sdk.Result{}
 }
 
 func handleMsgSendDocumentReceipt(ctx sdk.Context, keeper Keeper, msg MsgSendDocumentReceipt) sdk.Result {
-	keeper.SendDocumentReceipt(ctx, types.DocumentReceipt(msg))
+	if err := keeper.SaveReceipt(ctx, types.DocumentReceipt(msg)); err != nil {
+		return err.Result()
+	}
 	return sdk.Result{}
 }
 

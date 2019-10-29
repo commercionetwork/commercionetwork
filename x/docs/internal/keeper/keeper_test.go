@@ -180,12 +180,12 @@ func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
-	err := k.ShareDocument(ctx, TestingSender, ctypes.Addresses{TestingRecipient}, TestingDocument)
+	err := k.SaveDocument(ctx, TestingDocument)
 	assert.Nil(t, err)
 
 	docsBz := store.Get(k.getDocumentStoreKey(TestingDocument.Uuid))
-	sentDocsBz := store.Get(k.getSentDocumentsStoreKey(TestingSender))
-	receivedDocsBz := store.Get(k.getReceivedDocumentsStoreKey(TestingRecipient))
+	sentDocsBz := store.Get(k.getSentDocumentsIdsStoreKey(TestingSender))
+	receivedDocsBz := store.Get(k.getReceivedDocumentsIdsStoreKey(TestingRecipient))
 
 	var stored types.Document
 	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
@@ -209,14 +209,14 @@ func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
 	store.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	documentsIds := types.DocumentIds{TestingDocument.Uuid}
-	store.Set(k.getSentDocumentsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentsIds))
-	store.Set(k.getReceivedDocumentsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentsIds))
+	store.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentsIds))
+	store.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentsIds))
 
-	err := k.ShareDocument(ctx, TestingSender, ctypes.Addresses{TestingRecipient}, TestingDocument)
+	err := k.SaveDocument(ctx, TestingDocument)
 	assert.NotNil(t, err)
 
-	sentDocsBz := store.Get(k.getSentDocumentsStoreKey(TestingSender))
-	receivedDocsBz := store.Get(k.getReceivedDocumentsStoreKey(TestingRecipient))
+	sentDocsBz := store.Get(k.getSentDocumentsIdsStoreKey(TestingSender))
+	receivedDocsBz := store.Get(k.getReceivedDocumentsIdsStoreKey(TestingRecipient))
 
 	var sentDocs, receivedDocs types.DocumentIds
 	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
@@ -234,21 +234,24 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) 
 	documentsIds := types.DocumentIds{TestingDocument.Uuid}
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getSentDocumentsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentsIds))
-	store.Set(k.getReceivedDocumentsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentsIds))
+	store.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentsIds))
+	store.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentsIds))
 
 	newRecipient, _ := sdk.AccAddressFromBech32("cosmos1h2z8u9294gtqmxlrnlyfueqysng3krh009fum7")
 	newDocument := types.Document{
+		Uuid:       TestingDocument.Uuid,
 		ContentUri: TestingDocument.ContentUri,
 		Metadata:   TestingDocument.Metadata,
 		Checksum:   TestingDocument.Checksum,
+		Sender:     TestingDocument.Sender,
+		Recipients: ctypes.Addresses{newRecipient},
 	}
-	err := k.ShareDocument(ctx, TestingSender, ctypes.Addresses{newRecipient}, newDocument)
+	err := k.SaveDocument(ctx, newDocument)
 	assert.Nil(t, err)
 
-	sentDocsBz := store.Get(k.getSentDocumentsStoreKey(TestingSender))
-	receivedDocsBz := store.Get(k.getReceivedDocumentsStoreKey(TestingRecipient))
-	newReceivedDocsBz := store.Get(k.getReceivedDocumentsStoreKey(newRecipient))
+	sentDocsBz := store.Get(k.getSentDocumentsIdsStoreKey(TestingSender))
+	receivedDocsBz := store.Get(k.getReceivedDocumentsIdsStoreKey(TestingRecipient))
+	newReceivedDocsBz := store.Get(k.getReceivedDocumentsIdsStoreKey(newRecipient))
 
 	var sentDocs, receivedDocs, newReceivedDocs types.DocumentIds
 	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
@@ -270,20 +273,22 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
 	documentsIds := types.DocumentIds{TestingDocument.Uuid}
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getSentDocumentsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentsIds))
-	store.Set(k.getReceivedDocumentsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentsIds))
+	store.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentsIds))
+	store.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentsIds))
 
 	newDocument := types.Document{
 		Uuid:       TestingDocument.Uuid + "new",
 		ContentUri: TestingDocument.ContentUri,
 		Metadata:   TestingDocument.Metadata,
 		Checksum:   TestingDocument.Checksum,
+		Recipients: TestingDocument.Recipients,
+		Sender:     TestingDocument.Sender,
 	}
-	err := k.ShareDocument(ctx, TestingSender, ctypes.Addresses{TestingRecipient}, newDocument)
+	err := k.SaveDocument(ctx, newDocument)
 	assert.Nil(t, err)
 
-	sentDocsBz := store.Get(k.getSentDocumentsStoreKey(TestingSender))
-	receivedDocsBz := store.Get(k.getReceivedDocumentsStoreKey(TestingRecipient))
+	sentDocsBz := store.Get(k.getSentDocumentsIdsStoreKey(TestingSender))
+	receivedDocsBz := store.Get(k.getReceivedDocumentsIdsStoreKey(TestingRecipient))
 
 	var sentDocs, receivedDocs types.DocumentIds
 	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
@@ -294,6 +299,23 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
 
 	assert.Equal(t, 2, len(receivedDocs))
 	assert.Contains(t, receivedDocs, TestingDocument.Uuid)
+}
+
+func TestKeeper_GetDocumentById_NonExisting(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	_, found := k.GetDocumentById(ctx, "non-existing")
+	assert.False(t, found)
+}
+
+func TestKeeper_GetDocumentById_Existing(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+
+	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(&TestingDocument))
+
+	doc, found := k.GetDocumentById(ctx, TestingDocument.Uuid)
+	assert.True(t, found)
+	assert.Equal(t, TestingDocument, doc)
 }
 
 func TestKeeper_GetUserReceivedDocuments_EmptyList(t *testing.T) {
@@ -313,7 +335,7 @@ func TestKeeper_GetUserReceivedDocuments_NonEmptyList(t *testing.T) {
 	documentIds := types.DocumentIds{TestingDocument.Uuid}
 
 	store.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
-	store.Set(k.getReceivedDocumentsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentIds))
+	store.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentIds))
 
 	receivedDocs, err := k.GetUserReceivedDocuments(ctx, TestingRecipient)
 	assert.Nil(t, err)
@@ -338,7 +360,7 @@ func TestKeeper_GetUserSentDocuments_NonEmptyList(t *testing.T) {
 	documents := types.Documents{TestingDocument}
 	documentIds := types.DocumentIds{TestingDocument.Uuid}
 	store.Set(k.getDocumentStoreKey(TestingDocument.Uuid), cdc.MustMarshalBinaryBare(TestingDocument))
-	store.Set(k.getSentDocumentsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentIds))
+	store.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentIds))
 
 	sentDocuments, err := k.GetUserSentDocuments(ctx, TestingSender)
 	assert.Nil(t, err)
@@ -347,64 +369,95 @@ func TestKeeper_GetUserSentDocuments_NonEmptyList(t *testing.T) {
 	assert.Equal(t, documents, sentDocuments)
 }
 
+func TestKeeper_GetDocuments_EmptyList(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+	documents := k.GetDocuments(ctx)
+	assert.Empty(t, documents)
+}
+
+func TestKeeper_GetDocuments_ExistingList(t *testing.T) {
+	_, ctx, k := SetupTestInput()
+
+	doc1 := TestingDocument
+	doc2 := types.Document{
+		Uuid:           "uuid-2",
+		Sender:         TestingDocument.Sender,
+		Recipients:     TestingDocument.Recipients,
+		Metadata:       TestingDocument.Metadata,
+		ContentUri:     TestingDocument.ContentUri,
+		Checksum:       TestingDocument.Checksum,
+		EncryptionData: TestingDocument.EncryptionData,
+	}
+	assert.NoError(t, k.SaveDocument(ctx, doc1))
+	assert.NoError(t, k.SaveDocument(ctx, doc2))
+
+	docs := k.GetDocuments(ctx)
+	assert.Len(t, docs, 2)
+	assert.Contains(t, docs, doc1)
+	assert.Contains(t, docs, doc2)
+}
+
 // ----------------------------------
 // --- Document receipts
 // ----------------------------------
 
-func TestKeeper_SendDocumentReceipt_EmptyList(t *testing.T) {
+func TestKeeper_SaveDocumentReceipt_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
-	k.SendDocumentReceipt(ctx, TestingDocumentReceipt)
+	assert.NoError(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
 
-	var stored types.DocumentReceipts
-	docReceiptBz := store.Get(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
+	var stored types.DocumentReceiptsIds
+	docReceiptBz := store.Get(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender))
 	cdc.MustUnmarshalBinaryBare(docReceiptBz, &stored)
 
 	assert.Equal(t, 1, len(stored))
-	assert.Equal(t, types.DocumentReceipts{TestingDocumentReceipt}, stored)
+	assert.Contains(t, stored, TestingDocumentReceipt.Uuid)
 }
 
-func TestKeeper_SendDocumentReceipt_ExistingReceipt(t *testing.T) {
+func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	var existing = types.DocumentReceipts{TestingDocumentReceipt}
+
+	var existing = types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&existing))
+	store.Set(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&existing))
 
-	k.SendDocumentReceipt(ctx, TestingDocumentReceipt)
+	assert.NoError(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
 
-	var stored types.DocumentReceipts
-	docReceiptBz := store.Get(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
+	var stored types.DocumentReceiptsIds
+	docReceiptBz := store.Get(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender))
 	cdc.MustUnmarshalBinaryBare(docReceiptBz, &stored)
 
 	assert.Equal(t, 1, len(stored))
-	assert.Equal(t, existing, stored)
+	assert.Contains(t, stored, TestingDocumentReceipt.Uuid)
 }
 
-func TestKeeper_SendDocumentReceipt_ExistingReceipt_DifferentDocumentUuid(t *testing.T) {
+func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	var existing = types.DocumentReceipts{TestingDocumentReceipt}
+
+	var existing = types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&existing))
+	store.Set(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&existing))
 
 	newReceipt := types.DocumentReceipt{
+		Uuid:         TestingDocumentReceipt.Uuid + "-new",
 		Sender:       TestingDocumentReceipt.Sender,
 		Recipient:    TestingDocumentReceipt.Recipient,
 		TxHash:       TestingDocumentReceipt.TxHash,
-		DocumentUuid: TestingDocumentReceipt.DocumentUuid + "new",
+		DocumentUuid: TestingDocumentReceipt.DocumentUuid,
 		Proof:        TestingDocumentReceipt.Proof,
 	}
-	k.SendDocumentReceipt(ctx, newReceipt)
+	assert.NoError(t, k.SaveReceipt(ctx, newReceipt))
 
-	var stored types.DocumentReceipts
-	docReceiptBz := store.Get(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
+	var stored types.DocumentReceiptsIds
+	docReceiptBz := store.Get(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender))
 	cdc.MustUnmarshalBinaryBare(docReceiptBz, &stored)
 
 	assert.Equal(t, 2, len(stored))
-	assert.Contains(t, stored, TestingDocumentReceipt)
-	assert.Contains(t, stored, newReceipt)
+	assert.Contains(t, stored, TestingDocumentReceipt.Uuid)
+	assert.Contains(t, stored, newReceipt.Uuid)
 }
 
 func TestKeeper_GetUserReceivedReceipts_EmptyList(t *testing.T) {
@@ -417,17 +470,17 @@ func TestKeeper_GetUserReceivedReceipts_EmptyList(t *testing.T) {
 
 func TestKeeper_GetUserReceivedReceipts_FilledList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	var existing = types.DocumentReceipts{TestingDocumentReceipt}
+
+	var ids = types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid}
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(
-		k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
-		cdc.MustMarshalBinaryBare(&existing),
-	)
+	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	actualReceipts := k.GetUserReceivedReceipts(ctx, TestingDocumentReceipt.Recipient)
 
-	assert.Equal(t, existing, actualReceipts)
+	expected := types.DocumentReceipts{TestingDocumentReceipt}
+	assert.Equal(t, expected, actualReceipts)
 }
 
 func TestKeeper_GetUserReceivedReceiptsForDocument_UuidNotFound(t *testing.T) {
@@ -446,82 +499,14 @@ func TestKeeper_GetUserReceivedReceiptsForDocument_UuidFound(t *testing.T) {
 		Proof:        TestingDocumentReceipt.Proof,
 	}
 
-	stored := types.DocumentReceipts{TestingDocumentReceipt, TestingDocumentReceipt2}
+	stored := types.DocumentReceiptsIds{TestingDocumentReceipt.Uuid, TestingDocumentReceipt2.Uuid}
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(
-		k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient),
-		cdc.MustMarshalBinaryBare(&stored),
-	)
+	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&stored))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt2.Uuid), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt2))
 
-	actual := k.GetUserReceivedReceiptsForDocument(
-		ctx,
-		TestingDocumentReceipt.Recipient,
-		TestingDocumentReceipt.DocumentUuid,
-	)
-
-	assert.Equal(t, stored, actual)
-}
-
-// ----------------------------------
-// --- Genesis utils
-// ----------------------------------
-
-func TestKeeper_GetUsersSet_FilledSet(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	_ = k.ShareDocument(ctx, TestingSender, ctypes.Addresses{TestingRecipient}, TestingDocument)
-	k.SendDocumentReceipt(ctx, TestingDocumentReceipt)
-
-	users := k.GetUsersSet(ctx)
-	assert.Contains(t, users, TestingSender)
-	assert.Contains(t, users, TestingRecipient)
-	assert.Contains(t, users, TestingDocumentReceipt.Sender)
-	assert.Contains(t, users, TestingDocumentReceipt.Recipient)
-}
-
-func TestKeeper_GetUsersSet_EmptySet(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	users := k.GetUsersSet(ctx)
-	assert.Empty(t, users)
-}
-
-func TestKeeper_SetUserDocuments(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-
-	documents := types.Documents{TestingDocument}
-
-	k.SetUserDocuments(ctx, TestingSender, documents, types.Documents{})
-	k.SetUserDocuments(ctx, TestingRecipient, types.Documents{}, documents)
-
-	sentBz := store.Get(k.getSentDocumentsStoreKey(TestingSender))
-	receivedBz := store.Get(k.getReceivedDocumentsStoreKey(TestingRecipient))
-
-	var sentDocuments, receivedDocuments types.Documents
-	cdc.MustUnmarshalBinaryBare(sentBz, &sentDocuments)
-	cdc.MustUnmarshalBinaryBare(receivedBz, &receivedDocuments)
-
-	assert.Equal(t, documents, sentDocuments)
-	assert.Equal(t, documents, receivedDocuments)
-}
-
-func TestKeeper_SetUserReceipts(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-
-	receipts := types.DocumentReceipts{TestingDocumentReceipt}
-
-	k.SetUserReceipts(ctx, TestingDocumentReceipt.Sender, receipts, types.DocumentReceipts{})
-	k.SetUserReceipts(ctx, TestingDocumentReceipt.Recipient, types.DocumentReceipts{}, receipts)
-
-	sentBz := store.Get(k.getSentReceiptsStoreKey(TestingDocumentReceipt.Sender))
-	receivedBz := store.Get(k.getReceivedReceiptsStoreKey(TestingDocumentReceipt.Recipient))
-
-	var sentReceipts, receivedReceipts types.DocumentReceipts
-	cdc.MustUnmarshalBinaryBare(sentBz, &sentReceipts)
-	cdc.MustUnmarshalBinaryBare(receivedBz, &receivedReceipts)
-
-	assert.Equal(t, receipts, sentReceipts)
-	assert.Equal(t, receipts, receivedReceipts)
+	actual := k.GetUserReceivedReceiptsForDocument(ctx, TestingDocumentReceipt.Recipient, TestingDocumentReceipt.DocumentUuid)
+	expected := types.DocumentReceipts{TestingDocumentReceipt, TestingDocumentReceipt2}
+	assert.Equal(t, expected, actual)
 }

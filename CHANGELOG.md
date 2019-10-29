@@ -1,3 +1,31 @@
+# Version 1.3.0
+## Bug fixes
+- Fixed the export command (#48)
+- Fixed the TBR formula (#49)
+
+## Changes 
+**CommercioID**
+- Implemented the pairwise Did power up system (#40)
+- Changes the `MsgSetIdentity` so that it now requires a full Did Document inside its `value` field (#47)
+
+**CommercioDOCS**
+- Implemented the minimum fees when sending a `MsgShareDocument` (#38)
+
+**CommercioMEMBERSHIP**
+- Changed how the membership can be purchased.  
+  It is now required to be invited and can be purchased on-chain using Commercio Cash Credits (#45) 
+
+## Additions
+- Implemented the `mint` module (#42)
+- Implemented the possibility for the government to block specific accounts from sending tokens (#46)
+
+## Migration
+In order to migrate from v1.2.x to v1.3.0 you can use the following command:
+
+```shell
+cnd migrate v1.3.0 [genesis-file-path] --chain-id=<chain_id>
+```
+
 # Version 1.2.1
 ## Bug fixes
 - Fixed a bug inside the migration command 

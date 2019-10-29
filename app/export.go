@@ -35,15 +35,8 @@ func (app *CommercioNetworkApp) ExportAppStateAndValidators(forZeroHeight bool, 
 
 // prepare for fresh start at zero height
 func (app *CommercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
-	applyWhiteList := false
-
-	//Check if there is a whitelist
-	if len(jailWhiteList) > 0 {
-		applyWhiteList = true
-	}
 
 	whiteListMap := make(map[string]bool)
-
 	for _, addr := range jailWhiteList {
 		_, err := sdk.ValAddressFromBech32(addr)
 		if err != nil {
@@ -95,6 +88,7 @@ func (app *CommercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWh
 	// reinitialize all delegations
 	for _, del := range dels {
 		app.distrKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddress, del.ValidatorAddress)
+		app.distrKeeper.Hooks().AfterDelegationModified(ctx, del.DelegatorAddress, del.ValidatorAddress)
 	}
 
 	// reset context height
@@ -119,32 +113,6 @@ func (app *CommercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWh
 		app.stakingKeeper.SetUnbondingDelegation(ctx, ubd)
 		return false
 	})
-
-	// Iterate through validators by power descending, reset bond heights, and
-	// update bond intra-tx counters.
-	store := ctx.KVStore(app.keys[staking.StoreKey])
-	iter := sdk.KVStoreReversePrefixIterator(store, staking.ValidatorsKey)
-	counter := int16(0)
-
-	var valConsAddrs []sdk.ConsAddress
-	for ; iter.Valid(); iter.Next() {
-		addr := sdk.ValAddress(iter.Key()[1:])
-		validator, found := app.stakingKeeper.GetValidator(ctx, addr)
-		if !found {
-			panic("expected validator, not found")
-		}
-
-		validator.UnbondingHeight = 0
-		valConsAddrs = append(valConsAddrs, validator.ConsAddress())
-		if applyWhiteList && !whiteListMap[addr.String()] {
-			validator.Jailed = true
-		}
-
-		app.stakingKeeper.SetValidator(ctx, validator)
-		counter++
-	}
-
-	iter.Close()
 
 	_ = app.stakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 
