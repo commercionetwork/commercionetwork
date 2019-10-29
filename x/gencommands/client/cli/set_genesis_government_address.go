@@ -15,7 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 )
 
-// SetGenesisGovernmentAddressCmd returns add-genesis-minter cobra Command.
+// SetGenesisGovernmentAddressCmd returns set-genesis-government-address cobra Command.
 func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{

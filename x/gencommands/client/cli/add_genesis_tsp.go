@@ -15,11 +15,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 )
 
-// SetGenesisGovernmentAddressCmd returns add-genesis-minter cobra Command.
+// AddGenesisAccreditationSigner returns add-genesis-tsp cobra Command.
 func AddGenesisAccreditationSigner(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-accreditation-signer [signer_address_or_key]",
+		Use:   "add-genesis-tsp [tsp_address_or_key]",
 		Short: "Add a trusted accreditation signer to genesis.json",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {

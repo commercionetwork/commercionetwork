@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"errors"
-
 	"github.com/commercionetwork/commercionetwork/x/tbr"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -13,7 +11,7 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 )
 
-// SetGenesisTbrPoolAmount returns add-genesis-minter cobra Command.
+// SetGenesisTbrPoolAmount returns set-genesis-tbr-pool-amount cobra Command.
 func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
@@ -27,10 +25,6 @@ func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			coins, err := sdk.ParseCoins(args[0])
 			if err != nil {
 				return err
-			}
-
-			if coins.Len() > 1 {
-				return errors.New("cannot have multiple coins inside the TBR pool")
 			}
 
 			// retrieve the app state
