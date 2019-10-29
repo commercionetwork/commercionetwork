@@ -1,6 +1,8 @@
 package custombank
 
 import (
+	"encoding/json"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -10,6 +12,13 @@ import (
 type GenesisState struct {
 	bank.GenesisState
 	BlockedAccounts ctypes.Addresses `json:"blocked_accounts"`
+}
+
+// MarshalJSON implements the json.Marshaler interface. We do this because Amino
+// does not respect the JSON stdlib embedding semantics.
+func (g GenesisState) MarshalJSON() ([]byte, error) {
+	type state GenesisState
+	return json.Marshal(state(g))
 }
 
 // DefaultGenesisState returns a default genesis state
