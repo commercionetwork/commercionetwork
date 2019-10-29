@@ -35,6 +35,7 @@ func (app *CommercioNetworkApp) ExportAppStateAndValidators(forZeroHeight bool, 
 
 // prepare for fresh start at zero height
 func (app *CommercioNetworkApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
+
 	whiteListMap := make(map[string]bool)
 	for _, addr := range jailWhiteList {
 		_, err := sdk.ValAddressFromBech32(addr)
