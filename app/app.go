@@ -47,7 +47,7 @@ import (
 
 const (
 	appName = "Commercio.network"
-	Version = "1.3.0"
+	Version = "1.3.1"
 
 	DefaultBondDenom   = "ucommercio"
 	StableCreditsDenom = "uccc"

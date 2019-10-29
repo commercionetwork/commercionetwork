@@ -63,6 +63,17 @@ type DocumentEncryptionKey struct {
 	Value     string         `json:"value"`     // Value of the key that should be used. This is encrypted with the recipient's public key
 }
 
+type Documents []Document
+
+func (documents Documents) AppendIfMissingID(i Document) Documents {
+	for _, ele := range documents {
+		if ele.Uuid == i.Uuid {
+			return documents
+		}
+	}
+	return append(documents, i)
+}
+
 // ----------------------
 // --- Document receipt
 // ---------------------

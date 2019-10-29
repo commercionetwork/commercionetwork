@@ -16,7 +16,7 @@ import (
 // removing the metadata proof
 func Migrate(oldGenState v120docs.GenesisState) GenesisState {
 
-	var documents []Document
+	documents := Documents{}
 	var receipts []DocumentReceipt
 	for _, userData := range oldGenState.UsersData {
 
@@ -25,7 +25,7 @@ func Migrate(oldGenState v120docs.GenesisState) GenesisState {
 			document := migrateDocument(sentDoc)
 			document.Sender = userData.User
 			document.Recipients = findDocumentRecipients(document, oldGenState.UsersData)
-			documents = append(documents, document)
+			documents = documents.AppendIfMissingID(document)
 		}
 
 		// Migrate only the sent receipts, as the received ones are the same just in a different spot

@@ -21,6 +21,7 @@ var migrationMap = map[string][]extypes.MigrationCallback{
 	"v1.2.0": {v038.Migrate, v120.Migrate},
 	"v1.2.1": {v038.Migrate, v120.Migrate},
 	"v1.3.0": {v130.Migrate},
+	"v1.3.1": {v130.Migrate},
 }
 
 const (
