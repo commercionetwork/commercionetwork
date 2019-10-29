@@ -62,31 +62,41 @@ func (keeper Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument
 		return sdk.ErrUnknownRequest("Authentication key not found inside publicKey array")
 	}
 
-	if _, isEd25519 := accountPubKey.(ed25519.PubKeyEd25519); isEd25519 {
-		// Check the auth key type coherence with its value
-		if authKey.Type != types.KeyTypeEd25519 {
-			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeEd25519)
-			return sdk.ErrUnknownRequest(msg)
-		}
-	}
-
-	if _, isSecp256k1 := accountPubKey.(secp256k1.PubKeySecp256k1); isSecp256k1 {
-		// Check the auth key type coherence with its value
-		if authKey.Type != types.KeyTypeSecp256k1 {
-			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeSecp256k1)
-			return sdk.ErrUnknownRequest(msg)
-		}
-	}
-
 	// Get the authentication key bytes
 	authKeyBytes, err := hex.DecodeString(authKey.PublicKeyHex)
 	if err != nil {
 		return sdk.ErrUnknownRequest("Invalid authentication key hex value")
 	}
 
+	// TODO: The following code should be tested
+
+	var key []byte
+	if ed25519key, isEd25519 := accountPubKey.(ed25519.PubKeyEd25519); isEd25519 {
+		// Check the auth key type coherence with its value
+		if authKey.Type != types.KeyTypeEd25519 {
+			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeEd25519)
+			return sdk.ErrUnknownRequest(msg)
+		}
+		key = ed25519key[:]
+	}
+
+	if secp256k1key, isSecp256k1 := accountPubKey.(secp256k1.PubKeySecp256k1); isSecp256k1 {
+		// Check the auth key type coherence with its value
+		if authKey.Type != types.KeyTypeSecp256k1 {
+			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeSecp256k1)
+			return sdk.ErrUnknownRequest(msg)
+		}
+		key = secp256k1key[:]
+	}
+
 	// Check that the authentication key bytes are the same of the key associated with the account
-	if !bytes.Equal(accountPubKey.Bytes(), authKeyBytes) {
-		return sdk.ErrUnknownRequest("Authentication key is not the one associated with the account")
+	if !bytes.Equal(authKeyBytes, key) {
+		msg := fmt.Sprintf(
+			"Authentication key is not the one associated with the account. Expected %s but got %s",
+			hex.EncodeToString(key),
+			hex.EncodeToString(authKeyBytes),
+		)
+		return sdk.ErrUnknownRequest(msg)
 	}
 
 	// TODO: Check that the proof signatureValue is the valid signature of the entire Did Document made with the user private key
