@@ -88,14 +88,15 @@ func TestMsgSetIdentity_GetSigners(t *testing.T) {
 // --- MsgRequestDidDeposit
 // --------------------------
 
-var request = DidDepositRequest{
+var requestSender, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
+var requestRecipient, _ = sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
+var msgRequestDidDeposit = MsgRequestDidDeposit{
 	FromAddress:   requestSender,
 	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 	EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
 	Recipient:     requestRecipient,
 }
-var msgRequestDidDeposit = NewMsgRequestDidDeposit(request)
 
 func TestMsgRequestDidDeposit_Route(t *testing.T) {
 	actual := msgRequestDidDeposit.Route()
@@ -113,7 +114,7 @@ func TestMsgRequestDidDeposit_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 }
 
 func TestMsgRequestDidDeposit_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgRequestDidDeposit","value":{"amount":[{"amount":"100","denom":"uatom"}],"encryption_key":"333b68743231343b6833346832313468354a40617364617364","from_address":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","status":null}}`
+	expected := `{"type":"commercio/MsgRequestDidDeposit","value":{"amount":[{"amount":"100","denom":"uatom"}],"encryption_key":"333b68743231343b6833346832313468354a40617364617364","from_address":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa"}}`
 
 	actual := msgRequestDidDeposit.GetSignBytes()
 	assert.Equal(t, expected, string(actual))
@@ -125,39 +126,19 @@ func TestMsgRequestDidDeposit_GetSigners(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestMsgRequestDidDeposit_JSON_NullStatus(t *testing.T) {
+func TestMsgRequestDidDeposit_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgRequestDidDeposit","value":{"amount":[{"amount":"100","denom":"uatom"}],"encryption_key":"333b68743231343b6833346832313468354a40617364617364","from_address":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa"}}`
 
 	var actual MsgRequestDidDeposit
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 
-	expected := NewMsgRequestDidDeposit(DidDepositRequest{
+	expected := MsgRequestDidDeposit{
 		FromAddress:   requestSender,
 		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
 		Recipient:     requestRecipient,
-	})
-	assert.Equal(t, expected, actual)
-}
-
-func TestMsgRequestDidDeposit_JSON_NonNullStatus(t *testing.T) {
-	json := `{"type":"commercio/MsgRequestDidDeposit","value":{"amount":[{"amount":"100","denom":"uatom"}],"encryption_key":"333b68743231343b6833346832313468354a40617364617364","from_address":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","status":{"type":"canceled","message":"Don't want this anymore"}}}`
-
-	var actual MsgRequestDidDeposit
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
-
-	expected := NewMsgRequestDidDeposit(DidDepositRequest{
-		FromAddress:   requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
-		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
-		Recipient:     requestRecipient,
-		Status: &RequestStatus{
-			Type:    "canceled",
-			Message: "Don't want this anymore",
-		},
-	})
+	}
 	assert.Equal(t, expected, actual)
 }
 
@@ -215,13 +196,12 @@ func TestMsgChangeDidDepositRequestStatus_JSON(t *testing.T) {
 // --- MsgRequestDidPowerUp
 // --------------------------
 
-var powerUpRequest = DidPowerUpRequest{
+var msgRequestDidPowerUp = MsgRequestDidPowerUp{
 	Claimant:      requestSender,
 	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 	EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
 }
-var msgRequestDidPowerUp = NewMsgRequestDidPowerUp(powerUpRequest)
 
 func TestMsgRequestDidPowerUp_Route(t *testing.T) {
 	actual := msgRequestDidPowerUp.Route()
@@ -239,7 +219,7 @@ func TestMsgRequestDidPowerUp_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 }
 
 func TestMsgRequestDidPowerUp_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgRequestDidPowerUp","value":{"amount":[{"amount":"100","denom":"uatom"}],"claimant":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","encryption_key":"333b68743231343b6833346832313468354a40617364617364","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":null}}`
+	expected := `{"type":"commercio/MsgRequestDidPowerUp","value":{"amount":[{"amount":"100","denom":"uatom"}],"claimant":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","encryption_key":"333b68743231343b6833346832313468354a40617364617364","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878"}}`
 
 	actual := msgRequestDidPowerUp.GetSignBytes()
 	assert.Equal(t, expected, string(actual))
@@ -251,37 +231,18 @@ func TestMsgRequestDidPowerUp_GetSigners(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestMsgRequestDidPowerUp_JSON_NullStatus(t *testing.T) {
+func TestMsgRequestDidPowerUp_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgRequestDidPowerUp","value":{"amount":[{"amount":"100","denom":"uatom"}],"claimant":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","encryption_key":"333b68743231343b6833346832313468354a40617364617364","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878"}}`
 
 	var actual MsgRequestDidPowerUp
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 
-	expected := NewMsgRequestDidPowerUp(DidPowerUpRequest{
+	expected := MsgRequestDidPowerUp{
 		Claimant:      requestSender,
 		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
-	})
-	assert.Equal(t, expected, actual)
-}
-
-func TestMsgRequestDidPowerUp_JSON_NonNullStatus(t *testing.T) {
-	json := `{"type":"commercio/MsgRequestDidPowerUp","value":{"amount":[{"amount":"100","denom":"uatom"}],"claimant":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","encryption_key":"333b68743231343b6833346832313468354a40617364617364","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
-
-	var actual MsgRequestDidPowerUp
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
-
-	expected := NewMsgRequestDidPowerUp(DidPowerUpRequest{
-		Claimant:      requestSender,
-		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
-		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
-		Status: &RequestStatus{
-			Type:    "canceled",
-			Message: "Don't want this anymore",
-		},
-	})
+	}
 	assert.Equal(t, expected, actual)
 }
 

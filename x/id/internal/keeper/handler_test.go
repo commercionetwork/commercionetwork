@@ -34,13 +34,19 @@ func TestInvalidMsg(t *testing.T) {
 // --- Did deposit requests
 // ----------------------------
 
+var msgRequestDidDeposit = types.MsgRequestDidDeposit{
+	Recipient:     TestDidDepositRequest.Recipient,
+	Amount:        TestDidDepositRequest.Amount,
+	Proof:         TestDidDepositRequest.Proof,
+	EncryptionKey: TestDidDepositRequest.EncryptionKey,
+	FromAddress:   TestDidDepositRequest.FromAddress,
+}
+
 func Test_handleMsgRequestDidDeposit_NewRequest(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
-	msg := types.NewMsgRequestDidDeposit(TestDidDepositRequest)
-
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	res := handler(ctx, msgRequestDidDeposit)
 	assert.True(t, res.IsOK())
 
 	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
@@ -48,36 +54,12 @@ func Test_handleMsgRequestDidDeposit_NewRequest(t *testing.T) {
 	assert.Equal(t, TestDidDepositRequest, stored)
 }
 
-func Test_handleMsgRequestDidDeposit_NewRequest_ExistingStatusIsReplaced(t *testing.T) {
-	_, ctx, _, _, govK, k := SetupTestInput()
-
-	request := types.DidDepositRequest{
-		Status:        &types.RequestStatus{Type: types.StatusApproved},
-		Recipient:     TestDidDepositRequest.Recipient,
-		Amount:        TestDidDepositRequest.Amount,
-		Proof:         TestDidDepositRequest.Proof,
-		EncryptionKey: TestDidDepositRequest.EncryptionKey,
-		FromAddress:   TestDidDepositRequest.FromAddress,
-	}
-	msg := types.NewMsgRequestDidDeposit(request)
-
-	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
-	assert.True(t, res.IsOK())
-
-	stored, found := k.GetDidDepositRequestByProof(ctx, request.Proof)
-	assert.True(t, found)
-	assert.Nil(t, stored.Status)
-}
-
 func Test_handleMsgRequestDidDeposit_ExistingRequest(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
-	msg := types.NewMsgRequestDidDeposit(TestDidDepositRequest)
-
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	res := handler(ctx, msgRequestDidDeposit)
 
 	assert.False(t, res.IsOK())
 	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
@@ -203,13 +185,18 @@ func Test_handleMsgChangeDidDepositRequestStatus_AllGood(t *testing.T) {
 // --- Did power up requests
 // --------------------------
 
+var msgRequestDidPowerUp = types.MsgRequestDidPowerUp{
+	Claimant:      TestDidPowerUpRequest.Claimant,
+	Amount:        TestDidPowerUpRequest.Amount,
+	Proof:         TestDidPowerUpRequest.Proof,
+	EncryptionKey: TestDidPowerUpRequest.EncryptionKey,
+}
+
 func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
-	msg := types.NewMsgRequestDidPowerUp(TestDidPowerUpRequest)
-
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	res := handler(ctx, msgRequestDidPowerUp)
 	assert.True(t, res.IsOK())
 
 	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
@@ -217,35 +204,12 @@ func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
 	assert.Equal(t, TestDidPowerUpRequest, stored)
 }
 
-func Test_handleMsgRequestDidPowerUp_NewRequest_ExistingStatusIsReplaced(t *testing.T) {
-	_, ctx, _, _, govK, k := SetupTestInput()
-
-	request := types.DidPowerUpRequest{
-		Status:        &types.RequestStatus{Type: types.StatusApproved},
-		Amount:        TestDidPowerUpRequest.Amount,
-		Proof:         TestDidPowerUpRequest.Proof,
-		EncryptionKey: TestDidPowerUpRequest.EncryptionKey,
-		Claimant:      TestDidPowerUpRequest.Claimant,
-	}
-	msg := types.NewMsgRequestDidPowerUp(request)
-
-	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
-	assert.True(t, res.IsOK())
-
-	stored, found := k.GetPowerUpRequestByProof(ctx, request.Proof)
-	assert.True(t, found)
-	assert.Nil(t, stored.Status)
-}
-
 func Test_handleMsgRequestDidPowerUp_ExistingRequest(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
-	msg := types.NewMsgRequestDidPowerUp(TestDidPowerUpRequest)
-
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	res := handler(ctx, msgRequestDidPowerUp)
 
 	assert.False(t, res.IsOK())
 	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)

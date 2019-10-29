@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/hex"
-	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,40 +17,6 @@ type DidDepositRequest struct {
 	Proof         string         `json:"proof"`          // Proof of the deposit, encrypted using an AES-256 key and hex encoded
 	EncryptionKey string         `json:"encryption_key"` // AES-256 key encrypted using reader's public key and hex encoded
 	FromAddress   sdk.AccAddress `json:"from_address"`   // Address from which the funds should be taken
-}
-
-func (request DidDepositRequest) Validate() sdk.Error {
-	if request.Status != nil {
-		if err := request.Status.Validate(); err != nil {
-			return err
-		}
-	}
-
-	if request.Recipient.Empty() {
-		return sdk.ErrInvalidAddress(request.Recipient.String())
-	}
-
-	if !request.Amount.IsValid() || request.Amount.Empty() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Deposit amount not valid: %s", request.Amount.String()))
-	}
-
-	if request.Amount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins("Deposit amount cannot be contain negative values")
-	}
-
-	if err := ValidateHex(request.Proof); err != nil {
-		return err
-	}
-
-	if err := ValidateEncryptionKey(request.EncryptionKey); err != nil {
-		return err
-	}
-
-	if request.FromAddress.Empty() {
-		return sdk.ErrInvalidAddress(request.FromAddress.String())
-	}
-
-	return nil
 }
 
 func ValidateHex(proof string) sdk.Error {

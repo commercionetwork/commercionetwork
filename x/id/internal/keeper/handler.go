@@ -51,9 +51,14 @@ func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdenti
 
 func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidDeposit) sdk.Result {
 
-	// Set the initial status to nil and save it
-	request := types.DidDepositRequest(msg)
-	request.Status = nil
+	// Create the request
+	request := types.DidDepositRequest{
+		Recipient:     msg.Recipient,
+		Amount:        msg.Amount,
+		Proof:         msg.Proof,
+		EncryptionKey: msg.EncryptionKey,
+		FromAddress:   msg.FromAddress,
+	}
 
 	if err := keeper.StoreDidDepositRequest(ctx, request); err != nil {
 		return err.Result()
@@ -109,9 +114,13 @@ func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKee
 
 func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidPowerUp) sdk.Result {
 
-	// Set the initial status to nil and save it
-	request := types.DidPowerUpRequest(msg)
-	request.Status = nil
+	// Crete the request
+	request := types.DidPowerUpRequest{
+		Claimant:      msg.Claimant,
+		Amount:        msg.Amount,
+		Proof:         msg.Proof,
+		EncryptionKey: msg.EncryptionKey,
+	}
 
 	if err := keeper.StorePowerUpRequest(ctx, request); err != nil {
 		return err.Result()
