@@ -33,31 +33,6 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, p
 	}
 }
 
-// ---------------------
-// --- Liquidity pool
-// ---------------------
-
-//// SetLiquidityPool allows to set the given pool amount as the current liquidity pool amount
-//func (keeper Keeper) SetLiquidityPool(ctx sdk.Context, poolAmount sdk.Coins) {
-//	store := ctx.KVStore(keeper.storeKey)
-//	storeKey := []byte(types.LiquidityPoolStorePrefix)
-//
-//	if poolAmount == nil || poolAmount.Empty() {
-//		store.Delete(storeKey)
-//	} else {
-//		store.Set(storeKey, keeper.cdc.MustMarshalBinaryBare(&poolAmount))
-//	}
-//}
-//
-//// GetLiquidityPool returns the amount of the liquidity pool for the given context
-//func (keeper Keeper) GetLiquidityPool(ctx sdk.Context) sdk.Coins {
-//	var lPool sdk.Coins
-//	store := ctx.KVStore(keeper.storeKey)
-//	lpBz := store.Get([]byte(types.LiquidityPoolStorePrefix))
-//	keeper.cdc.MustUnmarshalBinaryBare(lpBz, &lPool)
-//	return lPool
-//}
-
 // --------------
 // --- Credits
 // --------------

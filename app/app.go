@@ -263,7 +263,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.bankKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
-	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.bankKeeper, app.stakingKeeper, app.distrKeeper)
+	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.distrKeeper)
 	app.mintKeeper = mint.NewKeeper(app.cdc, app.keys[mint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
 
 	// register the proposal types
@@ -302,7 +302,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
 		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
-		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper),
+		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper, app.bankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
