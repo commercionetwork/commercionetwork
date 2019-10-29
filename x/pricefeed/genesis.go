@@ -1,7 +1,6 @@
 package pricefeed
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -48,7 +47,7 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 func ValidateGenesis(state GenesisState) error {
 	for _, asset := range state.Assets {
 		if len(strings.TrimSpace(asset)) == 0 {
-			return errors.New(fmt.Sprintf("%s, is empty", asset))
+			return fmt.Errorf("%s, is empty", asset)
 		}
 	}
 	for _, oracle := range state.Oracles {
