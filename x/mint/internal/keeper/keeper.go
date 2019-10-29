@@ -103,7 +103,7 @@ func (keeper Keeper) OpenCdp(ctx sdk.Context, cdpRequest types.CdpRequest) sdk.E
 	fiatValue := sdk.NewInt(0)
 	for _, token := range depositAmount {
 		assetPrice, found := keeper.priceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
-		if found == false {
+		if !found {
 			return sdk.ErrUnknownRequest(fmt.Sprintf("No current price for given token: %s", token.Denom))
 		}
 		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Price.RoundInt()))

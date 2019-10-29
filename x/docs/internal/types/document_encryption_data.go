@@ -17,7 +17,7 @@ func (data DocumentEncryptionData) Equals(other DocumentEncryptionData) bool {
 		return false
 	}
 
-	for index, _ := range data.Keys {
+	for index := range data.Keys {
 		if !data.Keys[index].Equals(other.Keys[index]) {
 			return false
 		}
@@ -27,7 +27,7 @@ func (data DocumentEncryptionData) Equals(other DocumentEncryptionData) bool {
 		return false
 	}
 
-	for index, _ := range data.EncryptedData {
+	for index := range data.EncryptedData {
 		if data.EncryptedData[index] != other.EncryptedData[index] {
 			return false
 		}

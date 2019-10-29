@@ -133,19 +133,18 @@ func (keeper Keeper) GetMembershipType(membership exported.NFT) string {
 // Get GetMembershipsSet returns the list of all the memberships
 // that have been minted and are currently stored inside the store
 func (keeper Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
-	var memberships []types.Membership
 
 	collection, found := keeper.NftKeeper.GetCollection(ctx, types.NftDenom)
 	if !found {
-		return memberships
+		return nil
 	}
 
-	for _, membershipNft := range collection.NFTs {
-		membership := types.Membership{
+	memberships := make([]types.Membership, len(collection.NFTs))
+	for index, membershipNft := range collection.NFTs {
+		memberships[index] = types.Membership{
 			Owner:          membershipNft.GetOwner(),
 			MembershipType: keeper.GetMembershipType(membershipNft),
 		}
-		memberships = append(memberships, membership)
 	}
 
 	return memberships

@@ -50,11 +50,11 @@ func ValidateGenesis(data GenesisState) error {
 	}
 
 	if !data.PoolAmount.IsValid() {
-		return errors.New(fmt.Sprintf("invalid transaction block reward pool: %s", data.PoolAmount.String()))
+		return fmt.Errorf("invalid transaction block reward pool: %s", data.PoolAmount.String())
 	}
 
 	if !data.YearlyPoolAmount.IsValid() {
-		return errors.New(fmt.Sprintf("invalid yearly transaction block reward pool: %s", data.YearlyPoolAmount.String()))
+		return fmt.Errorf("invalid yearly transaction block reward pool: %s", data.YearlyPoolAmount.String())
 	}
 
 	return nil

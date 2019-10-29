@@ -119,14 +119,14 @@ func TestKeeper_GetMembershipsSet_EmptySet(t *testing.T) {
 func TestKeeper_GetMembershipsSet_FilledSet(t *testing.T) {
 	_, ctx, _, _, k := GetTestInput()
 
-	first, err := sdk.AccAddressFromBech32("cosmos18v6sv92yrxdxck4hvw0gyfccu7dggweyrsqcx9")
-	second, err := sdk.AccAddressFromBech32("cosmos1e2zdv8l45mstf8uexgcyk54g87jmrx8sjn0g24")
-	third, err := sdk.AccAddressFromBech32("cosmos1e2cc3x2z7ku282kmh2x7jczylkajge0s2num6q")
-	assert.Nil(t, err)
+	first, _ := sdk.AccAddressFromBech32("cosmos18v6sv92yrxdxck4hvw0gyfccu7dggweyrsqcx9")
+	_, _ = k.AssignMembership(ctx, first, "black")
 
-	_, err = k.AssignMembership(ctx, first, "black")
-	_, err = k.AssignMembership(ctx, second, "silver")
-	_, err = k.AssignMembership(ctx, third, "bronze")
+	second, _ := sdk.AccAddressFromBech32("cosmos1e2zdv8l45mstf8uexgcyk54g87jmrx8sjn0g24")
+	_, _ = k.AssignMembership(ctx, second, "silver")
+
+	third, _ := sdk.AccAddressFromBech32("cosmos1e2cc3x2z7ku282kmh2x7jczylkajge0s2num6q")
+	_, _ = k.AssignMembership(ctx, third, "bronze")
 
 	set := k.GetMembershipsSet(ctx)
 
@@ -134,7 +134,7 @@ func TestKeeper_GetMembershipsSet_FilledSet(t *testing.T) {
 	secondMembership := types.Membership{Owner: second, MembershipType: "silver"}
 	thirdMembership := types.Membership{Owner: third, MembershipType: "bronze"}
 
-	assert.Equal(t, 3, len(set))
+	assert.Len(t, set, 3)
 	assert.Contains(t, set, firstMembership)
 	assert.Contains(t, set, secondMembership)
 	assert.Contains(t, set, thirdMembership)
