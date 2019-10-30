@@ -1,6 +1,7 @@
 package ante
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/docs"
@@ -26,39 +27,63 @@ func NewAnteHandler(
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	stableCreditsDemon string,
 ) sdk.AnteHandler {
+	return sdk.ChainAnteDecorators(
+		cosmosante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+		cosmosante.NewMempoolFeeDecorator(),
+		cosmosante.NewValidateBasicDecorator(),
+		cosmosante.NewValidateMemoDecorator(ak),
+		NewMinFeeDecorator(priceKeeper, stableCreditsDemon),
+		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
+		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
+		cosmosante.NewValidateSigCountDecorator(ak),
+		cosmosante.NewDeductFeeDecorator(ak, supplyKeeper),
+		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
+		cosmosante.NewSigVerificationDecorator(ak),
+		cosmosante.NewIncrementSequenceDecorator(ak),
+	)
+}
 
-	cosmosHandler := cosmosante.NewAnteHandler(ak, supplyKeeper, sigGasConsumer)
+// MinFeeDecorator checks that each transaction containing a MsgShareDocument
+// contains also a minimum fee amount corresponding to 0.01 euro per
+// MsgShareDocument included into the transaction itself.
+// The amount can be specified either using stableCreditsDenom tokens or
+// by using any other token which price is contained inside the pricefeedKeeper.
+type MinFeeDecorator struct {
+	pfk                pricefeed.Keeper
+	stableCreditsDenom string
+}
 
-	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, res sdk.Result, abort bool) {
-
-		newCtx, res, abort = cosmosHandler(ctx, tx, simulate)
-		if abort {
-			return newCtx, res, abort
-		}
-
-		// all transactions must be of type auth.StdTx
-		stdTx, ok := tx.(types.StdTx)
-		if !ok {
-			// Set a gas meter with limit 0 as to prevent an infinite gas meter attack
-			// during runTx.
-			newCtx = setGasMeter(simulate, ctx, 0)
-			return newCtx, sdk.ErrInternal("tx must be StdTx").Result(), true
-		}
-
-		// get the ShareDocument messages
-		requiredFees := sdk.NewDec(0)
-		for _, msg := range stdTx.Msgs {
-			if value, ok := messagesCosts[msg.Type()]; ok {
-				requiredFees = requiredFees.Add(value)
-			}
-		}
-
-		if err := checkMinimumFees(stdTx, ctx, priceKeeper, stableCreditsDemon, requiredFees); err != nil {
-			return newCtx, err.Result(), true
-		}
-
-		return newCtx, sdk.Result{GasWanted: stdTx.Fee.Gas}, false
+func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, stableCreditsDenom string) MinFeeDecorator {
+	return MinFeeDecorator{
+		pfk:                priceKeeper,
+		stableCreditsDenom: stableCreditsDenom,
 	}
+}
+
+func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	// all transactions must be of type auth.StdTx
+	stdTx, ok := tx.(types.StdTx)
+	if !ok {
+		// Set a gas meter with limit 0 as to prevent an infinite gas meter attack
+		// during runTx.
+		newCtx = setGasMeter(simulate, ctx, 0)
+		return newCtx, errors.New("tx must be StdTx")
+	}
+
+	// Fet the ShareDocument messages
+	requiredFees := sdk.NewDec(0)
+	for _, msg := range stdTx.Msgs {
+		if value, ok := messagesCosts[msg.Type()]; ok {
+			requiredFees = requiredFees.Add(value)
+		}
+	}
+
+	// Check the minimum fees
+	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.stableCreditsDenom, requiredFees); err != nil {
+		return ctx, err
+	}
+
+	return next(ctx, tx, simulate)
 }
 
 func checkMinimumFees(

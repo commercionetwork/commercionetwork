@@ -48,8 +48,7 @@ func testCodec() *codec.Codec {
 	var cdc = codec.New()
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
-	cdc.RegisterInterface((*auth.Account)(nil), nil)
-
+	auth.RegisterCodec(cdc)
 	cdc.Seal()
 
 	return cdc

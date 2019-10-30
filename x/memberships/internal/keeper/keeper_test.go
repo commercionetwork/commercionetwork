@@ -6,7 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/nft"
+	"github.com/cosmos/modules/incubator/nft"
 	"github.com/stretchr/testify/assert"
 )
 

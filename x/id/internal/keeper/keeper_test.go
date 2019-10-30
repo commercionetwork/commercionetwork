@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/assert"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 )
 
 // ------------------
@@ -39,12 +40,14 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	assert.NoError(t, err)
 
 	account := aK.GetAccount(ctx, TestOwnerAddress)
+	secp256k1key := account.GetPubKey().(secp256k1.PubKeySecp256k1)
+
 	updatedDocument.PubKeys = types.PubKeys{
 		types.PubKey{
 			ID:           "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
 			Type:         "Secp256k1VerificationKey2018",
 			Controller:   TestOwnerAddress,
-			PublicKeyHex: hex.EncodeToString(account.GetPubKey().Bytes()),
+			PublicKeyHex: hex.EncodeToString(secp256k1key[:]),
 		},
 	}
 
