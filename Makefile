@@ -1,11 +1,38 @@
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 BINDIR ?= $(GOPATH)/bin
+VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
+COMMIT := $(shell git log -1 --format='%H')
 
 export GO111MODULE = on
 
 include Makefile.ledger
 
-export GO111MODULE = on
+########################################
+### Build tags
+
+build_tags = netgo
+
+build_tags += $(BUILD_TAGS)
+build_tags := $(strip $(build_tags))
+
+whitespace :=
+whitespace += $(whitespace)
+comma := ,
+build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
+
+# process linker flags
+
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+		  -X github.com/cosmos/cosmos-sdk/version.ServerName=cnd \
+		  -X github.com/cosmos/cosmos-sdk/version.ClientName=cndcli \
+		  -X github.com/cosmos/cosmos-sdk/version.Name=commercionetwork \
+		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
+		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
+
+ldflags += $(LDFLAGS)
+ldflags := $(strip $(ldflags))
+
+BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 
 all: tools build lint test
 
@@ -16,33 +43,33 @@ include contrib/devtools/Makefile
 ### Install
 
 install: go.sum
-	go install -mod=readonly -tags "$(build_tags)" ./cmd/cnd
-	go install -mod=readonly -tags "$(build_tags)" ./cmd/cncli
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cnd
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cncli
 
 ########################################
 ### Build
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
-	go build -mod=readonly -o ./build/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
-	go build -mod=readonly -o ./build/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd.exe $(BUILD_FLAGS) ./cmd/cnd/main.go
+	go build -mod=readonly -o ./build/cncli.exe $(BUILD_FLAGS) ./cmd/cncli/main.go
 else
-	go build -mod=readonly -o ./build/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
-	go build -mod=readonly -o ./build/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd/main.go
+	go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli/main.go
 endif
 
 
 build-darwin: go.sum
-	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli/main.go
+	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd/main.go
 
 build-linux: go.sum
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli/main.go
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd/main.go
 
 build-windows: go.sum
-	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe -tags "$(build_tags)" ./cmd/cncli/main.go
-	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe -tags "$(build_tags)" ./cmd/cnd/main.go
+	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe $(BUILD_FLAGS) ./cmd/cncli/main.go
+	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe $(BUILD_FLAGS) ./cmd/cnd/main.go
 
 build-all: go.sum
 	make build-darwin

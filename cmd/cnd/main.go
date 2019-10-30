@@ -33,9 +33,6 @@ const flagInvCheckPeriod = "inv-check-period"
 var invCheckPeriod uint
 
 func main() {
-	// Set the command version
-	version.Version = app.Version
-
 	// Instantiate the codec for the command line application
 	cdc := app.MakeCodec()
 
