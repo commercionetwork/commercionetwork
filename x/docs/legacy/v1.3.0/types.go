@@ -67,7 +67,7 @@ type Documents []Document
 
 func (documents Documents) AppendIfMissingID(i Document) Documents {
 	for _, ele := range documents {
-		if ele.Uuid == i.Uuid {
+		if ele.UUID == i.UUID {
 			return documents
 		}
 	}
