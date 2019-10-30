@@ -112,7 +112,7 @@ func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address stri
 				ID:           fmt.Sprintf("%s#keys-1", address),
 				Type:         "Secp256k1VerificationKey2018",
 				Controller:   address,
-				PublicKeyHex: hex.EncodeToString(account.GetPubKey().Bytes()),
+				PublicKeyHex: hex.EncodeToString(secp256k1Key[:]),
 			},
 			types.PubKey{
 				ID:           fmt.Sprintf("%s#keys-2", address),

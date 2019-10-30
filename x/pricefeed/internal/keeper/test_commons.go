@@ -52,7 +52,7 @@ func testCodec() *codec.Codec {
 	government.RegisterCodec(cdc)
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
-	cdc.RegisterInterface((*auth.Account)(nil), nil)
+	auth.RegisterCodec(cdc)
 	cdc.Seal()
 
 	return cdc
