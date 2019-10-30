@@ -121,7 +121,7 @@ var (
 		// Custom modules
 		mint.ModuleName:        {supply.Minter, supply.Burner},
 		memberships.ModuleName: {supply.Burner},
-		id.ModuleName:          {},
+		id.ModuleName:          nil,
 	}
 
 	allowedModuleReceivers = types.Strings{
