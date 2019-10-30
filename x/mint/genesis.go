@@ -3,15 +3,14 @@ package mint
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Cdps                types.Cdps `json:"cdps"`
-	LiquidityPoolAmount sdk.Coins  `json:"pool_amount"`
+	Cdps                Cdps      `json:"cdps"`
+	LiquidityPoolAmount sdk.Coins `json:"pool_amount"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -23,7 +22,7 @@ func DefaultGenesisState() GenesisState {
 func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
 	moduleAcc := keeper.GetMintModuleAccount(ctx)
 	if moduleAcc == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
 	}
 
 	if moduleAcc.GetCoins().IsZero() {

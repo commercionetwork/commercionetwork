@@ -1,7 +1,10 @@
 package id
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 // GenesisState - id genesis state
@@ -19,7 +22,19 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets ids information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
+	moduleAcc := keeper.GetIdModuleAccount(ctx)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
+	}
+
+	if moduleAcc.GetCoins().IsZero() {
+		if err := moduleAcc.SetCoins(data.DepositPool); err != nil {
+			panic(err)
+		}
+		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
+	}
+
 	for _, didDocument := range data.DidDocuments {
 		if err := keeper.SaveDidDocument(ctx, didDocument); err != nil {
 			panic(err)
@@ -36,10 +51,6 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 		if err := keeper.StorePowerUpRequest(ctx, powerUp); err != nil {
 			panic(err)
 		}
-	}
-
-	if err := keeper.SetPoolAmount(ctx, data.DepositPool); err != nil {
-		panic(err)
 	}
 
 	if data.HandledPowerUpRequests != nil {

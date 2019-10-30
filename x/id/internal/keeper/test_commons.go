@@ -26,40 +26,53 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
-	authKey := sdk.NewKVStoreKey("authCapKey")
-	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
-	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
-	keyParams := sdk.NewKVStoreKey(params.StoreKey)
-	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
-	govKey := sdk.NewKVStoreKey("government")
 
-	// CommercioID
-	storeKey := sdk.NewKVStoreKey("id")
+	keys := sdk.NewKVStoreKeys(
+		auth.StoreKey,
+		params.StoreKey,
+		supply.StoreKey,
+		government.StoreKey,
+		types.StoreKey,
+	)
+	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
-	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(authKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(govKey, sdk.StoreTypeIAVL, memDB)
-
+	for _, key := range keys {
+		ms.MountStoreWithDB(key, sdk.StoreTypeIAVL, memDB)
+	}
+	for _, tkey := range tkeys {
+		ms.MountStoreWithDB(tkey, sdk.StoreTypeTransient, memDB)
+	}
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
-	govK := government.NewKeeper(cdc, govKey)
+	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
+	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
+	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{
+		types.ModuleName: false,
+	})
+	maccPerms := map[string][]string{
+		types.ModuleName: nil,
+	}
+	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
+	govK := government.NewKeeper(cdc, keys[government.StoreKey])
+
+	// Set the government address
 	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
 
 	// Setup the Did Document
 	TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 	TestDidDocument = setupDidDocument(ctx, ak, "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
-	idk := NewKeeper(cdc, storeKey, ak, bk)
+	idk := NewKeeper(cdc, keys[types.StoreKey], ak, sk)
+
+	// Set initial supply
+	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 1))))
+
+	// Set module accounts
+	idAcc := supply.NewEmptyModuleAccount(types.ModuleName)
+	idk.supplyKeeper.SetModuleAccount(ctx, idAcc)
 
 	return cdc, ctx, ak, bk, govK, idk
 }
@@ -71,12 +84,12 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
+	government.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	types.RegisterCodec(cdc)
 
 	cdc.Seal()
-
 	return cdc
 }
 

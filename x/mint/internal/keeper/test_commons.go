@@ -52,10 +52,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper,
 
 		types.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(
-		staking.TStoreKey,
-		params.TStoreKey,
-	)
+	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
 	for _, key := range keys {
@@ -64,7 +61,6 @@ func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper,
 	for _, tkey := range tkeys {
 		ms.MountStoreWithDB(tkey, sdk.StoreTypeTransient, nil)
 	}
-
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
@@ -95,7 +91,6 @@ func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper,
 
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
-	sdk.RegisterCodec(cdc)
 
 	bank.RegisterCodec(cdc)
 	staking.RegisterCodec(cdc)
@@ -103,7 +98,9 @@ func testCodec() *codec.Codec {
 	supply.RegisterCodec(cdc)
 	pricefeed.RegisterCodec(cdc)
 	government.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
+	types.RegisterCodec(cdc)
 
 	cdc.Seal()
 	return cdc

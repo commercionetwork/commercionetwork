@@ -7,6 +7,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -452,7 +453,7 @@ func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
 		Signer:              govK.GetGovernmentAddress(ctx),
 	}
 
-	_ = k.SetPoolAmount(ctx, msg.Amount)
+	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(msg.Amount))
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
 

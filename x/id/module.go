@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -80,17 +81,19 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper    Keeper
-	govKeeper government.Keeper
+	keeper       Keeper
+	govKeeper    government.Keeper
+	supplyKeeper supply.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, govKeeper government.Keeper) AppModule {
+func NewAppModule(keeper Keeper, govKeeper government.Keeper, supplyKeeper supply.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
 		govKeeper:           govKeeper,
+		supplyKeeper:        supplyKeeper,
 	}
 }
 
@@ -126,7 +129,7 @@ func (am AppModule) NewQuerierHandler() sdk.Querier {
 func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
 	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, genesisState)
+	InitGenesis(ctx, am.keeper, am.supplyKeeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 

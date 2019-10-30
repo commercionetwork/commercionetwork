@@ -121,6 +121,7 @@ var (
 		// Custom modules
 		mint.ModuleName:        {supply.Minter, supply.Burner},
 		memberships.ModuleName: {supply.Burner},
+		id.ModuleName:          {},
 	}
 
 	allowedModuleReceivers = types.Strings{
@@ -261,7 +262,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.nftKeeper, app.supplyKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
-	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.bankKeeper)
+	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
 	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.distrKeeper)
 	app.mintKeeper = mint.NewKeeper(app.cdc, app.keys[mint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
@@ -298,7 +299,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Custom modules
 		docs.NewAppModule(app.docsKeeper),
 		government.NewAppModule(app.governmentKeeper),
-		id.NewAppModule(app.idKeeper, app.governmentKeeper),
+		id.NewAppModule(app.idKeeper, app.governmentKeeper, app.supplyKeeper),
 		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
 		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),

@@ -26,6 +26,7 @@ type (
 	Keeper = keeper.Keeper
 
 	Cdp        = types.Cdp
+	Cdps       = types.Cdps
 	CdpRequest = types.CdpRequest
 
 	MsgOpenCdp  = types.MsgOpenCdp

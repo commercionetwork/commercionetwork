@@ -15,7 +15,6 @@ const (
 	KeyTypeSecp256k1 = "Secp256k1VerificationKey2018"
 	KeyTypeEd25519   = "Ed25519VerificationKey2018"
 
-	DepositsPoolStoreKey           = StoreKey + "depositsPool"
 	DidDepositRequestStorePrefix   = StoreKey + "depositRequest"
 	DidPowerUpRequestStorePrefix   = StoreKey + "powerUpRequest"
 	HandledPowerUpRequestsStoreKey = StoreKey + "handledPowerUpRequests"
