@@ -48,10 +48,9 @@ func (doc Document) Equals(other Document) bool {
 
 func validateUUID(uuidStr string) bool {
 	_, err := uuid.FromString(uuidStr)
-	if err != nil {
-		return false
-	}
-	return true
+
+	// when err is nil, uuidStr is a valid UUID
+	return err == nil
 }
 
 // TODO: Test
