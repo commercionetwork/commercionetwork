@@ -23,7 +23,7 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets ids information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
-	moduleAcc := keeper.GetIdModuleAccount(ctx)
+	moduleAcc := keeper.GetIdentitiesModuleAccount(ctx)
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
 	}

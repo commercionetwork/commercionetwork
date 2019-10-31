@@ -454,6 +454,7 @@ func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
 	}
 
 	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(msg.Amount))
+	_ = bK.SetCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), msg.Amount)
 	handler := NewHandler(k, govK)
 	res := handler(ctx, msg)
 

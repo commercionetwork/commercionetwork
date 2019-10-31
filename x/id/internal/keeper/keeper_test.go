@@ -362,19 +362,21 @@ func TestKeeper_FundAccount_InsufficientPoolFunds(t *testing.T) {
 
 	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
 	assert.Error(t, err)
-	assert.Equal(t, sdk.CodeInsufficientFunds, err.Code())
+	assert.Equal(t, sdk.CodeInsufficientCoins, err.Code())
 }
 
 func TestKeeper_FundAccount_ValidRequest(t *testing.T) {
 	_, ctx, _, bK, _, k := SetupTestInput()
 
-	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000))))
+	pool := sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000))
+	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(pool))
+	_ = bK.SetCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), pool)
 
 	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)))
 	assert.Nil(t, err)
 
-	pool := k.GetPoolAmount(ctx)
-	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 900)), pool)
+	remaining := k.GetPoolAmount(ctx)
+	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 900)), remaining)
 	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)), bK.GetCoins(ctx, TestDepositor))
 }
 
@@ -386,10 +388,11 @@ func TestKeeper_GetPoolAmount_EmptyCoins(t *testing.T) {
 }
 
 func TestKeeper_GetPoolAmount_NonEmptyCoins(t *testing.T) {
-	_, ctx, _, _, _, k := SetupTestInput()
+	_, ctx, _, bk, _, k := SetupTestInput()
 
 	pool := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
 	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(pool))
+	_ = bk.SetCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), pool)
 
 	stored := k.GetPoolAmount(ctx)
 	assert.Equal(t, pool, stored)
