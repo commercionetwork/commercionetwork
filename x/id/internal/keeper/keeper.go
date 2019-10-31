@@ -31,9 +31,10 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, accKeeper auth.AccountKe
 	}
 
 	return Keeper{
-		storeKey:  storeKey,
-		cdc:       cdc,
-		accKeeper: accKeeper,
+		storeKey:     storeKey,
+		cdc:          cdc,
+		accKeeper:    accKeeper,
+		supplyKeeper: supplyKeeper,
 	}
 }
 
