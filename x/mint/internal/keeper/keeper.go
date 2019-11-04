@@ -87,7 +87,7 @@ func (k Keeper) OpenCdp(ctx sdk.Context, cdpRequest types.CdpRequest) sdk.Error 
 		if !found {
 			return sdk.ErrUnknownRequest(fmt.Sprintf("No current price for given token: %s", token.Denom))
 		}
-		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Price.RoundInt()))
+		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Value.RoundInt()))
 	}
 
 	// Send the deposit from the user to the mint account

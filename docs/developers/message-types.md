@@ -22,4 +22,4 @@ Inside this page you can find all the types and values for the different message
 * Close a CDP: [MsgCloseCdp](../x/mint/tx/close-cdp.md)
 
 ## `pricefeed`
-* Set an asset's price: [MsgSetPrice](../x/pricefeed/tx/set-raw-price.md)
+* Set an asset's price: [MsgSetPrice](../x/pricefeed/tx/add-price.md)

@@ -88,7 +88,7 @@ func TestKeeper_OpenCdp_TokenPriceNotFound(t *testing.T) {
 func TestKeeper_OpenCdp_NotEnoughFundsInUsersWallet(t *testing.T) {
 	_, ctx, _, pfk, k := SetupTestInput()
 
-	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice("ucommercio", 10, 1000))
+	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
 	k.SetCreditsDenom(ctx, "uccc")
 
 	err := k.OpenCdp(ctx, TestCdpRequest)
@@ -101,7 +101,7 @@ func TestKeeper_OpenCdp_Successful(t *testing.T) {
 
 	// Setup
 	_ = bk.SetCoins(ctx, TestOwner, TestCdpRequest.DepositedAmount)
-	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(TestLiquidityDenom, 10, 1000))
+	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(TestLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
 	// Cdp opening
 	err := k.OpenCdp(ctx, TestCdpRequest)

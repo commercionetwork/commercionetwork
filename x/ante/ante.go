@@ -129,7 +129,7 @@ func checkMinimumFees(
 			realQty := fee.Amount.ToDec().QuoInt64(1000000)
 
 			// Fiat amount = price * quantity
-			tokenFiatAmount := ctPrice.Price.Mul(realQty)
+			tokenFiatAmount := ctPrice.Value.Mul(realQty)
 
 			// Add up everything
 			fiatAmount = fiatAmount.Add(tokenFiatAmount)

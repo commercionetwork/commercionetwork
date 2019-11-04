@@ -59,46 +59,11 @@ func testCodec() *codec.Codec {
 }
 
 // Test variables
-var TestOracle1, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestOracle2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-var TestPriceInfo = types.CurrentPrice{
+//var TestOracle, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+//var testGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+
+var TestPrice = types.Price{
 	AssetName: "test",
-	Price:     sdk.NewDec(10),
+	Value:     sdk.NewDec(10),
 	Expiry:    sdk.NewInt(5000),
 }
-var TestPriceInfo2 = types.CurrentPrice{
-	AssetName: "test2",
-	Price:     sdk.NewDec(8),
-	Expiry:    sdk.NewInt(4000),
-}
-
-var TestPriceInfo3 = types.CurrentPrice{
-	AssetName: TestPriceInfo.AssetName,
-	Price:     sdk.NewDec(20),
-	Expiry:    sdk.NewInt(7000),
-}
-
-var TestPriceInfoE = types.CurrentPrice{
-	AssetName: "test",
-	Price:     sdk.NewDec(0),
-	Expiry:    sdk.NewInt(-1),
-}
-var TestRawPriceE = types.RawPrice{
-	Oracle:    TestOracle1,
-	PriceInfo: TestPriceInfoE,
-}
-
-var TestRawPrice1 = types.RawPrice{
-	PriceInfo: TestPriceInfo,
-	Oracle:    TestOracle1,
-}
-
-var TestRawPrice3 = types.RawPrice{
-	Oracle:    TestOracle2,
-	PriceInfo: TestPriceInfo3,
-}
-
-var TestAsset = "ucommercio"
-
-var TestAsset2 = "ucommerciocredits"

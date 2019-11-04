@@ -88,7 +88,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has not specified enough token frees
-	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 5, 1000))
+	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, sdk.NewDec(5), sdk.NewInt(1000)))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 1))
 	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{3}
@@ -96,7 +96,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
 
 	// Signer has specified enough token fees
-	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, 2, 1000))
+	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(tokenDenom, sdk.NewDec(2), sdk.NewInt(1000)))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 5000))
 	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{2}

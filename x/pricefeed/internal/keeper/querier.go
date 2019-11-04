@@ -29,7 +29,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 func queryGetCurrentPrices(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
 	prices := keeper.GetCurrentPrices(ctx)
 	if prices == nil {
-		prices = make(types.CurrentPrices, 0)
+		prices = make(types.Prices, 0)
 	}
 
 	pricesBz, err := codec.MarshalJSONIndent(keeper.cdc, prices)

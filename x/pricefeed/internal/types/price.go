@@ -4,70 +4,55 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type CurrentPrice struct {
+type Price struct {
 	AssetName string  `json:"asset_name"`
-	Price     sdk.Dec `json:"price"`
-	Expiry    sdk.Int `json:"expiry"` //Block height after which the price is to be considered invalid
+	Value     sdk.Dec `json:"value"`
+	Expiry    sdk.Int `json:"expiry"` // Block height after which the price is to be considered invalid
 }
 
-func NewCurrentPrice(assetName string, price int64, expiry int64) CurrentPrice {
-	return CurrentPrice{
+func NewPrice(assetName string, price sdk.Dec, expiry sdk.Int) Price {
+	return Price{
 		AssetName: assetName,
-		Price:     sdk.NewDec(price),
-		Expiry:    sdk.NewInt(expiry),
+		Value:     price,
+		Expiry:    expiry,
 	}
 }
 
-func (currentPrice CurrentPrice) Equals(cp CurrentPrice) bool {
+func (currentPrice Price) Equals(cp Price) bool {
 	return currentPrice.AssetName == cp.AssetName &&
-		currentPrice.Price.Equal(cp.Price) &&
+		currentPrice.Value.Equal(cp.Value) &&
 		currentPrice.Expiry.Equal(cp.Expiry)
 }
 
-type CurrentPrices []CurrentPrice
+type Prices []Price
 
-func (currentPrices CurrentPrices) GetPrice(tokenName string) (CurrentPrice, sdk.Error) {
-	for _, ele := range currentPrices {
+func (prices Prices) GetPrice(tokenName string) (Price, sdk.Error) {
+	for _, ele := range prices {
 		if ele.AssetName == tokenName {
 			return ele, nil
 		}
 	}
-	return CurrentPrice{}, sdk.ErrInternal("price not found")
+	return Price{}, sdk.ErrInternal("price not found")
 }
 
-func (currentPrices CurrentPrices) AppendIfMissing(cp CurrentPrice) (CurrentPrices, bool) {
-	for _, ele := range currentPrices {
+func (prices Prices) AppendIfMissing(cp Price) (Prices, bool) {
+	for _, ele := range prices {
 		if ele.Equals(cp) {
 			return nil, true
 		}
 	}
-	return append(currentPrices, cp), false
+	return append(prices, cp), false
 }
 
-type RawPrice struct {
-	Oracle    sdk.AccAddress `json:"oracle"`
-	PriceInfo CurrentPrice   `json:"price"`
-}
-
-func (rawPrice RawPrice) Equals(rp RawPrice) bool {
-	return rawPrice.Oracle.Equals(rp.Oracle) &&
-		rawPrice.PriceInfo.Equals(rp.PriceInfo)
-}
-
-type RawPrices []RawPrice
-
-func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) (RawPrices, bool) {
-	for index, ele := range rawPrices {
+func (prices Prices) UpdatePriceOrAppendIfMissing(rp Price) (Prices, bool) {
+	for index, ele := range prices {
 		if ele.Equals(rp) {
-			return rawPrices, false
+			return prices, false
 		}
-		if ele.Oracle.Equals(rp.Oracle) &&
-			ele.PriceInfo.AssetName == rp.PriceInfo.AssetName &&
-			ele.PriceInfo.Expiry.LTE(rp.PriceInfo.Expiry) &&
-			ele.PriceInfo.Price != rp.PriceInfo.Price {
-			rawPrices[index] = rp
-			return rawPrices, true
+		if ele.AssetName == rp.AssetName && ele.Expiry.LTE(rp.Expiry) && ele.Value != rp.Value {
+			prices[index] = rp
+			return prices, true
 		}
 	}
-	return append(rawPrices, rp), true
+	return append(prices, rp), true
 }

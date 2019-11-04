@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
@@ -35,8 +37,6 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
-			oracle := cliCtx.GetFromAddress()
-			tokenName := args[0]
 			tokenPrice, err := sdk.NewDecFromStr(args[1])
 			if err != nil {
 				return sdk.ErrInternal(err.Error())
@@ -44,19 +44,13 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 
 			expiry, ok := sdk.NewIntFromString(args[2])
 			if !ok {
-				return sdk.ErrInternal("Can't get integer from string")
+				return sdk.ErrInternal(fmt.Sprintf("Invalid expiration height, %s", args[2]))
 			}
 
-			price := types.RawPrice{
-				Oracle: oracle,
-				PriceInfo: types.CurrentPrice{
-					AssetName: tokenName,
-					Price:     tokenPrice,
-					Expiry:    expiry,
-				},
-			}
+			price := types.NewPrice(args[0], tokenPrice, expiry)
 
-			msg := types.NewMsgSetPrice(price)
+			oracle := cliCtx.GetFromAddress()
+			msg := types.NewMsgSetPrice(price, oracle)
 
 			err2 := msg.ValidateBasic()
 			if err2 != nil {
@@ -78,12 +72,12 @@ func GetCmdAddOracle(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 
-			signer := cliCtx.GetFromAddress()
 			oracle, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
 
+			signer := cliCtx.GetFromAddress()
 			msg := types.NewMsgAddOracle(signer, oracle)
 
 			err = msg.ValidateBasic()
