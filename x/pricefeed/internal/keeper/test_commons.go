@@ -15,10 +15,10 @@ import (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, govKeeper government.Keeper, keeper Keeper) {
+func SetupTestInput() (*codec.Codec, sdk.Context, government.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
-	cdc = testCodec()
+	cdc := testCodec()
 
 	authKey := sdk.NewKVStoreKey("authCapKey")
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
@@ -39,12 +39,11 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, govKeeper government.K
 
 	_ = ms.LoadLatestVersion()
 
-	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
-
 	govkeeper := government.NewKeeper(cdc, govKey)
-	pfk := NewKeeper(cdc, pricefeedKey)
 
-	return cdc, ctx, govkeeper, pfk
+	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+
+	return cdc, ctx, govkeeper, NewKeeper(cdc, pricefeedKey)
 }
 
 func testCodec() *codec.Codec {
@@ -59,11 +58,15 @@ func testCodec() *codec.Codec {
 }
 
 // Test variables
-//var TestOracle, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-//var testGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-
 var TestPrice = types.Price{
 	AssetName: "test",
 	Value:     sdk.NewDec(10),
 	Expiry:    sdk.NewInt(5000),
 }
+
+var testOracle, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var price = types.Price{AssetName: "test", Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
+var testGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+
+var msgSetPrice = types.NewMsgSetPrice(price, testOracle)
+var msgAddOracle = types.NewMsgAddOracle(testGovernment, testOracle)

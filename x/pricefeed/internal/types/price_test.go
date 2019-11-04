@@ -23,18 +23,6 @@ func TestCurrentPrice_Equals_false(t *testing.T) {
 	assert.False(t, actual)
 }
 
-func TestCurrentPrices_GetPrice(t *testing.T) {
-	prices := Prices{testPrice}
-	actual, _ := prices.GetPrice(testPrice.AssetName)
-	assert.Equal(t, testPrice, actual)
-}
-
-func TestCurrentPrices_GetPrice_NotFound(t *testing.T) {
-	prices := Prices{}
-	_, err := prices.GetPrice("testName")
-	assert.Error(t, err)
-}
-
 func TestCurrentPrices_AppendIfMissing_Notfound(t *testing.T) {
 	prices := Prices{}
 	actual, found := prices.AppendIfMissing(testPrice)
@@ -55,28 +43,69 @@ func TestPrice_Equals_true(t *testing.T) {
 	assert.True(t, actual)
 }
 
-func TestPrices_UpdatePriceOrAppendIfMissing_appendNewPrice(t *testing.T) {
-	rawPrices := Prices{}
-	actual, updated := rawPrices.UpdatePriceOrAppendIfMissing(testPrice)
-	assert.True(t, updated)
-	assert.Equal(t, testPrice, actual[0])
+// -----------------
+// --- RawPrice
+// -----------------
+
+var testRawPrice = RawPrice{
+	Oracle:  testOracle,
+	Price:   Price{AssetName: "uatom", Value: sdk.NewDecWithPrec(15423, 2), Expiry: sdk.NewInt(1100)},
+	Created: sdk.NewInt(0),
 }
 
-func TestPrices_UpdatePriceOrAppendIfMissing_priceAlreadyInserted(t *testing.T) {
-	rawPrices := Prices{testPrice}
-	actual, updated := rawPrices.UpdatePriceOrAppendIfMissing(testPrice)
-	assert.False(t, updated)
-	assert.Equal(t, rawPrices, actual)
-}
-
-func TestPrices_UpdatePriceOrAppendIfMissing_updatedPrice(t *testing.T) {
-	curPrice := Price{
-		AssetName: testPrice.AssetName,
-		Value:     sdk.NewDec(200),
-		Expiry:    sdk.NewInt(6000),
+func TestRawPrices_UpdatePriceOrAppendIfMissing(t *testing.T) {
+	testData := []struct {
+		name            string
+		prices          RawPrices
+		price           RawPrice
+		shouldBeUpdated bool
+	}{
+		{
+			name:            "New price inserted correctly",
+			prices:          RawPrices{},
+			price:           testRawPrice,
+			shouldBeUpdated: true,
+		},
+		{
+			name:            "Price already inserted is not appended",
+			prices:          RawPrices{testRawPrice},
+			price:           testRawPrice,
+			shouldBeUpdated: false,
+		},
+		{
+			name:   "Different expiration date price is replaced",
+			prices: RawPrices{testRawPrice},
+			price: RawPrice{
+				Oracle: testRawPrice.Oracle,
+				Price: Price{
+					AssetName: testRawPrice.Price.AssetName,
+					Value:     testRawPrice.Price.Value,
+					Expiry:    testRawPrice.Price.Expiry.Add(sdk.NewInt(10)),
+				},
+				Created: testRawPrice.Created,
+			},
+			shouldBeUpdated: true,
+		},
+		{
+			name:   "Different creation date price is replaced",
+			prices: RawPrices{testRawPrice},
+			price: RawPrice{
+				Oracle:  testRawPrice.Oracle,
+				Created: testRawPrice.Created.Add(sdk.NewInt(10)),
+				Price:   testRawPrice.Price,
+			},
+			shouldBeUpdated: true,
+		},
 	}
-	rawPrices := Prices{testPrice}
-	actual, updated := rawPrices.UpdatePriceOrAppendIfMissing(curPrice)
-	assert.Equal(t, curPrice, actual[0])
-	assert.True(t, updated)
+
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			prices, updated := test.prices.UpdatePriceOrAppendIfMissing(test.price)
+			assert.Equal(t, test.shouldBeUpdated, updated)
+			if test.shouldBeUpdated {
+				assert.Contains(t, prices, test.price)
+			}
+		})
+	}
 }

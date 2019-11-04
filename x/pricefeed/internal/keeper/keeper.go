@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
@@ -52,28 +53,48 @@ func (keeper Keeper) getRawPricesKey(assetName string) []byte {
 
 // AddRawPrice sets the raw price for a given token after checking the validity of the signer.
 // If the signer hasn't the rights to set the price, then function returns error.
-func (keeper Keeper) AddRawPrice(ctx sdk.Context, price types.Price) error {
-	store := ctx.KVStore(keeper.StoreKey)
+func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price types.Price) sdk.Error {
+	if !keeper.IsOracle(ctx, oracle) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("%s is not an oracle", oracle))
+	}
 
 	// Add the asset's identifiers if it's the first time that it's been priced
 	keeper.AddAsset(ctx, price.AssetName)
 
 	// Update the raw prices
-	rawPrices := keeper.GetRawPrices(ctx, price.AssetName)
-	if rawPrices, updated := rawPrices.UpdatePriceOrAppendIfMissing(price); updated {
-		store.Set(keeper.getRawPricesKey(price.AssetName), keeper.cdc.MustMarshalBinaryBare(rawPrices))
-	} else {
-		return errors.New("price already present")
+	rawPrice := types.RawPrice{Oracle: oracle, Price: price, Created: sdk.NewInt(ctx.BlockHeight())}
+	rawPrices := keeper.GetRawPricesForAsset(ctx, rawPrice.Price.AssetName)
+	if rawPrices, updated := rawPrices.UpdatePriceOrAppendIfMissing(rawPrice); updated {
+		store := ctx.KVStore(keeper.StoreKey)
+		store.Set(keeper.getRawPricesKey(rawPrice.Price.AssetName), keeper.cdc.MustMarshalBinaryBare(&rawPrices))
+		return nil
 	}
 
-	return nil
+	return sdk.ErrUnknownRequest(fmt.Sprintf("Price %s already exists", price))
 }
 
-// GetRawPrices retrieves all the raw prices of the given asset
-func (keeper Keeper) GetRawPrices(ctx sdk.Context, assetName string) (rawPrices types.Prices) {
+// GetRawPricesForAsset retrieves all the raw prices of the given asset
+func (keeper Keeper) GetRawPricesForAsset(ctx sdk.Context, assetName string) types.RawPrices {
 	store := ctx.KVStore(keeper.StoreKey)
+
+	var rawPrices types.RawPrices
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(keeper.getRawPricesKey(assetName)), &rawPrices)
 	return rawPrices
+}
+
+// GetRawPrices returns the list of the whole raw prices currently stored
+func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.RawPrices {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	prices := types.RawPrices{}
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.RawPricesPrefix))
+	for ; iterator.Valid(); iterator.Next() {
+		var price types.RawPrice
+		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &price)
+		prices = append(prices, price)
+	}
+
+	return prices
 }
 
 // ---------------------
@@ -92,17 +113,17 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 	for _, asset := range assets {
 
 		// Get all raw prices posted by oracles
-		rawPrices := keeper.GetRawPrices(ctx, asset)
+		rawPrices := keeper.GetRawPricesForAsset(ctx, asset)
 
-		var notExpiredPrices = types.Prices{}
+		var notExpiredPrices = types.RawPrices{}
 		var rawPricesSum = sdk.NewDec(0)
 		var rawExpirySum = sdk.NewInt(0)
 
 		// Filter out expired prices
 		for index, price := range rawPrices {
-			if price.Expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
-				rawPricesSum = rawPricesSum.Add(rawPrices[index].Value)
-				rawExpirySum = rawExpirySum.Add(rawPrices[index].Expiry)
+			if price.Price.Expiry.GTE(sdk.NewInt(ctx.BlockHeight())) {
+				rawPricesSum = rawPricesSum.Add(rawPrices[index].Price.Value)
+				rawExpirySum = rawExpirySum.Add(rawPrices[index].Price.Expiry)
 				notExpiredPrices, _ = notExpiredPrices.UpdatePriceOrAppendIfMissing(price)
 			}
 		}
@@ -119,8 +140,8 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 
 		case 1:
 			// Return if there's only one price
-			medianPrice = notExpiredPrices[0].Value
-			expiry = notExpiredPrices[0].Expiry
+			medianPrice = notExpiredPrices[0].Price.Value
+			expiry = notExpiredPrices[0].Price.Expiry
 
 		default:
 			pLength := int64(pricesLength)

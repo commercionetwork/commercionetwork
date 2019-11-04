@@ -19,7 +19,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 
 	// Test setup
 	_, _ = bk.AddCoins(ctx, TestCdp.Owner, TestCdp.DepositedAmount)
-	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
+	pfk.SetCurrentPrice(ctx, pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
 	k.SetCreditsDenom(ctx, "uccc")
 
 	expected := sdk.Result{Log: "Cdp opened successfully"}

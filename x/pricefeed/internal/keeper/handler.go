@@ -29,7 +29,7 @@ func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg types.MsgSetPrice) sd
 	}
 
 	// Set the raw price
-	if err := keeper.AddRawPrice(ctx, msg.Price); err != nil {
+	if err := keeper.AddRawPrice(ctx, msg.Oracle, msg.Price); err != nil {
 		return sdk.ErrUnknownRequest(err.Error()).Result()
 	}
 	return sdk.Result{}

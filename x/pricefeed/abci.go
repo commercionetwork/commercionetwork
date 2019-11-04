@@ -9,6 +9,7 @@ import (
 
 //EndBlocker ensures that prices will update at most once per block
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
-	err := k.ComputeAndUpdateCurrentPrices(ctx)
-	_ = fmt.Sprintf("error is occurred: \n %s", err)
+	if err := k.ComputeAndUpdateCurrentPrices(ctx); err != nil {
+		fmt.Printf("Error during updating of current prices: %s", err)
+	}
 }

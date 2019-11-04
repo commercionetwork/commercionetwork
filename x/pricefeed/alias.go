@@ -18,7 +18,7 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	NewCurrentPrice = types.NewPrice
+	NewPrice = types.NewPrice
 
 	NewMsgSetPrice  = types.NewMsgSetPrice
 	NewMsgAddOracle = types.NewMsgAddOracle
@@ -27,8 +27,10 @@ var (
 type (
 	Keeper = keeper.Keeper
 
-	Price  = types.Price
-	Prices = types.Prices
+	Price     = types.Price
+	Prices    = types.Prices
+	RawPrice  = types.RawPrice
+	RawPrices = types.RawPrices
 
 	MsgSetPrice  = types.MsgSetPrice
 	MsgAddOracle = types.MsgAddOracle

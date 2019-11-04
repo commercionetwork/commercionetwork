@@ -62,50 +62,70 @@ func TestKeeper_GetAssets_EmptyList(t *testing.T) {
 // --- Raw prices
 // -----------------
 
-func TestKeeper_SetRawPrice_withValidSigner_PricesNotAlreadyPresent(t *testing.T) {
+func TestKeeper_AddRawPrice_withValidSigner_PricesNotAlreadyPresent(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
+
+	testOracle1, _ := sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+	k.AddOracle(ctx, testOracle1)
+
+	testOracle2, _ := sdk.AccAddressFromBech32("cosmos1mht72dz4rs7a3arvzjl00zc0pgmr378ql29me6")
+	k.AddOracle(ctx, testOracle2)
 
 	// Add prices
 	const assetName = "test"
 	testPrice1 := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
-	assert.NoError(t, k.AddRawPrice(ctx, testPrice1))
+	assert.NoError(t, k.AddRawPrice(ctx, testOracle1, testPrice1))
 
 	testPrice2 := types.Price{AssetName: assetName, Value: sdk.NewDec(8), Expiry: sdk.NewInt(4000)}
-	assert.NoError(t, k.AddRawPrice(ctx, testPrice2))
+	assert.NoError(t, k.AddRawPrice(ctx, testOracle2, testPrice2))
 
 	// List prices
-	actual := k.GetRawPrices(ctx, assetName)
-	expected := types.Prices{testPrice1, testPrice2}
-	assert.Equal(t, expected, actual)
+	expected := types.RawPrices{
+		types.RawPrice{Oracle: testOracle1, Price: testPrice1, Created: sdk.NewInt(0)},
+		types.RawPrice{Oracle: testOracle2, Price: testPrice2, Created: sdk.NewInt(0)},
+	}
+	assert.Equal(t, expected, k.GetRawPricesForAsset(ctx, assetName))
 }
 
-func TestKeeper_SetRawPrice_withValidSigner_PriceAlreadyPresent(t *testing.T) {
+func TestKeeper_AddRawPrice_withValidSigner_PriceAlreadyPresent(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
 	// Add the price
 	testPrice := types.Price{AssetName: "test", Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
+
 	store := ctx.KVStore(k.StoreKey)
-	store.Set(k.getRawPricesKey(testPrice.AssetName), k.cdc.MustMarshalBinaryBare(types.Prices{testPrice}))
+	prices := types.RawPrices{types.RawPrice{Oracle: testOracle, Price: testPrice, Created: sdk.NewInt(ctx.BlockHeight())}}
+	store.Set(k.getRawPricesKey(testPrice.AssetName), k.cdc.MustMarshalBinaryBare(&prices))
 
 	// Try adding the price again
-	err := k.AddRawPrice(ctx, testPrice)
+	err := k.AddRawPrice(ctx, testOracle, testPrice)
 	assert.Error(t, err)
 }
 
 func TestKeeper_GetRawPrices(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
+	// Setup oracles
+	testOracle1, _ := sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+	k.AddOracle(ctx, testOracle1)
+
+	testOracle2, _ := sdk.AccAddressFromBech32("cosmos1mht72dz4rs7a3arvzjl00zc0pgmr378ql29me6")
+	k.AddOracle(ctx, testOracle2)
+
 	// Add prices
 	const assetName = "test"
 	testPrice1 := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
-	assert.NoError(t, k.AddRawPrice(ctx, testPrice1))
+	assert.NoError(t, k.AddRawPrice(ctx, testOracle1, testPrice1))
 
 	testPrice2 := types.Price{AssetName: assetName, Value: sdk.NewDec(8), Expiry: sdk.NewInt(4000)}
-	assert.NoError(t, k.AddRawPrice(ctx, testPrice2))
+	assert.NoError(t, k.AddRawPrice(ctx, testOracle2, testPrice2))
 
 	// List prices
-	actual := k.GetRawPrices(ctx, assetName)
-	expected := types.Prices{testPrice1, testPrice2}
+	actual := k.GetRawPricesForAsset(ctx, assetName)
+	expected := types.RawPrices{
+		types.RawPrice{Oracle: testOracle1, Price: testPrice1, Created: sdk.NewInt(ctx.BlockHeight())},
+		types.RawPrice{Oracle: testOracle2, Price: testPrice2, Created: sdk.NewInt(ctx.BlockHeight())},
+	}
 	assert.Equal(t, expected, actual)
 }
 
@@ -116,13 +136,16 @@ func TestKeeper_GetRawPrices(t *testing.T) {
 func TestKeeper_SetCurrentPrices_MoreThanOneNotExpiredPrice(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
+	// Setup oracles
+	k.AddOracle(ctx, testOracle)
+
 	// Add prices
 	const assetName = "test"
 	testPrice1 := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
-	assert.NoError(t, k.AddRawPrice(ctx, testPrice1))
+	assert.NoError(t, k.AddRawPrice(ctx, testOracle, testPrice1))
 
 	testPrice2 := types.Price{AssetName: assetName, Value: sdk.NewDec(8), Expiry: sdk.NewInt(4000)}
-	assert.NoError(t, k.AddRawPrice(ctx, testPrice2))
+	assert.NoError(t, k.AddRawPrice(ctx, testOracle, testPrice2))
 
 	sumPrice := testPrice1.Value.Add(testPrice2.Value)
 	sumExpiry := testPrice1.Expiry.Add(testPrice2.Expiry)
@@ -141,8 +164,12 @@ func TestKeeper_SetCurrentPrices_MoreThanOneNotExpiredPrice(t *testing.T) {
 func TestKeeper_SetCurrentPrices_AllExpiredRawPrices(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
+	// Setup oracles
+	k.AddOracle(ctx, testOracle)
+
+	// Add the price
 	price := types.Price{AssetName: "uccc", Value: sdk.NewDec(20), Expiry: sdk.NewInt(-1)}
-	_ = k.AddRawPrice(ctx, price)
+	_ = k.AddRawPrice(ctx, testOracle, price)
 
 	err := k.ComputeAndUpdateCurrentPrices(ctx)
 	assert.Error(t, err)
@@ -151,9 +178,13 @@ func TestKeeper_SetCurrentPrices_AllExpiredRawPrices(t *testing.T) {
 func TestKeeper_SetCurrentPrice_OneNotExpiredPrice(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
+	// Setup oracles
+	k.AddOracle(ctx, testOracle)
+
+	// Add the price
 	const assetName = "test"
 	testPrice := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
-	assert.NoError(t, k.AddRawPrice(ctx, testPrice))
+	assert.NoError(t, k.AddRawPrice(ctx, testOracle, testPrice))
 
 	_ = k.ComputeAndUpdateCurrentPrices(ctx)
 
