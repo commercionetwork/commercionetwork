@@ -24,7 +24,7 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 		case types.MsgInvalidateDidPowerUpRequest:
 			return handleMsgInvalidateDidPowerUpRequest(ctx, keeper, govKeeper, msg)
 		case types.MsgMoveDeposit:
-			return handleMsgWithdrawDeposit(ctx, keeper, govKeeper, msg)
+			return handleMsgMoveDeposit(ctx, keeper, govKeeper, msg)
 		case types.MsgPowerUpDid:
 			return handleMsgPowerUpDid(ctx, keeper, govKeeper, msg)
 		default:
@@ -174,7 +174,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 // --- Deposits handling
 // ------------------------
 
-func handleMsgWithdrawDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgMoveDeposit) sdk.Result {
+func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgMoveDeposit) sdk.Result {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
