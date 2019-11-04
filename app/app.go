@@ -400,9 +400,7 @@ func (app *CommercioNetworkApp) ModuleAccountAddrs() map[string]bool {
 func (app *CommercioNetworkApp) BlacklistedModuleAccAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		if !allowedModuleReceivers.Contains(acc) {
-			modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = true
-		}
+		modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = allowedModuleReceivers.Contains(acc)
 	}
 
 	return modAccAddrs
