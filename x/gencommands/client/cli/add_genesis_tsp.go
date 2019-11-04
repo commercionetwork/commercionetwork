@@ -1,21 +1,22 @@
 package cli
 
 import (
-	bank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 )
 
 // AddGenesisTspCmd returns add-genesis-tsp cobra Command.
-func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
+func AddGenesisTspCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-locked-account [account_address_or_key]",
-		Short: "Adds the given account to the list of locked accounts inside the genesis.json",
+		Use:   "add-genesis-tsp [tsp_address_or_key]",
+		Short: "Add a trusted accreditation signer to genesis.json",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			config := ctx.Config
@@ -33,23 +34,23 @@ func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
 				return err
 			}
 
-			// add minter to the app state
-			var genState bank.GenesisState
-			cdc.MustUnmarshalJSON(appState[bank.ModuleName], &genState)
+			// add tsp to the app state
+			var genState memberships.GenesisState
+			cdc.MustUnmarshalJSON(appState[memberships.ModuleName], &genState)
 
-			genState.BlockedAccounts, _ = genState.BlockedAccounts.AppendIfMissing(address)
+			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(address)
 
+			// save the app state
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[bank.ModuleName] = genesisStateBz
+			appState[memberships.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {
 				return err
 			}
 
-			// export app state
+			// Export app state
 			genDoc.AppState = appStateJSON
-
 			return genutil.ExportGenesisFile(genDoc, genFile)
 		},
 	}
