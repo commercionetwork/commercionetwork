@@ -184,7 +184,8 @@ a minimum `fee.amount` value inside the transaction when using the `commercio/Ms
 
 This minimum fee value is always equivalent at 0.01 euro and can be paid in two different methods: 
 
-1. Using `10000uccc`, which are millionth of Commercio Cash Credits
+1. Using `10000uccc`, which are millionth of Commercio Cash Credits.  
+   In order to know how to get the Commercio Cash Credits, please refer to the [*"Opening a CDP"* page](../../../x/mint/tx/open-cdp.md) 
 2. Using the 0.01 euro equivalent of Commercio Tokens.  
    Please note that the usage of such tokens is discouraged as it is more difficult to properly have an estimate on how
    many tokens are needed. When using it you should set a 10% more of the minimum tokens required.     
