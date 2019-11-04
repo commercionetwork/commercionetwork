@@ -66,7 +66,7 @@ func TestKeeper_SetRawPrice_withValidSigner_PricesNotAlreadyPresent(t *testing.T
 	_, ctx, _, k := SetupTestInput()
 
 	// Add prices
-	assetName := "test"
+	const assetName = "test"
 	testPrice1 := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
 	assert.NoError(t, k.AddRawPrice(ctx, testPrice1))
 
@@ -96,7 +96,7 @@ func TestKeeper_GetRawPrices(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
 	// Add prices
-	assetName := "test"
+	const assetName = "test"
 	testPrice1 := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
 	assert.NoError(t, k.AddRawPrice(ctx, testPrice1))
 
@@ -117,7 +117,7 @@ func TestKeeper_SetCurrentPrices_MoreThanOneNotExpiredPrice(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
 	// Add prices
-	assetName := "test"
+	const assetName = "test"
 	testPrice1 := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
 	assert.NoError(t, k.AddRawPrice(ctx, testPrice1))
 
@@ -151,7 +151,7 @@ func TestKeeper_SetCurrentPrices_AllExpiredRawPrices(t *testing.T) {
 func TestKeeper_SetCurrentPrice_OneNotExpiredPrice(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
-	assetName := "test"
+	const assetName = "test"
 	testPrice := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
 	assert.NoError(t, k.AddRawPrice(ctx, testPrice))
 
