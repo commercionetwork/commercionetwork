@@ -72,9 +72,6 @@ func (doc Document) Validate() sdk.Error {
 	if !validateUUID(doc.UUID) {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
-	if len(strings.TrimSpace(doc.ContentURI)) == 0 {
-		return sdk.ErrUnknownRequest("Document content URI can't be empty")
-	}
 
 	err := doc.Metadata.Validate()
 	if err != nil {
