@@ -2,11 +2,11 @@ package types
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Document contains the generic information about a single document which has been sent from a user to another user.
@@ -46,10 +46,11 @@ func (doc Document) Equals(other Document) bool {
 	return validContent && validChecksum && validEncryptionData
 }
 
-// TODO: Test
-func validateUUID(uuid string) bool {
-	regex := regexp.MustCompile(`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
-	return regex.MatchString(uuid)
+func validateUUID(uuidStr string) bool {
+	_, err := uuid.FromString(uuidStr)
+
+	// when err is nil, uuidStr is a valid UUID
+	return err == nil
 }
 
 // TODO: Test
