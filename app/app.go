@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/cosmos/cosmos-sdk/version"
 
 	"github.com/commercionetwork/commercionetwork/x/docs"
 
@@ -48,7 +49,6 @@ import (
 
 const (
 	appName = "Commercio.network"
-	Version = "1.3.1"
 
 	DefaultBondDenom   = "ucommercio"
 	StableCreditsDenom = "uccc"
@@ -189,7 +189,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
-	bApp.SetAppVersion(Version)
+	bApp.SetAppVersion(version.Version)
 
 	keys := sdk.NewKVStoreKeys(
 		// Basics
