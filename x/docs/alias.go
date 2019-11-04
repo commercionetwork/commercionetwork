@@ -16,18 +16,14 @@ const (
 )
 
 var (
-	NewKeeper     = keeper.NewKeeper
-	NewQuerier    = keeper.NewQuerier
+	NewKeeper  = keeper.NewKeeper
+	NewHandler = keeper.NewHandler
+	NewQuerier = keeper.NewQuerier
+
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
 	NewMsgShareDocument = types.NewMsgShareDocument
-
-	SetupTestInput         = keeper.SetupTestInput
-	TestingSender          = keeper.TestingSender
-	TestingRecipient       = keeper.TestingRecipient
-	TestingDocument        = keeper.TestingDocument
-	TestingDocumentReceipt = keeper.TestingDocumentReceipt
 )
 
 type (
@@ -37,6 +33,7 @@ type (
 	DocumentMetadata                    = types.DocumentMetadata
 	MetadataSchema                      = types.MetadataSchema
 	MetadataSchemes                     = types.MetadataSchemes
+	DocumentMetadataSchema              = types.DocumentMetadataSchema
 	DocumentChecksum                    = types.DocumentChecksum
 	DocumentIds                         = types.DocumentIDs
 	DocumentReceipt                     = types.DocumentReceipt

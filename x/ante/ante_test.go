@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,6 +33,26 @@ func checkInvalidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, 
 	require.Equal(t, sdk.CodespaceRoot, result.Codespace)
 }
 
+var testSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+var testDocument = docs.Document{
+	UUID:       "test-document-uuid",
+	ContentURI: "https://example.com/document",
+	Metadata: docs.DocumentMetadata{
+		ContentURI: "https://example.com/document/metadata",
+		Schema: &docs.DocumentMetadataSchema{
+			URI:     "https://example.com/document/metadata/schema",
+			Version: "1.0.0",
+		},
+	},
+	Checksum: &docs.DocumentChecksum{
+		Value:     "93dfcaf3d923ec47edb8580667473987",
+		Algorithm: "md5",
+	},
+	Sender:     testSender,
+	Recipients: ctypes.Addresses{testRecipient},
+}
+
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 
 	// Setup
@@ -57,13 +78,13 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	// Msg and signatures
 
 	msg := docs.NewMsgShareDocument(docs.Document{
-		UUID:           docs.TestingDocument.UUID,
-		Metadata:       docs.TestingDocument.Metadata,
-		ContentURI:     docs.TestingDocument.ContentURI,
-		Checksum:       docs.TestingDocument.Checksum,
-		EncryptionData: docs.TestingDocument.EncryptionData,
+		UUID:           testDocument.UUID,
+		Metadata:       testDocument.Metadata,
+		ContentURI:     testDocument.ContentURI,
+		Checksum:       testDocument.Checksum,
+		EncryptionData: testDocument.EncryptionData,
 		Sender:         acc1.GetAddress(),
-		Recipients:     docs.TestingDocument.Recipients,
+		Recipients:     testDocument.Recipients,
 	})
 	privs, accnums, seqs := []crypto.PrivKey{priv1}, []uint64{0}, []uint64{0}
 	msgs := []sdk.Msg{msg}
