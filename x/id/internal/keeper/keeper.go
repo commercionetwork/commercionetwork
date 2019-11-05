@@ -333,7 +333,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 // specified account balance
 func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) sdk.Error {
 	// Check the amount
-	if (!amount.IsValid()) || amount.Empty() {
+	if amount.Empty() || !amount.IsValid() {
 		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid coins: %s", amount))
 	}
 

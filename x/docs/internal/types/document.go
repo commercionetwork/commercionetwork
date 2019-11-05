@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
