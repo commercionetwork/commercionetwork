@@ -6,8 +6,10 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/assert"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 )
 
 // ------------------
@@ -39,12 +41,14 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	assert.NoError(t, err)
 
 	account := aK.GetAccount(ctx, TestOwnerAddress)
+	secp256k1key := account.GetPubKey().(secp256k1.PubKeySecp256k1)
+
 	updatedDocument.PubKeys = types.PubKeys{
 		types.PubKey{
-			Id:           "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
+			ID:           "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
 			Type:         "Secp256k1VerificationKey2018",
 			Controller:   TestOwnerAddress,
-			PublicKeyHex: hex.EncodeToString(account.GetPubKey().Bytes()),
+			PublicKeyHex: hex.EncodeToString(secp256k1key[:]),
 		},
 	}
 
@@ -81,11 +85,11 @@ func TestKeeper_GetDidDocuments(t *testing.T) {
 	fourth := setupDidDocument(ctx, aK, "cosmos177ap6yqt87znxmep5l7vdaac59uxyn582kv0gl")
 	fifth := setupDidDocument(ctx, aK, "cosmos1ajv8j3e0ud2uduzdqmxfcvwm3nwdgr447yvu5m")
 
-	store.Set(k.getIdentityStoreKey(first.Id), cdc.MustMarshalBinaryBare(first))
-	store.Set(k.getIdentityStoreKey(second.Id), cdc.MustMarshalBinaryBare(second))
-	store.Set(k.getIdentityStoreKey(third.Id), cdc.MustMarshalBinaryBare(third))
-	store.Set(k.getIdentityStoreKey(fourth.Id), cdc.MustMarshalBinaryBare(fourth))
-	store.Set(k.getIdentityStoreKey(fifth.Id), cdc.MustMarshalBinaryBare(fifth))
+	store.Set(k.getIdentityStoreKey(first.ID), cdc.MustMarshalBinaryBare(first))
+	store.Set(k.getIdentityStoreKey(second.ID), cdc.MustMarshalBinaryBare(second))
+	store.Set(k.getIdentityStoreKey(third.ID), cdc.MustMarshalBinaryBare(third))
+	store.Set(k.getIdentityStoreKey(fourth.ID), cdc.MustMarshalBinaryBare(fourth))
+	store.Set(k.getIdentityStoreKey(fifth.ID), cdc.MustMarshalBinaryBare(fifth))
 
 	actual, err := k.GetDidDocuments(ctx)
 
@@ -355,43 +359,25 @@ func TestKeeper_FundAccount_InvalidAmount(t *testing.T) {
 
 func TestKeeper_FundAccount_InsufficientPoolFunds(t *testing.T) {
 	_, ctx, _, _, _, k := SetupTestInput()
-	_ = k.SetPoolAmount(ctx, sdk.NewCoins(sdk.NewInt64Coin("uatom", 10)))
 
 	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
 	assert.Error(t, err)
-	assert.Equal(t, sdk.CodeInsufficientFunds, err.Code())
+	assert.Equal(t, sdk.CodeInsufficientCoins, err.Code())
 }
 
 func TestKeeper_FundAccount_ValidRequest(t *testing.T) {
 	_, ctx, _, bK, _, k := SetupTestInput()
-	_ = k.SetPoolAmount(ctx, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
+
+	pool := sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000))
+	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(pool))
+	_ = bK.SetCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), pool)
 
 	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)))
 	assert.Nil(t, err)
 
-	pool := k.GetPoolAmount(ctx)
-	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 900)), pool)
+	remaining := k.GetPoolAmount(ctx)
+	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 900)), remaining)
 	assert.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)), bK.GetCoins(ctx, TestDepositor))
-}
-
-func TestKeeper_SetPoolAmount_EmptyCoins(t *testing.T) {
-	_, ctx, _, _, _, k := SetupTestInput()
-
-	err := k.SetPoolAmount(ctx, nil)
-	assert.Nil(t, err)
-}
-
-func TestKeeper_SetPoolAmount_NonEmptyCoins(t *testing.T) {
-	cdc, ctx, _, _, _, k := SetupTestInput()
-
-	pool := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
-	err := k.SetPoolAmount(ctx, pool)
-	assert.Nil(t, err)
-
-	var stored sdk.Coins
-	store := ctx.KVStore(k.storeKey)
-	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.DepositsPoolStoreKey)), &stored)
-	assert.Equal(t, pool, stored)
 }
 
 func TestKeeper_GetPoolAmount_EmptyCoins(t *testing.T) {
@@ -402,11 +388,11 @@ func TestKeeper_GetPoolAmount_EmptyCoins(t *testing.T) {
 }
 
 func TestKeeper_GetPoolAmount_NonEmptyCoins(t *testing.T) {
-	cdc, ctx, _, _, _, k := SetupTestInput()
+	_, ctx, _, bk, _, k := SetupTestInput()
 
 	pool := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.DepositsPoolStoreKey), cdc.MustMarshalBinaryBare(&pool))
+	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(pool))
+	_ = bk.SetCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), pool)
 
 	stored := k.GetPoolAmount(ctx)
 	assert.Equal(t, pool, stored)

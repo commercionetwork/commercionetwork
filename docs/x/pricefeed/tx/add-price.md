@@ -1,11 +1,11 @@
-# Setting a raw price for an asset
+# Set a price for an asset
 
 ::: tip  
 In order to perform this transaction you need to be an *oracle*.  
 If you wish to become one, please take a look at the [*"Adding an oracle"* page](add-oracle.md)  
 :::
 
-If you have been added as an oracle you can set a raw price into the blockchain **once every block**.  
+If you have been added as an oracle you can set a price into the blockchain **once every block**.  
 This means that trying to set a price for the same asset more than once every 6 seconds (the estimated block time) 
 will result in an error when trying to send the transactions. 
 
@@ -19,12 +19,28 @@ In order to set a raw price for a specific asset, you need to create and sign th
     "oracle": "<Did of the oracle>",
     "price": {
       "asset_name": "<Name of the asset>",
-      "price": "<Price of the asset (supports decimal numbers)>",
+      "value": "<Price of the asset (supports decimal numbers)>",
       "expiry": "<Block height after which the price should be considered invalid>"
     }
   }
 }
 ```
+
+### Fields requirements
+| Field | Required | 
+| :---: | :------: | 
+| `oracle` | Yes |
+| `price` | Yes |
+
+#### `price`
+| Field | Required | 
+| :---: | :------: | 
+| `asset_name` | Yes |
+| `value` | Yes *<sup>1</sup> |
+| `expiry` | Yes |
+
+- *<sup>1</sup> The `value` field value must have a 18 decimal digits.  
+   For example, to set price `1` you must use `1.000000000000000000`. 
 
 ### About the expiration
 When sending the above message, you will need to specify a valid `expiry` value.  
@@ -42,4 +58,12 @@ The best way to do so is to:
 Please note that adding a price with a block height **equals or lower** than the current block height will result 
 in the price never be considered valid and thus never be taken into consideration.
 
-We suggest you to choose a value of $k = 10$ which will make the price valid for more or less 1 minute.  
+We suggest you to choose a value of $k = 10$ which will make the price valid for more or less 1 minute.
+
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+setPrice
+```    

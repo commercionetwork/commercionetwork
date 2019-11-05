@@ -5,6 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -87,17 +88,19 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper Keeper
-	govK   government.Keeper
+	keeper           Keeper
+	governmentKeeper government.Keeper
+	supplyKeeper     supply.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, govK government.Keeper) AppModule {
+func NewAppModule(keeper Keeper, supplyKeeper supply.Keeper, govK government.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
-		govK:                govK,
+		governmentKeeper:    govK,
+		supplyKeeper:        supplyKeeper,
 	}
 }
 
@@ -116,7 +119,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper, am.govK)
+	return NewHandler(am.keeper, am.governmentKeeper)
 }
 
 // module querier route name
@@ -133,7 +136,7 @@ func (am AppModule) NewQuerierHandler() sdk.Querier {
 func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
 	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, genesisState)
+	InitGenesis(ctx, am.keeper, am.supplyKeeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 

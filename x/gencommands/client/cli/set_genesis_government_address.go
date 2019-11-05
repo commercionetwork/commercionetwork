@@ -8,10 +8,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 )
 
@@ -26,19 +24,9 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
-			address, err := sdk.AccAddressFromBech32(args[0])
+			address, err := getAddressFromString(args[0])
 			if err != nil {
-				kb, err := keys.NewKeyBaseFromDir(viper.GetString(flagClientHome))
-				if err != nil {
-					return err
-				}
-
-				info, err := kb.Get(args[0])
-				if err != nil {
-					return err
-				}
-
-				address = info.GetAddress()
+				return err
 			}
 
 			// retrieve the app state

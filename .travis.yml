@@ -1,11 +1,15 @@
 language: node_js
+
 node_js:
   - lts/*
+
 install:
   - npm ci
+
 script:
   - npm run docs:build
   - echo 'docs.commercio.network' > docs/.vuepress/dist/CNAME
+
 deploy:
   provider: pages
   skip-cleanup: true
@@ -13,4 +17,4 @@ deploy:
   github-token: $GITHUB_TOKEN
   keep-history: true
   on:
-    branch: master
+    tags: true

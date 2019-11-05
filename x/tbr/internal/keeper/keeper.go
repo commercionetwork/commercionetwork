@@ -5,28 +5,21 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/staking/exported"
 )
 
 type Keeper struct {
-	storeKey sdk.StoreKey
-	cdc      *codec.Codec
-
-	bankKeeper         bank.Keeper
-	stakingKeeper      staking.Keeper
-	DistributionKeeper distribution.Keeper
+	cdc        *codec.Codec
+	storeKey   sdk.StoreKey
+	distKeeper distribution.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, bk bank.Keeper, sk staking.Keeper, dk distribution.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper) Keeper {
 	return Keeper{
-		storeKey:           storeKey,
-		bankKeeper:         bk,
-		DistributionKeeper: dk,
-		stakingKeeper:      sk,
-		cdc:                cdc,
+		cdc:        cdc,
+		storeKey:   storeKey,
+		distKeeper: dk,
 	}
 }
 
@@ -50,21 +43,6 @@ func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	store := ctx.KVStore(k.storeKey)
 	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.PoolStoreKey)), &brPool)
 	return brPool
-}
-
-// IncrementBlockRewardsPool increases the block rewards pool with the specified coin amount
-func (k Keeper) IncrementBlockRewardsPool(ctx sdk.Context, funder sdk.AccAddress, amount sdk.Coins) sdk.Error {
-
-	// Subtract the coins from the account
-	bk := k.bankKeeper
-	if _, err := bk.SubtractCoins(ctx, funder, amount); err != nil {
-		return err
-	}
-
-	// Set the total rewards pool
-	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(sdk.NewDecCoins(amount)))
-
-	return nil
 }
 
 // --------------------------
@@ -120,10 +98,10 @@ func (k Keeper) GetYearNumber(ctx sdk.Context) (year int64) {
 	actualBz := store.Get([]byte(types.YearNumberStoreKey))
 	if actualBz == nil {
 		return 0
-	} else {
-		k.cdc.MustUnmarshalBinaryBare(actualBz, &year)
-		return year
 	}
+
+	k.cdc.MustUnmarshalBinaryBare(actualBz, &year)
+	return year
 }
 
 // UpdateYearlyPool allows to update the current yearly pool based on whenever we
@@ -205,11 +183,11 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(reward))
 
 		// Get his current reward and then add the new one
-		currentRewards := k.DistributionKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
+		currentRewards := k.distKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
 		currentRewards.Rewards = currentRewards.Rewards.Add(reward)
 
 		// Set the just earned reward
-		k.DistributionKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
+		k.distKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
 	} else {
 		return sdk.ErrInsufficientFunds("Pool hasn't got enough funds to supply validator's rewards")
 	}

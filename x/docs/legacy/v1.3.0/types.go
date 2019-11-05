@@ -28,9 +28,9 @@ type GenesisState struct {
 // -----------------
 
 type Document struct {
-	Uuid           string                  `json:"uuid"`
+	UUID           string                  `json:"uuid"`
 	Metadata       DocumentMetadata        `json:"metadata"`
-	ContentUri     string                  `json:"content_uri"`     // Optional
+	ContentURI     string                  `json:"content_uri"`     // Optional
 	Checksum       *DocumentChecksum       `json:"checksum"`        // Optional
 	EncryptionData *DocumentEncryptionData `json:"encryption_data"` // Optional
 	Sender         sdk.AccAddress          `json:"sender"`
@@ -38,13 +38,13 @@ type Document struct {
 }
 
 type DocumentMetadata struct {
-	ContentUri string                  `json:"content_uri"`
+	ContentURI string                  `json:"content_uri"`
 	SchemaType string                  `json:"schema_type"` // Optional - Either this or schema must be defined
 	Schema     *DocumentMetadataSchema `json:"schema"`      // Optional - Either this or schema_type must be defined
 }
 
 type DocumentMetadataSchema struct {
-	Uri     string `json:"uri"`
+	URI     string `json:"uri"`
 	Version string `json:"version"`
 }
 
@@ -67,7 +67,7 @@ type Documents []Document
 
 func (documents Documents) AppendIfMissingID(i Document) Documents {
 	for _, ele := range documents {
-		if ele.Uuid == i.Uuid {
+		if ele.UUID == i.UUID {
 			return documents
 		}
 	}
@@ -79,11 +79,11 @@ func (documents Documents) AppendIfMissingID(i Document) Documents {
 // ---------------------
 
 type DocumentReceipt struct {
-	Uuid         string         `json:"uuid"`
+	UUID         string         `json:"uuid"`
 	Sender       sdk.AccAddress `json:"sender"`
 	Recipient    sdk.AccAddress `json:"recipient"`
 	TxHash       string         `json:"tx_hash"`
-	DocumentUuid string         `json:"document_uuid"`
+	DocumentUUID string         `json:"document_uuid"`
 	Proof        string         `json:"proof"`
 }
 
@@ -93,6 +93,6 @@ type DocumentReceipt struct {
 
 type MetadataSchema struct {
 	Type      string `json:"type"`
-	SchemaUri string `json:"schema_uri"`
+	SchemaURI string `json:"schema_uri"`
 	Version   string `json:"version"`
 }

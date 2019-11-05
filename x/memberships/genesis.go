@@ -2,10 +2,12 @@ package memberships
 
 import (
 	"errors"
+	"fmt"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 // GenesisState - accreditations genesis state
@@ -26,10 +28,17 @@ func DefaultGenesisState(stableCreditsDenom string) GenesisState {
 }
 
 // InitGenesis sets docs information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	// Set the liquidity pool
-	if data.LiquidityPoolAmount != nil {
-		keeper.SetPoolFunds(ctx, data.LiquidityPoolAmount)
+func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
+	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
+
+	if moduleAcc.GetCoins().IsZero() {
+		if err := moduleAcc.SetCoins(data.LiquidityPoolAmount); err != nil {
+			panic(err)
+		}
+		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
 	// Import the signers

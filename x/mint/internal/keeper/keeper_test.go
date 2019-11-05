@@ -11,43 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// ---------------------
-// --- Liquidity pool
-// ---------------------
-
-func TestKeeper_SetLiquidityPool(t *testing.T) {
-	_, ctx, _, _, k := SetupTestInput()
-
-	k.SetLiquidityPool(ctx, TestLiquidityPool)
-
-	store := ctx.KVStore(k.StoreKey)
-	var stored sdk.Coins
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolStorePrefix)), &stored)
-
-	assert.Equal(t, TestLiquidityPool, stored)
-}
-
-func TestKeeper_SetLiquidityPool_EmptyPool(t *testing.T) {
-	_, ctx, _, _, k := SetupTestInput()
-
-	k.SetLiquidityPool(ctx, sdk.NewCoins())
-
-	store := ctx.KVStore(k.StoreKey)
-	var stored sdk.Coins
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.LiquidityPoolStorePrefix)), &stored)
-	assert.Empty(t, stored)
-}
-
-func TestKeeper_GetBlockRewardsPool(t *testing.T) {
-	_, ctx, _, _, k := SetupTestInput()
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.LiquidityPoolStorePrefix), k.cdc.MustMarshalBinaryBare(TestLiquidityPool))
-
-	actual := k.GetLiquidityPool(ctx)
-	assert.Equal(t, TestLiquidityPool, actual)
-}
-
 // --------------
 // --- Credits
 // --------------
@@ -58,7 +21,7 @@ func TestKeeper_SetCreditsDenom(t *testing.T) {
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	denomBz := store.Get([]byte(types.CreditsDenomStoreKey))
 	assert.Equal(t, denom, string(denomBz))
 }
@@ -81,7 +44,7 @@ func TestKeeper_AddCdp_Existing(t *testing.T) {
 	k.AddCdp(ctx, TestCdp)
 	k.AddCdp(ctx, TestCdp)
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	actualBz := store.Get(k.getCdpKey(TestOwner))
 	k.cdc.MustUnmarshalBinaryBare(actualBz, &cdps)
 
@@ -93,7 +56,7 @@ func TestKeeper_AddCdp_NotExisting(t *testing.T) {
 	var cdps types.Cdps
 	k.AddCdp(ctx, TestCdp)
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	actualBz := store.Get(k.getCdpKey(TestOwner))
 	k.cdc.MustUnmarshalBinaryBare(actualBz, &cdps)
 
@@ -125,7 +88,7 @@ func TestKeeper_OpenCdp_TokenPriceNotFound(t *testing.T) {
 func TestKeeper_OpenCdp_NotEnoughFundsInUsersWallet(t *testing.T) {
 	_, ctx, _, pfk, k := SetupTestInput()
 
-	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice("ucommercio", 10, 1000))
+	pfk.SetCurrentPrice(ctx, pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
 	k.SetCreditsDenom(ctx, "uccc")
 
 	err := k.OpenCdp(ctx, TestCdpRequest)
@@ -138,7 +101,7 @@ func TestKeeper_OpenCdp_Successful(t *testing.T) {
 
 	// Setup
 	_ = bk.SetCoins(ctx, TestOwner, TestCdpRequest.DepositedAmount)
-	pfk.SetCurrentPrice(ctx, pricefeed.NewCurrentPrice(TestLiquidityDenom, 10, 1000))
+	pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(TestLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
 	// Cdp opening
 	err := k.OpenCdp(ctx, TestCdpRequest)
@@ -162,7 +125,7 @@ func TestKeeper_GetCdpsByOwner_NonEmptyList(t *testing.T) {
 
 	k.AddCdp(ctx, TestCdp)
 
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	var cdps types.Cdps
 	cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(TestCdp.Owner)), &cdps)
 	assert.Equal(t, types.Cdps{TestCdp}, k.GetCdpsByOwner(ctx, TestOwner))
@@ -181,7 +144,7 @@ func TestKeeper_CloseCdp_ExistentCdp(t *testing.T) {
 	_, ctx, bk, _, k := SetupTestInput()
 
 	k.AddCdp(ctx, TestCdp)
-	k.SetLiquidityPool(ctx, TestLiquidityPool)
+	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, TestLiquidityPool)
 	_, _ = bk.AddCoins(ctx, TestOwner, TestCdp.CreditsAmount)
 
 	err := k.CloseCdp(ctx, TestOwner, TestCdp.Timestamp)

@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -74,17 +75,19 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper      Keeper
-	stakeKeeper staking.Keeper
+	keeper        Keeper
+	stakingKeeper staking.Keeper
+	bankKeeper    bank.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, stakingKeeper staking.Keeper) AppModule {
+func NewAppModule(k Keeper, sk staking.Keeper, bk bank.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
-		keeper:              keeper,
-		stakeKeeper:         stakingKeeper,
+		keeper:              k,
+		stakingKeeper:       sk,
+		bankKeeper:          bk,
 	}
 }
 
@@ -99,7 +102,7 @@ func (AppModule) Route() string {
 }
 
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.keeper, am.bankKeeper)
 }
 
 func (AppModule) QuerierRoute() string {
@@ -127,7 +130,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 
 // module begin-block
 func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
-	BeginBlocker(ctx, rbb, am.keeper, am.stakeKeeper)
+	BeginBlocker(ctx, rbb, am.keeper, am.stakingKeeper)
 }
 
 // module end-block

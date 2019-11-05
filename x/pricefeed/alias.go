@@ -13,27 +13,24 @@ const (
 
 var (
 	NewKeeper     = keeper.NewKeeper
+	NewHandler    = keeper.NewHandler
 	NewQuerier    = keeper.NewQuerier
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	NewCurrentPrice = types.NewCurrentPrice
+	NewPrice = types.NewPrice
 
 	NewMsgSetPrice  = types.NewMsgSetPrice
 	NewMsgAddOracle = types.NewMsgAddOracle
-
-	// Testing
-	TestInput      = keeper.SetupTestInput
-	TestOracle1    = keeper.TestOracle1
-	TestGovernment = keeper.TestGovernment
-	TestRawPrice   = keeper.TestRawPrice1
 )
 
 type (
 	Keeper = keeper.Keeper
 
-	CurrentPrice = types.CurrentPrice
-	RawPrice     = types.RawPrice
+	Price     = types.Price
+	Prices    = types.Prices
+	RawPrice  = types.RawPrice
+	RawPrices = types.RawPrices
 
 	MsgSetPrice  = types.MsgSetPrice
 	MsgAddOracle = types.MsgAddOracle

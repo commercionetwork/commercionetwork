@@ -10,13 +10,14 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Oracles ctypes.Addresses `json:"oracles"`
-	Assets  ctypes.Strings   `json:"assets"`
+	Oracles   ctypes.Addresses `json:"oracles"`
+	Assets    ctypes.Strings   `json:"assets"`
+	RawPrices RawPrices        `json:"raw_prices"`
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
-	return GenesisState{Oracles: ctypes.Addresses{}, Assets: ctypes.Strings{}}
+	return GenesisState{}
 }
 
 // InitGenesis sets docs information for genesis.
@@ -28,17 +29,20 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
 	for _, asset := range genState.Assets {
 		keeper.AddAsset(ctx, asset)
 	}
+
+	for _, rawPrice := range genState.RawPrices {
+		if err := keeper.AddRawPrice(ctx, rawPrice.Oracle, rawPrice.Price); err != nil {
+			panic(err)
+		}
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-
-	oracles := keeper.GetOracles(ctx)
-	assets := keeper.GetAssets(ctx)
-
 	return GenesisState{
-		Oracles: oracles,
-		Assets:  assets,
+		Oracles:   keeper.GetOracles(ctx),
+		Assets:    keeper.GetAssets(ctx),
+		RawPrices: keeper.GetRawPrices(ctx),
 	}
 }
 

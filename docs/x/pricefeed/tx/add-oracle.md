@@ -18,3 +18,11 @@ To add a new oracle into the set of current oracles you need to create and sign 
   }
 }
 ```
+
+## Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+addOracle
+```  

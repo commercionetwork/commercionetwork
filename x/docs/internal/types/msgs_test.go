@@ -12,12 +12,12 @@ import (
 var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var recipient, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
 var msgShareDocumentSchema = MsgShareDocument(Document{
-	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-	ContentUri: "http://www.contentUri.com",
+	UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	ContentURI: "http://www.contentUri.com",
 	Metadata: DocumentMetadata{
-		ContentUri: "http://www.contentUri.com",
+		ContentURI: "http://www.contentUri.com",
 		Schema: &DocumentMetadataSchema{
-			Uri:     "http://www.contentUri.com",
+			URI:     "http://www.contentUri.com",
 			Version: "test",
 		},
 	},
@@ -30,10 +30,10 @@ var msgShareDocumentSchema = MsgShareDocument(Document{
 })
 
 var msgShareDocumentSchemaType = MsgShareDocument(Document{
-	Uuid:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-	ContentUri: "http://www.contentUri.com",
+	UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	ContentURI: "http://www.contentUri.com",
 	Metadata: DocumentMetadata{
-		ContentUri: "http://www.contentUri.com",
+		ContentURI: "http://www.contentUri.com",
 		SchemaType: "uni-sincro",
 	},
 	Checksum: &DocumentChecksum{
@@ -86,7 +86,7 @@ func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
 	var msg MsgShareDocument
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, "http://www.contentUri.com", msg.Metadata.Schema.Uri)
+	assert.Equal(t, "http://www.contentUri.com", msg.Metadata.Schema.URI)
 	assert.Equal(t, "test", msg.Metadata.Schema.Version)
 }
 
@@ -104,17 +104,17 @@ func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
 // ----------------------
 
 func TestValidateUuid_valid(t *testing.T) {
-	actual := validateUuid("6a2f41a3-c54c-fce8-32d2-0324e1c32e22")
+	actual := validateUUID("6a2f41a3-c54c-fce8-32d2-0324e1c32e22")
 	assert.True(t, actual)
 }
 
 func TestValidateUuid_empty(t *testing.T) {
-	actual := validateUuid("")
+	actual := validateUUID("")
 	assert.False(t, actual)
 }
 
 func TestValidateUuid_invalid(t *testing.T) {
-	actual := validateUuid("ebkfkd")
+	actual := validateUUID("ebkfkd")
 	assert.False(t, actual)
 }
 
@@ -123,11 +123,11 @@ func TestValidateUuid_invalid(t *testing.T) {
 // -----------------------------
 
 var msgDocumentReceipt = MsgSendDocumentReceipt{
-	Uuid:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+	UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
 	Sender:       sender,
 	Recipient:    recipient,
 	TxHash:       "txHash",
-	DocumentUuid: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	Proof:        "proof",
 }
 
@@ -151,7 +151,7 @@ func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
 		Sender:       sender,
 		Recipient:    recipient,
 		TxHash:       "txHash",
-		DocumentUuid: "123456789",
+		DocumentUUID: "123456789",
 		Proof:        "proof",
 	}
 	err := msgDocReceipt.ValidateBasic()
@@ -178,7 +178,7 @@ var msgAddSupportedMetadataSchema = MsgAddSupportedMetadataSchema{
 	Signer: sender,
 	Schema: MetadataSchema{
 		Type:      "schema",
-		SchemaUri: "https://example.com/schema",
+		SchemaURI: "https://example.com/schema",
 		Version:   "1.0.0",
 	},
 }
@@ -203,7 +203,7 @@ func Test_MsgAddSupportedMetadataSchema_ValidateBasic_invalid(t *testing.T) {
 		Signer: recipient,
 		Schema: MetadataSchema{
 			Type:      "schema-2",
-			SchemaUri: "",
+			SchemaURI: "",
 			Version:   "",
 		},
 	}

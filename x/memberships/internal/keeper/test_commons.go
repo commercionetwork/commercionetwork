@@ -10,8 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/cosmos/modules/incubator/nft"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
@@ -23,51 +24,61 @@ func GetTestInput() (*codec.Codec, sdk.Context, bank.Keeper, government.Keeper, 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
-	keyAcc := sdk.NewKVStoreKey(auth.StoreKey)
-	authKey := sdk.NewKVStoreKey("authCapKey")
-	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
-	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
-	keyParams := sdk.NewKVStoreKey(params.StoreKey)
-	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
+	keys := sdk.NewKVStoreKeys(
+		auth.StoreKey,
+		params.StoreKey,
+		supply.StoreKey,
+		nft.StoreKey,
+		government.StoreKey,
 
-	nftKey := sdk.NewKVStoreKey("nft")
-	governmentKey := sdk.NewKVStoreKey("government")
-	storeKey := sdk.NewKVStoreKey("accreditations")
+		types.StoreKey,
+	)
+	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
-	ms.MountStoreWithDB(keyAcc, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(authKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(nftKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(governmentKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
+	for _, key := range keys {
+		ms.MountStoreWithDB(key, sdk.StoreTypeIAVL, memDB)
+	}
+	for _, tkey := range tKeys {
+		ms.MountStoreWithDB(tkey, sdk.StoreTypeTransient, memDB)
+	}
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	accountKeeper := auth.NewAccountKeeper(cdc, keyAcc, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bankK := bank.NewBaseKeeper(accountKeeper, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
+	pk := params.NewKeeper(cdc, keys[params.StoreKey], tKeys[params.TStoreKey], params.DefaultCodespace)
+	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
+	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, nil)
+	maccPerms := map[string][]string{
+		types.ModuleName: {supply.Minter, supply.Burner},
+	}
+	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
+	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("stake", 1))))
 
-	govK := government.NewKeeper(cdc, governmentKey)
-	nftK := nft.NewKeeper(cdc, nftKey)
-	accK := NewKeeper(cdc, storeKey, nftK, bankK)
-	accK.SetStableCreditsDenom(ctx, TestStableCreditsDenom)
+	govk := government.NewKeeper(cdc, keys[government.StoreKey])
+	nftk := nft.NewKeeper(cdc, keys[nft.StoreKey])
 
-	return cdc, ctx, bankK, govK, accK
+	k := NewKeeper(cdc, keys[types.StoreKey], nftk, sk)
+
+	// Set module accounts
+	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
+	k.supplyKeeper.SetModuleAccount(ctx, memAcc)
+
+	// Set the stable credits denom
+	k.SetStableCreditsDenom(ctx, TestStableCreditsDenom)
+
+	return cdc, ctx, bk, govk, k
 }
 
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
 
-	bank.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
+	bank.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	nft.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
+	supply.RegisterCodec(cdc)
 
 	types.RegisterCodec(cdc)
 

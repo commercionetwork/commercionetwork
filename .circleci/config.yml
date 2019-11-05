@@ -141,6 +141,14 @@ workflows:
       - test-cover:
           requires:
             - setup-dependencies
+          filters:
+            branches:
+              ignore:
+                - gh-pages
       - upload-coverage:
           requires:
             - test-cover
+          filters:
+            branches:
+              ignore:
+                - gh-pages

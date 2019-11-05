@@ -8,9 +8,9 @@ import (
 
 func TestDocumentMetadata_Equals(t *testing.T) {
 	metadata := DocumentMetadata{
-		ContentUri: "http://example.com/metadata",
+		ContentURI: "http://example.com/metadata",
 		Schema: &DocumentMetadataSchema{
-			Uri:     "https://example.com/metadata/schema",
+			URI:     "https://example.com/metadata/schema",
 			Version: "1.0.0",
 		},
 	}
@@ -18,20 +18,20 @@ func TestDocumentMetadata_Equals(t *testing.T) {
 }
 
 func TestDocumentMetadata_Equals_DifferentContents(t *testing.T) {
-	metadata := DocumentMetadata{ContentUri: "http://example.com/metadata"}
+	metadata := DocumentMetadata{ContentURI: "http://example.com/metadata"}
 
-	other := DocumentMetadata{ContentUri: "https://example.com"}
+	other := DocumentMetadata{ContentURI: "https://example.com"}
 	assert.False(t, metadata.Equals(other))
 }
 
 func TestDocumentMetadata_Equals_DifferentSchema(t *testing.T) {
-	metadata := DocumentMetadata{ContentUri: "http://example.com/metadata"}
+	metadata := DocumentMetadata{ContentURI: "http://example.com/metadata"}
 
 	other := DocumentMetadata{
-		ContentUri: metadata.ContentUri,
+		ContentURI: metadata.ContentURI,
 		SchemaType: metadata.SchemaType,
 		Schema: &DocumentMetadataSchema{
-			Uri:     "https://example.com/metadata/schema",
+			URI:     "https://example.com/metadata/schema",
 			Version: "1.0.0",
 		},
 	}
@@ -44,9 +44,9 @@ func TestDocumentMetadata_Equals_DifferentSchema(t *testing.T) {
 
 func TestDocumentMetadata_Validate(t *testing.T) {
 	validDocumentMetadata := DocumentMetadata{
-		ContentUri: "http://www.contentUri.com",
+		ContentURI: "http://www.contentUri.com",
 		Schema: &DocumentMetadataSchema{
-			Uri:     "http://www.contentUri.com",
+			URI:     "http://www.contentUri.com",
 			Version: "test",
 		},
 	}
@@ -57,9 +57,9 @@ func TestDocumentMetadata_Validate(t *testing.T) {
 
 func TestDocumentMetadata_Validate_EmptyContentUri(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
-		ContentUri: "   ",
+		ContentURI: "   ",
 		Schema: &DocumentMetadataSchema{
-			Uri:     "http://www.contentUri.com",
+			URI:     "http://www.contentUri.com",
 			Version: "test",
 		},
 	}
@@ -71,7 +71,7 @@ func TestDocumentMetadata_Validate_EmptyContentUri(t *testing.T) {
 
 func TestDocumentMetadata_Validate_EmptyMetadataInfo(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
-		ContentUri: "https://example.com/metadata",
+		ContentURI: "https://example.com/metadata",
 		Schema:     nil,
 		SchemaType: "",
 	}
@@ -83,9 +83,9 @@ func TestDocumentMetadata_Validate_EmptyMetadataInfo(t *testing.T) {
 
 func TestDocumentMetadata_Validate_EmptySchemaUri(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
-		ContentUri: "http://www.contentUri.com",
+		ContentURI: "http://www.contentUri.com",
 		Schema: &DocumentMetadataSchema{
-			Uri:     "",
+			URI:     "",
 			Version: "test",
 		},
 	}
@@ -97,9 +97,9 @@ func TestDocumentMetadata_Validate_EmptySchemaUri(t *testing.T) {
 
 func TestDocumentMetadata_Validate_EmptySchemaVersion(t *testing.T) {
 	invalidDocumentMetadata := DocumentMetadata{
-		ContentUri: "http://www.contentUri.com",
+		ContentURI: "http://www.contentUri.com",
 		Schema: &DocumentMetadataSchema{
-			Uri:     "http://www.contentUri.com",
+			URI:     "http://www.contentUri.com",
 			Version: "",
 		},
 	}
@@ -116,9 +116,9 @@ func TestDocumentMetadata_JSONUnmarshal(t *testing.T) {
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &metadata)
 
 	expected := DocumentMetadata{
-		ContentUri: "http://www.contentUri.com",
+		ContentURI: "http://www.contentUri.com",
 		Schema: &DocumentMetadataSchema{
-			Uri:     "http://www.contentUri.com",
+			URI:     "http://www.contentUri.com",
 			Version: "1.0.0",
 		},
 	}

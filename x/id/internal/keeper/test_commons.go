@@ -17,6 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
+	"github.com/tendermint/tendermint/libs/bech32"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 )
@@ -26,40 +27,59 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
-	authKey := sdk.NewKVStoreKey("authCapKey")
-	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
-	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
-	keyParams := sdk.NewKVStoreKey(params.StoreKey)
-	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
-	govKey := sdk.NewKVStoreKey("government")
 
-	// CommercioID
-	storeKey := sdk.NewKVStoreKey("id")
+	keys := sdk.NewKVStoreKeys(
+		auth.StoreKey,
+		params.StoreKey,
+		supply.StoreKey,
+		government.StoreKey,
+		types.StoreKey,
+	)
+	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
-	ms.MountStoreWithDB(ibcKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(authKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(fckCapKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
-	ms.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, memDB)
-	ms.MountStoreWithDB(govKey, sdk.StoreTypeIAVL, memDB)
-
+	for _, key := range keys {
+		ms.MountStoreWithDB(key, sdk.StoreTypeIAVL, memDB)
+	}
+	for _, tkey := range tkeys {
+		ms.MountStoreWithDB(tkey, sdk.StoreTypeTransient, memDB)
+	}
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
-	ak := auth.NewAccountKeeper(cdc, authKey, pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{})
-	govK := government.NewKeeper(cdc, govKey)
+	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
+	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
+	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, map[string]bool{
+		types.ModuleName: false,
+	})
+	maccPerms := map[string][]string{
+		types.ModuleName: nil,
+	}
+	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
+	govK := government.NewKeeper(cdc, keys[government.StoreKey])
+
+	// Set the government address
 	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
 
 	// Setup the Did Document
 	TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 	TestDidDocument = setupDidDocument(ctx, ak, "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
-	idk := NewKeeper(cdc, storeKey, ak, bk)
+	idk := NewKeeper(cdc, keys[types.StoreKey], ak, sk)
+
+	// Set initial supply
+	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 1))))
+
+	// Set module accounts
+	idAcc := supply.NewEmptyModuleAccount(types.ModuleName)
+	bech32Addr, err := bech32.ConvertAndEncode("did:com:", idAcc.Address.Bytes())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(bech32Addr)
+
+	idk.supplyKeeper.SetModuleAccount(ctx, idAcc)
 
 	return cdc, ctx, ak, bk, govK, idk
 }
@@ -71,12 +91,12 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
+	government.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	types.RegisterCodec(cdc)
 
 	cdc.Seal()
-
 	return cdc
 }
 
@@ -97,7 +117,7 @@ func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address stri
 
 	return types.DidDocument{
 		Context: "https://www.w3.org/2019/did/v1",
-		Id:      address,
+		ID:      address,
 		Authentication: []string{
 			fmt.Sprintf("%s#keys-1", address),
 		},
@@ -109,13 +129,13 @@ func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address stri
 		},
 		PubKeys: types.PubKeys{
 			types.PubKey{
-				Id:           fmt.Sprintf("%s#keys-1", address),
+				ID:           fmt.Sprintf("%s#keys-1", address),
 				Type:         "Secp256k1VerificationKey2018",
 				Controller:   address,
-				PublicKeyHex: hex.EncodeToString(account.GetPubKey().Bytes()),
+				PublicKeyHex: hex.EncodeToString(secp256k1Key[:]),
 			},
 			types.PubKey{
-				Id:           fmt.Sprintf("%s#keys-2", address),
+				ID:           fmt.Sprintf("%s#keys-2", address),
 				Type:         "RsaVerificationKey2018",
 				Controller:   address,
 				PublicKeyHex: "04418834f5012c808a11830819f300d06092a864886f70d010101050003818d0030818902818100ccaf757e02ec9cfb3beddaa5fe8e9c24df033e9b60db7cb8e2981cb340321faf348731343c7ab2f4920ebd62c5c7617557f66219291ce4e95370381390252b080dfda319bb84808f04078737ab55f291a9024ef3b72aedcf26067d3cee2a470ed056f4e409b73dd6b4fddffa43dff02bf30a9de29357b606df6f0246be267a910203010001a",

@@ -1,11 +1,11 @@
 package types
 
-// DocumentIds represents a list of documents' UUIDs
-type DocumentIds []string
+// DocumentIDs represents a list of documents' UUIDs
+type DocumentIDs []string
 
 // AppendIfMissing allows to add to this list of documentIds
 // the given id, if it isn't already present
-func (documentIds DocumentIds) AppendIfMissing(id string) (DocumentIds, bool) {
+func (documentIds DocumentIDs) AppendIfMissing(id string) (DocumentIDs, bool) {
 	for _, ele := range documentIds {
 		if ele == id {
 			return documentIds, false
@@ -15,6 +15,6 @@ func (documentIds DocumentIds) AppendIfMissing(id string) (DocumentIds, bool) {
 }
 
 // Empty tells if the list of document ids is empty or not
-func (documentIds DocumentIds) Empty() bool {
+func (documentIds DocumentIDs) Empty() bool {
 	return len(documentIds) == 0
 }

@@ -1,22 +1,22 @@
-package pricefeed
+package keeper
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
 
-// Test variables
-var msgSetPrice = NewMsgSetPrice(TestRawPrice)
-var msgAddOracle = NewMsgAddOracle(TestGovernment, TestOracle1)
+// -------------------
+// --- MsgSetPrice
+// -------------------
 
 func TestValidMsgSetPrice(t *testing.T) {
-	_, ctx, govK, k := TestInput()
-
-	k.AddOracle(ctx, TestOracle1)
+	_, ctx, govK, k := SetupTestInput()
+	k.AddOracle(ctx, testOracle)
 
 	handler := NewHandler(k, govK)
 
@@ -24,11 +24,15 @@ func TestValidMsgSetPrice(t *testing.T) {
 	assert.True(t, actual.IsOK())
 }
 
+// ---------------------
+// --- MsgAddOracle
+// ---------------------
+
 func TestValidMsgAddOracle(t *testing.T) {
-	_, ctx, govK, k := TestInput()
+	_, ctx, govK, k := SetupTestInput()
 	handler := NewHandler(k, govK)
 
-	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
+	_ = govK.SetGovernmentAddress(ctx, testGovernment)
 
 	actual := handler(ctx, msgAddOracle)
 	assert.True(t, actual.IsOK())
@@ -36,11 +40,11 @@ func TestValidMsgAddOracle(t *testing.T) {
 
 func TestInvalidMsg(t *testing.T) {
 	invalidMsg := sdk.NewTestMsg()
-	_, ctx, govK, k := TestInput()
+	_, ctx, govK, k := SetupTestInput()
 	handler := NewHandler(k, govK)
 
 	actual := handler(ctx, invalidMsg)
 
 	assert.False(t, actual.IsOK())
-	assert.True(t, strings.Contains(actual.Log, fmt.Sprintf("Unrecognized %s message type", ModuleName)))
+	assert.True(t, strings.Contains(actual.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
 }

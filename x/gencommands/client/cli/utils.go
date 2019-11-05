@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// getAddressFromString reads the given value as an AccAddress object, retuning an error if
+// the specified value is not a valid address
 func getAddressFromString(value string) (sdk.AccAddress, error) {
 	minterAddr, err := sdk.AccAddressFromBech32(value)
 	if err != nil {

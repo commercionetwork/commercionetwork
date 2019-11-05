@@ -66,13 +66,15 @@ When creating the `proof` and `encryption_key` fields' values, the following ste
 
 5. Using the AES-256 key generated at point (4), encrypt the `payload`.
    1. Remove all the white spaces and line ending characters. 
-   2. Encrypt the resulting string bytes using the AES-256 key.
+   2. Encrypt the resulting string bytes using the AES-256 key.  
+      Note that the AES encryption method must be `AES`.
    3. Encode the resulting bytes using the HEX encoding method.  
    
    **Doing such, you will obtain the value of the `proof` field.**
    
 6. Encrypt the AES-256 key.
-   1. Encrypt the key bytes using the centralized system's public key.
+   1. Encrypt the key bytes using the centralized system's public key.  
+      Note that the RSA encryption method must be `RSA/ECB/PKCS1Padding`.
    2. Encode the resulting bytes using the HEX encoding method. 
 
    **Doing this, you will obtain the value of the `encrypted_key` field.**

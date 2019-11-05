@@ -15,7 +15,7 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-//This function create an enviroment to test modules
+//This function create an environment to test modules
 func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	memDB := db.NewMemDB()
@@ -52,7 +52,7 @@ func testCodec() *codec.Codec {
 	var cdc = codec.New()
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
-	cdc.RegisterInterface((*auth.Account)(nil), nil)
+	auth.RegisterCodec(cdc)
 
 	cdc.Seal()
 
@@ -66,12 +66,12 @@ var TestingSender2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ym
 var TestingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
 
 var TestingDocument = types.Document{
-	Uuid:       "test-document-uuid",
-	ContentUri: "https://example.com/document",
+	UUID:       "test-document-uuid",
+	ContentURI: "https://example.com/document",
 	Metadata: types.DocumentMetadata{
-		ContentUri: "https://example.com/document/metadata",
+		ContentURI: "https://example.com/document/metadata",
 		Schema: &types.DocumentMetadataSchema{
-			Uri:     "https://example.com/document/metadata/schema",
+			URI:     "https://example.com/document/metadata/schema",
 			Version: "1.0.0",
 		},
 	},
@@ -84,10 +84,10 @@ var TestingDocument = types.Document{
 }
 
 var TestingDocumentReceipt = types.DocumentReceipt{
-	Uuid:         "testing-document-receipt-uuid",
+	UUID:         "testing-document-receipt-uuid",
 	Sender:       TestingSender,
 	Recipient:    TestingRecipient,
 	TxHash:       "txHash",
-	DocumentUuid: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	Proof:        "proof",
 }

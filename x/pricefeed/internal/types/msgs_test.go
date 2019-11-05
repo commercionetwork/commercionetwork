@@ -8,19 +8,14 @@ import (
 )
 
 // Test variables
-var TestOracle, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestPriceInfo = CurrentPrice{
-	AssetName: "uatom",
-	Price:     sdk.NewDecWithPrec(15423, 2),
-	Expiry:    sdk.NewInt(1100),
-}
-var TestRawPrice = RawPrice{PriceInfo: TestPriceInfo, Oracle: TestOracle}
+var testOracle, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testPrice = Price{AssetName: "uatom", Value: sdk.NewDecWithPrec(15423, 2), Expiry: sdk.NewInt(1100)}
 
 // -------------------
 // --- MsgSetPrice
 // -------------------
 
-var msgSetPrice = NewMsgSetPrice(TestRawPrice)
+var msgSetPrice = NewMsgSetPrice(testPrice, testOracle)
 
 func TestMsgSetPrice_Route(t *testing.T) {
 	assert.Equal(t, RouterKey, msgSetPrice.Route())
@@ -36,10 +31,10 @@ func TestMsgSetPrice_ValidateBasic_ValidMessage(t *testing.T) {
 
 func TestMsgSetPrice_ValidateBasic_InvalidMessage(t *testing.T) {
 	msgInvalid := MsgSetPrice{
-		Oracle: TestOracle,
-		PriceInfo: CurrentPrice{
+		Oracle: testOracle,
+		Price: Price{
 			AssetName: "    ",
-			Price:     sdk.NewDec(10),
+			Value:     sdk.NewDec(10),
 			Expiry:    sdk.Int{},
 		},
 	}
@@ -47,9 +42,8 @@ func TestMsgSetPrice_ValidateBasic_InvalidMessage(t *testing.T) {
 }
 
 func TestMsgSetPrice_GetSignBytes(t *testing.T) {
-	actual := msgSetPrice.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgSetPrice))
-	assert.Equal(t, expected, actual)
+	expected := `{"type":"commercio/MsgSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","expiry":"1100","value":"154.230000000000000000"}}}`
+	assert.Equal(t, expected, string(msgSetPrice.GetSignBytes()))
 }
 
 func TestMsgSetPrice_GetSigners(t *testing.T) {
@@ -58,11 +52,10 @@ func TestMsgSetPrice_GetSigners(t *testing.T) {
 }
 
 func TestMsgSetPrice_ParseJson(t *testing.T) {
-	json := `{"type":"commercio/MsgSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","price":"154.23","expiry":"1100"}}}`
+	json := `{"type":"commercio/MsgSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","value":"154.23","expiry":"1100"}}}`
 
 	var msg MsgSetPrice
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
-
 	assert.Equal(t, msgSetPrice, msg)
 }
 
@@ -71,7 +64,7 @@ func TestMsgSetPrice_ParseJson(t *testing.T) {
 // -------------------
 
 var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-var msgAddOracle = NewMsgAddOracle(TestOracle, TestGovernment)
+var msgAddOracle = NewMsgAddOracle(testOracle, TestGovernment)
 
 func TestMsgAddOracle_Route(t *testing.T) {
 	assert.Equal(t, RouterKey, msgAddOracle.Route())

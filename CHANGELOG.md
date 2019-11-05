@@ -1,4 +1,19 @@
+# Version 1.3.2
+## Bug fixes
+- Fixed a bug while checking the validity of the authentication key while handling `MsgSetIdentity` messages
+- Fixed how the UUID are validated (#63) 
+- Removed double `docs` entry inside the `cncli query` command (#60)
+
+## Changes
+**CommercioID**
+- The `status` field is no longer required when using `MsgRequestDidDeposit` and `MsgRequestDidPowerUp` 
+
 # Version 1.3.1
+## Bug fixes
+- Fixed a bug inside the migration command
+- Fixed a bug during the serialization of the `bank` module genesis state
+
+# Version 1.3.0
 ## Bug fixes
 - Fixed the export command (#48)
 - Fixed the TBR formula (#49)

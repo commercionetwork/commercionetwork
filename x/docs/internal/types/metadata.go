@@ -9,14 +9,14 @@ import (
 // officially supported document metadata schema
 type MetadataSchema struct {
 	Type      string `json:"type"`
-	SchemaUri string `json:"schema_uri"`
+	SchemaURI string `json:"schema_uri"`
 	Version   string `json:"version"`
 }
 
 // Equals returns true iff other contains the same data as this metadata schema
 func (m MetadataSchema) Equals(other MetadataSchema) bool {
 	return m.Type == other.Type &&
-		m.SchemaUri == other.SchemaUri &&
+		m.SchemaURI == other.SchemaURI &&
 		m.Version == other.Version
 }
 
@@ -26,7 +26,7 @@ func (m MetadataSchema) Validate() error {
 	if len(strings.TrimSpace(m.Type)) == 0 {
 		return errors.New("type cannot be empty")
 	}
-	if len(strings.TrimSpace(m.SchemaUri)) == 0 {
+	if len(strings.TrimSpace(m.SchemaURI)) == 0 {
 		return errors.New("uri cannot be empty")
 	}
 	if len(strings.TrimSpace(m.Version)) == 0 {
@@ -64,7 +64,6 @@ func (metadataSchemes MetadataSchemes) IsTypeSupported(metadataType string) bool
 func (metadataSchemes MetadataSchemes) AppendIfMissing(schema MetadataSchema) (MetadataSchemes, bool) {
 	if metadataSchemes.Contains(schema) {
 		return metadataSchemes, false
-	} else {
-		return append(metadataSchemes, schema), true
 	}
+	return append(metadataSchemes, schema), true
 }

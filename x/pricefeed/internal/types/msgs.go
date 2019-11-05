@@ -10,10 +10,16 @@ import (
 // --- MsgSetPrice
 // -------------------
 
-type MsgSetPrice RawPrice
+type MsgSetPrice struct {
+	Oracle sdk.AccAddress `json:"oracle"`
+	Price  Price          `json:"price"`
+}
 
-func NewMsgSetPrice(price RawPrice) MsgSetPrice {
-	return MsgSetPrice(price)
+func NewMsgSetPrice(price Price, oracle sdk.AccAddress) MsgSetPrice {
+	return MsgSetPrice{
+		Oracle: oracle,
+		Price:  price,
+	}
 }
 
 // Route Implements Msg.
@@ -27,13 +33,13 @@ func (msg MsgSetPrice) ValidateBasic() sdk.Error {
 	if msg.Oracle.Empty() {
 		return sdk.ErrInvalidAddress(msg.Oracle.String())
 	}
-	if msg.PriceInfo.Price.IsNegative() {
+	if msg.Price.Value.IsNegative() {
 		return sdk.ErrUnknownRequest("Token's price cannot be zero or negative")
 	}
-	if len(strings.TrimSpace(msg.PriceInfo.AssetName)) == 0 {
+	if len(strings.TrimSpace(msg.Price.AssetName)) == 0 {
 		return sdk.ErrUnknownRequest("Cannot set price for unnamed token")
 	}
-	if msg.PriceInfo.Expiry.IsZero() || msg.PriceInfo.Expiry.IsNegative() {
+	if msg.Price.Expiry.IsZero() || msg.Price.Expiry.IsNegative() {
 		return sdk.ErrUnknownRequest("Cannot set price with an expire height of zero or negative")
 	}
 
@@ -55,8 +61,8 @@ func (msg MsgSetPrice) GetSigners() []sdk.AccAddress {
 // -------------------
 
 type MsgAddOracle struct {
-	Signer sdk.AccAddress
-	Oracle sdk.AccAddress
+	Signer sdk.AccAddress `json:"signer"`
+	Oracle sdk.AccAddress `json:"oracle"`
 }
 
 func NewMsgAddOracle(signer sdk.AccAddress, oracle sdk.AccAddress) MsgAddOracle {
