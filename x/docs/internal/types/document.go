@@ -120,6 +120,30 @@ func (doc Document) Validate() sdk.Error {
 			}
 		}
 
+		// Check that the `encrypted_data' field name is actually present in doc
+		fNotPresent := func(s string) sdk.Error {
+			return sdk.ErrUnknownRequest(
+				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", s),
+			)
+		}
+
+		for _, fieldName := range doc.EncryptionData.EncryptedData {
+			switch fieldName {
+			case "content_uri":
+				if doc.ContentURI == "" {
+					return fNotPresent("content_uri")
+				}
+			case "metadata.content_uri":
+				if doc.Metadata.ContentURI == "" {
+					return fNotPresent("metadata.content_uri")
+				}
+			case "metadata.schema.uri":
+				if doc.Metadata.Schema.URI == "" {
+					return fNotPresent("metadata.schema.uri")
+				}
+			}
+		}
+
 	}
 
 	return nil
