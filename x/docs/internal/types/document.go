@@ -132,12 +132,8 @@ func (doc Document) Validate() sdk.Error {
 				if doc.ContentURI == "" {
 					return fNotPresent("content_uri")
 				}
-			case "metadata.content_uri":
-				if doc.Metadata.ContentURI == "" {
-					return fNotPresent("metadata.content_uri")
-				}
 			case "metadata.schema.uri":
-				if doc.Metadata.Schema.URI == "" {
+				if doc.Metadata.Schema == nil || doc.Metadata.Schema.URI == "" {
 					return fNotPresent("metadata.schema.uri")
 				}
 			}
