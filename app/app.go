@@ -106,7 +106,7 @@ var (
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
 		memberships.NewAppModuleBasic(StableCreditsDenom),
-		mint.AppModuleBasic{},
+		mint.NewAppModuleBasic(StableCreditsDenom),
 		pricefeed.AppModuleBasic{},
 		tbr.AppModuleBasic{},
 	)
@@ -332,8 +332,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		nft.ModuleName,
 
 		// Custom modules
-		government.ModuleName, memberships.ModuleName, docs.ModuleName,
-		id.ModuleName, pricefeed.ModuleName, tbr.ModuleName,
+		government.ModuleName,
+		docs.ModuleName,
+		id.ModuleName,
+		memberships.ModuleName,
+		mint.ModuleName,
+		pricefeed.ModuleName,
+		tbr.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

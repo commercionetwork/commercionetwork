@@ -8,6 +8,7 @@ import (
 const (
 	ModuleName   = types.ModuleName
 	StoreKey     = types.StoreKey
+	RouterKey    = types.RouterKey
 	QuerierRoute = types.QuerierRoute
 )
 
@@ -25,9 +26,8 @@ var (
 type (
 	Keeper = keeper.Keeper
 
-	Cdp        = types.Cdp
-	Cdps       = types.Cdps
-	CdpRequest = types.CdpRequest
+	Cdp  = types.Cdp
+	Cdps = types.Cdps
 
 	MsgOpenCdp  = types.MsgOpenCdp
 	MsgCloseCdp = types.MsgCloseCdp

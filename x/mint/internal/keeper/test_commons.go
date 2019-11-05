@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"time"
-
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -19,28 +17,7 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-var TestCreditsDenom = "stake"
-var TestLiquidityDenom = "ucommercio"
-var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var timezone, _ = time.LoadLocation("UTC")
-var TestTimestamp = time.Date(1990, 01, 01, 20, 20, 00, 0, timezone)
-
-var TestCdpRequest = types.CdpRequest{
-	Signer:          TestOwner,
-	DepositedAmount: sdk.NewCoins(sdk.NewCoin(TestLiquidityDenom, sdk.NewInt(100))),
-	Timestamp:       TestTimestamp,
-}
-
-var TestCdp = types.Cdp{
-	Owner:           TestOwner,
-	DepositedAmount: sdk.NewCoins(sdk.NewCoin(TestLiquidityDenom, sdk.NewInt(100))),
-	CreditsAmount:   sdk.NewCoins(sdk.NewCoin(TestCreditsDenom, sdk.NewInt(50))),
-	Timestamp:       TestTimestamp,
-}
-
-var TestLiquidityPool = sdk.Coins{sdk.NewInt64Coin(TestLiquidityDenom, 10000)}
-
-func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -77,16 +54,16 @@ func SetupTestInput() (*codec.Codec, sdk.Context, bank.Keeper, pricefeed.Keeper,
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk)
 
 	// Set initial supply
-	sk.SetSupply(ctx, supply.NewSupply(TestCdp.CreditsAmount))
+	sk.SetSupply(ctx, supply.NewSupply(testCdp.CreditsAmount))
 
 	// Set module accounts
 	mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
 	mintK.supplyKeeper.SetModuleAccount(ctx, mintAcc)
 
 	// Set the credits denom
-	mintK.SetCreditsDenom(ctx, TestCreditsDenom)
+	mintK.SetCreditsDenom(ctx, testCreditsDenom)
 
-	return cdc, ctx, bk, pfk, mintK
+	return ctx, bk, pfk, mintK
 }
 
 func testCodec() *codec.Codec {
@@ -105,3 +82,20 @@ func testCodec() *codec.Codec {
 	cdc.Seal()
 	return cdc
 }
+
+// ----------------------
+// --- Test variables
+// ----------------------
+
+var testCreditsDenom = "stake"
+var testLiquidityDenom = "ucommercio"
+var testCdpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+
+var testCdp = types.NewCdp(
+	testCdpOwner,
+	sdk.NewCoins(sdk.NewCoin(testLiquidityDenom, sdk.NewInt(100))),
+	sdk.NewCoins(sdk.NewCoin(testCreditsDenom, sdk.NewInt(50))),
+	10,
+)
+
+var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))

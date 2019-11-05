@@ -6,11 +6,11 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	UserCdpsStorePrefix  = ":cdp:"
-	CreditsDenomStoreKey = StoreKey + ":creditsDenom:"
+	CdpStorePrefix       = ":cdp:"
+	CreditsDenomStoreKey = "creditsDenom"
 
-	QueryGetCdp  = "Cdp"
-	QueryGetCdps = "Cdps"
+	QueryGetCdp  = "cdp"
+	QueryGetCdps = "cdps"
 
 	MsgTypeOpenCdp  = "openCdp"
 	MsgTypeCloseCdp = "closeCdp"

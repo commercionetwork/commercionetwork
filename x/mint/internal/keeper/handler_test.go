@@ -10,15 +10,15 @@ import (
 	"github.com/magiconair/properties/assert"
 )
 
-var testMsgOpenCdp = types.NewMsgOpenCdp(TestCdpRequest)
-var testMsgCloseCdp = types.NewMsgCloseCdp(TestCdp.Owner, TestCdp.Timestamp)
+var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.DepositedAmount, testCdp.Owner)
+var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.Timestamp)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
-	_, ctx, bk, pfk, k := SetupTestInput()
+	ctx, bk, pfk, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	// Test setup
-	_, _ = bk.AddCoins(ctx, TestCdp.Owner, TestCdp.DepositedAmount)
+	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.DepositedAmount)
 	pfk.SetCurrentPrice(ctx, pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
 	k.SetCreditsDenom(ctx, "uccc")
 
@@ -28,12 +28,12 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 }
 
 func TestHandler_handleMsgCloseCdp(t *testing.T) {
-	_, ctx, bk, _, k := SetupTestInput()
+	ctx, bk, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), TestCdp.DepositedAmount)
-	_ = bk.SetCoins(ctx, TestCdp.Owner, TestCdp.CreditsAmount)
-	k.AddCdp(ctx, TestCdp)
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.DepositedAmount)
+	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.CreditsAmount)
+	k.AddCdp(ctx, testCdp)
 
 	expected := sdk.Result{Log: "Cdp closed successfully"}
 	actual := handler(ctx, testMsgCloseCdp)
@@ -41,7 +41,7 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
-	_, ctx, _, _, k := SetupTestInput()
+	ctx, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	invalidMsg := sdk.NewTestMsg()

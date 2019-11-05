@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -52,18 +51,18 @@ func (k Keeper) GetCreditsDenom(ctx sdk.Context) string {
 // --------------
 
 func (k Keeper) getCdpKey(address sdk.AccAddress) []byte {
-	return []byte(types.UserCdpsStorePrefix + address.String())
+	return []byte(types.CdpStorePrefix + address.String())
 }
 
 // AddCdp adds a Cdp to the user's Cdps list
 func (k Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
-	var cdps types.Cdps
 	store := ctx.KVStore(k.storeKey)
-	cdpsBz := store.Get(k.getCdpKey(cdp.Owner))
-	k.cdc.MustUnmarshalBinaryBare(cdpsBz, &cdps)
-	cdps, found := cdps.AppendIfMissing(cdp)
-	if !found {
-		store.Set(k.getCdpKey(cdp.Owner), k.cdc.MustMarshalBinaryBare(cdps))
+	storeKey := k.getCdpKey(cdp.Owner)
+
+	var cdps types.Cdps
+	k.cdc.MustUnmarshalBinaryBare(store.Get(storeKey), &cdps)
+	if cdps, edited := cdps.AppendIfMissing(cdp); edited {
+		store.Set(storeKey, k.cdc.MustMarshalBinaryBare(cdps))
 	}
 }
 
@@ -73,11 +72,10 @@ func (k Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
 // Errors occurs if:
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
-func (k Keeper) OpenCdp(ctx sdk.Context, cdpRequest types.CdpRequest) sdk.Error {
+func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount sdk.Coins) sdk.Error {
 
-	depositAmount := cdpRequest.DepositedAmount
-	if !depositAmount.IsValid() || depositAmount.IsAnyNegative() || depositAmount.IsZero() {
-		return sdk.ErrInvalidCoins(depositAmount.String())
+	if depositAmount.Empty() || !depositAmount.IsValid() {
+		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid deposit amount: %s", depositAmount))
 	}
 
 	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them
@@ -91,7 +89,7 @@ func (k Keeper) OpenCdp(ctx sdk.Context, cdpRequest types.CdpRequest) sdk.Error 
 	}
 
 	// Send the deposit from the user to the mint account
-	err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, cdpRequest.Signer, types.ModuleName, depositAmount)
+	err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositAmount)
 	if err != nil {
 		return err
 	}
@@ -108,13 +106,13 @@ func (k Keeper) OpenCdp(ctx sdk.Context, cdpRequest types.CdpRequest) sdk.Error 
 		return err
 	}
 
-	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cdpRequest.Signer, credits)
+	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, credits)
 	if err != nil {
 		return err
 	}
 
 	// Create the CDP and save it
-	cdp := types.NewCdp(cdpRequest, credits)
+	cdp := types.NewCdp(depositor, depositAmount, credits, ctx.BlockHeight())
 	k.AddCdp(ctx, cdp)
 
 	return nil
@@ -126,27 +124,27 @@ func (k Keeper) GetCdpsByOwner(ctx sdk.Context, owner sdk.AccAddress) (cdps type
 	return cdps
 }
 
-func (k Keeper) GetCdpByOwnerAndTimeStamp(ctx sdk.Context, owner sdk.AccAddress, timestamp time.Time) (cdp types.Cdp, found bool) {
+func (k Keeper) GetCdpByOwnerAndTimeStamp(ctx sdk.Context, owner sdk.AccAddress, timestamp int64) (cdp types.Cdp, found bool) {
 	cdps := k.GetCdpsByOwner(ctx, owner)
 	for _, ele := range cdps {
-		if ele.Timestamp.Equal(timestamp) {
+		if ele.Timestamp == timestamp {
 			return ele, true
 		}
 	}
 	return types.Cdp{}, false
 }
 
-func (k Keeper) GetTotalCdps(ctx sdk.Context) types.Cdps {
+func (k Keeper) GetCdps(ctx sdk.Context) types.Cdps {
 	store := ctx.KVStore(k.storeKey)
 
 	cdps := types.Cdps{}
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.UserCdpsStorePrefix))
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.CdpStorePrefix))
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var cdp types.Cdp
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &cdp)
-		cdps = append(cdps, cdp)
+		cdps, _ = cdps.AppendIfMissing(cdp)
 	}
 
 	return cdps
@@ -154,13 +152,13 @@ func (k Keeper) GetTotalCdps(ctx sdk.Context) types.Cdps {
 
 // CloseCdp subtract the Cdp's liquidity amount (commercio cash credits) from user's wallet, after that sends the
 // deposited amount back to it. If these two operations ends without errors, the Cdp get closed.
-// Errors occurs if:
+// Errors occurs if:k.GetCdpsByOwner(ctx, testCdpOwner)
 // - cdp doesnt exist
 // - subtracting or adding fund to account don't end well
-func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp time.Time) sdk.Error {
+func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) sdk.Error {
 	cdp, found := k.GetCdpByOwnerAndTimeStamp(ctx, user, timestamp)
 	if !found {
-		msg := fmt.Sprintf("CDP for user with address %s and timestamp %s does not exist", user.String(), timestamp)
+		msg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", user, timestamp)
 		return sdk.ErrUnknownRequest(msg)
 	}
 

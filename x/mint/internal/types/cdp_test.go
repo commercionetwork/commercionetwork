@@ -1,126 +1,172 @@
 package types
 
 import (
+	"fmt"
 	"testing"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
 
-var TestDepositedAmount = sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100)))
-var TestLiquidityAmount = sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50)))
-var TestOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var timezone, _ = time.LoadLocation("UTC")
-var TestTimestamp = time.Date(1990, 01, 01, 20, 20, 00, 0, timezone)
+// -----------
+// --- Cdp
+// -----------
 
-var TestCdp = Cdp{
-	Owner:           TestOwner,
-	DepositedAmount: TestDepositedAmount,
-	CreditsAmount:   TestLiquidityAmount,
-	Timestamp:       TestTimestamp,
-}
+var testOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testCdp = NewCdp(
+	testOwner,
+	sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
+	sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50))),
+	10,
+)
 
-var TestCdpS = Cdps{TestCdp}
-
-func TestCdp_Validate_ValidCdp(t *testing.T) {
-	err := TestCdp.Validate()
-	assert.Nil(t, err)
-}
-
-func TestCdp_Validate_InvalidCdpOwner(t *testing.T) {
-	var TestCdp = Cdp{
-		Owner:           sdk.AccAddress{},
-		DepositedAmount: TestDepositedAmount,
-		CreditsAmount:   TestLiquidityAmount,
-		Timestamp:       TestTimestamp,
-	}
-	err := TestCdp.Validate()
-	assert.Equal(t, sdk.ErrInvalidAddress(TestCdp.Owner.String()), err)
-	assert.Error(t, err)
-}
-
-func TestCdp_Validate_InvalidCdpDepositedAmount(t *testing.T) {
-	var TestCdp = Cdp{
-		Owner:           TestOwner,
-		DepositedAmount: sdk.Coins{},
-		CreditsAmount:   TestLiquidityAmount,
-		Timestamp:       TestTimestamp,
-	}
-	err := TestCdp.Validate()
-	assert.Equal(t, sdk.ErrInvalidCoins(TestCdp.DepositedAmount.String()), err)
-	assert.Error(t, err)
-}
-
-func TestCdp_Validate_InvalidCdpLiquidityAmount(t *testing.T) {
-	var TestCdp = Cdp{
-		Owner:           TestOwner,
-		DepositedAmount: TestDepositedAmount,
-		CreditsAmount:   sdk.Coins{},
-		Timestamp:       TestTimestamp,
+func TestCdp_Validate(t *testing.T) {
+	testData := []struct {
+		name          string
+		cdp           Cdp
+		shouldBeValid bool
+		error         error
+	}{
+		{
+			name:          "Invalid CDP owner",
+			cdp:           NewCdp(sdk.AccAddress{}, testCdp.DepositedAmount, testCdp.CreditsAmount, testCdp.Timestamp),
+			shouldBeValid: false,
+			error:         fmt.Errorf("invalid owner address: %s", sdk.AccAddress{}),
+		},
+		{
+			name:          "Invalid deposited amount",
+			cdp:           NewCdp(testCdp.Owner, sdk.Coins{}, testCdp.CreditsAmount, testCdp.Timestamp),
+			shouldBeValid: false,
+			error:         fmt.Errorf("invalid deposit amount: %s", sdk.Coins{}),
+		},
+		{
+			name:          "Invalid liquidity amount",
+			cdp:           NewCdp(testCdp.Owner, testCdp.DepositedAmount, sdk.Coins{}, testCdp.Timestamp),
+			shouldBeValid: false,
+			error:         fmt.Errorf("invalid liquidity amount: %s", sdk.Coins{}),
+		},
+		{
+			name:          "Invalid timestamp",
+			cdp:           NewCdp(testCdp.Owner, testCdp.DepositedAmount, testCdp.CreditsAmount, 0),
+			shouldBeValid: false,
+			error:         fmt.Errorf("invalid timestamp: %d", 0),
+		},
 	}
 
-	err := TestCdp.Validate()
-	assert.Equal(t, sdk.ErrInvalidCoins(TestCdp.CreditsAmount.String()), err)
-	assert.Error(t, err)
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			if test.shouldBeValid {
+				assert.NoError(t, test.cdp.Validate())
+			} else {
+				res := test.cdp.Validate()
+				assert.NotNil(t, res)
+				assert.Equal(t, test.error, res)
+			}
+		})
+	}
 }
 
-func TestCdp_Validate_InvalidCdpTimestamp(t *testing.T) {
-	var TestCdp = Cdp{
-		Owner:           TestOwner,
-		DepositedAmount: TestDepositedAmount,
-		CreditsAmount:   TestLiquidityAmount,
-		Timestamp:       time.Time{},
+func TestCdp_Equals(t *testing.T) {
+	testData := []struct {
+		name          string
+		first         Cdp
+		second        Cdp
+		shouldBeEqual bool
+	}{
+		{
+			name:          "CDPs are identical",
+			first:         testCdp,
+			second:        testCdp,
+			shouldBeEqual: true,
+		},
+		{
+			name:  "CDPs are different",
+			first: testCdp,
+			second: Cdp{
+				Owner:           testCdp.Owner,
+				DepositedAmount: testCdp.DepositedAmount,
+				CreditsAmount:   testCdp.CreditsAmount,
+				Timestamp:       testCdp.Timestamp + 1,
+			},
+			shouldBeEqual: false,
+		},
 	}
 
-	err := TestCdp.Validate()
-	assert.Equal(t, sdk.ErrUnknownRequest("timestamp not valid"), err)
-	assert.Error(t, err)
-}
-
-func TestCdp_Equals_True(t *testing.T) {
-	var TestCdp2 = Cdp{
-		Owner:           TestOwner,
-		DepositedAmount: TestDepositedAmount,
-		CreditsAmount:   TestLiquidityAmount,
-		Timestamp:       TestTimestamp,
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
+		})
 	}
-	actual := TestCdp.Equals(TestCdp2)
-	assert.True(t, actual)
 }
 
-func TestCdp_Equals_false(t *testing.T) {
-	var TestCdp2 = Cdp{
-		Owner:           TestOwner,
-		DepositedAmount: TestDepositedAmount,
-		CreditsAmount:   TestLiquidityAmount,
-		Timestamp:       time.Time{},
+// -----------
+// --- Cdps
+// -----------
+
+func TestCdps_AppendIfMissing(t *testing.T) {
+	testData := []struct {
+		name             string
+		cdps             Cdps
+		cdp              Cdp
+		shouldBeAppended bool
+	}{
+		{
+			name:             "Existing CDP is not appended",
+			cdps:             Cdps{testCdp},
+			cdp:              testCdp,
+			shouldBeAppended: false,
+		},
+		{
+			name:             "Missing CDP is appended",
+			cdps:             Cdps{},
+			cdp:              testCdp,
+			shouldBeAppended: true,
+		},
 	}
-	actual := TestCdp.Equals(TestCdp2)
-	assert.False(t, actual)
+
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			result, appended := test.cdps.AppendIfMissing(test.cdp)
+			assert.Equal(t, test.shouldBeAppended, appended)
+			if test.shouldBeAppended {
+				assert.Contains(t, result, test.cdp)
+			}
+		})
+	}
 }
 
-func TestCdps_AppendIfMissing_notMissing(t *testing.T) {
-	cdps, found := TestCdpS.AppendIfMissing(TestCdp)
-	assert.Nil(t, cdps)
-	assert.True(t, found)
-}
+func TestCdps_RemoveWhenFound(t *testing.T) {
+	testData := []struct {
+		name            string
+		cdps            Cdps
+		timestamp       int64
+		shouldBeRemoved bool
+	}{
+		{
+			name:            "Found CDP is removed",
+			cdps:            Cdps{testCdp},
+			timestamp:       testCdp.Timestamp,
+			shouldBeRemoved: true,
+		},
+		{
+			name:            "Not found CDP is not remove",
+			cdps:            Cdps{testCdp},
+			timestamp:       testCdp.Timestamp - 1,
+			shouldBeRemoved: false,
+		},
+	}
 
-func TestCdps_AppendIfMissing_Missing(t *testing.T) {
-	cdps := Cdps{}
-	cdps, found := cdps.AppendIfMissing(TestCdp)
-	assert.False(t, found)
-	assert.NotNil(t, cdps)
-}
-
-func TestCdps_RemoveWhenFound_removed(t *testing.T) {
-	cdps, removed := TestCdpS.RemoveWhenFound(TestTimestamp)
-	assert.True(t, removed)
-	assert.Len(t, cdps, 0)
-}
-
-func TestCdps_RemoveWhenFound_notRemoved(t *testing.T) {
-	cdps, removed := TestCdpS.RemoveWhenFound(time.Time{})
-	assert.False(t, removed)
-	assert.Len(t, cdps, 1)
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			result, removed := test.cdps.RemoveWhenFound(test.timestamp)
+			assert.Equal(t, test.shouldBeRemoved, removed)
+			if test.shouldBeRemoved {
+				assert.Less(t, len(result), len(test.cdps))
+			}
+		})
+	}
 }

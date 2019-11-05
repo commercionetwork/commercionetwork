@@ -12,18 +12,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-)
-
-var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
 // AppModuleBasic defines the basic application module used by the docs module.
-type AppModuleBasic struct{}
+type AppModuleBasic struct {
+	CreditsDenom string
+}
 
-var _ module.AppModuleBasic = AppModuleBasic{}
+func NewAppModuleBasic(creditsDenom string) AppModuleBasic {
+	return AppModuleBasic{CreditsDenom: creditsDenom}
+}
 
 // module name
 func (AppModuleBasic) Name() string {
@@ -36,8 +34,8 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 }
 
 // default genesis state
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
+	return ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.CreditsDenom))
 }
 
 // module genesis validation
@@ -92,17 +90,13 @@ func NewAppModule(keeper Keeper, sk supply.Keeper) AppModule {
 }
 
 // module name
-func (AppModule) Name() string {
-	return ModuleName
-}
+func (AppModule) Name() string { return ModuleName }
 
 // register invariants
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // module message route name
-func (AppModule) Route() string {
-	return ModuleName
-}
+func (AppModule) Route() string { return RouterKey }
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
@@ -110,9 +104,7 @@ func (am AppModule) NewHandler() sdk.Handler {
 }
 
 // module querier route name
-func (AppModule) QuerierRoute() string {
-	return QuerierRoute
-}
+func (AppModule) QuerierRoute() string { return QuerierRoute }
 
 // module querier
 func (am AppModule) NewQuerierHandler() sdk.Querier {

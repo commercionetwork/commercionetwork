@@ -7,7 +7,7 @@ To close a previously opened CDP you need to create and sign the following messa
   "type": "commercio/MsgCloseCdp",
   "value": {
     "signer": "<User address>",
-    "timestamp": "<Timestamp of when the CDP request was made>"
+    "timestamp": "<Block height at which the CDP is being inserted into the chain>"
   }
 }
 ```
