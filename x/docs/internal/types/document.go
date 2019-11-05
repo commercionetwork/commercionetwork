@@ -69,7 +69,7 @@ func (doc Document) Validate() sdk.Error {
 	}
 
 	if !validateUUID(doc.UUID) {
-		return sdk.ErrUnknownRequest("Invalid document UUID")
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
 	}
 
 	err := doc.Metadata.Validate()

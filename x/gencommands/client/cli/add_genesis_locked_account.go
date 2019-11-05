@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"encoding/json"
+
 	bank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -35,7 +37,10 @@ func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
 
 			// add minter to the app state
 			var genState bank.GenesisState
-			cdc.MustUnmarshalJSON(appState[bank.ModuleName], &genState)
+			err = json.Unmarshal(appState[bank.ModuleName], &genState)
+			if err != nil {
+				return err
+			}
 
 			genState.BlockedAccounts, _ = genState.BlockedAccounts.AppendIfMissing(address)
 
