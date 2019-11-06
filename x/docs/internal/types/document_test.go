@@ -193,7 +193,7 @@ func TestDocument_Validate(t *testing.T) {
 					SchemaType: "a schema type",
 				},
 			},
-			sdk.ErrUnknownRequest("Invalid document UUID"),
+			sdk.ErrUnknownRequest("Invalid document UUID: "),
 		},
 		{
 			"a good document with some encrypted data inside",
