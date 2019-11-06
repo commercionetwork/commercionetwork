@@ -60,7 +60,7 @@ func Test_validateUUID(t *testing.T) {
 
 func TestDocument_Equals(t *testing.T) {
 	sender, _ := sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-	recepient, _ := sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
+	recipient, _ := sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
 	tests := []struct {
 		name      string
 		other     Document
@@ -78,7 +78,7 @@ func TestDocument_Equals(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				UUID:           "ac33043b-5cb4-4645-a3f9-819140847252",
 				Checksum:       &DocumentChecksum{},
@@ -87,7 +87,7 @@ func TestDocument_Equals(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				UUID:           "ac33043b-5cb4-4645-a3f9-819140847252",
 				Checksum:       &DocumentChecksum{},
@@ -100,7 +100,7 @@ func TestDocument_Equals(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				UUID:           "ac33043b-5cb4-4645-a3f9-81914084725",
 				Checksum:       &DocumentChecksum{},
@@ -109,7 +109,7 @@ func TestDocument_Equals(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				UUID:           "ac33043b-5cb4-4645-a3f9-819140847252",
 				Checksum:       &DocumentChecksum{},
@@ -119,6 +119,7 @@ func TestDocument_Equals(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if !tt.different {
 				assert.True(t, tt.us.Equals(tt.other))
@@ -131,7 +132,7 @@ func TestDocument_Equals(t *testing.T) {
 
 func TestDocument_Validate(t *testing.T) {
 	sender, _ := sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-	recepient, _ := sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
+	recipient, _ := sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
 	anotherRecipient, _ := sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
 
 	tests := []struct {
@@ -144,7 +145,7 @@ func TestDocument_Validate(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				Metadata: DocumentMetadata{
 					ContentURI: "content_uri",
@@ -158,7 +159,7 @@ func TestDocument_Validate(t *testing.T) {
 			"no sender",
 			Document{
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				Metadata: DocumentMetadata{
 					ContentURI: "content_uri",
@@ -185,7 +186,7 @@ func TestDocument_Validate(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				Metadata: DocumentMetadata{
 					ContentURI: "content_uri",
@@ -199,7 +200,7 @@ func TestDocument_Validate(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				Metadata: DocumentMetadata{
 					ContentURI: "content_uri",
@@ -208,8 +209,8 @@ func TestDocument_Validate(t *testing.T) {
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 				EncryptionData: &DocumentEncryptionData{
 					Keys: []DocumentEncryptionKey{
-						DocumentEncryptionKey{
-							Recipient: recepient,
+						{
+							Recipient: recipient,
 							Value:     "6b6579",
 						},
 					},
@@ -223,7 +224,7 @@ func TestDocument_Validate(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				Metadata: DocumentMetadata{
 					ContentURI: "content_uri",
@@ -232,11 +233,11 @@ func TestDocument_Validate(t *testing.T) {
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 				EncryptionData: &DocumentEncryptionData{
 					Keys: []DocumentEncryptionKey{
-						DocumentEncryptionKey{
-							Recipient: recepient,
+						{
+							Recipient: recipient,
 							Value:     "6b6579",
 						},
-						DocumentEncryptionKey{
+						{
 							Recipient: anotherRecipient,
 							Value:     "6b6579",
 						},
@@ -263,8 +264,8 @@ func TestDocument_Validate(t *testing.T) {
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 				EncryptionData: &DocumentEncryptionData{
 					Keys: []DocumentEncryptionKey{
-						DocumentEncryptionKey{
-							Recipient: recepient,
+						{
+							Recipient: recipient,
 							Value:     "6b6579",
 						},
 					},
@@ -278,7 +279,7 @@ func TestDocument_Validate(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				Metadata: DocumentMetadata{
 					ContentURI: "content_uri",
@@ -287,8 +288,8 @@ func TestDocument_Validate(t *testing.T) {
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 				EncryptionData: &DocumentEncryptionData{
 					Keys: []DocumentEncryptionKey{
-						DocumentEncryptionKey{
-							Recipient: recepient,
+						{
+							Recipient: recipient,
 							Value:     "6b6579",
 						},
 					},
@@ -304,7 +305,7 @@ func TestDocument_Validate(t *testing.T) {
 			Document{
 				Sender: sender,
 				Recipients: types.Addresses{
-					recepient,
+					recipient,
 				},
 				Metadata: DocumentMetadata{
 					ContentURI: "content_uri",
@@ -313,8 +314,8 @@ func TestDocument_Validate(t *testing.T) {
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 				EncryptionData: &DocumentEncryptionData{
 					Keys: []DocumentEncryptionKey{
-						DocumentEncryptionKey{
-							Recipient: recepient,
+						{
+							Recipient: recipient,
 							Value:     "6b6579",
 						},
 					},
@@ -328,9 +329,9 @@ func TestDocument_Validate(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.doc.Validate()
-
 			if tt.expectedErr != nil {
 				assert.EqualError(t, err, tt.expectedErr.Error())
 			} else {
@@ -391,6 +392,7 @@ func TestDocuments_AppendIfMissing(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			tt.documents.AppendIfMissing(tt.newDocument)
 			assert.Equal(t, tt.documents, tt.want)
@@ -402,7 +404,7 @@ func TestDocuments_IsEmpty(t *testing.T) {
 	tests := []struct {
 		name      string
 		documents Documents
-		empty      bool
+		empty     bool
 	}{
 		{
 			"an empty Documents instance",
@@ -423,6 +425,7 @@ func TestDocuments_IsEmpty(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if !tt.empty {
 				assert.False(t, tt.documents.IsEmpty())
