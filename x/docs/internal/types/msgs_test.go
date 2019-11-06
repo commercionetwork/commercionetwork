@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
@@ -58,14 +59,68 @@ func TestMsgShareDocument_Type(t *testing.T) {
 	assert.Equal(t, MsgTypeShareDocument, actual)
 }
 
-func TestMsgShareDocument_ValidateBasic_Schema_valid(t *testing.T) {
-	err := msgShareDocumentSchema.ValidateBasic()
-	assert.Nil(t, err)
-}
-
-func TestMsgShareDocument_ValidateBasic_SchemaType_valid(t *testing.T) {
-	err := msgShareDocumentSchemaType.ValidateBasic()
-	assert.Nil(t, err)
+func TestMsgShareDocument_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name    string
+		sdr     MsgShareDocument
+		haveErr error
+	}{
+		{
+			"MsgShareDocument with valid schema",
+			msgShareDocumentSchema,
+			nil,
+		},
+		{
+			"MsgShareDocument with no schema",
+			MsgShareDocument(Document{
+				UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				ContentURI: "http://www.contentUri.com",
+				Metadata: DocumentMetadata{
+					ContentURI: "http://www.contentUri.com",
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "48656c6c6f20476f7068657221234567",
+					Algorithm: "md5",
+				},
+				Sender:     sender,
+				Recipients: types.Addresses{recipient},
+			}),
+			errors.New("either metadata.schema or metadata.schema_type must be defined"),
+		},
+		{
+			"MsgShareDocument with valid schema type",
+			msgShareDocumentSchemaType,
+			nil,
+		},
+		{
+			"MsgShareDocument with no schema type",
+			MsgShareDocument(Document{
+				UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				ContentURI: "http://www.contentUri.com",
+				Metadata: DocumentMetadata{
+					ContentURI: "http://www.contentUri.com",
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "48656c6c6f20476f7068657221234567",
+					Algorithm: "md5",
+				},
+				Sender:     sender,
+				Recipients: types.Addresses{recipient},
+			}),
+			errors.New("either metadata.schema or metadata.schema_type must be defined"),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.sdr.ValidateBasic()
+			if tt.haveErr != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
 func TestMsgShareDocument_GetSignBytes(t *testing.T) {
@@ -99,25 +154,6 @@ func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
 	assert.Equal(t, "uni-sincro", msg.Metadata.SchemaType)
 }
 
-// ----------------------
-// --- UUID Validation
-// ----------------------
-
-func TestValidateUuid_valid(t *testing.T) {
-	actual := validateUUID("6a2f41a3-c54c-fce8-32d2-0324e1c32e22")
-	assert.True(t, actual)
-}
-
-func TestValidateUuid_empty(t *testing.T) {
-	actual := validateUUID("")
-	assert.False(t, actual)
-}
-
-func TestValidateUuid_invalid(t *testing.T) {
-	actual := validateUUID("ebkfkd")
-	assert.False(t, actual)
-}
-
 // -----------------------------
 // --- MsgSendDocumentReceipt
 // -----------------------------
@@ -141,21 +177,84 @@ func TestMsgDocumentReceipt_Type(t *testing.T) {
 	assert.Equal(t, MsgTypeSendDocumentReceipt, actual)
 }
 
-func TestMsgDocumentReceipt_ValidateBasic_valid(t *testing.T) {
-	err := msgDocumentReceipt.ValidateBasic()
-	assert.Nil(t, err)
-}
-
-func TestMsgDocumentReceipt_ValidateBasic_invalid(t *testing.T) {
-	var msgDocReceipt = MsgSendDocumentReceipt{
-		Sender:       sender,
-		Recipient:    recipient,
-		TxHash:       "txHash",
-		DocumentUUID: "123456789",
-		Proof:        "proof",
+func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name    string
+		sdr     MsgSendDocumentReceipt
+		haveErr sdk.Error
+	}{
+		{
+			"valid SendDocumentReceipt",
+			msgDocumentReceipt,
+			nil,
+		},
+		{
+			"invalid UUID",
+			MsgSendDocumentReceipt{
+				Sender:       sender,
+				Recipient:    recipient,
+				TxHash:       "txHash",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			sdk.ErrUnknownRequest("Invalid uuid: "),
+		},
+		{
+			"empty sender",
+			MsgSendDocumentReceipt{
+				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Recipient:    recipient,
+				TxHash:       "txHash",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			sdk.ErrInvalidAddress(""),
+		},
+		{
+			"empty recipient",
+			MsgSendDocumentReceipt{
+				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Sender:       sender,
+				TxHash:       "txHash",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			sdk.ErrInvalidAddress(""),
+		},
+		{
+			"empty TxHash",
+			MsgSendDocumentReceipt{
+				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Sender:       sender,
+				Recipient:    recipient,
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty"),
+		},
+		{
+			"invalid document UUID",
+			MsgSendDocumentReceipt{
+				UUID:      "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Sender:    sender,
+				Recipient: recipient,
+				TxHash:    "txHash",
+				Proof:     "proof",
+			},
+			sdk.ErrUnknownRequest("Invalid document UUID"),
+		},
 	}
-	err := msgDocReceipt.ValidateBasic()
-	assert.NotNil(t, err)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.sdr.ValidateBasic()
+			if tt.haveErr != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
 func TestMsgDocumentReceipt_GetSignBytes(t *testing.T) {
@@ -193,22 +292,53 @@ func Test_MsgAddSupportedMetadataSchema_Type(t *testing.T) {
 	assert.Equal(t, MsgTypeAddSupportedMetadataSchema, actual)
 }
 
-func Test_MsgAddSupportedMetadataSchema_ValidateBasic_valid(t *testing.T) {
-	err := msgAddSupportedMetadataSchema.ValidateBasic()
-	assert.Nil(t, err)
-}
-
-func Test_MsgAddSupportedMetadataSchema_ValidateBasic_invalid(t *testing.T) {
-	var msgDocReceipt = MsgAddSupportedMetadataSchema{
-		Signer: recipient,
-		Schema: MetadataSchema{
-			Type:      "schema-2",
-			SchemaURI: "",
-			Version:   "",
+func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name    string
+		sdr     MsgAddSupportedMetadataSchema
+		haveErr sdk.Error
+	}{
+		{
+			"a valid AddSuppoertedMetadataSchema message",
+			msgAddSupportedMetadataSchema,
+			nil,
+		},
+		{
+			"missing signer",
+			MsgAddSupportedMetadataSchema{
+				Schema: MetadataSchema{
+					Type:      "schema",
+					SchemaURI: "https://example.com/schema",
+					Version:   "1.0.0",
+				},
+			},
+			sdk.ErrInvalidAddress(""),
+		},
+		{
+			"invalid schema",
+			MsgAddSupportedMetadataSchema{
+				Signer: recipient,
+				Schema: MetadataSchema{
+					Type:      "schema-2",
+					SchemaURI: "",
+					Version:   "",
+				},
+			},
+			sdk.ErrUnknownRequest("uri cannot be empty"),
 		},
 	}
-	err := msgDocReceipt.ValidateBasic()
-	assert.NotNil(t, err)
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.sdr.ValidateBasic()
+			if tt.haveErr != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
 func Test_MsgAddSupportedMetadataSchema_GetSignBytes(t *testing.T) {
@@ -242,6 +372,46 @@ func Test_MsgAddTrustedMetadataSchemaProposer_Type(t *testing.T) {
 	assert.Equal(t, MsgTypeAddTrustedMetadataSchemaProposer, actual)
 }
 
+func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name    string
+		sdr     MsgAddTrustedMetadataSchemaProposer
+		haveErr sdk.Error
+	}{
+		{
+			"a valid AddSuppoertedMetadataSchema message",
+			msgAddTrustedMetadataSchemaProposer,
+			nil,
+		},
+		{
+			"missing proposer",
+			MsgAddTrustedMetadataSchemaProposer{
+				Signer: recipient,
+			},
+			sdk.ErrInvalidAddress(""),
+		},
+		{
+			"missing signer",
+			MsgAddTrustedMetadataSchemaProposer{
+				Proposer: sender,
+			},
+			sdk.ErrInvalidAddress(""),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.sdr.ValidateBasic()
+			if tt.haveErr != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_valid(t *testing.T) {
 	err := msgAddTrustedMetadataSchemaProposer.ValidateBasic()
 	assert.Nil(t, err)
@@ -266,4 +436,67 @@ func Test_MsgAddTrustedMetadataSchemaProposer_GetSigners(t *testing.T) {
 	actual := msgAddTrustedMetadataSchemaProposer.GetSigners()
 	assert.Equal(t, 1, len(actual))
 	assert.Equal(t, msgAddTrustedMetadataSchemaProposer.Signer, actual[0])
+}
+
+func TestNewMsgShareDocument(t *testing.T) {
+	tests := []struct {
+		name     string
+		document Document
+		want     MsgShareDocument
+	}{
+		{
+			"document creation",
+			Document{
+				UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				ContentURI: "http://www.contentUri.com",
+				Metadata: DocumentMetadata{
+					ContentURI: "http://www.contentUri.com",
+					Schema: &DocumentMetadataSchema{
+						URI:     "http://www.contentUri.com",
+						Version: "test",
+					},
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "48656c6c6f20476f7068657221234567",
+					Algorithm: "md5",
+				},
+				Sender:     sender,
+				Recipients: types.Addresses{recipient},
+			},
+			msgShareDocumentSchema,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, NewMsgShareDocument(tt.document))
+		})
+	}
+}
+
+func TestNewMsgSendDocumentReceipt(t *testing.T) {
+	tests := []struct {
+		name     string
+		document DocumentReceipt
+		want     MsgSendDocumentReceipt
+	}{
+		{
+			"document receipt creation",
+			DocumentReceipt{
+				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Sender:       sender,
+				Recipient:    recipient,
+				TxHash:       "txHash",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			msgDocumentReceipt,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, NewMsgSendDocumentReceipt(tt.document))
+		})
+	}
 }
