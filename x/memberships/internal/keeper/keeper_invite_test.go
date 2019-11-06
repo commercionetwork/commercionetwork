@@ -8,70 +8,70 @@ import (
 )
 
 func TestKeeper_InviteUser_NoInvite(t *testing.T) {
-	cdc, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
 
-	err := k.InviteUser(ctx, TestUser, TestUser2)
+	err := k.InviteUser(ctx, testUser, TestUser2)
 	assert.Nil(t, err)
 
 	var invite types.Invite
-	accreditationBz := store.Get(k.getInviteStoreKey(TestUser))
-	cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
+	accreditationBz := store.Get(k.getInviteStoreKey(testUser))
+	k.cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
 
-	assert.Equal(t, TestUser, invite.User)
+	assert.Equal(t, testUser, invite.User)
 	assert.Equal(t, TestUser2, invite.Sender)
 	assert.False(t, invite.Rewarded)
 }
 
 func TestKeeper_InviteUser_ExistentInvite(t *testing.T) {
-	cdc, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
-	existingAccredit := types.Invite{User: TestUser, Sender: TestUser2, Rewarded: false}
+	existingAccredit := types.Invite{User: testUser, Sender: TestUser2, Rewarded: false}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getInviteStoreKey(TestUser), cdc.MustMarshalBinaryBare(existingAccredit))
+	store.Set(k.getInviteStoreKey(testUser), k.cdc.MustMarshalBinaryBare(existingAccredit))
 
-	err := k.InviteUser(ctx, TestUser, TestUser2)
+	err := k.InviteUser(ctx, testUser, TestUser2)
 	assert.NotNil(t, err)
 }
 
 func TestKeeper_GetInvite_NoInvite(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
-	_, found := k.GetInvite(ctx, TestUser)
+	_, found := k.GetInvite(ctx, testUser)
 	assert.False(t, found)
 }
 
 func TestKeeper_GetInvite_ExistingInvite(t *testing.T) {
-	cdc, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
-	expected := types.Invite{User: TestUser, Sender: TestUser2, Rewarded: false}
+	expected := types.Invite{User: testUser, Sender: TestUser2, Rewarded: false}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getInviteStoreKey(TestUser), cdc.MustMarshalBinaryBare(expected))
+	store.Set(k.getInviteStoreKey(testUser), k.cdc.MustMarshalBinaryBare(expected))
 
-	stored, found := k.GetInvite(ctx, TestUser)
+	stored, found := k.GetInvite(ctx, testUser)
 	assert.True(t, found)
 	assert.Equal(t, expected, stored)
 }
 
 func TestKeeper_GetInvites_EmptyList(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	invites := k.GetInvites(ctx)
 	assert.Empty(t, invites)
 }
 
 func TestKeeper_GetInvites_NonEmptyList(t *testing.T) {
-	cdc, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
-	inv1 := types.Invite{Sender: TestUser2, User: TestUser, Rewarded: false}
+	inv1 := types.Invite{Sender: TestUser2, User: testUser, Rewarded: false}
 	inv2 := types.Invite{Sender: TestUser2, User: TestUser2, Rewarded: false}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getInviteStoreKey(TestUser), cdc.MustMarshalBinaryBare(inv1))
-	store.Set(k.getInviteStoreKey(TestUser2), cdc.MustMarshalBinaryBare(inv2))
+	store.Set(k.getInviteStoreKey(testUser), k.cdc.MustMarshalBinaryBare(inv1))
+	store.Set(k.getInviteStoreKey(TestUser2), k.cdc.MustMarshalBinaryBare(inv2))
 
 	invites := k.GetInvites(ctx)
 	assert.Equal(t, 2, len(invites))

@@ -18,7 +18,7 @@ type MsgInviteUser struct {
 	Sender    sdk.AccAddress `json:"sender"`
 }
 
-func NewMsgInviteUser(recipient, sender sdk.AccAddress) MsgInviteUser {
+func NewMsgInviteUser(sender, recipient sdk.AccAddress) MsgInviteUser {
 	return MsgInviteUser{
 		Recipient: recipient,
 		Sender:    sender,
@@ -58,10 +58,16 @@ func (msg MsgInviteUser) GetSigners() []sdk.AccAddress {
 
 // MsgSetUserVerified is used to set a specific user as properly verified.
 // Note that the verifier address should identify a Trusted Service Provider account.
-type MsgSetUserVerified Credential
+type MsgSetUserVerified struct {
+	User     sdk.AccAddress `json:"user"`
+	Verifier sdk.AccAddress `json:"verifier"`
+}
 
-func NewMsgSetUserVerified(credential Credential) MsgSetUserVerified {
-	return MsgSetUserVerified(credential)
+func NewMsgSetUserVerified(user, verifier sdk.AccAddress) MsgSetUserVerified {
+	return MsgSetUserVerified{
+		User:     user,
+		Verifier: verifier,
+	}
 }
 
 // Route Implements Msg.
@@ -72,9 +78,6 @@ func (msg MsgSetUserVerified) Type() string { return MsgTypeSetUserVerified }
 
 // ValidateBasic Implements Msg.
 func (msg MsgSetUserVerified) ValidateBasic() sdk.Error {
-	if msg.Timestamp.IsZero() {
-		return sdk.ErrUnknownRequest("Timestamp not valid")
-	}
 	if msg.User.Empty() {
 		return sdk.ErrInvalidAddress(msg.User.String())
 	}

@@ -11,113 +11,113 @@ import (
 )
 
 func TestKeeper_getMembershipTokenId(t *testing.T) {
-	_, _, _, _, k := GetTestInput()
-	actual := k.getMembershipTokenID(TestUser)
-	assert.Equal(t, fmt.Sprintf("membership-%s", TestUser.String()), actual)
+	_, _, _, k := SetupTestInput()
+	actual := k.getMembershipTokenID(testUser)
+	assert.Equal(t, fmt.Sprintf("membership-%s", testUser.String()), actual)
 }
 
 func TestKeeper_getMembershipUri(t *testing.T) {
-	_, _, _, _, k := GetTestInput()
-	id := k.getMembershipTokenID(TestUser)
+	_, _, _, k := SetupTestInput()
+	id := k.getMembershipTokenID(testUser)
 	actual := k.getMembershipURI("black", id)
 	assert.Equal(t, fmt.Sprintf("membership:black:%s", id), actual)
 }
 
 func TestKeeper_AssignMembership_InvalidType(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 	invalidTypes := []string{"", "grn", "slver", "   ", "blck"}
 	for _, test := range invalidTypes {
-		_, err := k.AssignMembership(ctx, TestUser, test)
+		_, err := k.AssignMembership(ctx, testUser, test)
 		assert.NotNil(t, err)
 	}
 }
 
 func TestKeeper_AssignMembership_NotExisting(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
-	tokenURI, err := k.AssignMembership(ctx, TestUser, "black")
+	ctx, _, _, k := SetupTestInput()
+	tokenURI, err := k.AssignMembership(ctx, testUser, "black")
 	assert.Nil(t, err)
 
-	expectedID := k.getMembershipTokenID(TestUser)
+	expectedID := k.getMembershipTokenID(testUser)
 	assert.Equal(t, fmt.Sprintf("membership:black:%s", expectedID), tokenURI)
 }
 
 func TestKeeper_AssignMembership_Existing(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 	memberships := []string{"black", "bronze", "silver", "gold", "black"}
 
 	for _, membership := range memberships {
-		tokenURI, err := k.AssignMembership(ctx, TestUser, membership)
+		tokenURI, err := k.AssignMembership(ctx, testUser, membership)
 		assert.Nil(t, err)
 
-		expectedID := k.getMembershipTokenID(TestUser)
+		expectedID := k.getMembershipTokenID(testUser)
 		expectedURI := k.getMembershipURI(membership, expectedID)
 		assert.Equal(t, expectedURI, tokenURI)
 	}
 }
 
 func TestKeeper_RemoveMembership_NotExisting(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
-	deleted, err := k.RemoveMembership(ctx, TestUser)
+	deleted, err := k.RemoveMembership(ctx, testUser)
 	assert.Nil(t, err)
 	assert.True(t, deleted)
 }
 
 func TestKeeper_RemoveMembership_Existing(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
-	_, err := k.AssignMembership(ctx, TestUser, "black")
+	ctx, _, _, k := SetupTestInput()
+	_, err := k.AssignMembership(ctx, testUser, "black")
 	assert.Nil(t, err)
 
-	deleted, err := k.RemoveMembership(ctx, TestUser)
+	deleted, err := k.RemoveMembership(ctx, testUser)
 	assert.Nil(t, err)
 	assert.True(t, deleted)
 
-	_, found := k.GetMembership(ctx, TestUser)
+	_, found := k.GetMembership(ctx, testUser)
 	assert.False(t, found)
 }
 
 func TestKeeper_GetMembership_NotExisting(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
-	_, _ = k.RemoveMembership(ctx, TestUser)
-	foundMembership, found := k.GetMembership(ctx, TestUser)
+	ctx, _, _, k := SetupTestInput()
+	_, _ = k.RemoveMembership(ctx, testUser)
+	foundMembership, found := k.GetMembership(ctx, testUser)
 	assert.Nil(t, foundMembership)
 	assert.False(t, found)
 }
 
 func TestKeeper_GetMembership_Existing(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 	membershipType := "black"
-	_, err := k.AssignMembership(ctx, TestUser, membershipType)
+	_, err := k.AssignMembership(ctx, testUser, membershipType)
 	assert.Nil(t, err)
 
-	foundMembership, found := k.GetMembership(ctx, TestUser)
+	foundMembership, found := k.GetMembership(ctx, testUser)
 	assert.True(t, found)
-	assert.Equal(t, TestUser, foundMembership.GetOwner())
+	assert.Equal(t, testUser, foundMembership.GetOwner())
 
-	expectedID := k.getMembershipTokenID(TestUser)
+	expectedID := k.getMembershipTokenID(testUser)
 	assert.Equal(t, expectedID, foundMembership.GetID())
 	assert.Equal(t, k.getMembershipURI(membershipType, expectedID), foundMembership.GetTokenURI())
 }
 
 func TestKeeper_GetMembershipType(t *testing.T) {
-	_, _, _, _, k := GetTestInput()
+	_, _, _, k := SetupTestInput()
 
 	id := "123"
 	membershipType := "black"
-	membership := nft.NewBaseNFT(id, TestUser, k.getMembershipURI(membershipType, id))
+	membership := nft.NewBaseNFT(id, testUser, k.getMembershipURI(membershipType, id))
 
 	assert.Equal(t, membershipType, k.GetMembershipType(&membership))
 }
 
 func TestKeeper_GetMembershipsSet_EmptySet(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	set := k.GetMembershipsSet(ctx)
 	assert.Empty(t, set)
 }
 
 func TestKeeper_GetMembershipsSet_FilledSet(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	first, _ := sdk.AccAddressFromBech32("cosmos18v6sv92yrxdxck4hvw0gyfccu7dggweyrsqcx9")
 	_, _ = k.AssignMembership(ctx, first, "black")

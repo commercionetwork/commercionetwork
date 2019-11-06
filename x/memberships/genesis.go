@@ -5,19 +5,18 @@ import (
 	"fmt"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 // GenesisState - accreditations genesis state
 type GenesisState struct {
-	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
-	Invites                 []types.Invite    `json:"invites"`                   // List of invites
-	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"` // List of trusted service providers
-	Credentials             types.Credentials `json:"credentials"`               // List of verifiable credentials
-	StableCreditsDenom      string            `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
-	Memberships             []Membership      `json:"memberships"`               // List of all the existing memberships
+	LiquidityPoolAmount     sdk.Coins        `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
+	Invites                 Invites          `json:"invites"`                   // List of invites
+	TrustedServiceProviders ctypes.Addresses `json:"trusted_service_providers"` // List of trusted service providers
+	Credentials             Credentials      `json:"credentials"`               // List of verifiable credentials
+	StableCreditsDenom      string           `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
+	Memberships             Memberships      `json:"memberships"`               // List of all the existing memberships
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -31,7 +30,7 @@ func DefaultGenesisState(stableCreditsDenom string) GenesisState {
 func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
 	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
 	if moduleAcc == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
 	}
 
 	if moduleAcc.GetCoins().IsZero() {

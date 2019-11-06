@@ -12,7 +12,6 @@ To mark a user as verified, the following message should be used:
 {
   "type": "commercio/MsgSetUserVerified",
   "value": {
-    "timestamp": "<Timestamp of the verification, in ISO 8601 format>",
     "user": "<Address of the user to mark as verified>",
     "verifier": "<Trusted Service Provider address>"
   }

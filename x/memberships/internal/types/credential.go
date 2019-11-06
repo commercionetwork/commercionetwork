@@ -1,8 +1,6 @@
 package types
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -11,13 +9,21 @@ import (
 // -------------------
 
 type Credential struct {
-	Timestamp time.Time      `json:"timestamp"`
+	Timestamp int64          `json:"timestamp"` // Block height at which the credential has been inserted
 	User      sdk.AccAddress `json:"user"`
 	Verifier  sdk.AccAddress `json:"verifier"`
 }
 
+func NewCredential(user, verifier sdk.AccAddress, blockHeight int64) Credential {
+	return Credential{
+		Timestamp: blockHeight,
+		User:      user,
+		Verifier:  verifier,
+	}
+}
+
 func (c Credential) Equals(other Credential) bool {
-	return c.Timestamp.Equal(other.Timestamp) &&
+	return c.Timestamp == other.Timestamp &&
 		c.User.Equals(other.User) &&
 		c.Verifier.Equals(other.Verifier)
 }

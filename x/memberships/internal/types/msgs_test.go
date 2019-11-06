@@ -2,7 +2,6 @@ package types
 
 import (
 	"testing"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -66,9 +65,7 @@ func TestMsgInviteUser_UnmarshalJson(t *testing.T) {
 // --- MsgSetUserVerified
 // ---------------------------
 
-var timezone, _ = time.LoadLocation("UTC")
-var timestamp = time.Date(1990, 01, 01, 20, 20, 00, 0, timezone)
-var msgSetUserVerified = NewMsgSetUserVerified(Credential{Timestamp: timestamp, User: user, Verifier: tsp})
+var msgSetUserVerified = NewMsgSetUserVerified(user, tsp)
 
 func TestMsgSetUserVerified_Route(t *testing.T) {
 	assert.Equal(t, QuerierRoute, msgSetUserVerified.Route())
@@ -82,25 +79,19 @@ func TestMsgSetUserVerified_ValidateBasic_ValidMsg(t *testing.T) {
 	assert.Nil(t, msgSetUserVerified.ValidateBasic())
 }
 
-func TestMsgSetUserVerified_ValidateBasic_MissingTimestamp(t *testing.T) {
-	msg := MsgSetUserVerified{Timestamp: time.Time{}, User: user, Verifier: tsp}
-	assert.Error(t, msg.ValidateBasic())
-}
-
 func TestMsgSetUserVerified_ValidateBasic_MissingUser(t *testing.T) {
-	msg := MsgSetUserVerified{Timestamp: timestamp, User: nil, Verifier: tsp}
+	msg := NewMsgSetUserVerified(nil, tsp)
 	assert.Error(t, msg.ValidateBasic())
 }
 
 func TestMsgSetUserVerified_ValidateBasic_MissingVerifier(t *testing.T) {
-	msg := MsgSetUserVerified{Timestamp: timestamp, User: user, Verifier: nil}
+	msg := NewMsgSetUserVerified(user, nil)
 	assert.Error(t, msg.ValidateBasic())
 }
 
 func TestMsgSetUserVerified_GetSignBytes(t *testing.T) {
-	actual := msgSetUserVerified.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgSetUserVerified))
-	assert.Equal(t, expected, actual)
+	json := `{"type":"commercio/MsgSetUserVerified","value":{"user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","verifier":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+	assert.Equal(t, json, string(msgSetUserVerified.GetSignBytes()))
 }
 
 func TestMsgSetUserVerified_GetSigners(t *testing.T) {
@@ -110,7 +101,7 @@ func TestMsgSetUserVerified_GetSigners(t *testing.T) {
 }
 
 func TestMsgSetUserVerified_UnmarshalJson(t *testing.T) {
-	json := `{"type":"commercio/MsgSetUserVerified","value":{"timestamp": "1990-01-01T20:20:00.000Z", "user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","verifier":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+	json := `{"type":"commercio/MsgSetUserVerified","value":{"user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","verifier":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
 
 	var msg MsgSetUserVerified
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)

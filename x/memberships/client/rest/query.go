@@ -65,7 +65,7 @@ func getInvitesForUserHandler(cliCtx context.CLIContext) http.HandlerFunc {
 }
 
 // ---------------------------------
-// --- Trusted Serivce Providers
+// --- Trusted Service Providers
 // ---------------------------------
 
 func getTrustedServiceProvidersHandler(cliCtx context.CLIContext) http.HandlerFunc {
