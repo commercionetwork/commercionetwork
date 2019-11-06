@@ -18,7 +18,8 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	NewPrice = types.NewPrice
+	NewPrice   = types.NewPrice
+	EmptyPrice = types.EmptyPrice
 
 	NewMsgSetPrice  = types.NewMsgSetPrice
 	NewMsgAddOracle = types.NewMsgAddOracle

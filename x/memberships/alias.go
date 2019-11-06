@@ -18,15 +18,20 @@ var (
 
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
+
+	NewMembership         = types.NewMembership
+	IsMembershipTypeValid = types.IsMembershipTypeValid
 )
 
 type (
 	Keeper = keeper.Keeper
 
 	Invite      = types.Invite
+	Invites     = types.Invites
 	Credential  = types.Credential
 	Credentials = types.Credentials
 	Membership  = types.Membership
+	Memberships = types.Memberships
 
 	MsgInviteUser               = types.MsgInviteUser
 	MsgSetUserVerified          = types.MsgSetUserVerified

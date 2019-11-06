@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -66,7 +67,7 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return nil
+	return cli.GetTxCmd(cdc)
 }
 
 // get the root query command of this module

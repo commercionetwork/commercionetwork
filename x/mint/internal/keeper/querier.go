@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"fmt"
-	"time"
+	"strconv"
 
 	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -26,9 +26,9 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 
 func queryGetCdp(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
-	timestamp, err := time.Parse(time.RFC3339, path[1])
+	timestamp, err := strconv.ParseInt(path[1], 10, 64)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest("timestamp format isn't ISO8601")
+		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("timestamp not valid: %s", path[1]))
 	}
 	cdp, found := keeper.GetCdpByOwnerAndTimeStamp(ctx, ownerAddr, timestamp)
 

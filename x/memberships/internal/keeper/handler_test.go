@@ -11,74 +11,119 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// --------------------------
-// --- handleMsgInviteUser
-// --------------------------
+func Test_handleMsgInviteUser(t *testing.T) {
+	testData := []struct {
+		name           string
+		membershipType string
+		invitee        sdk.AccAddress
+		invitedUser    sdk.AccAddress
+		existingInvite types.Invite
+		error          string
+	}{
+		{
+			name:        "Invitee has no membership",
+			invitee:     TestUser2,
+			invitedUser: testUser,
+			error:       "Cannot send an invitation without having a membership",
+		},
+		{
+			name:           "Existing invite returns error",
+			membershipType: types.MembershipTypeBronze,
+			invitee:        TestUser2,
+			invitedUser:    testUser,
+			existingInvite: types.Invite{Sender: TestUser2, User: testUser, Rewarded: false},
+			error:          fmt.Sprintf("%s has already been invited", testUser),
+		},
+		{
+			name:           "New invite is inserted properly",
+			membershipType: types.MembershipTypeBronze,
+			invitee:        TestUser2,
+			invitedUser:    testUser,
+		},
+	}
 
-func Test_handleMsgInviteUser_ExistingInvite(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, govK, k := SetupTestInput()
 
-	invite := types.Invite{Sender: TestUser2, User: TestUser, Rewarded: false}
-	k.SaveInvite(ctx, invite)
-	_, _ = k.AssignMembership(ctx, invite.Sender, types.MembershipTypeBronze)
+			if !test.existingInvite.Empty() {
+				k.SaveInvite(ctx, test.existingInvite)
+			}
 
-	handler := NewHandler(k, govK)
-	msg := types.NewMsgInviteUser(TestUser, TestUser2)
-	res := handler(ctx, msg)
+			if len(test.membershipType) != 0 {
+				_, _ = k.AssignMembership(ctx, test.invitee, test.membershipType)
+			}
 
-	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	assert.Contains(t, res.Log, "has already been invited")
+			handler := NewHandler(k, govK)
+			msg := types.NewMsgInviteUser(test.invitee, test.invitedUser)
+			res := handler(ctx, msg)
+
+			if len(test.error) != 0 {
+				assert.False(t, res.IsOK())
+				assert.Contains(t, res.Log, test.error)
+			} else {
+				assert.True(t, res.IsOK())
+			}
+		})
+	}
 }
 
-func Test_handleMsgInviteUser_NewInvite(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
+func Test_handleMsgSetUserVerified(t *testing.T) {
+	testData := []struct {
+		name            string
+		tsp             sdk.AccAddress
+		user            sdk.AccAddress
+		alreadyVerified bool
+		error           string
+	}{
+		{
+			name:            "Invalid signer returns error",
+			tsp:             nil,
+			user:            testUser,
+			alreadyVerified: false,
+			error:           " is not a valid TSP",
+		},
+		{
+			name:            "Existing credential",
+			tsp:             testTsp,
+			user:            testUser,
+			alreadyVerified: true,
+		},
+		{
+			name:            "New credential",
+			tsp:             testTsp,
+			user:            testUser,
+			alreadyVerified: false,
+		},
+	}
 
-	_, _ = k.AssignMembership(ctx, TestUser2, types.MembershipTypeBronze)
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, govK, k := SetupTestInput()
 
-	handler := NewHandler(k, govK)
-	msg := types.NewMsgInviteUser(TestUser, TestUser2)
-	res := handler(ctx, msg)
+			if test.tsp != nil {
+				k.AddTrustedServiceProvider(ctx, test.tsp)
+			}
 
-	assert.True(t, res.IsOK())
-}
+			if test.alreadyVerified {
+				credential := types.NewCredential(test.user, test.tsp, ctx.BlockHeight())
+				k.SaveCredential(ctx, credential)
+			}
 
-// -----------------------------
-// --- handleMsgSetUserVerified
-// -----------------------------
+			handler := NewHandler(k, govK)
+			msg := types.NewMsgSetUserVerified(test.user, test.tsp)
+			res := handler(ctx, msg)
 
-func Test_handleMsgSetUserVerified_InvalidSigner(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
-
-	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: nil})
-	res := handler(ctx, msg)
-
-	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeUnauthorized, res.Code)
-}
-
-func Test_handleMsgSetUserVerified_ExistingCredential(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
-
-	credential := types.Credential{User: TestUser, Verifier: TestTsp, Timestamp: TestTimestamp}
-	k.SaveCredential(ctx, credential)
-
-	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: TestTsp})
-	res := handler(ctx, msg)
-
-	assert.False(t, res.IsOK())
-}
-
-func Test_handleMsgSetUserVerified_NewCredential(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
-
-	handler := NewHandler(k, govK)
-	msg := types.NewMsgSetUserVerified(types.Credential{User: TestUser, Timestamp: TestTimestamp, Verifier: TestTsp})
-	res := handler(ctx, msg)
-
-	assert.False(t, res.IsOK())
+			if len(test.error) == 0 {
+				assert.True(t, res.IsOK())
+			} else {
+				assert.False(t, res.IsOK())
+				assert.Contains(t, res.Log, test.error)
+			}
+		})
+	}
 }
 
 // -----------------------------
@@ -86,15 +131,15 @@ func Test_handleMsgSetUserVerified_NewCredential(t *testing.T) {
 // -----------------------------
 
 func Test_handleAddTrustedSigner_InvalidGovernment(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
+	ctx, _, govK, k := SetupTestInput()
 
 	government, _ := sdk.AccAddressFromBech32("cosmos15ne6fy8uukkyyf072qklkeleh2zf39k52mcg2f")
 
-	err := govK.SetGovernmentAddress(ctx, TestUser)
+	err := govK.SetGovernmentAddress(ctx, testUser)
 	assert.Nil(t, err)
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgAddTsp(TestTsp, government)
+	msg := types.NewMsgAddTsp(testTsp, government)
 	res := handler(ctx, msg)
 
 	assert.False(t, res.IsOK())
@@ -102,7 +147,7 @@ func Test_handleAddTrustedSigner_InvalidGovernment(t *testing.T) {
 }
 
 func Test_handleAddTrustedSigner_ValidGovernment(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
+	ctx, _, govK, k := SetupTestInput()
 
 	government, _ := sdk.AccAddressFromBech32("cosmos15ne6fy8uukkyyf072qklkeleh2zf39k52mcg2f")
 
@@ -110,7 +155,7 @@ func Test_handleAddTrustedSigner_ValidGovernment(t *testing.T) {
 	assert.Nil(t, err)
 
 	handler := NewHandler(k, govK)
-	msg := types.NewMsgAddTsp(TestTsp, government)
+	msg := types.NewMsgAddTsp(testTsp, government)
 	res := handler(ctx, msg)
 
 	assert.True(t, res.IsOK())
@@ -122,22 +167,22 @@ func Test_handleAddTrustedSigner_ValidGovernment(t *testing.T) {
 // ---------------------------------
 
 var testInviteSender, _ = sdk.AccAddressFromBech32("cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my")
-var msgBuyMembership = types.NewMsgBuyMembership(TestMembershipType, TestUser)
+var msgBuyMembership = types.NewMsgBuyMembership(testMembershipType, testUser)
 
 func TestHandler_ValidMsgAssignMembership(t *testing.T) {
-	_, ctx, bankK, govK, k := GetTestInput()
+	ctx, bankK, govK, k := SetupTestInput()
 
 	// Setup everything
-	invite := types.Invite{Sender: testInviteSender, User: TestUser, Rewarded: false}
+	invite := types.Invite{Sender: testInviteSender, User: testUser, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, testInviteSender, types.MembershipTypeBronze)
 
-	credentials := types.Credential{Timestamp: TestTimestamp, User: TestUser, Verifier: testInviteSender}
+	credentials := types.Credential{Timestamp: ctx.BlockHeight(), User: testUser, Verifier: testInviteSender}
 	k.SaveCredential(ctx, credentials)
 
-	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 1000000000))
-	_ = bankK.SetCoins(ctx, TestUser, creditsAmnt)
+	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000))
+	_ = bankK.SetCoins(ctx, testUser, creditsAmnt)
 	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
 
 	// Perform the call
@@ -147,7 +192,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 }
 
 func TestHandler_InvalidUnknownType(t *testing.T) {
-	_, ctx, _, govK, k := GetTestInput()
+	ctx, _, govK, k := SetupTestInput()
 
 	var handler = NewHandler(k, govK)
 	res := handler(ctx, sdk.NewTestMsg())
@@ -156,24 +201,24 @@ func TestHandler_InvalidUnknownType(t *testing.T) {
 }
 
 func TestHandler_InvalidMembershipType(t *testing.T) {
-	_, ctx, bankK, govK, k := GetTestInput()
+	ctx, bankK, govK, k := SetupTestInput()
 
 	// Setup everything
-	invite := types.Invite{Sender: testInviteSender, User: TestUser, Rewarded: false}
+	invite := types.Invite{Sender: testInviteSender, User: testUser, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, testInviteSender, types.MembershipTypeBronze)
 
-	credentials := types.Credential{Timestamp: TestTimestamp, User: TestUser, Verifier: testInviteSender}
+	credentials := types.Credential{Timestamp: ctx.BlockHeight(), User: testUser, Verifier: testInviteSender}
 	k.SaveCredential(ctx, credentials)
 
-	_ = bankK.SetCoins(ctx, TestUser, sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 1000000000)))
+	_ = bankK.SetCoins(ctx, testUser, sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)))
 
 	var handler = NewHandler(k, govK)
 	memTypes := []string{"gren", "bronz", "slver", "gol", "blck"}
 
 	for _, memType := range memTypes {
-		msg := types.NewMsgBuyMembership(memType, TestUser)
+		msg := types.NewMsgBuyMembership(memType, testUser)
 		res := handler(ctx, msg)
 		require.False(t, res.IsOK())
 		require.Contains(t, res.Log, fmt.Sprintf("Invalid membership type: %s", memType))
@@ -181,19 +226,19 @@ func TestHandler_InvalidMembershipType(t *testing.T) {
 }
 
 func TestHandler_MembershipUpgrade(t *testing.T) {
-	_, ctx, bankK, govK, k := GetTestInput()
+	ctx, bankK, govK, k := SetupTestInput()
 
 	// Setup everything
-	invite := types.Invite{Sender: testInviteSender, User: TestUser, Rewarded: false}
+	invite := types.Invite{Sender: testInviteSender, User: testUser, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, testInviteSender, types.MembershipTypeBronze)
 
-	credentials := types.Credential{Timestamp: TestTimestamp, User: TestUser, Verifier: testInviteSender}
+	credentials := types.Credential{Timestamp: ctx.BlockHeight(), User: testUser, Verifier: testInviteSender}
 	k.SaveCredential(ctx, credentials)
 
-	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 100000000000000))
-	_ = bankK.SetCoins(ctx, TestUser, creditsAmnt)
+	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 100000000000000))
+	_ = bankK.SetCoins(ctx, testUser, creditsAmnt)
 	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
 
 	// Perform the calls
@@ -204,36 +249,36 @@ func TestHandler_MembershipUpgrade(t *testing.T) {
 		beforeType := memTypes[index-1]
 		memType := memTypes[index]
 
-		_, _ = k.AssignMembership(ctx, TestUser, beforeType)
+		_, _ = k.AssignMembership(ctx, testUser, beforeType)
 
-		msg := types.NewMsgBuyMembership(memType, TestUser)
+		msg := types.NewMsgBuyMembership(memType, testUser)
 		res := handler(ctx, msg)
 		require.True(t, res.IsOK())
 	}
 }
 
 func TestHandler_InvalidMembershipUpgrade(t *testing.T) {
-	_, ctx, bankK, govK, k := GetTestInput()
+	ctx, bankK, govK, k := SetupTestInput()
 
 	// Setup everything
-	invite := types.Invite{Sender: testInviteSender, User: TestUser, Rewarded: false}
+	invite := types.Invite{Sender: testInviteSender, User: testUser, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, testInviteSender, types.MembershipTypeBronze)
 
-	credentials := types.Credential{Timestamp: TestTimestamp, User: TestUser, Verifier: testInviteSender}
+	credentials := types.Credential{Timestamp: ctx.BlockHeight(), User: testUser, Verifier: testInviteSender}
 	k.SaveCredential(ctx, credentials)
 
-	_ = bankK.SetCoins(ctx, TestUser, sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 1000000000)))
+	_ = bankK.SetCoins(ctx, testUser, sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)))
 
 	// Performs the call
 	var handler = NewHandler(k, govK)
 	memTypes := []string{"bronze", "silver", "gold", "black"}
 
 	for _, memType := range memTypes {
-		_, _ = k.AssignMembership(ctx, TestUser, memType)
+		_, _ = k.AssignMembership(ctx, testUser, memType)
 
-		msg := types.NewMsgBuyMembership(memType, TestUser)
+		msg := types.NewMsgBuyMembership(memType, testUser)
 		res := handler(ctx, msg)
 
 		require.False(t, res.IsOK())

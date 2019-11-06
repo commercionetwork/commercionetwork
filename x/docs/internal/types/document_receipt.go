@@ -18,9 +18,10 @@ type DocumentReceipt struct {
 	Recipient    sdk.AccAddress `json:"recipient"`
 	TxHash       string         `json:"tx_hash"`
 	DocumentUUID string         `json:"document_uuid"`
-	Proof        string         `json:"proof"`
+	Proof        string         `json:"proof"` // Optional
 }
 
+// Equals implements equatable
 func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 	if !receipt.Sender.Equals(rec.Sender) {
 		return false
@@ -40,12 +41,21 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 	return true
 }
 
+// ------------------------
+// --- DocumentReceipts
+// ------------------------
+
+// DocumentReceipts represents a slice of DocumentReceipt
 type DocumentReceipts []DocumentReceipt
 
+// IsEmpty returns true if the given slice is empty
 func (receipts DocumentReceipts) IsEmpty() bool {
 	return len(receipts) == 0
 }
 
+// AppendIfMissing returns a new slice containing the given receipt only if it was missing
+// from the receipts array, or returns the default array.
+// The second value returned tells if the new receipt was properly appended or not.
 func (receipts DocumentReceipts) AppendIfMissing(receipt DocumentReceipt) (DocumentReceipts, bool) {
 	for _, ele := range receipts {
 		if ele.Equals(receipt) {
@@ -55,6 +65,8 @@ func (receipts DocumentReceipts) AppendIfMissing(receipt DocumentReceipt) (Docum
 	return append(receipts, receipt), true
 }
 
+// AppendAllIfMissing appends each receipt contained inside the other slice into the
+// receipts slice, only if they are not already present inside the given slice.
 func (receipts DocumentReceipts) AppendAllIfMissing(other DocumentReceipts) DocumentReceipts {
 	result := receipts
 	for _, receipt := range other {
@@ -63,6 +75,7 @@ func (receipts DocumentReceipts) AppendAllIfMissing(other DocumentReceipts) Docu
 	return result
 }
 
+// FindByDocumentID returns all the receipts having the given document ID.
 func (receipts DocumentReceipts) FindByDocumentID(docID string) DocumentReceipts {
 	var foundReceipts DocumentReceipts
 	for _, ele := range receipts {

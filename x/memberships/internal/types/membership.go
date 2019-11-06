@@ -11,10 +11,28 @@ const (
 	MembershipTypeBlack  = "black"
 )
 
+// -------------------
+// --- Membership
+// -------------------
+
 // Membership contains the data of a membership associated to a specific user
 type Membership struct {
 	Owner          sdk.AccAddress `json:"owner"`
 	MembershipType string         `json:"membership_type"`
+}
+
+// NewMembership returns a new memberships containing the given data
+func NewMembership(membershipType string, owner sdk.AccAddress) Membership {
+	return Membership{
+		Owner:          owner,
+		MembershipType: membershipType,
+	}
+}
+
+// Equals returns true iff m and other contain the same data
+func (m Membership) Equals(other Membership) bool {
+	return m.Owner.Equals(other.Owner) &&
+		m.MembershipType == other.MembershipType
 }
 
 // IsMembershipTypeValid returns true iff the given membership type if valid
@@ -46,4 +64,21 @@ func CanUpgrade(currentMembershipType string, newMembershipType string) bool {
 	}
 
 	return false
+}
+
+// -------------------
+// --- Memberships
+// -------------------
+
+// Memberships represents a slice of Membership objects
+type Memberships []Membership
+
+// AppendIfMissing appends the other membership to the given slice, returning the result of the appending
+func (slice Memberships) AppendIfMissing(other Membership) (Memberships, bool) {
+	for _, membership := range slice {
+		if membership.Equals(other) {
+			return slice, false
+		}
+	}
+	return append(slice, other), true
 }

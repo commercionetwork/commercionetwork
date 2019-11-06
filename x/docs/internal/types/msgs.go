@@ -76,10 +76,6 @@ func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
 		return sdk.ErrUnknownRequest("Invalid document UUID")
 	}
 
-	if len(strings.TrimSpace(msg.Proof)) == 0 {
-		return sdk.ErrUnknownRequest("Receipt proof can't be empty")
-	}
-
 	return nil
 }
 

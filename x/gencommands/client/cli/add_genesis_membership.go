@@ -2,8 +2,9 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 
-	bank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -13,19 +14,24 @@ import (
 )
 
 // AddGenesisTspCmd returns add-genesis-tsp cobra Command.
-func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
+func AddGenesisMembershipCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-locked-account [account_address_or_key]",
-		Short: "Adds the given account to the list of locked accounts inside the genesis.json",
-		Args:  cobra.ExactArgs(1),
+		Use:   "add-genesis-membership [membership_type] [account_address_or_key]",
+		Short: "Creates a new membership of the specified type and associates it to the given address, saving it inside the genesis.json",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
-			address, err := getAddressFromString(args[0])
+			address, err := getAddressFromString(args[1])
 			if err != nil {
 				return err
+			}
+
+			membershipType := args[0]
+			if !memberships.IsMembershipTypeValid(membershipType) {
+				return fmt.Errorf("invalid membership type: %s", membershipType)
 			}
 
 			// retrieve the app state
@@ -35,17 +41,19 @@ func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
 				return err
 			}
 
-			// add minter to the app state
-			var genState bank.GenesisState
-			err = json.Unmarshal(appState[bank.ModuleName], &genState)
+			// add a membership to the genesis state
+			var genState memberships.GenesisState
+			err = json.Unmarshal(appState[memberships.ModuleName], &genState)
 			if err != nil {
 				return err
 			}
 
-			genState.BlockedAccounts, _ = genState.BlockedAccounts.AppendIfMissing(address)
+			membership := memberships.NewMembership(membershipType, address)
+			genState.Memberships, _ = genState.Memberships.AppendIfMissing(membership)
 
+			// save the state
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[bank.ModuleName] = genesisStateBz
+			appState[memberships.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

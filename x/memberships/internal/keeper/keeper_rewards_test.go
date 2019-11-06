@@ -9,28 +9,28 @@ import (
 )
 
 func TestKeeper_DepositIntoPool_EmptyPool(t *testing.T) {
-	_, ctx, bankK, _, k := GetTestInput()
+	ctx, bankK, _, k := SetupTestInput()
 
 	coins := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(1000)))
-	_ = bankK.SetCoins(ctx, TestUser, coins)
+	_ = bankK.SetCoins(ctx, testUser, coins)
 
 	deposit := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
-	err := k.DepositIntoPool(ctx, TestUser, deposit)
+	err := k.DepositIntoPool(ctx, testUser, deposit)
 	assert.Nil(t, err)
 	assert.Equal(t, deposit, k.GetPoolFunds(ctx))
 }
 
 func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
-	_, ctx, bankK, _, k := GetTestInput()
+	ctx, bankK, _, k := SetupTestInput()
 
 	coins := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
-	_ = bankK.SetCoins(ctx, TestUser, coins)
+	_ = bankK.SetCoins(ctx, testUser, coins)
 
 	pool := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
 	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, pool)
 
 	addition := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
-	err := k.DepositIntoPool(ctx, TestUser, addition)
+	err := k.DepositIntoPool(ctx, testUser, addition)
 	assert.Nil(t, err)
 
 	expected := sdk.NewCoins(
@@ -41,7 +41,7 @@ func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
 }
 
 func TestKeeper_GetPoolFunds_EmptyPool(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	pool := k.GetPoolFunds(ctx)
 
@@ -49,7 +49,7 @@ func TestKeeper_GetPoolFunds_EmptyPool(t *testing.T) {
 }
 
 func TestKeeper_GetPoolFunds_ExistingPool(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	expected := sdk.NewCoins(
 		sdk.NewCoin("uatom", sdk.NewInt(100)),
@@ -62,10 +62,10 @@ func TestKeeper_GetPoolFunds_ExistingPool(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_InviteSenderWithoutMembership(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	// Setup
-	invite := types.Invite{User: TestUser, Sender: testInviteSender, Rewarded: false}
+	invite := types.Invite{User: testUser, Sender: testInviteSender, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	// Test
@@ -75,10 +75,10 @@ func TestKeeper_DistributeReward_InviteSenderWithoutMembership(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_InviteRecipientWithoutMembership(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	// Setup
-	invite := types.Invite{User: TestUser, Sender: testInviteSender, Rewarded: false}
+	invite := types.Invite{User: testUser, Sender: testInviteSender, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, invite.Sender, types.MembershipTypeBlack)
@@ -90,10 +90,10 @@ func TestKeeper_DistributeReward_InviteRecipientWithoutMembership(t *testing.T) 
 }
 
 func TestKeeper_DistributeReward_InviteRecipientWrongMembershipType(t *testing.T) {
-	_, ctx, _, _, k := GetTestInput()
+	ctx, _, _, k := SetupTestInput()
 
 	// Setup
-	invite := types.Invite{User: TestUser, Sender: testInviteSender, Rewarded: false}
+	invite := types.Invite{User: testUser, Sender: testInviteSender, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, invite.Sender, types.MembershipTypeBlack)
@@ -106,22 +106,22 @@ func TestKeeper_DistributeReward_InviteRecipientWrongMembershipType(t *testing.T
 }
 
 func TestKeeper_DistributeReward_EnoughPoolAmount(t *testing.T) {
-	_, ctx, bankK, _, k := GetTestInput()
+	ctx, bankK, _, k := SetupTestInput()
 
 	// Setup
-	invite := types.Invite{User: TestUser, Sender: testInviteSender, Rewarded: false}
+	invite := types.Invite{User: testUser, Sender: testInviteSender, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, invite.Sender, types.MembershipTypeBlack)
 	_, _ = k.AssignMembership(ctx, invite.User, types.MembershipTypeGold)
 
-	poolFunds := sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 1000000000000))
+	poolFunds := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000000))
 	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, poolFunds)
 
 	err := k.DistributeReward(ctx, invite, types.MembershipTypeGold)
 	assert.NoError(t, err)
 
-	expectedRewards := sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 2250000000))
+	expectedRewards := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 2250000000))
 	expectedRemainingPool := poolFunds.Sub(expectedRewards)
 
 	assert.Equal(t, expectedRewards, bankK.GetCoins(ctx, invite.Sender))
@@ -132,16 +132,16 @@ func TestKeeper_DistributeReward_EnoughPoolAmount(t *testing.T) {
 }
 
 func TestKeeper_DistributeReward_InsufficientPoolFundsGreaterThanZero(t *testing.T) {
-	_, ctx, bankK, _, k := GetTestInput()
+	ctx, bankK, _, k := SetupTestInput()
 
 	// Setup
-	invite := types.Invite{User: TestUser, Sender: testInviteSender, Rewarded: false}
+	invite := types.Invite{User: testUser, Sender: testInviteSender, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, invite.Sender, types.MembershipTypeBlack)
 	_, _ = k.AssignMembership(ctx, invite.User, types.MembershipTypeGold)
 
-	poolFunds := sdk.NewCoins(sdk.NewInt64Coin(TestStableCreditsDenom, 1000000))
+	poolFunds := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000))
 	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, poolFunds)
 
 	err := k.DistributeReward(ctx, invite, types.MembershipTypeGold)
@@ -155,10 +155,10 @@ func TestKeeper_DistributeReward_InsufficientPoolFundsGreaterThanZero(t *testing
 }
 
 func TestKeeper_DistributeReward_InsufficientPoolFundsZero(t *testing.T) {
-	_, ctx, bankK, _, k := GetTestInput()
+	ctx, bankK, _, k := SetupTestInput()
 
 	// Setup
-	invite := types.Invite{User: TestUser, Sender: testInviteSender, Rewarded: false}
+	invite := types.Invite{User: testUser, Sender: testInviteSender, Rewarded: false}
 	k.SaveInvite(ctx, invite)
 
 	_, _ = k.AssignMembership(ctx, invite.Sender, types.MembershipTypeBlack)

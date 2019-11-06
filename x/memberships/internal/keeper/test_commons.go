@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"time"
-
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,7 +17,7 @@ import (
 )
 
 //This function create an environment to test modules
-func GetTestInput() (*codec.Codec, sdk.Context, bank.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -65,9 +63,9 @@ func GetTestInput() (*codec.Codec, sdk.Context, bank.Keeper, government.Keeper, 
 	k.supplyKeeper.SetModuleAccount(ctx, memAcc)
 
 	// Set the stable credits denom
-	k.SetStableCreditsDenom(ctx, TestStableCreditsDenom)
+	k.SetStableCreditsDenom(ctx, testStableCreditsDenom)
 
-	return cdc, ctx, bk, govk, k
+	return ctx, bk, govk, k
 }
 
 func testCodec() *codec.Codec {
@@ -88,13 +86,8 @@ func testCodec() *codec.Codec {
 }
 
 // Testing variables
-var TestUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
+var testUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var TestUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
-
-var TestTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-
-var zone, _ = time.LoadLocation("UTC")
-var TestTimestamp = time.Date(1990, 10, 10, 20, 20, 0, 0, zone)
-
-var TestStableCreditsDenom = "uccc"
-var TestMembershipType = "bronze"
+var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testStableCreditsDenom = "uccc"
+var testMembershipType = "bronze"

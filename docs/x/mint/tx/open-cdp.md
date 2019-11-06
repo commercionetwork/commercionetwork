@@ -19,15 +19,10 @@ To open a new CDP you need to create and sign the following message.
         "denom": "<Token denom to be deposited>"
       }
     ],
-    "signer": "<User address>",
-    "timestamp": "<Timestamp of when the CDP request was made>"
+    "depositor": "<User address>"
   }
 }
 ```
-
-### About the Timestamp
-The timestamp is a way to track time as a running total of seconds.  
-In this case the timestamp has to be the running total of seconds from when the CDP request was made.
 
 ## Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,

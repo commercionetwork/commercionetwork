@@ -47,12 +47,13 @@ func handleMsgSetUserVerified(ctx sdk.Context, keeper Keeper, msg types.MsgSetUs
 
 	// Check the accreditation
 	if !keeper.IsTrustedServiceProvider(ctx, msg.Verifier) {
-		msg := fmt.Sprintf("User %s is not a valid TSP", msg.Verifier.String())
+		msg := fmt.Sprintf("%s is not a valid TSP", msg.Verifier.String())
 		return sdk.ErrUnauthorized(msg).Result()
 	}
 
 	// Create a credentials and store it
-	keeper.SaveCredential(ctx, types.Credential(msg))
+	credential := types.NewCredential(msg.User, msg.Verifier, ctx.BlockHeight())
+	keeper.SaveCredential(ctx, credential)
 	return sdk.Result{}
 }
 

@@ -17,19 +17,12 @@ func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) sd
 	inviteKey := k.getInviteStoreKey(recipient)
 
 	if store.Has(inviteKey) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", recipient.String()))
+		return sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", recipient))
 	}
 
-	// Build the accreditation
-	accreditation := types.Invite{
-		Sender:   sender,
-		User:     recipient,
-		Rewarded: false,
-	}
-
-	// Save the accreditation
-	accreditationBz := k.cdc.MustMarshalBinaryBare(&accreditation)
-	store.Set(inviteKey, accreditationBz)
+	// Build and save the invite
+	accreditation := types.NewInvite(sender, recipient)
+	store.Set(inviteKey, k.cdc.MustMarshalBinaryBare(&accreditation))
 	return nil
 }
 
