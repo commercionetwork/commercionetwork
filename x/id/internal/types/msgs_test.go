@@ -356,7 +356,46 @@ func TestMsgRequestDidPowerUp_Type(t *testing.T) {
 }
 
 func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
-	assert.Nil(t, msgRequestDidPowerUp.ValidateBasic())
+	claimant, _ := sdk.AccAddressFromBech32("cosmos1xt9nqxmermu64te9dr8rkjff8eax496hcasju7")
+	amount := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
+
+	tests := []struct {
+		name  string
+		msg   types.MsgRequestDidPowerUp
+		error sdk.Error
+	}{
+		{
+			name:  "Invalid claimant returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: sdk.AccAddress{}},
+			error: sdk.ErrInvalidAddress("Invalid claimant: "),
+		},
+		{
+			name:  "Invalid amount returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: sdk.NewCoins()},
+			error: sdk.ErrInvalidCoins("Power up amount not valid: "),
+		},
+		{
+			name: "Valid message returns no error",
+			msg:  msgRequestDidPowerUp,
+		},
+		{
+			name:  "Invalid proof returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "230sd"},
+			error: sdk.ErrUnknownRequest("Invalid proof: 230sd"),
+		},
+		{
+			name:  "Invalid encryption key returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "617364", EncryptionKey: "1230xcv"},
+			error: sdk.ErrUnknownRequest("Invalid encryption key value: 1230xcv"),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.error, test.msg.ValidateBasic())
+		})
+	}
 }
 
 func TestMsgRequestDidPowerUp_GetSignBytes(t *testing.T) {
@@ -409,32 +448,32 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		msg   types.MsgRequestDidPowerUp
+		msg   types.MsgPowerUpDid
 		error sdk.Error
 	}{
 		{
-			name:  "Invalid claimant returns error",
-			msg:   types.MsgRequestDidPowerUp{Claimant: sdk.AccAddress{}},
-			error: sdk.ErrInvalidAddress("Invalid claimant: "),
+			name:  "Invalid recipient returns error",
+			msg:   types.MsgPowerUpDid{Recipient: sdk.AccAddress{}},
+			error: sdk.ErrInvalidAddress("Invalid recipient address: "),
 		},
 		{
 			name:  "Invalid amount returns error",
-			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: sdk.NewCoins()},
-			error: sdk.ErrInvalidCoins("Power up amount not valid: "),
+			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: sdk.NewCoins()},
+			error: sdk.ErrInvalidCoins("Invalid power up amount: "),
 		},
 		{
 			name: "Valid message returns no error",
-			msg:  msgRequestDidPowerUp,
+			msg:  msgPowerUpDid,
 		},
 		{
-			name:  "Invalid proof returns error",
-			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "230sd"},
-			error: sdk.ErrUnknownRequest("Invalid proof: 230sd"),
+			name:  "Invalid activation reference returns error",
+			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: amount, ActivationReference: "230sd"},
+			error: sdk.ErrUnknownRequest("Invalid activation_reference: 230sd"),
 		},
 		{
-			name:  "Invalid encryption key returns error",
-			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "617364", EncryptionKey: "1230xcv"},
-			error: sdk.ErrUnknownRequest("Invalid encryption key value: 1230xcv"),
+			name:  "Invalid signer returns error",
+			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: amount, ActivationReference: "617364", Signer: sdk.AccAddress{}},
+			error: sdk.ErrInvalidAddress("Invalid signer address: "),
 		},
 	}
 

@@ -250,11 +250,7 @@ func (msg MsgPowerUpDid) Type() string { return MsgTypePowerUpDid }
 // ValidateBasic Implements Msg.
 func (msg MsgPowerUpDid) ValidateBasic() sdk.Error {
 	if msg.Recipient.Empty() {
-		return sdk.ErrInvalidAddress("Power up recipient cannot be empty")
-	}
-
-	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress("Power up signer cannot be empty")
+		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid recipient address: %s", msg.Recipient))
 	}
 
 	if msg.Amount.Empty() || !msg.Amount.IsValid() {
@@ -262,7 +258,11 @@ func (msg MsgPowerUpDid) ValidateBasic() sdk.Error {
 	}
 
 	if !ValidateHex(msg.ActivationReference) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.ActivationReference))
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid activation_reference: %s", msg.ActivationReference))
+	}
+
+	if msg.Signer.Empty() {
+		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid signer address: %s", msg.Signer))
 	}
 
 	return nil
