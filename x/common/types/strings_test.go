@@ -57,4 +57,6 @@ func TestStrings_Equals(t *testing.T) {
 	assert.False(t, types.Strings{"first"}.Equals(types.Strings{"second"}))
 	assert.True(t, types.Strings{"first", "second"}.Equals(types.Strings{"first", "second"}))
 	assert.False(t, types.Strings{"first", "second"}.Equals(types.Strings{"second", "first"}))
+	assert.False(t, types.Strings{"first", "second"}.Equals(types.Strings{"first"}))
+	assert.False(t, types.Strings{"first"}.Equals(types.Strings{"first", "second"}))
 }
