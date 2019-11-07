@@ -188,7 +188,7 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddre
 		keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentStoreKey), &document)
 
 		// Append it to the list
-		docs.AppendIfMissing(document)
+		docs = docs.AppendIfMissing(document)
 	}
 
 	return docs, nil
@@ -211,7 +211,7 @@ func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) 
 		keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentStoreKey), &document)
 
 		// Append it to the list
-		docs.AppendIfMissing(document)
+		docs = docs.AppendIfMissing(document)
 	}
 
 	return docs, nil
@@ -227,7 +227,7 @@ func (keeper Keeper) GetDocuments(ctx sdk.Context) types.Documents {
 	for ; iterator.Valid(); iterator.Next() {
 		var document types.Document
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &document)
-		documents.AppendIfMissing(document)
+		documents = documents.AppendIfMissing(document)
 	}
 
 	return documents

@@ -144,22 +144,17 @@ func (doc Document) Validate() sdk.Error {
 	return nil
 }
 
-// Documents represent a set of document instances.
 type Documents []Document
 
-// AppendIfMissing adds i to documents iff i isn't already present in documents.
-func (documents *Documents) AppendIfMissing(i Document) {
-	for _, ele := range *documents {
+func (documents Documents) AppendIfMissing(i Document) Documents {
+	for _, ele := range documents {
 		if ele.Equals(i) {
-			return
+			return documents
 		}
 	}
-
-	*documents = append(*documents, i)
-
+	return append(documents, i)
 }
 
-// IsEmpty returns true if documents doesn't have any instance of Document inside.
 func (documents Documents) IsEmpty() bool {
 	return len(documents) == 0
 }
