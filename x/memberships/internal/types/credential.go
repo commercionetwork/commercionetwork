@@ -32,8 +32,10 @@ func (c Credential) Equals(other Credential) bool {
 // --- Credentials
 // -------------------
 
+// Credentials represent a slice of Credential objects
 type Credentials []Credential
 
+// Contains returns true of the given credentials is contained inside the credentials slice
 func (credentials Credentials) Contains(credential Credential) bool {
 	for _, c := range credentials {
 		if c.Equals(credential) {
@@ -43,7 +45,9 @@ func (credentials Credentials) Contains(credential Credential) bool {
 	return false
 }
 
-func (credentials Credentials) AppendIfMissing(credential Credential) (newList Credentials, edited bool) {
+// AppendIfMissing returns a new Credentials object containing the given credential.
+// If the credential has been appended because previously missing, returns true. Otherwise returns false.
+func (credentials Credentials) AppendIfMissing(credential Credential) (Credentials, bool) {
 	if credentials.Contains(credential) {
 		return credentials, false
 	}
