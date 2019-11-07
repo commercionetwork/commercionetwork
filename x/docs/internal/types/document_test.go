@@ -394,8 +394,8 @@ func TestDocuments_AppendIfMissing(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt.documents.AppendIfMissing(tt.newDocument)
-			assert.Equal(t, tt.documents, tt.want)
+			newDoc := tt.documents.AppendIfMissing(tt.newDocument)
+			assert.Equal(t, tt.want, newDoc)
 		})
 	}
 }
