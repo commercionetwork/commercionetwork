@@ -157,29 +157,29 @@ func TestMsgRequestDidDeposit_JSON(t *testing.T) {
 var signer, _ = sdk.AccAddressFromBech32("cosmos1ejra5g9prtanzr3mjqj3suh5g6mffyyspemcm0")
 var msgMoveDeposit = NewMsgMoveDeposit("333b68743231343b6833346832313468354a40617364617364", signer)
 
-func TestMsgMoveDepositStatus_Route(t *testing.T) {
+func TestMsgMoveDeposit_Route(t *testing.T) {
 	assert.Equal(t, ModuleName, msgMoveDeposit.Route())
 }
 
-func TestMsgMoveDepositStatus_Type(t *testing.T) {
+func TestMsgMoveDeposit_Type(t *testing.T) {
 	assert.Equal(t, MsgTypeMoveDeposit, msgMoveDeposit.Type())
 }
 
-func TestMsgMoveDepositStatus_ValidateBasic(t *testing.T) {
+func TestMsgMoveDeposit_ValidateBasic(t *testing.T) {
 	assert.Nil(t, msgMoveDeposit.ValidateBasic())
 }
 
-func TestMsgMoveDepositStatus_GetSignBytes(t *testing.T) {
+func TestMsgMoveDeposit_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgMoveDeposit","value":{"deposit_proof":"333b68743231343b6833346832313468354a40617364617364","signer":"cosmos1ejra5g9prtanzr3mjqj3suh5g6mffyyspemcm0"}}`
 	assert.Equal(t, expected, string(msgMoveDeposit.GetSignBytes()))
 }
 
-func TestMsgMoveDepositStatus_GetSigners(t *testing.T) {
+func TestMsgMoveDeposit_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgMoveDeposit.Signer}
 	assert.Equal(t, expected, msgMoveDeposit.GetSigners())
 }
 
-func TestMsgMoveDepositStatus_JSON(t *testing.T) {
+func TestMsgMoveDeposit_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgMoveDeposit","value":{"deposit_proof":"333b68743231343b6833346832313468354a40617364617364","signer":"cosmos1ejra5g9prtanzr3mjqj3suh5g6mffyyspemcm0"}}`
 
 	var actual MsgMoveDeposit
@@ -201,29 +201,29 @@ var msgInvalidateDidDepositRequestStatus = NewMsgInvalidateDidDepositRequest(
 	editor,
 )
 
-func TestMsgInvalidateDidDepositRequestStatus_Route(t *testing.T) {
+func TestMsgInvalidateDidDepositRequest_Route(t *testing.T) {
 	assert.Equal(t, ModuleName, msgInvalidateDidDepositRequestStatus.Route())
 }
 
-func TestMsgInvalidateDidDepositRequestStatus_Type(t *testing.T) {
+func TestMsgInvalidateDidDepositRequest_Type(t *testing.T) {
 	assert.Equal(t, MsgTypeInvalidateDidDepositRequest, msgInvalidateDidDepositRequestStatus.Type())
 }
 
-func TestMsgInvalidateDidDepositRequestStatus_ValidateBasic(t *testing.T) {
+func TestMsgInvalidateDidDepositRequest_ValidateBasic(t *testing.T) {
 	assert.Nil(t, msgInvalidateDidDepositRequestStatus.ValidateBasic())
 }
 
-func TestMsgInvalidateDidDepositRequestStatus_GetSignBytes(t *testing.T) {
+func TestMsgInvalidateDidDepositRequest_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgInvalidateDidDepositRequest","value":{"deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","status":{"message":"Don't want this anymore","type":"canceled"}}}`
 	assert.Equal(t, expected, string(msgInvalidateDidDepositRequestStatus.GetSignBytes()))
 }
 
-func TestMsgInvalidateDidDepositRequestStatus_GetSigners(t *testing.T) {
+func TestMsgInvalidateDidDepositRequest_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgInvalidateDidDepositRequestStatus.Editor}
 	assert.Equal(t, expected, msgInvalidateDidDepositRequestStatus.GetSigners())
 }
 
-func TestMsgInvalidateDidDepositRequestStatus_JSON(t *testing.T) {
+func TestMsgInvalidateDidDepositRequest_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgInvalidateDidDepositRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
 
 	var actual MsgInvalidateDidDepositRequest
@@ -290,24 +290,24 @@ var msgPowerUpDid = MsgPowerUpDid{
 	Signer:              requestSender,
 }
 
-func TestMsgPowerUpDidStatus_Route(t *testing.T) {
+func TestMsgPowerUpDid_Route(t *testing.T) {
 	assert.Equal(t, ModuleName, msgPowerUpDid.Route())
 }
 
-func TestMsgPowerUpDidStatus_Type(t *testing.T) {
+func TestMsgPowerUpDid_Type(t *testing.T) {
 	assert.Equal(t, MsgTypePowerUpDid, msgPowerUpDid.Type())
 }
 
-func TestMsgPowerUpDidStatus_ValidateBasic(t *testing.T) {
+func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 	assert.Nil(t, msgPowerUpDid.ValidateBasic())
 }
 
-func TestMsgPowerUpDidStatus_GetSignBytes(t *testing.T) {
+func TestMsgPowerUpDid_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgPowerUpDid","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
 	assert.Equal(t, expected, string(msgPowerUpDid.GetSignBytes()))
 }
 
-func TestMsgPowerUpDidStatus_JSON(t *testing.T) {
+func TestMsgPowerUpDid_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgPowerUpDid","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
 
 	var actual MsgPowerUpDid
@@ -328,24 +328,24 @@ var msgInvalidateDidPowerUpRequestStatus = NewMsgInvalidateDidPowerUpRequest(
 	editor,
 )
 
-func TestMsgInvalidateDidPowerUpRequestStatus_Route(t *testing.T) {
+func TestNewMsgInvalidateDidPowerUpRequest_Route(t *testing.T) {
 	assert.Equal(t, ModuleName, msgInvalidateDidPowerUpRequestStatus.Route())
 }
 
-func TestMsgInvalidateDidPowerUpRequestStatus_Type(t *testing.T) {
+func TestNewMsgInvalidateDidPowerUpRequest_Type(t *testing.T) {
 	assert.Equal(t, MsgTypeInvalidateDidPowerUpRequest, msgInvalidateDidPowerUpRequestStatus.Type())
 }
 
-func TestMsgInvalidateDidPowerUpRequestStatus_ValidateBasic(t *testing.T) {
+func TestNewMsgInvalidateDidPowerUpRequest_ValidateBasic(t *testing.T) {
 	assert.Nil(t, msgInvalidateDidPowerUpRequestStatus.ValidateBasic())
 }
 
-func TestMsgInvalidateDidPowerUpRequestStatus_GetSignBytes(t *testing.T) {
+func TestNewMsgInvalidateDidPowerUpRequest_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgInvalidateDidPowerUpRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"message":"Don't want this anymore","type":"canceled"}}}`
 	assert.Equal(t, expected, string(msgInvalidateDidPowerUpRequestStatus.GetSignBytes()))
 }
 
-func TestMsgInvalidateDidPowerUpRequestStatus_JSON(t *testing.T) {
+func TestNewMsgInvalidateDidPowerUpRequest_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgInvalidateDidPowerUpRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
 
 	var actual MsgInvalidateDidPowerUpRequest

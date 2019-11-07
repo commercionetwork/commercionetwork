@@ -65,12 +65,12 @@ func (msg MsgRequestDidDeposit) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidCoins("Deposit amount cannot be contain negative values")
 	}
 
-	if err := ValidateHex(msg.Proof); err != nil {
-		return err
+	if !ValidateHex(msg.Proof) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.Proof))
 	}
 
-	if err := ValidateEncryptionKey(msg.EncryptionKey); err != nil {
-		return err
+	if !ValidateHex(msg.EncryptionKey) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid encpription key value: %s", msg.EncryptionKey))
 	}
 
 	if msg.FromAddress.Empty() {
@@ -118,8 +118,8 @@ func (msg MsgMoveDeposit) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Signer.String())
 	}
 
-	if err := ValidateHex(msg.DepositProof); err != nil {
-		return err
+	if !ValidateHex(msg.DepositProof) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.DepositProof))
 	}
 
 	return nil
@@ -166,8 +166,8 @@ func (msg MsgInvalidateDidDepositRequest) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Editor.String())
 	}
 
-	if err := ValidateHex(msg.DepositProof); err != nil {
-		return err
+	if !ValidateHex(msg.DepositProof) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.DepositProof))
 	}
 
 	if err := msg.Status.Validate(); err != nil {
@@ -218,12 +218,12 @@ func (msg MsgRequestDidPowerUp) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidCoins("PowerUp msg amount cannot contain negative values")
 	}
 
-	if err := ValidateHex(msg.Proof); err != nil {
-		return err
+	if !ValidateHex(msg.Proof) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.Proof))
 	}
 
-	if err := ValidateEncryptionKey(msg.EncryptionKey); err != nil {
-		return err
+	if !ValidateHex(msg.EncryptionKey) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid encpription key value: %s", msg.EncryptionKey))
 	}
 
 	return nil
@@ -270,8 +270,8 @@ func (msg MsgPowerUpDid) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid power up amount: %s", msg.Amount))
 	}
 
-	if err := ValidateHex(msg.ActivationReference); err != nil {
-		return err
+	if !ValidateHex(msg.ActivationReference) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.ActivationReference))
 	}
 
 	return nil
@@ -314,8 +314,8 @@ func (msg MsgInvalidateDidPowerUpRequest) Type() string { return MsgTypeInvalida
 
 // ValidateBasic Implements Msg.
 func (msg MsgInvalidateDidPowerUpRequest) ValidateBasic() sdk.Error {
-	if err := ValidateHex(msg.PowerUpProof); err != nil {
-		return err
+	if !ValidateHex(msg.PowerUpProof) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.PowerUpProof))
 	}
 
 	if err := msg.Status.Validate(); err != nil {
