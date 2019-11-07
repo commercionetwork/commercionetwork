@@ -61,8 +61,10 @@ func (pubKey PubKey) Validate() sdk.Error {
 // --- PubKeys
 // --------------
 
+// PubKeys represents a slice of PubKey objects
 type PubKeys []PubKey
 
+// Equals returns true iff pubKeys contains the same data as other in the same order
 func (pubKeys PubKeys) Equals(other PubKeys) bool {
 	if len(pubKeys) != len(other) {
 		return false
@@ -77,6 +79,8 @@ func (pubKeys PubKeys) Equals(other PubKeys) bool {
 	return true
 }
 
+// FindByID returns the key having the given id present inside the pubKeys object
+// If no key has been found, returns false
 func (pubKeys PubKeys) FindByID(id string) (PubKey, bool) {
 	for _, key := range pubKeys {
 		if key.ID == id {

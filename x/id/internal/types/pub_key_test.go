@@ -38,3 +38,37 @@ func TestPubKey_Validate(t *testing.T) {
 	err = types.NewPubKey("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-1", "RsaVerificationKey2018", controller, "6369616f6369616f63").Validate()
 	assert.NoError(t, err)
 }
+
+func TestPubKeys_Equals(t *testing.T) {
+	controller, _ := sdk.AccAddressFromBech32("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc")
+
+	first := types.NewPubKey("id-1", "type-1", controller, "hexValue-1")
+	second := types.NewPubKey("id-2", "type-2", controller, "hexValue-2")
+
+	assert.True(t, types.PubKeys{}.Equals(types.PubKeys{}))
+	assert.True(t, types.PubKeys{first, second}.Equals(types.PubKeys{first, second}))
+	assert.False(t, types.PubKeys{first, second}.Equals(types.PubKeys{second, first}))
+	assert.False(t, types.PubKeys{first}.Equals(types.PubKeys{first, second}))
+	assert.False(t, types.PubKeys{first, second}.Equals(types.PubKeys{first}))
+}
+
+func TestPubKeys_FindByID(t *testing.T) {
+	controller, _ := sdk.AccAddressFromBech32("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc")
+
+	first := types.NewPubKey("id-1", "type-1", controller, "hexValue-1")
+	second := types.NewPubKey("id-2", "type-2", controller, "hexValue-2")
+
+	key, found := types.PubKeys{}.FindByID(first.ID)
+	assert.False(t, found)
+
+	key, found = types.PubKeys{first}.FindByID(second.ID)
+	assert.False(t, found)
+
+	key, found = types.PubKeys{first, second}.FindByID(first.ID)
+	assert.True(t, found)
+	assert.Equal(t, first, key)
+
+	key, found = types.PubKeys{first, second}.FindByID(second.ID)
+	assert.True(t, found)
+	assert.Equal(t, second, key)
+}
