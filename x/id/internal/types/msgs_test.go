@@ -1,10 +1,11 @@
-package types
+package types_test
 
 import (
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,32 +13,32 @@ import (
 var testZone, _ = time.LoadLocation("UTC")
 var testTime = time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
 var testOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var msgSetIdentity = NewMsgSetIdentity(DidDocument{
+var msgSetIdentity = types.NewMsgSetIdentity(types.DidDocument{
 	Context: "https://www.w3.org/2019/did/v1",
 	ID:      testOwnerAddress,
 	Authentication: []string{
 		fmt.Sprintf("%s#keys-1", testOwnerAddress),
 	},
-	Proof: Proof{
+	Proof: types.Proof{
 		Type:           "LinkedDataSignature2015",
 		Created:        testTime,
 		Creator:        fmt.Sprintf("%s#keys-1", testOwnerAddress),
 		SignatureValue: "QNB13Y7Q9...1tzjn4w==",
 	},
-	PubKeys: PubKeys{
-		PubKey{
+	PubKeys: types.PubKeys{
+		types.PubKey{
 			ID:           fmt.Sprintf("%s#keys-1", testOwnerAddress),
 			Type:         "Secp256k1VerificationKey2018",
 			Controller:   testOwnerAddress,
 			PublicKeyHex: "02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71",
 		},
-		PubKey{
+		types.PubKey{
 			ID:           fmt.Sprintf("%s#keys-2", testOwnerAddress),
 			Type:         "RsaVerificationKey2018",
 			Controller:   testOwnerAddress,
 			PublicKeyHex: "04418834f5012c808a11830819f300d06092a864886f70d010101050003818d0030818902818100ccaf757e02ec9cfb3beddaa5fe8e9c24df033e9b60db7cb8e2981cb340321faf348731343c7ab2f4920ebd62c5c7617557f66219291ce4e95370381390252b080dfda319bb84808f04078737ab55f291a9024ef3b72aedcf26067d3cee2a470ed056f4e409b73dd6b4fddffa43dff02bf30a9de29357b606df6f0246be267a910203010001a",
 		},
-		PubKey{
+		types.PubKey{
 			ID:           fmt.Sprintf("%s#keys-1", testOwnerAddress),
 			Type:         "Secp256k1VerificationKey2018",
 			Controller:   testOwnerAddress,
@@ -51,17 +52,17 @@ var msgSetIdentity = NewMsgSetIdentity(DidDocument{
 // ----------------------------------
 
 func TestMsgSetIdentity_Route(t *testing.T) {
-	assert.Equal(t, ModuleName, msgSetIdentity.Route())
+	assert.Equal(t, types.ModuleName, msgSetIdentity.Route())
 }
 
 func TestMsgSetIdentity_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeSetIdentity, msgSetIdentity.Type())
+	assert.Equal(t, types.MsgTypeSetIdentity, msgSetIdentity.Type())
 }
 
 func TestMsgSetIdentity_ValidateBasic(t *testing.T) {
 	testData := []struct {
 		name          string
-		message       MsgSetIdentity
+		message       types.MsgSetIdentity
 		shouldBeValid bool
 	}{
 		{
@@ -71,7 +72,7 @@ func TestMsgSetIdentity_ValidateBasic(t *testing.T) {
 		},
 		{
 			name:          "Invalid address",
-			message:       MsgSetIdentity{},
+			message:       types.MsgSetIdentity{},
 			shouldBeValid: false,
 		},
 	}
@@ -104,7 +105,7 @@ func TestMsgSetIdentity_GetSigners(t *testing.T) {
 
 var requestSender, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
 var requestRecipient, _ = sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
-var msgRequestDidDeposit = MsgRequestDidDeposit{
+var msgRequestDidDeposit = types.MsgRequestDidDeposit{
 	FromAddress:   requestSender,
 	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
@@ -113,15 +114,60 @@ var msgRequestDidDeposit = MsgRequestDidDeposit{
 }
 
 func TestMsgRequestDidDeposit_Route(t *testing.T) {
-	assert.Equal(t, ModuleName, msgRequestDidDeposit.Route())
+	assert.Equal(t, types.ModuleName, msgRequestDidDeposit.Route())
 }
 
 func TestMsgRequestDidDeposit_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeRequestDidDeposit, msgRequestDidDeposit.Type())
+	assert.Equal(t, types.MsgTypeRequestDidDeposit, msgRequestDidDeposit.Type())
 }
 
-func TestMsgRequestDidDeposit_ValidateBasic_AllFieldsCorrect(t *testing.T) {
-	assert.Nil(t, msgRequestDidDeposit.ValidateBasic())
+func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
+
+	recipient, _ := sdk.AccAddressFromBech32("cosmos1xt9nqxmermu64te9dr8rkjff8eax496hcasju7")
+	amount := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
+
+	tests := []struct {
+		name  string
+		msg   types.MsgRequestDidDeposit
+		error sdk.Error
+	}{
+		{
+			name:  "Invalid recipient returns error",
+			msg:   types.MsgRequestDidDeposit{Recipient: sdk.AccAddress{}},
+			error: sdk.ErrInvalidAddress("Invalid recipient: "),
+		},
+		{
+			name:  "Invalid amount returns error",
+			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: sdk.NewCoins()},
+			error: sdk.ErrInvalidCoins("Deposit amount not valid: "),
+		},
+		{
+			name: "Valid message returns no error",
+			msg:  msgRequestDidDeposit,
+		},
+		{
+			name:  "Invalid proof returns error",
+			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: amount, Proof: "230sd"},
+			error: sdk.ErrUnknownRequest("Invalid proof: 230sd"),
+		},
+		{
+			name:  "Invalid encryption key returns error",
+			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: amount, Proof: "617364", EncryptionKey: "1230xcv"},
+			error: sdk.ErrUnknownRequest("Invalid encryption key value: 1230xcv"),
+		},
+		{
+			name:  "Invalid from_address returns error",
+			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: amount, Proof: "617364", EncryptionKey: "617364", FromAddress: sdk.AccAddress{}},
+			error: sdk.ErrInvalidAddress("Invalid from_address: "),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.error, test.msg.ValidateBasic())
+		})
+	}
 }
 
 func TestMsgRequestDidDeposit_GetSignBytes(t *testing.T) {
@@ -137,10 +183,10 @@ func TestMsgRequestDidDeposit_GetSigners(t *testing.T) {
 func TestMsgRequestDidDeposit_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgRequestDidDeposit","value":{"amount":[{"amount":"100","denom":"uatom"}],"encryption_key":"333b68743231343b6833346832313468354a40617364617364","from_address":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa"}}`
 
-	var actual MsgRequestDidDeposit
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
+	var actual types.MsgRequestDidDeposit
+	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 
-	expected := MsgRequestDidDeposit{
+	expected := types.MsgRequestDidDeposit{
 		FromAddress:   requestSender,
 		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
@@ -155,18 +201,44 @@ func TestMsgRequestDidDeposit_JSON(t *testing.T) {
 // ------------------------
 
 var signer, _ = sdk.AccAddressFromBech32("cosmos1ejra5g9prtanzr3mjqj3suh5g6mffyyspemcm0")
-var msgMoveDeposit = NewMsgMoveDeposit("333b68743231343b6833346832313468354a40617364617364", signer)
+var msgMoveDeposit = types.NewMsgMoveDeposit("333b68743231343b6833346832313468354a40617364617364", signer)
 
 func TestMsgMoveDeposit_Route(t *testing.T) {
-	assert.Equal(t, ModuleName, msgMoveDeposit.Route())
+	assert.Equal(t, types.ModuleName, msgMoveDeposit.Route())
 }
 
 func TestMsgMoveDeposit_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeMoveDeposit, msgMoveDeposit.Type())
+	assert.Equal(t, types.MsgTypeMoveDeposit, msgMoveDeposit.Type())
 }
 
 func TestMsgMoveDeposit_ValidateBasic(t *testing.T) {
-	assert.Nil(t, msgMoveDeposit.ValidateBasic())
+	tests := []struct {
+		name  string
+		msg   types.MsgMoveDeposit
+		error sdk.Error
+	}{
+		{
+			name:  "Empty signer returns error",
+			msg:   types.NewMsgMoveDeposit("", sdk.AccAddress{}),
+			error: sdk.ErrInvalidAddress("Invalid signer address: "),
+		},
+		{
+			name:  "Invalid deposit proof returns error",
+			msg:   types.NewMsgMoveDeposit("", editor),
+			error: sdk.ErrUnknownRequest("Invalid deposit_proof: "),
+		},
+		{
+			name: "Valid message returns no error",
+			msg:  msgMoveDeposit,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.error, test.msg.ValidateBasic())
+		})
+	}
 }
 
 func TestMsgMoveDeposit_GetSignBytes(t *testing.T) {
@@ -182,8 +254,8 @@ func TestMsgMoveDeposit_GetSigners(t *testing.T) {
 func TestMsgMoveDeposit_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgMoveDeposit","value":{"deposit_proof":"333b68743231343b6833346832313468354a40617364617364","signer":"cosmos1ejra5g9prtanzr3mjqj3suh5g6mffyyspemcm0"}}`
 
-	var actual MsgMoveDeposit
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
+	var actual types.MsgMoveDeposit
+	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 	assert.Equal(t, msgMoveDeposit, actual)
 }
 
@@ -192,8 +264,8 @@ func TestMsgMoveDeposit_JSON(t *testing.T) {
 // --------------------------
 
 var editor, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
-var msgInvalidateDidDepositRequestStatus = NewMsgInvalidateDidDepositRequest(
-	RequestStatus{
+var msgInvalidateDidDepositRequestStatus = types.NewMsgInvalidateDidDepositRequest(
+	types.RequestStatus{
 		Type:    "canceled",
 		Message: "Don't want this anymore",
 	},
@@ -202,15 +274,48 @@ var msgInvalidateDidDepositRequestStatus = NewMsgInvalidateDidDepositRequest(
 )
 
 func TestMsgInvalidateDidDepositRequest_Route(t *testing.T) {
-	assert.Equal(t, ModuleName, msgInvalidateDidDepositRequestStatus.Route())
+	assert.Equal(t, types.ModuleName, msgInvalidateDidDepositRequestStatus.Route())
 }
 
 func TestMsgInvalidateDidDepositRequest_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeInvalidateDidDepositRequest, msgInvalidateDidDepositRequestStatus.Type())
+	assert.Equal(t, types.MsgTypeInvalidateDidDepositRequest, msgInvalidateDidDepositRequestStatus.Type())
 }
 
 func TestMsgInvalidateDidDepositRequest_ValidateBasic(t *testing.T) {
-	assert.Nil(t, msgInvalidateDidDepositRequestStatus.ValidateBasic())
+	status := types.NewRequestStatus("type", "message")
+
+	tests := []struct {
+		name  string
+		msg   types.MsgInvalidateDidDepositRequest
+		error sdk.Error
+	}{
+		{
+			name:  "Empty editor returns error",
+			msg:   types.NewMsgInvalidateDidDepositRequest(status, "", sdk.AccAddress{}),
+			error: sdk.ErrInvalidAddress("Invalid editor address: "),
+		},
+		{
+			name:  "Invalid deposit proof returns error",
+			msg:   types.NewMsgInvalidateDidDepositRequest(status, "", editor),
+			error: sdk.ErrUnknownRequest("Invalid deposit_proof: "),
+		},
+		{
+			name:  "Invalid status returns error",
+			msg:   types.NewMsgInvalidateDidDepositRequest(types.RequestStatus{}, "31", editor),
+			error: sdk.ErrUnknownRequest("Invalid status type: "),
+		},
+		{
+			name: "Valid message returns no error",
+			msg:  msgInvalidateDidDepositRequestStatus,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.error, test.msg.ValidateBasic())
+		})
+	}
 }
 
 func TestMsgInvalidateDidDepositRequest_GetSignBytes(t *testing.T) {
@@ -226,8 +331,8 @@ func TestMsgInvalidateDidDepositRequest_GetSigners(t *testing.T) {
 func TestMsgInvalidateDidDepositRequest_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgInvalidateDidDepositRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
 
-	var actual MsgInvalidateDidDepositRequest
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
+	var actual types.MsgInvalidateDidDepositRequest
+	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 	assert.Equal(t, msgInvalidateDidDepositRequestStatus, actual)
 }
 
@@ -235,7 +340,7 @@ func TestMsgInvalidateDidDepositRequest_JSON(t *testing.T) {
 // --- MsgRequestDidPowerUp
 // --------------------------
 
-var msgRequestDidPowerUp = MsgRequestDidPowerUp{
+var msgRequestDidPowerUp = types.MsgRequestDidPowerUp{
 	Claimant:      requestSender,
 	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
@@ -243,11 +348,11 @@ var msgRequestDidPowerUp = MsgRequestDidPowerUp{
 }
 
 func TestMsgRequestDidPowerUp_Route(t *testing.T) {
-	assert.Equal(t, ModuleName, msgRequestDidPowerUp.Route())
+	assert.Equal(t, types.ModuleName, msgRequestDidPowerUp.Route())
 }
 
 func TestMsgRequestDidPowerUp_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeRequestDidPowerUp, msgRequestDidPowerUp.Type())
+	assert.Equal(t, types.MsgTypeRequestDidPowerUp, msgRequestDidPowerUp.Type())
 }
 
 func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
@@ -267,10 +372,10 @@ func TestMsgRequestDidPowerUp_GetSigners(t *testing.T) {
 func TestMsgRequestDidPowerUp_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgRequestDidPowerUp","value":{"amount":[{"amount":"100","denom":"uatom"}],"claimant":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","encryption_key":"333b68743231343b6833346832313468354a40617364617364","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878"}}`
 
-	var actual MsgRequestDidPowerUp
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
+	var actual types.MsgRequestDidPowerUp
+	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 
-	expected := MsgRequestDidPowerUp{
+	expected := types.MsgRequestDidPowerUp{
 		Claimant:      requestSender,
 		Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
@@ -283,7 +388,7 @@ func TestMsgRequestDidPowerUp_JSON(t *testing.T) {
 // --- MsgPowerUpDid
 // ------------------------
 
-var msgPowerUpDid = MsgPowerUpDid{
+var msgPowerUpDid = types.MsgPowerUpDid{
 	Recipient:           requestRecipient,
 	Amount:              sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 	ActivationReference: "333b68743231343b6833346832313468354a40617364617364",
@@ -291,15 +396,54 @@ var msgPowerUpDid = MsgPowerUpDid{
 }
 
 func TestMsgPowerUpDid_Route(t *testing.T) {
-	assert.Equal(t, ModuleName, msgPowerUpDid.Route())
+	assert.Equal(t, types.ModuleName, msgPowerUpDid.Route())
 }
 
 func TestMsgPowerUpDid_Type(t *testing.T) {
-	assert.Equal(t, MsgTypePowerUpDid, msgPowerUpDid.Type())
+	assert.Equal(t, types.MsgTypePowerUpDid, msgPowerUpDid.Type())
 }
 
 func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
-	assert.Nil(t, msgPowerUpDid.ValidateBasic())
+	claimant, _ := sdk.AccAddressFromBech32("cosmos1xt9nqxmermu64te9dr8rkjff8eax496hcasju7")
+	amount := sdk.NewCoins(sdk.NewInt64Coin("uatom", 100))
+
+	tests := []struct {
+		name  string
+		msg   types.MsgRequestDidPowerUp
+		error sdk.Error
+	}{
+		{
+			name:  "Invalid claimant returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: sdk.AccAddress{}},
+			error: sdk.ErrInvalidAddress("Invalid claimant: "),
+		},
+		{
+			name:  "Invalid amount returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: sdk.NewCoins()},
+			error: sdk.ErrInvalidCoins("Power up amount not valid: "),
+		},
+		{
+			name: "Valid message returns no error",
+			msg:  msgRequestDidPowerUp,
+		},
+		{
+			name:  "Invalid proof returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "230sd"},
+			error: sdk.ErrUnknownRequest("Invalid proof: 230sd"),
+		},
+		{
+			name:  "Invalid encryption key returns error",
+			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "617364", EncryptionKey: "1230xcv"},
+			error: sdk.ErrUnknownRequest("Invalid encryption key value: 1230xcv"),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.error, test.msg.ValidateBasic())
+		})
+	}
 }
 
 func TestMsgPowerUpDid_GetSignBytes(t *testing.T) {
@@ -307,11 +451,16 @@ func TestMsgPowerUpDid_GetSignBytes(t *testing.T) {
 	assert.Equal(t, expected, string(msgPowerUpDid.GetSignBytes()))
 }
 
+func TestMsgPowerUpDid_GetSigners(t *testing.T) {
+	expected := []sdk.AccAddress{msgPowerUpDid.Signer}
+	assert.Equal(t, expected, msgPowerUpDid.GetSigners())
+}
+
 func TestMsgPowerUpDid_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgPowerUpDid","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
 
-	var actual MsgPowerUpDid
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
+	var actual types.MsgPowerUpDid
+	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 	assert.Equal(t, msgPowerUpDid, actual)
 }
 
@@ -319,8 +468,8 @@ func TestMsgPowerUpDid_JSON(t *testing.T) {
 // --- MsgInvalidateDidPowerUpRequest
 // --------------------------
 
-var msgInvalidateDidPowerUpRequestStatus = NewMsgInvalidateDidPowerUpRequest(
-	RequestStatus{
+var msgInvalidateDidPowerUpRequestStatus = types.NewMsgInvalidateDidPowerUpRequest(
+	types.RequestStatus{
 		Type:    "canceled",
 		Message: "Don't want this anymore",
 	},
@@ -329,15 +478,48 @@ var msgInvalidateDidPowerUpRequestStatus = NewMsgInvalidateDidPowerUpRequest(
 )
 
 func TestNewMsgInvalidateDidPowerUpRequest_Route(t *testing.T) {
-	assert.Equal(t, ModuleName, msgInvalidateDidPowerUpRequestStatus.Route())
+	assert.Equal(t, types.ModuleName, msgInvalidateDidPowerUpRequestStatus.Route())
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_Type(t *testing.T) {
-	assert.Equal(t, MsgTypeInvalidateDidPowerUpRequest, msgInvalidateDidPowerUpRequestStatus.Type())
+	assert.Equal(t, types.MsgTypeInvalidateDidPowerUpRequest, msgInvalidateDidPowerUpRequestStatus.Type())
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_ValidateBasic(t *testing.T) {
-	assert.Nil(t, msgInvalidateDidPowerUpRequestStatus.ValidateBasic())
+	status := types.NewRequestStatus("type", "message")
+
+	tests := []struct {
+		name  string
+		msg   types.MsgInvalidateDidPowerUpRequest
+		error sdk.Error
+	}{
+		{
+			name:  "Empty editor returns error",
+			msg:   types.NewMsgInvalidateDidPowerUpRequest(status, "", sdk.AccAddress{}),
+			error: sdk.ErrInvalidAddress("Invalid editor address: "),
+		},
+		{
+			name:  "Invalid power up proof returns error",
+			msg:   types.NewMsgInvalidateDidPowerUpRequest(status, "", editor),
+			error: sdk.ErrUnknownRequest("Invalid power_up_proof: "),
+		},
+		{
+			name:  "Invalid status returns error",
+			msg:   types.NewMsgInvalidateDidPowerUpRequest(types.RequestStatus{}, "31", editor),
+			error: sdk.ErrUnknownRequest("Invalid status type: "),
+		},
+		{
+			name: "Valid message returns no error",
+			msg:  msgInvalidateDidPowerUpRequestStatus,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.error, test.msg.ValidateBasic())
+		})
+	}
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_GetSignBytes(t *testing.T) {
@@ -345,10 +527,15 @@ func TestNewMsgInvalidateDidPowerUpRequest_GetSignBytes(t *testing.T) {
 	assert.Equal(t, expected, string(msgInvalidateDidPowerUpRequestStatus.GetSignBytes()))
 }
 
+func TestNewMsgInvalidateDidPowerUpRequest_GetSigners(t *testing.T) {
+	expected := []sdk.AccAddress{msgInvalidateDidPowerUpRequestStatus.Editor}
+	assert.Equal(t, expected, msgInvalidateDidPowerUpRequestStatus.GetSigners())
+}
+
 func TestNewMsgInvalidateDidPowerUpRequest_JSON(t *testing.T) {
 	json := `{"type":"commercio/MsgInvalidateDidPowerUpRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"type":"canceled","message":"Don't want this anymore"}}}`
 
-	var actual MsgInvalidateDidPowerUpRequest
-	ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
+	var actual types.MsgInvalidateDidPowerUpRequest
+	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 	assert.Equal(t, msgInvalidateDidPowerUpRequestStatus, actual)
 }

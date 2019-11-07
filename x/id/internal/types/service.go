@@ -6,6 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// ----------------
+// --- Service
+// ----------------
+
 // Service represents any type of service the subject wishes to advertise,
 // including decentralized identity management services for further discovery,
 // authentication, authorization, or interaction.
@@ -13,6 +17,14 @@ type Service struct {
 	ID              string `json:"id"`
 	Type            string `json:"type"`
 	ServiceEndpoint string `json:"serviceEndpoint"`
+}
+
+func NewService(id string, serviceType string, endpoint string) Service {
+	return Service{
+		ID:              id,
+		Type:            serviceType,
+		ServiceEndpoint: endpoint,
+	}
 }
 
 // Equals returns true service and other contain the same data
@@ -39,6 +51,10 @@ func (service Service) Validate() sdk.Error {
 
 	return nil
 }
+
+// ----------------
+// --- Services
+// ----------------
 
 // Services represents a list of Service objects
 type Services []Service
