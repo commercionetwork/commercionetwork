@@ -19,7 +19,7 @@ func (addresses Addresses) AppendIfMissing(address sdk.AccAddress) (Addresses, b
 
 // RemoveIfExisting returns a new Addresses instance that does not contain the
 // given address.
-func (addresses Addresses) RemoveIfExisting(address sdk.AccAddress) (Addresses, bool) {
+func (addresses Addresses) RemoveIfExisting(address sdk.Address) (Addresses, bool) {
 	indexOf := addresses.IndexOf(address)
 	if indexOf > -1 {
 		return append(addresses[:indexOf], addresses[indexOf+1:]...), true
