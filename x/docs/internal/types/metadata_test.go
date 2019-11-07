@@ -190,3 +190,63 @@ func TestMetadataSchemes_IsTypeSupported(t *testing.T) {
 		})
 	}
 }
+
+func TestMetadataSchemes_AppendIfMissing(t *testing.T) {
+	tests := []struct {
+		name           string
+		us             MetadataSchemes
+		newData        MetadataSchema
+		want           MetadataSchemes
+		alreadyPresent bool
+	}{
+		{
+			"adding a new element",
+			MetadataSchemes{},
+			MetadataSchema{
+				"type",
+				"schemaUri",
+				"version",
+			},
+			MetadataSchemes{
+				{
+					"type",
+					"schemaUri",
+					"version",
+				},
+			},
+			true,
+		},
+		{
+			"adding an already present element",
+			MetadataSchemes{
+				{
+					"type",
+					"schemaUri",
+					"version",
+				},
+			},
+			MetadataSchema{
+				"type",
+				"schemaUri",
+				"version",
+			},
+			MetadataSchemes{
+				{
+					"type",
+					"schemaUri",
+					"version",
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			val, present := tt.us.AppendIfMissing(tt.newData)
+
+			assert.Equal(t, tt.alreadyPresent, present)
+			assert.Equal(t, tt.want, val)
+		})
+	}
+}
