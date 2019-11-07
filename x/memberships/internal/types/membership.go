@@ -45,8 +45,11 @@ func IsMembershipTypeValid(membershipType string) bool {
 
 // CanUpgrade returns true iff the currentMembershipType is a less important than the newMembership type and thus a
 // user having a membership of the first type can upgrade to a one of the second type.
-// TODO: Test this
 func CanUpgrade(currentMembershipType string, newMembershipType string) bool {
+	if !IsMembershipTypeValid(currentMembershipType) || !IsMembershipTypeValid(newMembershipType) {
+		return false
+	}
+
 	if currentMembershipType == newMembershipType {
 		return false
 	}
@@ -56,7 +59,7 @@ func CanUpgrade(currentMembershipType string, newMembershipType string) bool {
 	}
 
 	if currentMembershipType == MembershipTypeSilver {
-		return newMembershipType != MembershipTypeSilver
+		return newMembershipType != MembershipTypeBronze
 	}
 
 	if currentMembershipType == MembershipTypeGold {
