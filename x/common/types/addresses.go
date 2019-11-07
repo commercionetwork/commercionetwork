@@ -24,7 +24,7 @@ func (addresses Addresses) RemoveIfExisting(address sdk.AccAddress) (Addresses, 
 	if indexOf > -1 {
 		return append(addresses[:indexOf], addresses[indexOf+1:]...), true
 	}
-	return append(addresses, address), false
+	return addresses, false
 }
 
 // IndexOf returns the index of the given address inside the addresses array,
@@ -48,15 +48,7 @@ func (addresses Addresses) Contains(address sdk.Address) bool {
 	return false
 }
 
+// Empty returns true if this slice does not contain any address
 func (addresses Addresses) Empty() bool {
 	return len(addresses) == 0
-}
-
-func (addresses Addresses) GetAddress(address sdk.AccAddress) sdk.AccAddress {
-	for _, ele := range addresses {
-		if ele.Equals(address) {
-			return address
-		}
-	}
-	return nil
 }
