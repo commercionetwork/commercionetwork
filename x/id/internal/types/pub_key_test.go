@@ -58,13 +58,13 @@ func TestPubKeys_FindByID(t *testing.T) {
 	first := types.NewPubKey("id-1", "type-1", controller, "hexValue-1")
 	second := types.NewPubKey("id-2", "type-2", controller, "hexValue-2")
 
-	key, found := types.PubKeys{}.FindByID(first.ID)
+	_, found := types.PubKeys{}.FindByID(first.ID)
 	assert.False(t, found)
 
-	key, found = types.PubKeys{first}.FindByID(second.ID)
+	_, found = types.PubKeys{first}.FindByID(second.ID)
 	assert.False(t, found)
 
-	key, found = types.PubKeys{first, second}.FindByID(first.ID)
+	key, found := types.PubKeys{first, second}.FindByID(first.ID)
 	assert.True(t, found)
 	assert.Equal(t, first, key)
 
