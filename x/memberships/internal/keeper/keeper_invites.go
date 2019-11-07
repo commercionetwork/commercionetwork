@@ -13,7 +13,7 @@ func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {
 
 // InviteUser allows to set a given user as being invited by the given invite sender.
 func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) sdk.Error {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	inviteKey := k.getInviteStoreKey(recipient)
 
 	if store.Has(inviteKey) {
@@ -22,17 +22,17 @@ func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) sd
 
 	// Build and save the invite
 	accreditation := types.NewInvite(sender, recipient)
-	store.Set(inviteKey, k.cdc.MustMarshalBinaryBare(&accreditation))
+	store.Set(inviteKey, k.Cdc.MustMarshalBinaryBare(&accreditation))
 	return nil
 }
 
 // GetInvite allows to get the invitation related to a user
 func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.Invite, found bool) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	key := k.getInviteStoreKey(user)
 
 	if store.Has(key) {
-		k.cdc.MustUnmarshalBinaryBare(store.Get(key), &invite)
+		k.Cdc.MustUnmarshalBinaryBare(store.Get(key), &invite)
 		return invite, true
 	}
 
@@ -41,13 +41,13 @@ func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.In
 
 // GetInvites returns all the invites ever made
 func (k Keeper) GetInvites(ctx sdk.Context) (invites []types.Invite) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var invite types.Invite
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &invite)
+		k.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &invite)
 		invites = append(invites, invite)
 	}
 
@@ -56,6 +56,6 @@ func (k Keeper) GetInvites(ctx sdk.Context) (invites []types.Invite) {
 
 // SaveInvite allows to save the given invite inside the store
 func (k Keeper) SaveInvite(ctx sdk.Context, invite types.Invite) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getInviteStoreKey(invite.User), k.cdc.MustMarshalBinaryBare(&invite))
+	store := ctx.KVStore(k.StoreKey)
+	store.Set(k.getInviteStoreKey(invite.User), k.Cdc.MustMarshalBinaryBare(&invite))
 }

@@ -1,7 +1,8 @@
-package keeper
+package keeper_test
 
 import (
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -17,7 +18,7 @@ import (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -56,11 +57,11 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 	govk := government.NewKeeper(cdc, keys[government.StoreKey])
 	nftk := nft.NewKeeper(cdc, keys[nft.StoreKey])
 
-	k := NewKeeper(cdc, keys[types.StoreKey], nftk, sk)
+	k := keeper.NewKeeper(cdc, keys[types.StoreKey], nftk, sk)
 
 	// Set module accounts
 	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
-	k.supplyKeeper.SetModuleAccount(ctx, memAcc)
+	k.SupplyKeeper.SetModuleAccount(ctx, memAcc)
 
 	// Set the stable credits denom
 	k.SetStableCreditsDenom(ctx, testStableCreditsDenom)

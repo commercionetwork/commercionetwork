@@ -20,10 +20,10 @@ var membershipCosts = map[string]int64{
 }
 
 type Keeper struct {
-	cdc          *codec.Codec
-	storeKey     sdk.StoreKey
-	nftKeeper    nft.Keeper
-	supplyKeeper supply.Keeper
+	Cdc          *codec.Codec
+	StoreKey     sdk.StoreKey
+	NftKeeper    nft.Keeper
+	SupplyKeeper supply.Keeper
 }
 
 // NewKeeper creates new instances of the accreditation module Keeper
@@ -35,10 +35,10 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, nftK nft.Keeper, supplyK
 	}
 
 	return Keeper{
-		cdc:          cdc,
-		storeKey:     storeKey,
-		nftKeeper:    nftK,
-		supplyKeeper: supplyKeeper,
+		Cdc:          cdc,
+		StoreKey:     storeKey,
+		NftKeeper:    nftK,
+		SupplyKeeper: supplyKeeper,
 	}
 }
 
@@ -59,10 +59,10 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 	// Get the tokens from the buyer account
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(k.GetStableCreditsDenom(ctx), membershipPrice))
-	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, membershipCost); err != nil {
+	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, membershipCost); err != nil {
 		return err
 	}
-	if err := k.supplyKeeper.BurnCoins(ctx, types.ModuleName, membershipCost); err != nil {
+	if err := k.SupplyKeeper.BurnCoins(ctx, types.ModuleName, membershipCost); err != nil {
 		return err
 	}
 
@@ -96,7 +96,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	membershipToken := nft.NewBaseNFT(id, user, uri)
 
 	// Mint the token
-	if err := k.nftKeeper.MintNFT(ctx, types.NftDenom, &membershipToken); err != nil {
+	if err := k.NftKeeper.MintNFT(ctx, types.NftDenom, &membershipToken); err != nil {
 		return "", err
 	}
 
@@ -107,7 +107,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 // GetMembership allows to retrieve any existent membership for the specified user.
 // The second returned false (the boolean one) tells if the NFT token representing the membership was found or not
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (exported.NFT, bool) {
-	foundToken, err := k.nftKeeper.GetNFT(ctx, types.NftDenom, k.getMembershipTokenID(user))
+	foundToken, err := k.NftKeeper.GetNFT(ctx, types.NftDenom, k.getMembershipTokenID(user))
 
 	// The token was not found
 	if err != nil {
@@ -121,12 +121,12 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (exported.NF
 func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) (bool, sdk.Error) {
 	id := k.getMembershipTokenID(user)
 
-	if found, _ := k.nftKeeper.GetNFT(ctx, types.NftDenom, id); found == nil {
+	if found, _ := k.NftKeeper.GetNFT(ctx, types.NftDenom, id); found == nil {
 		// The token was not found, so it's trivial to delete it: simply do nothing
 		return true, nil
 	}
 
-	if err := k.nftKeeper.DeleteNFT(ctx, types.NftDenom, k.getMembershipTokenID(user)); err != nil {
+	if err := k.NftKeeper.DeleteNFT(ctx, types.NftDenom, k.getMembershipTokenID(user)); err != nil {
 		// The token was found, but an error was raised during the deletion. Return the error
 		return false, err
 	}
@@ -143,7 +143,7 @@ func (k Keeper) GetMembershipType(membership exported.NFT) string {
 // Get GetMembershipsSet returns the list of all the memberships
 // that have been minted and are currently stored inside the store
 func (k Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
-	collection, found := k.nftKeeper.GetCollection(ctx, types.NftDenom)
+	collection, found := k.NftKeeper.GetCollection(ctx, types.NftDenom)
 	if !found {
 		return nil
 	}
@@ -162,14 +162,14 @@ func (k Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
 // GetStableCreditsDenom returns the denom that must be used when referring to stable credits
 // that can be used to purchase a membership
 func (k Keeper) GetStableCreditsDenom(ctx sdk.Context) (denom string) {
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.StableCreditsStoreKey)), &denom)
+	store := ctx.KVStore(k.StoreKey)
+	k.Cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.StableCreditsStoreKey)), &denom)
 	return denom
 }
 
 // SetStableCreditsDenom allows to set the denom of the coins that must be used as stable credits
 // when purchasing a membership.
 func (k Keeper) SetStableCreditsDenom(ctx sdk.Context, denom string) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.StableCreditsStoreKey), k.cdc.MustMarshalBinaryBare(&denom))
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.StableCreditsStoreKey), k.Cdc.MustMarshalBinaryBare(&denom))
 }

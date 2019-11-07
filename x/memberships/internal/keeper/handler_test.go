@@ -1,9 +1,10 @@
-package keeper
+package keeper_test
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -55,7 +56,7 @@ func Test_handleMsgInviteUser(t *testing.T) {
 				_, _ = k.AssignMembership(ctx, test.invitee, test.membershipType)
 			}
 
-			handler := NewHandler(k, govK)
+			handler := keeper.NewHandler(k, govK)
 			msg := types.NewMsgInviteUser(test.invitee, test.invitedUser)
 			res := handler(ctx, msg)
 
@@ -112,7 +113,7 @@ func Test_handleMsgSetUserVerified(t *testing.T) {
 				k.SaveCredential(ctx, credential)
 			}
 
-			handler := NewHandler(k, govK)
+			handler := keeper.NewHandler(k, govK)
 			msg := types.NewMsgSetUserVerified(test.user, test.tsp)
 			res := handler(ctx, msg)
 
@@ -138,7 +139,7 @@ func Test_handleAddTrustedSigner_InvalidGovernment(t *testing.T) {
 	err := govK.SetGovernmentAddress(ctx, testUser)
 	assert.Nil(t, err)
 
-	handler := NewHandler(k, govK)
+	handler := keeper.NewHandler(k, govK)
 	msg := types.NewMsgAddTsp(testTsp, government)
 	res := handler(ctx, msg)
 
@@ -154,7 +155,7 @@ func Test_handleAddTrustedSigner_ValidGovernment(t *testing.T) {
 	err := govK.SetGovernmentAddress(ctx, government)
 	assert.Nil(t, err)
 
-	handler := NewHandler(k, govK)
+	handler := keeper.NewHandler(k, govK)
 	msg := types.NewMsgAddTsp(testTsp, government)
 	res := handler(ctx, msg)
 
@@ -183,10 +184,10 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 
 	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000))
 	_ = bankK.SetCoins(ctx, testUser, creditsAmnt)
-	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
+	k.SupplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
 
 	// Perform the call
-	var handler = NewHandler(k, govK)
+	var handler = keeper.NewHandler(k, govK)
 	res := handler(ctx, msgBuyMembership)
 	require.True(t, res.IsOK())
 }
@@ -194,7 +195,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 func TestHandler_InvalidUnknownType(t *testing.T) {
 	ctx, _, govK, k := SetupTestInput()
 
-	var handler = NewHandler(k, govK)
+	var handler = keeper.NewHandler(k, govK)
 	res := handler(ctx, sdk.NewTestMsg())
 	require.False(t, res.IsOK())
 	require.Contains(t, res.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName))
@@ -214,7 +215,7 @@ func TestHandler_InvalidMembershipType(t *testing.T) {
 
 	_ = bankK.SetCoins(ctx, testUser, sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)))
 
-	var handler = NewHandler(k, govK)
+	var handler = keeper.NewHandler(k, govK)
 	memTypes := []string{"gren", "bronz", "slver", "gol", "blck"}
 
 	for _, memType := range memTypes {
@@ -239,10 +240,10 @@ func TestHandler_MembershipUpgrade(t *testing.T) {
 
 	creditsAmnt := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 100000000000000))
 	_ = bankK.SetCoins(ctx, testUser, creditsAmnt)
-	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
+	k.SupplyKeeper.SetSupply(ctx, supply.NewSupply(creditsAmnt))
 
 	// Perform the calls
-	var handler = NewHandler(k, govK)
+	var handler = keeper.NewHandler(k, govK)
 	memTypes := []string{"bronze", "silver", "gold", "black"}
 
 	for index := 1; index < len(memTypes); index++ {
@@ -272,7 +273,7 @@ func TestHandler_InvalidMembershipUpgrade(t *testing.T) {
 	_ = bankK.SetCoins(ctx, testUser, sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)))
 
 	// Performs the call
-	var handler = NewHandler(k, govK)
+	var handler = keeper.NewHandler(k, govK)
 	memTypes := []string{"bronze", "silver", "gold", "black"}
 
 	for _, memType := range memTypes {

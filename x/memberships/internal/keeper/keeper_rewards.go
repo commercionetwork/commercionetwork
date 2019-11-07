@@ -35,7 +35,7 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool
 func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
 	// Send the coins from the user wallet to the pool
-	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amount); err != nil {
+	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amount); err != nil {
 		return err
 	}
 	return nil
@@ -80,7 +80,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite, membershi
 		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditsDenom, rewardAmount))
 
 		// Send the reward to the invite sender
-		if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
+		if err := k.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
 			return err
 		}
 	}

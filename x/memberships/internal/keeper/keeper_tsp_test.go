@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
@@ -14,9 +14,9 @@ func TestKeeper_AddTrustedServiceProvider_EmptyList(t *testing.T) {
 	k.AddTrustedServiceProvider(ctx, testTsp)
 
 	var signers ctypes.Addresses
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.cdc.MustUnmarshalBinaryBare(signersBz, &signers)
+	k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 
 	assert.Len(t, signers, 1)
 	assert.Contains(t, signers, testTsp)
@@ -25,15 +25,15 @@ func TestKeeper_AddTrustedServiceProvider_EmptyList(t *testing.T) {
 func TestKeeper_AddTrustedServiceProvider_ExistingList(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
 
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	signers := ctypes.Addresses{testTsp}
-	store.Set([]byte(types.TrustedSignersStoreKey), k.cdc.MustMarshalBinaryBare(&signers))
+	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&signers))
 
 	k.AddTrustedServiceProvider(ctx, testUser)
 
 	var actual ctypes.Addresses
 	actualBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.cdc.MustUnmarshalBinaryBare(actualBz, &actual)
+	k.Cdc.MustUnmarshalBinaryBare(actualBz, &actual)
 
 	assert.Len(t, actual, 2)
 	assert.Contains(t, actual, testTsp)
@@ -51,8 +51,8 @@ func TestKeeper_GetTrustedServiceProviders_ExistingList(t *testing.T) {
 
 	signers := ctypes.Addresses{testTsp, testUser, TestUser2}
 
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.TrustedSignersStoreKey), k.cdc.MustMarshalBinaryBare(&signers))
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&signers))
 
 	actual := k.GetTrustedServiceProviders(ctx)
 	assert.Len(t, actual, 3)
@@ -73,8 +73,8 @@ func TestKeeper_IsTrustedServiceProvider_ExistingList(t *testing.T) {
 
 	signers := ctypes.Addresses{testUser, testTsp}
 
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.TrustedSignersStoreKey), k.cdc.MustMarshalBinaryBare(&signers))
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&signers))
 
 	assert.True(t, k.IsTrustedServiceProvider(ctx, testUser))
 	assert.True(t, k.IsTrustedServiceProvider(ctx, testTsp))

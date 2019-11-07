@@ -1,8 +1,9 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
 
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -20,11 +21,11 @@ func Test_queryGetInvites_SpecificUser_Empty(t *testing.T) {
 
 	path := []string{types.QueryGetInvites, testUser.String()}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual []types.Invite
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Empty(t, actual)
 }
@@ -37,11 +38,11 @@ func Test_queryGetInvites_SpecificUser_Existing(t *testing.T) {
 
 	path := []string{types.QueryGetInvites, testUser.String()}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual []types.Invite
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, 1, len(actual))
 	assert.Contains(t, actual, invite)
@@ -52,11 +53,11 @@ func Test_queryGetInvites_Generic_Empty(t *testing.T) {
 
 	path := []string{types.QueryGetInvites}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual []types.Invite
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Empty(t, actual)
 }
@@ -71,11 +72,11 @@ func Test_queryGetInvites_Generic_Existing(t *testing.T) {
 
 	path := []string{types.QueryGetInvites}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual []types.Invite
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, 2, len(actual))
 	assert.Contains(t, actual, invite1)
@@ -91,12 +92,12 @@ func Test_queryGetSigners_EmptyList(t *testing.T) {
 
 	path := []string{types.QueryGetTrustedServiceProviders}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	var request abci.RequestQuery
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual []sdk.AccAddress
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Empty(t, actual)
 	assert.Equal(t, "[]", string(actualBz))
@@ -107,17 +108,17 @@ func Test_queryGetSigners_ExistingList(t *testing.T) {
 
 	expected := []sdk.AccAddress{testTsp, TestUser2}
 
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.TrustedSignersStoreKey), k.cdc.MustMarshalBinaryBare(&expected))
+	store := ctx.KVStore(k.StoreKey)
+	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&expected))
 
 	path := []string{types.QueryGetTrustedServiceProviders}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	var request abci.RequestQuery
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual []sdk.AccAddress
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, 2, len(actual))
 	assert.Contains(t, actual, testTsp)
@@ -133,12 +134,12 @@ func Test_queryGetPoolFunds_EmptyPool(t *testing.T) {
 
 	path := []string{types.QueryGetPoolFunds}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	var request abci.RequestQuery
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual sdk.Coins
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, "[]", string(actualBz))
 	assert.Empty(t, actual)
@@ -151,23 +152,23 @@ func Test_queryGetPoolFunds_ExistingPool(t *testing.T) {
 		sdk.NewCoin("uatom", sdk.NewInt(100)),
 		sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
 	)
-	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, expected)
+	_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, expected)
 
 	path := []string{types.QueryGetPoolFunds}
 
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 	var request abci.RequestQuery
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual sdk.Coins
-	k.cdc.MustUnmarshalJSON(actualBz, &actual)
+	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, expected, actual)
 }
 
 func TestQuerier_resolveIdentity_Existent(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 
 	membershipType := "bronze"
 	_, _ = k.AssignMembership(ctx, testUser, membershipType)
@@ -175,16 +176,16 @@ func TestQuerier_resolveIdentity_Existent(t *testing.T) {
 	path := []string{types.QueryGetMembership, testUser.String()}
 	bz, _ := querier(ctx, path, request)
 
-	var actual MembershipResult
-	k.cdc.MustUnmarshalJSON(bz, &actual)
+	var actual keeper.MembershipResult
+	k.Cdc.MustUnmarshalJSON(bz, &actual)
 
-	expected := MembershipResult{User: testUser, MembershipType: membershipType}
+	expected := keeper.MembershipResult{User: testUser, MembershipType: membershipType}
 	assert.Equal(t, expected, actual)
 }
 
 func TestQuerier_ResolveIdentity_NonExistent(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
-	var querier = NewQuerier(k)
+	var querier = keeper.NewQuerier(k)
 
 	path := []string{types.QueryGetMembership, "nunu"}
 	_, err := querier(ctx, path, request)

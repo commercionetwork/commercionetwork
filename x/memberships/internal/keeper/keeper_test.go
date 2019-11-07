@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"fmt"
@@ -9,19 +9,6 @@ import (
 	"github.com/cosmos/modules/incubator/nft"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestKeeper_getMembershipTokenId(t *testing.T) {
-	_, _, _, k := SetupTestInput()
-	actual := k.getMembershipTokenID(testUser)
-	assert.Equal(t, fmt.Sprintf("membership-%s", testUser.String()), actual)
-}
-
-func TestKeeper_getMembershipUri(t *testing.T) {
-	_, _, _, k := SetupTestInput()
-	id := k.getMembershipTokenID(testUser)
-	actual := k.getMembershipURI("black", id)
-	assert.Equal(t, fmt.Sprintf("membership:black:%s", id), actual)
-}
 
 func TestKeeper_AssignMembership_InvalidType(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
@@ -37,7 +24,7 @@ func TestKeeper_AssignMembership_NotExisting(t *testing.T) {
 	tokenURI, err := k.AssignMembership(ctx, testUser, "black")
 	assert.Nil(t, err)
 
-	expectedID := k.getMembershipTokenID(testUser)
+	expectedID := "membership-" + testUser.String()
 	assert.Equal(t, fmt.Sprintf("membership:black:%s", expectedID), tokenURI)
 }
 
@@ -49,8 +36,8 @@ func TestKeeper_AssignMembership_Existing(t *testing.T) {
 		tokenURI, err := k.AssignMembership(ctx, testUser, membership)
 		assert.Nil(t, err)
 
-		expectedID := k.getMembershipTokenID(testUser)
-		expectedURI := k.getMembershipURI(membership, expectedID)
+		expectedID := "membership-" + testUser.String()
+		expectedURI := fmt.Sprintf("membership:%s:%s", membership, expectedID)
 		assert.Equal(t, expectedURI, tokenURI)
 	}
 }
@@ -94,9 +81,9 @@ func TestKeeper_GetMembership_Existing(t *testing.T) {
 	assert.True(t, found)
 	assert.Equal(t, testUser, foundMembership.GetOwner())
 
-	expectedID := k.getMembershipTokenID(testUser)
+	expectedID := "membership-" + testUser.String()
 	assert.Equal(t, expectedID, foundMembership.GetID())
-	assert.Equal(t, k.getMembershipURI(membershipType, expectedID), foundMembership.GetTokenURI())
+	assert.Equal(t, fmt.Sprintf("membership:%s:%s", membershipType, expectedID), foundMembership.GetTokenURI())
 }
 
 func TestKeeper_GetMembershipType(t *testing.T) {
@@ -104,7 +91,7 @@ func TestKeeper_GetMembershipType(t *testing.T) {
 
 	id := "123"
 	membershipType := "black"
-	membership := nft.NewBaseNFT(id, testUser, k.getMembershipURI(membershipType, id))
+	membership := nft.NewBaseNFT(id, testUser, fmt.Sprintf("membership:%s:%s", membershipType, id))
 
 	assert.Equal(t, membershipType, k.GetMembershipType(&membership))
 }

@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
@@ -27,7 +27,7 @@ func TestKeeper_DepositIntoPool_ExistingPool(t *testing.T) {
 	_ = bankK.SetCoins(ctx, testUser, coins)
 
 	pool := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
-	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, pool)
+	_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, pool)
 
 	addition := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
 	err := k.DepositIntoPool(ctx, testUser, addition)
@@ -55,7 +55,7 @@ func TestKeeper_GetPoolFunds_ExistingPool(t *testing.T) {
 		sdk.NewCoin("uatom", sdk.NewInt(100)),
 		sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
 	)
-	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, expected)
+	_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, expected)
 
 	pool := k.GetPoolFunds(ctx)
 	assert.Equal(t, expected, pool)
@@ -116,7 +116,7 @@ func TestKeeper_DistributeReward_EnoughPoolAmount(t *testing.T) {
 	_, _ = k.AssignMembership(ctx, invite.User, types.MembershipTypeGold)
 
 	poolFunds := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000000))
-	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, poolFunds)
+	_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, poolFunds)
 
 	err := k.DistributeReward(ctx, invite, types.MembershipTypeGold)
 	assert.NoError(t, err)
@@ -142,7 +142,7 @@ func TestKeeper_DistributeReward_InsufficientPoolFundsGreaterThanZero(t *testing
 	_, _ = k.AssignMembership(ctx, invite.User, types.MembershipTypeGold)
 
 	poolFunds := sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000))
-	_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, poolFunds)
+	_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, poolFunds)
 
 	err := k.DistributeReward(ctx, invite, types.MembershipTypeGold)
 	assert.NoError(t, err)

@@ -9,11 +9,11 @@ import (
 // AddTrustedServiceProvider allows to add the given signer as a trusted entity
 // that can sign transactions setting an accrediter for a user.
 func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	signers := k.GetTrustedServiceProviders(ctx)
 	if signers, success := signers.AppendIfMissing(tsp); success {
-		newSignersBz := k.cdc.MustMarshalBinaryBare(&signers)
+		newSignersBz := k.Cdc.MustMarshalBinaryBare(&signers)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
 }
@@ -23,10 +23,10 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
 // be allowed to send a transaction setting an accrediter for another user.
 func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers ctypes.Addresses) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.cdc.MustUnmarshalBinaryBare(signersBz, &signers)
+	k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 
 	return
 }
