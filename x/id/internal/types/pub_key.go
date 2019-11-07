@@ -20,6 +20,15 @@ type PubKey struct {
 	PublicKeyHex string         `json:"publicKeyHex"`
 }
 
+func NewPubKey(pubKeyID string, pubKeyType string, controller sdk.AccAddress, hexValue string) PubKey {
+	return PubKey{
+		ID:           pubKeyID,
+		Type:         pubKeyType,
+		Controller:   controller,
+		PublicKeyHex: hexValue,
+	}
+}
+
 // Equals returns true iff pubKey and other contain the same data
 func (pubKey PubKey) Equals(other PubKey) bool {
 	return pubKey.ID == other.ID &&
@@ -31,9 +40,9 @@ func (pubKey PubKey) Equals(other PubKey) bool {
 // Validate checks the data contained inside pubKey and returns an error if something is wrong
 func (pubKey PubKey) Validate() sdk.Error {
 
-	regex, _ := regexp.Compile(fmt.Sprintf("^%s#keys-[0-9]+$", pubKey.Controller.String()))
+	regex, _ := regexp.Compile(fmt.Sprintf("^%s#keys-[0-9]+$", pubKey.Controller))
 	if !regex.MatchString(pubKey.ID) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid key id, must satisfy %s", regex.String()))
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid key id, must satisfy %s", regex))
 	}
 
 	if pubKey.Type != KeyTypeRsa && pubKey.Type != KeyTypeSecp256k1 && pubKey.Type != KeyTypeEd25519 {
