@@ -157,7 +157,16 @@ the following procedure must be followed.
      }
    }
    ```
- 
+
+The `encrypted_data` field does not contain the encrypted payload itself, but rather denotes what message property is encrypted with `aes_key`. 
+
+`encrypted_data` only accepts the following identifiers:
+ - `content_uri`
+ - `metadata.content_uri`
+ - `metadata.schema.uri`
+
+A special identifier, `content`, can be used to specify that `aes_key` has been used to encrypt a file exchanged by other means of communication.
+
 ### Supported encrypted data
 Please note that when specifying which data you have encrypted for the document recipient, you need to use one or 
 more of the following identifiers inside the `encryption_data.encrypted_data` field.  
