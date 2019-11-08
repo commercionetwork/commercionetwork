@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,30 +17,52 @@ var data = DocumentEncryptionData{
 // --------------
 
 func TestDocumentEncryptionData_Equals(t *testing.T) {
-	assert.True(t, data.Equals(data))
-}
-
-func TestDocumentEncryptionData_Equals_DifferentKeysLength(t *testing.T) {
-	other := DocumentEncryptionData{Keys: []DocumentEncryptionKey{}, EncryptedData: data.EncryptedData}
-	assert.False(t, data.Equals(other))
-}
-
-func TestDocumentEncryptionData_Equals_DifferentKeys(t *testing.T) {
-	other := DocumentEncryptionData{
-		Keys:          []DocumentEncryptionKey{{Recipient: sender, Value: data.Keys[0].Value}},
-		EncryptedData: data.EncryptedData,
+	tests := []struct {
+		name  string
+		us    DocumentEncryptionData
+		them  DocumentEncryptionData
+		equal bool
+	}{
+		{
+			"two equal encryption data",
+			data,
+			data,
+			true,
+		},
+		{
+			"different key length",
+			data,
+			DocumentEncryptionData{Keys: []DocumentEncryptionKey{}, EncryptedData: data.EncryptedData},
+			false,
+		},
+		{
+			"different keys",
+			data,
+			DocumentEncryptionData{
+				Keys:          []DocumentEncryptionKey{{Recipient: sender, Value: data.Keys[0].Value}},
+				EncryptedData: data.EncryptedData,
+			},
+			false,
+		},
+		{
+			"different data length",
+			data,
+			DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"content"}},
+			false,
+		},
+		{
+			"different encrypted data",
+			data,
+			DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"metadata.schema.uri", "content_uri", "content", "metadata.content_uri"}},
+			false,
+		},
 	}
-	assert.False(t, data.Equals(other))
-}
-
-func TestDocumentEncryptionData_Equals_DifferentEncryptedDataLength(t *testing.T) {
-	other := DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"content"}}
-	assert.False(t, data.Equals(other))
-}
-
-func TestDocumentEncryptionData_Equals_DifferentEncryptedData(t *testing.T) {
-	other := DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"metadata.schema.uri", "content_uri", "content", "metadata.content_uri"}}
-	assert.False(t, data.Equals(other))
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+		})
+	}
 }
 
 // ---------------
@@ -47,33 +70,45 @@ func TestDocumentEncryptionData_Equals_DifferentEncryptedData(t *testing.T) {
 // ---------------
 
 func TestDocumentEncryptionData_Validate(t *testing.T) {
-	assert.Nil(t, data.Validate())
-}
-
-func TestDocumentEncryptionData_Validate_EmptyKeys(t *testing.T) {
-	invalid := DocumentEncryptionData{Keys: nil, EncryptedData: data.EncryptedData}
-	err := invalid.Validate()
-
-	assert.NotNil(t, err)
-	assert.Equal(t, "encryption data keys cannot be empty", err.Error())
-}
-
-func TestDocumentEncryptionData_Validate_InvalidKey(t *testing.T) {
-	invalid := DocumentEncryptionData{
-		Keys: []DocumentEncryptionKey{
-			{Recipient: nil, Value: ""},
+	tests := []struct {
+		name    string
+		ed      DocumentEncryptionData
+		wantErr error
+	}{
+		{
+			"valid DocumentEncryptionData",
+			data,
+			nil,
 		},
-		EncryptedData: data.EncryptedData,
+		{
+			"empty keys",
+			DocumentEncryptionData{Keys: nil, EncryptedData: data.EncryptedData},
+			errors.New("encryption data keys cannot be empty"),
+		},
+		{
+			"invalid keys (invalid address)",
+			DocumentEncryptionData{
+				Keys: []DocumentEncryptionKey{
+					{Recipient: nil, Value: ""},
+				},
+				EncryptedData: data.EncryptedData,
+			},
+			errors.New("invalid address "),
+		},
+		{
+			"invalid encryption data",
+			DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"invalid.data"}},
+			errors.New("encrypted data not supported"),
+		},
 	}
-	err := invalid.Validate()
-
-	assert.NotNil(t, err)
-}
-
-func TestDocumentEncryptionData_Validate_InvalidEncryptedData(t *testing.T) {
-	invalid := DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"invalid.data"}}
-	err := invalid.Validate()
-
-	assert.NotNil(t, err)
-	assert.Equal(t, "encrypted data not supported", err.Error())
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr != nil {
+				assert.Error(t, tt.wantErr, tt.ed.Validate())
+			} else {
+				assert.NoError(t, tt.ed.Validate())
+			}
+		})
+	}
 }
