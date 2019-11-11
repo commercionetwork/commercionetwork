@@ -2,6 +2,8 @@ package types
 
 import (
 	"errors"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DocumentEncryptionData contains the data that are related to the way
@@ -59,4 +61,15 @@ func (data DocumentEncryptionData) Validate() error {
 	}
 
 	return nil
+}
+
+// ContainsRecipient returns true iff data contains a key with recipient inside.
+func (data DocumentEncryptionData) ContainsRecipient(recipient sdk.AccAddress) bool {
+	for _, r := range data.Keys {
+		if r.Recipient.Equals(recipient) {
+			return true
+		}
+	}
+
+	return false
 }

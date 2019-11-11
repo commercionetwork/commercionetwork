@@ -22,7 +22,7 @@ type Document struct {
 	EncryptionData *DocumentEncryptionData `json:"encryption_data"` // Optional
 }
 
-// TODO: Test
+// Equals returns true when doc equals other, false otherwise.
 func (doc Document) Equals(other Document) bool {
 	validContent := doc.UUID == other.UUID &&
 		doc.ContentURI == other.ContentURI &&
@@ -45,6 +45,7 @@ func (doc Document) Equals(other Document) bool {
 	return validContent && validChecksum && validEncryptionData
 }
 
+// validateUUID returns true when uuidStr is a valid UUID, false otherwise.
 func validateUUID(uuidStr string) bool {
 	_, err := uuid.FromString(uuidStr)
 
@@ -52,7 +53,9 @@ func validateUUID(uuidStr string) bool {
 	return err == nil
 }
 
-// TODO: Test
+// Validate certify whether doc is a valid Document instance or not.
+// It returns an error with the validation failure motivation when the validation process
+// fails.
 func (doc Document) Validate() sdk.Error {
 	if doc.Sender.Empty() {
 		return sdk.ErrInvalidAddress(doc.Sender.String())
@@ -93,30 +96,46 @@ func (doc Document) Validate() sdk.Error {
 
 	if doc.EncryptionData != nil {
 
+		// check that each document recipient have some encrypted data
 		for _, recipient := range doc.Recipients {
-			found := false
-
-			// Check that each address inside the EncryptionData object is contained inside the list of addresses
-			for _, encAdd := range doc.EncryptionData.Keys {
-
-				// Check that each recipient has an encrypted data associated to it
-				if recipient.Equals(encAdd.Recipient) {
-					found = true
-				}
-
-				if !doc.Recipients.Contains(encAdd.Recipient) {
-					errMsg := fmt.Sprintf(
-						"%s is a recipient inside encryption data but not inside the message",
-						encAdd.Recipient.String(),
-					)
-					return sdk.ErrInvalidAddress(errMsg)
-				}
-			}
-
-			if !found {
-				// The recipient is not found inside the list of encrypted data recipients
-				errMsg := fmt.Sprintf("%s is a recipient but has no encryption data specified", recipient.String())
+			if !doc.EncryptionData.ContainsRecipient(recipient) {
+				errMsg := fmt.Sprintf(
+					"%s is a recipient inside the document but not in the encryption data",
+					recipient.String(),
+				)
 				return sdk.ErrInvalidAddress(errMsg)
+			}
+		}
+
+		// check that there are no spurious encryption data recipients not present
+		// in the document recipient list
+		for _, encAdd := range doc.EncryptionData.Keys {
+			if !doc.Recipients.Contains(encAdd.Recipient) {
+				errMsg := fmt.Sprintf(
+					"%s is a recipient inside encryption data but not inside the message",
+					encAdd.Recipient.String(),
+				)
+				return sdk.ErrInvalidAddress(errMsg)
+			}
+		}
+
+		// Check that the `encrypted_data' field name is actually present in doc
+		fNotPresent := func(s string) sdk.Error {
+			return sdk.ErrUnknownRequest(
+				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", s),
+			)
+		}
+
+		for _, fieldName := range doc.EncryptionData.EncryptedData {
+			switch fieldName {
+			case "content_uri":
+				if doc.ContentURI == "" {
+					return fNotPresent("content_uri")
+				}
+			case "metadata.schema.uri":
+				if doc.Metadata.Schema == nil || doc.Metadata.Schema.URI == "" {
+					return fNotPresent("metadata.schema.uri")
+				}
 			}
 		}
 
