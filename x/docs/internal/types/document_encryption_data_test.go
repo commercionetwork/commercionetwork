@@ -105,7 +105,7 @@ func TestDocumentEncryptionData_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr != nil {
-				assert.Error(t, tt.wantErr, tt.ed.Validate())
+				assert.EqualError(t, tt.ed.Validate(), tt.wantErr.Error())
 			} else {
 				assert.NoError(t, tt.ed.Validate())
 			}

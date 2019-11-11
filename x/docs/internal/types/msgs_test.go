@@ -1,7 +1,6 @@
 package types
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
@@ -63,7 +62,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name    string
 		sdr     MsgShareDocument
-		haveErr error
+		haveErr sdk.Error
 	}{
 		{
 			"MsgShareDocument with valid schema",
@@ -85,7 +84,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 				Sender:     sender,
 				Recipients: types.Addresses{recipient},
 			}),
-			errors.New("either metadata.schema or metadata.schema_type must be defined"),
+			sdk.ErrUnknownRequest("either metadata.schema or metadata.schema_type must be defined"),
 		},
 		{
 			"MsgShareDocument with valid schema type",
@@ -107,7 +106,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 				Sender:     sender,
 				Recipients: types.Addresses{recipient},
 			}),
-			errors.New("either metadata.schema or metadata.schema_type must be defined"),
+			sdk.ErrUnknownRequest("either metadata.schema or metadata.schema_type must be defined"),
 		},
 	}
 	for _, tt := range tests {
@@ -115,7 +114,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, tt.haveErr.Error())
 			} else {
 				assert.NoError(t, err)
 			}
@@ -249,7 +248,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, tt.haveErr.Error())
 			} else {
 				assert.NoError(t, err)
 			}
@@ -333,7 +332,7 @@ func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, tt.haveErr.Error())
 			} else {
 				assert.NoError(t, err)
 			}
@@ -404,7 +403,7 @@ func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, tt.haveErr.Error())
 			} else {
 				assert.NoError(t, err)
 			}

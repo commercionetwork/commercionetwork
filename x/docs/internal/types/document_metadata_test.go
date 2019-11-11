@@ -128,7 +128,7 @@ func TestDocumentMetadata_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr != nil {
-				assert.Error(t, tt.wantErr, tt.dm.Validate())
+				assert.EqualError(t, tt.dm.Validate(), tt.wantErr.Error())
 			} else {
 				assert.NoError(t, tt.dm.Validate())
 			}
