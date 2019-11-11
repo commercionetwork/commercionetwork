@@ -112,8 +112,18 @@ if the given has is indeed the hash of the document's content. It should be the 
 check.  
 
 ## Encrypting the data
+
+::: tip
+
+The following is just an example on how to do file encryption, you're free to use any other algorithm!
+
+:::
+
 In order to properly encrypting the data that you want to avoid being shared publicly, 
-the following procedure must be followed. 
+the following procedure should be followed.
+
+We'll use AES-256 in CBC mode to encrypt a file, and let the recipient decrypt it by sharing with
+it the AES encryption key.
 
 1. Generate a safe AES-256 encryption key. A key size of 256 bits is recommended.
    ```
