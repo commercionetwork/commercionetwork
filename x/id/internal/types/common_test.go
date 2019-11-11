@@ -8,8 +8,36 @@ import (
 )
 
 func TestValidateHex(t *testing.T) {
-	assert.False(t, types.ValidateHex(""))
-	assert.False(t, types.ValidateHex("    "))
-	assert.False(t, types.ValidateHex("dasfasdfdf897987"))
-	assert.True(t, types.ValidateHex("6369616f6369616f63"))
+	tests := []struct {
+		name  string
+		input string
+		valid bool
+	}{
+		{
+			"empty string",
+			"",
+			false,
+		},
+		{
+			"just spaces",
+			"    ",
+			false,
+		},
+		{
+			"random sequence of characters",
+			"dasfasdfdf897987",
+			false,
+		},
+		{
+			"a well-formed hex string",
+			"6369616f6369616f63",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.valid, types.ValidateHex(tt.input))
+		})
+	}
 }
