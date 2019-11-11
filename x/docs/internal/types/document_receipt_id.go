@@ -14,7 +14,7 @@ func (documentIds DocumentReceiptsIDs) AppendIfMissing(id string) (DocumentRecei
 	return append(documentIds, id), true
 }
 
-// Empty tells if the list of document ids is empty or not
-func (documentIds DocumentReceiptsIDs) Empty() bool {
+// IsEmpty tells if the list of document ids is empty or not
+func (documentIds DocumentReceiptsIDs) IsEmpty() bool {
 	return len(documentIds) == 0
 }
