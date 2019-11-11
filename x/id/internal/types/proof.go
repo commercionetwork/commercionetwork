@@ -42,7 +42,7 @@ func (proof Proof) Validate() sdk.Error {
 	}
 
 	if proof.Created.IsZero() {
-		return sdk.ErrUnknownRequest("Invalid proof creation type")
+		return sdk.ErrUnknownRequest("Invalid proof creation time")
 	}
 
 	return nil
