@@ -13,10 +13,45 @@ func TestCredential_Equals(t *testing.T) {
 	verifier, _ := sdk.AccAddressFromBech32("cosmos1xt9nqxmermu64te9dr8rkjff8eax496hcasju7")
 	credential := types.NewCredential(user, verifier, 0)
 
-	assert.False(t, credential.Equals(types.NewCredential(verifier, credential.Verifier, credential.Timestamp)))
-	assert.False(t, credential.Equals(types.NewCredential(credential.User, credential.User, credential.Timestamp)))
-	assert.False(t, credential.Equals(types.NewCredential(credential.User, credential.Verifier, credential.Timestamp+1)))
-	assert.True(t, credential.Equals(credential))
+	tests := []struct {
+		name     string
+		first    types.Credential
+		second   types.Credential
+		expected bool
+	}{
+		{
+			name:     "Different user returns false",
+			first:    credential,
+			expected: false,
+			second:   types.NewCredential(verifier, credential.Verifier, credential.Timestamp),
+		},
+		{
+			name:     "Different verifier returns false",
+			first:    credential,
+			expected: false,
+			second:   types.NewCredential(credential.User, credential.User, credential.Timestamp),
+		},
+		{
+			name:     "Different timestamp returns false",
+			first:    credential,
+			expected: false,
+			second:   types.NewCredential(credential.User, credential.Verifier, credential.Timestamp+1),
+		},
+		{
+			name:     "Same data returns true",
+			first:    credential,
+			expected: true,
+			second:   credential,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expected, test.first.Equals(test.second))
+		})
+	}
+
 }
 
 func TestCredentials_Contains(t *testing.T) {
@@ -26,10 +61,45 @@ func TestCredentials_Contains(t *testing.T) {
 	credential1 := types.NewCredential(user, verifier, 0)
 	credential2 := types.NewCredential(user, verifier, 1)
 
-	assert.True(t, types.Credentials{credential1, credential2}.Contains(credential1))
-	assert.True(t, types.Credentials{credential1, credential2}.Contains(credential2))
-	assert.False(t, types.Credentials{}.Contains(credential1))
-	assert.False(t, types.Credentials{credential1}.Contains(credential2))
+	tests := []struct {
+		name             string
+		credentials      types.Credentials
+		credential       types.Credential
+		expectedContains bool
+	}{
+
+		{
+			name:             "Start-list credential returns true",
+			credentials:      types.Credentials{credential1, credential2},
+			credential:       credential1,
+			expectedContains: true,
+		},
+		{
+			name:             "End-list credential returns true",
+			credentials:      types.Credentials{credential1, credential2},
+			credential:       credential2,
+			expectedContains: true,
+		},
+		{
+			name:             "Empty list returns false",
+			credentials:      types.Credentials{},
+			credential:       credential1,
+			expectedContains: false,
+		},
+		{
+			name:             "Not found credentials returns false",
+			credentials:      types.Credentials{credential1},
+			credential:       credential2,
+			expectedContains: false,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expectedContains, test.credentials.Contains(test.credential))
+		})
+	}
 }
 
 func TestCredentials_AppendIfMissing(t *testing.T) {
