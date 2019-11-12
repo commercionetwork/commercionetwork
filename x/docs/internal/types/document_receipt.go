@@ -23,22 +23,12 @@ type DocumentReceipt struct {
 
 // Equals implements equatable
 func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
-	if !receipt.Sender.Equals(rec.Sender) {
-		return false
-	}
-	if !receipt.Recipient.Equals(rec.Recipient) {
-		return false
-	}
-	if receipt.TxHash != rec.TxHash {
-		return false
-	}
-	if receipt.DocumentUUID != rec.DocumentUUID {
-		return false
-	}
-	if receipt.Proof != rec.Proof {
-		return false
-	}
-	return true
+	return receipt.UUID == rec.UUID &&
+		receipt.Sender.Equals(rec.Sender) &&
+		receipt.Recipient.Equals(rec.Recipient) &&
+		receipt.TxHash == rec.TxHash &&
+		receipt.DocumentUUID == rec.DocumentUUID &&
+		receipt.Proof == rec.Proof
 }
 
 // ------------------------

@@ -1,41 +1,63 @@
 package types
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDocumentMetadata_Equals(t *testing.T) {
-	metadata := DocumentMetadata{
-		ContentURI: "http://example.com/metadata",
-		Schema: &DocumentMetadataSchema{
-			URI:     "https://example.com/metadata/schema",
-			Version: "1.0.0",
+	tests := []struct {
+		name   string
+		us     DocumentMetadata
+		them   DocumentMetadata
+		equals bool
+	}{
+		{
+			"two equal DocumentMetadata",
+			DocumentMetadata{
+				ContentURI: "http://example.com/metadata",
+				Schema: &DocumentMetadataSchema{
+					URI:     "https://example.com/metadata/schema",
+					Version: "1.0.0",
+				},
+			},
+			DocumentMetadata{
+				ContentURI: "http://example.com/metadata",
+				Schema: &DocumentMetadataSchema{
+					URI:     "https://example.com/metadata/schema",
+					Version: "1.0.0",
+				},
+			},
+			true,
+		},
+		{
+			"difference in contentURI",
+			DocumentMetadata{ContentURI: "http://example.com/metadata"},
+			DocumentMetadata{ContentURI: "http://example.com/metadat"},
+			false,
+		},
+		{
+			"difference in schema",
+			DocumentMetadata{ContentURI: "http://example.com/metadata"},
+			DocumentMetadata{
+				ContentURI: "http://example.com/metadata",
+				SchemaType: "",
+				Schema: &DocumentMetadataSchema{
+					URI:     "https://example.com/metadata/schema",
+					Version: "1.0.0",
+				},
+			},
+			false,
 		},
 	}
-	assert.True(t, metadata.Equals(metadata))
-}
-
-func TestDocumentMetadata_Equals_DifferentContents(t *testing.T) {
-	metadata := DocumentMetadata{ContentURI: "http://example.com/metadata"}
-
-	other := DocumentMetadata{ContentURI: "https://example.com"}
-	assert.False(t, metadata.Equals(other))
-}
-
-func TestDocumentMetadata_Equals_DifferentSchema(t *testing.T) {
-	metadata := DocumentMetadata{ContentURI: "http://example.com/metadata"}
-
-	other := DocumentMetadata{
-		ContentURI: metadata.ContentURI,
-		SchemaType: metadata.SchemaType,
-		Schema: &DocumentMetadataSchema{
-			URI:     "https://example.com/metadata/schema",
-			Version: "1.0.0",
-		},
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.equals, tt.us.Equals(tt.them))
+		})
 	}
-	assert.False(t, metadata.Equals(other))
 }
 
 // ---------------
@@ -43,70 +65,75 @@ func TestDocumentMetadata_Equals_DifferentSchema(t *testing.T) {
 // ---------------
 
 func TestDocumentMetadata_Validate(t *testing.T) {
-	validDocumentMetadata := DocumentMetadata{
-		ContentURI: "http://www.contentUri.com",
-		Schema: &DocumentMetadataSchema{
-			URI:     "http://www.contentUri.com",
-			Version: "test",
+	tests := []struct {
+		name    string
+		dm      DocumentMetadata
+		wantErr error
+	}{
+		{
+			"a valid DocumentMetadata",
+			DocumentMetadata{
+				ContentURI: "http://www.contentUri.com",
+				Schema: &DocumentMetadataSchema{
+					URI:     "http://www.contentUri.com",
+					Version: "test",
+				},
+			},
+			nil,
+		},
+		{
+			"empty content uri",
+			DocumentMetadata{
+				ContentURI: "   ",
+				Schema: &DocumentMetadataSchema{
+					URI:     "http://www.contentUri.com",
+					Version: "test",
+				},
+			},
+			errors.New("metadata.content_uri can't be empty"),
+		},
+		{
+			"empty metadata info",
+			DocumentMetadata{
+				ContentURI: "https://example.com/metadata",
+				Schema:     nil,
+				SchemaType: "",
+			},
+			errors.New("either metadata.schema or metadata.schema_type must be defined"),
+		},
+		{
+			"empty schema uri",
+			DocumentMetadata{
+				ContentURI: "http://www.contentUri.com",
+				Schema: &DocumentMetadataSchema{
+					URI:     "",
+					Version: "test",
+				},
+			},
+			errors.New("metadata.schema.uri can't be empty"),
+		},
+		{
+			"empty schema version",
+			DocumentMetadata{
+				ContentURI: "http://www.contentUri.com",
+				Schema: &DocumentMetadataSchema{
+					URI:     "http://www.contentUri.com",
+					Version: "",
+				},
+			},
+			errors.New("metadata.schema.version can't be empty"),
 		},
 	}
-
-	actual := validDocumentMetadata.Validate()
-	assert.Nil(t, actual)
-}
-
-func TestDocumentMetadata_Validate_EmptyContentUri(t *testing.T) {
-	invalidDocumentMetadata := DocumentMetadata{
-		ContentURI: "   ",
-		Schema: &DocumentMetadataSchema{
-			URI:     "http://www.contentUri.com",
-			Version: "test",
-		},
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr != nil {
+				assert.EqualError(t, tt.dm.Validate(), tt.wantErr.Error())
+			} else {
+				assert.NoError(t, tt.dm.Validate())
+			}
+		})
 	}
-
-	err := invalidDocumentMetadata.Validate()
-	assert.NotNil(t, err)
-	assert.Equal(t, "metadata.content_uri can't be empty", err.Error())
-}
-
-func TestDocumentMetadata_Validate_EmptyMetadataInfo(t *testing.T) {
-	invalidDocumentMetadata := DocumentMetadata{
-		ContentURI: "https://example.com/metadata",
-		Schema:     nil,
-		SchemaType: "",
-	}
-
-	err := invalidDocumentMetadata.Validate()
-	assert.NotNil(t, err)
-	assert.Equal(t, "either metadata.schema or metadata.schema_type must be defined", err.Error())
-}
-
-func TestDocumentMetadata_Validate_EmptySchemaUri(t *testing.T) {
-	invalidDocumentMetadata := DocumentMetadata{
-		ContentURI: "http://www.contentUri.com",
-		Schema: &DocumentMetadataSchema{
-			URI:     "",
-			Version: "test",
-		},
-	}
-
-	err := invalidDocumentMetadata.Validate()
-	assert.NotNil(t, err)
-	assert.Equal(t, "metadata.schema.uri can't be empty", err.Error())
-}
-
-func TestDocumentMetadata_Validate_EmptySchemaVersion(t *testing.T) {
-	invalidDocumentMetadata := DocumentMetadata{
-		ContentURI: "http://www.contentUri.com",
-		Schema: &DocumentMetadataSchema{
-			URI:     "http://www.contentUri.com",
-			Version: "",
-		},
-	}
-
-	err := invalidDocumentMetadata.Validate()
-	assert.NotNil(t, err)
-	assert.Equal(t, "metadata.schema.version can't be empty", err.Error())
 }
 
 func TestDocumentMetadata_JSONUnmarshal(t *testing.T) {

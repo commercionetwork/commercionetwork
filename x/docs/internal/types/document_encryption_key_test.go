@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,31 +17,52 @@ var key = DocumentEncryptionKey{
 // --------------
 
 func TestDocumentEncryptionKey_Equals(t *testing.T) {
-	assert.True(t, key.Equals(key))
-}
-
-func TestDocumentEncryptionKey_Equals_DifferentRecipient(t *testing.T) {
-	var other = DocumentEncryptionKey{
-		Recipient: sender,
-		Value:     key.Value,
+	tests := []struct {
+		name  string
+		us    DocumentEncryptionKey
+		them  DocumentEncryptionKey
+		equal bool
+	}{
+		{
+			"two equal keys",
+			key,
+			key,
+			true,
+		},
+		{
+			"different recipient",
+			key,
+			DocumentEncryptionKey{
+				Recipient: sender,
+				Value:     key.Value,
+			},
+			false,
+		},
+		{
+			"different value",
+			key,
+			DocumentEncryptionKey{
+				Recipient: key.Recipient,
+				Value:     "6F7468657276616C7565",
+			},
+			false,
+		},
+		{
+			"different encoding",
+			key,
+			DocumentEncryptionKey{
+				Recipient: key.Recipient,
+				Value:     key.Value + "difference",
+			},
+			false,
+		},
 	}
-	assert.False(t, key.Equals(other))
-}
-
-func TestDocumentEncryptionKey_Equals_DifferentValue(t *testing.T) {
-	var other = DocumentEncryptionKey{
-		Recipient: key.Recipient,
-		Value:     "6F7468657276616C7565",
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+		})
 	}
-	assert.False(t, key.Equals(other))
-}
-
-func TestDocumentEncryptionKey_Equals_DifferentEncoding(t *testing.T) {
-	var other = DocumentEncryptionKey{
-		Recipient: key.Recipient,
-		Value:     key.Value + "difference",
-	}
-	assert.False(t, key.Equals(other))
 }
 
 // ---------------
@@ -48,21 +70,35 @@ func TestDocumentEncryptionKey_Equals_DifferentEncoding(t *testing.T) {
 // ---------------
 
 func TestDocumentEncryptionKey_Validate(t *testing.T) {
-	assert.Nil(t, key.Validate())
-}
-
-func TestDocumentEncryptionKey_Validate_EmptyValue(t *testing.T) {
-	key := DocumentEncryptionKey{Recipient: key.Recipient, Value: "   "}
-	err := key.Validate()
-
-	assert.NotNil(t, err)
-	assert.Equal(t, "encryption key value cannot be empty", err.Error())
-}
-
-func TestDocumentEncryptionKey_Validate_InvalidHex(t *testing.T) {
-	key := DocumentEncryptionKey{Recipient: key.Recipient, Value: "^&*(^*(&*"}
-	err := key.Validate()
-
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "hex")
+	tests := []struct {
+		name    string
+		ek      DocumentEncryptionKey
+		wantErr error
+	}{
+		{
+			"a valid key",
+			key,
+			nil,
+		},
+		{
+			"empty value",
+			DocumentEncryptionKey{Recipient: key.Recipient, Value: "   "},
+			errors.New("encryption key value cannot be empty"),
+		},
+		{
+			"innvalid hex",
+			DocumentEncryptionKey{Recipient: key.Recipient, Value: "^&*(^*(&*"},
+			errors.New("invalid encryption key value (must be hex)"),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr != nil {
+				assert.EqualError(t, tt.ek.Validate(), tt.wantErr.Error())
+			} else {
+				assert.NoError(t, tt.ek.Validate())
+			}
+		})
+	}
 }

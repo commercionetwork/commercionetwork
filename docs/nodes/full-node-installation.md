@@ -49,6 +49,7 @@ git init .
 git remote add origin https://github.com/commercionetwork/commercionetwork.git
 git pull
 git checkout tags/$(cat .data | grep -oP 'Release\s+\K\S+')
+go mod verify
 make install
 ```
 
