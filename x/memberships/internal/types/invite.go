@@ -40,4 +40,21 @@ func (invite Invite) Equals(other Invite) bool {
 // --- Invites
 // --------------
 
+// Invites represents a slice of Invite objects
 type Invites []Invite
+
+// Equals returns true iff this slice contains the same data of the
+// other one and in the same order
+func (slice Invites) Equals(other Invites) bool {
+	if len(slice) != len(other) {
+		return false
+	}
+
+	for index, invite := range slice {
+		if !invite.Equals(other[index]) {
+			return false
+		}
+	}
+
+	return true
+}

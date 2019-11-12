@@ -348,6 +348,7 @@ func (keeper Keeper) GetReceipts(ctx sdk.Context) types.DocumentReceipts {
 
 	// Iterate over just the sent receipts as the received ones are the same but saved in to different places
 	sentReceiptsIterator := sdk.KVStorePrefixIterator(store, []byte(types.SentDocumentsReceiptsPrefix))
+	defer sentReceiptsIterator.Close()
 	for ; sentReceiptsIterator.Valid(); sentReceiptsIterator.Next() {
 		var sentReceipts types.DocumentReceipts
 		keeper.cdc.MustUnmarshalBinaryBare(sentReceiptsIterator.Value(), &sentReceipts)
@@ -355,6 +356,7 @@ func (keeper Keeper) GetReceipts(ctx sdk.Context) types.DocumentReceipts {
 	}
 
 	receivedReceiptsIterator := sdk.KVStorePrefixIterator(store, []byte(types.ReceivedDocumentsReceiptsPrefix))
+	defer receivedReceiptsIterator.Close()
 	for ; receivedReceiptsIterator.Valid(); receivedReceiptsIterator.Next() {
 		var receivedReceipts types.DocumentReceipts
 		keeper.cdc.MustUnmarshalBinaryBare(receivedReceiptsIterator.Value(), &receivedReceipts)

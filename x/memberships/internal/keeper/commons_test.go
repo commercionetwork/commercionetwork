@@ -1,7 +1,8 @@
-package keeper
+package keeper_test
 
 import (
 	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -17,7 +18,7 @@ import (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -56,11 +57,11 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 	govk := government.NewKeeper(cdc, keys[government.StoreKey])
 	nftk := nft.NewKeeper(cdc, keys[nft.StoreKey])
 
-	k := NewKeeper(cdc, keys[types.StoreKey], nftk, sk)
+	k := keeper.NewKeeper(cdc, keys[types.StoreKey], nftk, sk)
 
 	// Set module accounts
 	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
-	k.supplyKeeper.SetModuleAccount(ctx, memAcc)
+	k.SupplyKeeper.SetModuleAccount(ctx, memAcc)
 
 	// Set the stable credits denom
 	k.SetStableCreditsDenom(ctx, testStableCreditsDenom)
@@ -87,7 +88,6 @@ func testCodec() *codec.Codec {
 
 // Testing variables
 var testUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-var TestUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
+var testUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testStableCreditsDenom = "uccc"
-var testMembershipType = "bronze"

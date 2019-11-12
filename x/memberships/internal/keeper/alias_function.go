@@ -13,5 +13,5 @@ func (k Keeper) GetPoolFunds(ctx sdk.Context) sdk.Coins {
 
 // GetMembershipModuleAccount returns the module account for the accreditations module
 func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) exported.ModuleAccountI {
-	return k.supplyKeeper.GetModuleAccount(ctx, types.ModuleName)
+	return k.SupplyKeeper.GetModuleAccount(ctx, types.ModuleName)
 }

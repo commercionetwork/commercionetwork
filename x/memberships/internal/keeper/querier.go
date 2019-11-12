@@ -51,11 +51,7 @@ func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk
 		}
 	}
 
-	if invites == nil {
-		invites = make([]types.Invite, 0)
-	}
-
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, invites)
+	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, invites)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -69,7 +65,7 @@ func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, er
 		signers = make([]sdk.AccAddress, 0)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, signers)
+	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, signers)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -83,7 +79,7 @@ func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, 
 		value = make([]sdk.Coin, 0)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, value)
+	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, value)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
@@ -114,7 +110,7 @@ func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res 
 		result.MembershipType = keeper.GetMembershipType(membership)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, result)
+	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, result)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}

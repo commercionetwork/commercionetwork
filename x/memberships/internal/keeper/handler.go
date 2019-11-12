@@ -67,7 +67,7 @@ func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepos
 
 func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgAddTsp) sdk.Result {
 	if !governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.Government) {
-		return sdk.ErrInvalidAddress("invalid government address").Result()
+		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid government address: %s", msg.Government)).Result()
 	}
 
 	keeper.AddTrustedServiceProvider(ctx, msg.Tsp)
@@ -112,7 +112,7 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	}
 
 	// Give the reward to the invitee
-	if err := keeper.DistributeReward(ctx, invite, msg.MembershipType); err != nil {
+	if err := keeper.DistributeReward(ctx, invite); err != nil {
 		return err.Result()
 	}
 
