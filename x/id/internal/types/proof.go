@@ -16,6 +16,15 @@ type Proof struct {
 	SignatureValue string    `json:"signatureValue"`
 }
 
+func NewProof(proofType string, created time.Time, creator, signatureValue string) Proof {
+	return Proof{
+		Type:           proofType,
+		Created:        created,
+		Creator:        creator,
+		SignatureValue: signatureValue,
+	}
+}
+
 // Equals returns true iff proof and other contain the same data.
 func (proof Proof) Equals(other Proof) bool {
 	return proof.Type == other.Type &&
@@ -33,7 +42,7 @@ func (proof Proof) Validate() sdk.Error {
 	}
 
 	if proof.Created.IsZero() {
-		return sdk.ErrUnknownRequest("Invalid proof creation type")
+		return sdk.ErrUnknownRequest("Invalid proof creation time")
 	}
 
 	return nil
