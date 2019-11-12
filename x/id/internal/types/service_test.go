@@ -104,10 +104,10 @@ func TestServices_Equals(t *testing.T) {
 	service2 := types.NewService("id-2", "type-2", "endpoint-2")
 
 	tests := []struct {
-		name     string
-		us types.Services
-		them     types.Services
-		equal     bool
+		name  string
+		us    types.Services
+		them  types.Services
+		equal bool
 	}{
 		{
 			"empty service",
@@ -135,6 +135,7 @@ func TestServices_Equals(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
