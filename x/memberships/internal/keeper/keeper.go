@@ -80,11 +80,11 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) (string, sdk.Error) {
 	// Check the membership type validity
 	if !types.IsMembershipTypeValid(membershipType) {
-		return "", sdk.ErrUnknownRequest("Invalid membership type")
+		return "", sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
 
 	// Find any existing membership
-	if _, err := k.RemoveMembership(ctx, user); err != nil {
+	if err := k.RemoveMembership(ctx, user); err != nil {
 		return "", sdk.ErrUnknownRequest(err.Error())
 	}
 
@@ -118,21 +118,21 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (exported.NF
 }
 
 // RemoveMembership allows to remove any existing membership associated with the given user.
-func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) (bool, sdk.Error) {
+func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) sdk.Error {
 	id := k.getMembershipTokenID(user)
 
 	if found, _ := k.NftKeeper.GetNFT(ctx, types.NftDenom, id); found == nil {
 		// The token was not found, so it's trivial to delete it: simply do nothing
-		return true, nil
+		return nil
 	}
 
 	if err := k.NftKeeper.DeleteNFT(ctx, types.NftDenom, k.getMembershipTokenID(user)); err != nil {
 		// The token was found, but an error was raised during the deletion. Return the error
-		return false, err
+		return err
 	}
 
 	// The token was found and deleted
-	return true, nil
+	return nil
 }
 
 // GetMembershipType returns the type of the membership represented by the given NFT token
@@ -142,13 +142,13 @@ func (k Keeper) GetMembershipType(membership exported.NFT) string {
 
 // Get GetMembershipsSet returns the list of all the memberships
 // that have been minted and are currently stored inside the store
-func (k Keeper) GetMembershipsSet(ctx sdk.Context) []types.Membership {
+func (k Keeper) GetMembershipsSet(ctx sdk.Context) types.Memberships {
 	collection, found := k.NftKeeper.GetCollection(ctx, types.NftDenom)
 	if !found {
 		return nil
 	}
 
-	memberships := make([]types.Membership, len(collection.NFTs))
+	memberships := make(types.Memberships, len(collection.NFTs))
 	for index, membershipNft := range collection.NFTs {
 		memberships[index] = types.Membership{
 			Owner:          membershipNft.GetOwner(),

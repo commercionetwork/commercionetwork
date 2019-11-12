@@ -51,10 +51,6 @@ func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk
 		}
 	}
 
-	if invites == nil {
-		invites = make([]types.Invite, 0)
-	}
-
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, invites)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")

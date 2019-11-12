@@ -6,77 +6,119 @@ import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/stretchr/testify/assert"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func TestKeeper_AddTrustedServiceProvider_EmptyList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestKeeper_AddTrustedServiceProvider(t *testing.T) {
+	tests := []struct {
+		name         string
+		existingTsps ctypes.Addresses
+		newTsp       sdk.AccAddress
+		expected     ctypes.Addresses
+	}{
+		{
+			name:         "Empty list is updated properly",
+			existingTsps: ctypes.Addresses{},
+			newTsp:       testTsp,
+			expected:     ctypes.Addresses{testTsp},
+		},
+		{
+			name:         "Existing list is updated properly",
+			existingTsps: ctypes.Addresses{testTsp},
+			newTsp:       testUser,
+			expected:     ctypes.Addresses{testTsp, testUser},
+		},
+	}
 
-	k.AddTrustedServiceProvider(ctx, testTsp)
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
 
-	var signers ctypes.Addresses
-	store := ctx.KVStore(k.StoreKey)
-	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
+			for _, t := range test.existingTsps {
+				k.AddTrustedServiceProvider(ctx, t)
+			}
 
-	assert.Len(t, signers, 1)
-	assert.Contains(t, signers, testTsp)
+			k.AddTrustedServiceProvider(ctx, test.newTsp)
+
+			stored := k.GetTrustedServiceProviders(ctx)
+			assert.Equal(t, test.expected, stored)
+		})
+	}
 }
 
-func TestKeeper_AddTrustedServiceProvider_ExistingList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func TestKeeper_GetTrustedServiceProviders(t *testing.T) {
+	tests := []struct {
+		name string
+		tsps ctypes.Addresses
+	}{
+		{
+			name: "Empty list is returned properly",
+			tsps: ctypes.Addresses{},
+		},
+		{
+			name: "Existing list is returned properly",
+			tsps: ctypes.Addresses{testTsp, testUser, testUser2},
+		},
+	}
 
-	store := ctx.KVStore(k.StoreKey)
-	signers := ctypes.Addresses{testTsp}
-	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&signers))
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
 
-	k.AddTrustedServiceProvider(ctx, testUser)
+			for _, t := range test.tsps {
+				k.AddTrustedServiceProvider(ctx, t)
+			}
 
-	var actual ctypes.Addresses
-	actualBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.Cdc.MustUnmarshalBinaryBare(actualBz, &actual)
+			signers := k.GetTrustedServiceProviders(ctx)
 
-	assert.Len(t, actual, 2)
-	assert.Contains(t, actual, testTsp)
-	assert.Contains(t, actual, testUser)
+			for _, s := range test.tsps {
+				assert.Contains(t, signers, s)
+			}
+		})
+	}
 }
 
-func TestKeeper_GetTrustedServiceProviders_EmptyList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	signers := k.GetTrustedServiceProviders(ctx)
-	assert.Empty(t, signers)
-}
+func TestKeeper_IsTrustedServiceProvider(t *testing.T) {
+	tests := []struct {
+		name     string
+		tsps     ctypes.Addresses
+		address  sdk.AccAddress
+		expected bool
+	}{
+		{
+			name:     "Empty list returns false",
+			tsps:     ctypes.Addresses{},
+			address:  testTsp,
+			expected: false,
+		},
+		{
+			name:     "Not present TSP returns false",
+			tsps:     ctypes.Addresses{testTsp},
+			address:  testUser,
+			expected: false,
+		},
+		{
+			name:     "Present TSP returns true",
+			tsps:     ctypes.Addresses{testTsp, testUser},
+			address:  testUser,
+			expected: true,
+		},
+	}
 
-func TestKeeper_GetTrustedServiceProviders_ExistingList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
 
-	signers := ctypes.Addresses{testTsp, testUser, TestUser2}
+			store := ctx.KVStore(k.StoreKey)
+			if !test.tsps.Empty() {
+				store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&test.tsps))
+			}
 
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&signers))
-
-	actual := k.GetTrustedServiceProviders(ctx)
-	assert.Len(t, actual, 3)
-	assert.Contains(t, actual, testTsp)
-	assert.Contains(t, actual, testUser)
-	assert.Contains(t, actual, TestUser2)
-}
-
-func TestKeeper_IsTrustedServiceProvider_EmptyList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	assert.False(t, k.IsTrustedServiceProvider(ctx, testTsp))
-	assert.False(t, k.IsTrustedServiceProvider(ctx, testUser))
-	assert.False(t, k.IsTrustedServiceProvider(ctx, TestUser2))
-}
-
-func TestKeeper_IsTrustedServiceProvider_ExistingList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-
-	signers := ctypes.Addresses{testUser, testTsp}
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&signers))
-
-	assert.True(t, k.IsTrustedServiceProvider(ctx, testUser))
-	assert.True(t, k.IsTrustedServiceProvider(ctx, testTsp))
-	assert.False(t, k.IsTrustedServiceProvider(ctx, TestUser2))
+			assert.Equal(t, test.expected, k.IsTrustedServiceProvider(ctx, test.address))
+		})
+	}
 }

@@ -28,6 +28,10 @@ func (c Credential) Equals(other Credential) bool {
 		c.Verifier.Equals(other.Verifier)
 }
 
+func (c Credential) Empty() bool {
+	return Credential{}.Equals(c)
+}
+
 // -------------------
 // --- Credentials
 // -------------------

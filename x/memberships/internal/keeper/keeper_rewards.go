@@ -43,7 +43,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 
 // DistributeReward allows to distribute the rewards to the sender of the specified invite upon the receiver has
 // properly bought a membership of the given membershipType
-func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite, membershipType string) sdk.Error {
+func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error {
 	senderMembership, found := k.GetMembership(ctx, invite.Sender)
 	if !found {
 		return sdk.ErrUnauthorized("Invite sender does not have a membership")
@@ -56,9 +56,6 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite, membershi
 
 	senderMembershipType := k.GetMembershipType(senderMembership)
 	recipientMembershipType := k.GetMembershipType(recipientMembership)
-	if recipientMembershipType != membershipType {
-		return sdk.ErrUnknownRequest("Invite recipient membership is not the same as the bought membership")
-	}
 
 	// Get the reward amount by searching up inside the matrix.
 	// Multiply the found amount by 1.000.000 as coins are represented as millionth of units, and make it an int

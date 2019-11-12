@@ -85,3 +85,19 @@ func (slice Memberships) AppendIfMissing(other Membership) (Memberships, bool) {
 	}
 	return append(slice, other), true
 }
+
+// Equals returns true if this slice and the other one contain the same memberships
+// in the same exact order
+func (slice Memberships) Equals(other Memberships) bool {
+	if len(slice) != len(other) {
+		return false
+	}
+
+	for index, m := range slice {
+		if !m.Equals(other[index]) {
+			return false
+		}
+	}
+
+	return true
+}

@@ -40,10 +40,11 @@ func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.In
 }
 
 // GetInvites returns all the invites ever made
-func (k Keeper) GetInvites(ctx sdk.Context) (invites []types.Invite) {
+func (k Keeper) GetInvites(ctx sdk.Context) types.Invites {
 	store := ctx.KVStore(k.StoreKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
 
+	invites := types.Invites{}
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var invite types.Invite
@@ -51,7 +52,7 @@ func (k Keeper) GetInvites(ctx sdk.Context) (invites []types.Invite) {
 		invites = append(invites, invite)
 	}
 
-	return
+	return invites
 }
 
 // SaveInvite allows to save the given invite inside the store

@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,182 +13,178 @@ import (
 
 var request abci.RequestQuery
 
-// ---------------------
-// --- Invites
-// ---------------------
+func Test_queryGetInvites(t *testing.T) {
+	tests := []struct {
+		name          string
+		storedInvites types.Invites
+		path          []string
+		expected      types.Invites
+	}{
+		{
+			name:          "Specific user and empty invites returns properly",
+			storedInvites: types.Invites{},
+			path:          []string{types.QueryGetInvites, testUser.String()},
+			expected:      types.Invites{},
+		},
+		{
+			name: "Specific user and existing invite is returned properly",
+			storedInvites: types.Invites{
+				types.NewInvite(testInviteSender, testUser),
+				types.NewInvite(testInviteSender, testUser2),
+			},
+			path:     []string{types.QueryGetInvites, testUser.String()},
+			expected: types.Invites{types.NewInvite(testInviteSender, testUser)},
+		},
+		{
+			name:          "All invites and empty list is returned properly",
+			storedInvites: types.Invites{},
+			path:          []string{types.QueryGetInvites},
+			expected:      types.Invites{},
+		},
+		{
+			name: "All invites and non empty list is returned properly",
+			storedInvites: types.Invites{
+				types.NewInvite(testInviteSender, testUser),
+				types.NewInvite(testInviteSender, testUser2),
+			},
+			path: []string{types.QueryGetInvites},
+			expected: types.Invites{
+				types.NewInvite(testInviteSender, testUser2),
+				types.NewInvite(testInviteSender, testUser),
+			},
+		},
+	}
 
-func Test_queryGetInvites_SpecificUser_Empty(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
 
-	path := []string{types.QueryGetInvites, testUser.String()}
+			for _, i := range test.storedInvites {
+				k.SaveInvite(ctx, i)
+			}
 
-	var querier = keeper.NewQuerier(k)
-	actualBz, _ := querier(ctx, path, request)
+			querier := keeper.NewQuerier(k)
+			actualBz, _ := querier(ctx, test.path, request)
 
-	var actual []types.Invite
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			var actual types.Invites
+			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			assert.True(t, test.expected.Equals(actual))
+		})
+	}
 
-	assert.Empty(t, actual)
 }
 
-func Test_queryGetInvites_SpecificUser_Existing(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func Test_queryGetSigners(t *testing.T) {
+	tests := []struct {
+		name       string
+		storedTsps ctypes.Addresses
+		expected   ctypes.Addresses
+	}{
+		{
+			name:       "Empty list is returned properly",
+			storedTsps: ctypes.Addresses{},
+			expected:   ctypes.Addresses{},
+		},
+		{
+			name:       "Existing list is returned properly",
+			storedTsps: []sdk.AccAddress{testUser, testTsp},
+			expected:   ctypes.Addresses{testUser, testTsp},
+		},
+	}
 
-	invite := types.Invite{User: testUser, Sender: TestUser2}
-	k.SaveInvite(ctx, invite)
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
 
-	path := []string{types.QueryGetInvites, testUser.String()}
+			for _, t := range test.storedTsps {
+				k.AddTrustedServiceProvider(ctx, t)
+			}
 
-	var querier = keeper.NewQuerier(k)
-	actualBz, _ := querier(ctx, path, request)
+			querier := keeper.NewQuerier(k)
+			request := abci.RequestQuery{}
 
-	var actual []types.Invite
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			path := []string{types.QueryGetTrustedServiceProviders}
+			actualBz, _ := querier(ctx, path, request)
 
-	assert.Equal(t, 1, len(actual))
-	assert.Contains(t, actual, invite)
+			var actual []sdk.AccAddress
+			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+
+			for _, tsp := range test.expected {
+				assert.Contains(t, actual, tsp)
+			}
+		})
+	}
 }
 
-func Test_queryGetInvites_Generic_Empty(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func Test_queryGetPoolFunds(t *testing.T) {
+	tests := []struct {
+		name string
+		pool sdk.Coins
+	}{
+		{
+			name: "Empty pool is returned properly",
+			pool: sdk.Coins{},
+		},
+		{
+			name: "Exiting pool is returned properly",
+			pool: sdk.NewCoins(
+				sdk.NewCoin("uatom", sdk.NewInt(100)),
+				sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
+			),
+		},
+	}
 
-	path := []string{types.QueryGetInvites}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
 
-	var querier = keeper.NewQuerier(k)
-	actualBz, _ := querier(ctx, path, request)
+			querier := keeper.NewQuerier(k)
+			request := abci.RequestQuery{}
 
-	var actual []types.Invite
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			path := []string{types.QueryGetPoolFunds}
+			actualBz, _ := querier(ctx, path, request)
 
-	assert.Empty(t, actual)
+			var actual sdk.Coins
+			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			assert.True(t, test.pool.IsEqual(actual))
+		})
+	}
 }
 
-func Test_queryGetInvites_Generic_Existing(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+func Test_queryResolveMembership(t *testing.T) {
+	tests := []struct {
+		name               string
+		existingMembership types.Membership
+		expected           keeper.MembershipResult
+	}{
+		{
+			name:               "Existing membership is returned properly",
+			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser),
+			expected:           keeper.MembershipResult{User: testUser, MembershipType: types.MembershipTypeGold},
+		},
+		{
+			name:     "Not found membership returns correctly",
+			expected: keeper.MembershipResult{User: testUser, MembershipType: ""},
+		},
+	}
 
-	invite1 := types.Invite{User: testUser, Sender: TestUser2}
-	invite2 := types.Invite{User: TestUser2, Sender: TestUser2}
-	k.SaveInvite(ctx, invite1)
-	k.SaveInvite(ctx, invite2)
+	for _, test := range tests {
+		ctx, _, _, k := SetupTestInput()
 
-	path := []string{types.QueryGetInvites}
+		if !(types.Membership{}).Equals(test.existingMembership) {
+			_, _ = k.AssignMembership(ctx, test.existingMembership.Owner, test.existingMembership.MembershipType)
+		}
 
-	var querier = keeper.NewQuerier(k)
-	actualBz, _ := querier(ctx, path, request)
+		querier := keeper.NewQuerier(k)
 
-	var actual []types.Invite
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+		path := []string{types.QueryGetMembership, testUser.String()}
+		actualBz, _ := querier(ctx, path, request)
 
-	assert.Equal(t, 2, len(actual))
-	assert.Contains(t, actual, invite1)
-	assert.Contains(t, actual, invite2)
-}
-
-// ---------------------
-// --- Signers
-// ---------------------
-
-func Test_queryGetSigners_EmptyList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-
-	path := []string{types.QueryGetTrustedServiceProviders}
-
-	var querier = keeper.NewQuerier(k)
-	var request abci.RequestQuery
-	actualBz, _ := querier(ctx, path, request)
-
-	var actual []sdk.AccAddress
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	assert.Empty(t, actual)
-	assert.Equal(t, "[]", string(actualBz))
-}
-
-func Test_queryGetSigners_ExistingList(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-
-	expected := []sdk.AccAddress{testTsp, TestUser2}
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&expected))
-
-	path := []string{types.QueryGetTrustedServiceProviders}
-
-	var querier = keeper.NewQuerier(k)
-	var request abci.RequestQuery
-	actualBz, _ := querier(ctx, path, request)
-
-	var actual []sdk.AccAddress
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	assert.Equal(t, 2, len(actual))
-	assert.Contains(t, actual, testTsp)
-	assert.Contains(t, actual, TestUser2)
-}
-
-// ---------------------
-// --- Pool
-// ---------------------
-
-func Test_queryGetPoolFunds_EmptyPool(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-
-	path := []string{types.QueryGetPoolFunds}
-
-	var querier = keeper.NewQuerier(k)
-	var request abci.RequestQuery
-	actualBz, _ := querier(ctx, path, request)
-
-	var actual sdk.Coins
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	assert.Equal(t, "[]", string(actualBz))
-	assert.Empty(t, actual)
-}
-
-func Test_queryGetPoolFunds_ExistingPool(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-
-	expected := sdk.NewCoins(
-		sdk.NewCoin("uatom", sdk.NewInt(100)),
-		sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
-	)
-	_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, expected)
-
-	path := []string{types.QueryGetPoolFunds}
-
-	var querier = keeper.NewQuerier(k)
-	var request abci.RequestQuery
-	actualBz, _ := querier(ctx, path, request)
-
-	var actual sdk.Coins
-	k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	assert.Equal(t, expected, actual)
-}
-
-func TestQuerier_resolveIdentity_Existent(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	var querier = keeper.NewQuerier(k)
-
-	membershipType := "bronze"
-	_, _ = k.AssignMembership(ctx, testUser, membershipType)
-
-	path := []string{types.QueryGetMembership, testUser.String()}
-	bz, _ := querier(ctx, path, request)
-
-	var actual keeper.MembershipResult
-	k.Cdc.MustUnmarshalJSON(bz, &actual)
-
-	expected := keeper.MembershipResult{User: testUser, MembershipType: membershipType}
-	assert.Equal(t, expected, actual)
-}
-
-func TestQuerier_ResolveIdentity_NonExistent(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	var querier = keeper.NewQuerier(k)
-
-	path := []string{types.QueryGetMembership, "nunu"}
-	_, err := querier(ctx, path, request)
-	assert.Error(t, err)
+		var actual keeper.MembershipResult
+		k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+		assert.Equal(t, test.expected, actual)
+	}
 }
