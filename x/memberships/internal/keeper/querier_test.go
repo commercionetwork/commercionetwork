@@ -13,6 +13,13 @@ import (
 
 var request abci.RequestQuery
 
+func TestNewQuerier_InvalidMsg(t *testing.T) {
+	ctx, _, _, k := SetupTestInput()
+	querier := keeper.NewQuerier(k)
+	_, res := querier(ctx, []string{""}, abci.RequestQuery{})
+	assert.Error(t, res)
+}
+
 func Test_queryGetInvites(t *testing.T) {
 	tests := []struct {
 		name          string

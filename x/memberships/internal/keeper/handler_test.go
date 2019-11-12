@@ -126,10 +126,6 @@ func Test_handleMsgSetUserVerified(t *testing.T) {
 	}
 }
 
-// -----------------------------
-// --- handleMsgAddTrustedSigner
-// -----------------------------
-
 func Test_handleAddTrustedSigner(t *testing.T) {
 	government, _ := sdk.AccAddressFromBech32("cosmos15ne6fy8uukkyyf072qklkeleh2zf39k52mcg2f")
 	tests := []struct {
@@ -171,10 +167,6 @@ func Test_handleAddTrustedSigner(t *testing.T) {
 		})
 	}
 }
-
-// ---------------------------------
-// --- handleMsgBuyMembership
-// ---------------------------------
 
 var testInviteSender, _ = sdk.AccAddressFromBech32("cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my")
 
