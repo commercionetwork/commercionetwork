@@ -140,6 +140,9 @@ func Test_queryGetPoolFunds(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
+			if !test.pool.Empty() {
+				_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.pool)
+			}
 
 			querier := keeper.NewQuerier(k)
 			request := abci.RequestQuery{}
