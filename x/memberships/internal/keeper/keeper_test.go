@@ -181,3 +181,58 @@ func TestKeeper_GetMembershipsSet(t *testing.T) {
 		})
 	}
 }
+
+func TestKeeper_SetStableCreditsDenom(t *testing.T) {
+	tests := []struct {
+		name  string
+		denom string
+	}{
+		{
+			name:  "Empty credits denom is saved properly",
+			denom: "",
+		},
+		{
+			name:  "Non empty credits denom is saved properly",
+			denom: "uatom",
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
+
+			k.SetStableCreditsDenom(ctx, test.denom)
+
+			store := ctx.KVStore(k.StoreKey)
+			assert.Equal(t, test.denom, string(store.Get([]byte(types.StableCreditsStoreKey))))
+		})
+	}
+}
+
+func TestKeeper_GetStableCreditsDenom(t *testing.T) {
+	tests := []struct {
+		name  string
+		denom string
+	}{
+		{
+			name:  "Empty credits denom is returned properly",
+			denom: "",
+		},
+		{
+			name:  "Non empty credits denom is returned properly",
+			denom: "uatom",
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
+			store := ctx.KVStore(k.StoreKey)
+			store.Set([]byte(types.StableCreditsStoreKey), []byte(test.denom))
+
+			assert.Equal(t, test.denom, k.GetStableCreditsDenom(ctx))
+		})
+	}
+}

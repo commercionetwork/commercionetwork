@@ -163,13 +163,12 @@ func (k Keeper) GetMembershipsSet(ctx sdk.Context) types.Memberships {
 // that can be used to purchase a membership
 func (k Keeper) GetStableCreditsDenom(ctx sdk.Context) (denom string) {
 	store := ctx.KVStore(k.StoreKey)
-	k.Cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.StableCreditsStoreKey)), &denom)
-	return denom
+	return string(store.Get([]byte(types.StableCreditsStoreKey)))
 }
 
 // SetStableCreditsDenom allows to set the denom of the coins that must be used as stable credits
 // when purchasing a membership.
 func (k Keeper) SetStableCreditsDenom(ctx sdk.Context, denom string) {
 	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.StableCreditsStoreKey), k.Cdc.MustMarshalBinaryBare(&denom))
+	store.Set([]byte(types.StableCreditsStoreKey), []byte(denom))
 }
