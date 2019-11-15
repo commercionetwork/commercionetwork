@@ -60,6 +60,7 @@ func main() {
 	rootCmd.AddCommand(client.NewCompletionCmd(rootCmd, true))
 
 	// Custom commands
+	rootCmd.AddCommand(comgenutilcli.MigrationsListCmd(ctx, cdc))
 	rootCmd.AddCommand(comgenutilcli.MigrateGenesisCmd(ctx, cdc))
 	rootCmd.AddCommand(gencmds.AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(gencmds.SetGenesisGovernmentAddressCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
