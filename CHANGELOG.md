@@ -3,6 +3,7 @@
 - Fixed a bug while checking the validity of the authentication key while handling `MsgSetIdentity` messages
 - Fixed how the UUID are validated (#63) 
 - Removed double `docs` entry inside the `cncli query` command (#60)
+- Fixed a bug in mint module's query
 
 ## Changes
 **CommercioID**
