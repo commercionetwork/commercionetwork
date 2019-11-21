@@ -172,6 +172,29 @@ func TestKeeper_GetCdpsByOwner(t *testing.T) {
 	})
 }
 
+func TestKeeper_GetCdpByOwnerAndTimeStamp(t *testing.T) {
+	t.Run("Existing cdp with given timestamp returned properly", func(t *testing.T) {
+		ctx, _, _, k := SetupTestInput()
+		k.AddCdp(ctx, testCdp)
+
+		store := ctx.KVStore(k.storeKey)
+		var cdps types.Cdps
+		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
+		actual, _ := k.GetCdpByOwnerAndTimeStamp(ctx, testCdpOwner, 10)
+		assert.Equal(t, testCdp, actual)
+	})
+	t.Run("not existent cdp with given timestamp return empty cdp and false", func(t *testing.T) {
+		ctx, _, _, k := SetupTestInput()
+
+		store := ctx.KVStore(k.storeKey)
+		var cdps types.Cdps
+		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
+		actual, isFalse := k.GetCdpByOwnerAndTimeStamp(ctx, testCdpOwner, 10)
+		assert.Equal(t, types.Cdp{}, actual)
+		assert.False(t, isFalse)
+	})
+}
+
 func TestKeeper_CloseCdp(t *testing.T) {
 
 	t.Run("Non existing CDP returns error", func(t *testing.T) {
