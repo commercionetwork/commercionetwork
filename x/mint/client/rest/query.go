@@ -20,7 +20,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		fmt.Sprintf("/mint/cdps/{%s}", restOwnerAddress),
 		getCdpsHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
-		fmt.Sprintf("mint/cdps/{%s}/{%s}", restOwnerAddress, restTimestamp),
+		fmt.Sprintf("/mint/cdps/{%s}/{%s}", restOwnerAddress, restTimestamp),
 		getCdpHandler(cliCtx)).Methods("GET")
 }
 
