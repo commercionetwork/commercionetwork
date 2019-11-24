@@ -17,4 +17,4 @@ deploy:
   github-token: $GITHUB_TOKEN
   keep-history: true
   on:
-    tags: true
+    branch: master
