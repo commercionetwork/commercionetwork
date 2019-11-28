@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/99designs/keyring v1.1.3 // indirect
-	github.com/btcsuite/btcd v0.20.0-beta // indirect
+	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/cosmos/cosmos-sdk v0.34.4-0.20191013030331-92ea174ea6e6
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
