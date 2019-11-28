@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# commercio.network blockchain container startup script
+#
+# This script spin up a commercio.network blockchain if needed,
+# i.e. it checks if a chain already exists before creating a new one.
+#
+# Environment variables needed:
+# CHAINID: your chain ID
+# NODENAME: your node name
+# CHAIN_DIR: chain directory
+# GENESIS_DIR: folder with genesis files informations
+#
+# If you're gonna deploy a new chain, make sure to pass a "genesis.json"
+# and ".data" files by mounting a Docker volume on /root/genesis.
+
+# if $CHAIN_DIR is empty, assume we need to spin up a new chain
+
+export CHAIN_DIR="/root/chain"
+export GENESIS_DIR="/root/genesis"
+
+CND_FLAGS="--home=$CHAIN_DIR"
+
+if [ -z "$(ls -A $CHAIN_DIR)" ]; then
+	# chain directory empty, let's build a new chain
+	./cnd unsafe-reset-all $CND_FLAGS
+	./cnd init $NODENAME $CND_FLAGS
+	cp $GENESIS_DIR/genesis.json $CHAIN_DIR/config/genesis.json
+	sed -e "s|persistent_peers = \".*\"|persistent_peers = \"$(cat $GENESIS_DIR/.data | grep -oP 'Persistent peers\s+\K\S+')\"|g" $CHAIN_DIR/config/config.toml > $CHAIN_DIR/config/config.toml.tmp
+	mv $CHAIN_DIR/config/config.toml.tmp  $CHAIN_DIR/config/config.toml
+fi
+
+./cnd start $CND_FLAGS &
+sleep 3 # let cnd start first before running cncli rest server
+./cncli rest-server --chain-id=$CHAINID --laddr $CNCLI_LISTEN_ADDR 
