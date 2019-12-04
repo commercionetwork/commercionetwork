@@ -2,7 +2,7 @@ package keeper
 
 import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"

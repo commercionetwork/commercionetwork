@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"

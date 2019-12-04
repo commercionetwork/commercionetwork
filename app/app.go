@@ -16,7 +16,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/commercionetwork/commercionetwork/x/mint"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
-	"github.com/commercionetwork/commercionetwork/x/tbr"
+	"github.com/commercionetwork/commercionetwork/x/vbr"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -108,7 +108,7 @@ var (
 		memberships.NewAppModuleBasic(StableCreditsDenom),
 		mint.NewAppModuleBasic(StableCreditsDenom),
 		pricefeed.AppModuleBasic{},
-		tbr.AppModuleBasic{},
+		vbr.AppModuleBasic{},
 	)
 
 	maccPerms = map[string][]string{
@@ -183,7 +183,7 @@ type CommercioNetworkApp struct {
 	membershipKeeper memberships.Keeper
 	mintKeeper       mint.Keeper
 	priceFeedKeeper  pricefeed.Keeper
-	tbrKeeper        tbr.Keeper
+	tbrKeeper        vbr.Keeper
 
 	mm *module.Manager
 }
@@ -216,7 +216,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		memberships.StoreKey,
 		mint.StoreKey,
 		pricefeed.StoreKey,
-		tbr.StoreKey,
+		vbr.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -264,7 +264,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
-	app.tbrKeeper = tbr.NewKeeper(app.cdc, app.keys[tbr.StoreKey], app.distrKeeper)
+	app.tbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper)
 	app.mintKeeper = mint.NewKeeper(app.cdc, app.keys[mint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
 
 	// register the proposal types
@@ -303,7 +303,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
 		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
-		tbr.NewAppModule(app.tbrKeeper, app.stakingKeeper, app.bankKeeper),
+		vbr.NewAppModule(app.tbrKeeper, app.stakingKeeper, app.bankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -313,7 +313,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		distr.ModuleName, slashing.ModuleName,
 
 		// Custom modules
-		tbr.ModuleName,
+		vbr.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -338,7 +338,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		memberships.ModuleName,
 		mint.ModuleName,
 		pricefeed.ModuleName,
-		tbr.ModuleName,
+		vbr.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

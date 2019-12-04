@@ -3,7 +3,7 @@ package cli
 import (
 	"errors"
 
-	"github.com/commercionetwork/commercionetwork/x/tbr"
+	"github.com/commercionetwork/commercionetwork/x/vbr"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,12 +41,12 @@ func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			}
 
 			// set pool amount into the app state
-			var genState tbr.GenesisState
-			cdc.MustUnmarshalJSON(appState[tbr.ModuleName], &genState)
+			var genState vbr.GenesisState
+			cdc.MustUnmarshalJSON(appState[vbr.ModuleName], &genState)
 			genState.PoolAmount = sdk.NewDecCoins(coins)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[tbr.ModuleName] = genesisStateBz
+			appState[vbr.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

@@ -55,7 +55,7 @@ module.exports = {
                     "x/memberships/",
                     "x/mint/",
                     "x/pricefeed/",
-                    "x/tbr/"
+                    "x/vbr/"
                 ]
             }
         ],

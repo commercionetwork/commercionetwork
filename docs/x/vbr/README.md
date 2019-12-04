@@ -1,5 +1,5 @@
-# TBR
-The `tbr` (*Transaction Block Rewards*) module allows validators to get a recurrent reward each 
+# VBR
+The `vbr` (*Validator Block Rewards*) module allows validators to get a recurrent reward each 
 time a new block is proposed, even if such a block does not contain any transaction.  
 
 

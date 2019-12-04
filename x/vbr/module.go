@@ -1,9 +1,9 @@
-package tbr
+package vbr
 
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/tbr/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"

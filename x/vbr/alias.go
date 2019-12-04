@@ -1,8 +1,8 @@
-package tbr
+package vbr
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/tbr/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 )
 
 const (

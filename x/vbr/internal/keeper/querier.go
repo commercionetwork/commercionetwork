@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	tbrTypes "github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -13,10 +13,10 @@ import (
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case tbrTypes.QueryBlockRewardsPoolFunds:
+		case vbrTypes.QueryBlockRewardsPoolFunds:
 			return queryGetBlockRewardsPoolFunds(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", tbrTypes.ModuleName))
+			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", vbrTypes.ModuleName))
 		}
 	}
 }

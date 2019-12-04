@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/tbr/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 )

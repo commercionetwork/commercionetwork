@@ -1,7 +1,7 @@
 package types
 
 const (
-	ModuleName   = "tbr"
+	ModuleName   = "vbr"
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
 
