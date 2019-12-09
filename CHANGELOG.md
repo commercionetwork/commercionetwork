@@ -1,3 +1,13 @@
+# Version 1.3.4
+## Bug fixes
+- Renamed `mint` module to `commerciomint` to increase clearness.
+- Updated the old `context` type in `id` module with the new correct one https://www.w3.org/ns/did/v1
+- Update `serialize-javascript` version to `2.1.1` to avoid old version's vulnerability.
+
+# Version 1.3.3
+## Bug fixes
+- update to btcd 0.20.1 to avoid go.sum problems.
+
 # Version 1.3.2
 ## Bug fixes
 - Fixed a bug while checking the validity of the authentication key while handling `MsgSetIdentity` messages
