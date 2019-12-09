@@ -1,9 +1,9 @@
-package mint
+package commerciomint
 
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"

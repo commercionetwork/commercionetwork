@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/magiconair/properties/assert"

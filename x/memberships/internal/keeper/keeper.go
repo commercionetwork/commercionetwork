@@ -29,7 +29,7 @@ type Keeper struct {
 // NewKeeper creates new instances of the accreditation module Keeper
 func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, nftK nft.Keeper, supplyKeeper supply.Keeper) Keeper {
 
-	// ensure mint module account is set
+	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
@@ -53,7 +53,7 @@ func (k Keeper) getMembershipURI(membershipType string, id string) string {
 	return fmt.Sprintf("membership:%s:%s", membershipType, id)
 }
 
-// BuyMembership allow to mint and assign a membership of the given membershipType to the specified user.
+// BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) sdk.Error {
 	// Get the tokens from the buyer account
@@ -74,7 +74,7 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 	return nil
 }
 
-// AssignMembership allow to mint and assign a membership of the given membershipType to the specified user.
+// AssignMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 // Returns the URI of the new minted token represented the assigned membership, or an error if something goes w
 func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) (string, sdk.Error) {

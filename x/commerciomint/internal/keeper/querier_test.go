@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	abci "github.com/tendermint/tendermint/abci/types"

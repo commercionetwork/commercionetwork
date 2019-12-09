@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs"
 	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
@@ -14,7 +15,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
-	"github.com/commercionetwork/commercionetwork/x/mint"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/vbr"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -106,7 +106,7 @@ var (
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
 		memberships.NewAppModuleBasic(StableCreditsDenom),
-		mint.NewAppModuleBasic(StableCreditsDenom),
+		commerciomint.NewAppModuleBasic(StableCreditsDenom),
 		pricefeed.AppModuleBasic{},
 		vbr.AppModuleBasic{},
 	)
@@ -119,13 +119,13 @@ var (
 		gov.ModuleName:            {supply.Burner},
 
 		// Custom modules
-		mint.ModuleName:        {supply.Minter, supply.Burner},
-		memberships.ModuleName: {supply.Burner},
-		id.ModuleName:          nil,
+		commerciomint.ModuleName: {supply.Minter, supply.Burner},
+		memberships.ModuleName:   {supply.Burner},
+		id.ModuleName:            nil,
 	}
 
 	allowedModuleReceivers = types.Strings{
-		mint.ModuleName,
+		commerciomint.ModuleName,
 		memberships.ModuleName,
 	}
 )
@@ -181,7 +181,7 @@ type CommercioNetworkApp struct {
 	governmentKeeper government.Keeper
 	idKeeper         id.Keeper
 	membershipKeeper memberships.Keeper
-	mintKeeper       mint.Keeper
+	mintKeeper       commerciomint.Keeper
 	priceFeedKeeper  pricefeed.Keeper
 	tbrKeeper        vbr.Keeper
 
@@ -214,7 +214,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		government.StoreKey,
 		id.StoreKey,
 		memberships.StoreKey,
-		mint.StoreKey,
+		commerciomint.StoreKey,
 		pricefeed.StoreKey,
 		vbr.StoreKey,
 	)
@@ -265,7 +265,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
 	app.tbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper)
-	app.mintKeeper = mint.NewKeeper(app.cdc, app.keys[mint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
+	app.mintKeeper = commerciomint.NewKeeper(app.cdc, app.keys[commerciomint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -301,7 +301,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		government.NewAppModule(app.governmentKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper, app.supplyKeeper),
 		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
-		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
+		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
 		vbr.NewAppModule(app.tbrKeeper, app.stakingKeeper, app.bankKeeper),
 	)
@@ -336,7 +336,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		docs.ModuleName,
 		id.ModuleName,
 		memberships.ModuleName,
-		mint.ModuleName,
+		commerciomint.ModuleName,
 		pricefeed.ModuleName,
 		vbr.ModuleName,
 	)

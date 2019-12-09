@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/stretchr/testify/assert"
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
@@ -17,10 +17,10 @@ const (
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("/mint/cdps/{%s}", restOwnerAddress),
+		fmt.Sprintf("/commerciomint/cdps/{%s}", restOwnerAddress),
 		getCdpsHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
-		fmt.Sprintf("/mint/cdps/{%s}/{%s}", restOwnerAddress, restTimestamp),
+		fmt.Sprintf("/commerciomint/cdps/{%s}/{%s}", restOwnerAddress, restTimestamp),
 		getCdpHandler(cliCtx)).Methods("GET")
 }
 

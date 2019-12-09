@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

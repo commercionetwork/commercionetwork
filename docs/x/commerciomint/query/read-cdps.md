@@ -3,7 +3,7 @@
 ## Rest API
 ### Endpoint     
 ```
-/mint/cdps/${address}
+/commerciomint/cdps/${address}
 ```
 
 ### Parameters
@@ -14,7 +14,7 @@
 ### Example 
 #### Call
 ```
-http://localhost:1317/mint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
+http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
 ```
 #### Response
 ```json

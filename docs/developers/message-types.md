@@ -18,8 +18,8 @@ Inside this page you can find all the types and values for the different message
 * Invalidate a Did power up request: [MsgInvalidateDidPowerUpRequest](../x/id/tx/invalidate-did-power-up-request.md))
 
 ## `mint`
-* Open a CDP: [MsgOpenCdp](../x/mint/tx/open-cdp.md)
-* Close a CDP: [MsgCloseCdp](../x/mint/tx/close-cdp.md)
+* Open a CDP: [MsgOpenCdp](../x/commerciomint/tx/open-cdp.md)
+* Close a CDP: [MsgCloseCdp](../x/commerciomint/tx/close-cdp.md)
 
 ## `pricefeed`
 * Set an asset's price: [MsgSetPrice](../x/pricefeed/tx/add-price.md)

@@ -25,7 +25,7 @@ type Keeper struct {
 // NewKeeper creates new instances of the CommercioID Keeper
 func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, accKeeper auth.AccountKeeper, supplyKeeper supply.Keeper) Keeper {
 
-	// ensure mint module account is set
+	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}

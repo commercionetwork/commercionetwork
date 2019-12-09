@@ -20,7 +20,7 @@ In order to buy a membership, the following requirements must be met:
    Please refer to the [verification procedure](../memberships/verification-process.md)
    to know more about the verification process.
 3. You must possess a sufficient amount of CCCs to buy a membership.  
-   Please refer to the [proper page](../mint/README.md) to know more about how to get CCCs out of your Commercio Tokens.
+   Please refer to the [proper page](../commerciomint/README.md) to know more about how to get CCCs out of your Commercio Tokens.
    
 ### Buying process
 Once you've met all the [requirements](#requirements), you can buy a membership by 

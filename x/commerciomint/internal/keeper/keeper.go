@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/mint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +19,7 @@ type Keeper struct {
 
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeed.Keeper) Keeper {
 
-	// ensure mint module account is set
+	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
@@ -88,7 +88,7 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount
 		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Value.RoundInt()))
 	}
 
-	// Send the deposit from the user to the mint account
+	// Send the deposit from the user to the commerciomint account
 	err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositAmount)
 	if err != nil {
 		return err
