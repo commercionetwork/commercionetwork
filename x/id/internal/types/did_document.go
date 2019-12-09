@@ -37,8 +37,8 @@ func (didDocument DidDocument) Validate() sdk.Error {
 		return sdk.ErrInvalidAddress(didDocument.ID.String())
 	}
 
-	if didDocument.Context != "https://www.w3.org/2019/did/v1" {
-		return sdk.ErrUnknownRequest("Invalid context, must be https://www.w3.org/2019/did/v1")
+	if didDocument.Context != "https://www.w3.org/ns/did/v1" {
+		return sdk.ErrUnknownRequest("Invalid context, must be https://www.w3.org/ns/did/v1")
 	}
 
 	if len(didDocument.PubKeys) != 3 {

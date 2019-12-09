@@ -116,7 +116,7 @@ func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address stri
 	testTime := time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
 
 	return types.DidDocument{
-		Context: "https://www.w3.org/2019/did/v1",
+		Context: "https://www.w3.org/ns/did/v1",
 		ID:      address,
 		Authentication: []string{
 			fmt.Sprintf("%s#keys-1", address),
