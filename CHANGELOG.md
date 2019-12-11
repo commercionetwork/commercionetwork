@@ -1,8 +1,10 @@
 # Version 1.3.4
 ## Bug fixes
-- Renamed `mint` module to `commerciomint` to increase clearness.
+- Renamed `mint` module to `commerciomint` to increase clearness
 - Updated the old `context` type in `id` module with the new correct one https://www.w3.org/ns/did/v1
-- Update `serialize-javascript` version to `2.1.1` to avoid old version's vulnerability.
+- Update `serialize-javascript` version to `2.1.1` to avoid old version's vulnerability
+- Fixed a bug that let add document's receipts with the same UUID
+- Added migrate for version `1.3.3` and version `1.3.4`
 
 # Version 1.3.3
 ## Bug fixes
