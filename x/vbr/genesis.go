@@ -46,15 +46,15 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 // error for any failed validation criteria.
 func ValidateGenesis(data GenesisState) error {
 	if data.PoolAmount == nil || data.PoolAmount.Empty() {
-		return errors.New("transaction block reward pool cannot be empty")
+		return errors.New("validator block reward pool cannot be empty")
 	}
 
 	if !data.PoolAmount.IsValid() {
-		return fmt.Errorf("invalid transaction block reward pool: %s", data.PoolAmount.String())
+		return fmt.Errorf("invalid validator block reward pool: %s", data.PoolAmount.String())
 	}
 
 	if !data.YearlyPoolAmount.IsValid() {
-		return fmt.Errorf("invalid yearly transaction block reward pool: %s", data.YearlyPoolAmount.String())
+		return fmt.Errorf("invalid yearly validator block reward pool: %s", data.YearlyPoolAmount.String())
 	}
 
 	return nil

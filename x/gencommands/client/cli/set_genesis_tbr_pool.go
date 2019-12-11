@@ -13,12 +13,12 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 )
 
-// SetGenesisTbrPoolAmount returns set-genesis-tbr-pool-amount cobra Command.
-func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
+// SetGenesisVbrPoolAmount returns set-genesis-tbr-pool-amount cobra Command.
+func SetGenesisVbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-genesis-tbr-pool-amount [amount]",
-		Short: "Sets the given amount as the initial TBR pool inside genesis.json",
+		Use:   "set-genesis-vbr-pool-amount [amount]",
+		Short: "Sets the given amount as the initial VBR pool inside genesis.json",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			config := ctx.Config
@@ -30,7 +30,7 @@ func SetGenesisTbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			}
 
 			if coins.Len() > 1 {
-				return errors.New("cannot have multiple coins inside the TBR pool")
+				return errors.New("cannot have multiple coins inside the VBR pool")
 			}
 
 			// retrieve the app state
