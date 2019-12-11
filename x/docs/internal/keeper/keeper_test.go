@@ -423,14 +423,7 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&existing))
 
-	assert.NoError(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
-
-	var stored types.DocumentReceiptsIDs
-	docReceiptBz := store.Get(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender))
-	cdc.MustUnmarshalBinaryBare(docReceiptBz, &stored)
-
-	assert.Equal(t, 1, len(stored))
-	assert.Contains(t, stored, TestingDocumentReceipt.UUID)
+	assert.Error(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
 }
 
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) {
