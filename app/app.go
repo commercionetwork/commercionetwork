@@ -183,7 +183,7 @@ type CommercioNetworkApp struct {
 	membershipKeeper memberships.Keeper
 	mintKeeper       commerciomint.Keeper
 	priceFeedKeeper  pricefeed.Keeper
-	tbrKeeper        vbr.Keeper
+	vbrKeeper        vbr.Keeper
 
 	mm *module.Manager
 }
@@ -264,7 +264,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
-	app.tbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper)
+	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper)
 	app.mintKeeper = commerciomint.NewKeeper(app.cdc, app.keys[commerciomint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
 
 	// register the proposal types
@@ -303,7 +303,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
 		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
-		vbr.NewAppModule(app.tbrKeeper, app.stakingKeeper, app.bankKeeper),
+		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper, app.bankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
