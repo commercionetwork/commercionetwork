@@ -15,7 +15,7 @@ complicated stuff that is not really necessary.
 Due to this reason, the following lines are written for Digital Ocean, but everything you will read is applicable to 
 any other cloud provider like Amazon AWS, Google Cloud, Microsoft Azure, Alibaba Cloud or Scaleway.
 
-Here's a friendly Digital Ocean $50 credit Coupon link: https://m.do.co/c/132ef6958ef7.
+Here's a friendly Digital Ocean $50 credit Coupon link: https://m.do.co/c/132ef6958ef7
 
 For the sake of simplicity, we will assume you have selected the following DigitalOcean configuration. 
 Please not that this is just an example, but any configuration similar to this one will work perfectly fine.      
