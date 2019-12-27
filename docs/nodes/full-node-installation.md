@@ -19,7 +19,7 @@ export NODENAME="<your-moniker>"
 echo 'export GOPATH="$HOME/go"' >> ~/.profile
 echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.profile
 echo 'export PATH="$PATH:/snap/bin"' >> ~/.profile
-echo 'export NODENAME="$NODENAME"' >> ~/.profile
+echo "export NODENAME=\"$NODENAME\"" >> ~/.profile
 
 source ~/.profile
 ```
