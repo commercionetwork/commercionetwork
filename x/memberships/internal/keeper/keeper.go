@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/cosmos/modules/incubator/nft"
 )
 
 var membershipCosts = map[string]int64{
@@ -21,7 +20,6 @@ var membershipCosts = map[string]int64{
 type Keeper struct {
 	Cdc          *codec.Codec
 	StoreKey     sdk.StoreKey
-	NftKeeper    nft.Keeper
 	SupplyKeeper supply.Keeper
 }
 
