@@ -52,7 +52,7 @@ func Test_handleMsgInviteUser(t *testing.T) {
 			}
 
 			if len(test.membershipType) != 0 {
-				_, _ = k.AssignMembership(ctx, test.invitee, test.membershipType)
+				_ = k.AssignMembership(ctx, test.invitee, test.membershipType)
 			}
 
 			handler := keeper.NewHandler(k, govK)
@@ -236,7 +236,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			ctx, bk, gk, k := SetupTestInput()
 
 			if !test.invite.Empty() {
-				_, err := k.AssignMembership(ctx, test.invite.Sender, types.MembershipTypeBlack)
+				err := k.AssignMembership(ctx, test.invite.Sender, types.MembershipTypeBlack)
 				assert.NoError(t, err)
 				k.SaveInvite(ctx, test.invite)
 			}
@@ -251,7 +251,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 				assert.NoError(t, err)
 
 				if len(test.existingMembership) != 0 {
-					_, err = k.AssignMembership(ctx, msg.Buyer, test.existingMembership)
+					err = k.AssignMembership(ctx, msg.Buyer, test.existingMembership)
 					assert.NoError(t, err)
 				}
 			}

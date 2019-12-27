@@ -105,9 +105,10 @@ func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res 
 		User: address,
 	}
 
+	// TODO: can we invert this flow to use the err != nil convention?
 	// Search the membership
-	if membership, found := keeper.GetMembership(ctx, address); found {
-		result.MembershipType = keeper.GetMembershipType(membership)
+	if membership, err := keeper.GetMembership(ctx, address); err == nil {
+		result.MembershipType = membership.MembershipType
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, result)

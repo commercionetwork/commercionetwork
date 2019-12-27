@@ -185,7 +185,7 @@ func Test_queryResolveMembership(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
 
 		if !(types.Membership{}).Equals(test.existingMembership) {
-			_, _ = k.AssignMembership(ctx, test.existingMembership.Owner, test.existingMembership.MembershipType)
+			_ = k.AssignMembership(ctx, test.existingMembership.Owner, test.existingMembership.MembershipType)
 		}
 
 		querier := keeper.NewQuerier(k)

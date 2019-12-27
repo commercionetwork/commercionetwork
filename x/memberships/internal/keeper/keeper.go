@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/cosmos/modules/incubator/nft"
-	"github.com/cosmos/modules/incubator/nft/exported"
 )
 
 var membershipCosts = map[string]int64{
@@ -27,7 +26,7 @@ type Keeper struct {
 }
 
 // NewKeeper creates new instances of the accreditation module Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, nftK nft.Keeper, supplyKeeper supply.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper) Keeper {
 
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -37,20 +36,13 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, nftK nft.Keeper, supplyK
 	return Keeper{
 		Cdc:          cdc,
 		StoreKey:     storeKey,
-		NftKeeper:    nftK,
 		SupplyKeeper: supplyKeeper,
 	}
 }
 
-// getMembershipTokenID allows to retrieve the id of a token representing a membership associated to the given user
-func (k Keeper) getMembershipTokenID(user sdk.AccAddress) string {
-	return "membership-" + user.String()
-}
-
-// getMembershipURI allows to returns the URI of the NFT that represents a membership of the
-// given membershipType and having the given id
-func (k Keeper) getMembershipURI(membershipType string, id string) string {
-	return fmt.Sprintf("membership:%s:%s", membershipType, id)
+// storageForAddr returns a string representing the KVStore storage key for an addr.
+func storageForAddr(addr sdk.AccAddress) []byte {
+	return []byte(types.MembershipsStorageKey + addr.String())
 }
 
 // BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
@@ -67,7 +59,7 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 	}
 
 	// Assign the membership
-	if _, err := k.AssignMembership(ctx, buyer, membershipType); err != nil {
+	if err := k.AssignMembership(ctx, buyer, membershipType); err != nil {
 		return err
 	}
 
@@ -77,86 +69,91 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 // AssignMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 // Returns the URI of the new minted token represented the assigned membership, or an error if something goes w
-func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) (string, sdk.Error) {
+func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) sdk.Error {
 	// Check the membership type validity
 	if !types.IsMembershipTypeValid(membershipType) {
-		return "", sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", membershipType))
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
 
-	// Find any existing membership
-	if err := k.RemoveMembership(ctx, user); err != nil {
-		return "", sdk.ErrUnknownRequest(err.Error())
+	_ = k.RemoveMembership(ctx, user)
+
+	store := ctx.KVStore(k.StoreKey)
+
+	staddr := storageForAddr(user)
+	if store.Has(staddr) {
+		return sdk.ErrUnknownRequest(
+			fmt.Sprintf(
+				"cannot add membership \"%s\" for address %s: user already have a membership",
+				membershipType,
+				user.String(),
+			),
+		)
 	}
 
-	// Build the token information
-	id := k.getMembershipTokenID(user)
-	uri := k.getMembershipURI(membershipType, id)
+	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(membershipType))
 
-	// Build the membership token
-	membershipToken := nft.NewBaseNFT(id, user, uri)
-
-	// Mint the token
-	if err := k.NftKeeper.MintNFT(ctx, types.NftDenom, &membershipToken); err != nil {
-		return "", err
-	}
-
-	// Return with no error
-	return membershipToken.TokenURI, nil
+	return nil
 }
 
 // GetMembership allows to retrieve any existent membership for the specified user.
 // The second returned false (the boolean one) tells if the NFT token representing the membership was found or not
-func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (exported.NFT, bool) {
-	foundToken, err := k.NftKeeper.GetNFT(ctx, types.NftDenom, k.getMembershipTokenID(user))
+func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, sdk.Error) {
+	store := ctx.KVStore(k.StoreKey)
 
-	// The token was not found
-	if err != nil {
-		return nil, false
+	if !store.Has(storageForAddr(user)) {
+		return types.Membership{}, sdk.ErrUnknownRequest(
+			fmt.Sprintf("membership not found for user \"%s\"", user.String()),
+		)
 	}
 
-	return foundToken, true
+	membershipRaw := store.Get(storageForAddr(user))
+	var ms types.Membership
+	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms.MembershipType)
+	ms.Owner = user
+
+	return ms, nil
 }
 
 // RemoveMembership allows to remove any existing membership associated with the given user.
 func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) sdk.Error {
-	id := k.getMembershipTokenID(user)
+	store := ctx.KVStore(k.StoreKey)
 
-	if found, _ := k.NftKeeper.GetNFT(ctx, types.NftDenom, id); found == nil {
-		// The token was not found, so it's trivial to delete it: simply do nothing
-		return nil
+	if !store.Has(storageForAddr(user)) {
+		return sdk.ErrUnknownRequest(
+			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
+		)
 	}
 
-	if err := k.NftKeeper.DeleteNFT(ctx, types.NftDenom, k.getMembershipTokenID(user)); err != nil {
-		// The token was found, but an error was raised during the deletion. Return the error
-		return err
-	}
+	store.Delete(storageForAddr(user))
 
-	// The token was found and deleted
 	return nil
-}
-
-// GetMembershipType returns the type of the membership represented by the given NFT token
-func (k Keeper) GetMembershipType(membership exported.NFT) string {
-	return strings.Split(membership.GetTokenURI(), ":")[1]
 }
 
 // Get GetMembershipsSet returns the list of all the memberships
 // that have been minted and are currently stored inside the store
-func (k Keeper) GetMembershipsSet(ctx sdk.Context) types.Memberships {
-	collection, found := k.NftKeeper.GetCollection(ctx, types.NftDenom)
-	if !found {
-		return nil
-	}
+func (k Keeper) GetMembershipsSet(ctx sdk.Context) (types.Memberships, error) {
+	store := ctx.KVStore(k.StoreKey)
 
-	memberships := make(types.Memberships, len(collection.NFTs))
-	for index, membershipNft := range collection.NFTs {
-		memberships[index] = types.Membership{
-			Owner:          membershipNft.GetOwner(),
-			MembershipType: k.GetMembershipType(membershipNft),
+	ms := types.Memberships{}
+
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
+	for ; iterator.Valid(); iterator.Next() {
+		rawAddress := strings.TrimPrefix(string(iterator.Key()), "accreditations:storage:")
+		address, err := sdk.AccAddressFromBech32(rawAddress)
+		if err != nil {
+			return types.Memberships{}, sdk.ErrUnknownRequest(
+				fmt.Sprintf("found membership with invalid address: \"%s\"", rawAddress),
+			)
 		}
+		membership := ""
+		k.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &membership)
+		ms = append(ms, types.Membership{
+			MembershipType: membership,
+			Owner:          address,
+		})
 	}
 
-	return memberships
+	return ms, nil
 }
 
 // GetStableCreditsDenom returns the denom that must be used when referring to stable credits
