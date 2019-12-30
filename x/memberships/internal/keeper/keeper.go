@@ -137,7 +137,7 @@ func (k Keeper) GetMembershipsSet(ctx sdk.Context) (types.Memberships, error) {
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		rawAddress := strings.TrimPrefix(string(iterator.Key()), "accreditations:storage:")
+		rawAddress := strings.TrimPrefix(string(iterator.Key()), types.MembershipsStorageKey)
 		address, err := sdk.AccAddressFromBech32(rawAddress)
 		if err != nil {
 			return types.Memberships{}, sdk.ErrUnknownRequest(
