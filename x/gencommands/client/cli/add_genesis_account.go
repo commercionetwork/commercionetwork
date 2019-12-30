@@ -32,86 +32,8 @@ the address will be looked up in the local Keybase. The list of initial tokens m
 contain valid denominations. Accounts may optionally be supplied with vesting parameters.
 `,
 		Args: cobra.ExactArgs(2),
-		RunE: func(_ *cobra.Command, args []string) error {
-			config := ctx.Config
-			config.SetRoot(viper.GetString(cli.HomeFlag))
-
-			addr, err := getAddressFromString(args[0])
-			if err != nil {
-				return err
-			}
-
-			coins, err := sdk.ParseCoins(args[1])
-			if err != nil {
-				return fmt.Errorf("failed to parse coins: %s", err.Error())
-			}
-
-			vestingStart := viper.GetInt64(flagVestingStart)
-			vestingEnd := viper.GetInt64(flagVestingEnd)
-			vestingAmt, err := sdk.ParseCoins(viper.GetString(flagVestingAmt))
-			if err != nil {
-				return fmt.Errorf("failed to parse vesting amount: %s", err.Error())
-			}
-
-			// create concrete account type based on input parameters
-			var genAccount authexported.GenesisAccount
-
-			baseAccount := auth.NewBaseAccount(addr, coins.Sort(), nil, 0, 0)
-			if !vestingAmt.IsZero() {
-				baseVestingAccount, err := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
-				if err != nil {
-					return fmt.Errorf("failed to create base vesting account: %s", err)
-				}
-
-				switch {
-				case vestingStart != 0 && vestingEnd != 0:
-					genAccount = authvesting.NewContinuousVestingAccountRaw(baseVestingAccount, vestingStart)
-
-				case vestingEnd != 0:
-					genAccount = authvesting.NewDelayedVestingAccountRaw(baseVestingAccount)
-
-				default:
-					return errors.New("invalid vesting parameters; must supply start and end time or end time")
-				}
-			} else {
-				genAccount = baseAccount
-			}
-
-			if err := genAccount.Validate(); err != nil {
-				return fmt.Errorf("failed to validate new genesis account: %s", err.Error())
-			}
-
-			genFile := config.GenesisFile()
-			appState, genDoc, err := genutil.GenesisStateFromGenFile(cdc, genFile)
-			if err != nil {
-				return fmt.Errorf("failed to unmarshal genesis state: %s", err.Error())
-			}
-
-			authGenState := auth.GetGenesisStateFromAppState(cdc, appState)
-
-			if authGenState.Accounts.Contains(addr) {
-				return fmt.Errorf("cannot add account at existing address %s", addr)
-			}
-
-			// Add the new account to the set of genesis accounts and sanitize the
-			// accounts afterwards.
-			authGenState.Accounts = append(authGenState.Accounts, genAccount)
-			authGenState.Accounts = auth.SanitizeGenesisAccounts(authGenState.Accounts)
-
-			authGenStateBz, err := cdc.MarshalJSON(authGenState)
-			if err != nil {
-				return fmt.Errorf("failed to marshal auth genesis state: %s", err.Error())
-			}
-
-			appState[auth.ModuleName] = authGenStateBz
-
-			appStateJSON, err := cdc.MarshalJSON(appState)
-			if err != nil {
-				return fmt.Errorf("failed to marshal application genesis state: %s", err.Error())
-			}
-
-			genDoc.AppState = appStateJSON
-			return genutil.ExportGenesisFile(genDoc, genFile)
+		RunE: func(cm *cobra.Command, args []string) error {
+			return addGenesisAccountCmdFunc(cm, args, ctx, cdc)
 		},
 	}
 
@@ -122,4 +44,86 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 	cmd.Flags().Uint64(flagVestingEnd, 0, "schedule end time (unix epoch) for vesting accounts")
 
 	return cmd
+}
+
+func addGenesisAccountCmdFunc(_ *cobra.Command, args []string, ctx *server.Context, cdc *codec.Codec) error {
+	config := ctx.Config
+	config.SetRoot(viper.GetString(cli.HomeFlag))
+
+	addr, err := getAddressFromString(args[0])
+	if err != nil {
+		return err
+	}
+
+	coins, err := sdk.ParseCoins(args[1])
+	if err != nil {
+		return fmt.Errorf("failed to parse coins: %s", err.Error())
+	}
+
+	vestingStart := viper.GetInt64(flagVestingStart)
+	vestingEnd := viper.GetInt64(flagVestingEnd)
+	vestingAmt, err := sdk.ParseCoins(viper.GetString(flagVestingAmt))
+	if err != nil {
+		return fmt.Errorf("failed to parse vesting amount: %s", err.Error())
+	}
+
+	// create concrete account type based on input parameters
+	var genAccount authexported.GenesisAccount
+
+	baseAccount := auth.NewBaseAccount(addr, coins.Sort(), nil, 0, 0)
+	if !vestingAmt.IsZero() {
+		baseVestingAccount, err := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
+		if err != nil {
+			return fmt.Errorf("failed to create base vesting account: %s", err)
+		}
+
+		switch {
+		case vestingStart != 0 && vestingEnd != 0:
+			genAccount = authvesting.NewContinuousVestingAccountRaw(baseVestingAccount, vestingStart)
+
+		case vestingEnd != 0:
+			genAccount = authvesting.NewDelayedVestingAccountRaw(baseVestingAccount)
+
+		default:
+			return errors.New("invalid vesting parameters; must supply start and end time or end time")
+		}
+	} else {
+		genAccount = baseAccount
+	}
+
+	if err := genAccount.Validate(); err != nil {
+		return fmt.Errorf("failed to validate new genesis account: %s", err.Error())
+	}
+
+	genFile := config.GenesisFile()
+	appState, genDoc, err := genutil.GenesisStateFromGenFile(cdc, genFile)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal genesis state: %s", err.Error())
+	}
+
+	authGenState := auth.GetGenesisStateFromAppState(cdc, appState)
+
+	if authGenState.Accounts.Contains(addr) {
+		return fmt.Errorf("cannot add account at existing address %s", addr)
+	}
+
+	// Add the new account to the set of genesis accounts and sanitize the
+	// accounts afterwards.
+	authGenState.Accounts = append(authGenState.Accounts, genAccount)
+	authGenState.Accounts = auth.SanitizeGenesisAccounts(authGenState.Accounts)
+
+	authGenStateBz, err := cdc.MarshalJSON(authGenState)
+	if err != nil {
+		return fmt.Errorf("failed to marshal auth genesis state: %s", err.Error())
+	}
+
+	appState[auth.ModuleName] = authGenStateBz
+
+	appStateJSON, err := cdc.MarshalJSON(appState)
+	if err != nil {
+		return fmt.Errorf("failed to marshal application genesis state: %s", err.Error())
+	}
+
+	genDoc.AppState = appStateJSON
+	return genutil.ExportGenesisFile(genDoc, genFile)
 }

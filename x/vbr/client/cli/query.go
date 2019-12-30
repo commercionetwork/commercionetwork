@@ -30,17 +30,21 @@ func GetCmdRetrieveBlockRewardsPoolFunds(cdc *codec.Codec, querierRoute string) 
 		Short: "Get the actual block rewards pool's total funds amount",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-			route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryBlockRewardsPoolFunds)
-			res, _, err := cliCtx.QueryWithData(route, nil)
-			if err != nil {
-				fmt.Printf("Could not get total funds amount: \n %s", err)
-			}
-
-			fmt.Println(string(res))
-
-			return nil
+			return getCmdRetrieveBlockRewardsPoolFundsFunc(cmd, args, cdc, querierRoute)
 		},
 	}
+}
+
+func getCmdRetrieveBlockRewardsPoolFundsFunc(cmd *cobra.Command, args []string, cdc *codec.Codec, querierRoute string) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryBlockRewardsPoolFunds)
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		fmt.Printf("Could not get total funds amount: \n %s", err)
+	}
+
+	fmt.Println(string(res))
+
+	return nil
 }

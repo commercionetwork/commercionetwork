@@ -34,32 +34,36 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 		Short: "set price for a given token",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			tokenPrice, err := sdk.NewDecFromStr(args[1])
-			if err != nil {
-				return sdk.ErrInternal(err.Error())
-			}
-
-			expiry, ok := sdk.NewIntFromString(args[2])
-			if !ok {
-				return sdk.ErrInternal(fmt.Sprintf("Invalid expiration height, %s", args[2]))
-			}
-
-			price := types.NewPrice(args[0], tokenPrice, expiry)
-
-			oracle := cliCtx.GetFromAddress()
-			msg := types.NewMsgSetPrice(price, oracle)
-
-			err2 := msg.ValidateBasic()
-			if err2 != nil {
-				return err2
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			return getCmdSetPriceFunc(cmd, args, cdc)
 		},
 	}
+}
+
+func getCmdSetPriceFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	tokenPrice, err := sdk.NewDecFromStr(args[1])
+	if err != nil {
+		return sdk.ErrInternal(err.Error())
+	}
+
+	expiry, ok := sdk.NewIntFromString(args[2])
+	if !ok {
+		return sdk.ErrInternal(fmt.Sprintf("Invalid expiration height, %s", args[2]))
+	}
+
+	price := types.NewPrice(args[0], tokenPrice, expiry)
+
+	oracle := cliCtx.GetFromAddress()
+	msg := types.NewMsgSetPrice(price, oracle)
+
+	err2 := msg.ValidateBasic()
+	if err2 != nil {
+		return err2
+	}
+
+	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 }
 
 // GetCmdAddOracle cli command for posting prices.
@@ -69,23 +73,27 @@ func GetCmdAddOracle(cdc *codec.Codec) *cobra.Command {
 		Short: "add a trusted oracle to the oracles' list",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			oracle, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-
-			signer := cliCtx.GetFromAddress()
-			msg := types.NewMsgAddOracle(signer, oracle)
-
-			err = msg.ValidateBasic()
-			if err != nil {
-				return err
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			return getCmdAddOracleFunc(cmd, args, cdc)
 		},
 	}
+}
+
+func getCmdAddOracleFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	oracle, err := sdk.AccAddressFromBech32(args[0])
+	if err != nil {
+		return err
+	}
+
+	signer := cliCtx.GetFromAddress()
+	msg := types.NewMsgAddOracle(signer, oracle)
+
+	err = msg.ValidateBasic()
+	if err != nil {
+		return err
+	}
+
+	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 }

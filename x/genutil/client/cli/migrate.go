@@ -44,26 +44,28 @@ func MigrationsListCmd(_ *server.Context, cdc *codec.Codec) *cobra.Command {
 		Use:   "migrations-list",
 		Short: "Lists all the available migrations",
 		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-
-			var migrations []string
-			for migration := range migrationMap {
-				migrations = append(migrations, migration)
-			}
-
-			sort.Strings(migrations)
-			for _, m := range migrations {
-				fmt.Println(m)
-			}
-
-			return nil
-		},
+		RunE:  migrationListCmdFunc,
 	}
 
 	cmd.Flags().String(flagGenesisTime, "", "Override genesis_time with this flag")
 	cmd.Flags().String(flagChainID, "", "Override chain_id with this flag")
 
 	return cmd
+}
+
+func migrationListCmdFunc(cmd *cobra.Command, args []string) error {
+
+	var migrations []string
+	for migration := range migrationMap {
+		migrations = append(migrations, migration)
+	}
+
+	sort.Strings(migrations)
+	for _, m := range migrations {
+		fmt.Println(m)
+	}
+
+	return nil
 }
 
 func MigrateGenesisCmd(_ *server.Context, cdc *codec.Codec) *cobra.Command {
@@ -90,53 +92,7 @@ $ %s migrate v1.2.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --gen
 `, version.ServerName, version.ServerName, version.ServerName),
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			target := args[0]
-			importGenesis := args[1]
-
-			genDoc, err := types.GenesisDocFromFile(importGenesis)
-			if err != nil {
-				return err
-			}
-
-			var initialState extypes.AppMap
-			cdc.MustUnmarshalJSON(genDoc.AppState, &initialState)
-
-			migrations := migrationMap[target]
-			if migrations == nil {
-				return fmt.Errorf("unknown migration function version: %s", target)
-			}
-
-			newGenState := initialState
-			for _, migration := range migrations {
-				newGenState = migration(newGenState)
-			}
-
-			genDoc.AppState = cdc.MustMarshalJSON(newGenState)
-
-			genesisTime := cmd.Flag(flagGenesisTime).Value.String()
-			if genesisTime != "" {
-				var t time.Time
-
-				err := t.UnmarshalText([]byte(genesisTime))
-				if err != nil {
-					return err
-				}
-
-				genDoc.GenesisTime = t
-			}
-
-			chainID := cmd.Flag(flagChainID).Value.String()
-			if chainID != "" {
-				genDoc.ChainID = chainID
-			}
-
-			out, err := cdc.MarshalJSONIndent(genDoc, "", "  ")
-			if err != nil {
-				return err
-			}
-
-			fmt.Println(string(sdk.MustSortJSON(out)))
-			return nil
+			return migrateGenesisCmdFunc(cmd, args, cdc)
 		},
 	}
 
@@ -144,4 +100,54 @@ $ %s migrate v1.2.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --gen
 	cmd.Flags().String(flagChainID, "", "Override chain_id with this flag")
 
 	return cmd
+}
+
+func migrateGenesisCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	target := args[0]
+	importGenesis := args[1]
+
+	genDoc, err := types.GenesisDocFromFile(importGenesis)
+	if err != nil {
+		return err
+	}
+
+	var initialState extypes.AppMap
+	cdc.MustUnmarshalJSON(genDoc.AppState, &initialState)
+
+	migrations := migrationMap[target]
+	if migrations == nil {
+		return fmt.Errorf("unknown migration function version: %s", target)
+	}
+
+	newGenState := initialState
+	for _, migration := range migrations {
+		newGenState = migration(newGenState)
+	}
+
+	genDoc.AppState = cdc.MustMarshalJSON(newGenState)
+
+	genesisTime := cmd.Flag(flagGenesisTime).Value.String()
+	if genesisTime != "" {
+		var t time.Time
+
+		err := t.UnmarshalText([]byte(genesisTime))
+		if err != nil {
+			return err
+		}
+
+		genDoc.GenesisTime = t
+	}
+
+	chainID := cmd.Flag(flagChainID).Value.String()
+	if chainID != "" {
+		genDoc.ChainID = chainID
+	}
+
+	out, err := cdc.MarshalJSONIndent(genDoc, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(sdk.MustSortJSON(out)))
+	return nil
 }

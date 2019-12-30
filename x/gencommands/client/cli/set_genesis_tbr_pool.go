@@ -13,54 +13,58 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 )
 
-// SetGenesisVbrPoolAmount returns set-genesis-tbr-pool-amount cobra Command.
-func SetGenesisVbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
+// SetGenesisVbrPoolAmountCmd returns set-genesis-tbr-pool-amount cobra Command.
+func SetGenesisVbrPoolAmountCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-genesis-vbr-pool-amount [amount]",
 		Short: "Sets the given amount as the initial VBR pool inside genesis.json",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(_ *cobra.Command, args []string) error {
-			config := ctx.Config
-			config.SetRoot(viper.GetString(cli.HomeFlag))
-
-			coins, err := sdk.ParseCoins(args[0])
-			if err != nil {
-				return err
-			}
-
-			if coins.Len() > 1 {
-				return errors.New("cannot have multiple coins inside the VBR pool")
-			}
-
-			// retrieve the app state
-			genFile := config.GenesisFile()
-			appState, genDoc, err := genutil.GenesisStateFromGenFile(cdc, genFile)
-			if err != nil {
-				return err
-			}
-
-			// set pool amount into the app state
-			var genState vbr.GenesisState
-			cdc.MustUnmarshalJSON(appState[vbr.ModuleName], &genState)
-			genState.PoolAmount = sdk.NewDecCoins(coins)
-
-			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[vbr.ModuleName] = genesisStateBz
-
-			appStateJSON, err := cdc.MarshalJSON(appState)
-			if err != nil {
-				return err
-			}
-
-			// export app state
-			genDoc.AppState = appStateJSON
-
-			return genutil.ExportGenesisFile(genDoc, genFile)
+		RunE: func(cm *cobra.Command, args []string) error {
+			return setGenesisVbrPoolAmountCmdFunc(cm, args, ctx, cdc)
 		},
 	}
 
 	cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
 	cmd.Flags().String(flagClientHome, defaultClientHome, "client's home directory")
 	return cmd
+}
+
+func setGenesisVbrPoolAmountCmdFunc(_ *cobra.Command, args []string, ctx *server.Context, cdc *codec.Codec) error {
+	config := ctx.Config
+	config.SetRoot(viper.GetString(cli.HomeFlag))
+
+	coins, err := sdk.ParseCoins(args[0])
+	if err != nil {
+		return err
+	}
+
+	if coins.Len() > 1 {
+		return errors.New("cannot have multiple coins inside the VBR pool")
+	}
+
+	// retrieve the app state
+	genFile := config.GenesisFile()
+	appState, genDoc, err := genutil.GenesisStateFromGenFile(cdc, genFile)
+	if err != nil {
+		return err
+	}
+
+	// set pool amount into the app state
+	var genState vbr.GenesisState
+	cdc.MustUnmarshalJSON(appState[vbr.ModuleName], &genState)
+	genState.PoolAmount = sdk.NewDecCoins(coins)
+
+	genesisStateBz := cdc.MustMarshalJSON(genState)
+	appState[vbr.ModuleName] = genesisStateBz
+
+	appStateJSON, err := cdc.MarshalJSON(appState)
+	if err != nil {
+		return err
+	}
+
+	// export app state
+	genDoc.AppState = appStateJSON
+
+	return genutil.ExportGenesisFile(genDoc, genFile)
 }
