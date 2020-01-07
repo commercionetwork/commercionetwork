@@ -39,8 +39,8 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keep
 }
 
 // storageForAddr returns a string representing the KVStore storage key for an addr.
-func storageForAddr(addr sdk.AccAddress) []byte {
-	return []byte(types.MembershipsStorageKey + addr.String())
+func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
+	return append([]byte(types.MembershipsStorageKey), k.Cdc.MustMarshalBinaryBare(addr)...)
 }
 
 // BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
@@ -77,7 +77,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	store := ctx.KVStore(k.StoreKey)
 
-	staddr := storageForAddr(user)
+	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
 		return sdk.ErrUnknownRequest(
 			fmt.Sprintf(
@@ -98,13 +98,13 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, sdk.Error) {
 	store := ctx.KVStore(k.StoreKey)
 
-	if !store.Has(storageForAddr(user)) {
+	if !store.Has(k.storageForAddr(user)) {
 		return types.Membership{}, sdk.ErrUnknownRequest(
 			fmt.Sprintf("membership not found for user \"%s\"", user.String()),
 		)
 	}
 
-	membershipRaw := store.Get(storageForAddr(user))
+	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
 	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms.MembershipType)
 	ms.Owner = user
@@ -116,13 +116,13 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) sdk.Error {
 	store := ctx.KVStore(k.StoreKey)
 
-	if !store.Has(storageForAddr(user)) {
+	if !store.Has(k.storageForAddr(user)) {
 		return sdk.ErrUnknownRequest(
 			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
 		)
 	}
 
-	store.Delete(storageForAddr(user))
+	store.Delete(k.storageForAddr(user))
 
 	return nil
 }
@@ -144,6 +144,7 @@ func (k Keeper) GetMembershipsSet(ctx sdk.Context) (types.Memberships, error) {
 				fmt.Sprintf("found membership with invalid address: \"%s\"", rawAddress),
 			)
 		}
+
 		membership := ""
 		k.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &membership)
 		ms = append(ms, types.Membership{
@@ -153,6 +154,31 @@ func (k Keeper) GetMembershipsSet(ctx sdk.Context) (types.Memberships, error) {
 	}
 
 	return ms, nil
+}
+
+// GetMembershipIterator returns an Iterator for all the memberships stored.
+func (k Keeper) MembershipIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
+}
+
+// ExtractMembership extracts a Membership struct from key and value retrieved
+// from MembershipIterator
+func (k Keeper) ExtractMembership(key []byte, value []byte) types.Membership {
+	rawAddr := key[len(types.MembershipsStorageKey):]
+
+	var addr sdk.AccAddress
+	var m string
+
+	k.Cdc.MustUnmarshalBinaryBare(rawAddr, &addr)
+	k.Cdc.MustUnmarshalBinaryBare(value, &m)
+
+	return types.Membership{
+		Owner:          addr,
+		MembershipType: m,
+	}
+
 }
 
 // GetStableCreditsDenom returns the denom that must be used when referring to stable credits
