@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -125,35 +124,6 @@ func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) sdk.Error
 	store.Delete(k.storageForAddr(user))
 
 	return nil
-}
-
-// Get GetMembershipsSet returns the list of all the memberships
-// that have been minted and are currently stored inside the store
-func (k Keeper) GetMembershipsSet(ctx sdk.Context) (types.Memberships, error) {
-	store := ctx.KVStore(k.StoreKey)
-
-	ms := types.Memberships{}
-
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		rawAddress := strings.TrimPrefix(string(iterator.Key()), types.MembershipsStorageKey)
-		address, err := sdk.AccAddressFromBech32(rawAddress)
-		if err != nil {
-			return types.Memberships{}, sdk.ErrUnknownRequest(
-				fmt.Sprintf("found membership with invalid address: \"%s\"", rawAddress),
-			)
-		}
-
-		membership := ""
-		k.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &membership)
-		ms = append(ms, types.Membership{
-			MembershipType: membership,
-			Owner:          address,
-		})
-	}
-
-	return ms, nil
 }
 
 // GetMembershipIterator returns an Iterator for all the memberships stored.

@@ -16,12 +16,10 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		// get all the users with membership
-		users, err := k.GetMembershipsSet(ctx)
-		if err != nil {
-			panic(err)
-		}
-
-		for _, user := range users {
+		i := k.MembershipIterator(ctx)
+		defer i.Close()
+		for ; i.Valid(); i.Next() {
+			user := k.ExtractMembership(i.Key(), i.Value())
 			credentials := k.GetUserCredentials(ctx, user.Owner)
 
 			// check that the user has been invited

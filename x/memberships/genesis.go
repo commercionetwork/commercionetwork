@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -69,9 +71,12 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	ms, err := keeper.GetMembershipsSet(ctx)
-	if err != nil {
-		panic(err)
+	// create the Memberships set
+	var ms types.Memberships
+	i := keeper.MembershipIterator(ctx)
+	defer i.Close()
+	for ; i.Valid(); i.Next() {
+		ms = append(ms, keeper.ExtractMembership(i.Key(), i.Value()))
 	}
 
 	return GenesisState{
