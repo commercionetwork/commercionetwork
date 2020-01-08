@@ -105,12 +105,13 @@ func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res 
 		User: address,
 	}
 
-	// TODO: can we invert this flow to use the err != nil convention?
 	// Search the membership
-	if membership, err := keeper.GetMembership(ctx, address); err == nil {
-		result.MembershipType = membership.MembershipType
+	membership, err := keeper.GetMembership(ctx, address)
+	if err != nil {
+		return nil, err
 	}
 
+	result.MembershipType = membership.MembershipType
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, result)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
