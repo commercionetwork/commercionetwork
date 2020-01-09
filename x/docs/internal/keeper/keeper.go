@@ -331,9 +331,15 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	marshaledRecepit := keeper.cdc.MustMarshalBinaryBare(receipt)
 
 	// Store the receipt as sent
+	if store.Has(sentReceiptsIdsStoreKey) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Receipt's UUID already present: %s", receipt.UUID))
+	}
 	store.Set(sentReceiptsIdsStoreKey, marshaledRecepit)
 
 	// Store the receipt as received
+	if store.Has(receivedReceiptIdsStoreKey) {
+		return sdk.ErrUnknownRequest(fmt.Sprintf("Receipt's UUID already present: %s", receipt.UUID))
+	}
 	store.Set(receivedReceiptIdsStoreKey, marshaledRecepit)
 
 	// Store the receipt
