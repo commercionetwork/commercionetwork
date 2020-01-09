@@ -40,9 +40,24 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
-	receivedResult, err := keeper.GetUserReceivedDocuments(ctx, address)
-	if err != nil {
-		return nil, err
+	ri := keeper.UserReceivedDocumentsIterator(ctx, address)
+	defer ri.Close()
+
+	receivedResult := []types.Document{}
+	for ; ri.Valid(); ri.Next() {
+		documentUUID := string(ri.Value())
+
+		document, err := keeper.GetDocumentByID(ctx, documentUUID)
+		if err != nil {
+			return nil, sdk.ErrUnknownRequest(
+				fmt.Sprintf(
+					"could not find document with UUID %s even though the user has an associated received document",
+					documentUUID,
+				),
+			)
+		}
+
+		receivedResult = append(receivedResult, document)
 	}
 
 	if receivedResult == nil {
@@ -91,17 +106,23 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 		uuid = path[1]
 	}
 
-	var receipts []types.DocumentReceipt
+	receipts := []types.DocumentReceipt{}
 
-	//If user wants all his receipts
-	if uuid == "" {
-		receipts = keeper.GetUserReceivedReceipts(ctx, address)
-	} else {
-		receipts = keeper.GetUserReceivedReceiptsForDocument(ctx, address, uuid)
-	}
+	ri := keeper.UserReceivedReceiptsIterator(ctx, address)
+	defer ri.Close()
 
-	if receipts == nil {
-		receipts = make([]types.DocumentReceipt, 0)
+	for ; ri.Valid(); ri.Next() {
+		newReceipt := types.DocumentReceipt{}
+		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &newReceipt)
+
+		if uuid == "" {
+			receipts = append(receipts, newReceipt)
+			continue
+		}
+
+		if newReceipt.DocumentUUID == uuid {
+			receipts = append(receipts, newReceipt)
+		}
 	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
@@ -121,9 +142,16 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 		return nil, sdk.ErrInvalidAddress(addr)
 	}
 
-	receipts := keeper.GetUserSentReceipts(ctx, address)
-	if receipts == nil {
-		receipts = make([]types.DocumentReceipt, 0)
+	receipts := []types.DocumentReceipt{}
+
+	ri := keeper.UserSentReceiptsIterator(ctx, address)
+	defer ri.Close()
+
+	for ; ri.Valid(); ri.Next() {
+		newReceipt := types.DocumentReceipt{}
+		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &newReceipt)
+
+		receipts = append(receipts, newReceipt)
 	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
@@ -140,9 +168,14 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 // ----------------------------------
 
 func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
-	schemes := keeper.GetSupportedMetadataSchemes(ctx)
-	if schemes == nil {
-		schemes = make([]types.MetadataSchema, 0)
+	si := keeper.SupportedMetadataSchemesIterator(ctx)
+	defer si.Close()
+
+	schemes := []types.MetadataSchema{}
+	for ; si.Valid(); si.Next() {
+		var ms types.MetadataSchema
+		keeper.cdc.MustUnmarshalBinaryBare(si.Value(), &ms)
+		schemes = append(schemes, ms)
 	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &schemes)
@@ -159,9 +192,14 @@ func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) (
 // -----------------------------------------
 
 func queryTrustedMetadataProposers(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
-	proposers := keeper.GetTrustedSchemaProposers(ctx)
-	if proposers == nil {
-		proposers = make([]sdk.AccAddress, 0)
+	pi := keeper.TrustedSchemaProposersIterator(ctx)
+	defer pi.Close()
+
+	proposers := []sdk.AccAddress{}
+	for ; pi.Valid(); pi.Next() {
+		aa := sdk.AccAddress{}
+		keeper.cdc.MustUnmarshalBinaryBare(pi.Value(), &aa)
+		proposers = append(proposers, aa)
 	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &proposers)
