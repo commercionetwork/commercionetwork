@@ -35,26 +35,50 @@ func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, cdc *codec.Code
 // --- Metadata schemes
 // ----------------------
 
-// AddSupportedMetadataScheme allows to add the given metadata scheme definition as a supported metadata
+func (keeper Keeper) metadataSchemaKey(ms types.MetadataSchema) []byte {
+	return append([]byte(types.SupportedMetadataSchemesStoreKey), []byte(ms.SchemaURI)...)
+}
+
+func (keeper Keeper) metadataSchemaProposerKey(addr sdk.AccAddress) []byte {
+	return append([]byte(types.MetadataSchemaProposersStoreKey), keeper.cdc.MustMarshalBinaryBare(addr)...)
+}
+
+func (keeper Keeper) SupportedMetadataSchemesIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, []byte(types.SupportedMetadataSchemesStoreKey))
+}
+
+// AddSupportedMetadataScheme allows to add or update the given metadata scheme definition as a supported metadata
 // scheme that will be accepted into document sending transactions
 func (keeper Keeper) AddSupportedMetadataScheme(ctx sdk.Context, metadataSchema types.MetadataSchema) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	// Read and update
-	schemes := keeper.GetSupportedMetadataSchemes(ctx)
-	if schemes, success := schemes.AppendIfMissing(metadataSchema); success {
-		store.Set([]byte(types.SupportedMetadataSchemesStoreKey), keeper.cdc.MustMarshalBinaryBare(&schemes))
-	}
+	msk := keeper.metadataSchemaKey(metadataSchema)
+
+	store.Set(msk, keeper.cdc.MustMarshalBinaryBare(metadataSchema))
 }
 
 // IsMetadataSchemeTypeSupported returns true iff the given metadata scheme type is supported
 // as an official one
 func (keeper Keeper) IsMetadataSchemeTypeSupported(ctx sdk.Context, metadataSchemaType string) bool {
-	schemes := keeper.GetSupportedMetadataSchemes(ctx)
-	return schemes.IsTypeSupported(metadataSchemaType)
+	i := keeper.SupportedMetadataSchemesIterator(ctx)
+	defer i.Close()
+
+	for ; i.Valid(); i.Next() {
+		var ms types.MetadataSchema
+		keeper.cdc.MustUnmarshalBinaryBare(i.Value(), &ms)
+
+		if ms.Type == metadataSchemaType {
+			return true
+		}
+	}
+
+	return false
 }
 
 // GetSupportedMetadataSchemes returns the list of all the officially supported metadata schemes
+// TODO: remove
 func (keeper Keeper) GetSupportedMetadataSchemes(ctx sdk.Context) types.MetadataSchemes {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -71,24 +95,23 @@ func (keeper Keeper) GetSupportedMetadataSchemes(ctx sdk.Context) types.Metadata
 
 // AddTrustedSchemaProposer adds the given proposer to the list of trusted addresses
 // that can propose new metadata schemes as officially recognized
+// TODO: check with alessio
 func (keeper Keeper) AddTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAddress) {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	// Read and update
-	proposers := keeper.GetTrustedSchemaProposers(ctx)
-	if proposers, success := proposers.AppendIfMissing(proposer); success {
-		proposersBz := keeper.cdc.MustMarshalBinaryBare(&proposers)
-		store.Set([]byte(types.MetadataSchemaProposersStoreKey), proposersBz)
-	}
+	store.Set(keeper.metadataSchemaProposerKey(proposer), keeper.cdc.MustMarshalBinaryBare(proposer))
 }
 
 // IsTrustedSchemaProposer returns true iff the given proposer is a trusted one
 func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAddress) bool {
-	return keeper.GetTrustedSchemaProposers(ctx).Contains(proposer)
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return store.Has(keeper.metadataSchemaProposerKey(proposer))
 }
 
 // GetTrustedSchemaProposers returns the list of all the trusted addresses
 // that can propose new metadata schemes as officially recognized
+// TODO: remove
 func (keeper Keeper) GetTrustedSchemaProposers(ctx sdk.Context) ctypes.Addresses {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -108,14 +131,26 @@ func (keeper Keeper) getDocumentStoreKey(uuid string) []byte {
 
 // getSentDocumentsIdsStoreKey returns the byte representation of the key that should be used when updating the
 // list of documents that the given user has sent
-func (keeper Keeper) getSentDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
-	return []byte(types.SentDocumentsPrefix + user.String())
+func (keeper Keeper) getSentDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID string) []byte {
+	userPart := append(keeper.cdc.MustMarshalBinaryBare(user), []byte(":"+documentUUID)...)
+
+	return append([]byte(types.SentDocumentsPrefix), userPart...)
 }
 
 // getReceivedDocumentsIdsStoreKey returns the byte representation of the key that should be used when updating the
 // list of documents that the given user has received
+func (keeper Keeper) getReceivedDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID string) []byte {
+	userPart := append(keeper.cdc.MustMarshalBinaryBare(user), []byte(":"+documentUUID)...)
+
+	return append([]byte(types.ReceivedDocumentsPrefix), userPart...)
+}
+
 func (keeper Keeper) getReceivedDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
-	return []byte(types.ReceivedDocumentsPrefix + user.String())
+	return append([]byte(types.ReceivedDocumentsPrefix), keeper.cdc.MustMarshalBinaryBare(user)...)
+}
+
+func (keeper Keeper) getSentDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
+	return append([]byte(types.SentDocumentsPrefix), keeper.cdc.MustMarshalBinaryBare(user)...)
 }
 
 // SaveDocument allows the sharing of a document
@@ -135,23 +170,17 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) sdk.
 	store.Set(keeper.getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshalBinaryBare(&document))
 
 	// Store the document as sent by the sender
-	sentDocumentsStoreKey := keeper.getSentDocumentsIdsStoreKey(document.Sender)
 
-	var sentDocsList types.DocumentIDs
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(sentDocumentsStoreKey), &sentDocsList)
-	if sentDocsList, success := sentDocsList.AppendIfMissing(document.UUID); success {
-		store.Set(sentDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(&sentDocsList))
-	}
+	// Idea: SentDocumentsPrefix + address + document.UUID -> document.UUID
+	sentDocumentsStoreKey := keeper.getSentDocumentsIdsUUIDStoreKey(document.Sender, document.UUID)
+
+	store.Set(sentDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(document.UUID))
 
 	// Store the documents as received for all the recipients
 	for _, recipient := range document.Recipients {
-		receivedDocumentsStoreKey := keeper.getReceivedDocumentsIdsStoreKey(recipient)
+		receivedDocumentsStoreKey := keeper.getReceivedDocumentsIdsUUIDStoreKey(recipient, document.UUID)
 
-		var recipientDocsList types.DocumentIDs
-		keeper.cdc.MustUnmarshalBinaryBare(store.Get(receivedDocumentsStoreKey), &recipientDocsList)
-		if recipientDocsList, success := recipientDocsList.AppendIfMissing(document.UUID); success {
-			store.Set(receivedDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(&recipientDocsList))
-		}
+		store.Set(receivedDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(document.UUID))
 	}
 
 	return nil
@@ -171,7 +200,14 @@ func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document
 	return document, true
 }
 
+func (keeper Keeper) UserReceivedDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, keeper.getReceivedDocumentsIdsStoreKey(user))
+}
+
 // GetUserReceivedDocuments returns a list of all the documents that has been received from a user
+// TODO: remove
 func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, sdk.Error) {
 	store := ctx.KVStore(keeper.StoreKey)
 	receivedDocumentsStoreKey := keeper.getReceivedDocumentsIdsStoreKey(user)
@@ -192,6 +228,12 @@ func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddre
 	}
 
 	return docs, nil
+}
+
+func (keeper Keeper) UserSentDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, keeper.getSentDocumentsIdsStoreKey(user))
 }
 
 // GetUserSentDocuments returns a list of all documents sent by user
@@ -233,6 +275,12 @@ func (keeper Keeper) GetDocuments(ctx sdk.Context) types.Documents {
 	return documents
 }
 
+func (keeper Keeper) DocumentsIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, []byte(types.DocumentStorePrefix))
+}
+
 // ----------------------
 // --- Receipts
 // ----------------------
@@ -246,13 +294,27 @@ func (keeper Keeper) getReceiptStoreKey(id string) []byte {
 // getSentReceiptsIdsStoreKey returns the bytes representation of the key that should be used when
 // updating the list of receipts ids that the given user has sent
 func (keeper Keeper) getSentReceiptsIdsStoreKey(user sdk.AccAddress) []byte {
-	return []byte(types.SentDocumentsReceiptsPrefix + user.String())
+	return append([]byte(types.SentDocumentsReceiptsPrefix), keeper.cdc.MustMarshalBinaryBare(user)...)
 }
 
 // getReceivedReceiptsIdsStoreKey returns the bytes representation of the key that should be used when
 // updating the list of receipts ids that the given user has received
 func (keeper Keeper) getReceivedReceiptsIdsStoreKey(user sdk.AccAddress) []byte {
-	return []byte(types.ReceivedDocumentsReceiptsPrefix + user.String())
+	return append([]byte(types.ReceivedDocumentsReceiptsPrefix), keeper.cdc.MustMarshalBinaryBare(user)...)
+}
+
+func (keeper Keeper) getSentReceiptsIdsUUIDStoreKey(user sdk.AccAddress, recepitUUID string) []byte {
+	recepitPart := append(keeper.cdc.MustMarshalBinaryBare(user), []byte(":"+recepitUUID)...)
+
+	return append([]byte(types.SentDocumentsReceiptsPrefix), recepitPart...)
+}
+
+// getReceivedReceiptsIdsStoreKey returns the bytes representation of the key that should be used when
+// updating the list of receipts ids that the given user has received
+func (keeper Keeper) getReceivedReceiptsIdsUUIDStoreKey(user sdk.AccAddress, recepitUUID string) []byte {
+	recepitPart := append(keeper.cdc.MustMarshalBinaryBare(user), []byte(":"+recepitUUID)...)
+
+	return append([]byte(types.ReceivedDocumentsReceiptsPrefix), recepitPart...)
 }
 
 // SaveReceipt allows to properly store the given receipt
@@ -263,29 +325,19 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	}
 
 	store := ctx.KVStore(keeper.StoreKey)
-	sentReceiptsIdsStoreKey := keeper.getSentReceiptsIdsStoreKey(receipt.Sender)
-	receivedReceiptIdsStoreKey := keeper.getReceivedReceiptsIdsStoreKey(receipt.Recipient)
+	sentReceiptsIdsStoreKey := keeper.getSentReceiptsIdsUUIDStoreKey(receipt.Sender, receipt.UUID)
+	receivedReceiptIdsStoreKey := keeper.getReceivedReceiptsIdsUUIDStoreKey(receipt.Recipient, receipt.UUID)
+
+	marshaledRecepit := keeper.cdc.MustMarshalBinaryBare(receipt)
 
 	// Store the receipt as sent
-	var sentReceiptsIds types.DocumentReceiptsIDs
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(sentReceiptsIdsStoreKey), &sentReceiptsIds)
-	if newIds, success := sentReceiptsIds.AppendIfMissing(receipt.UUID); success {
-		store.Set(sentReceiptsIdsStoreKey, keeper.cdc.MustMarshalBinaryBare(&newIds))
-	} else {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Receipt's UUID already present: %s", receipt.UUID))
-	}
+	store.Set(sentReceiptsIdsStoreKey, marshaledRecepit)
 
 	// Store the receipt as received
-	var receivedReceiptsIds types.DocumentReceiptsIDs
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(receivedReceiptIdsStoreKey), &receivedReceiptsIds)
-	if newIds, success := receivedReceiptsIds.AppendIfMissing(receipt.UUID); success {
-		store.Set(receivedReceiptIdsStoreKey, keeper.cdc.MustMarshalBinaryBare(&newIds))
-	} else {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Receipt's UUID already present: %s", receipt.UUID))
-	}
+	store.Set(receivedReceiptIdsStoreKey, marshaledRecepit)
 
 	// Store the receipt
-	store.Set(keeper.getReceiptStoreKey(receipt.UUID), keeper.cdc.MustMarshalBinaryBare(&receipt))
+	store.Set(keeper.getReceiptStoreKey(receipt.UUID), marshaledRecepit)
 	return nil
 }
 
@@ -301,6 +353,12 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	var receipt types.DocumentReceipt
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(key), &receipt)
 	return receipt, true
+}
+
+func (keeper Keeper) UserReceivedReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, keeper.getReceivedReceiptsIdsStoreKey(user))
 }
 
 // GetUserReceivedReceipts returns the list of all the receipts that the given user has received
@@ -322,12 +380,14 @@ func (keeper Keeper) GetUserReceivedReceipts(ctx sdk.Context, user sdk.AccAddres
 
 // GetUserReceivedReceiptsForDocument returns the receipts that the given recipient has received for the document having the
 // given uuid
+// TODO: find a way to rework this
 func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipient sdk.AccAddress, docUUID string) types.DocumentReceipts {
 	receivedReceipts := keeper.GetUserReceivedReceipts(ctx, recipient)
 	return receivedReceipts.FindByDocumentID(docUUID)
 }
 
 // GetUserSentDocuments returns a list of all documents sent by user
+// TODO: remove
 func (keeper Keeper) GetUserSentReceipts(ctx sdk.Context, user sdk.AccAddress) types.DocumentReceipts {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -344,7 +404,14 @@ func (keeper Keeper) GetUserSentReceipts(ctx sdk.Context, user sdk.AccAddress) t
 	return receipts
 }
 
+func (keeper Keeper) UserSentReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, keeper.getSentReceiptsIdsStoreKey(user))
+}
+
 // GetReceipts returns all the receipts that are stored inside the current context
+// TODO: remove
 func (keeper Keeper) GetReceipts(ctx sdk.Context) types.DocumentReceipts {
 	store := ctx.KVStore(keeper.StoreKey)
 
@@ -368,4 +435,11 @@ func (keeper Keeper) GetReceipts(ctx sdk.Context) types.DocumentReceipts {
 	}
 
 	return receipts
+}
+
+func (keeper Keeper) ReceiptsIterators(ctx sdk.Context) (sdk.Iterator, sdk.Iterator) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, []byte(types.SentDocumentsReceiptsPrefix)),
+		sdk.KVStorePrefixIterator(store, []byte(types.ReceivedDocumentsReceiptsPrefix))
 }
