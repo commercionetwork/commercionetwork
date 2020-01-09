@@ -87,6 +87,12 @@ func (keeper Keeper) SupportedMetadataSchemesIterator(ctx sdk.Context) sdk.Itera
 	return sdk.KVStorePrefixIterator(store, []byte(types.SupportedMetadataSchemesStoreKey))
 }
 
+func (keeper Keeper) TrustedSchemaProposersIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	return sdk.KVStorePrefixIterator(store, []byte(types.MetadataSchemaProposersStoreKey))
+}
+
 // ----------------------
 // --- Documents
 // ----------------------
@@ -99,7 +105,7 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) sdk.
 	}
 
 	// Check any existing document
-	if _, found := keeper.GetDocumentByID(ctx, document.UUID); found {
+	if _, err := keeper.GetDocumentByID(ctx, document.UUID); err != nil {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Document with uuid %s already present", document.UUID))
 	}
 
@@ -125,17 +131,17 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) sdk.
 }
 
 // GetDocumentByID returns the document having the given id, or false if no document has been found
-func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, bool) {
+func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, error) {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	documentKey := getDocumentStoreKey(id)
 	if !store.Has(documentKey) {
-		return types.Document{}, false
+		return types.Document{}, fmt.Errorf("cannot find document with uuid %s", id)
 	}
 
 	var document types.Document
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentKey), &document)
-	return document, true
+	return document, nil
 }
 
 func (keeper Keeper) UserReceivedDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
@@ -247,31 +253,6 @@ func (keeper Keeper) UserReceivedReceiptsIterator(ctx sdk.Context, user sdk.AccA
 	store := ctx.KVStore(keeper.StoreKey)
 
 	return sdk.KVStorePrefixIterator(store, getReceivedReceiptsIdsStoreKey(user))
-}
-
-// GetUserReceivedReceipts returns the list of all the receipts that the given user has received
-func (keeper Keeper) GetUserReceivedReceipts(ctx sdk.Context, user sdk.AccAddress) types.DocumentReceipts {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	var ids types.DocumentReceiptsIDs
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(getReceivedReceiptsIdsStoreKey(user)), &ids)
-
-	receipts := types.DocumentReceipts{}
-	for _, id := range ids {
-		if receipt, found := keeper.GetReceiptByID(ctx, id); found {
-			receipts, _ = receipts.AppendIfMissing(receipt)
-		}
-	}
-
-	return receipts
-}
-
-// GetUserReceivedReceiptsForDocument returns the receipts that the given recipient has received for the document having the
-// given uuid
-// TODO: find a way to rework this
-func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipient sdk.AccAddress, docUUID string) types.DocumentReceipts {
-	receivedReceipts := keeper.GetUserReceivedReceipts(ctx, recipient)
-	return receivedReceipts.FindByDocumentID(docUUID)
 }
 
 func (keeper Keeper) UserSentReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
