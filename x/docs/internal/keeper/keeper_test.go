@@ -14,21 +14,16 @@ import (
 // ----------------------------------
 
 func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
+	_, ctx, k := SetupTestInput()
 
 	schema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"}
 	k.AddSupportedMetadataScheme(ctx, schema)
 
-	var stored types.MetadataSchemes
-	storedBz := store.Get([]byte(types.SupportedMetadataSchemesStoreKey))
-	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
-
-	assert.Equal(t, 1, len(stored))
-	assert.Contains(t, stored, schema)
+	ret := k.IsMetadataSchemeTypeSupported(ctx, schema.Type)
+	assert.True(t, ret)
 }
 
+// TODO: why this test exists?
 func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	//Setup the store
@@ -59,20 +54,19 @@ func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
 	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "non-existent"))
 }
 
+// TODO: why this test exists?
 func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+	_, ctx, k := SetupTestInput()
 
 	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
-	existing := []types.MetadataSchema{existingSchema}
-	existingBz := cdc.MustMarshalBinaryBare(&existing)
-	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), existingBz)
+	k.AddSupportedMetadataScheme(ctx, existingSchema)
 
 	assert.True(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
 	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
 	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "any-schema"))
 }
 
+// TODO: this one should go, GetSupportedMetadataSchemes will be gone
 func TestKeeper_GetSupportedMetadataSchemes_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
@@ -81,6 +75,7 @@ func TestKeeper_GetSupportedMetadataSchemes_EmptyList(t *testing.T) {
 	assert.Empty(t, result)
 }
 
+// TODO: this one should go, GetSupportedMetadataSchemes will be gone
 func TestKeeper_GetSupportedMetadataSchemes_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
@@ -100,19 +95,14 @@ func TestKeeper_GetSupportedMetadataSchemes_ExistingList(t *testing.T) {
 // ----------------------------------
 
 func TestKeeper_AddTrustedSchemaProposer_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+	_, ctx, k := SetupTestInput()
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)
-
-	var proposers []sdk.AccAddress
-	proposersBz := store.Get([]byte(types.MetadataSchemaProposersStoreKey))
-	cdc.MustUnmarshalBinaryBare(proposersBz, &proposers)
-
-	assert.Equal(t, 1, len(proposers))
-	assert.Contains(t, proposers, TestingSender)
+	ret := k.IsTrustedSchemaProposer(ctx, TestingSender)
+	assert.True(t, ret)
 }
 
+// TODO: why this test exists?
 func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
@@ -140,17 +130,15 @@ func TestKeeper_IsTrustedSchemaProposer_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+	_, ctx, k := SetupTestInput()
 
-	existing := []sdk.AccAddress{TestingSender}
-	proposersBz := cdc.MustMarshalBinaryBare(&existing)
-	store.Set([]byte(types.MetadataSchemaProposersStoreKey), proposersBz)
+	k.AddTrustedSchemaProposer(ctx, TestingSender)
 
 	assert.True(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
 	assert.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
 }
 
+// TODO: this one should go, GetTrustedSchemaProposers will be gone
 func TestKeeper_GetTrustedSchemaProposers_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
@@ -159,6 +147,7 @@ func TestKeeper_GetTrustedSchemaProposers_EmptyList(t *testing.T) {
 	assert.Empty(t, stored)
 }
 
+// TODO: this one should go, GetTrustedSchemaProposers will be gone
 func TestKeeper_GetTrustedSchemaProposers_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
@@ -184,22 +173,20 @@ func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
 	assert.Nil(t, err)
 
 	docsBz := store.Get(k.getDocumentStoreKey(TestingDocument.UUID))
-	sentDocsBz := store.Get(k.getSentDocumentsIdsStoreKey(TestingSender))
-	receivedDocsBz := store.Get(k.getReceivedDocumentsIdsStoreKey(TestingRecipient))
+	sentDocsBz := store.Get(k.getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
+	receivedDocsBz := store.Get(k.getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
 
 	var stored types.Document
 	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
 	assert.Equal(t, stored, TestingDocument)
 
-	var sentDocs, receivedDocs types.DocumentIDs
+	var sentDocs, receivedDocs string
 	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
 	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 
-	assert.Equal(t, 1, len(sentDocs))
-	assert.Contains(t, sentDocs, TestingDocument.UUID)
+	assert.Equal(t, TestingDocument.UUID, sentDocs)
 
-	assert.Equal(t, 1, len(receivedDocs))
-	assert.Contains(t, receivedDocs, TestingDocument.UUID)
+	assert.Equal(t, TestingDocument.UUID, receivedDocs)
 }
 
 func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
@@ -208,25 +195,8 @@ func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
 
 	store.Set(k.getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
 
-	documentsIds := types.DocumentIDs{TestingDocument.UUID}
-	store.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentsIds))
-	store.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentsIds))
-
 	err := k.SaveDocument(ctx, TestingDocument)
 	assert.NotNil(t, err)
-
-	sentDocsBz := store.Get(k.getSentDocumentsIdsStoreKey(TestingSender))
-	receivedDocsBz := store.Get(k.getReceivedDocumentsIdsStoreKey(TestingRecipient))
-
-	var sentDocs, receivedDocs types.DocumentIDs
-	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
-	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
-
-	assert.Equal(t, 1, len(sentDocs))
-	assert.Contains(t, sentDocs, TestingDocument.UUID)
-
-	assert.Equal(t, 1, len(receivedDocs))
-	assert.Contains(t, receivedDocs, TestingDocument.UUID)
 }
 
 func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) {
