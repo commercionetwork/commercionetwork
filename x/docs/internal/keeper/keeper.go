@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -63,18 +62,6 @@ func (keeper Keeper) IsMetadataSchemeTypeSupported(ctx sdk.Context, metadataSche
 	return false
 }
 
-// GetSupportedMetadataSchemes returns the list of all the officially supported metadata schemes
-// TODO: remove
-func (keeper Keeper) GetSupportedMetadataSchemes(ctx sdk.Context) types.MetadataSchemes {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	var schemes types.MetadataSchemes
-	schemesBz := store.Get([]byte(types.SupportedMetadataSchemesStoreKey))
-	keeper.cdc.MustUnmarshalBinaryBare(schemesBz, &schemes)
-
-	return schemes
-}
-
 // ------------------------------
 // --- Metadata schema proposers
 // ------------------------------
@@ -92,18 +79,6 @@ func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAd
 	store := ctx.KVStore(keeper.StoreKey)
 
 	return store.Has(metadataSchemaProposerKey(proposer))
-}
-
-// GetTrustedSchemaProposers returns the list of all the trusted addresses
-// that can propose new metadata schemes as officially recognized
-// TODO: remove
-func (keeper Keeper) GetTrustedSchemaProposers(ctx sdk.Context) ctypes.Addresses {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	var proposers ctypes.Addresses
-	proposersBz := store.Get([]byte(types.MetadataSchemaProposersStoreKey))
-	keeper.cdc.MustUnmarshalBinaryBare(proposersBz, &proposers)
-	return proposers
 }
 
 func (keeper Keeper) SupportedMetadataSchemesIterator(ctx sdk.Context) sdk.Iterator {
@@ -167,30 +142,6 @@ func (keeper Keeper) UserReceivedDocumentsIterator(ctx sdk.Context, user sdk.Acc
 	store := ctx.KVStore(keeper.StoreKey)
 
 	return sdk.KVStorePrefixIterator(store, getReceivedDocumentsIdsStoreKey(user))
-}
-
-// GetUserReceivedDocuments returns a list of all the documents that has been received from a user
-// TODO: remove
-func (keeper Keeper) GetUserReceivedDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, sdk.Error) {
-	store := ctx.KVStore(keeper.StoreKey)
-	receivedDocumentsStoreKey := getReceivedDocumentsIdsStoreKey(user)
-
-	var receivedDocsIds types.DocumentIDs
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(receivedDocumentsStoreKey), &receivedDocsIds)
-
-	docs := types.Documents{}
-	for _, docUUID := range receivedDocsIds {
-
-		// Read the document
-		var document types.Document
-		documentStoreKey := getDocumentStoreKey(docUUID)
-		keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentStoreKey), &document)
-
-		// Append it to the list
-		docs = docs.AppendIfMissing(document)
-	}
-
-	return docs, nil
 }
 
 func (keeper Keeper) UserSentDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
@@ -323,55 +274,10 @@ func (keeper Keeper) GetUserReceivedReceiptsForDocument(ctx sdk.Context, recipie
 	return receivedReceipts.FindByDocumentID(docUUID)
 }
 
-// GetUserSentDocuments returns a list of all documents sent by user
-// TODO: remove
-func (keeper Keeper) GetUserSentReceipts(ctx sdk.Context, user sdk.AccAddress) types.DocumentReceipts {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	var ids types.DocumentReceiptsIDs
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(getSentReceiptsIdsStoreKey(user)), &ids)
-
-	receipts := types.DocumentReceipts{}
-	for _, id := range ids {
-		if receipt, found := keeper.GetReceiptByID(ctx, id); found {
-			receipts, _ = receipts.AppendIfMissing(receipt)
-		}
-	}
-
-	return receipts
-}
-
 func (keeper Keeper) UserSentReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
 	store := ctx.KVStore(keeper.StoreKey)
 
 	return sdk.KVStorePrefixIterator(store, getSentReceiptsIdsStoreKey(user))
-}
-
-// GetReceipts returns all the receipts that are stored inside the current context
-// TODO: remove
-func (keeper Keeper) GetReceipts(ctx sdk.Context) types.DocumentReceipts {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	receipts := types.DocumentReceipts{}
-
-	// Iterate over just the sent receipts as the received ones are the same but saved in to different places
-	sentReceiptsIterator := sdk.KVStorePrefixIterator(store, []byte(types.SentDocumentsReceiptsPrefix))
-	defer sentReceiptsIterator.Close()
-	for ; sentReceiptsIterator.Valid(); sentReceiptsIterator.Next() {
-		var sentReceipts types.DocumentReceipts
-		keeper.cdc.MustUnmarshalBinaryBare(sentReceiptsIterator.Value(), &sentReceipts)
-		receipts = receipts.AppendAllIfMissing(sentReceipts)
-	}
-
-	receivedReceiptsIterator := sdk.KVStorePrefixIterator(store, []byte(types.ReceivedDocumentsReceiptsPrefix))
-	defer receivedReceiptsIterator.Close()
-	for ; receivedReceiptsIterator.Valid(); receivedReceiptsIterator.Next() {
-		var receivedReceipts types.DocumentReceipts
-		keeper.cdc.MustUnmarshalBinaryBare(receivedReceiptsIterator.Value(), &receivedReceipts)
-		receipts = receipts.AppendAllIfMissing(receivedReceipts)
-	}
-
-	return receipts
 }
 
 func (keeper Keeper) ReceiptsIterators(ctx sdk.Context) (sdk.Iterator, sdk.Iterator) {
