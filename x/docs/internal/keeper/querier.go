@@ -45,7 +45,8 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 
 	receivedResult := []types.Document{}
 	for ; ri.Valid(); ri.Next() {
-		documentUUID := string(ri.Value())
+		documentUUID := ""
+		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &documentUUID)
 
 		document, err := keeper.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
@@ -72,9 +73,25 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 	addr := path[0]
 	address, _ := sdk.AccAddressFromBech32(addr)
 
-	receivedResult, err := keeper.GetUserSentDocuments(ctx, address)
-	if err != nil {
-		return nil, err
+	usdi := keeper.UserSentDocumentsIterator(ctx, address)
+	defer usdi.Close()
+
+	receivedResult := []types.Document{}
+	for ; usdi.Valid(); usdi.Next() {
+		documentUUID := ""
+		keeper.cdc.MustUnmarshalBinaryBare(usdi.Value(), &documentUUID)
+
+		document, err := keeper.GetDocumentByID(ctx, documentUUID)
+		if err != nil {
+			return nil, sdk.ErrUnknownRequest(
+				fmt.Sprintf(
+					"could not find document with UUID %s even though the user has an associated received document",
+					documentUUID,
+				),
+			)
+		}
+
+		receivedResult = append(receivedResult, document)
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
