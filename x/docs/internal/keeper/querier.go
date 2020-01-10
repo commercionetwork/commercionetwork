@@ -60,10 +60,6 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 		receivedResult = append(receivedResult, document)
 	}
 
-	if receivedResult == nil {
-		receivedResult = make([]types.Document, 0)
-	}
-
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
@@ -79,10 +75,6 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 	receivedResult, err := keeper.GetUserSentDocuments(ctx, address)
 	if err != nil {
 		return nil, err
-	}
-
-	if receivedResult == nil {
-		receivedResult = make([]types.Document, 0)
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
