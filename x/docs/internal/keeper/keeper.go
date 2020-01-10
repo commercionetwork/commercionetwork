@@ -81,18 +81,6 @@ func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAd
 	return store.Has(metadataSchemaProposerKey(proposer))
 }
 
-func (keeper Keeper) SupportedMetadataSchemesIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, []byte(types.SupportedMetadataSchemesStoreKey))
-}
-
-func (keeper Keeper) TrustedSchemaProposersIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, []byte(types.MetadataSchemaProposersStoreKey))
-}
-
 // ----------------------
 // --- Documents
 // ----------------------
@@ -105,7 +93,8 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) sdk.
 	}
 
 	// Check any existing document
-	if _, err := keeper.GetDocumentByID(ctx, document.UUID); err != nil {
+	// when err is nil, we found a document with said document.UUID
+	if _, err := keeper.GetDocumentByID(ctx, document.UUID); err == nil {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Document with uuid %s already present", document.UUID))
 	}
 
@@ -144,68 +133,13 @@ func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document
 	return document, nil
 }
 
-func (keeper Keeper) UserReceivedDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, getReceivedDocumentsIdsStoreKey(user))
-}
-
-func (keeper Keeper) UserSentDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, getSentDocumentsIdsStoreKey(user))
-}
-
-// GetUserSentDocuments returns a list of all documents sent by user
-func (keeper Keeper) GetUserSentDocuments(ctx sdk.Context, user sdk.AccAddress) (types.Documents, sdk.Error) {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	var sentDocsIds types.DocumentIDs
-	sentDocsIdsBz := store.Get(getSentDocumentsIdsStoreKey(user))
-	keeper.cdc.MustUnmarshalBinaryBare(sentDocsIdsBz, &sentDocsIds)
-
-	docs := types.Documents{}
-	for _, docUUID := range sentDocsIds {
-
-		// Read the document
-		var document types.Document
-		documentStoreKey := getDocumentStoreKey(docUUID)
-		keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentStoreKey), &document)
-
-		// Append it to the list
-		docs = docs.AppendIfMissing(document)
-	}
-
-	return docs, nil
-}
-
-// GetDocuments returns all the documents stored inside the given context
-func (keeper Keeper) GetDocuments(ctx sdk.Context) types.Documents {
-	store := ctx.KVStore(keeper.StoreKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DocumentStorePrefix))
-
-	documents := types.Documents{}
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var document types.Document
-		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &document)
-		documents = documents.AppendIfMissing(document)
-	}
-
-	return documents
-}
-
-func (keeper Keeper) DocumentsIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, []byte(types.DocumentStorePrefix))
-}
-
 // ----------------------
 // --- Receipts
 // ----------------------
 
 // SaveReceipt allows to properly store the given receipt
+// TODO: we now duplicate a lot of data, since we save each receipt for each UUIDStoreKey used
+// stop doing that, we should just save receipt UUID, and then let the user use GetReceiptByID
 func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt) sdk.Error {
 	// Check the id
 	if len(strings.TrimSpace(receipt.UUID)) == 0 {
@@ -247,23 +181,4 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	var receipt types.DocumentReceipt
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(key), &receipt)
 	return receipt, true
-}
-
-func (keeper Keeper) UserReceivedReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, getReceivedReceiptsIdsStoreKey(user))
-}
-
-func (keeper Keeper) UserSentReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, getSentReceiptsIdsStoreKey(user))
-}
-
-func (keeper Keeper) ReceiptsIterators(ctx sdk.Context) (sdk.Iterator, sdk.Iterator) {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return sdk.KVStorePrefixIterator(store, []byte(types.SentDocumentsReceiptsPrefix)),
-		sdk.KVStorePrefixIterator(store, []byte(types.ReceivedDocumentsReceiptsPrefix))
 }
