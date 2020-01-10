@@ -10,7 +10,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 // -----------------------------
@@ -24,7 +23,7 @@ func Test_handleMsgShareDocument_CustomMetadataSpecs(t *testing.T) {
 	msgShareDocument := types.NewMsgShareDocument(TestingDocument)
 
 	res := handler(ctx, msgShareDocument)
-	require.True(t, res.IsOK())
+	assert.True(t, res.IsOK())
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
@@ -108,12 +107,10 @@ func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
 }
 
 func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
-	signers := []sdk.AccAddress{TestingSender}
 
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.MetadataSchemaProposersStoreKey), cdc.MustMarshalBinaryBare(&signers))
+	k.AddTrustedSchemaProposer(ctx, TestingSender)
 
 	msgAddSupportedMetadataSchema := types.MsgAddSupportedMetadataSchema{
 		Signer: TestingSender,

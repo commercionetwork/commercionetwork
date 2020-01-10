@@ -35,17 +35,18 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 	var querier = NewQuerier(k)
 
 	// Setup the store
-	metadataStore := ctx.KVStore(k.StoreKey)
-	documentIds := types.DocumentIDs{TestingDocument.UUID}
-	metadataStore.Set(k.getReceivedDocumentsIdsStoreKey(TestingRecipient), cdc.MustMarshalBinaryBare(&documentIds))
-	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
+	err := k.SaveDocument(ctx, TestingDocument)
+	assert.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
 
 	// Get the returned documents
 	var actual types.Documents
-	actualBz, _ := querier(ctx, path, request)
+
+	actualBz, err := querier(ctx, path, request)
+	assert.NoError(t, err)
+
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	assert.Equal(t, documents, actual)
@@ -69,10 +70,8 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
 	//Setup the store
-	metadataStore := ctx.KVStore(k.StoreKey)
-	documentIds := types.DocumentIDs{TestingDocument.UUID}
-	metadataStore.Set(k.getSentDocumentsIdsStoreKey(TestingSender), cdc.MustMarshalBinaryBare(&documentIds))
-	metadataStore.Set(k.getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
+	err := k.SaveDocument(ctx, TestingDocument)
+	assert.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QuerySentDocuments, TestingSender.String()}
@@ -111,8 +110,8 @@ func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 
 	ids := types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
-	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	store.Set(getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
+	store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
@@ -134,8 +133,8 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 
 	var ids = types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
-	store.Set(k.getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	store.Set(getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
+	store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUUID}
@@ -172,8 +171,8 @@ func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 
 	var ids = types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
-	store.Set(k.getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(k.getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	store.Set(getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&ids))
+	store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
