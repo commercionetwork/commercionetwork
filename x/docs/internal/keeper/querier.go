@@ -167,8 +167,18 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 	defer ri.Close()
 
 	for ; ri.Valid(); ri.Next() {
-		newReceipt := types.DocumentReceipt{}
-		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &newReceipt)
+		rid := ""
+		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &rid)
+
+		newReceipt, err := keeper.GetReceiptByID(ctx, rid)
+		if err != nil {
+			return nil, sdk.ErrUnknownRequest(
+				fmt.Sprintf(
+					"could not find document receipt with UUID %s even though the user has an associated received document with it",
+					rid,
+				),
+			)
+		}
 
 		receipts = append(receipts, newReceipt)
 	}
