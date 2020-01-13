@@ -441,7 +441,7 @@ func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
 		d := types.Document{}
 		k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
 
-		docs = append(documents, d)
+		docs = append(docs, d)
 	}
 
 	assert.Len(t, docs, 2)
@@ -457,16 +457,20 @@ func TestKeeper_SaveDocumentReceipt_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
-	assert.NoError(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
+	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+
+	tdr := TestingDocumentReceipt
+	tdr.DocumentUUID = TestingDocument.UUID
+	assert.NoError(t, k.SaveReceipt(ctx, tdr))
 
 	storedID := ""
-	docReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, TestingDocumentReceipt.UUID))
+	docReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, tdr.DocumentUUID))
 	cdc.MustUnmarshalBinaryBare(docReceiptBz, &storedID)
 
 	stored, err := k.GetReceiptByID(ctx, storedID)
 	assert.NoError(t, err)
 
-	assert.Equal(t, stored, TestingDocumentReceipt)
+	assert.Equal(t, stored, tdr)
 }
 
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
