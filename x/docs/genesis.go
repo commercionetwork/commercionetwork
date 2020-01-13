@@ -43,10 +43,10 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
-		Documents:                      keeper.GetDocuments(ctx),
-		Receipts:                       keeper.GetReceipts(ctx),
-		SupportedMetadataSchemes:       keeper.GetSupportedMetadataSchemes(ctx),
-		TrustedMetadataSchemaProposers: keeper.GetTrustedSchemaProposers(ctx),
+		Documents:                      exportDocuments(ctx, keeper),
+		Receipts:                       exportReceipts(ctx, keeper),
+		SupportedMetadataSchemes:       exportMetadataSchemes(ctx, keeper),
+		TrustedMetadataSchemaProposers: exportTrustedSchemaProviders(ctx, keeper),
 	}
 }
 
