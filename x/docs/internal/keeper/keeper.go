@@ -151,18 +151,19 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(receipt.Recipient, receipt.UUID)
 
 	marshaledRecepit := keeper.cdc.MustMarshalBinaryBare(receipt)
+	marshaledRecepitID := keeper.cdc.MustMarshalBinaryBare(receipt.UUID)
 
 	// Store the receipt as sent
 	if store.Has(sentReceiptsIdsStoreKey) {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Receipt's UUID already present: %s", receipt.UUID))
 	}
-	store.Set(sentReceiptsIdsStoreKey, marshaledRecepit)
+	store.Set(sentReceiptsIdsStoreKey, marshaledRecepitID)
 
 	// Store the receipt as received
 	if store.Has(receivedReceiptIdsStoreKey) {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Receipt's UUID already present: %s", receipt.UUID))
 	}
-	store.Set(receivedReceiptIdsStoreKey, marshaledRecepit)
+	store.Set(receivedReceiptIdsStoreKey, marshaledRecepitID)
 
 	// Store the receipt
 	store.Set(getReceiptStoreKey(receipt.UUID), marshaledRecepit)
@@ -170,15 +171,15 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 }
 
 // GetReceiptByID returns the document receipt having the given id, or false if such receipt could not be found
-func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentReceipt, bool) {
+func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentReceipt, error) {
 	store := ctx.KVStore(keeper.StoreKey)
 	key := getReceiptStoreKey(id)
 
 	if !store.Has(key) {
-		return types.DocumentReceipt{}, false
+		return types.DocumentReceipt{}, fmt.Errorf("cannot find receipt with uuid %s", id)
 	}
 
 	var receipt types.DocumentReceipt
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(key), &receipt)
-	return receipt, true
+	return receipt, nil
 }

@@ -459,9 +459,12 @@ func TestKeeper_SaveDocumentReceipt_EmptyList(t *testing.T) {
 
 	assert.NoError(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
 
-	stored := types.DocumentReceipt{}
+	storedID := ""
 	docReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, TestingDocumentReceipt.UUID))
-	cdc.MustUnmarshalBinaryBare(docReceiptBz, &stored)
+	cdc.MustUnmarshalBinaryBare(docReceiptBz, &storedID)
+
+	stored, err := k.GetReceiptByID(ctx, storedID)
+	assert.NoError(t, err)
 
 	assert.Equal(t, stored, TestingDocumentReceipt)
 }
@@ -476,10 +479,7 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
 }
 
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Set(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
+	_, ctx, k := SetupTestInput()
 
 	newReceipt := types.DocumentReceipt{
 		UUID:         TestingDocumentReceipt.UUID + "-new",
@@ -490,15 +490,19 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) 
 		Proof:        TestingDocumentReceipt.Proof,
 	}
 
+	assert.NoError(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
 	assert.NoError(t, k.SaveReceipt(ctx, newReceipt))
 
 	var stored []types.DocumentReceipt
 	si := k.UserSentReceiptsIterator(ctx, TestingDocumentReceipt.Sender)
 	defer si.Close()
 	for ; si.Valid(); si.Next() {
-		dr := types.DocumentReceipt{}
-		k.cdc.MustUnmarshalBinaryBare(si.Value(), &dr)
-		stored = append(stored, dr)
+		rid := ""
+		k.cdc.MustUnmarshalBinaryBare(si.Value(), &rid)
+
+		newReceipt, err := k.GetReceiptByID(ctx, rid)
+		assert.NoError(t, err)
+		stored = append(stored, newReceipt)
 	}
 
 	assert.Equal(t, 2, len(stored))
@@ -514,8 +518,11 @@ func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
 
 	receipts := []types.DocumentReceipt{}
 	for ; urri.Valid(); urri.Next() {
-		r := types.DocumentReceipt{}
-		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &r)
+		rid := ""
+		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
+
+		r, err := k.GetReceiptByID(ctx, rid)
+		assert.NoError(t, err)
 
 		receipts = append(receipts, r)
 	}
@@ -528,7 +535,7 @@ func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(getReceivedReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Recipient, TestingDocumentReceipt.UUID),
-		cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
+		cdc.MustMarshalBinaryBare(TestingDocumentReceipt.UUID))
 
 	store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
 
@@ -537,8 +544,11 @@ func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
 
 	receipts := []types.DocumentReceipt{}
 	for ; urri.Valid(); urri.Next() {
-		r := types.DocumentReceipt{}
-		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &r)
+		rid := ""
+		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
+
+		r, err := k.GetReceiptByID(ctx, rid)
+		assert.NoError(t, err)
 
 		receipts = append(receipts, r)
 	}

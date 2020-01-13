@@ -106,12 +106,8 @@ func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
 func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-
-	ids := types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
-	store.Set(getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	err := k.SaveReceipt(ctx, TestingDocumentReceipt)
+	assert.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
@@ -129,12 +125,9 @@ func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 
 func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
 
-	var ids = types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
-	store.Set(getReceivedReceiptsIdsStoreKey(TestingDocumentReceipt.Recipient), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	err := k.SaveReceipt(ctx, TestingDocumentReceipt)
+	assert.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), TestingDocumentReceipt.DocumentUUID}
@@ -167,12 +160,8 @@ func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
 func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
-
-	var ids = types.DocumentReceiptsIDs{TestingDocumentReceipt.UUID}
-	store.Set(getSentReceiptsIdsStoreKey(TestingDocumentReceipt.Sender), cdc.MustMarshalBinaryBare(&ids))
-	store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+	err := k.SaveReceipt(ctx, TestingDocumentReceipt)
+	assert.NoError(t, err)
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
@@ -207,14 +196,15 @@ func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
 func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	store := ctx.KVStore(k.StoreKey)
 
 	schemes := []types.MetadataSchema{
 		{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"},
 		{Type: "other-schema", SchemaURI: "https://example.com/other-schema", Version: "1.0.0"},
 	}
-	store.Set([]byte(types.SupportedMetadataSchemesStoreKey), cdc.MustMarshalBinaryBare(&schemes))
+
+	k.AddSupportedMetadataScheme(ctx, schemes[0])
+
+	k.AddSupportedMetadataScheme(ctx, schemes[1])
 
 	path := []string{types.QuerySupportedMetadataSchemes}
 
@@ -222,7 +212,9 @@ func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, schemes, actual)
+	assert.Contains(t, schemes, actual[0])
+	assert.Contains(t, schemes, actual[1])
+
 }
 
 // -----------------------------------------
@@ -246,11 +238,9 @@ func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
 func Test_queryTrustedMetadataProposers_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	var querier = NewQuerier(k)
-	//Setup the store
-	proposers := []sdk.AccAddress{TestingSender, TestingSender2}
 
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.MetadataSchemaProposersStoreKey), cdc.MustMarshalBinaryBare(&proposers))
+	k.AddTrustedSchemaProposer(ctx, TestingSender)
+	k.AddTrustedSchemaProposer(ctx, TestingSender2)
 
 	path := []string{types.QueryTrustedMetadataProposers}
 
@@ -258,5 +248,6 @@ func Test_queryTrustedMetadataProposers_ExistingList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, proposers, actual)
+	assert.Contains(t, actual, TestingSender)
+	assert.Contains(t, actual, TestingSender2)
 }
