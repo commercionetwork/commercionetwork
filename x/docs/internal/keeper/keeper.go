@@ -183,3 +183,37 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(key), &receipt)
 	return receipt, nil
 }
+
+// ExtractDocument returns a Document slice instance and its UUID given an iterator byte stream value.
+func (keeper Keeper) ExtractDocument(ctx sdk.Context, iterVal []byte) (types.Document, string, error) {
+	documentUUID := ""
+	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &documentUUID)
+
+	document, err := keeper.GetDocumentByID(ctx, documentUUID)
+	return document, documentUUID, err
+}
+
+// ExtractReceipt returns a DocumentReceipt sliceinstance and its UUID given an iterator byte stream value.
+func (keeper Keeper) ExtractReceipt(ctx sdk.Context, iterVal []byte) (types.DocumentReceipt, string, error) {
+	rid := ""
+	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &rid)
+
+	newReceipt, err := keeper.GetReceiptByID(ctx, rid)
+	return newReceipt, rid, err
+}
+
+// ExtractMetadataSchema returns a MetadataSchema slice instance and given an iterator byte stream value.
+func (keeper Keeper) ExtractMetadataSchema(iterVal []byte) types.MetadataSchema {
+	ms := types.MetadataSchema{}
+
+	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &ms)
+	return ms
+}
+
+// ExtractTrustedSchemaProposer returns a sdk.AccAddress slice instance given an iterator byte stream value.
+func (keeper Keeper) ExtractTrustedSchemaProposer(iterVal []byte) sdk.AccAddress {
+	tsp := sdk.AccAddress{}
+
+	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &tsp)
+	return tsp
+}
