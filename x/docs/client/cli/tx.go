@@ -1,6 +1,8 @@
 package cli
 
 import (
+	uuid "github.com/satori/go.uuid"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -92,7 +94,7 @@ func getCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send-receipt [recipient] [tx-hash] [document-uuid] [proof]",
 		Short: "Send the document's receipt with the given recipient address",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.RangeArgs(3, 4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -108,10 +110,15 @@ func getCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 				Recipient:    recipient,
 				TxHash:       args[1],
 				DocumentUUID: args[2],
-				Proof:        args[3],
+				UUID:         uuid.NewV4().String(),
+			}
+
+			if len(args) == 4 {
+				receipt.Proof = args[3]
 			}
 
 			msg := types.NewMsgSendDocumentReceipt(receipt)
+
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
