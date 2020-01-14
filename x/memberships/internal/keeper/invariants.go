@@ -7,12 +7,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// RegisterInvariants registers all staking invariants
+const (
+	membershipVerifiedInvName string = "user-membership-verifier"
+)
+
+// RegisterInvariants registers all memberships invariants
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
-	ir.RegisterRoute(types.ModuleName, "user-membership-verifier",
+	ir.RegisterRoute(types.ModuleName, membershipVerifiedInvName,
 		MembershipVerifiedInvariant(k))
 }
 
+// MembershipVerifiedInvariant verifies that all the membership existing in the state have been authorized,
+// and that the users associated with them have been invited by a TSP.
 func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		// get all the users with membership
@@ -27,24 +33,24 @@ func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 			if !found {
 				return sdk.FormatInvariant(
 					types.ModuleName,
-					"user-membership-verifier",
+					membershipVerifiedInvName,
 					fmt.Sprintf(
 						"found user with membership but with no invite: %s",
 						user.Owner.String(),
 					),
-				), false
+				), true
 			}
 
 			// check that there are credentials for user
 			if len(credentials) == 0 {
 				return sdk.FormatInvariant(
 					types.ModuleName,
-					"user-membership-verifier",
+					membershipVerifiedInvName,
 					fmt.Sprintf(
 						"found user with membership but with no credentials: %s",
 						user.Owner.String(),
 					),
-				), false
+				), true
 			}
 
 			// for each credential, check that the Verifier is actually
@@ -53,17 +59,17 @@ func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 				if !k.IsTrustedServiceProvider(ctx, credential.Verifier) {
 					return sdk.FormatInvariant(
 						types.ModuleName,
-						"user-membership-verifier",
+						membershipVerifiedInvName,
 						fmt.Sprintf(
 							"found user whose credential was verified by a non-Verifier %s user but with no credentials: %s",
 							credential.Verifier.String(),
 							user.Owner.String(),
 						),
-					), false
+					), true
 				}
 			}
 		}
 
-		return "", true
+		return "", false
 	}
 }
