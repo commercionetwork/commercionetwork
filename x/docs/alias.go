@@ -24,6 +24,8 @@ var (
 	ModuleCdc     = types.ModuleCdc
 
 	NewMsgShareDocument = types.NewMsgShareDocument
+
+	RegisterInvariants = keeper.RegisterInvariants
 )
 
 type (
