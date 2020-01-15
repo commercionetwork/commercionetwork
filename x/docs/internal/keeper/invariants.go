@@ -72,7 +72,6 @@ func DocsReceiptsInvariants(k Keeper) sdk.Invariant {
 					types.ModuleName,
 					docsReceiptsInvName,
 					fmt.Sprintf(
-						"found received receipt %s with non-existant document %s",
 						receipt.UUID,
 						uuid,
 					),
