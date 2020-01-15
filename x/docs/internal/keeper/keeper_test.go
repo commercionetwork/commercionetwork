@@ -485,17 +485,22 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
+	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+
+	oldReceipt := TestingDocumentReceipt
+	oldReceipt.DocumentUUID = TestingDocument.UUID
+
 	newReceipt := types.DocumentReceipt{
 		UUID:         TestingDocumentReceipt.UUID + "-new",
 		Sender:       TestingDocumentReceipt.Sender,
 		Recipient:    TestingDocumentReceipt.Recipient,
 		TxHash:       TestingDocumentReceipt.TxHash,
-		DocumentUUID: TestingDocumentReceipt.DocumentUUID,
+		DocumentUUID: TestingDocument.UUID,
 		Proof:        TestingDocumentReceipt.Proof,
 	}
 
-	assert.NoError(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
-	assert.NoError(t, k.SaveReceipt(ctx, newReceipt))
+	assert.NoError(t, k.SaveReceipt(ctx, oldReceipt))
+	assert.Error(t, k.SaveReceipt(ctx, newReceipt))
 
 	var stored []types.DocumentReceipt
 	si := k.UserSentReceiptsIterator(ctx, TestingDocumentReceipt.Sender)
@@ -509,9 +514,9 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) 
 		stored = append(stored, newReceipt)
 	}
 
-	assert.Equal(t, 2, len(stored))
-	assert.Contains(t, stored, TestingDocumentReceipt)
-	assert.Contains(t, stored, newReceipt)
+	assert.Equal(t, 1, len(stored))
+	assert.Contains(t, stored, oldReceipt)
+	assert.NotContains(t, stored, newReceipt)
 }
 
 func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {

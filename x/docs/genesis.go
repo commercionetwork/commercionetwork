@@ -6,10 +6,10 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Documents                      Documents        `json:"documents"`
-	Receipts                       DocumentReceipts `json:"receipts"`
-	SupportedMetadataSchemes       MetadataSchemes  `json:"supported_metadata_schemes"`
-	TrustedMetadataSchemaProposers []sdk.AccAddress `json:"trusted_metadata_schema_proposers"`
+	Documents                      []Document        `json:"documents"`
+	Receipts                       []DocumentReceipt `json:"receipts"`
+	SupportedMetadataSchemes       []MetadataSchema  `json:"supported_metadata_schemes"`
+	TrustedMetadataSchemaProposers []sdk.AccAddress  `json:"trusted_metadata_schema_proposers"`
 }
 
 // DefaultGenesisState returns a default genesis state

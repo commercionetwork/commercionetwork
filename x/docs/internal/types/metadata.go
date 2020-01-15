@@ -35,35 +35,3 @@ func (m MetadataSchema) Validate() error {
 
 	return nil
 }
-
-// MetadataSchemes represents a list of MetadataSchema
-type MetadataSchemes []MetadataSchema
-
-// Contains returns true iff the specified metadata is present inside this list
-func (metadataSchemes MetadataSchemes) Contains(metadata MetadataSchema) bool {
-	for _, m := range metadataSchemes {
-		if m.Equals(metadata) {
-			return true
-		}
-	}
-	return false
-}
-
-// IsTypeSupported allows to tell if there is one metadata
-// scheme having the given type inside this list
-func (metadataSchemes MetadataSchemes) IsTypeSupported(metadataType string) bool {
-	for _, m := range metadataSchemes {
-		if m.Type == metadataType {
-			return true
-		}
-	}
-	return false
-}
-
-// AppendIfMissing allows to add to this list of schemes the given schema, if it isn't already present
-func (metadataSchemes MetadataSchemes) AppendIfMissing(schema MetadataSchema) (MetadataSchemes, bool) {
-	if metadataSchemes.Contains(schema) {
-		return metadataSchemes, false
-	}
-	return append(metadataSchemes, schema), true
-}

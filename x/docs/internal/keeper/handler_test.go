@@ -79,7 +79,12 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 func Test_handleMsgSendDocumentReceipt(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
-	msgSendDocumentReceipt := types.MsgSendDocumentReceipt(TestingDocumentReceipt)
+	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+
+	tdr := TestingDocumentReceipt
+	tdr.DocumentUUID = TestingDocument.UUID
+
+	msgSendDocumentReceipt := types.MsgSendDocumentReceipt(tdr)
 
 	res := handler(ctx, msgSendDocumentReceipt)
 	assert.True(t, res.IsOK())
