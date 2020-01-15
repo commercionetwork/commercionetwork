@@ -195,7 +195,7 @@ func (keeper Keeper) ExtractDocument(ctx sdk.Context, iterVal []byte) (types.Doc
 	return document, documentUUID, err
 }
 
-// ExtractReceipt returns a DocumentReceipt sliceinstance and its UUID given an iterator byte stream value.
+// ExtractReceipt returns a DocumentReceipt slice instance and its UUID given an iterator byte stream value.
 func (keeper Keeper) ExtractReceipt(ctx sdk.Context, iterVal []byte) (types.DocumentReceipt, string, error) {
 	rid := ""
 	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &rid)
