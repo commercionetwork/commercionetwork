@@ -169,15 +169,18 @@ func Test_queryResolveMembership(t *testing.T) {
 		name               string
 		existingMembership types.Membership
 		expected           keeper.MembershipResult
+		mustErr            bool
 	}{
 		{
 			name:               "Existing membership is returned properly",
 			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser),
 			expected:           keeper.MembershipResult{User: testUser, MembershipType: types.MembershipTypeGold},
+			mustErr:            false,
 		},
 		{
 			name:     "Not found membership returns correctly",
 			expected: keeper.MembershipResult{User: testUser, MembershipType: ""},
+			mustErr:  true,
 		},
 	}
 
@@ -185,16 +188,21 @@ func Test_queryResolveMembership(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
 
 		if !(types.Membership{}).Equals(test.existingMembership) {
-			_, _ = k.AssignMembership(ctx, test.existingMembership.Owner, test.existingMembership.MembershipType)
+			_ = k.AssignMembership(ctx, test.existingMembership.Owner, test.existingMembership.MembershipType)
 		}
 
 		querier := keeper.NewQuerier(k)
 
 		path := []string{types.QueryGetMembership, testUser.String()}
-		actualBz, _ := querier(ctx, path, request)
+		actualBz, err := querier(ctx, path, request)
 
-		var actual keeper.MembershipResult
-		k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-		assert.Equal(t, test.expected, actual)
+		if !test.mustErr {
+			assert.NoError(t, err)
+			var actual keeper.MembershipResult
+			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			assert.Equal(t, test.expected, actual)
+		} else {
+			assert.Error(t, err)
+		}
 	}
 }

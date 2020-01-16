@@ -31,7 +31,7 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 
 func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser) sdk.Result {
 	// Verify that the user that is inviting has already a membership
-	if _, found := keeper.GetMembership(ctx, msg.Sender); !found {
+	if _, err := keeper.GetMembership(ctx, msg.Sender); err != nil {
 		return sdk.ErrUnauthorized("Cannot send an invitation without having a membership").Result()
 	}
 
@@ -100,9 +100,9 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	}
 
 	// Make sure the user can upgrade
-	membership, found := keeper.GetMembership(ctx, msg.Buyer)
-	if found && !types.CanUpgrade(keeper.GetMembershipType(membership), msg.MembershipType) {
-		errMsg := fmt.Sprintf("Cannot upgrade from %s membership to %s", keeper.GetMembershipType(membership), msg.MembershipType)
+	membership, err := keeper.GetMembership(ctx, msg.Buyer)
+	if err == nil && !types.CanUpgrade(membership.MembershipType, msg.MembershipType) {
+		errMsg := fmt.Sprintf("Cannot upgrade from %s membership to %s", membership.MembershipType, msg.MembershipType)
 		return sdk.ErrUnknownRequest(errMsg).Result()
 	}
 

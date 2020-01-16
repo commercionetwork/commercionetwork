@@ -106,10 +106,12 @@ func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res 
 	}
 
 	// Search the membership
-	if membership, found := keeper.GetMembership(ctx, address); found {
-		result.MembershipType = keeper.GetMembershipType(membership)
+	membership, err := keeper.GetMembership(ctx, address)
+	if err != nil {
+		return nil, err
 	}
 
+	result.MembershipType = membership.MembershipType
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, result)
 	if err2 != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")

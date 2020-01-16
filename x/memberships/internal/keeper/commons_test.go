@@ -55,9 +55,8 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("stake", 1))))
 
 	govk := government.NewKeeper(cdc, keys[government.StoreKey])
-	nftk := nft.NewKeeper(cdc, keys[nft.StoreKey])
 
-	k := keeper.NewKeeper(cdc, keys[types.StoreKey], nftk, sk)
+	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk)
 
 	// Set module accounts
 	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)

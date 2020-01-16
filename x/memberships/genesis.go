@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -57,7 +59,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 
 	// Import the memberships
 	for _, membership := range data.Memberships {
-		_, err := keeper.AssignMembership(ctx, membership.Owner, membership.MembershipType)
+		err := keeper.AssignMembership(ctx, membership.Owner, membership.MembershipType)
 		if err != nil {
 			panic(err)
 		}
@@ -69,12 +71,20 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+	// create the Memberships set
+	var ms types.Memberships
+	i := keeper.MembershipIterator(ctx)
+	defer i.Close()
+	for ; i.Valid(); i.Next() {
+		ms = append(ms, keeper.ExtractMembership(i.Key(), i.Value()))
+	}
+
 	return GenesisState{
 		LiquidityPoolAmount:     keeper.GetPoolFunds(ctx),
 		Invites:                 keeper.GetInvites(ctx),
 		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
 		Credentials:             keeper.GetCredentials(ctx),
-		Memberships:             keeper.GetMembershipsSet(ctx),
+		Memberships:             ms,
 		StableCreditsDenom:      keeper.GetStableCreditsDenom(ctx),
 	}
 }

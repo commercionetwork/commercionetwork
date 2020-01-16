@@ -6,9 +6,8 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	NftDenom = "membership"
-
 	// --- Keeper
+	MembershipsStorageKey  = StoreKey + ":storage:"
 	StableCreditsStoreKey  = StoreKey + ":stableCreditsDenom"
 	TrustedSignersStoreKey = StoreKey + ":signers"
 	InviteStorePrefix      = "invite:"

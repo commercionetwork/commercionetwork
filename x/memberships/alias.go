@@ -21,6 +21,8 @@ var (
 
 	NewMembership         = types.NewMembership
 	IsMembershipTypeValid = types.IsMembershipTypeValid
+
+	RegisterInvariants = keeper.RegisterInvariants
 )
 
 type (

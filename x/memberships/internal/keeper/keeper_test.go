@@ -6,8 +6,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/modules/incubator/nft"
-	"github.com/cosmos/modules/incubator/nft/exported"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,56 +42,52 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
 
 			if len(test.existingMembership) != 0 {
-				_, err := k.AssignMembership(ctx, test.user, test.existingMembership)
+				err := k.AssignMembership(ctx, test.user, test.existingMembership)
 				assert.NoError(t, err)
 			}
 
-			tokenURI, err := k.AssignMembership(ctx, test.user, test.membershipType)
+			err := k.AssignMembership(ctx, test.user, test.membershipType)
 			assert.Equal(t, test.error, err)
-
-			if test.error == nil {
-				expectedURI := fmt.Sprintf("membership:%s:membership-%s", test.membershipType, test.user)
-				assert.Equal(t, expectedURI, tokenURI)
-			}
 		})
 	}
 }
 
 func TestKeeper_RemoveMembership(t *testing.T) {
 	tests := []struct {
-		name        string
-		memberships types.Memberships
-		membership  types.Membership
-		expected    types.Memberships
+		name       string
+		membership types.Membership
+		mustError  bool
 	}{
 		{
-			name:        "Non existing membership works properly",
-			memberships: types.Memberships{},
-			membership:  types.NewMembership(types.MembershipTypeBronze, testUser),
-			expected:    types.Memberships{},
+			name:       "Non existing membership throws an error",
+			membership: types.NewMembership(types.MembershipTypeBronze, testUser),
+			mustError:  true,
 		},
 		{
-			name: "Existing membership is removed properly",
-			memberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser),
-				types.NewMembership(types.MembershipTypeGold, testUser2),
-			},
+			name:       "Existing membership is removed properly",
 			membership: types.NewMembership(types.MembershipTypeBronze, testUser),
-			expected: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser2),
-			},
+			mustError:  false,
 		},
 	}
 
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
 
-		for _, m := range test.memberships {
-			_, _ = k.AssignMembership(ctx, m.Owner, m.MembershipType)
+		// if the test should not throw an error when removing, we must add
+		// a membership first
+		if !test.mustError {
+			_ = k.AssignMembership(ctx, test.membership.Owner, test.membership.MembershipType)
 		}
 
-		_ = k.RemoveMembership(ctx, test.membership.Owner)
-		assert.True(t, test.expected.Equals(k.GetMembershipsSet(ctx)))
+		err := k.RemoveMembership(ctx, test.membership.Owner)
+		if !test.mustError {
+			assert.NoError(t, err)
+		} else {
+			assert.Error(t, err)
+		}
+
+		_, err = k.GetMembership(ctx, test.membership.Owner)
+		assert.Error(t, err)
 	}
 }
 
@@ -102,23 +96,24 @@ func TestKeeper_GetMembership(t *testing.T) {
 		name                   string
 		existingMembershipType string
 		user                   sdk.AccAddress
-		expectedFound          bool
-		expectedMembership     exported.NFT
+		expectedError          sdk.Error
+		expectedMembership     types.Membership
 	}{
 		{
-			name:          "Non existing membership is returned properly",
-			user:          testUser,
-			expectedFound: false,
+			name: "Non existing membership is returned properly",
+			user: testUser,
+			expectedError: sdk.ErrUnknownRequest(
+				fmt.Sprintf("membership not found for user \"%s\"", testUser.String()),
+			),
 		},
 		{
 			name:                   "Existing membership is returned properly",
 			existingMembershipType: types.MembershipTypeBronze,
 			user:                   testUser,
-			expectedFound:          true,
-			expectedMembership: &nft.BaseNFT{
-				ID:       fmt.Sprintf("membership-%s", testUser),
-				Owner:    testUser,
-				TokenURI: fmt.Sprintf("membership:%s:%s", types.MembershipTypeBronze, fmt.Sprintf("membership-%s", testUser)),
+			expectedError:          nil,
+			expectedMembership: types.Membership{
+				Owner:          testUser,
+				MembershipType: types.MembershipTypeBronze,
 			},
 		},
 	}
@@ -127,26 +122,20 @@ func TestKeeper_GetMembership(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
-			_, _ = k.AssignMembership(ctx, test.user, test.existingMembershipType)
+			_ = k.AssignMembership(ctx, test.user, test.existingMembershipType)
 
-			foundMembership, found := k.GetMembership(ctx, testUser)
-			assert.Equal(t, test.expectedFound, found)
+			foundMembership, err := k.GetMembership(ctx, testUser)
+			if test.expectedError == nil {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+			}
 			assert.Equal(t, test.expectedMembership, foundMembership)
 		})
 	}
 }
 
-func TestKeeper_GetMembershipType(t *testing.T) {
-	_, _, _, k := SetupTestInput()
-
-	id := "123"
-	membershipType := "black"
-	membership := nft.NewBaseNFT(id, testUser, fmt.Sprintf("membership:%s:%s", membershipType, id))
-
-	assert.Equal(t, membershipType, k.GetMembershipType(&membership))
-}
-
-func TestKeeper_GetMembershipsSet(t *testing.T) {
+func TestKeeper_MembershipIterator(t *testing.T) {
 	tests := []struct {
 		name              string
 		storedMemberships types.Memberships
@@ -170,13 +159,53 @@ func TestKeeper_GetMembershipsSet(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
 
 			for _, m := range test.storedMemberships {
-				_, err := k.AssignMembership(ctx, m.Owner, m.MembershipType)
+				err := k.AssignMembership(ctx, m.Owner, m.MembershipType)
 				assert.NoError(t, err)
 			}
+			i := k.MembershipIterator(ctx)
+			for ; i.Valid(); i.Next() {
+				m := k.ExtractMembership(i.Key(), i.Value())
+				assert.Contains(t, test.storedMemberships, m)
+			}
+		})
+	}
+}
 
-			set := k.GetMembershipsSet(ctx)
-			for _, m := range test.storedMemberships {
-				assert.Contains(t, set, m)
+func TestKeeper_ExtractMembership(t *testing.T) {
+	tests := []struct {
+		name       string
+		key        []byte
+		value      []byte
+		membership types.Membership
+		mustFail   bool
+	}{
+		{
+			"a good membership",
+			[]byte{97, 99, 99, 114, 101, 100, 105, 116, 97, 116, 105, 111, 110, 115, 58, 115, 116, 111, 114, 97, 103, 101, 58, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239},
+			[]byte{6, 98, 114, 111, 110, 122, 101},
+			types.NewMembership(types.MembershipTypeBronze, testUser),
+			false,
+		},
+		{
+			"a badly serialized membership",
+			[]byte{99, 99, 114, 101, 100, 105, 116, 97, 116, 105, 111, 110, 115, 58, 115, 116, 111, 114, 97, 103, 101, 58, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239},
+			[]byte{6, 114, 111, 110, 122, 101},
+			types.Membership{},
+			true,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			_, _, _, k := SetupTestInput()
+			if !test.mustFail {
+				m := k.ExtractMembership(test.key, test.value)
+				assert.Equal(t, test.membership, m)
+			} else {
+				assert.Panics(t, func() {
+					_ = k.ExtractMembership(test.key, test.value)
+				})
 			}
 		})
 	}

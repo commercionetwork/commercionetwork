@@ -156,8 +156,8 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			ctx, bk, _, k := SetupTestInput()
 
 			k.SaveInvite(ctx, test.invite)
-			_, _ = k.AssignMembership(ctx, test.invite.Sender, test.inviteSenderMembership)
-			_, _ = k.AssignMembership(ctx, test.invite.User, test.inviteRecipientMembership)
+			_ = k.AssignMembership(ctx, test.invite.Sender, test.inviteSenderMembership)
+			_ = k.AssignMembership(ctx, test.invite.User, test.inviteRecipientMembership)
 
 			_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.poolFunds)
 
