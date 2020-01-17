@@ -185,6 +185,8 @@ type CommercioNetworkApp struct {
 	vbrKeeper        vbr.Keeper
 
 	mm *module.Manager
+
+	sm *module.SimulationManager
 }
 
 // NewCommercioNetworkApp returns a reference to an initialized CommercioNetworkApp.
@@ -340,6 +342,24 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
+
+	app.sm = module.NewSimulationManager(
+	// Encapsulating modules
+	// TODO: what should we do with these?
+
+	//custombank.NewAppModule(bank.NewAppModule(app.bankKeeper, app.accountKeeper), app.customBankKeeper, app.governmentKeeper),
+
+	// Custom modules
+	/*docs.NewAppModule(app.docsKeeper),
+	government.NewAppModule(app.governmentKeeper),
+	id.NewAppModule(app.idKeeper, app.governmentKeeper, app.supplyKeeper),
+	memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
+	commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
+	pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
+	vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper, app.bankKeeper),*/
+	)
+
+	app.sm.RegisterStoreDecoders()
 
 	// initialize stores
 	app.MountKVStores(keys)
