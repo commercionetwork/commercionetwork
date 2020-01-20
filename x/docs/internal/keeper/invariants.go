@@ -9,11 +9,14 @@ import (
 
 const (
 	docsReceiptsInvName string = "docs-receipts"
+	docsSchemasInvName  string = "docs-schemas-valid"
 )
 
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 	ir.RegisterRoute(types.ModuleName, docsReceiptsInvName,
 		DocsReceiptsInvariants(k))
+	ir.RegisterRoute(types.ModuleName, docsSchemasInvName,
+		DocsSchemasValidInvariant(k))
 }
 
 // DocsReceiptsInvariants checks that every receipt points to an
@@ -81,6 +84,35 @@ func DocsReceiptsInvariants(k Keeper) sdk.Invariant {
 			docsLookup[uuid] = struct{}{}
 		}
 
+		return "", false
+	}
+}
+
+// DocsSchemasValidInvariant checks that every Document SchemaType
+// is a supported one.
+func DocsSchemasValidInvariant(k Keeper) sdk.Invariant {
+	return func(ctx sdk.Context) (string, bool) {
+		di := k.DocumentsIterator(ctx)
+		defer di.Close()
+
+		for ; di.Valid(); di.Next() {
+			doc, _, err := k.ExtractDocument(ctx, di.Value())
+			if err != nil {
+				panic("could not extract document during invariant: " + err.Error())
+			}
+
+			if !k.IsMetadataSchemeTypeSupported(ctx, doc.Metadata.SchemaType) {
+				return sdk.FormatInvariant(
+					types.ModuleName,
+					docsSchemasInvName,
+					fmt.Sprintf(
+						"found document %s with invalid metadata schema type %s",
+						doc.UUID,
+						doc.Metadata.SchemaType,
+					),
+				), true
+			}
+		}
 		return "", false
 	}
 }
