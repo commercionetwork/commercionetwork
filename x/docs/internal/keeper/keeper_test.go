@@ -23,7 +23,6 @@ func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
 	assert.True(t, ret)
 }
 
-// TODO: why this test exists?
 func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	//Setup the store
@@ -58,7 +57,6 @@ func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
 	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "non-existent"))
 }
 
-// TODO: why this test exists?
 func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
