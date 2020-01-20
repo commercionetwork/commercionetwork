@@ -12,7 +12,7 @@ func exportDocuments(ctx sdk.Context, keeper Keeper) []Document {
 	di := keeper.DocumentsIterator(ctx)
 	defer di.Close()
 	for ; di.Valid(); di.Next() {
-		document, duuid, err := keeper.ExtractDocument(ctx, di.Value())
+		document, duuid, err := keeper.ExtractDocument(ctx, di.Key())
 		if err != nil {
 			panic(
 				fmt.Sprintf(

@@ -187,9 +187,8 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 }
 
 // ExtractDocument returns a Document slice instance and its UUID given an iterator byte stream value.
-func (keeper Keeper) ExtractDocument(ctx sdk.Context, iterVal []byte) (types.Document, string, error) {
-	documentUUID := ""
-	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &documentUUID)
+func (keeper Keeper) ExtractDocument(ctx sdk.Context, keyVal []byte) (types.Document, string, error) {
+	documentUUID := string(keyVal[len(types.DocumentStorePrefix):])
 
 	document, err := keeper.GetDocumentByID(ctx, documentUUID)
 	return document, documentUUID, err

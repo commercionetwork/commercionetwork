@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -96,21 +97,23 @@ func DocsSchemasValidInvariant(k Keeper) sdk.Invariant {
 		defer di.Close()
 
 		for ; di.Valid(); di.Next() {
-			doc, _, err := k.ExtractDocument(ctx, di.Value())
+			doc, _, err := k.ExtractDocument(ctx, di.Key())
 			if err != nil {
 				panic("could not extract document during invariant: " + err.Error())
 			}
 
-			if !k.IsMetadataSchemeTypeSupported(ctx, doc.Metadata.SchemaType) {
-				return sdk.FormatInvariant(
-					types.ModuleName,
-					docsSchemasInvName,
-					fmt.Sprintf(
-						"found document %s with invalid metadata schema type %s",
-						doc.UUID,
-						doc.Metadata.SchemaType,
-					),
-				), true
+			if len(strings.TrimSpace(doc.Metadata.SchemaType)) != 0 {
+				if !k.IsMetadataSchemeTypeSupported(ctx, doc.Metadata.SchemaType) {
+					return sdk.FormatInvariant(
+						types.ModuleName,
+						docsSchemasInvName,
+						fmt.Sprintf(
+							"found document %s with invalid metadata schema type %s",
+							doc.UUID,
+							doc.Metadata.SchemaType,
+						),
+					), true
+				}
 			}
 		}
 		return "", false
