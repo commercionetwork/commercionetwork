@@ -564,3 +564,205 @@ func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
 
 	assert.Equal(t, expected, receipts)
 }
+
+func TestKeeper_ExtractDocument(t *testing.T) {
+	tests := []struct {
+		name     string
+		want     types.Document
+		wantUUID string
+		wantErr  bool
+	}{
+		{
+			"stored document",
+			TestingDocument,
+			TestingDocument.UUID,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
+
+			assert.NoError(t, k.SaveDocument(ctx, tt.want))
+
+			docKey := []byte{}
+
+			di := k.DocumentsIterator(ctx)
+			defer di.Close()
+			for ; di.Valid(); di.Next() {
+				docKey = di.Key()
+			}
+
+			extDoc, extUUID, extErr := k.ExtractDocument(ctx, docKey)
+
+			if !tt.wantErr {
+				assert.NoError(t, extErr)
+				assert.Equal(t, tt.want, extDoc)
+				assert.Equal(t, tt.wantUUID, extUUID)
+			} else {
+				assert.Error(t, extErr)
+			}
+		})
+	}
+}
+
+func TestKeeper_ExtractMetadataSchema(t *testing.T) {
+	tests := []struct {
+		name string
+		want types.MetadataSchema
+	}{
+		{
+			"stored metadataSchema",
+			types.MetadataSchema{Type: "ms"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
+			k.AddSupportedMetadataScheme(ctx, tt.want)
+
+			ki := k.SupportedMetadataSchemesIterator(ctx)
+			defer ki.Close()
+
+			mIterVal := []byte{}
+
+			for ; ki.Valid(); ki.Next() {
+				mIterVal = ki.Value()
+			}
+
+			m := k.ExtractMetadataSchema(mIterVal)
+
+			assert.Equal(t, tt.want, m)
+		})
+	}
+}
+
+func TestKeeper_ExtractReceipt(t *testing.T) {
+	r := TestingDocumentReceipt
+	r.DocumentUUID = TestingDocument.UUID
+
+	tests := []struct {
+		name          string
+		savedDocument types.Document
+		want          types.DocumentReceipt
+		wantUUID      string
+		wantErr       bool
+	}{
+		{
+			"stored receipt",
+			TestingDocument,
+			r,
+			r.UUID,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
+
+			assert.NoError(t, k.SaveDocument(ctx, tt.savedDocument))
+			assert.NoError(t, k.SaveReceipt(ctx, tt.want))
+
+			recVal := []byte{}
+
+			di, _ := k.ReceiptsIterators(ctx)
+			defer di.Close()
+			for ; di.Valid(); di.Next() {
+				recVal = di.Value()
+			}
+
+			extDoc, extUUID, extErr := k.ExtractReceipt(ctx, recVal)
+
+			if !tt.wantErr {
+				assert.NoError(t, extErr)
+				assert.Equal(t, tt.want, extDoc)
+				assert.Equal(t, tt.wantUUID, extUUID)
+			} else {
+				assert.Error(t, extErr)
+			}
+		})
+	}
+}
+
+func TestKeeper_ExtractTrustedSchemaProposer(t *testing.T) {
+	tests := []struct {
+		name string
+		want sdk.AccAddress
+	}{
+		{
+			"stored trusted schema proposer",
+			TestingSender,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
+			k.AddTrustedSchemaProposer(ctx, tt.want)
+
+			ki := k.TrustedSchemaProposersIterator(ctx)
+			defer ki.Close()
+
+			mIterVal := []byte{}
+
+			for ; ki.Valid(); ki.Next() {
+				mIterVal = ki.Value()
+			}
+
+			m := k.ExtractTrustedSchemaProposer(mIterVal)
+
+			assert.Equal(t, tt.want, m)
+		})
+	}
+}
+
+func TestKeeper_GetReceiptByID(t *testing.T) {
+	r := TestingDocumentReceipt
+	r.DocumentUUID = TestingDocument.UUID
+
+	tests := []struct {
+		name           string
+		storedDocument types.Document
+		want           types.DocumentReceipt
+		wantErr        bool
+	}{
+		{
+			"lookup on existing receipt",
+			TestingDocument,
+			r,
+			false,
+		},
+		{
+			"lookup on non existing receipt",
+			types.Document{},
+			types.DocumentReceipt{},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
+
+			if !tt.storedDocument.Equals(types.Document{}) {
+				assert.NoError(t, k.SaveDocument(ctx, tt.storedDocument))
+			}
+
+			if !tt.want.Equals(types.DocumentReceipt{}) {
+				assert.NoError(t, k.SaveReceipt(ctx, tt.want))
+			}
+
+			rr, err := k.GetReceiptByID(ctx, tt.want.UUID)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, rr)
+			}
+		})
+	}
+}
