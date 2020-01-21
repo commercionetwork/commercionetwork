@@ -8,7 +8,6 @@ require (
 	github.com/cosmos/cosmos-sdk v0.34.4-0.20191013030331-92ea174ea6e6
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
-	github.com/cosmos/modules/incubator/nft v0.0.0-20191015123508-50d0c8092493
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
