@@ -31,9 +31,8 @@ func exportDocuments(ctx sdk.Context, keeper Keeper) []Document {
 // exportReceipts exports all the Receipts in the store to a slice.
 func exportReceipts(ctx sdk.Context, keeper Keeper) []DocumentReceipt {
 	receipts := []DocumentReceipt{}
-	sentDri, receivedDri := keeper.ReceiptsIterators(ctx)
+	sentDri, _ := keeper.ReceiptsIterators(ctx)
 	defer sentDri.Close()
-	defer receivedDri.Close()
 
 	// just iterate through sent receipt, received receipts are the same:
 	// the per-user selection logic happens on the key-level
