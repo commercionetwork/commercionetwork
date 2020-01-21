@@ -33,17 +33,17 @@ func DocsReceiptsInvariants(k Keeper) sdk.Invariant {
 
 		// sent receipts
 		for ; sentReceipts.Valid(); sentReceipts.Next() {
-			receipt, uuid, err := k.ExtractReceipt(ctx, sentReceipts.Value())
+			receipt, _, err := k.ExtractReceipt(ctx, sentReceipts.Value())
 
 			if err != nil {
-				panic("could not extract receipt during invariant")
+				panic("could not extract sent receipt during invariant")
 			}
 
-			if _, found := docsLookup[uuid]; found {
+			if _, found := docsLookup[receipt.DocumentUUID]; found {
 				continue
 			}
 
-			_, err = k.GetDocumentByID(ctx, uuid)
+			_, err = k.GetDocumentByID(ctx, receipt.DocumentUUID)
 			if err != nil {
 				return sdk.FormatInvariant(
 					types.ModuleName,
@@ -51,27 +51,27 @@ func DocsReceiptsInvariants(k Keeper) sdk.Invariant {
 					fmt.Sprintf(
 						"found sent receipt %s which refers to non-existent document %s",
 						receipt.UUID,
-						uuid,
+						receipt.DocumentUUID,
 					),
 				), true
 			}
 
-			docsLookup[uuid] = struct{}{}
+			docsLookup[receipt.DocumentUUID] = struct{}{}
 		}
 
 		// received receipts
 		for ; receivedReceipts.Valid(); receivedReceipts.Next() {
-			receipt, uuid, err := k.ExtractReceipt(ctx, receivedReceipts.Value())
+			receipt, _, err := k.ExtractReceipt(ctx, receivedReceipts.Value())
 
 			if err != nil {
-				panic("could not extract receipt during invariant")
+				panic("could not extract received receipt during invariant")
 			}
 
-			if _, found := docsLookup[uuid]; found {
+			if _, found := docsLookup[receipt.DocumentUUID]; found {
 				continue
 			}
 
-			_, err = k.GetDocumentByID(ctx, uuid)
+			_, err = k.GetDocumentByID(ctx, receipt.DocumentUUID)
 			if err != nil {
 				return sdk.FormatInvariant(
 					types.ModuleName,
@@ -79,12 +79,12 @@ func DocsReceiptsInvariants(k Keeper) sdk.Invariant {
 					fmt.Sprintf(
 						"found received receipt %s which refers to non-existent document %s",
 						receipt.UUID,
-						uuid,
+						receipt.DocumentUUID,
 					),
 				), true
 			}
 
-			docsLookup[uuid] = struct{}{}
+			docsLookup[receipt.DocumentUUID] = struct{}{}
 		}
 
 		return "", false
