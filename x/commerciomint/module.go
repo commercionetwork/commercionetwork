@@ -64,20 +64,9 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return nil
 }
 
-//____________________________________________________________________________
-
-// AppModuleSimulation defines the module simulation functions used by the auth module.
-type AppModuleSimulation struct{}
-
-// RegisterStoreDecoder registers a decoder for auth module's types
-func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
-
-//____________________________________________________________________________
-
 // AppModule implements an application module for the id module.
 type AppModule struct {
 	AppModuleBasic
-	AppModuleSimulation
 	keeper       Keeper
 	supplyKeeper supply.Keeper
 }
@@ -85,10 +74,9 @@ type AppModule struct {
 // NewAppModule creates a new AppModule object
 func NewAppModule(keeper Keeper, sk supply.Keeper) AppModule {
 	return AppModule{
-		AppModuleBasic:      AppModuleBasic{},
-		AppModuleSimulation: AppModuleSimulation{},
-		keeper:              keeper,
-		supplyKeeper:        sk,
+		AppModuleBasic: AppModuleBasic{},
+		keeper:         keeper,
+		supplyKeeper:   sk,
 	}
 }
 

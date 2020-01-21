@@ -24,7 +24,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) sdk.Result {
 	err := keeper.OpenCdp(ctx, msg.Depositor, msg.DepositedAmount)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return err.Result()
 	}
 
 	return sdk.Result{Log: "Cdp opened successfully"}
@@ -33,7 +33,7 @@ func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) sdk.
 func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) sdk.Result {
 	err := keeper.CloseCdp(ctx, msg.Signer, msg.Timestamp)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return err.Result()
 	}
 
 	return sdk.Result{Log: "Cdp closed successfully"}
