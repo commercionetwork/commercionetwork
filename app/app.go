@@ -22,8 +22,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/cosmos/modules/incubator/nft"
-
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -93,7 +91,6 @@ var (
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
-		nft.AppModuleBasic{},
 
 		// Encapsulated modules
 		customcrisis.NewAppModuleBasic(DefaultBondDenom),
@@ -203,7 +200,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Basics
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, nft.StoreKey,
+		gov.StoreKey, params.StoreKey,
 
 		// Encapsulated modules
 		custombank.StoreKey,
@@ -326,7 +323,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		slashing.ModuleName, gov.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
-		nft.ModuleName,
 
 		// Custom modules
 		government.ModuleName,

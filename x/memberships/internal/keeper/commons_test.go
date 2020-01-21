@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/cosmos/modules/incubator/nft"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
@@ -27,7 +26,6 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		nft.StoreKey,
 		government.StoreKey,
 
 		types.StoreKey,
@@ -74,7 +72,6 @@ func testCodec() *codec.Codec {
 	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
-	nft.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
 
