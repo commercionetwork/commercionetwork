@@ -108,9 +108,12 @@ func Test_exportReceipts(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			for _, receipt := range exportReceipts(ctx, k) {
+			er := exportReceipts(ctx, k)
+			for _, receipt := range er {
 				assert.Contains(t, tt.receipts, receipt)
 			}
+
+			assert.Len(t, er, len(tt.receipts))
 		})
 	}
 }

@@ -35,24 +35,10 @@ func exportReceipts(ctx sdk.Context, keeper Keeper) []DocumentReceipt {
 	defer sentDri.Close()
 	defer receivedDri.Close()
 
-	// sent receipts
+	// just iterate through sent receipt, received receipts are the same:
+	// the per-user selection logic happens on the key-level
 	for ; sentDri.Valid(); sentDri.Next() {
 		receipt, uuid, err := keeper.ExtractReceipt(ctx, sentDri.Value())
-		if err != nil {
-			panic(
-				fmt.Sprintf(
-					"could not find document receipt with UUID %s even though the user has an associated document with it",
-					uuid,
-				),
-			)
-		}
-
-		receipts = append(receipts, receipt)
-	}
-
-	// received receipts
-	for ; receivedDri.Valid(); receivedDri.Next() {
-		receipt, uuid, err := keeper.ExtractReceipt(ctx, receivedDri.Value())
 		if err != nil {
 			panic(
 				fmt.Sprintf(
