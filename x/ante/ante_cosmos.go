@@ -40,6 +40,7 @@ type SignatureVerificationGasConsumer = func(meter sdk.GasMeter, sig []byte, pub
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
+// TODO: implement custom fee checking (see ante_test.goo)
 func NewAnteHandler(ak authKeeper.AccountKeeper, supplyKeeper types.SupplyKeeper, priceKeeper pricefeed.Keeper, sigGasConsumer SignatureVerificationGasConsumer, stableCreditsDemon string) sdk.AnteHandler {
 	return func(
 		ctx sdk.Context, tx sdk.Tx, simulate bool,
