@@ -79,7 +79,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	}
 
 	suk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
-	sk := staking.NewKeeper(cdc, keys[staking.StoreKey], suk, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
+	sk := staking.NewKeeper(cdc, keys[staking.StoreKey], tkeys[staking.TStoreKey], suk, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
 	sk.SetParams(ctx, staking.DefaultParams())
 
 	dk := distr.NewKeeper(cdc, keys[distr.StoreKey], pk.Subspace(distr.DefaultParamspace), sk, suk, distr.DefaultCodespace, auth.FeeCollectorName, blacklistedAddrs)
