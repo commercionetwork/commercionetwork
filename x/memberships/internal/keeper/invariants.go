@@ -21,12 +21,19 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 // and that the users associated with them have been invited by a TSP.
 func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
+		// get gov address
+		govAddr := k.governmentKeeper.GetGovernmentAddress(ctx)
+
 		// get all the users with membership
 		i := k.MembershipIterator(ctx)
 		defer i.Close()
 		for ; i.Valid(); i.Next() {
 			user := k.ExtractMembership(i.Key(), i.Value())
 			credentials := k.GetUserCredentials(ctx, user.Owner)
+
+			if govAddr.Equals(user.Owner) {
+				continue
+			}
 
 			// check that the user has been invited
 			_, found := k.GetInvite(ctx, user.Owner)
