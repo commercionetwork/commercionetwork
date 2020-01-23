@@ -3,6 +3,7 @@ package commerciomint
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
@@ -56,12 +57,12 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 
 // get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return nil
+	return cli.GetTxCmd(cdc)
 }
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return nil
+	return cli.GetQueryCmd(cdc)
 }
 
 //____________________________________________________________________________
