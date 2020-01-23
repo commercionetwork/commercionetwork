@@ -142,9 +142,9 @@ func (k Keeper) GetCdps(ctx sdk.Context) types.Cdps {
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var cdp types.Cdp
+		var cdp types.Cdps
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &cdp)
-		cdps, _ = cdps.AppendIfMissing(cdp)
+		cdps = append(cdps, cdp...)
 	}
 
 	return cdps
