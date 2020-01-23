@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"io"
 
+	"github.com/cosmos/cosmos-sdk/x/genaccounts"
+
+	"github.com/cosmos/cosmos-sdk/x/staking"
+
 	"github.com/commercionetwork/commercionetwork/app"
 	gencmds "github.com/commercionetwork/commercionetwork/x/gencommands/client/cli"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -24,7 +27,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 // cnd custom flags
@@ -49,11 +51,11 @@ func main() {
 
 	// Build root command
 	rootCmd.AddCommand(genutilcli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome))
-	rootCmd.AddCommand(genutilcli.CollectGenTxsCmd(ctx, cdc, auth.GenesisAccountIterator{}, app.DefaultNodeHome))
+	rootCmd.AddCommand(genutilcli.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, app.DefaultNodeHome))
 	rootCmd.AddCommand(
 		genutilcli.GenTxCmd(
 			ctx, cdc, app.ModuleBasics, staking.AppModuleBasic{},
-			auth.GenesisAccountIterator{}, app.DefaultNodeHome, app.DefaultCLIHome,
+			genaccounts.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultCLIHome,
 		),
 	)
 	rootCmd.AddCommand(genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics))
