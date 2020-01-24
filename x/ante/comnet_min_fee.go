@@ -42,7 +42,7 @@ func checkMinimumFees(
 
 	// ----
 	// Each message should cost 0.01€, which can be paid:
-	// 1 .Using stable credits worth 1€ (10.000 ustable)
+	// 1 .Using stable credits worth 1€ (10.000 uccc)
 	// 2. Using other tokens (their required quantity is based on their value)
 	// ----
 
