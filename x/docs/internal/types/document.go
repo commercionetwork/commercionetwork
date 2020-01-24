@@ -143,18 +143,3 @@ func (doc Document) Validate() sdk.Error {
 
 	return nil
 }
-
-type Documents []Document
-
-func (documents Documents) AppendIfMissing(i Document) Documents {
-	for _, ele := range documents {
-		if ele.Equals(i) {
-			return documents
-		}
-	}
-	return append(documents, i)
-}
-
-func (documents Documents) IsEmpty() bool {
-	return len(documents) == 0
-}

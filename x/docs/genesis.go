@@ -6,10 +6,10 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Documents                      Documents        `json:"documents"`
-	Receipts                       DocumentReceipts `json:"receipts"`
-	SupportedMetadataSchemes       MetadataSchemes  `json:"supported_metadata_schemes"`
-	TrustedMetadataSchemaProposers []sdk.AccAddress `json:"trusted_metadata_schema_proposers"`
+	Documents                      []Document        `json:"documents"`
+	Receipts                       []DocumentReceipt `json:"receipts"`
+	SupportedMetadataSchemes       []MetadataSchema  `json:"supported_metadata_schemes"`
+	TrustedMetadataSchemaProposers []sdk.AccAddress  `json:"trusted_metadata_schema_proposers"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -43,10 +43,10 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
-		Documents:                      keeper.GetDocuments(ctx),
-		Receipts:                       keeper.GetReceipts(ctx),
-		SupportedMetadataSchemes:       keeper.GetSupportedMetadataSchemes(ctx),
-		TrustedMetadataSchemaProposers: keeper.GetTrustedSchemaProposers(ctx),
+		Documents:                      exportDocuments(ctx, keeper),
+		Receipts:                       exportReceipts(ctx, keeper),
+		SupportedMetadataSchemes:       exportMetadataSchemes(ctx, keeper),
+		TrustedMetadataSchemaProposers: exportTrustedSchemaProviders(ctx, keeper),
 	}
 }
 

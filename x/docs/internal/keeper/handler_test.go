@@ -7,10 +7,9 @@ import (
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 // -----------------------------
@@ -50,7 +49,7 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 	k.AddSupportedMetadataScheme(ctx, supportedSchema)
 
 	res := handler(ctx, msgShareDocument)
-	assert.True(t, res.IsOK())
+	require.True(t, res.IsOK())
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
@@ -69,8 +68,8 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 	})
 
 	res := handler(ctx, msgShareDocument)
-	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeUnknownRequest, res.Code)
+	require.False(t, res.IsOK())
+	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
 }
 
 // -----------------------------------
@@ -80,10 +79,15 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 func Test_handleMsgSendDocumentReceipt(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
-	msgSendDocumentReceipt := types.MsgSendDocumentReceipt(TestingDocumentReceipt)
+	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
+
+	tdr := TestingDocumentReceipt
+	tdr.DocumentUUID = TestingDocument.UUID
+
+	msgSendDocumentReceipt := types.MsgSendDocumentReceipt(tdr)
 
 	res := handler(ctx, msgSendDocumentReceipt)
-	assert.True(t, res.IsOK())
+	require.True(t, res.IsOK())
 }
 
 // -------------------------------------------
@@ -103,17 +107,15 @@ func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
 		},
 	}
 	res := handler(ctx, msgAddSupportedMetadataSchema)
-	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	require.False(t, res.IsOK())
+	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
 }
 
 func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
-	signers := []sdk.AccAddress{TestingSender}
 
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.MetadataSchemaProposersStoreKey), cdc.MustMarshalBinaryBare(&signers))
+	k.AddTrustedSchemaProposer(ctx, TestingSender)
 
 	msgAddSupportedMetadataSchema := types.MsgAddSupportedMetadataSchema{
 		Signer: TestingSender,
@@ -124,7 +126,7 @@ func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
 		},
 	}
 	res := handler(ctx, msgAddSupportedMetadataSchema)
-	assert.True(t, res.IsOK())
+	require.True(t, res.IsOK())
 }
 
 // ------------------------------------------------
@@ -140,8 +142,8 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_MissingGovernment(t *testing
 		Signer:   TestingRecipient,
 	}
 	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
-	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	require.False(t, res.IsOK())
+	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T) {
@@ -154,8 +156,8 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T
 		Signer:   TestingSender,
 	}
 	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
-	assert.False(t, res.IsOK())
-	assert.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	require.False(t, res.IsOK())
+	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) {
@@ -168,7 +170,7 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) 
 		Signer:   TestingRecipient,
 	}
 	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
-	assert.True(t, res.IsOK())
+	require.True(t, res.IsOK())
 }
 
 // -------------------
@@ -179,6 +181,6 @@ func Test_invalidMsg(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
 	res := handler(ctx, sdk.NewTestMsg())
-	assert.False(t, res.IsOK())
-	assert.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
+	require.False(t, res.IsOK())
+	require.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
 }

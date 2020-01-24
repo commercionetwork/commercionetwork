@@ -6,7 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDocument_Equals_NilValues(t *testing.T) {
@@ -20,7 +20,7 @@ func TestDocument_Equals_NilValues(t *testing.T) {
 		Checksum:       nil,
 		EncryptionData: nil,
 	}
-	assert.True(t, document.Equals(document))
+	require.True(t, document.Equals(document))
 }
 
 func Test_validateUUID(t *testing.T) {
@@ -50,9 +50,9 @@ func Test_validateUUID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			val := validateUUID(tt.UUID)
 			if tt.badUUID {
-				assert.False(t, val, "got true")
+				require.False(t, val, "got true")
 			} else {
-				assert.True(t, val, "got false")
+				require.True(t, val, "got false")
 			}
 		})
 	}
@@ -122,9 +122,9 @@ func TestDocument_Equals(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if !tt.different {
-				assert.True(t, tt.us.Equals(tt.other))
+				require.True(t, tt.us.Equals(tt.other))
 			} else {
-				assert.False(t, tt.us.Equals(tt.other))
+				require.False(t, tt.us.Equals(tt.other))
 			}
 		})
 	}
@@ -333,104 +333,9 @@ func TestDocument_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.doc.Validate()
 			if tt.expectedErr != nil {
-				assert.EqualError(t, err, tt.expectedErr.Error())
+				require.EqualError(t, err, tt.expectedErr.Error())
 			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestDocuments_AppendIfMissing(t *testing.T) {
-
-	tests := []struct {
-		name        string
-		documents   Documents
-		newDocument Document
-		want        Documents
-	}{
-		{
-			"adding a new element",
-			Documents{
-				Document{
-					UUID: "existingelement",
-				},
-			},
-			Document{
-				UUID: "newdocument",
-			},
-			Documents{
-				Document{
-					UUID: "existingelement",
-				},
-				Document{
-					UUID: "newdocument",
-				},
-			},
-		},
-		{
-			"adding an existing element",
-			Documents{
-				Document{
-					UUID: "existingelement",
-				},
-				Document{
-					UUID: "newdocument",
-				},
-			},
-			Document{
-				UUID: "newdocument",
-			},
-			Documents{
-				Document{
-					UUID: "existingelement",
-				},
-				Document{
-					UUID: "newdocument",
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			newDoc := tt.documents.AppendIfMissing(tt.newDocument)
-			assert.Equal(t, tt.want, newDoc)
-		})
-	}
-}
-
-func TestDocuments_IsEmpty(t *testing.T) {
-	tests := []struct {
-		name      string
-		documents Documents
-		empty     bool
-	}{
-		{
-			"an empty Documents instance",
-			Documents{},
-			true,
-		},
-		{
-			"a Documents instance with something inside",
-			Documents{
-				Document{
-					UUID: "existingelement",
-				},
-				Document{
-					UUID: "newdocument",
-				},
-			},
-			false,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			if !tt.empty {
-				assert.False(t, tt.documents.IsEmpty())
-			} else {
-				assert.True(t, tt.documents.IsEmpty())
+				require.NoError(t, err)
 			}
 		})
 	}

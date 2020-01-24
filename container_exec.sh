@@ -19,8 +19,8 @@
 export CHAIN_DIR="/root/chain"
 export GENESIS_DIR="/root/genesis"
 
-CND_FLAGS="--home=$CHAIN_DIR"
-
+CND_FLAGS="--home=$CHAIN_DIR $CND_EXTRA_FLAGS"
+CND_START_FLAGS="$CND_START_FLAGS"
 if [ -z "$(ls -A $CHAIN_DIR)" ]; then
 	# chain directory empty, let's build a new chain
 	./cnd unsafe-reset-all $CND_FLAGS
@@ -30,6 +30,6 @@ if [ -z "$(ls -A $CHAIN_DIR)" ]; then
 	mv $CHAIN_DIR/config/config.toml.tmp  $CHAIN_DIR/config/config.toml
 fi
 
-./cnd start $CND_FLAGS &
+./cnd start $CND_FLAGS $CND_START_FLAGS &
 sleep 3 # let cnd start first before running cncli rest server
 ./cncli rest-server --chain-id=$CHAINID --laddr $CNCLI_LISTEN_ADDR 

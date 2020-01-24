@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var key = DocumentEncryptionKey{
@@ -60,7 +60,7 @@ func TestDocumentEncryptionKey_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
 	}
 }
@@ -95,9 +95,9 @@ func TestDocumentEncryptionKey_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr != nil {
-				assert.EqualError(t, tt.ek.Validate(), tt.wantErr.Error())
+				require.EqualError(t, tt.ek.Validate(), tt.wantErr.Error())
 			} else {
-				assert.NoError(t, tt.ek.Validate())
+				require.NoError(t, tt.ek.Validate())
 			}
 		})
 	}
