@@ -90,9 +90,9 @@ func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.RawPrices {
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.RawPricesPrefix))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var price types.RawPrice
+		var price types.RawPrices
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &price)
-		prices = append(prices, price)
+		prices = append(prices, price...)
 	}
 
 	return prices
