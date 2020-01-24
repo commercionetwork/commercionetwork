@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // -----------
@@ -57,11 +57,11 @@ func TestCdp_Validate(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			if test.shouldBeValid {
-				assert.NoError(t, test.cdp.Validate())
+				require.NoError(t, test.cdp.Validate())
 			} else {
 				res := test.cdp.Validate()
-				assert.NotNil(t, res)
-				assert.Equal(t, test.error, res)
+				require.NotNil(t, res)
+				require.Equal(t, test.error, res)
 			}
 		})
 	}
@@ -96,7 +96,7 @@ func TestCdp_Equals(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
+			require.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
 		})
 	}
 }
@@ -130,9 +130,9 @@ func TestCdps_AppendIfMissing(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			result, appended := test.cdps.AppendIfMissing(test.cdp)
-			assert.Equal(t, test.shouldBeAppended, appended)
+			require.Equal(t, test.shouldBeAppended, appended)
 			if test.shouldBeAppended {
-				assert.Contains(t, result, test.cdp)
+				require.Contains(t, result, test.cdp)
 			}
 		})
 	}
@@ -163,9 +163,9 @@ func TestCdps_RemoveWhenFound(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			result, removed := test.cdps.RemoveWhenFound(test.timestamp)
-			assert.Equal(t, test.shouldBeRemoved, removed)
+			require.Equal(t, test.shouldBeRemoved, removed)
 			if test.shouldBeRemoved {
-				assert.Less(t, len(result), len(test.cdps))
+				require.Less(t, len(result), len(test.cdps))
 			}
 		})
 	}

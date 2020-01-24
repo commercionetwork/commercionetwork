@@ -7,7 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.DepositedAmount, testCdp.Owner)
@@ -24,7 +24,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 
 	expected := sdk.Result{Log: "Cdp opened successfully"}
 	actual := handler(ctx, testMsgOpenCdp)
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestHandler_handleMsgCloseCdp(t *testing.T) {
@@ -37,7 +37,7 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 
 	expected := sdk.Result{Log: "Cdp closed successfully"}
 	actual := handler(ctx, testMsgCloseCdp)
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
@@ -49,5 +49,5 @@ func TestHandler_InvalidMsg(t *testing.T) {
 	expected := sdk.ErrUnknownRequest(errMsg).Result()
 	actual := handler(ctx, invalidMsg)
 
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }

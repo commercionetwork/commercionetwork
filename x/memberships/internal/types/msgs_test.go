@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Test vars
@@ -19,11 +19,11 @@ var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkf
 var msgInviteUser = types.NewMsgInviteUser(user, sender)
 
 func TestMsgInviteUser_Route(t *testing.T) {
-	assert.Equal(t, types.RouterKey, msgInviteUser.Route())
+	require.Equal(t, types.RouterKey, msgInviteUser.Route())
 }
 
 func TestMsgInviteUser_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeInviteUser, msgInviteUser.Type())
+	require.Equal(t, types.MsgTypeInviteUser, msgInviteUser.Type())
 }
 
 func TestMsgInviteUser_ValidateBasic(t *testing.T) {
@@ -52,7 +52,7 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
@@ -60,13 +60,13 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 func TestMsgInviteUser_GetSignBytes(t *testing.T) {
 	actual := msgInviteUser.GetSignBytes()
 	expected := sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msgInviteUser))
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestMsgInviteUser_GetSigners(t *testing.T) {
 	actual := msgInviteUser.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgInviteUser.Recipient, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgInviteUser.Recipient, actual[0])
 }
 
 func TestMsgInviteUser_UnmarshalJson(t *testing.T) {
@@ -75,8 +75,8 @@ func TestMsgInviteUser_UnmarshalJson(t *testing.T) {
 	var msg types.MsgInviteUser
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, user, msg.Recipient)
-	assert.Equal(t, sender, msg.Sender)
+	require.Equal(t, user, msg.Recipient)
+	require.Equal(t, sender, msg.Sender)
 }
 
 // ---------------------------
@@ -86,11 +86,11 @@ func TestMsgInviteUser_UnmarshalJson(t *testing.T) {
 var msgSetUserVerified = types.NewMsgSetUserVerified(user, tsp)
 
 func TestMsgSetUserVerified_Route(t *testing.T) {
-	assert.Equal(t, types.RouterKey, msgSetUserVerified.Route())
+	require.Equal(t, types.RouterKey, msgSetUserVerified.Route())
 }
 
 func TestMsgSetUserVerified_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeSetUserVerified, msgSetUserVerified.Type())
+	require.Equal(t, types.MsgTypeSetUserVerified, msgSetUserVerified.Type())
 }
 
 func TestMsgSetUserVerified_ValidateBasic(t *testing.T) {
@@ -119,20 +119,20 @@ func TestMsgSetUserVerified_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestMsgSetUserVerified_GetSignBytes(t *testing.T) {
 	json := `{"type":"commercio/MsgSetUserVerified","value":{"user":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","verifier":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
-	assert.Equal(t, json, string(msgSetUserVerified.GetSignBytes()))
+	require.Equal(t, json, string(msgSetUserVerified.GetSignBytes()))
 }
 
 func TestMsgSetUserVerified_GetSigners(t *testing.T) {
 	actual := msgSetUserVerified.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgSetUserVerified.Verifier, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgSetUserVerified.Verifier, actual[0])
 }
 
 func TestMsgSetUserVerified_UnmarshalJson(t *testing.T) {
@@ -141,8 +141,8 @@ func TestMsgSetUserVerified_UnmarshalJson(t *testing.T) {
 	var msg types.MsgSetUserVerified
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, user, msg.User)
-	assert.Equal(t, tsp, msg.Verifier)
+	require.Equal(t, user, msg.User)
+	require.Equal(t, tsp, msg.Verifier)
 }
 
 // --------------------------------
@@ -153,11 +153,11 @@ var amount = sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
 var msgDepositIntoLiquidityPool = types.NewMsgDepositIntoLiquidityPool(amount, user)
 
 func TestMsgDepositIntoLiquidityPool_Route(t *testing.T) {
-	assert.Equal(t, types.RouterKey, msgDepositIntoLiquidityPool.Route())
+	require.Equal(t, types.RouterKey, msgDepositIntoLiquidityPool.Route())
 }
 
 func TestMsgDepositIntoLiquidityPool_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypesDepositIntoLiquidityPool, msgDepositIntoLiquidityPool.Type())
+	require.Equal(t, types.MsgTypesDepositIntoLiquidityPool, msgDepositIntoLiquidityPool.Type())
 }
 
 func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
@@ -194,7 +194,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
@@ -202,13 +202,13 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 func TestMsgDepositIntoLiquidityPool_GetSignBytes(t *testing.T) {
 	actual := msgDepositIntoLiquidityPool.GetSignBytes()
 	expected := sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msgDepositIntoLiquidityPool))
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestMsgDepositIntoLiquidityPool_GetSigners(t *testing.T) {
 	actual := msgDepositIntoLiquidityPool.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgDepositIntoLiquidityPool.Depositor, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgDepositIntoLiquidityPool.Depositor, actual[0])
 }
 
 func TestMsgDepositIntoLiquidityPool_UnmarshalJson(t *testing.T) {
@@ -217,8 +217,8 @@ func TestMsgDepositIntoLiquidityPool_UnmarshalJson(t *testing.T) {
 	var msg types.MsgDepositIntoLiquidityPool
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, user, msg.Depositor)
-	assert.Equal(t, amount, msg.Amount)
+	require.Equal(t, user, msg.Depositor)
+	require.Equal(t, amount, msg.Amount)
 }
 
 // --------------------------------
@@ -233,11 +233,11 @@ var msgAddTsp = types.MsgAddTsp{
 }
 
 func TestMsgAddTsp_Route(t *testing.T) {
-	assert.Equal(t, types.RouterKey, msgAddTsp.Route())
+	require.Equal(t, types.RouterKey, msgAddTsp.Route())
 }
 
 func TestMsgAddTsp_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeAddTsp, msgAddTsp.Type())
+	require.Equal(t, types.MsgTypeAddTsp, msgAddTsp.Type())
 }
 
 func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
@@ -266,7 +266,7 @@ func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
@@ -274,13 +274,13 @@ func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
 func TestMsgAddTsp_GetSignBytes(t *testing.T) {
 	actual := msgAddTsp.GetSignBytes()
 	expected := sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msgAddTsp))
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestMsgAddTsp_GetSigners(t *testing.T) {
 	actual := msgAddTsp.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgAddTsp.Government, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgAddTsp.Government, actual[0])
 }
 
 func TestMsgAddTsp_UnmarshalJson(t *testing.T) {
@@ -289,8 +289,8 @@ func TestMsgAddTsp_UnmarshalJson(t *testing.T) {
 	var msg types.MsgAddTsp
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, tsp, msg.Tsp)
-	assert.Equal(t, government, msg.Government)
+	require.Equal(t, tsp, msg.Tsp)
+	require.Equal(t, government, msg.Government)
 }
 
 // ---------------------------
@@ -302,11 +302,11 @@ var TestMembershipType = "bronze"
 var msgBuyMembership = types.NewMsgBuyMembership(TestMembershipType, testBuyer)
 
 func TestMsgBuyMembership_Route(t *testing.T) {
-	assert.Equal(t, types.RouterKey, msgBuyMembership.Route())
+	require.Equal(t, types.RouterKey, msgBuyMembership.Route())
 }
 
 func TestMsgBuyMembership_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeBuyMembership, msgBuyMembership.Type())
+	require.Equal(t, types.MsgTypeBuyMembership, msgBuyMembership.Type())
 }
 
 func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
@@ -340,17 +340,17 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestMsgBuyMembership_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgBuyMembership","value":{"buyer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","membership_type":"bronze"}}`
-	assert.Equal(t, expected, string(msgBuyMembership.GetSignBytes()))
+	require.Equal(t, expected, string(msgBuyMembership.GetSignBytes()))
 }
 
 func TestMsgBuyMembership_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgBuyMembership.Buyer}
-	assert.Equal(t, expected, msgBuyMembership.GetSigners())
+	require.Equal(t, expected, msgBuyMembership.GetSigners())
 }

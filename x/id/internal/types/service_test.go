@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestService_Equals(t *testing.T) {
@@ -45,7 +45,7 @@ func TestService_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
 	}
 }
@@ -81,9 +81,9 @@ func TestService_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.want != nil {
-				assert.EqualError(t, tt.ts.Validate(), tt.want.Error())
+				require.EqualError(t, tt.ts.Validate(), tt.want.Error())
 			} else {
-				assert.NoError(t, tt.ts.Validate())
+				require.NoError(t, tt.ts.Validate())
 			}
 		})
 	}
@@ -93,10 +93,10 @@ func TestServices_Eqwuals(t *testing.T) {
 	service1 := types.NewService("id-1", "type-1", "endpoint-1")
 	service2 := types.NewService("id-2", "type-2", "endpoint-2")
 
-	assert.False(t, types.Services{}.Equals(types.Services{service1}))
-	assert.False(t, types.Services{service1}.Equals(types.Services{service1, service2}))
-	assert.False(t, types.Services{service1, service2}.Equals(types.Services{service2, service1}))
-	assert.True(t, types.Services{service1, service2}.Equals(types.Services{service1, service2}))
+	require.False(t, types.Services{}.Equals(types.Services{service1}))
+	require.False(t, types.Services{service1}.Equals(types.Services{service1, service2}))
+	require.False(t, types.Services{service1, service2}.Equals(types.Services{service2, service1}))
+	require.True(t, types.Services{service1, service2}.Equals(types.Services{service1, service2}))
 }
 
 func TestServices_Equals(t *testing.T) {
@@ -137,7 +137,7 @@ func TestServices_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
 	}
 }

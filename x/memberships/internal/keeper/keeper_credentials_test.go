@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_GetUserCredentials(t *testing.T) {
@@ -37,7 +37,7 @@ func TestKeeper_GetUserCredentials(t *testing.T) {
 			}
 
 			result := k.GetUserCredentials(ctx, user)
-			assert.Equal(t, test.credentials, result)
+			require.Equal(t, test.credentials, result)
 		})
 	}
 }
@@ -86,7 +86,7 @@ func TestKeeper_GetCredentials(t *testing.T) {
 				k.SaveCredential(ctx, c)
 			}
 
-			assert.Equal(t, test.expected, k.GetCredentials(ctx))
+			require.Equal(t, test.expected, k.GetCredentials(ctx))
 		})
 	}
 }
@@ -136,7 +136,7 @@ func TestKeeper_SaveCredential(t *testing.T) {
 			}
 
 			actual := k.GetUserCredentials(ctx, user)
-			assert.Equal(t, test.expected, actual)
+			require.Equal(t, test.expected, actual)
 		})
 	}
 }

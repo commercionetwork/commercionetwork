@@ -7,7 +7,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testZone, _ = time.LoadLocation("UTC")
@@ -52,11 +52,11 @@ var msgSetIdentity = types.NewMsgSetIdentity(types.DidDocument{
 // ----------------------------------
 
 func TestMsgSetIdentity_Route(t *testing.T) {
-	assert.Equal(t, types.ModuleName, msgSetIdentity.Route())
+	require.Equal(t, types.ModuleName, msgSetIdentity.Route())
 }
 
 func TestMsgSetIdentity_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeSetIdentity, msgSetIdentity.Type())
+	require.Equal(t, types.MsgTypeSetIdentity, msgSetIdentity.Type())
 }
 
 func TestMsgSetIdentity_ValidateBasic(t *testing.T) {
@@ -81,9 +81,9 @@ func TestMsgSetIdentity_ValidateBasic(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			if test.shouldBeValid {
-				assert.NoError(t, test.message.ValidateBasic())
+				require.NoError(t, test.message.ValidateBasic())
 			} else {
-				assert.Error(t, test.message.ValidateBasic())
+				require.Error(t, test.message.ValidateBasic())
 			}
 		})
 	}
@@ -91,12 +91,12 @@ func TestMsgSetIdentity_ValidateBasic(t *testing.T) {
 
 func TestMsgSetIdentity_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgSetIdentity","value":{"@context":"https://www.w3.org/ns/did/v1","authentication":["cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1"],"id":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","proof":{"created":"2016-02-08T16:02:20Z","creator":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1","signatureValue":"QNB13Y7Q9...1tzjn4w==","type":"LinkedDataSignature2015"},"publicKey":[{"controller":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","id":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1","publicKeyHex":"02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71","type":"Secp256k1VerificationKey2018"},{"controller":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","id":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-2","publicKeyHex":"04418834f5012c808a11830819f300d06092a864886f70d010101050003818d0030818902818100ccaf757e02ec9cfb3beddaa5fe8e9c24df033e9b60db7cb8e2981cb340321faf348731343c7ab2f4920ebd62c5c7617557f66219291ce4e95370381390252b080dfda319bb84808f04078737ab55f291a9024ef3b72aedcf26067d3cee2a470ed056f4e409b73dd6b4fddffa43dff02bf30a9de29357b606df6f0246be267a910203010001a","type":"RsaVerificationKey2018"},{"controller":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","id":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1","publicKeyHex":"035AD6810A47F073553FF30D2FCC7E0D3B1C0B74B61A1AAA2582344037151E143A","type":"Secp256k1VerificationKey2018"}],"service":null}}`
-	assert.Equal(t, expected, string(msgSetIdentity.GetSignBytes()))
+	require.Equal(t, expected, string(msgSetIdentity.GetSignBytes()))
 }
 
 func TestMsgSetIdentity_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgSetIdentity.ID}
-	assert.Equal(t, expected, msgSetIdentity.GetSigners())
+	require.Equal(t, expected, msgSetIdentity.GetSigners())
 }
 
 // --------------------------
@@ -114,11 +114,11 @@ var msgRequestDidDeposit = types.MsgRequestDidDeposit{
 }
 
 func TestMsgRequestDidDeposit_Route(t *testing.T) {
-	assert.Equal(t, types.ModuleName, msgRequestDidDeposit.Route())
+	require.Equal(t, types.ModuleName, msgRequestDidDeposit.Route())
 }
 
 func TestMsgRequestDidDeposit_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeRequestDidDeposit, msgRequestDidDeposit.Type())
+	require.Equal(t, types.MsgTypeRequestDidDeposit, msgRequestDidDeposit.Type())
 }
 
 func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
@@ -165,19 +165,19 @@ func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestMsgRequestDidDeposit_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgRequestDidDeposit","value":{"amount":[{"amount":"100","denom":"uatom"}],"encryption_key":"333b68743231343b6833346832313468354a40617364617364","from_address":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa"}}`
-	assert.Equal(t, expected, string(msgRequestDidDeposit.GetSignBytes()))
+	require.Equal(t, expected, string(msgRequestDidDeposit.GetSignBytes()))
 }
 
 func TestMsgRequestDidDeposit_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgRequestDidDeposit.FromAddress}
-	assert.Equal(t, expected, msgRequestDidDeposit.GetSigners())
+	require.Equal(t, expected, msgRequestDidDeposit.GetSigners())
 }
 
 func TestMsgRequestDidDeposit_JSON(t *testing.T) {
@@ -193,7 +193,7 @@ func TestMsgRequestDidDeposit_JSON(t *testing.T) {
 		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
 		Recipient:     requestRecipient,
 	}
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 // ------------------------
@@ -204,11 +204,11 @@ var signer, _ = sdk.AccAddressFromBech32("cosmos1ejra5g9prtanzr3mjqj3suh5g6mffyy
 var msgMoveDeposit = types.NewMsgMoveDeposit("333b68743231343b6833346832313468354a40617364617364", signer)
 
 func TestMsgMoveDeposit_Route(t *testing.T) {
-	assert.Equal(t, types.ModuleName, msgMoveDeposit.Route())
+	require.Equal(t, types.ModuleName, msgMoveDeposit.Route())
 }
 
 func TestMsgMoveDeposit_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeMoveDeposit, msgMoveDeposit.Type())
+	require.Equal(t, types.MsgTypeMoveDeposit, msgMoveDeposit.Type())
 }
 
 func TestMsgMoveDeposit_ValidateBasic(t *testing.T) {
@@ -236,19 +236,19 @@ func TestMsgMoveDeposit_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestMsgMoveDeposit_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgMoveDeposit","value":{"deposit_proof":"333b68743231343b6833346832313468354a40617364617364","signer":"cosmos1ejra5g9prtanzr3mjqj3suh5g6mffyyspemcm0"}}`
-	assert.Equal(t, expected, string(msgMoveDeposit.GetSignBytes()))
+	require.Equal(t, expected, string(msgMoveDeposit.GetSignBytes()))
 }
 
 func TestMsgMoveDeposit_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgMoveDeposit.Signer}
-	assert.Equal(t, expected, msgMoveDeposit.GetSigners())
+	require.Equal(t, expected, msgMoveDeposit.GetSigners())
 }
 
 func TestMsgMoveDeposit_JSON(t *testing.T) {
@@ -256,7 +256,7 @@ func TestMsgMoveDeposit_JSON(t *testing.T) {
 
 	var actual types.MsgMoveDeposit
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
-	assert.Equal(t, msgMoveDeposit, actual)
+	require.Equal(t, msgMoveDeposit, actual)
 }
 
 // --------------------------
@@ -274,11 +274,11 @@ var msgInvalidateDidDepositRequestStatus = types.NewMsgInvalidateDidDepositReque
 )
 
 func TestMsgInvalidateDidDepositRequest_Route(t *testing.T) {
-	assert.Equal(t, types.ModuleName, msgInvalidateDidDepositRequestStatus.Route())
+	require.Equal(t, types.ModuleName, msgInvalidateDidDepositRequestStatus.Route())
 }
 
 func TestMsgInvalidateDidDepositRequest_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeInvalidateDidDepositRequest, msgInvalidateDidDepositRequestStatus.Type())
+	require.Equal(t, types.MsgTypeInvalidateDidDepositRequest, msgInvalidateDidDepositRequestStatus.Type())
 }
 
 func TestMsgInvalidateDidDepositRequest_ValidateBasic(t *testing.T) {
@@ -313,19 +313,19 @@ func TestMsgInvalidateDidDepositRequest_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestMsgInvalidateDidDepositRequest_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgInvalidateDidDepositRequest","value":{"deposit_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","status":{"message":"Don't want this anymore","type":"canceled"}}}`
-	assert.Equal(t, expected, string(msgInvalidateDidDepositRequestStatus.GetSignBytes()))
+	require.Equal(t, expected, string(msgInvalidateDidDepositRequestStatus.GetSignBytes()))
 }
 
 func TestMsgInvalidateDidDepositRequest_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgInvalidateDidDepositRequestStatus.Editor}
-	assert.Equal(t, expected, msgInvalidateDidDepositRequestStatus.GetSigners())
+	require.Equal(t, expected, msgInvalidateDidDepositRequestStatus.GetSigners())
 }
 
 func TestMsgInvalidateDidDepositRequest_JSON(t *testing.T) {
@@ -333,7 +333,7 @@ func TestMsgInvalidateDidDepositRequest_JSON(t *testing.T) {
 
 	var actual types.MsgInvalidateDidDepositRequest
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
-	assert.Equal(t, msgInvalidateDidDepositRequestStatus, actual)
+	require.Equal(t, msgInvalidateDidDepositRequestStatus, actual)
 }
 
 // --------------------------
@@ -348,11 +348,11 @@ var msgRequestDidPowerUp = types.MsgRequestDidPowerUp{
 }
 
 func TestMsgRequestDidPowerUp_Route(t *testing.T) {
-	assert.Equal(t, types.ModuleName, msgRequestDidPowerUp.Route())
+	require.Equal(t, types.ModuleName, msgRequestDidPowerUp.Route())
 }
 
 func TestMsgRequestDidPowerUp_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeRequestDidPowerUp, msgRequestDidPowerUp.Type())
+	require.Equal(t, types.MsgTypeRequestDidPowerUp, msgRequestDidPowerUp.Type())
 }
 
 func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
@@ -393,19 +393,19 @@ func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestMsgRequestDidPowerUp_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgRequestDidPowerUp","value":{"amount":[{"amount":"100","denom":"uatom"}],"claimant":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","encryption_key":"333b68743231343b6833346832313468354a40617364617364","proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878"}}`
-	assert.Equal(t, expected, string(msgRequestDidPowerUp.GetSignBytes()))
+	require.Equal(t, expected, string(msgRequestDidPowerUp.GetSignBytes()))
 }
 
 func TestMsgRequestDidPowerUp_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgRequestDidPowerUp.Claimant}
-	assert.Equal(t, expected, msgRequestDidPowerUp.GetSigners())
+	require.Equal(t, expected, msgRequestDidPowerUp.GetSigners())
 }
 
 func TestMsgRequestDidPowerUp_JSON(t *testing.T) {
@@ -420,7 +420,7 @@ func TestMsgRequestDidPowerUp_JSON(t *testing.T) {
 		Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 		EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
 	}
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 // ------------------------
@@ -435,11 +435,11 @@ var msgPowerUpDid = types.MsgPowerUpDid{
 }
 
 func TestMsgPowerUpDid_Route(t *testing.T) {
-	assert.Equal(t, types.ModuleName, msgPowerUpDid.Route())
+	require.Equal(t, types.ModuleName, msgPowerUpDid.Route())
 }
 
 func TestMsgPowerUpDid_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypePowerUpDid, msgPowerUpDid.Type())
+	require.Equal(t, types.MsgTypePowerUpDid, msgPowerUpDid.Type())
 }
 
 func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
@@ -480,19 +480,19 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestMsgPowerUpDid_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgPowerUpDid","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
-	assert.Equal(t, expected, string(msgPowerUpDid.GetSignBytes()))
+	require.Equal(t, expected, string(msgPowerUpDid.GetSignBytes()))
 }
 
 func TestMsgPowerUpDid_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgPowerUpDid.Signer}
-	assert.Equal(t, expected, msgPowerUpDid.GetSigners())
+	require.Equal(t, expected, msgPowerUpDid.GetSigners())
 }
 
 func TestMsgPowerUpDid_JSON(t *testing.T) {
@@ -500,7 +500,7 @@ func TestMsgPowerUpDid_JSON(t *testing.T) {
 
 	var actual types.MsgPowerUpDid
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
-	assert.Equal(t, msgPowerUpDid, actual)
+	require.Equal(t, msgPowerUpDid, actual)
 }
 
 // --------------------------
@@ -517,11 +517,11 @@ var msgInvalidateDidPowerUpRequestStatus = types.NewMsgInvalidateDidPowerUpReque
 )
 
 func TestNewMsgInvalidateDidPowerUpRequest_Route(t *testing.T) {
-	assert.Equal(t, types.ModuleName, msgInvalidateDidPowerUpRequestStatus.Route())
+	require.Equal(t, types.ModuleName, msgInvalidateDidPowerUpRequestStatus.Route())
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_Type(t *testing.T) {
-	assert.Equal(t, types.MsgTypeInvalidateDidPowerUpRequest, msgInvalidateDidPowerUpRequestStatus.Type())
+	require.Equal(t, types.MsgTypeInvalidateDidPowerUpRequest, msgInvalidateDidPowerUpRequestStatus.Type())
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_ValidateBasic(t *testing.T) {
@@ -556,19 +556,19 @@ func TestNewMsgInvalidateDidPowerUpRequest_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.error, test.msg.ValidateBasic())
+			require.Equal(t, test.error, test.msg.ValidateBasic())
 		})
 	}
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_GetSignBytes(t *testing.T) {
 	expected := `{"type":"commercio/MsgInvalidateDidPowerUpRequest","value":{"editor":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6","power_up_proof":"68576d5a7134743777217a25432646294a404e635266556a586e327235753878","status":{"message":"Don't want this anymore","type":"canceled"}}}`
-	assert.Equal(t, expected, string(msgInvalidateDidPowerUpRequestStatus.GetSignBytes()))
+	require.Equal(t, expected, string(msgInvalidateDidPowerUpRequestStatus.GetSignBytes()))
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgInvalidateDidPowerUpRequestStatus.Editor}
-	assert.Equal(t, expected, msgInvalidateDidPowerUpRequestStatus.GetSigners())
+	require.Equal(t, expected, msgInvalidateDidPowerUpRequestStatus.GetSigners())
 }
 
 func TestNewMsgInvalidateDidPowerUpRequest_JSON(t *testing.T) {
@@ -576,5 +576,5 @@ func TestNewMsgInvalidateDidPowerUpRequest_JSON(t *testing.T) {
 
 	var actual types.MsgInvalidateDidPowerUpRequest
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
-	assert.Equal(t, msgInvalidateDidPowerUpRequestStatus, actual)
+	require.Equal(t, msgInvalidateDidPowerUpRequestStatus, actual)
 }

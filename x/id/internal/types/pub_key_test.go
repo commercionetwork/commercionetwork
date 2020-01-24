@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPubKey_Equals(t *testing.T) {
@@ -53,7 +53,7 @@ func TestPubKey_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
 	}
 }
@@ -91,9 +91,9 @@ func TestPubKey_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.want != nil {
-				assert.EqualError(t, tt.pk.Validate(), tt.want.Error())
+				require.EqualError(t, tt.pk.Validate(), tt.want.Error())
 			} else {
-				assert.NoError(t, tt.pk.Validate())
+				require.NoError(t, tt.pk.Validate())
 			}
 		})
 	}
@@ -139,7 +139,7 @@ func TestPubKeys_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
 	}
 }
@@ -183,8 +183,8 @@ func TestPubKeys_FindByID(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			pk, foundVal := tt.pubKeys.FindByID(tt.id)
-			assert.Equal(t, tt.found, foundVal)
-			assert.Equal(t, tt.wantPk, pk)
+			require.Equal(t, tt.found, foundVal)
+			require.Equal(t, tt.wantPk, pk)
 		})
 	}
 }

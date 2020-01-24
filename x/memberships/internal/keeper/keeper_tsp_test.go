@@ -5,7 +5,7 @@ import (
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -43,7 +43,7 @@ func TestKeeper_AddTrustedServiceProvider(t *testing.T) {
 			k.AddTrustedServiceProvider(ctx, test.newTsp)
 
 			stored := k.GetTrustedServiceProviders(ctx)
-			assert.Equal(t, test.expected, stored)
+			require.Equal(t, test.expected, stored)
 		})
 	}
 }
@@ -75,7 +75,7 @@ func TestKeeper_GetTrustedServiceProviders(t *testing.T) {
 			signers := k.GetTrustedServiceProviders(ctx)
 
 			for _, s := range test.tsps {
-				assert.Contains(t, signers, s)
+				require.Contains(t, signers, s)
 			}
 		})
 	}
@@ -118,7 +118,7 @@ func TestKeeper_IsTrustedServiceProvider(t *testing.T) {
 				store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&test.tsps))
 			}
 
-			assert.Equal(t, test.expected, k.IsTrustedServiceProvider(ctx, test.address))
+			require.Equal(t, test.expected, k.IsTrustedServiceProvider(ctx, test.address))
 		})
 	}
 }

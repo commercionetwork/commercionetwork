@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStrings_AppendIfMissing(t *testing.T) {
@@ -38,25 +38,25 @@ func TestStrings_AppendIfMissing(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			result, appended := test.strings.AppendIfMissing(test.string)
-			assert.Equal(t, test.shouldBeAppended, appended)
-			assert.Contains(t, result, test.string)
+			require.Equal(t, test.shouldBeAppended, appended)
+			require.Contains(t, result, test.string)
 		})
 	}
 }
 
 func TestStrings_Contains(t *testing.T) {
-	assert.False(t, types.Strings{}.Contains("first"))
-	assert.False(t, types.Strings{"first"}.Contains("seceond"))
-	assert.True(t, types.Strings{"first", "second"}.Contains("first"))
-	assert.True(t, types.Strings{"first", "second"}.Contains("second"))
+	require.False(t, types.Strings{}.Contains("first"))
+	require.False(t, types.Strings{"first"}.Contains("seceond"))
+	require.True(t, types.Strings{"first", "second"}.Contains("first"))
+	require.True(t, types.Strings{"first", "second"}.Contains("second"))
 }
 
 func TestStrings_Equals(t *testing.T) {
-	assert.False(t, types.Strings{}.Equals(types.Strings{"first"}))
-	assert.False(t, types.Strings{"first"}.Equals(types.Strings{""}))
-	assert.False(t, types.Strings{"first"}.Equals(types.Strings{"second"}))
-	assert.True(t, types.Strings{"first", "second"}.Equals(types.Strings{"first", "second"}))
-	assert.False(t, types.Strings{"first", "second"}.Equals(types.Strings{"second", "first"}))
-	assert.False(t, types.Strings{"first", "second"}.Equals(types.Strings{"first"}))
-	assert.False(t, types.Strings{"first"}.Equals(types.Strings{"first", "second"}))
+	require.False(t, types.Strings{}.Equals(types.Strings{"first"}))
+	require.False(t, types.Strings{"first"}.Equals(types.Strings{""}))
+	require.False(t, types.Strings{"first"}.Equals(types.Strings{"second"}))
+	require.True(t, types.Strings{"first", "second"}.Equals(types.Strings{"first", "second"}))
+	require.False(t, types.Strings{"first", "second"}.Equals(types.Strings{"second", "first"}))
+	require.False(t, types.Strings{"first", "second"}.Equals(types.Strings{"first"}))
+	require.False(t, types.Strings{"first"}.Equals(types.Strings{"first", "second"}))
 }

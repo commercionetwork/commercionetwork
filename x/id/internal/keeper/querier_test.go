@@ -6,7 +6,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -25,13 +25,13 @@ func Test_queryResolveIdentity_ExistingIdentity(t *testing.T) {
 	var querier = NewQuerier(k)
 	path := []string{types.QueryResolveDid, TestOwnerAddress.String()}
 	actual, err := querier(ctx, path, request)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	expected, _ := codec.MarshalJSONIndent(cdc, ResolveIdentityResponse{
 		Owner:       TestOwnerAddress,
 		DidDocument: &TestDidDocument,
 	})
-	assert.Equal(t, string(expected), string(actual))
+	require.Equal(t, string(expected), string(actual))
 }
 
 func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
@@ -40,13 +40,13 @@ func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
 	var querier = NewQuerier(k)
 	path := []string{types.QueryResolveDid, TestOwnerAddress.String()}
 	actual, err := querier(ctx, path, request)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	expected, _ := codec.MarshalJSONIndent(cdc, ResolveIdentityResponse{
 		Owner:       TestOwnerAddress,
 		DidDocument: nil,
 	})
-	assert.Equal(t, string(expected), string(actual))
+	require.Equal(t, string(expected), string(actual))
 }
 
 // -------------------
@@ -66,8 +66,8 @@ func Test_queryResolveDepositRequest_ExistingRequest(t *testing.T) {
 	var actual types.DidDepositRequest
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Nil(t, err)
-	assert.Equal(t, TestDidDepositRequest, actual)
+	require.Nil(t, err)
+	require.Equal(t, TestDidDepositRequest, actual)
 }
 
 func Test_queryResolveDepositRequest_NonExistingRequest(t *testing.T) {
@@ -77,9 +77,9 @@ func Test_queryResolveDepositRequest_NonExistingRequest(t *testing.T) {
 	path := []string{types.QueryResolveDepositRequest, ""}
 	_, err := querier(ctx, path, request)
 
-	assert.Error(t, err)
-	assert.Equal(t, sdk.CodeUnknownRequest, err.Code())
-	assert.Contains(t, err.Error(), "proof")
+	require.Error(t, err)
+	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.Contains(t, err.Error(), "proof")
 }
 
 func Test_queryResolvePowerUpRequest_ExistingRequest(t *testing.T) {
@@ -95,8 +95,8 @@ func Test_queryResolvePowerUpRequest_ExistingRequest(t *testing.T) {
 	var actual types.DidPowerUpRequest
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Nil(t, err)
-	assert.Equal(t, TestDidPowerUpRequest, actual)
+	require.Nil(t, err)
+	require.Equal(t, TestDidPowerUpRequest, actual)
 }
 
 func Test_queryResolvePowerUpRequest_NonExistingRequest(t *testing.T) {
@@ -106,7 +106,7 @@ func Test_queryResolvePowerUpRequest_NonExistingRequest(t *testing.T) {
 	path := []string{types.QueryResolvePowerUpRequest, ""}
 	_, err := querier(ctx, path, request)
 
-	assert.Error(t, err)
-	assert.Equal(t, sdk.CodeUnknownRequest, err.Code())
-	assert.Contains(t, err.Error(), "proof")
+	require.Error(t, err)
+	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.Contains(t, err.Error(), "proof")
 }

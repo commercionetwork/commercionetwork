@@ -7,7 +7,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // -------------------
@@ -21,7 +21,7 @@ func TestValidMsgSetPrice(t *testing.T) {
 	handler := NewHandler(k, govK)
 
 	actual := handler(ctx, msgSetPrice)
-	assert.True(t, actual.IsOK())
+	require.True(t, actual.IsOK())
 }
 
 // ---------------------
@@ -35,7 +35,7 @@ func TestValidMsgAddOracle(t *testing.T) {
 	_ = govK.SetGovernmentAddress(ctx, testGovernment)
 
 	actual := handler(ctx, msgAddOracle)
-	assert.True(t, actual.IsOK())
+	require.True(t, actual.IsOK())
 }
 
 func TestInvalidMsg(t *testing.T) {
@@ -45,6 +45,6 @@ func TestInvalidMsg(t *testing.T) {
 
 	actual := handler(ctx, invalidMsg)
 
-	assert.False(t, actual.IsOK())
-	assert.True(t, strings.Contains(actual.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
+	require.False(t, actual.IsOK())
+	require.True(t, strings.Contains(actual.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_AssignMembership(t *testing.T) {
@@ -43,11 +43,11 @@ func TestKeeper_AssignMembership(t *testing.T) {
 
 			if len(test.existingMembership) != 0 {
 				err := k.AssignMembership(ctx, test.user, test.existingMembership)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 
 			err := k.AssignMembership(ctx, test.user, test.membershipType)
-			assert.Equal(t, test.error, err)
+			require.Equal(t, test.error, err)
 		})
 	}
 }
@@ -81,13 +81,13 @@ func TestKeeper_RemoveMembership(t *testing.T) {
 
 		err := k.RemoveMembership(ctx, test.membership.Owner)
 		if !test.mustError {
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		} else {
-			assert.Error(t, err)
+			require.Error(t, err)
 		}
 
 		_, err = k.GetMembership(ctx, test.membership.Owner)
-		assert.Error(t, err)
+		require.Error(t, err)
 	}
 }
 
@@ -126,11 +126,11 @@ func TestKeeper_GetMembership(t *testing.T) {
 
 			foundMembership, err := k.GetMembership(ctx, testUser)
 			if test.expectedError == nil {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			} else {
-				assert.Error(t, err)
+				require.Error(t, err)
 			}
-			assert.Equal(t, test.expectedMembership, foundMembership)
+			require.Equal(t, test.expectedMembership, foundMembership)
 		})
 	}
 }
@@ -160,12 +160,12 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 
 			for _, m := range test.storedMemberships {
 				err := k.AssignMembership(ctx, m.Owner, m.MembershipType)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 			i := k.MembershipIterator(ctx)
 			for ; i.Valid(); i.Next() {
 				m := k.ExtractMembership(i.Key(), i.Value())
-				assert.Contains(t, test.storedMemberships, m)
+				require.Contains(t, test.storedMemberships, m)
 			}
 		})
 	}
@@ -201,9 +201,9 @@ func TestKeeper_ExtractMembership(t *testing.T) {
 			_, _, _, k := SetupTestInput()
 			if !test.mustFail {
 				m := k.ExtractMembership(test.key, test.value)
-				assert.Equal(t, test.membership, m)
+				require.Equal(t, test.membership, m)
 			} else {
-				assert.Panics(t, func() {
+				require.Panics(t, func() {
 					_ = k.ExtractMembership(test.key, test.value)
 				})
 			}
@@ -234,7 +234,7 @@ func TestKeeper_SetStableCreditsDenom(t *testing.T) {
 			k.SetStableCreditsDenom(ctx, test.denom)
 
 			store := ctx.KVStore(k.StoreKey)
-			assert.Equal(t, test.denom, string(store.Get([]byte(types.StableCreditsStoreKey))))
+			require.Equal(t, test.denom, string(store.Get([]byte(types.StableCreditsStoreKey))))
 		})
 	}
 }
@@ -261,7 +261,7 @@ func TestKeeper_GetStableCreditsDenom(t *testing.T) {
 			store := ctx.KVStore(k.StoreKey)
 			store.Set([]byte(types.StableCreditsStoreKey), []byte(test.denom))
 
-			assert.Equal(t, test.denom, k.GetStableCreditsDenom(ctx))
+			require.Equal(t, test.denom, k.GetStableCreditsDenom(ctx))
 		})
 	}
 }

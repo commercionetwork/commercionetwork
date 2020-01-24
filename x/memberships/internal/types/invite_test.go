@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -42,7 +42,7 @@ func TestInvite_Empty(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.expectedEmpty, test.invite.Empty())
+			require.Equal(t, test.expectedEmpty, test.invite.Empty())
 		})
 	}
 }
@@ -87,7 +87,7 @@ func TestInvite_Equals(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
+			require.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
 		})
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidateHex(t *testing.T) {
@@ -37,7 +37,7 @@ func TestValidateHex(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.valid, types.ValidateHex(tt.input))
+			require.Equal(t, tt.valid, types.ValidateHex(tt.input))
 		})
 	}
 }

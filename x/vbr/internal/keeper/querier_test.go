@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -22,5 +22,5 @@ func TestQuerier_getBlockRewardsPoolFunds(t *testing.T) {
 
 	expected, _ := codec.MarshalJSONIndent(cdc, &TestBlockRewardsPool)
 
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }

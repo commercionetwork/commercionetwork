@@ -6,7 +6,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	dist "github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // -------------
@@ -22,14 +22,14 @@ func TestKeeper_SetTotalRewardPool(t *testing.T) {
 	store := ctx.KVStore(k.storeKey)
 	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.PoolStoreKey)), &pool)
 
-	assert.Equal(t, TestBlockRewardsPool, pool)
+	require.Equal(t, TestBlockRewardsPool, pool)
 }
 
 func TestKeeper_GetTotalRewardPool_EmptyPool(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
 	actual := k.GetTotalRewardPool(ctx)
-	assert.Empty(t, actual)
+	require.Empty(t, actual)
 }
 
 func TestKeeper_GetTotalRewardPool_ExistingPool(t *testing.T) {
@@ -39,7 +39,7 @@ func TestKeeper_GetTotalRewardPool_ExistingPool(t *testing.T) {
 	store.Set([]byte(types.PoolStoreKey), cdc.MustMarshalBinaryBare(&TestBlockRewardsPool))
 
 	actual := k.GetTotalRewardPool(ctx)
-	assert.Equal(t, TestBlockRewardsPool, actual)
+	require.Equal(t, TestBlockRewardsPool, actual)
 }
 
 // --------------------------
@@ -50,7 +50,7 @@ func TestKeeper_GetYearlyRewardPool_EmptyPool(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
 
 	actual := k.GetYearlyRewardPool(ctx)
-	assert.Empty(t, actual)
+	require.Empty(t, actual)
 }
 
 func TestKeeper_GetYearlyRewardPool_ExistingPool(t *testing.T) {
@@ -60,7 +60,7 @@ func TestKeeper_GetYearlyRewardPool_ExistingPool(t *testing.T) {
 	store.Set([]byte(types.YearlyPoolStoreKey), cdc.MustMarshalBinaryBare(&TestBlockRewardsPool))
 
 	actual := k.GetYearlyRewardPool(ctx)
-	assert.Equal(t, TestBlockRewardsPool, actual)
+	require.Equal(t, TestBlockRewardsPool, actual)
 }
 
 func TestKeeper_SetYearlyRewardPool(t *testing.T) {
@@ -72,7 +72,7 @@ func TestKeeper_SetYearlyRewardPool(t *testing.T) {
 	store := ctx.KVStore(k.storeKey)
 	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.YearlyPoolStoreKey)), &actual)
 
-	assert.Equal(t, TestBlockRewardsPool, actual)
+	require.Equal(t, TestBlockRewardsPool, actual)
 }
 
 // --------------------
@@ -80,11 +80,11 @@ func TestKeeper_SetYearlyRewardPool(t *testing.T) {
 // --------------------
 
 func Test_computeYearFromBlockHeight(t *testing.T) {
-	assert.Equal(t, int64(0), computeYearFromBlockHeight(0))
-	assert.Equal(t, int64(0), computeYearFromBlockHeight(6311519))
-	assert.Equal(t, int64(1), computeYearFromBlockHeight(6311520))
-	assert.Equal(t, int64(2), computeYearFromBlockHeight(12624040))
-	assert.Equal(t, int64(5), computeYearFromBlockHeight(31557600))
+	require.Equal(t, int64(0), computeYearFromBlockHeight(0))
+	require.Equal(t, int64(0), computeYearFromBlockHeight(6311519))
+	require.Equal(t, int64(1), computeYearFromBlockHeight(6311520))
+	require.Equal(t, int64(2), computeYearFromBlockHeight(12624040))
+	require.Equal(t, int64(5), computeYearFromBlockHeight(31557600))
 }
 
 func TestKeeper_SetYearNumber(t *testing.T) {
@@ -96,12 +96,12 @@ func TestKeeper_SetYearNumber(t *testing.T) {
 	store := ctx.KVStore(k.storeKey)
 	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.YearNumberStoreKey)), &actual)
 
-	assert.Equal(t, int64(5), actual)
+	require.Equal(t, int64(5), actual)
 }
 
 func TestKeeper_GetYearNumber_Empty(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput()
-	assert.Equal(t, int64(0), k.GetYearNumber(ctx))
+	require.Equal(t, int64(0), k.GetYearNumber(ctx))
 }
 
 func TestKeeper_GetYearNumber_Set(t *testing.T) {
@@ -109,13 +109,13 @@ func TestKeeper_GetYearNumber_Set(t *testing.T) {
 	store := ctx.KVStore(k.storeKey)
 
 	store.Set([]byte(types.YearNumberStoreKey), cdc.MustMarshalBinaryBare(0))
-	assert.Equal(t, int64(0), k.GetYearNumber(ctx))
+	require.Equal(t, int64(0), k.GetYearNumber(ctx))
 
 	store.Set([]byte(types.YearNumberStoreKey), cdc.MustMarshalBinaryBare(5))
-	assert.Equal(t, int64(5), k.GetYearNumber(ctx))
+	require.Equal(t, int64(5), k.GetYearNumber(ctx))
 
 	store.Set([]byte(types.YearNumberStoreKey), cdc.MustMarshalBinaryBare(0))
-	assert.Equal(t, int64(0), k.GetYearNumber(ctx))
+	require.Equal(t, int64(0), k.GetYearNumber(ctx))
 }
 
 func TestKeeper_UpdateYearlyPool_SameYear(t *testing.T) {
@@ -127,8 +127,8 @@ func TestKeeper_UpdateYearlyPool_SameYear(t *testing.T) {
 
 	k.UpdateYearlyPool(ctx, 0)
 
-	assert.Equal(t, rewards, k.GetTotalRewardPool(ctx))
-	assert.Empty(t, k.GetYearlyRewardPool(ctx))
+	require.Equal(t, rewards, k.GetTotalRewardPool(ctx))
+	require.Empty(t, k.GetYearlyRewardPool(ctx))
 }
 
 func TestKeeper_UpdateYearlyPool_DifferentYear(t *testing.T) {
@@ -140,8 +140,8 @@ func TestKeeper_UpdateYearlyPool_DifferentYear(t *testing.T) {
 
 	k.UpdateYearlyPool(ctx, 6311520)
 
-	assert.Equal(t, int64(1), k.GetYearNumber(ctx))
-	assert.Equal(t, sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 20)}, k.GetYearlyRewardPool(ctx))
+	require.Equal(t, int64(1), k.GetYearNumber(ctx))
+	require.Equal(t, sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 20)}, k.GetYearlyRewardPool(ctx))
 }
 
 // ---------------------------
@@ -158,7 +158,7 @@ func TestKeeper_ComputeProposerReward_50ValidatorsBalanced(t *testing.T) {
 	reward := k.ComputeProposerReward(ctx, 50, TestValidator, sdk.NewInt(50))
 
 	expected := sdk.DecCoins{sdk.NewDecCoinFromDec("uccc", sdk.NewDecWithPrec(99025274418840450, 18))}
-	assert.Equal(t, expected, reward)
+	require.Equal(t, expected, reward)
 }
 
 func TestKeeper_ComputeProposerReward_100ValidatorsBalanced(t *testing.T) {
@@ -171,7 +171,7 @@ func TestKeeper_ComputeProposerReward_100ValidatorsBalanced(t *testing.T) {
 	reward := k.ComputeProposerReward(ctx, 100, TestValidator, sdk.NewInt(100))
 
 	expected := sdk.DecCoins{sdk.NewDecCoinFromDec("uccc", sdk.NewDecWithPrec(3961010976753619, 16))}
-	assert.Equal(t, expected, reward)
+	require.Equal(t, expected, reward)
 }
 
 func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
@@ -188,11 +188,11 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	_ = k.DistributeBlockRewards(ctx, TestValidator, reward)
 
 	actual := k.distKeeper.GetValidatorCurrentRewards(ctx, TestValidator.OperatorAddress)
-	assert.Equal(t, reward, actual.Rewards)
+	require.Equal(t, reward, actual.Rewards)
 
 	remaining := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 99000)}
-	assert.Equal(t, remaining, k.GetTotalRewardPool(ctx))
-	assert.Equal(t, remaining, k.GetYearlyRewardPool(ctx))
+	require.Equal(t, remaining, k.GetTotalRewardPool(ctx))
+	require.Equal(t, remaining, k.GetYearlyRewardPool(ctx))
 }
 
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
@@ -201,5 +201,5 @@ func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 	reward := sdk.DecCoins{sdk.NewDecCoin("stake", sdk.NewInt(12000))}
 	err := k.DistributeBlockRewards(ctx, TestValidator, reward)
 
-	assert.Error(t, err)
+	require.Error(t, err)
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_InviteUser(t *testing.T) {
@@ -41,12 +41,12 @@ func TestKeeper_InviteUser(t *testing.T) {
 		}
 
 		err := k.InviteUser(ctx, test.invite.User, test.invite.Sender)
-		assert.Equal(t, test.error, err)
+		require.Equal(t, test.error, err)
 
 		var invite types.Invite
 		accreditationBz := store.Get([]byte(types.InviteStorePrefix + testUser.String()))
 		k.Cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
-		assert.Equal(t, test.expected, invite)
+		require.Equal(t, test.expected, invite)
 	}
 }
 
@@ -89,8 +89,8 @@ func TestKeeper_GetInvite(t *testing.T) {
 		}
 
 		actual, found := k.GetInvite(ctx, test.user)
-		assert.Equal(t, test.expected, actual)
-		assert.Equal(t, test.shouldBeFound, found)
+		require.Equal(t, test.expected, actual)
+		require.Equal(t, test.shouldBeFound, found)
 	}
 }
 
@@ -129,7 +129,7 @@ func TestKeeper_GetInvites_EmptyList(t *testing.T) {
 			}
 
 			actual := k.GetInvites(ctx)
-			assert.Equal(t, test.expected, actual)
+			require.Equal(t, test.expected, actual)
 		})
 	}
 }

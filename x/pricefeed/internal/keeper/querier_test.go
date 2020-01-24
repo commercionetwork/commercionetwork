@@ -6,7 +6,7 @@ import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -33,7 +33,7 @@ func TestQuerier_getCurrentPrices(t *testing.T) {
 	var actual types.Prices
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, types.Prices{TestPrice, TestPriceInfo2}, actual)
+	require.Equal(t, types.Prices{TestPrice, TestPriceInfo2}, actual)
 }
 
 func TestQuerier_getCurrentPrice(t *testing.T) {
@@ -51,7 +51,7 @@ func TestQuerier_getCurrentPrice(t *testing.T) {
 	var actual types.Price
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, TestPrice, actual)
+	require.Equal(t, TestPrice, actual)
 }
 
 func TestQuerier_getOracles(t *testing.T) {
@@ -70,7 +70,7 @@ func TestQuerier_getOracles(t *testing.T) {
 	var actual ctypes.Addresses
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestQuerier_unknownEndpoint(t *testing.T) {
@@ -80,5 +80,5 @@ func TestQuerier_unknownEndpoint(t *testing.T) {
 	querier := NewQuerier(k)
 	_, err := querier(ctx, path, request)
 
-	assert.Error(t, err)
+	require.Error(t, err)
 }

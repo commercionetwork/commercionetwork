@@ -6,7 +6,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_DepositIntoPool(t *testing.T) {
@@ -62,10 +62,10 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 		_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.existingPool)
 
 		err := k.DepositIntoPool(ctx, test.user, test.deposit)
-		assert.Equal(t, test.error, err)
+		require.Equal(t, test.error, err)
 
-		assert.True(t, test.expectedPool.IsEqual(k.GetPoolFunds(ctx)))
-		assert.True(t, test.expectedUser.IsEqual(bk.GetCoins(ctx, test.user)))
+		require.True(t, test.expectedPool.IsEqual(k.GetPoolFunds(ctx)))
+		require.True(t, test.expectedUser.IsEqual(bk.GetCoins(ctx, test.user)))
 	}
 }
 
@@ -94,7 +94,7 @@ func TestKeeper_GetPoolFunds(t *testing.T) {
 			_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.existingPool)
 
 			actual := k.GetPoolFunds(ctx)
-			assert.True(t, test.existingPool.IsEqual(actual))
+			require.True(t, test.existingPool.IsEqual(actual))
 		})
 	}
 }
@@ -162,15 +162,15 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.poolFunds)
 
 			err := k.DistributeReward(ctx, test.invite)
-			assert.Equal(t, test.error, err)
+			require.Equal(t, test.error, err)
 
 			if test.error == nil {
 				storedInvite, _ := k.GetInvite(ctx, test.invite.User)
-				assert.True(t, storedInvite.Rewarded)
+				require.True(t, storedInvite.Rewarded)
 			}
 
-			assert.True(t, test.expectedPoolAmt.IsEqual(k.GetPoolFunds(ctx)))
-			assert.True(t, test.expectedInviteSenderAmt.IsEqual(bk.GetCoins(ctx, test.invite.Sender)))
+			require.True(t, test.expectedPoolAmt.IsEqual(k.GetPoolFunds(ctx)))
+			require.True(t, test.expectedInviteSenderAmt.IsEqual(bk.GetCoins(ctx, test.invite.Sender)))
 		})
 	}
 }

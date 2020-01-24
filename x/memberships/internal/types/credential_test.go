@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCredential_Equals(t *testing.T) {
@@ -48,7 +48,7 @@ func TestCredential_Equals(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.expected, test.first.Equals(test.second))
+			require.Equal(t, test.expected, test.first.Equals(test.second))
 		})
 	}
 
@@ -97,7 +97,7 @@ func TestCredentials_Contains(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.expectedContains, test.credentials.Contains(test.credential))
+			require.Equal(t, test.expectedContains, test.credentials.Contains(test.credential))
 		})
 	}
 }
@@ -139,8 +139,8 @@ func TestCredentials_AppendIfMissing(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			result, appended := test.credentials.AppendIfMissing(test.credential)
-			assert.Equal(t, test.shouldBeAppended, appended)
-			assert.Contains(t, result, test.credential)
+			require.Equal(t, test.shouldBeAppended, appended)
+			require.Contains(t, result, test.credential)
 		})
 	}
 }

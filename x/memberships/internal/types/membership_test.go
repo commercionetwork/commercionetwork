@@ -7,7 +7,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMembership_Equals(t *testing.T) {
@@ -55,7 +55,7 @@ func TestMembership_Equals(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
+			require.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
 		})
 	}
 }
@@ -75,7 +75,7 @@ func TestIsMembershipTypeValid(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(fmt.Sprintf("%s is valid", test.membershipType), func(t *testing.T) {
-			assert.Equal(t, test.shouldBeValid, types.IsMembershipTypeValid(test.membershipType))
+			require.Equal(t, test.shouldBeValid, types.IsMembershipTypeValid(test.membershipType))
 		})
 	}
 }
@@ -110,7 +110,7 @@ func TestCanUpgrade(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(fmt.Sprintf("%s can upgrade to %s", test.first, test.second), func(t *testing.T) {
-			assert.Equal(t, test.shouldBeUpgradable, types.CanUpgrade(test.first, test.second))
+			require.Equal(t, test.shouldBeUpgradable, types.CanUpgrade(test.first, test.second))
 		})
 	}
 }
@@ -150,8 +150,8 @@ func TestMemberships_AppendIfMissing(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			result, appended := test.memberships.AppendIfMissing(test.membership)
-			assert.Equal(t, test.shouldBeAppended, appended)
-			assert.Contains(t, result, test.membership)
+			require.Equal(t, test.shouldBeAppended, appended)
+			require.Contains(t, result, test.membership)
 		})
 	}
 }

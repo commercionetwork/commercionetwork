@@ -16,17 +16,17 @@ package types
 //
 //func TestMsgOpenCdp_Route(t *testing.T) {
 //	actual := testMsgOpenCdp.Route()
-//	assert.Equal(t, RouterKey, actual)
+//	require.Equal(t, RouterKey, actual)
 //}
 //
 //func TestMsgOpenCdp_Type(t *testing.T) {
 //	actual := testMsgOpenCdp.Type()
-//	assert.Equal(t, MsgTypeOpenCdp, actual)
+//	require.Equal(t, MsgTypeOpenCdp, actual)
 //}
 //
 //func TestMsgOpenCdp_ValidateBasic_Valid(t *testing.T) {
 //	actual := testMsgOpenCdp.ValidateBasic()
-//	assert.Nil(t, actual)
+//	require.Nil(t, actual)
 //}
 //
 //func TestMsgOpenCdp_ValidateBasic_InvalidOwnerAddr(t *testing.T) {
@@ -36,8 +36,8 @@ package types
 //		Timestamp:       time.Time{},
 //	})
 //	err := invalidMsg.ValidateBasic()
-//	assert.Error(t, err)
-//	assert.Equal(t, sdk.ErrInvalidAddress(invalidMsg.Depositor.String()), err)
+//	require.Error(t, err)
+//	require.Equal(t, sdk.ErrInvalidAddress(invalidMsg.Depositor.String()), err)
 //}
 //
 //func TestMsgOpenCdp_ValidateBasic_InvalidDepositedAmount(t *testing.T) {
@@ -47,8 +47,8 @@ package types
 //		Timestamp:       time.Time{},
 //	})
 //	err := invalidMsg.ValidateBasic()
-//	assert.Error(t, err)
-//	assert.Equal(t, sdk.ErrInvalidCoins(invalidMsg.DepositedAmount.String()), err)
+//	require.Error(t, err)
+//	require.Equal(t, sdk.ErrInvalidCoins(invalidMsg.DepositedAmount.String()), err)
 //}
 //
 //func TestMsgOpenCdp_ValidateBasic_InvalidTimestamp(t *testing.T) {
@@ -58,20 +58,20 @@ package types
 //		Timestamp:       time.Time{},
 //	})
 //	err := invalidMsg.ValidateBasic()
-//	assert.Error(t, err)
-//	assert.Equal(t, sdk.ErrUnknownRequest("cdp request's timestamp is invalid"), err)
+//	require.Error(t, err)
+//	require.Equal(t, sdk.ErrUnknownRequest("cdp request's timestamp is invalid"), err)
 //}
 //
 //func TestMsgOpenCdp_GetSignBytes(t *testing.T) {
 //	actual := testMsgOpenCdp.GetSignBytes()
 //	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(testMsgOpenCdp))
-//	assert.Equal(t, expected, actual)
+//	require.Equal(t, expected, actual)
 //}
 //
 //func TestMsgOpenCdp_GetSigners(t *testing.T) {
 //	actual := testMsgOpenCdp.GetSigners()
 //	expected := []sdk.AccAddress{testMsgOpenCdp.Depositor}
-//	assert.Equal(t, expected, actual)
+//	require.Equal(t, expected, actual)
 //}
 //
 /////////////////////
@@ -79,17 +79,17 @@ package types
 ///////////////////
 //func TestMsgCloseCdp_Route(t *testing.T) {
 //	actual := testMsgCloseCdp.Route()
-//	assert.Equal(t, RouterKey, actual)
+//	require.Equal(t, RouterKey, actual)
 //}
 //
 //func TestMsgCloseCdp_Type(t *testing.T) {
 //	actual := testMsgCloseCdp.Type()
-//	assert.Equal(t, MsgTypeCloseCdp, actual)
+//	require.Equal(t, MsgTypeCloseCdp, actual)
 //}
 //
 //func TestMsgCloseCdp_ValidateBasic_Valid(t *testing.T) {
 //	actual := testMsgCloseCdp.ValidateBasic()
-//	assert.Nil(t, actual)
+//	require.Nil(t, actual)
 //}
 //
 //func TestMsgCloseCdp_ValidateBasic_InvalidSigner(t *testing.T) {
@@ -98,8 +98,8 @@ package types
 //		Timestamp: time.Time{},
 //	}
 //	actual := msg.ValidateBasic()
-//	assert.Equal(t, sdk.ErrInvalidAddress(msg.Signer.String()), actual)
-//	assert.Error(t, actual)
+//	require.Equal(t, sdk.ErrInvalidAddress(msg.Signer.String()), actual)
+//	require.Error(t, actual)
 //}
 //
 //func TestMsgCloseCdp_ValidateBasic_InvalidTimestamp(t *testing.T) {
@@ -108,18 +108,18 @@ package types
 //		Timestamp: time.Time{},
 //	}
 //	actual := msg.ValidateBasic()
-//	assert.Equal(t, sdk.ErrUnknownRequest("cdp's timestamp is invalid"), actual)
-//	assert.Error(t, actual)
+//	require.Equal(t, sdk.ErrUnknownRequest("cdp's timestamp is invalid"), actual)
+//	require.Error(t, actual)
 //}
 //
 //func TestMsgCloseCdp_GetSignBytes(t *testing.T) {
 //	actual := testMsgCloseCdp.GetSignBytes()
 //	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(testMsgCloseCdp))
-//	assert.Equal(t, expected, actual)
+//	require.Equal(t, expected, actual)
 //}
 //
 //func TestMsgCloseCdp_GetSigners(t *testing.T) {
 //	actual := testMsgCloseCdp.GetSigners()
 //	expected := []sdk.AccAddress{testMsgCloseCdp.Signer}
-//	assert.Equal(t, expected, actual)
+//	require.Equal(t, expected, actual)
 //}

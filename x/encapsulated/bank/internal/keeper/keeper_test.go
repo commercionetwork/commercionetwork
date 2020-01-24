@@ -6,7 +6,7 @@ import (
 	cmtypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var TestAddress, _ = sdk.AccAddressFromBech32("cosmos1mlrqrdrxs50z972h32x9w8x3lta7hkms0hxraq")
@@ -21,8 +21,8 @@ func TestKeeper_AddBlockedAddresses_EmptyList(t *testing.T) {
 	store := ctx.KVStore(k.storeKey)
 	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.BlockedAddressesStoreKey)), &addresses)
 
-	assert.Len(t, addresses, 1)
-	assert.Contains(t, addresses, TestAddress)
+	require.Len(t, addresses, 1)
+	require.Contains(t, addresses, TestAddress)
 }
 
 func TestKeeper_AddBlockedAddresses_ExistingList(t *testing.T) {
@@ -37,9 +37,9 @@ func TestKeeper_AddBlockedAddresses_ExistingList(t *testing.T) {
 	var addresses []sdk.AccAddress
 	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.BlockedAddressesStoreKey)), &addresses)
 
-	assert.Len(t, addresses, 2)
-	assert.Contains(t, addresses, TestAddress)
-	assert.Contains(t, addresses, TestAddress2)
+	require.Len(t, addresses, 2)
+	require.Contains(t, addresses, TestAddress)
+	require.Contains(t, addresses, TestAddress2)
 }
 
 func TestKeeper_RemoveBlockedAddress_EmptyList(t *testing.T) {
@@ -54,7 +54,7 @@ func TestKeeper_RemoveBlockedAddress_EmptyList(t *testing.T) {
 	var addresses []sdk.AccAddress
 	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.BlockedAddressesStoreKey)), &addresses)
 
-	assert.Empty(t, addresses)
+	require.Empty(t, addresses)
 }
 
 func TestKeeper_RemoveBlockedAddress_ExistingList(t *testing.T) {
@@ -66,13 +66,13 @@ func TestKeeper_RemoveBlockedAddress_ExistingList(t *testing.T) {
 	store := ctx.KVStore(k.storeKey)
 	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.BlockedAddressesStoreKey)), &addresses)
 
-	assert.Empty(t, addresses)
+	require.Empty(t, addresses)
 }
 
 func TestKeeper_GetBlockedAddresses_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	stored := k.GetBlockedAddresses(ctx)
-	assert.Len(t, stored, 0)
+	require.Len(t, stored, 0)
 }
 
 func TestKeeper_GetBlockedAddresses_ExistingList(t *testing.T) {
@@ -83,6 +83,6 @@ func TestKeeper_GetBlockedAddresses_ExistingList(t *testing.T) {
 	store.Set([]byte(types.BlockedAddressesStoreKey), cdc.MustMarshalBinaryBare(&existing))
 
 	stored := k.GetBlockedAddresses(ctx)
-	assert.Len(t, stored, 2)
-	assert.Equal(t, existing, stored)
+	require.Len(t, stored, 2)
+	require.Equal(t, existing, stored)
 }

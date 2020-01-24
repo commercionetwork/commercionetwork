@@ -7,7 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -17,7 +17,7 @@ func TestNewQuerier_InvalidMsg(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
 	querier := keeper.NewQuerier(k)
 	_, res := querier(ctx, []string{""}, abci.RequestQuery{})
-	assert.Error(t, res)
+	require.Error(t, res)
 }
 
 func Test_queryGetInvites(t *testing.T) {
@@ -76,7 +76,7 @@ func Test_queryGetInvites(t *testing.T) {
 
 			var actual types.Invites
 			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-			assert.True(t, test.expected.Equals(actual))
+			require.True(t, test.expected.Equals(actual))
 		})
 	}
 
@@ -119,7 +119,7 @@ func Test_queryGetSigners(t *testing.T) {
 			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 			for _, tsp := range test.expected {
-				assert.Contains(t, actual, tsp)
+				require.Contains(t, actual, tsp)
 			}
 		})
 	}
@@ -159,7 +159,7 @@ func Test_queryGetPoolFunds(t *testing.T) {
 
 			var actual sdk.Coins
 			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-			assert.True(t, test.pool.IsEqual(actual))
+			require.True(t, test.pool.IsEqual(actual))
 		})
 	}
 }
@@ -197,12 +197,12 @@ func Test_queryResolveMembership(t *testing.T) {
 		actualBz, err := querier(ctx, path, request)
 
 		if !test.mustErr {
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			var actual keeper.MembershipResult
 			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-			assert.Equal(t, test.expected, actual)
+			require.Equal(t, test.expected, actual)
 		} else {
-			assert.Error(t, err)
+			require.Error(t, err)
 		}
 	}
 }

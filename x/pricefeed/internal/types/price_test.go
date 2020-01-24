@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCurrentPrice_Equals_true(t *testing.T) {
 	actual := testPrice.Equals(testPrice)
-	assert.True(t, actual)
+	require.True(t, actual)
 }
 
 func TestCurrentPrice_Equals_false(t *testing.T) {
@@ -20,27 +20,27 @@ func TestCurrentPrice_Equals_false(t *testing.T) {
 	}
 
 	actual := testPrice.Equals(curPrice)
-	assert.False(t, actual)
+	require.False(t, actual)
 }
 
 func TestCurrentPrices_AppendIfMissing_Notfound(t *testing.T) {
 	prices := Prices{}
 	actual, found := prices.AppendIfMissing(testPrice)
 	expected := Prices{testPrice}
-	assert.Equal(t, expected, actual)
-	assert.False(t, found)
+	require.Equal(t, expected, actual)
+	require.False(t, found)
 }
 
 func TestCurrentPrices_AppendIfMissing_found(t *testing.T) {
 	prices := Prices{testPrice}
 	actual, found := prices.AppendIfMissing(testPrice)
-	assert.Nil(t, actual)
-	assert.True(t, found)
+	require.Nil(t, actual)
+	require.True(t, found)
 }
 
 func TestPrice_Equals_true(t *testing.T) {
 	actual := testPrice.Equals(testPrice)
-	assert.True(t, actual)
+	require.True(t, actual)
 }
 
 // -----------------
@@ -102,9 +102,9 @@ func TestRawPrices_UpdatePriceOrAppendIfMissing(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			prices, updated := test.prices.UpdatePriceOrAppendIfMissing(test.price)
-			assert.Equal(t, test.shouldBeUpdated, updated)
+			require.Equal(t, test.shouldBeUpdated, updated)
 			if test.shouldBeUpdated {
-				assert.Contains(t, prices, test.price)
+				require.Contains(t, prices, test.price)
 			}
 		})
 	}

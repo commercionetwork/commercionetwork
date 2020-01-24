@@ -6,7 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -23,7 +23,7 @@ func TestKeeper_SetCreditsDenom(t *testing.T) {
 
 	store := ctx.KVStore(k.storeKey)
 	denomBz := store.Get([]byte(types.CreditsDenomStoreKey))
-	assert.Equal(t, denom, string(denomBz))
+	require.Equal(t, denom, string(denomBz))
 }
 
 func TestKeeper_GetCreditsDenom(t *testing.T) {
@@ -31,7 +31,7 @@ func TestKeeper_GetCreditsDenom(t *testing.T) {
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 	actual := k.GetCreditsDenom(ctx)
-	assert.Equal(t, denom, actual)
+	require.Equal(t, denom, actual)
 }
 
 // --------------
@@ -73,9 +73,9 @@ func TestKeeper_AddCdp(t *testing.T) {
 			result := k.GetCdps(ctx)
 
 			if test.shouldBeInserted {
-				assert.Len(t, result, len(test.cdps)+1)
+				require.Len(t, result, len(test.cdps)+1)
 			} else {
-				assert.Len(t, result, len(test.cdps))
+				require.Len(t, result, len(test.cdps))
 			}
 		})
 	}
@@ -143,11 +143,11 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			}
 
 			err := k.OpenCdp(ctx, test.owner, test.amount)
-			assert.Equal(t, test.error, err, "Invalid error: %s, %s", test.error, err)
+			require.Equal(t, test.error, err, "Invalid error: %s, %s", test.error, err)
 
 			if !test.returnedCredits.IsEqual(sdk.Coins{}) {
 				actual := bk.GetCoins(ctx, test.owner)
-				assert.Equal(t, test.returnedCredits, actual)
+				require.Equal(t, test.returnedCredits, actual)
 			}
 		})
 	}
@@ -157,7 +157,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 func TestKeeper_GetCdpsByOwner(t *testing.T) {
 	t.Run("Empty list is returned properly", func(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
-		assert.Empty(t, k.GetCdpsByOwner(ctx, testCdpOwner))
+		require.Empty(t, k.GetCdpsByOwner(ctx, testCdpOwner))
 	})
 
 	t.Run("Existing list is returned properly", func(t *testing.T) {
@@ -168,7 +168,7 @@ func TestKeeper_GetCdpsByOwner(t *testing.T) {
 		store := ctx.KVStore(k.storeKey)
 		var cdps types.Cdps
 		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
-		assert.Equal(t, types.Cdps{testCdp}, k.GetCdpsByOwner(ctx, testCdpOwner))
+		require.Equal(t, types.Cdps{testCdp}, k.GetCdpsByOwner(ctx, testCdpOwner))
 	})
 }
 
@@ -181,7 +181,7 @@ func TestKeeper_GetCdpByOwnerAndTimeStamp(t *testing.T) {
 		var cdps types.Cdps
 		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
 		actual, _ := k.GetCdpByOwnerAndTimeStamp(ctx, testCdpOwner, 10)
-		assert.Equal(t, testCdp, actual)
+		require.Equal(t, testCdp, actual)
 	})
 	t.Run("not existent cdp with given timestamp return empty cdp and false", func(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
@@ -190,8 +190,8 @@ func TestKeeper_GetCdpByOwnerAndTimeStamp(t *testing.T) {
 		var cdps types.Cdps
 		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
 		actual, isFalse := k.GetCdpByOwnerAndTimeStamp(ctx, testCdpOwner, 10)
-		assert.Equal(t, types.Cdp{}, actual)
-		assert.False(t, isFalse)
+		require.Equal(t, types.Cdp{}, actual)
+		require.False(t, isFalse)
 	})
 }
 
@@ -202,7 +202,7 @@ func TestKeeper_CloseCdp(t *testing.T) {
 
 		err := k.CloseCdp(ctx, testCdp.Owner, testCdp.Timestamp)
 		errMsg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.Timestamp)
-		assert.Equal(t, sdk.ErrUnknownRequest(errMsg), err)
+		require.Equal(t, sdk.ErrUnknownRequest(errMsg), err)
 	})
 
 	t.Run("Existing CDP is closed properly", func(t *testing.T) {
@@ -212,8 +212,8 @@ func TestKeeper_CloseCdp(t *testing.T) {
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_, _ = bk.AddCoins(ctx, testCdpOwner, testCdp.CreditsAmount)
 
-		assert.NoError(t, k.CloseCdp(ctx, testCdpOwner, testCdp.Timestamp))
-		assert.Equal(t, testCdp.DepositedAmount, bk.GetCoins(ctx, testCdpOwner))
+		require.NoError(t, k.CloseCdp(ctx, testCdpOwner, testCdp.Timestamp))
+		require.Equal(t, testCdp.DepositedAmount, bk.GetCoins(ctx, testCdpOwner))
 	})
 
 }
@@ -257,9 +257,9 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 
 			result := k.GetCdps(ctx)
 			if test.shouldBeDeleted {
-				assert.Len(t, result, len(test.existingCdps)-1)
+				require.Len(t, result, len(test.existingCdps)-1)
 			} else {
-				assert.Len(t, result, len(test.existingCdps))
+				require.Len(t, result, len(test.existingCdps))
 			}
 		})
 	}

@@ -6,7 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestProof_Equals(t *testing.T) {
@@ -54,7 +54,7 @@ func TestProof_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
 	}
 }
@@ -88,9 +88,9 @@ func TestProof_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr != nil {
-				assert.EqualError(t, tt.p.Validate(), tt.wantErr.Error())
+				require.EqualError(t, tt.p.Validate(), tt.wantErr.Error())
 			} else {
-				assert.NoError(t, tt.p.Validate())
+				require.NoError(t, tt.p.Validate())
 			}
 		})
 	}

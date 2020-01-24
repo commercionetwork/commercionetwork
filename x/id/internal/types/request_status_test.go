@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRequestStatus_Validate(t *testing.T) {
@@ -34,9 +34,9 @@ func TestRequestStatus_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr != nil {
-				assert.EqualError(t, tt.rq.Validate(), tt.wantErr.Error())
+				require.EqualError(t, tt.rq.Validate(), tt.wantErr.Error())
 			} else {
-				assert.NoError(t, tt.rq.Validate())
+				require.NoError(t, tt.rq.Validate())
 			}
 		})
 	}

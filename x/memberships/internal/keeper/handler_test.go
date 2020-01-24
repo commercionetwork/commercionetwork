@@ -8,7 +8,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_handleMsgInviteUser(t *testing.T) {
@@ -60,10 +60,10 @@ func Test_handleMsgInviteUser(t *testing.T) {
 			res := handler(ctx, msg)
 
 			if len(test.error) != 0 {
-				assert.False(t, res.IsOK())
-				assert.Contains(t, res.Log, test.error)
+				require.False(t, res.IsOK())
+				require.Contains(t, res.Log, test.error)
 			} else {
-				assert.True(t, res.IsOK())
+				require.True(t, res.IsOK())
 			}
 		})
 	}
@@ -117,10 +117,10 @@ func Test_handleMsgSetUserVerified(t *testing.T) {
 			res := handler(ctx, msg)
 
 			if len(test.error) == 0 {
-				assert.True(t, res.IsOK())
+				require.True(t, res.IsOK())
 			} else {
-				assert.False(t, res.IsOK())
-				assert.Contains(t, res.Log, test.error)
+				require.False(t, res.IsOK())
+				require.Contains(t, res.Log, test.error)
 			}
 		})
 	}
@@ -152,17 +152,17 @@ func Test_handleAddTrustedSigner(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, gk, k := SetupTestInput()
 			err := gk.SetGovernmentAddress(ctx, government)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			handler := keeper.NewHandler(k, gk)
 			msg := types.NewMsgAddTsp(test.tsp, test.signer)
 			res := handler(ctx, msg)
 
 			if len(test.error) != 0 {
-				assert.False(t, res.IsOK())
-				assert.Contains(t, res.Log, test.error)
+				require.False(t, res.IsOK())
+				require.Contains(t, res.Log, test.error)
 			} else {
-				assert.True(t, res.IsOK())
+				require.True(t, res.IsOK())
 			}
 		})
 	}
@@ -237,7 +237,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 
 			if !test.invite.Empty() {
 				err := k.AssignMembership(ctx, test.invite.Sender, types.MembershipTypeBlack)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				k.SaveInvite(ctx, test.invite)
 			}
 
@@ -248,11 +248,11 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			if msg, ok := test.msg.(types.MsgBuyMembership); ok {
 				k.SupplyKeeper.SetSupply(ctx, supply.NewSupply(test.bankAmount))
 				err := bk.SetCoins(ctx, msg.Buyer, test.bankAmount)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				if len(test.existingMembership) != 0 {
 					err = k.AssignMembership(ctx, msg.Buyer, test.existingMembership)
-					assert.NoError(t, err)
+					require.NoError(t, err)
 				}
 			}
 
@@ -260,13 +260,13 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			res := handler(ctx, test.msg)
 
 			if len(test.error) == 0 {
-				assert.True(t, res.IsOK())
+				require.True(t, res.IsOK())
 
 				userAmt := bk.GetCoins(ctx, test.msg.GetSigners()[0])
-				assert.True(t, userAmt.IsAllLT(test.bankAmount))
+				require.True(t, userAmt.IsAllLT(test.bankAmount))
 			} else {
-				assert.False(t, res.IsOK())
-				assert.Contains(t, res.Log, test.error)
+				require.False(t, res.IsOK())
+				require.Contains(t, res.Log, test.error)
 			}
 		})
 	}

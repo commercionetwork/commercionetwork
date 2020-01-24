@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/government/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -26,5 +26,5 @@ func TestQuerier_queryGetGovernmentAddress(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, TestAddress, actual)
+	require.Equal(t, TestAddress, actual)
 }
