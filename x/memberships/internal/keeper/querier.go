@@ -23,7 +23,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case types.QueryGetMembership:
 			return queryResolveMembership(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -53,7 +53,7 @@ func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, err
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, invites)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -67,7 +67,7 @@ func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, er
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, signers)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -81,7 +81,7 @@ func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, 
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, value)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -97,7 +97,7 @@ type MembershipResult struct {
 func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 	address, err2 := sdk.AccAddressFromBech32(path[0])
 	if err2 != nil {
-		return nil, sdk.ErrInvalidAddress(path[0])
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, path[0])
 	}
 
 	// Create the result type
@@ -114,7 +114,7 @@ func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res 
 	result.MembershipType = membership.MembershipType
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, result)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil

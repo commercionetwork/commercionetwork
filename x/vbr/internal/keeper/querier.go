@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
@@ -16,7 +18,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case vbrTypes.QueryBlockRewardsPoolFunds:
 			return queryGetBlockRewardsPoolFunds(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", vbrTypes.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", vbrTypes.ModuleName))
 		}
 	}
 }
@@ -26,7 +28,7 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (
 
 	fundsBz, err2 := codec.MarshalJSONIndent(keeper.cdc, funds)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return fundsBz, nil

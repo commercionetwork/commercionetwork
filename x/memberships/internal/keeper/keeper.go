@@ -73,7 +73,7 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) error {
 	// Check the membership type validity
 	if !types.IsMembershipTypeValid(membershipType) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", membershipType))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
 
 	_ = k.RemoveMembership(ctx, user)
@@ -82,7 +82,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
-		return sdk.ErrUnknownRequest(
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf(
 				"cannot add membership \"%s\" for address %s: user already have a membership",
 				membershipType,
@@ -102,7 +102,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 	store := ctx.KVStore(k.StoreKey)
 
 	if !store.Has(k.storageForAddr(user)) {
-		return types.Membership{}, sdk.ErrUnknownRequest(
+		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("membership not found for user \"%s\"", user.String()),
 		)
 	}
@@ -120,7 +120,7 @@ func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
 
 	if !store.Has(k.storageForAddr(user)) {
-		return sdk.ErrUnknownRequest(
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
 		)
 	}

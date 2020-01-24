@@ -4,6 +4,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -25,7 +26,7 @@ func NewQuerier(q sdk.Querier, k Keeper) sdk.Querier {
 func queryBlockedAccounts(ctx sdk.Context, _ abci.RequestQuery, k Keeper) ([]byte, error) {
 	bz, err := codec.MarshalJSONIndent(types.ModuleCdc, k.GetBlockedAddresses(ctx))
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	return bz, nil

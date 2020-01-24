@@ -17,7 +17,7 @@ func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) er
 	inviteKey := k.getInviteStoreKey(recipient)
 
 	if store.Has(inviteKey) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", recipient))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", recipient))
 	}
 
 	// Build and save the invite

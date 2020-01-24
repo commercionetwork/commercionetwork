@@ -106,7 +106,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			owner:      testCdp.Owner,
 			amount:     testCdp.DepositedAmount,
 			tokenPrice: pricefeed.EmptyPrice(),
-			error:      sdk.ErrUnknownRequest(fmt.Sprintf("No current price for given token: %s", testCdp.DepositedAmount[0].Denom)),
+			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("No current price for given token: %s", testCdp.DepositedAmount[0].Denom)),
 		},
 		{
 			name:       "Not enough funds inside user wallet",
@@ -202,7 +202,7 @@ func TestKeeper_CloseCdp(t *testing.T) {
 
 		err := k.CloseCdp(ctx, testCdp.Owner, testCdp.Timestamp)
 		errMsg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.Timestamp)
-		require.Equal(t, sdk.ErrUnknownRequest(errMsg), err)
+		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg), err)
 	})
 
 	t.Run("Existing CDP is closed properly", func(t *testing.T) {

@@ -17,7 +17,7 @@ func TestRequestStatus_Validate(t *testing.T) {
 		{
 			"invalid status type",
 			types.NewRequestStatus("invalid", "message"),
-			sdk.ErrUnknownRequest("Invalid status type: invalid"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid status type: invalid"),
 		},
 		{
 			"\"rejected\" type",

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -89,13 +91,13 @@ func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAd
 func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) error {
 	// Check the id validity
 	if len(strings.TrimSpace(document.UUID)) == 0 {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid document id: %s", document.UUID))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document id: %s", document.UUID))
 	}
 
 	// Check any existing document
 	// when err is nil, we found a document with said document.UUID
 	if _, err := keeper.GetDocumentByID(ctx, document.UUID); err == nil {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Document with uuid %s already present", document.UUID))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Document with uuid %s already present", document.UUID))
 	}
 
 	// Store the document object
@@ -141,11 +143,11 @@ func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document
 func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt) error {
 	// Check the id
 	if len(strings.TrimSpace(receipt.UUID)) == 0 {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid document receipt id: %s", receipt.UUID))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document receipt id: %s", receipt.UUID))
 	}
 
 	if _, err := keeper.GetDocumentByID(ctx, receipt.DocumentUUID); err != nil {
-		return sdk.ErrUnknownRequest("recepit points to a non-existing document UUID")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "recepit points to a non-existing document UUID")
 	}
 
 	store := ctx.KVStore(keeper.StoreKey)
@@ -157,13 +159,13 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	// Store the receipt as sent
 	if store.Has(sentReceiptsIdsStoreKey) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
 	store.Set(sentReceiptsIdsStoreKey, marshaledRecepitID)
 
 	// Store the receipt as received
 	if store.Has(receivedReceiptIdsStoreKey) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
 	store.Set(receivedReceiptIdsStoreKey, marshaledRecepitID)
 

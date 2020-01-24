@@ -59,17 +59,17 @@ func TestService_Validate(t *testing.T) {
 		{
 			"missing id",
 			types.NewService("  ", "type", "endpoint"),
-			sdk.ErrUnknownRequest("Service id cannot be empty"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Service id cannot be empty"),
 		},
 		{
 			"missing type",
 			types.NewService("id", "  ", "endpoint"),
-			sdk.ErrUnknownRequest("Service type cannot be empty"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Service type cannot be empty"),
 		},
 		{
 			"missing endpoint",
 			types.NewService("id", "type", "  "),
-			sdk.ErrUnknownRequest("Service endpoint cannot be empty"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Service endpoint cannot be empty"),
 		},
 		{
 			"well-formed service",

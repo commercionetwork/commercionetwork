@@ -71,12 +71,12 @@ func TestProof_Validate(t *testing.T) {
 		{
 			"no type",
 			types.NewProof("", date, "creator", "signature"),
-			sdk.ErrUnknownRequest("Invalid proof type, must be LinkedDataSignature2015"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof type, must be LinkedDataSignature2015"),
 		},
 		{
 			"no creation date",
 			types.NewProof("LinkedDataSignature2015", time.Time{}, "creator", "signature"),
-			sdk.ErrUnknownRequest("Invalid proof creation time"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof creation time"),
 		},
 		{
 			"valid proof",

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -55,7 +57,7 @@ func (keeper Keeper) getRawPricesKey(assetName string) []byte {
 // If the signer hasn't the rights to set the price, then function returns error.
 func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price types.Price) error {
 	if !keeper.IsOracle(ctx, oracle) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("%s is not an oracle", oracle))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s is not an oracle", oracle))
 	}
 
 	// Add the asset's identifiers if it's the first time that it's been priced
@@ -70,7 +72,7 @@ func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price t
 		return nil
 	}
 
-	return sdk.ErrUnknownRequest(fmt.Sprintf("Price %s already exists", price))
+	return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Price %s already exists", price))
 }
 
 // GetRawPricesForAsset retrieves all the raw prices of the given asset

@@ -34,7 +34,7 @@ func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg types.MsgSetPrice) sd
 	if err := keeper.AddRawPrice(ctx, msg.Oracle, msg.Price); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
 	}
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }
 
 func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgAddOracle) sdk.Result {
@@ -46,5 +46,5 @@ func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, govKeeper government.Kee
 	}
 
 	keeper.AddOracle(ctx, msg.Oracle)
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }

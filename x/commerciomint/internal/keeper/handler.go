@@ -16,7 +16,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleMsgCloseCdp(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
-			return sdk.ErrUnknownRequest(errMsg).Result()
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 		}
 	}
 }

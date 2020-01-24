@@ -22,7 +22,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 			existingInvite: types.NewInvite(testInviteSender, testUser),
 			invite:         types.NewInvite(testUser2, testUser),
 			expected:       types.NewInvite(testInviteSender, testUser),
-			error:          sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", testUser)),
+			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", testUser)),
 		},
 		{
 			name:     "New invite works properly",

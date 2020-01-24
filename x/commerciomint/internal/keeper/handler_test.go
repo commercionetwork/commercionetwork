@@ -46,7 +46,7 @@ func TestHandler_InvalidMsg(t *testing.T) {
 
 	invalidMsg := sdk.NewTestMsg()
 	errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, invalidMsg.Type())
-	expected := sdk.ErrUnknownRequest(errMsg).Result()
+	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 	actual := handler(ctx, invalidMsg)
 
 	require.Equal(t, expected, actual)

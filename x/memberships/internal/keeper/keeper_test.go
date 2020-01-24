@@ -21,7 +21,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			name:           "Invalid membership type returns error",
 			membershipType: "grn",
 			user:           testUser,
-			error:          sdk.ErrUnknownRequest("Invalid membership type: grn"),
+			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 		{
 			name:           "Non existing membership is properly saved",
@@ -102,7 +102,7 @@ func TestKeeper_GetMembership(t *testing.T) {
 		{
 			name: "Non existing membership is returned properly",
 			user: testUser,
-			expectedError: sdk.ErrUnknownRequest(
+			expectedError: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("membership not found for user \"%s\"", testUser.String()),
 			),
 		},

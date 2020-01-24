@@ -84,7 +84,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 				Sender:     sender,
 				Recipients: types.Addresses{recipient},
 			}),
-			sdk.ErrUnknownRequest("either metadata.schema or metadata.schema_type must be defined"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "either metadata.schema or metadata.schema_type must be defined"),
 		},
 		{
 			"MsgShareDocument with valid schema type",
@@ -106,7 +106,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 				Sender:     sender,
 				Recipients: types.Addresses{recipient},
 			}),
-			sdk.ErrUnknownRequest("either metadata.schema or metadata.schema_type must be defined"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "either metadata.schema or metadata.schema_type must be defined"),
 		},
 	}
 	for _, tt := range tests {
@@ -196,7 +196,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
-			sdk.ErrUnknownRequest("Invalid uuid: "),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid uuid: "),
 		},
 		{
 			"empty sender",
@@ -207,7 +207,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
-			sdk.ErrInvalidAddress(""),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
 		},
 		{
 			"empty recipient",
@@ -218,7 +218,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
-			sdk.ErrInvalidAddress(""),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
 		},
 		{
 			"empty TxHash",
@@ -229,7 +229,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
-			sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Send Document's Transaction Hash can't be empty"),
 		},
 		{
 			"invalid document UUID",
@@ -240,7 +240,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				TxHash:    "txHash",
 				Proof:     "proof",
 			},
-			sdk.ErrUnknownRequest("Invalid document UUID"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid document UUID"),
 		},
 	}
 	for _, tt := range tests {
@@ -311,7 +311,7 @@ func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
 					Version:   "1.0.0",
 				},
 			},
-			sdk.ErrInvalidAddress(""),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
 		},
 		{
 			"invalid schema",
@@ -323,7 +323,7 @@ func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
 					Version:   "",
 				},
 			},
-			sdk.ErrUnknownRequest("uri cannot be empty"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "uri cannot be empty"),
 		},
 	}
 
@@ -387,14 +387,14 @@ func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic(t *testing.T) {
 			MsgAddTrustedMetadataSchemaProposer{
 				Signer: recipient,
 			},
-			sdk.ErrInvalidAddress(""),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
 		},
 		{
 			"missing signer",
 			MsgAddTrustedMetadataSchemaProposer{
 				Proposer: sender,
 			},
-			sdk.ErrInvalidAddress(""),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
 		},
 	}
 

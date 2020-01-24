@@ -83,7 +83,7 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount
 	for _, token := range depositAmount {
 		assetPrice, found := k.priceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
 		if !found {
-			return sdk.ErrUnknownRequest(fmt.Sprintf("No current price for given token: %s", token.Denom))
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("No current price for given token: %s", token.Denom))
 		}
 		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Value.RoundInt()))
 	}
@@ -159,7 +159,7 @@ func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) 
 	cdp, found := k.GetCdpByOwnerAndTimeStamp(ctx, user, timestamp)
 	if !found {
 		msg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", user, timestamp)
-		return sdk.ErrUnknownRequest(msg)
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
 	// Send the coins from the user to the module and then burn them

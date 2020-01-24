@@ -27,7 +27,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case types.QueryTrustedMetadataProposers:
 			return queryTrustedMetadataProposers(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -50,7 +50,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 
 		document, err := keeper.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
-			return nil, sdk.ErrUnknownRequest(
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document with UUID %s even though the user has an associated received document",
 					documentUUID,
@@ -63,7 +63,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -83,7 +83,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 
 		document, err := keeper.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
-			return nil, sdk.ErrUnknownRequest(
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document with UUID %s even though the user has an associated received document",
 					documentUUID,
@@ -96,7 +96,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -126,7 +126,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 
 		newReceipt, err := keeper.GetReceiptByID(ctx, rid)
 		if err != nil {
-			return nil, sdk.ErrUnknownRequest(
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document receipt with UUID %s even though the user has an associated received document with it",
 					rid,
@@ -147,7 +147,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
 
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -158,7 +158,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 	address, err := sdk.AccAddressFromBech32(addr)
 
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress(addr)
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
 	receipts := []types.DocumentReceipt{}
@@ -172,7 +172,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 
 		newReceipt, err := keeper.GetReceiptByID(ctx, rid)
 		if err != nil {
-			return nil, sdk.ErrUnknownRequest(
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document receipt with UUID %s even though the user has an associated received document with it",
 					rid,
@@ -186,7 +186,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
 
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -210,7 +210,7 @@ func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) (
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &schemes)
 
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -234,7 +234,7 @@ func queryTrustedMetadataProposers(ctx sdk.Context, _ []string, keeper Keeper) (
 	bz, err := codec.MarshalJSONIndent(keeper.cdc, &proposers)
 
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil

@@ -134,7 +134,7 @@ func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid recipient returns error",
 			msg:   types.MsgRequestDidDeposit{Recipient: sdk.AccAddress{}},
-			error: sdk.ErrInvalidAddress("Invalid recipient: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient: "),
 		},
 		{
 			name:  "Invalid amount returns error",
@@ -148,17 +148,17 @@ func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid proof returns error",
 			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: amount, Proof: "230sd"},
-			error: sdk.ErrUnknownRequest("Invalid proof: 230sd"),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof: 230sd"),
 		},
 		{
 			name:  "Invalid encryption key returns error",
 			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: amount, Proof: "617364", EncryptionKey: "1230xcv"},
-			error: sdk.ErrUnknownRequest("Invalid encryption key value: 1230xcv"),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid encryption key value: 1230xcv"),
 		},
 		{
 			name:  "Invalid from_address returns error",
 			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: amount, Proof: "617364", EncryptionKey: "617364", FromAddress: sdk.AccAddress{}},
-			error: sdk.ErrInvalidAddress("Invalid from_address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid from_address: "),
 		},
 	}
 
@@ -220,12 +220,12 @@ func TestMsgMoveDeposit_ValidateBasic(t *testing.T) {
 		{
 			name:  "Empty signer returns error",
 			msg:   types.NewMsgMoveDeposit("", sdk.AccAddress{}),
-			error: sdk.ErrInvalidAddress("Invalid signer address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid signer address: "),
 		},
 		{
 			name:  "Invalid deposit proof returns error",
 			msg:   types.NewMsgMoveDeposit("", editor),
-			error: sdk.ErrUnknownRequest("Invalid deposit_proof: "),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid deposit_proof: "),
 		},
 		{
 			name: "Valid message returns no error",
@@ -292,17 +292,17 @@ func TestMsgInvalidateDidDepositRequest_ValidateBasic(t *testing.T) {
 		{
 			name:  "Empty editor returns error",
 			msg:   types.NewMsgInvalidateDidDepositRequest(status, "", sdk.AccAddress{}),
-			error: sdk.ErrInvalidAddress("Invalid editor address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid editor address: "),
 		},
 		{
 			name:  "Invalid deposit proof returns error",
 			msg:   types.NewMsgInvalidateDidDepositRequest(status, "", editor),
-			error: sdk.ErrUnknownRequest("Invalid deposit_proof: "),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid deposit_proof: "),
 		},
 		{
 			name:  "Invalid status returns error",
 			msg:   types.NewMsgInvalidateDidDepositRequest(types.RequestStatus{}, "31", editor),
-			error: sdk.ErrUnknownRequest("Invalid status type: "),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid status type: "),
 		},
 		{
 			name: "Valid message returns no error",
@@ -367,7 +367,7 @@ func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid claimant returns error",
 			msg:   types.MsgRequestDidPowerUp{Claimant: sdk.AccAddress{}},
-			error: sdk.ErrInvalidAddress("Invalid claimant: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid claimant: "),
 		},
 		{
 			name:  "Invalid amount returns error",
@@ -381,12 +381,12 @@ func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid proof returns error",
 			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "230sd"},
-			error: sdk.ErrUnknownRequest("Invalid proof: 230sd"),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof: 230sd"),
 		},
 		{
 			name:  "Invalid encryption key returns error",
 			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: amount, Proof: "617364", EncryptionKey: "1230xcv"},
-			error: sdk.ErrUnknownRequest("Invalid encryption key value: 1230xcv"),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid encryption key value: 1230xcv"),
 		},
 	}
 
@@ -454,7 +454,7 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid recipient returns error",
 			msg:   types.MsgPowerUpDid{Recipient: sdk.AccAddress{}},
-			error: sdk.ErrInvalidAddress("Invalid recipient address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address: "),
 		},
 		{
 			name:  "Invalid amount returns error",
@@ -468,12 +468,12 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid activation reference returns error",
 			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: amount, ActivationReference: "230sd"},
-			error: sdk.ErrUnknownRequest("Invalid activation_reference: 230sd"),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid activation_reference: 230sd"),
 		},
 		{
 			name:  "Invalid signer returns error",
 			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: amount, ActivationReference: "617364", Signer: sdk.AccAddress{}},
-			error: sdk.ErrInvalidAddress("Invalid signer address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid signer address: "),
 		},
 	}
 
@@ -535,17 +535,17 @@ func TestNewMsgInvalidateDidPowerUpRequest_ValidateBasic(t *testing.T) {
 		{
 			name:  "Empty editor returns error",
 			msg:   types.NewMsgInvalidateDidPowerUpRequest(status, "", sdk.AccAddress{}),
-			error: sdk.ErrInvalidAddress("Invalid editor address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid editor address: "),
 		},
 		{
 			name:  "Invalid power up proof returns error",
 			msg:   types.NewMsgInvalidateDidPowerUpRequest(status, "", editor),
-			error: sdk.ErrUnknownRequest("Invalid power_up_proof: "),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid power_up_proof: "),
 		},
 		{
 			name:  "Invalid status returns error",
 			msg:   types.NewMsgInvalidateDidPowerUpRequest(types.RequestStatus{}, "31", editor),
-			error: sdk.ErrUnknownRequest("Invalid status type: "),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid status type: "),
 		},
 		{
 			name: "Valid message returns no error",

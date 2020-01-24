@@ -40,12 +40,12 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing recipient returns error",
 			msg:   types.MsgInviteUser{Recipient: nil, Sender: sender},
-			error: sdk.ErrInvalidAddress("Invalid recipient address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address: "),
 		},
 		{
 			name:  "Missing sender returns error",
 			msg:   types.MsgInviteUser{Recipient: user, Sender: nil},
-			error: sdk.ErrInvalidAddress("Invalid sender address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid sender address: "),
 		},
 	}
 
@@ -107,12 +107,12 @@ func TestMsgSetUserVerified_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing user returns error",
 			msg:   types.NewMsgSetUserVerified(nil, tsp),
-			error: sdk.ErrInvalidAddress("Invalid user address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid user address: "),
 		},
 		{
 			name:  "Missing signer returns error",
 			msg:   types.NewMsgSetUserVerified(user, nil),
-			error: sdk.ErrInvalidAddress("Invalid verifier address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid verifier address: "),
 		},
 	}
 
@@ -174,7 +174,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing deposit returns error",
 			msg:   types.MsgDepositIntoLiquidityPool{Depositor: nil, Amount: amount},
-			error: sdk.ErrInvalidAddress("Invalid depositor address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid depositor address: "),
 		},
 		{
 			name:  "Empty deposit amount returns error",
@@ -254,12 +254,12 @@ func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
 		{
 			name:  "Missing government returns error",
 			msg:   types.MsgAddTsp{Government: nil, Tsp: tsp},
-			error: sdk.ErrInvalidAddress("Invalid government address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid government address: "),
 		},
 		{
 			name:  "Missing tsp returns error",
 			msg:   types.MsgAddTsp{Government: government, Tsp: nil},
-			error: sdk.ErrInvalidAddress("Invalid TSP address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid TSP address: "),
 		},
 	}
 
@@ -323,17 +323,17 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 		{
 			name:  "Missing buyer returns error",
 			msg:   types.NewMsgBuyMembership(TestMembershipType, nil),
-			error: sdk.ErrInvalidAddress("Invalid buyer address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid buyer address: "),
 		},
 		{
 			name:  "Missing membership returns error",
 			msg:   types.NewMsgBuyMembership("", testBuyer),
-			error: sdk.ErrUnknownRequest("Invalid membership type: "),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: "),
 		},
 		{
 			name:  "Invalid membership returns error",
 			msg:   types.NewMsgBuyMembership("grn", testBuyer),
-			error: sdk.ErrUnknownRequest("Invalid membership type: grn"),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 	}
 

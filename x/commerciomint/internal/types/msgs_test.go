@@ -37,7 +37,7 @@ package types
 //	})
 //	err := invalidMsg.ValidateBasic()
 //	require.Error(t, err)
-//	require.Equal(t, sdk.ErrInvalidAddress(invalidMsg.Depositor.String()), err)
+//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrInvalidAddress, invalidMsg.Depositor.String()), err)
 //}
 //
 //func TestMsgOpenCdp_ValidateBasic_InvalidDepositedAmount(t *testing.T) {
@@ -59,7 +59,7 @@ package types
 //	})
 //	err := invalidMsg.ValidateBasic()
 //	require.Error(t, err)
-//	require.Equal(t, sdk.ErrUnknownRequest("cdp request's timestamp is invalid"), err)
+//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "cdp request's timestamp is invalid"), err)
 //}
 //
 //func TestMsgOpenCdp_GetSignBytes(t *testing.T) {
@@ -98,7 +98,7 @@ package types
 //		Timestamp: time.Time{},
 //	}
 //	actual := msg.ValidateBasic()
-//	require.Equal(t, sdk.ErrInvalidAddress(msg.Signer.String()), actual)
+//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String()), actual)
 //	require.Error(t, actual)
 //}
 //
@@ -108,7 +108,7 @@ package types
 //		Timestamp: time.Time{},
 //	}
 //	actual := msg.ValidateBasic()
-//	require.Equal(t, sdk.ErrUnknownRequest("cdp's timestamp is invalid"), actual)
+//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "cdp's timestamp is invalid"), actual)
 //	require.Error(t, actual)
 //}
 //

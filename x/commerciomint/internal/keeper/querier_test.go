@@ -35,7 +35,7 @@ func TestQuerier_queryGetCdp_notFound(t *testing.T) {
 	_, err := querier(ctx, path, req)
 
 	require.Error(t, err)
-	expected := sdk.ErrUnknownRequest("couldn't find any cdp associated with the given address and timestamp")
+	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, "couldn't find any cdp associated with the given address and timestamp")
 	require.Equal(t, expected, err)
 }
 

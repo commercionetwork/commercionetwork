@@ -48,7 +48,7 @@ func TestMsgIncrementBlockRewardsPool_ValidateBasic_valid(t *testing.T) {
 
 func TestMsgIncrementBlockRewardsPool_ValidateBasic_noFunds(t *testing.T) {
 	actual := msgIncrementsBrPoolNoFunds.ValidateBasic()
-	expected := sdk.ErrUnknownRequest("You can't transfer a null or negative amount")
+	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, "You can't transfer a null or negative amount")
 
 	require.Equal(t, expected, actual)
 }

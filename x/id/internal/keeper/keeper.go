@@ -53,7 +53,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) err
 	// Get the account and its public key
 	account := k.accKeeper.GetAccount(ctx, owner)
 	if account == nil {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Could not find account %s", owner.String()))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Could not find account %s", owner.String()))
 	}
 
 	accountPubKey := account.GetPubKey()
@@ -65,13 +65,13 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) err
 	// Get the authentication key
 	authKey, found := document.PubKeys.FindByID(document.Authentication[0])
 	if !found {
-		return sdk.ErrUnknownRequest("Authentication key not found inside publicKey array")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Authentication key not found inside publicKey array")
 	}
 
 	// Get the authentication key bytes
 	authKeyBytes, err := hex.DecodeString(authKey.PublicKeyHex)
 	if err != nil {
-		return sdk.ErrUnknownRequest("Invalid authentication key hex value")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid authentication key hex value")
 	}
 
 	// TODO: The following code should be tested
@@ -81,7 +81,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) err
 		// Check the auth key type coherence with its value
 		if authKey.Type != types.KeyTypeEd25519 {
 			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeEd25519)
-			return sdk.ErrUnknownRequest(msg)
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 		}
 		key = ed25519key[:]
 	}
@@ -90,7 +90,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) err
 		// Check the auth key type coherence with its value
 		if authKey.Type != types.KeyTypeSecp256k1 {
 			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeSecp256k1)
-			return sdk.ErrUnknownRequest(msg)
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 		}
 		key = secp256k1key[:]
 	}
@@ -102,7 +102,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) err
 			hex.EncodeToString(key),
 			hex.EncodeToString(authKeyBytes),
 		)
-		return sdk.ErrUnknownRequest(msg)
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
 	// TODO: Check that the proof signatureValue is the valid signature of the entire Did Document made with the user private key
@@ -168,7 +168,7 @@ func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDeposit
 
 	requestKey := k.getDepositRequestStoreKey(request.Proof)
 	if store.Has(requestKey) {
-		return sdk.ErrUnknownRequest("Did deposit request with the same proof already exists")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Did deposit request with the same proof already exists")
 	}
 
 	store.Set(requestKey, k.cdc.MustMarshalBinaryBare(&request))
@@ -196,7 +196,7 @@ func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status
 
 	request, found := k.GetDidDepositRequestByProof(ctx, proof)
 	if !found {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Did deposit request with proof %s not fond", proof))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Did deposit request with proof %s not fond", proof))
 	}
 
 	// Update and store the request
@@ -236,7 +236,7 @@ func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpReq
 
 	requestStoreKey := k.getDidPowerUpRequestStoreKey(request.Proof)
 	if store.Has(requestStoreKey) {
-		return sdk.ErrUnknownRequest("PowerUp request with the same proof already exists")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "PowerUp request with the same proof already exists")
 	}
 
 	store.Set(requestStoreKey, k.cdc.MustMarshalBinaryBare(&request))
@@ -264,7 +264,7 @@ func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status
 
 	request, found := k.GetPowerUpRequestByProof(ctx, proof)
 	if !found {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("PowerUp request with proof %s not found", proof))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("PowerUp request with proof %s not found", proof))
 	}
 
 	// Update and store the request
@@ -342,7 +342,7 @@ func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.
 
 	// Check that the pool has enough funds
 	if amount.IsAnyGT(currentPool) {
-		return sdk.ErrInsufficientFunds("Pool does not have enough funds")
+		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool does not have enough funds")
 	}
 
 	// Add the coins to the user

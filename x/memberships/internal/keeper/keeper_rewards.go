@@ -46,12 +46,12 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	senderMembership, err := k.GetMembership(ctx, invite.Sender)
 	if err != nil {
-		return sdk.ErrUnauthorized("Invite sender does not have a membership")
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership")
 	}
 
 	recipientMembership, err := k.GetMembership(ctx, invite.User)
 	if err != nil {
-		return sdk.ErrUnauthorized("Invite recipient does not have a membership")
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership")
 	}
 
 	senderMembershipType := senderMembership.MembershipType

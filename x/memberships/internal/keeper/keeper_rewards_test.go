@@ -116,7 +116,7 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			inviteSenderMembership: types.MembershipTypeBlack,
 			invite:                 types.NewInvite(testInviteSender, testUser),
 			user:                   testUser,
-			error:                  sdk.ErrUnauthorized("Invite recipient does not have a membership"),
+			error:                  sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership"),
 		},
 		{
 			name:                      "Insufficient pool funds greater than zero gives all reward available",

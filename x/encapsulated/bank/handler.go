@@ -3,6 +3,8 @@ package custombank
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -28,7 +30,7 @@ func NewHandler(h sdk.Handler, k Keeper, govKeeper government.Keeper) sdk.Handle
 
 		default:
 			errMsg := fmt.Sprintf("unrecognized bank message type: %T", msg)
-			return sdk.ErrUnknownRequest(errMsg).Result()
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 		}
 	}
 }
@@ -38,7 +40,7 @@ func handleMsgSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgSend) s
 
 	// Check if address is blocked
 	if k.IsAddressBlocked(ctx, msg.FromAddress) {
-		return sdk.ErrUnauthorized(fmt.Sprintf("Account %s is blocked", msg.FromAddress.String())).Result()
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Account %s is blocked", msg.FromAddress.String()))
 	}
 
 	return h(ctx, msg)
@@ -50,7 +52,7 @@ func handleMsgMultiSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgMu
 	// Check if the sender is blocked
 	for _, out := range msg.Outputs {
 		if k.IsAddressBlocked(ctx, out.Address) {
-			return sdk.ErrUnauthorized(fmt.Sprintf("Account %s is blocked", out.Address.String())).Result()
+			return sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Account %s is blocked", out.Address.String()))
 		}
 	}
 
@@ -62,13 +64,13 @@ func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.K
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
-		return sdk.ErrUnauthorized("Cannot block an address without being the government").Result()
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot block an address without being the government")
 	}
 
 	// Block the address
 	k.AddBlockedAddresses(ctx, msg.Address)
 
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }
 
 // Handle MsgUnlockAccountSend.
@@ -76,11 +78,11 @@ func handleMsgUnlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
-		return sdk.ErrUnauthorized("Cannot block an address without being the government").Result()
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot block an address without being the government")
 	}
 
 	// Block the address
 	k.RemoveBlockedAddress(ctx, msg.Address)
 
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }

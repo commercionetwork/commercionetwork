@@ -189,7 +189,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 		// Set the just earned reward
 		k.distKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
 	} else {
-		return sdk.ErrInsufficientFunds("Pool hasn't got enough funds to supply validator's rewards")
+		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
 	}
 
 	return nil

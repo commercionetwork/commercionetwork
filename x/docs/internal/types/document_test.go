@@ -167,7 +167,7 @@ func TestDocument_Validate(t *testing.T) {
 				},
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 			},
-			sdk.ErrInvalidAddress(""),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
 		},
 		{
 			"no recipients",
@@ -179,7 +179,7 @@ func TestDocument_Validate(t *testing.T) {
 				},
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 			},
-			sdk.ErrInvalidAddress("Recipients cannot be empty"),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty"),
 		},
 		{
 			"no uuid",
@@ -193,7 +193,7 @@ func TestDocument_Validate(t *testing.T) {
 					SchemaType: "a schema type",
 				},
 			},
-			sdk.ErrUnknownRequest("Invalid document UUID: "),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid document UUID: "),
 		},
 		{
 			"a good document with some encrypted data inside",
@@ -245,7 +245,7 @@ func TestDocument_Validate(t *testing.T) {
 					EncryptedData: []string{"content"},
 				},
 			},
-			sdk.ErrInvalidAddress(fmt.Sprintf(
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf(
 				"%s is a recipient inside encryption data but not inside the message",
 				anotherRecipient.String(),
 			)),
@@ -272,7 +272,7 @@ func TestDocument_Validate(t *testing.T) {
 					EncryptedData: []string{"content"},
 				},
 			},
-			sdk.ErrInvalidAddress(fmt.Sprintf("%s is a recipient inside the document but not in the encryption data", anotherRecipient.String())),
+			sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("%s is a recipient inside the document but not in the encryption data", anotherRecipient.String())),
 		},
 		{
 			"a good document whom encrypted data is content_uri, and the corresponding field isn't available",
@@ -296,7 +296,7 @@ func TestDocument_Validate(t *testing.T) {
 					EncryptedData: []string{"content_uri"},
 				},
 			},
-			sdk.ErrUnknownRequest(
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", "content_uri"),
 			),
 		},
@@ -322,7 +322,7 @@ func TestDocument_Validate(t *testing.T) {
 					EncryptedData: []string{"metadata.schema.uri"},
 				},
 			},
-			sdk.ErrUnknownRequest(
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", "metadata.schema.uri"),
 			),
 		},

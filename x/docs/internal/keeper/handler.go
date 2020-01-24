@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -22,7 +24,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleMsgAddTrustedMetadataSchemaProposer(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
-			return sdk.ErrUnknownRequest(errMsg).Result()
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 		}
 	}
 }
@@ -35,7 +37,7 @@ func handleMsgShareDocument(ctx sdk.Context, keeper Keeper, msg types.MsgShareDo
 		// Check its validity
 		if !keeper.IsMetadataSchemeTypeSupported(ctx, msg.Metadata.SchemaType) {
 			errMsg := fmt.Sprintf("Unsupported metadata schema: %s", msg.Metadata.SchemaType)
-			return sdk.ErrUnknownRequest(errMsg).Result()
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 		}
 
 		// Delete the custom data
@@ -44,16 +46,16 @@ func handleMsgShareDocument(ctx sdk.Context, keeper Keeper, msg types.MsgShareDo
 
 	// Share the document
 	if err := keeper.SaveDocument(ctx, types.Document(msg)); err != nil {
-		return err.Result()
+		return err
 	}
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }
 
 func handleMsgSendDocumentReceipt(ctx sdk.Context, keeper Keeper, msg types.MsgSendDocumentReceipt) sdk.Result {
 	if err := keeper.SaveReceipt(ctx, types.DocumentReceipt(msg)); err != nil {
-		return err.Result()
+		return err
 	}
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }
 
 func handleMsgAddSupportedMetadataSchema(ctx sdk.Context, keeper Keeper, msg types.MsgAddSupportedMetadataSchema) sdk.Result {
@@ -61,13 +63,13 @@ func handleMsgAddSupportedMetadataSchema(ctx sdk.Context, keeper Keeper, msg typ
 	// Make sure the signer is valid
 	if !keeper.IsTrustedSchemaProposer(ctx, msg.Signer) {
 		errMsg := fmt.Sprintf("Signer is not a trusted one: %s", msg.Signer.String())
-		return sdk.ErrInvalidAddress(errMsg).Result()
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 	}
 
 	// Add the schema
 	keeper.AddSupportedMetadataScheme(ctx, msg.Schema)
 
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }
 
 func handleMsgAddTrustedMetadataSchemaProposer(ctx sdk.Context, keeper Keeper, msg types.MsgAddTrustedMetadataSchemaProposer) sdk.Result {
@@ -75,10 +77,10 @@ func handleMsgAddTrustedMetadataSchemaProposer(ctx sdk.Context, keeper Keeper, m
 	governmentAddr := keeper.GovernmentKeeper.GetGovernmentAddress(ctx)
 	if !msg.Signer.Equals(governmentAddr) {
 		errMsg := fmt.Sprintf("Only the government can add a trusted metadata schema proposer")
-		return sdk.ErrInvalidAddress(errMsg).Result()
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 	}
 
 	// Add the trusted schema proposer
 	keeper.AddTrustedSchemaProposer(ctx, msg.Proposer)
-	return sdk.Result{}
+	return sdk.Result{}, nil
 }

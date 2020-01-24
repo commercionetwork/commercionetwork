@@ -56,7 +56,7 @@ func ValidateGenesis(state GenesisState) error {
 	}
 	for _, oracle := range state.Oracles {
 		if oracle.Empty() {
-			return sdk.ErrInvalidAddress("Found Empty oracle address")
+			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Found Empty oracle address")
 		}
 	}
 	return nil

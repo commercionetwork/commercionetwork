@@ -21,7 +21,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case types.QueryResolvePowerUpRequest:
 			return queryResolvePowerUpRequest(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -33,7 +33,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 	address, err2 := sdk.AccAddressFromBech32(path[0])
 	if err2 != nil {
-		return nil, sdk.ErrInvalidAddress(path[0])
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, path[0])
 	}
 
 	var response ResolveIdentityResponse
@@ -46,7 +46,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, response)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -66,12 +66,12 @@ func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (
 	// Get the request
 	request, found := keeper.GetDidDepositRequestByProof(ctx, path[0])
 	if !found {
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Deposit request with proof %s not found", path[0]))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Deposit request with proof %s not found", path[0]))
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -82,12 +82,12 @@ func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (
 	// Get the request
 	request, found := keeper.GetPowerUpRequestByProof(ctx, path[0])
 	if !found {
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Poer up request with proof %s not found", path[0]))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Poer up request with proof %s not found", path[0]))
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
