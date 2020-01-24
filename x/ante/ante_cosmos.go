@@ -40,7 +40,7 @@ type SignatureVerificationGasConsumer = func(meter sdk.GasMeter, sig []byte, pub
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
-// TODO: implement custom fee checking (see ante_test.goo)
+// TODO: implement custom fee checking (see comnet_min_fee_test.go)
 func NewAnteHandler(ak authKeeper.AccountKeeper, supplyKeeper types.SupplyKeeper, priceKeeper pricefeed.Keeper, sigGasConsumer SignatureVerificationGasConsumer, stableCreditsDemon string) sdk.AnteHandler {
 	return func(
 		ctx sdk.Context, tx sdk.Tx, simulate bool,
@@ -107,6 +107,10 @@ func NewAnteHandler(ak authKeeper.AccountKeeper, supplyKeeper types.SupplyKeeper
 		newCtx.GasMeter().ConsumeGas(params.TxSizeCostPerByte*sdk.Gas(len(newCtx.TxBytes())), "txSize")
 
 		if res := ValidateMemo(stdTx, params); !res.IsOK() {
+			return newCtx, res, true
+		}
+
+		if res := comnetMinFeesChecker(stdTx, ctx, priceKeeper, stableCreditsDemon); !res.IsOK() {
 			return newCtx, res, true
 		}
 
