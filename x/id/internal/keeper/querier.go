@@ -12,7 +12,7 @@ import (
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryResolveDid:
 			return queryResolveIdentity(ctx, path[1:], keeper)
@@ -30,7 +30,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 // --- Identities
 // ------------------
 
-func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 	address, err2 := sdk.AccAddressFromBech32(path[0])
 	if err2 != nil {
 		return nil, sdk.ErrInvalidAddress(path[0])
@@ -61,7 +61,7 @@ type ResolveIdentityResponse struct {
 // --- Pairwise Did
 //--------------------
 
-func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 
 	// Get the request
 	request, found := keeper.GetDidDepositRequestByProof(ctx, path[0])
@@ -77,7 +77,7 @@ func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (
 	return bz, nil
 }
 
-func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 
 	// Get the request
 	request, found := keeper.GetPowerUpRequestByProof(ctx, path[0])

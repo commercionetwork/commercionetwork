@@ -12,7 +12,7 @@ func TestRequestStatus_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
 		rq      types.RequestStatus
-		wantErr sdk.Error
+		wantErr error
 	}{
 		{
 			"invalid status type",

@@ -18,7 +18,7 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 		deposit      sdk.Coins
 		expectedPool sdk.Coins
 		expectedUser sdk.Coins
-		error        sdk.Error
+		error        error
 	}{
 		{
 			name:         "Empty deposit pool is incremented properly",
@@ -109,7 +109,7 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		poolFunds                 sdk.Coins
 		expectedInviteSenderAmt   sdk.Coins
 		expectedPoolAmt           sdk.Coins
-		error                     sdk.Error
+		error                     error
 	}{
 		{
 			name:                   "Invite recipient without membership returns error",

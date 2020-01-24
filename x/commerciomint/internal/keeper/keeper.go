@@ -72,7 +72,7 @@ func (k Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
 // Errors occurs if:
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
-func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount sdk.Coins) sdk.Error {
+func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount sdk.Coins) error {
 
 	if depositAmount.Empty() || !depositAmount.IsValid() {
 		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid deposit amount: %s", depositAmount))
@@ -155,7 +155,7 @@ func (k Keeper) GetCdps(ctx sdk.Context) types.Cdps {
 // Errors occurs if:k.GetCdpsByOwner(ctx, testCdpOwner)
 // - cdp doesnt exist
 // - subtracting or adding fund to account don't end well
-func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) sdk.Error {
+func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) error {
 	cdp, found := k.GetCdpByOwnerAndTimeStamp(ctx, user, timestamp)
 	if !found {
 		msg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", user, timestamp)

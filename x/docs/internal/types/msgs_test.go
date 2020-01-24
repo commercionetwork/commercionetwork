@@ -62,7 +62,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name    string
 		sdr     MsgShareDocument
-		haveErr sdk.Error
+		haveErr error
 	}{
 		{
 			"MsgShareDocument with valid schema",
@@ -180,7 +180,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name    string
 		sdr     MsgSendDocumentReceipt
-		haveErr sdk.Error
+		haveErr error
 	}{
 		{
 			"valid SendDocumentReceipt",
@@ -295,7 +295,7 @@ func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name    string
 		sdr     MsgAddSupportedMetadataSchema
-		haveErr sdk.Error
+		haveErr error
 	}{
 		{
 			"a valid AddSuppoertedMetadataSchema message",
@@ -375,7 +375,7 @@ func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name    string
 		sdr     MsgAddTrustedMetadataSchemaProposer
-		haveErr sdk.Error
+		haveErr error
 	}{
 		{
 			"a valid AddSuppoertedMetadataSchema message",

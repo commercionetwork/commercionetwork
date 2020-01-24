@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // -------------
@@ -38,20 +39,20 @@ func (pubKey PubKey) Equals(other PubKey) bool {
 }
 
 // Validate checks the data contained inside pubKey and returns an error if something is wrong
-func (pubKey PubKey) Validate() sdk.Error {
+func (pubKey PubKey) Validate() error {
 
 	regex, _ := regexp.Compile(fmt.Sprintf("^%s#keys-[0-9]+$", pubKey.Controller))
 	if !regex.MatchString(pubKey.ID) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid key id, must satisfy %s", regex))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid key id, must satisfy %s", regex)))
 	}
 
 	if pubKey.Type != KeyTypeRsa && pubKey.Type != KeyTypeSecp256k1 && pubKey.Type != KeyTypeEd25519 {
 		msg := fmt.Sprintf("Invalid key type, must be either %s, %s or %s", KeyTypeRsa, KeyTypeSecp256k1, KeyTypeEd25519)
-		return sdk.ErrUnknownRequest(msg)
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (msg))
 	}
 
 	if _, err := hex.DecodeString(pubKey.PublicKeyHex); err != nil {
-		return sdk.ErrUnknownRequest("Invalid publicKeyHex value")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid publicKeyHex value"))
 	}
 
 	return nil

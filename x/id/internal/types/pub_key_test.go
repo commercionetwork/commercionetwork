@@ -64,7 +64,7 @@ func TestPubKey_Validate(t *testing.T) {
 	tests := []struct {
 		name string
 		pk   types.PubKey
-		want sdk.Error
+		want error
 	}{
 		{
 			"invalid key id",

@@ -88,7 +88,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 		amount          sdk.Coins
 		tokenPrice      pricefeed.Price
 		userFunds       sdk.Coins
-		error           sdk.Error
+		error           error
 		returnedCredits sdk.Coins
 	}{
 		{

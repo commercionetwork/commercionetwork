@@ -138,7 +138,7 @@ func TestDocument_Validate(t *testing.T) {
 	tests := []struct {
 		name        string
 		doc         Document
-		expectedErr sdk.Error
+		expectedErr error
 	}{
 		{
 			"a good document",

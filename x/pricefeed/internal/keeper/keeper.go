@@ -53,7 +53,7 @@ func (keeper Keeper) getRawPricesKey(assetName string) []byte {
 
 // AddRawPrice sets the raw price for a given token after checking the validity of the signer.
 // If the signer hasn't the rights to set the price, then function returns error.
-func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price types.Price) sdk.Error {
+func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price types.Price) error {
 	if !keeper.IsOracle(ctx, oracle) {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("%s is not an oracle", oracle))
 	}

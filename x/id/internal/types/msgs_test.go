@@ -129,7 +129,7 @@ func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgRequestDidDeposit
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Invalid recipient returns error",
@@ -215,7 +215,7 @@ func TestMsgMoveDeposit_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgMoveDeposit
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Empty signer returns error",
@@ -287,7 +287,7 @@ func TestMsgInvalidateDidDepositRequest_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgInvalidateDidDepositRequest
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Empty editor returns error",
@@ -362,7 +362,7 @@ func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgRequestDidPowerUp
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Invalid claimant returns error",
@@ -449,7 +449,7 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgPowerUpDid
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Invalid recipient returns error",
@@ -530,7 +530,7 @@ func TestNewMsgInvalidateDidPowerUpRequest_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgInvalidateDidPowerUpRequest
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Empty editor returns error",

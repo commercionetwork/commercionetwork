@@ -86,7 +86,7 @@ func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAd
 // ----------------------
 
 // SaveDocument allows the sharing of a document
-func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) sdk.Error {
+func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) error {
 	// Check the id validity
 	if len(strings.TrimSpace(document.UUID)) == 0 {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid document id: %s", document.UUID))
@@ -138,7 +138,7 @@ func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document
 // ----------------------
 
 // SaveReceipt allows to properly store the given receipt
-func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt) sdk.Error {
+func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt) error {
 	// Check the id
 	if len(strings.TrimSpace(receipt.UUID)) == 0 {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid document receipt id: %s", receipt.UUID))

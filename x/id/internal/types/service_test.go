@@ -54,7 +54,7 @@ func TestService_Validate(t *testing.T) {
 	tests := []struct {
 		name string
 		ts   types.Service
-		want sdk.Error
+		want error
 	}{
 		{
 			"missing id",

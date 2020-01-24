@@ -12,7 +12,7 @@ import (
 )
 
 func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryGetCurrentPrices:
 			return queryGetCurrentPrices(ctx, path[1:], keeper)
@@ -26,7 +26,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 	}
 }
 
-func queryGetCurrentPrices(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetCurrentPrices(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, error) {
 	prices := keeper.GetCurrentPrices(ctx)
 	if prices == nil {
 		prices = make(types.Prices, 0)
@@ -40,7 +40,7 @@ func queryGetCurrentPrices(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, 
 	return pricesBz, nil
 }
 
-func queryGetCurrentPrice(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetCurrentPrice(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 	asset := path[0]
 
 	price, found := keeper.GetCurrentPrice(ctx, asset)
@@ -56,7 +56,7 @@ func queryGetCurrentPrice(ctx sdk.Context, path []string, keeper Keeper) ([]byte
 	return priceBz, nil
 }
 
-func queryGetOracles(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetOracles(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, error) {
 	oracles := keeper.GetOracles(ctx)
 	if oracles == nil {
 		oracles = make([]sdk.AccAddress, 0)

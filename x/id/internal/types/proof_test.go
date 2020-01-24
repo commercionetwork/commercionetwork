@@ -66,7 +66,7 @@ func TestProof_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
 		p       types.Proof
-		wantErr sdk.Error
+		wantErr error
 	}{
 		{
 			"no type",

@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -31,18 +33,18 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 
 // Validate checks the data present inside this Did Document and returns an
 // error if something is wrong
-func (didDocument DidDocument) Validate() sdk.Error {
+func (didDocument DidDocument) Validate() error {
 
 	if didDocument.ID.Empty() {
-		return sdk.ErrInvalidAddress(didDocument.ID.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (didDocument.ID.String()))
 	}
 
 	if didDocument.Context != "https://www.w3.org/ns/did/v1" {
-		return sdk.ErrUnknownRequest("Invalid context, must be https://www.w3.org/ns/did/v1")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid context, must be https://www.w3.org/ns/did/v1"))
 	}
 
 	if len(didDocument.PubKeys) != 3 {
-		return sdk.ErrUnknownRequest("Field publicKey must have length of 3")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Field publicKey must have length of 3"))
 	}
 
 	// -----------------------------------
@@ -50,17 +52,17 @@ func (didDocument DidDocument) Validate() sdk.Error {
 	// -----------------------------------
 
 	if len(didDocument.Authentication) != 1 {
-		return sdk.ErrUnknownRequest("Array authentication cannot have more than one item")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Array authentication cannot have more than one item"))
 	}
 
 	authKey, found := didDocument.PubKeys.FindByID(didDocument.Authentication[0])
 	if !found {
-		return sdk.ErrUnknownRequest("Authentication key not found inside publicKey array")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Authentication key not found inside publicKey array"))
 	}
 
 	if authKey.Type != KeyTypeSecp256k1 && authKey.Type != KeyTypeEd25519 {
 		msg := fmt.Sprintf("Authentication key type must be either %s or %s", KeyTypeSecp256k1, KeyTypeEd25519)
-		return sdk.ErrUnknownRequest(msg)
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (msg))
 	}
 
 	// --------------------------------
@@ -73,7 +75,7 @@ func (didDocument DidDocument) Validate() sdk.Error {
 		}
 
 		if !didDocument.ID.Equals(key.Controller) {
-			return sdk.ErrUnknownRequest("Public key controller must match did document id")
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Public key controller must match did document id"))
 		}
 	}
 
@@ -82,7 +84,7 @@ func (didDocument DidDocument) Validate() sdk.Error {
 	// ------------------------------------------
 
 	if didDocument.Proof.Creator != didDocument.Authentication[0] {
-		return sdk.ErrUnknownRequest("Invalid proof key, must be the authentication one")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof key, must be the authentication one"))
 	}
 
 	// -----------------------------

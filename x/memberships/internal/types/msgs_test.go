@@ -30,7 +30,7 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgInviteUser
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message returns no error",
@@ -97,7 +97,7 @@ func TestMsgSetUserVerified_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgSetUserVerified
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid msg does not return any error",
@@ -164,7 +164,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgDepositIntoLiquidityPool
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message returns no error",
@@ -244,7 +244,7 @@ func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgAddTsp
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message does not return any error",
@@ -313,7 +313,7 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgBuyMembership
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message does not return any error",

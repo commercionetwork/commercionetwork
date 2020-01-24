@@ -2,6 +2,7 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // -----------------
@@ -26,12 +27,12 @@ func (msg MsgOpenCdp) Route() string { return RouterKey }
 // Type Implements Msg.
 func (msg MsgOpenCdp) Type() string { return MsgTypeOpenCdp }
 
-func (msg MsgOpenCdp) ValidateBasic() sdk.Error {
+func (msg MsgOpenCdp) ValidateBasic() error {
 	if msg.Depositor.Empty() {
-		return sdk.ErrInvalidAddress(msg.Depositor.String())
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor.String())
 	}
 	if msg.DepositedAmount.Empty() || msg.DepositedAmount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins(msg.DepositedAmount.String())
+		return errors.Wrap(errors.ErrInvalidCoins, msg.DepositedAmount.String())
 	}
 	return nil
 }
@@ -68,12 +69,12 @@ func (msg MsgCloseCdp) Route() string { return RouterKey }
 // Type Implements Msg.
 func (msg MsgCloseCdp) Type() string { return MsgTypeCloseCdp }
 
-func (msg MsgCloseCdp) ValidateBasic() sdk.Error {
+func (msg MsgCloseCdp) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
 	}
 	if msg.Timestamp == 0 {
-		return sdk.ErrUnknownRequest("CDP timestamp is invalid")
+		return errors.Wrap(errors.ErrInvalidCoins, "CDP timestamp is invalid")
 	}
 	return nil
 }

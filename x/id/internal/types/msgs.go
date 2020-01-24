@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type MsgSetIdentity DidDocument
@@ -19,7 +20,7 @@ func (msg MsgSetIdentity) Route() string { return ModuleName }
 func (msg MsgSetIdentity) Type() string { return MsgTypeSetIdentity }
 
 // ValidateBasic Implements Msg.
-func (msg MsgSetIdentity) ValidateBasic() sdk.Error {
+func (msg MsgSetIdentity) ValidateBasic() error {
 	return DidDocument(msg).Validate()
 }
 
@@ -52,25 +53,25 @@ func (msg MsgRequestDidDeposit) Route() string { return ModuleName }
 func (msg MsgRequestDidDeposit) Type() string { return MsgTypeRequestDidDeposit }
 
 // ValidateBasic Implements Msg.
-func (msg MsgRequestDidDeposit) ValidateBasic() sdk.Error {
+func (msg MsgRequestDidDeposit) ValidateBasic() error {
 	if msg.Recipient.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid recipient: %s", msg.Recipient))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid recipient: %s", msg.Recipient)))
 	}
 
 	if !msg.Amount.IsValid() || msg.Amount.Empty() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Deposit amount not valid: %s", msg.Amount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, (fmt.Sprintf("Deposit amount not valid: %s", msg.Amount)))
 	}
 
 	if !ValidateHex(msg.Proof) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.Proof))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid proof: %s", msg.Proof)))
 	}
 
 	if !ValidateHex(msg.EncryptionKey) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid encryption key value: %s", msg.EncryptionKey))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid encryption key value: %s", msg.EncryptionKey)))
 	}
 
 	if msg.FromAddress.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid from_address: %s", msg.FromAddress))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid from_address: %s", msg.FromAddress)))
 	}
 
 	return nil
@@ -109,13 +110,13 @@ func (msg MsgMoveDeposit) Route() string { return ModuleName }
 func (msg MsgMoveDeposit) Type() string { return MsgTypeMoveDeposit }
 
 // ValidateBasic Implements Msg.
-func (msg MsgMoveDeposit) ValidateBasic() sdk.Error {
+func (msg MsgMoveDeposit) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid signer address: %s", msg.Signer))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid signer address: %s", msg.Signer)))
 	}
 
 	if !ValidateHex(msg.DepositProof) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid deposit_proof: %s", msg.DepositProof))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid deposit_proof: %s", msg.DepositProof)))
 	}
 
 	return nil
@@ -156,13 +157,13 @@ func (msg MsgInvalidateDidDepositRequest) Route() string { return ModuleName }
 func (msg MsgInvalidateDidDepositRequest) Type() string { return MsgTypeInvalidateDidDepositRequest }
 
 // ValidateBasic Implements Msg.
-func (msg MsgInvalidateDidDepositRequest) ValidateBasic() sdk.Error {
+func (msg MsgInvalidateDidDepositRequest) ValidateBasic() error {
 	if msg.Editor.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid editor address: %s", msg.Editor))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid editor address: %s", msg.Editor)))
 	}
 
 	if !ValidateHex(msg.DepositProof) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid deposit_proof: %s", msg.DepositProof))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid deposit_proof: %s", msg.DepositProof)))
 	}
 
 	if err := msg.Status.Validate(); err != nil {
@@ -200,21 +201,21 @@ func (msg MsgRequestDidPowerUp) Route() string { return ModuleName }
 func (msg MsgRequestDidPowerUp) Type() string { return MsgTypeRequestDidPowerUp }
 
 // ValidateBasic Implements Msg.
-func (msg MsgRequestDidPowerUp) ValidateBasic() sdk.Error {
+func (msg MsgRequestDidPowerUp) ValidateBasic() error {
 	if msg.Claimant.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid claimant: %s", msg.Claimant))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid claimant: %s", msg.Claimant)))
 	}
 
 	if !msg.Amount.IsValid() || msg.Amount.Empty() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Power up amount not valid: %s", msg.Amount.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, (fmt.Sprintf("Power up amount not valid: %s", msg.Amount.String())))
 	}
 
 	if !ValidateHex(msg.Proof) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid proof: %s", msg.Proof))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid proof: %s", msg.Proof)))
 	}
 
 	if !ValidateHex(msg.EncryptionKey) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid encryption key value: %s", msg.EncryptionKey))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid encryption key value: %s", msg.EncryptionKey)))
 	}
 
 	return nil
@@ -248,21 +249,21 @@ func (msg MsgPowerUpDid) Route() string { return ModuleName }
 func (msg MsgPowerUpDid) Type() string { return MsgTypePowerUpDid }
 
 // ValidateBasic Implements Msg.
-func (msg MsgPowerUpDid) ValidateBasic() sdk.Error {
+func (msg MsgPowerUpDid) ValidateBasic() error {
 	if msg.Recipient.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid recipient address: %s", msg.Recipient))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid recipient address: %s", msg.Recipient)))
 	}
 
 	if msg.Amount.Empty() || !msg.Amount.IsValid() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid power up amount: %s", msg.Amount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, (fmt.Sprintf("Invalid power up amount: %s", msg.Amount)))
 	}
 
 	if !ValidateHex(msg.ActivationReference) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid activation_reference: %s", msg.ActivationReference))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid activation_reference: %s", msg.ActivationReference)))
 	}
 
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid signer address: %s", msg.Signer))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid signer address: %s", msg.Signer)))
 	}
 
 	return nil
@@ -303,14 +304,14 @@ func (msg MsgInvalidateDidPowerUpRequest) Route() string { return ModuleName }
 func (msg MsgInvalidateDidPowerUpRequest) Type() string { return MsgTypeInvalidateDidPowerUpRequest }
 
 // ValidateBasic Implements Msg.
-func (msg MsgInvalidateDidPowerUpRequest) ValidateBasic() sdk.Error {
+func (msg MsgInvalidateDidPowerUpRequest) ValidateBasic() error {
 
 	if msg.Editor.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid editor address: %s", msg.Editor))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid editor address: %s", msg.Editor)))
 	}
 
 	if !ValidateHex(msg.PowerUpProof) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid power_up_proof: %s", msg.PowerUpProof))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid power_up_proof: %s", msg.PowerUpProof)))
 	}
 
 	if err := msg.Status.Validate(); err != nil {

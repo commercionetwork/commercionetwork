@@ -15,7 +15,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 		existingInvite types.Invite
 		invite         types.Invite
 		expected       types.Invite
-		error          sdk.Error
+		error          error
 	}{
 		{
 			name:           "Existing invitation returns error",

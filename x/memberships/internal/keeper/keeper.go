@@ -48,7 +48,7 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 
 // BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
-func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) sdk.Error {
+func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) error {
 	// Get the tokens from the buyer account
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(k.GetStableCreditsDenom(ctx), membershipPrice))
@@ -70,7 +70,7 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 // AssignMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 // Returns the URI of the new minted token represented the assigned membership, or an error if something goes w
-func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) sdk.Error {
+func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) error {
 	// Check the membership type validity
 	if !types.IsMembershipTypeValid(membershipType) {
 		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", membershipType))
@@ -98,7 +98,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 // GetMembership allows to retrieve any existent membership for the specified user.
 // The second returned false (the boolean one) tells if the NFT token representing the membership was found or not
-func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, sdk.Error) {
+func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
 	store := ctx.KVStore(k.StoreKey)
 
 	if !store.Has(k.storageForAddr(user)) {
@@ -116,7 +116,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 }
 
 // RemoveMembership allows to remove any existing membership associated with the given user.
-func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) sdk.Error {
+func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
 
 	if !store.Has(k.storageForAddr(user)) {

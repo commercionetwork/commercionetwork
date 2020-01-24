@@ -15,7 +15,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 		existingMembership string
 		membershipType     string
 		user               sdk.AccAddress
-		error              sdk.Error
+		error              error
 	}{
 		{
 			name:           "Invalid membership type returns error",
@@ -96,7 +96,7 @@ func TestKeeper_GetMembership(t *testing.T) {
 		name                   string
 		existingMembershipType string
 		user                   sdk.AccAddress
-		expectedError          sdk.Error
+		expectedError          error
 		expectedMembership     types.Membership
 	}{
 		{

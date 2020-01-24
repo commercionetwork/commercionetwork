@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // -------------------
@@ -29,18 +30,18 @@ func (msg MsgSetPrice) Route() string { return RouterKey }
 func (msg MsgSetPrice) Type() string { return MsgTypeSetPrice }
 
 // ValidateBasic Implements Msg.
-func (msg MsgSetPrice) ValidateBasic() sdk.Error {
+func (msg MsgSetPrice) ValidateBasic() error {
 	if msg.Oracle.Empty() {
-		return sdk.ErrInvalidAddress(msg.Oracle.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Oracle.String()))
 	}
 	if msg.Price.Value.IsNegative() {
-		return sdk.ErrUnknownRequest("Token's price cannot be zero or negative")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Token's price cannot be zero or negative"))
 	}
 	if len(strings.TrimSpace(msg.Price.AssetName)) == 0 {
-		return sdk.ErrUnknownRequest("Cannot set price for unnamed token")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Cannot set price for unnamed token"))
 	}
 	if msg.Price.Expiry.IsZero() || msg.Price.Expiry.IsNegative() {
-		return sdk.ErrUnknownRequest("Cannot set price with an expire height of zero or negative")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Cannot set price with an expire height of zero or negative"))
 	}
 
 	return nil
@@ -79,12 +80,12 @@ func (msg MsgAddOracle) Route() string { return RouterKey }
 func (msg MsgAddOracle) Type() string { return MsgTypeAddOracle }
 
 // ValidateBasic Implements Msg.
-func (msg MsgAddOracle) ValidateBasic() sdk.Error {
+func (msg MsgAddOracle) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
 	}
 	if msg.Oracle.Empty() {
-		return sdk.ErrInvalidAddress(msg.Oracle.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Oracle.String()))
 	}
 	return nil
 }

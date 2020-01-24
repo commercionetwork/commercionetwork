@@ -92,7 +92,7 @@ func checkMinimumFees(
 	pfk pricefeed.Keeper,
 	stableCreditsDenom string,
 	requiredFees sdk.Dec,
-) sdk.Error {
+) error {
 
 	// ----
 	// Each message should cost 0.01€, which can be paid:

@@ -12,7 +12,7 @@ import (
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryGetInvites:
 			return queryGetInvites(ctx, path[1:], keeper)
@@ -33,7 +33,7 @@ type InviteResponse struct {
 	Sender    sdk.AccAddress `json:"sender"`
 }
 
-func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 
 	// Get the list of invites
 	var invites []types.Invite
@@ -59,7 +59,7 @@ func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk
 	return bz, nil
 }
 
-func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err error) {
 	signers := keeper.GetTrustedServiceProviders(ctx)
 	if signers == nil {
 		signers = make([]sdk.AccAddress, 0)
@@ -73,7 +73,7 @@ func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, er
 	return bz, nil
 }
 
-func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err error) {
 	value := keeper.GetPoolFunds(ctx)
 	if value == nil {
 		value = make([]sdk.Coin, 0)
@@ -94,7 +94,7 @@ type MembershipResult struct {
 }
 
 // queryResolveMembership allows to retrieve the current membership of a user having a specified address
-func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 	address, err2 := sdk.AccAddressFromBech32(path[0])
 	if err2 != nil {
 		return nil, sdk.ErrInvalidAddress(path[0])

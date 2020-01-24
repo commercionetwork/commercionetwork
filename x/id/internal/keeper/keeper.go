@@ -47,7 +47,7 @@ func (k Keeper) getIdentityStoreKey(owner sdk.AccAddress) []byte {
 }
 
 // SaveDidDocument saves the given didDocumentUri associating it with the given owner, replacing any existent one.
-func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk.Error {
+func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) error {
 	owner := document.ID
 
 	// Get the account and its public key
@@ -163,7 +163,7 @@ func (k Keeper) getDepositRequestStoreKey(proof string) []byte {
 
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
-func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) sdk.Error {
+func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) error {
 	store := ctx.KVStore(k.storeKey)
 
 	requestKey := k.getDepositRequestStoreKey(request.Proof)
@@ -191,7 +191,7 @@ func (k Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (requ
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
-func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
+func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) error {
 	store := ctx.KVStore(k.storeKey)
 
 	request, found := k.GetDidDepositRequestByProof(ctx, proof)
@@ -231,7 +231,7 @@ func (k Keeper) getDidPowerUpRequestStoreKey(proof string) []byte {
 
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
-func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) sdk.Error {
+func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) error {
 	store := ctx.KVStore(k.storeKey)
 
 	requestStoreKey := k.getDidPowerUpRequestStoreKey(request.Proof)
@@ -259,7 +259,7 @@ func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (request
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
-func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
+func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) error {
 	store := ctx.KVStore(k.storeKey)
 
 	request, found := k.GetPowerUpRequestByProof(ctx, proof)
@@ -315,7 +315,7 @@ func (k Keeper) SetHandledPowerUpRequestsReferences(ctx sdk.Context, references 
 
 // DepositIntoPool allows to deposit the specified amount into the liquidity pool, taking it from the
 // specified depositor balance
-func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
+func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
 	// Check the amount
 	if !amount.IsValid() || amount.Empty() || amount.IsAnyNegative() {
 		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid coins: %s", amount))
@@ -331,7 +331,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 
 // FundAccount allows to take the specified amount from the liquidity pool and move them into the
 // specified account balance
-func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) sdk.Error {
+func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) error {
 	// Check the amount
 	if amount.Empty() || !amount.IsValid() {
 		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid coins: %s", amount))
