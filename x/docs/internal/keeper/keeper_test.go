@@ -6,7 +6,7 @@ import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // ----------------------------------
@@ -20,7 +20,7 @@ func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
 	k.AddSupportedMetadataScheme(ctx, schema)
 
 	ret := k.IsMetadataSchemeTypeSupported(ctx, schema.Type)
-	assert.True(t, ret)
+	require.True(t, ret)
 }
 
 func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
@@ -44,17 +44,17 @@ func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
 		stored = append(stored, m)
 	}
 
-	assert.Equal(t, 2, len(stored))
-	assert.Contains(t, stored, existingSchema)
-	assert.Contains(t, stored, newSchema)
+	require.Equal(t, 2, len(stored))
+	require.Contains(t, stored, existingSchema)
+	require.Contains(t, stored, newSchema)
 }
 
 func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
-	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
-	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
-	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "non-existent"))
+	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
+	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
+	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "non-existent"))
 }
 
 func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
@@ -63,9 +63,9 @@ func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
 	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
 	k.AddSupportedMetadataScheme(ctx, existingSchema)
 
-	assert.True(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
-	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
-	assert.False(t, k.IsMetadataSchemeTypeSupported(ctx, "any-schema"))
+	require.True(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
+	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
+	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "any-schema"))
 }
 
 func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
@@ -81,7 +81,7 @@ func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
 		result = append(result, ms)
 	}
 
-	assert.Empty(t, result)
+	require.Empty(t, result)
 }
 
 func TestKeeper_SupportedMetadataSchemesIterator_ExistingList(t *testing.T) {
@@ -102,7 +102,7 @@ func TestKeeper_SupportedMetadataSchemesIterator_ExistingList(t *testing.T) {
 		result = append(result, ms)
 	}
 
-	assert.Equal(t, []types.MetadataSchema{existingSchema}, result)
+	require.Equal(t, []types.MetadataSchema{existingSchema}, result)
 }
 
 // ----------------------------------
@@ -114,7 +114,7 @@ func TestKeeper_AddTrustedSchemaProposer_EmptyList(t *testing.T) {
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)
 	ret := k.IsTrustedSchemaProposer(ctx, TestingSender)
-	assert.True(t, ret)
+	require.True(t, ret)
 }
 
 func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
@@ -138,16 +138,16 @@ func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
 		stored = append(stored, p)
 	}
 
-	assert.Equal(t, 2, len(stored))
-	assert.Contains(t, stored, TestingSender)
-	assert.Contains(t, stored, TestingSender2)
+	require.Equal(t, 2, len(stored))
+	require.Contains(t, stored, TestingSender)
+	require.Contains(t, stored, TestingSender2)
 }
 
 func TestKeeper_IsTrustedSchemaProposer_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
-	assert.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
-	assert.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
+	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
+	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
 }
 
 func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
@@ -155,8 +155,8 @@ func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)
 
-	assert.True(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
-	assert.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
+	require.True(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
+	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
 }
 
 func TestKeeper_TrustedSchemaProposersIterator_EmptyList(t *testing.T) {
@@ -172,7 +172,7 @@ func TestKeeper_TrustedSchemaProposersIterator_EmptyList(t *testing.T) {
 		result = append(result, ms)
 	}
 
-	assert.Empty(t, result)
+	require.Empty(t, result)
 }
 
 func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
@@ -192,7 +192,7 @@ func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
 		result = append(result, ms)
 	}
 
-	assert.Equal(t, []sdk.AccAddress{TestingSender}, result)
+	require.Equal(t, []sdk.AccAddress{TestingSender}, result)
 }
 
 // ----------------------------------
@@ -204,7 +204,7 @@ func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 
 	err := k.SaveDocument(ctx, TestingDocument)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	docsBz := store.Get(getDocumentStoreKey(TestingDocument.UUID))
 	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
@@ -212,15 +212,15 @@ func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
 
 	var stored types.Document
 	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
-	assert.Equal(t, stored, TestingDocument)
+	require.Equal(t, stored, TestingDocument)
 
 	var sentDocs, receivedDocs string
 	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
 	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 
-	assert.Equal(t, TestingDocument.UUID, sentDocs)
+	require.Equal(t, TestingDocument.UUID, sentDocs)
 
-	assert.Equal(t, TestingDocument.UUID, receivedDocs)
+	require.Equal(t, TestingDocument.UUID, receivedDocs)
 }
 
 func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
@@ -230,7 +230,7 @@ func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
 	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
 
 	err := k.SaveDocument(ctx, TestingDocument)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) {
@@ -250,7 +250,7 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) 
 		Recipients: ctypes.Addresses{newRecipient},
 	}
 	err := k.SaveDocument(ctx, newDocument)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
 	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
@@ -261,11 +261,11 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) 
 	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 	cdc.MustUnmarshalBinaryBare(newReceivedDocsBz, &newReceivedDocs)
 
-	assert.Equal(t, TestingDocument.UUID, sentDocs)
+	require.Equal(t, TestingDocument.UUID, sentDocs)
 
-	assert.Equal(t, TestingDocument.UUID, receivedDocs)
+	require.Equal(t, TestingDocument.UUID, receivedDocs)
 
-	assert.Equal(t, newDocument.UUID, newReceivedDocs)
+	require.Equal(t, newDocument.UUID, newReceivedDocs)
 }
 
 func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
@@ -284,7 +284,7 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
 		Sender:     TestingDocument.Sender,
 	}
 	err := k.SaveDocument(ctx, newDocument)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
 	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
@@ -293,15 +293,15 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
 	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
 	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 
-	assert.Equal(t, TestingDocument.UUID, sentDocs)
+	require.Equal(t, TestingDocument.UUID, sentDocs)
 
-	assert.Equal(t, TestingDocument.UUID, receivedDocs)
+	require.Equal(t, TestingDocument.UUID, receivedDocs)
 }
 
 func TestKeeper_GetDocumentById_NonExisting(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	_, err := k.GetDocumentByID(ctx, "non-existing")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestKeeper_GetDocumentById_Existing(t *testing.T) {
@@ -311,8 +311,8 @@ func TestKeeper_GetDocumentById_Existing(t *testing.T) {
 	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(&TestingDocument))
 
 	doc, err := k.GetDocumentByID(ctx, TestingDocument.UUID)
-	assert.NoError(t, err)
-	assert.Equal(t, TestingDocument, doc)
+	require.NoError(t, err)
+	require.Equal(t, TestingDocument, doc)
 }
 
 func TestKeeper_UserReceivedDocumentsIterator_EmptyList(t *testing.T) {
@@ -324,12 +324,12 @@ func TestKeeper_UserReceivedDocumentsIterator_EmptyList(t *testing.T) {
 	docs := []types.Document{}
 	for ; rdi.Valid(); rdi.Next() {
 		doc, err := k.GetDocumentByID(ctx, string(rdi.Value()))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		docs = append(docs, doc)
 	}
 
-	assert.Empty(t, docs)
+	require.Empty(t, docs)
 }
 
 func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
@@ -347,13 +347,13 @@ func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
 		id := ""
 		k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
 		doc, err := k.GetDocumentByID(ctx, id)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		docs = append(docs, doc)
 	}
 
-	assert.Equal(t, 1, len(docs))
-	assert.Equal(t, []types.Document{TestingDocument}, docs)
+	require.Equal(t, 1, len(docs))
+	require.Equal(t, []types.Document{TestingDocument}, docs)
 }
 
 func TestKeeper_UserSentDocumentsIterator_EmptyList(t *testing.T) {
@@ -367,12 +367,12 @@ func TestKeeper_UserSentDocumentsIterator_EmptyList(t *testing.T) {
 		id := ""
 		k.cdc.MustUnmarshalBinaryBare(sdi.Value(), &id)
 		doc, err := k.GetDocumentByID(ctx, id)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		docs = append(docs, doc)
 	}
 
-	assert.Empty(t, docs)
+	require.Empty(t, docs)
 }
 
 func TestKeeper_UserSentDocumentsIterator_NonEmptyList(t *testing.T) {
@@ -390,13 +390,13 @@ func TestKeeper_UserSentDocumentsIterator_NonEmptyList(t *testing.T) {
 		id := ""
 		k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
 		doc, err := k.GetDocumentByID(ctx, id)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		docs = append(docs, doc)
 	}
 
-	assert.Equal(t, 1, len(docs))
-	assert.Equal(t, []types.Document{TestingDocument}, docs)
+	require.Equal(t, 1, len(docs))
+	require.Equal(t, []types.Document{TestingDocument}, docs)
 }
 
 func TestKeeper_DocumentsIterator_EmptyList(t *testing.T) {
@@ -412,7 +412,7 @@ func TestKeeper_DocumentsIterator_EmptyList(t *testing.T) {
 		documents = append(documents, d)
 	}
 
-	assert.Empty(t, documents)
+	require.Empty(t, documents)
 }
 
 func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
@@ -428,8 +428,8 @@ func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
 		Checksum:       TestingDocument.Checksum,
 		EncryptionData: TestingDocument.EncryptionData,
 	}
-	assert.NoError(t, k.SaveDocument(ctx, doc1))
-	assert.NoError(t, k.SaveDocument(ctx, doc2))
+	require.NoError(t, k.SaveDocument(ctx, doc1))
+	require.NoError(t, k.SaveDocument(ctx, doc2))
 
 	di := k.DocumentsIterator(ctx)
 	defer di.Close()
@@ -442,9 +442,9 @@ func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
 		docs = append(docs, d)
 	}
 
-	assert.Len(t, docs, 2)
-	assert.Contains(t, docs, doc1)
-	assert.Contains(t, docs, doc2)
+	require.Len(t, docs, 2)
+	require.Contains(t, docs, doc1)
+	require.Contains(t, docs, doc2)
 }
 
 // ----------------------------------
@@ -455,20 +455,20 @@ func TestKeeper_SaveDocumentReceipt_EmptyList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
-	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
 	tdr := TestingDocumentReceipt
 	tdr.DocumentUUID = TestingDocument.UUID
-	assert.NoError(t, k.SaveReceipt(ctx, tdr))
+	require.NoError(t, k.SaveReceipt(ctx, tdr))
 
 	storedID := ""
 	docReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, tdr.DocumentUUID))
 	cdc.MustUnmarshalBinaryBare(docReceiptBz, &storedID)
 
 	stored, err := k.GetReceiptByID(ctx, storedID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	assert.Equal(t, stored, tdr)
+	require.Equal(t, stored, tdr)
 }
 
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
@@ -477,13 +477,13 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
 
-	assert.Error(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
+	require.Error(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
 }
 
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
-	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
 	oldReceipt := TestingDocumentReceipt
 	oldReceipt.DocumentUUID = TestingDocument.UUID
@@ -497,8 +497,8 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) 
 		Proof:        TestingDocumentReceipt.Proof,
 	}
 
-	assert.NoError(t, k.SaveReceipt(ctx, oldReceipt))
-	assert.Error(t, k.SaveReceipt(ctx, newReceipt))
+	require.NoError(t, k.SaveReceipt(ctx, oldReceipt))
+	require.Error(t, k.SaveReceipt(ctx, newReceipt))
 
 	var stored []types.DocumentReceipt
 	si := k.UserSentReceiptsIterator(ctx, TestingDocumentReceipt.Sender)
@@ -508,13 +508,13 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) 
 		k.cdc.MustUnmarshalBinaryBare(si.Value(), &rid)
 
 		newReceipt, err := k.GetReceiptByID(ctx, rid)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		stored = append(stored, newReceipt)
 	}
 
-	assert.Equal(t, 1, len(stored))
-	assert.Contains(t, stored, oldReceipt)
-	assert.NotContains(t, stored, newReceipt)
+	require.Equal(t, 1, len(stored))
+	require.Contains(t, stored, oldReceipt)
+	require.NotContains(t, stored, newReceipt)
 }
 
 func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
@@ -529,12 +529,12 @@ func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
 		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
 
 		r, err := k.GetReceiptByID(ctx, rid)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		receipts = append(receipts, r)
 	}
 
-	assert.Empty(t, receipts)
+	require.Empty(t, receipts)
 }
 
 func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
@@ -555,14 +555,14 @@ func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
 		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
 
 		r, err := k.GetReceiptByID(ctx, rid)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		receipts = append(receipts, r)
 	}
 
 	expected := []types.DocumentReceipt{TestingDocumentReceipt}
 
-	assert.Equal(t, expected, receipts)
+	require.Equal(t, expected, receipts)
 }
 
 func TestKeeper_ExtractDocument(t *testing.T) {
@@ -584,7 +584,7 @@ func TestKeeper_ExtractDocument(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, ctx, k := SetupTestInput()
 
-			assert.NoError(t, k.SaveDocument(ctx, tt.want))
+			require.NoError(t, k.SaveDocument(ctx, tt.want))
 
 			docKey := []byte{}
 
@@ -597,11 +597,11 @@ func TestKeeper_ExtractDocument(t *testing.T) {
 			extDoc, extUUID, extErr := k.ExtractDocument(ctx, docKey)
 
 			if !tt.wantErr {
-				assert.NoError(t, extErr)
-				assert.Equal(t, tt.want, extDoc)
-				assert.Equal(t, tt.wantUUID, extUUID)
+				require.NoError(t, extErr)
+				require.Equal(t, tt.want, extDoc)
+				require.Equal(t, tt.wantUUID, extUUID)
 			} else {
-				assert.Error(t, extErr)
+				require.Error(t, extErr)
 			}
 		})
 	}
@@ -634,7 +634,7 @@ func TestKeeper_ExtractMetadataSchema(t *testing.T) {
 
 			m := k.ExtractMetadataSchema(mIterVal)
 
-			assert.Equal(t, tt.want, m)
+			require.Equal(t, tt.want, m)
 		})
 	}
 }
@@ -663,8 +663,8 @@ func TestKeeper_ExtractReceipt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, ctx, k := SetupTestInput()
 
-			assert.NoError(t, k.SaveDocument(ctx, tt.savedDocument))
-			assert.NoError(t, k.SaveReceipt(ctx, tt.want))
+			require.NoError(t, k.SaveDocument(ctx, tt.savedDocument))
+			require.NoError(t, k.SaveReceipt(ctx, tt.want))
 
 			recVal := []byte{}
 
@@ -677,11 +677,11 @@ func TestKeeper_ExtractReceipt(t *testing.T) {
 			extDoc, extUUID, extErr := k.ExtractReceipt(ctx, recVal)
 
 			if !tt.wantErr {
-				assert.NoError(t, extErr)
-				assert.Equal(t, tt.want, extDoc)
-				assert.Equal(t, tt.wantUUID, extUUID)
+				require.NoError(t, extErr)
+				require.Equal(t, tt.want, extDoc)
+				require.Equal(t, tt.wantUUID, extUUID)
 			} else {
-				assert.Error(t, extErr)
+				require.Error(t, extErr)
 			}
 		})
 	}
@@ -714,7 +714,7 @@ func TestKeeper_ExtractTrustedSchemaProposer(t *testing.T) {
 
 			m := k.ExtractTrustedSchemaProposer(mIterVal)
 
-			assert.Equal(t, tt.want, m)
+			require.Equal(t, tt.want, m)
 		})
 	}
 }
@@ -748,20 +748,20 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 			_, ctx, k := SetupTestInput()
 
 			if !tt.storedDocument.Equals(types.Document{}) {
-				assert.NoError(t, k.SaveDocument(ctx, tt.storedDocument))
+				require.NoError(t, k.SaveDocument(ctx, tt.storedDocument))
 			}
 
 			if !tt.want.Equals(types.DocumentReceipt{}) {
-				assert.NoError(t, k.SaveReceipt(ctx, tt.want))
+				require.NoError(t, k.SaveReceipt(ctx, tt.want))
 			}
 
 			rr, err := k.GetReceiptByID(ctx, tt.want.UUID)
 
 			if tt.wantErr {
-				assert.Error(t, err)
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, rr)
+				require.NoError(t, err)
+				require.Equal(t, tt.want, rr)
 			}
 		})
 	}

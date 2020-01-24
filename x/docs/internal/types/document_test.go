@@ -6,7 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDocument_Equals_NilValues(t *testing.T) {
@@ -20,7 +20,7 @@ func TestDocument_Equals_NilValues(t *testing.T) {
 		Checksum:       nil,
 		EncryptionData: nil,
 	}
-	assert.True(t, document.Equals(document))
+	require.True(t, document.Equals(document))
 }
 
 func Test_validateUUID(t *testing.T) {
@@ -50,9 +50,9 @@ func Test_validateUUID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			val := validateUUID(tt.UUID)
 			if tt.badUUID {
-				assert.False(t, val, "got true")
+				require.False(t, val, "got true")
 			} else {
-				assert.True(t, val, "got false")
+				require.True(t, val, "got false")
 			}
 		})
 	}
@@ -122,9 +122,9 @@ func TestDocument_Equals(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if !tt.different {
-				assert.True(t, tt.us.Equals(tt.other))
+				require.True(t, tt.us.Equals(tt.other))
 			} else {
-				assert.False(t, tt.us.Equals(tt.other))
+				require.False(t, tt.us.Equals(tt.other))
 			}
 		})
 	}
@@ -333,9 +333,9 @@ func TestDocument_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.doc.Validate()
 			if tt.expectedErr != nil {
-				assert.EqualError(t, err, tt.expectedErr.Error())
+				require.EqualError(t, err, tt.expectedErr.Error())
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}

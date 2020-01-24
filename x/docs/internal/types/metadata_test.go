@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMetadataSchema_Equals(t *testing.T) {
@@ -46,7 +46,7 @@ func TestMetadataSchema_Equals(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			value := tt.us.Equals(tt.other)
-			assert.Equal(t, tt.want, value)
+			require.Equal(t, tt.want, value)
 		})
 	}
 }
@@ -99,9 +99,9 @@ func TestMetadataSchema_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.us.Validate()
 			if tt.wantErr != "" {
-				assert.EqualError(t, err, tt.wantErr)
+				require.EqualError(t, err, tt.wantErr)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}

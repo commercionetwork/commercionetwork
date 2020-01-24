@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -25,12 +25,12 @@ func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
 	var actual []types.Document
 	actualBz, err := querier(ctx, path, request)
 	if err != nil {
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, "[]", string(actualBz))
-	assert.Empty(t, actual)
+	require.Equal(t, "[]", string(actualBz))
+	require.Empty(t, actual)
 }
 
 func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
@@ -39,7 +39,7 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 
 	// Setup the store
 	err := k.SaveDocument(ctx, TestingDocument)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
@@ -48,11 +48,11 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 	var actual []types.Document
 
 	actualBz, err := querier(ctx, path, request)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, documents, actual)
+	require.Equal(t, documents, actual)
 }
 
 func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
@@ -65,8 +65,8 @@ func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, "[]", string(actualBz))
-	assert.Empty(t, actual)
+	require.Equal(t, "[]", string(actualBz))
+	require.Empty(t, actual)
 }
 
 func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
@@ -74,7 +74,7 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 	var querier = NewQuerier(k)
 	//Setup the store
 	err := k.SaveDocument(ctx, TestingDocument)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QuerySentDocuments, TestingSender.String()}
@@ -84,7 +84,7 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, documents, actual)
+	require.Equal(t, documents, actual)
 }
 
 // ---------------------------------
@@ -102,20 +102,20 @@ func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, "[]", string(actualBz))
-	assert.Empty(t, actual)
+	require.Equal(t, "[]", string(actualBz))
+	require.Empty(t, actual)
 }
 
 func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
 	tdr := TestingDocumentReceipt
 	tdr.DocumentUUID = TestingDocument.UUID
 
 	err := k.SaveReceipt(ctx, tdr)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
@@ -128,19 +128,19 @@ func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	expected := []types.DocumentReceipt{tdr}
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
 	tdr := TestingDocumentReceipt
 	tdr.DocumentUUID = TestingDocument.UUID
 
 	err := k.SaveReceipt(ctx, tdr)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Compose the path
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), tdr.DocumentUUID}
@@ -153,7 +153,7 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	var expected = []types.DocumentReceipt{tdr}
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
@@ -166,20 +166,20 @@ func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, "[]", string(actualBz))
-	assert.Empty(t, actual)
+	require.Equal(t, "[]", string(actualBz))
+	require.Empty(t, actual)
 }
 
 func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 	cdc, ctx, k := SetupTestInput()
 
-	assert.NoError(t, k.SaveDocument(ctx, TestingDocument))
+	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
 	tdr := TestingDocumentReceipt
 	tdr.DocumentUUID = TestingDocument.UUID
 
 	err := k.SaveReceipt(ctx, tdr)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
 
@@ -190,7 +190,7 @@ func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	expected := []types.DocumentReceipt{tdr}
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 // ----------------------------------
@@ -207,8 +207,8 @@ func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, "[]", string(actualBz))
-	assert.Empty(t, actual)
+	require.Equal(t, "[]", string(actualBz))
+	require.Empty(t, actual)
 }
 
 func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
@@ -230,8 +230,8 @@ func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Contains(t, schemes, actual[0])
-	assert.Contains(t, schemes, actual[1])
+	require.Contains(t, schemes, actual[0])
+	require.Contains(t, schemes, actual[1])
 
 }
 
@@ -249,8 +249,8 @@ func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Equal(t, "[]", string(actualBz))
-	assert.Empty(t, actual)
+	require.Equal(t, "[]", string(actualBz))
+	require.Empty(t, actual)
 }
 
 func Test_queryTrustedMetadataProposers_ExistingList(t *testing.T) {
@@ -266,6 +266,6 @@ func Test_queryTrustedMetadataProposers_ExistingList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	assert.Contains(t, actual, TestingSender)
-	assert.Contains(t, actual, TestingSender2)
+	require.Contains(t, actual, TestingSender)
+	require.Contains(t, actual, TestingSender2)
 }

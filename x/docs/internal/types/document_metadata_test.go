@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDocumentMetadata_Equals(t *testing.T) {
@@ -55,7 +55,7 @@ func TestDocumentMetadata_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equals, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equals, tt.us.Equals(tt.them))
 		})
 	}
 }
@@ -128,9 +128,9 @@ func TestDocumentMetadata_Validate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr != nil {
-				assert.EqualError(t, tt.dm.Validate(), tt.wantErr.Error())
+				require.EqualError(t, tt.dm.Validate(), tt.wantErr.Error())
 			} else {
-				assert.NoError(t, tt.dm.Validate())
+				require.NoError(t, tt.dm.Validate())
 			}
 		})
 	}
@@ -149,5 +149,5 @@ func TestDocumentMetadata_JSONUnmarshal(t *testing.T) {
 			Version: "1.0.0",
 		},
 	}
-	assert.Equal(t, expected, metadata)
+	require.Equal(t, expected, metadata)
 }

@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDocumentReceipt_Equals(t *testing.T) {
@@ -158,7 +158,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.equal, tt.us.Equals(tt.them))
+			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
 		})
 	}
 }

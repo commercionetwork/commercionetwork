@@ -5,7 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Test vars
@@ -50,12 +50,12 @@ var msgShareDocumentSchemaType = MsgShareDocument(Document{
 
 func TestMsgShareDocument_Route(t *testing.T) {
 	actual := msgShareDocumentSchema.Route()
-	assert.Equal(t, QuerierRoute, actual)
+	require.Equal(t, QuerierRoute, actual)
 }
 
 func TestMsgShareDocument_Type(t *testing.T) {
 	actual := msgShareDocumentSchema.Type()
-	assert.Equal(t, MsgTypeShareDocument, actual)
+	require.Equal(t, MsgTypeShareDocument, actual)
 }
 
 func TestMsgShareDocument_ValidateBasic(t *testing.T) {
@@ -114,9 +114,9 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.EqualError(t, err, tt.haveErr.Error())
+				require.EqualError(t, err, tt.haveErr.Error())
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -125,13 +125,13 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 func TestMsgShareDocument_GetSignBytes(t *testing.T) {
 	actual := msgShareDocumentSchema.GetSignBytes()
 	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgShareDocumentSchema))
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestMsgShareDocument_GetSigners(t *testing.T) {
 	actual := msgShareDocumentSchema.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgShareDocumentSchema.Sender, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgShareDocumentSchema.Sender, actual[0])
 }
 
 func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
@@ -140,8 +140,8 @@ func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
 	var msg MsgShareDocument
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, "http://www.contentUri.com", msg.Metadata.Schema.URI)
-	assert.Equal(t, "test", msg.Metadata.Schema.Version)
+	require.Equal(t, "http://www.contentUri.com", msg.Metadata.Schema.URI)
+	require.Equal(t, "test", msg.Metadata.Schema.Version)
 }
 
 func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
@@ -150,7 +150,7 @@ func TestMsgShareDocument_UnmarshalJson_SchemaType(t *testing.T) {
 	var msg MsgShareDocument
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
 
-	assert.Equal(t, "uni-sincro", msg.Metadata.SchemaType)
+	require.Equal(t, "uni-sincro", msg.Metadata.SchemaType)
 }
 
 // -----------------------------
@@ -168,12 +168,12 @@ var msgDocumentReceipt = MsgSendDocumentReceipt{
 
 func TestMsgDocumentReceipt_Route(t *testing.T) {
 	actual := msgDocumentReceipt.Route()
-	assert.Equal(t, QuerierRoute, actual)
+	require.Equal(t, QuerierRoute, actual)
 }
 
 func TestMsgDocumentReceipt_Type(t *testing.T) {
 	actual := msgDocumentReceipt.Type()
-	assert.Equal(t, MsgTypeSendDocumentReceipt, actual)
+	require.Equal(t, MsgTypeSendDocumentReceipt, actual)
 }
 
 func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
@@ -248,9 +248,9 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.EqualError(t, err, tt.haveErr.Error())
+				require.EqualError(t, err, tt.haveErr.Error())
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -259,13 +259,13 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 func TestMsgDocumentReceipt_GetSignBytes(t *testing.T) {
 	actual := msgDocumentReceipt.GetSignBytes()
 	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgDocumentReceipt))
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func TestMsgDocumentReceipt_GetSigners(t *testing.T) {
 	actual := msgDocumentReceipt.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgDocumentReceipt.Sender, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgDocumentReceipt.Sender, actual[0])
 }
 
 // ------------------------------------
@@ -283,12 +283,12 @@ var msgAddSupportedMetadataSchema = MsgAddSupportedMetadataSchema{
 
 func Test_MsgAddSupportedMetadataSchema_Route(t *testing.T) {
 	actual := msgAddSupportedMetadataSchema.Route()
-	assert.Equal(t, QuerierRoute, actual)
+	require.Equal(t, QuerierRoute, actual)
 }
 
 func Test_MsgAddSupportedMetadataSchema_Type(t *testing.T) {
 	actual := msgAddSupportedMetadataSchema.Type()
-	assert.Equal(t, MsgTypeAddSupportedMetadataSchema, actual)
+	require.Equal(t, MsgTypeAddSupportedMetadataSchema, actual)
 }
 
 func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
@@ -332,9 +332,9 @@ func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.EqualError(t, err, tt.haveErr.Error())
+				require.EqualError(t, err, tt.haveErr.Error())
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -343,13 +343,13 @@ func Test_MsgAddSupportedMetadataSchema_ValidateBasic(t *testing.T) {
 func Test_MsgAddSupportedMetadataSchema_GetSignBytes(t *testing.T) {
 	actual := msgAddSupportedMetadataSchema.GetSignBytes()
 	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddSupportedMetadataSchema))
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func Test_MsgAddSupportedMetadataSchema_GetSigners(t *testing.T) {
 	actual := msgAddSupportedMetadataSchema.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgAddSupportedMetadataSchema.Signer, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgAddSupportedMetadataSchema.Signer, actual[0])
 }
 
 // -----------------------------------------
@@ -363,12 +363,12 @@ var msgAddTrustedMetadataSchemaProposer = MsgAddTrustedMetadataSchemaProposer{
 
 func Test_MsgAddTrustedMetadataSchemaProposer_Route(t *testing.T) {
 	actual := msgAddTrustedMetadataSchemaProposer.Route()
-	assert.Equal(t, QuerierRoute, actual)
+	require.Equal(t, QuerierRoute, actual)
 }
 
 func Test_MsgAddTrustedMetadataSchemaProposer_Type(t *testing.T) {
 	actual := msgAddTrustedMetadataSchemaProposer.Type()
-	assert.Equal(t, MsgTypeAddTrustedMetadataSchemaProposer, actual)
+	require.Equal(t, MsgTypeAddTrustedMetadataSchemaProposer, actual)
 }
 
 func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic(t *testing.T) {
@@ -403,9 +403,9 @@ func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
 			if tt.haveErr != nil {
-				assert.EqualError(t, err, tt.haveErr.Error())
+				require.EqualError(t, err, tt.haveErr.Error())
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -413,7 +413,7 @@ func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic(t *testing.T) {
 
 func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_valid(t *testing.T) {
 	err := msgAddTrustedMetadataSchemaProposer.ValidateBasic()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 }
 
 func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_invalid(t *testing.T) {
@@ -422,19 +422,19 @@ func Test_MsgAddTrustedMetadataSchemaProposer_ValidateBasic_invalid(t *testing.T
 		Signer:   recipient,
 	}
 	err := msgDocReceipt.ValidateBasic()
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func Test_MsgAddTrustedMetadataSchemaProposer_GetSignBytes(t *testing.T) {
 	actual := msgAddTrustedMetadataSchemaProposer.GetSignBytes()
 	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgAddTrustedMetadataSchemaProposer))
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected, actual)
 }
 
 func Test_MsgAddTrustedMetadataSchemaProposer_GetSigners(t *testing.T) {
 	actual := msgAddTrustedMetadataSchemaProposer.GetSigners()
-	assert.Equal(t, 1, len(actual))
-	assert.Equal(t, msgAddTrustedMetadataSchemaProposer.Signer, actual[0])
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgAddTrustedMetadataSchemaProposer.Signer, actual[0])
 }
 
 func TestNewMsgShareDocument(t *testing.T) {
@@ -468,7 +468,7 @@ func TestNewMsgShareDocument(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, NewMsgShareDocument(tt.document))
+			require.Equal(t, tt.want, NewMsgShareDocument(tt.document))
 		})
 	}
 }
@@ -495,7 +495,7 @@ func TestNewMsgSendDocumentReceipt(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, NewMsgSendDocumentReceipt(tt.document))
+			require.Equal(t, tt.want, NewMsgSendDocumentReceipt(tt.document))
 		})
 	}
 }

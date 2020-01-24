@@ -3,9 +3,8 @@ package docs
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/keeper"
+	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -31,11 +30,11 @@ func Test_exportDocuments(t *testing.T) {
 
 			for _, doc := range tt.documents {
 				err := k.SaveDocument(ctx, doc)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 
 			for _, doc := range exportDocuments(ctx, k) {
-				assert.Contains(t, tt.documents, doc)
+				require.Contains(t, tt.documents, doc)
 			}
 		})
 	}
@@ -65,7 +64,7 @@ func Test_exportMetadataSchemes(t *testing.T) {
 			}
 
 			for _, schema := range exportMetadataSchemes(ctx, k) {
-				assert.Contains(t, tt.schemes, schema)
+				require.Contains(t, tt.schemes, schema)
 			}
 		})
 	}
@@ -100,20 +99,20 @@ func Test_exportReceipts(t *testing.T) {
 
 			for _, doc := range tt.associatedDocs {
 				err := k.SaveDocument(ctx, doc)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 
 			for _, receipt := range tt.receipts {
 				err := k.SaveReceipt(ctx, receipt)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 
 			er := exportReceipts(ctx, k)
 			for _, receipt := range er {
-				assert.Contains(t, tt.receipts, receipt)
+				require.Contains(t, tt.receipts, receipt)
 			}
 
-			assert.Len(t, er, len(tt.receipts))
+			require.Len(t, er, len(tt.receipts))
 		})
 	}
 }
@@ -145,7 +144,7 @@ func Test_exportTrustedSchemaProviders(t *testing.T) {
 			}
 
 			for _, tsp := range exportTrustedSchemaProviders(ctx, k) {
-				assert.Contains(t, tt.tsps, tsp)
+				require.Contains(t, tt.tsps, tsp)
 			}
 
 		})
