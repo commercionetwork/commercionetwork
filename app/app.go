@@ -4,6 +4,8 @@ import (
 	"io"
 	"os"
 
+	"github.com/cosmos/cosmos-sdk/x/genaccounts"
+
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
@@ -82,6 +84,7 @@ var (
 	DefaultNodeHome = os.ExpandEnv("$HOME/.cnd")
 
 	ModuleBasics = module.NewBasicManager(
+		genaccounts.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
 		staking.AppModuleBasic{},
@@ -278,6 +281,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// Create default modules to be used from customs during encapsulation
 	app.mm = module.NewManager(
+		genaccounts.NewAppModule(app.accountKeeper),
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
@@ -320,6 +324,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(
+		genaccounts.ModuleName,
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		slashing.ModuleName, gov.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,

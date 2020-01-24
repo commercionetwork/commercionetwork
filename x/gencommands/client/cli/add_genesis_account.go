@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -68,10 +66,8 @@ func AddGenesisAccountCmd(ctx *server.Context, cdc *codec.Codec,
 			// add genesis account to the app state
 			var genesisAccounts genaccounts.GenesisAccounts
 
-			cdc.MustUnmarshalJSON(appState[genaccounts.ModuleName], &genesisAccounts)
-
-			if genesisAccounts.Contains(addr) {
-				return fmt.Errorf("cannot add account at existing address %v", addr)
+			if _, found := appState[genaccounts.ModuleName]; found {
+				cdc.MustUnmarshalJSON(appState[genaccounts.ModuleName], &genesisAccounts)
 			}
 
 			genesisAccounts = append(genesisAccounts, genAcc)
