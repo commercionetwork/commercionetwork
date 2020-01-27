@@ -13,7 +13,7 @@ import (
 // NewHandler returns a handler for type messages and is essentially a sub-router that directs
 // messages coming into this module to the proper handler.
 func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
-	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
+	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		case types.MsgSetIdentity:
 			return handleMsgSetIdentity(ctx, keeper, msg)
@@ -39,7 +39,7 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 // handleMsgSetIdentity allows to handle a MsgSetIdentity checking that the user that wants to set an identity is
 // the real owner of that identity.
 // If the user is not allowed to use that identity, returns an error.
-func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdentity) sdk.Result {
+func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdentity) (*sdk.Result, error) {
 	if err := keeper.SaveDidDocument(ctx, types.DidDocument(msg)); err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdenti
 // --- Did deposit requests
 // ----------------------------
 
-func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidDeposit) sdk.Result {
+func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidDeposit) (*sdk.Result, error) {
 
 	// Create the request
 	request := types.DidDepositRequest{
@@ -70,7 +70,7 @@ func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 }
 
 func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg types.MsgInvalidateDidDepositRequest) sdk.Result {
+	msg types.MsgInvalidateDidDepositRequest) (*sdk.Result, error) {
 
 	// Check the status
 	if msg.Status.Type != types.StatusRejected && msg.Status.Type != types.StatusCanceled {
@@ -114,7 +114,7 @@ func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKee
 // --- Did power up requests
 // ----------------------------
 
-func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidPowerUp) sdk.Result {
+func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgRequestDidPowerUp) (*sdk.Result, error) {
 
 	// Crete the request
 	request := types.DidPowerUpRequest{
@@ -132,7 +132,7 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 }
 
 func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg types.MsgInvalidateDidPowerUpRequest) sdk.Result {
+	msg types.MsgInvalidateDidPowerUpRequest) (*sdk.Result, error) {
 
 	// Check the status
 	if msg.Status.Type != types.StatusRejected && msg.Status.Type != types.StatusCanceled {
@@ -176,7 +176,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 // --- Deposits handling
 // ------------------------
 
-func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgMoveDeposit) sdk.Result {
+func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgMoveDeposit) (*sdk.Result, error) {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
@@ -211,7 +211,7 @@ func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.K
 	return sdk.Result{}, nil
 }
 
-func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgPowerUpDid) sdk.Result {
+func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgPowerUpDid) (*sdk.Result, error) {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {

@@ -12,7 +12,7 @@ import (
 
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.
 func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
-	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
+	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		case types.MsgInviteUser:
 			return handleMsgInviteUser(ctx, keeper, msg)
@@ -31,7 +31,7 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser) sdk.Result {
+func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser) (*sdk.Result, error) {
 	// Verify that the user that is inviting has already a membership
 	if _, err := keeper.GetMembership(ctx, msg.Sender); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot send an invitation without having a membership")
@@ -45,7 +45,7 @@ func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser
 	return sdk.Result{}, nil
 }
 
-func handleMsgSetUserVerified(ctx sdk.Context, keeper Keeper, msg types.MsgSetUserVerified) sdk.Result {
+func handleMsgSetUserVerified(ctx sdk.Context, keeper Keeper, msg types.MsgSetUserVerified) (*sdk.Result, error) {
 
 	// Check the accreditation
 	if !keeper.IsTrustedServiceProvider(ctx, msg.Verifier) {
@@ -59,7 +59,7 @@ func handleMsgSetUserVerified(ctx sdk.Context, keeper Keeper, msg types.MsgSetUs
 	return sdk.Result{}, nil
 }
 
-func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepositIntoLiquidityPool) sdk.Result {
+func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepositIntoLiquidityPool) (*sdk.Result, error) {
 	if err := keeper.DepositIntoPool(ctx, msg.Depositor, msg.Amount); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
@@ -67,7 +67,7 @@ func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepos
 	return sdk.Result{}, nil
 }
 
-func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgAddTsp) sdk.Result {
+func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgAddTsp) (*sdk.Result, error) {
 	if !governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.Government) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
@@ -82,7 +82,7 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 // 2. The user has been verified from a TSP
 // 3. The membership must be valid
 // 4. The user has enough stable credits in his wallet
-func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMembership) sdk.Result {
+func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMembership) (*sdk.Result, error) {
 
 	// 1. Check the invitation and the invitee membership type
 	invite, found := keeper.GetInvite(ctx, msg.Buyer)

@@ -12,7 +12,7 @@ import (
 
 // NewHandler returns a handler for "bank" type messages.
 func NewHandler(h sdk.Handler, k Keeper, govKeeper government.Keeper) sdk.Handler {
-	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
+	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
@@ -36,7 +36,7 @@ func NewHandler(h sdk.Handler, k Keeper, govKeeper government.Keeper) sdk.Handle
 }
 
 // Handle MsgSend.
-func handleMsgSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgSend) sdk.Result {
+func handleMsgSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgSend) (*sdk.Result, error) {
 
 	// Check if address is blocked
 	if k.IsAddressBlocked(ctx, msg.FromAddress) {
@@ -47,7 +47,7 @@ func handleMsgSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgSend) s
 }
 
 // Handle MsgMultiSend.
-func handleMsgMultiSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgMultiSend) sdk.Result {
+func handleMsgMultiSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgMultiSend) (*sdk.Result, error) {
 
 	// Check if the sender is blocked
 	for _, out := range msg.Outputs {
@@ -60,7 +60,7 @@ func handleMsgMultiSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgMu
 }
 
 // Handle MsgBlockAccountSend.
-func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.Keeper, msg MsgBlockAddressSend) sdk.Result {
+func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.Keeper, msg MsgBlockAddressSend) (*sdk.Result, error) {
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
@@ -74,7 +74,7 @@ func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.K
 }
 
 // Handle MsgUnlockAccountSend.
-func handleMsgUnlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.Keeper, msg MsgUnlockAddressSend) sdk.Result {
+func handleMsgUnlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.Keeper, msg MsgUnlockAddressSend) (*sdk.Result, error) {
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {

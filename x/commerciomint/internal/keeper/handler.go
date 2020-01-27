@@ -8,7 +8,7 @@ import (
 )
 
 func NewHandler(keeper Keeper) sdk.Handler {
-	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
+	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		case types.MsgOpenCdp:
 			return handleMsgOpenCdp(ctx, keeper, msg)
@@ -21,7 +21,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) sdk.Result {
+func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) (*sdk.Result, error) {
 	err := keeper.OpenCdp(ctx, msg.Depositor, msg.DepositedAmount)
 	if err != nil {
 		return sdk.ResultFromError(err)
@@ -30,7 +30,7 @@ func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) sdk.
 	return sdk.Result{Log: "Cdp opened successfully"}
 }
 
-func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) sdk.Result {
+func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) (*sdk.Result, error) {
 	err := keeper.CloseCdp(ctx, msg.Signer, msg.Timestamp)
 	if err != nil {
 		return sdk.ResultFromError(err)
