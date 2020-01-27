@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -318,7 +320,7 @@ func (k Keeper) SetHandledPowerUpRequestsReferences(ctx sdk.Context, references 
 func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
 	// Check the amount
 	if !amount.IsValid() || amount.Empty() || amount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid coins: %s", amount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid coins: %s", amount))
 	}
 
 	// Subtract the coins from the user
@@ -334,7 +336,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) error {
 	// Check the amount
 	if amount.Empty() || !amount.IsValid() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid coins: %s", amount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid coins: %s", amount))
 	}
 
 	// Get the current pool

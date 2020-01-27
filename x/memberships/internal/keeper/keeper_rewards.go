@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var membershipRewards = map[string]map[string]sdk.Dec{

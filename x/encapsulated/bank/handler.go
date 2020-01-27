@@ -30,7 +30,7 @@ func NewHandler(h sdk.Handler, k Keeper, govKeeper government.Keeper) sdk.Handle
 
 		default:
 			errMsg := fmt.Sprintf("unrecognized bank message type: %T", msg)
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 		}
 	}
 }
@@ -40,7 +40,7 @@ func handleMsgSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgSend) (
 
 	// Check if address is blocked
 	if k.IsAddressBlocked(ctx, msg.FromAddress) {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Account %s is blocked", msg.FromAddress.String()))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Account %s is blocked", msg.FromAddress.String()))
 	}
 
 	return h(ctx, msg)
@@ -52,7 +52,7 @@ func handleMsgMultiSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgMu
 	// Check if the sender is blocked
 	for _, out := range msg.Outputs {
 		if k.IsAddressBlocked(ctx, out.Address) {
-			return sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Account %s is blocked", out.Address.String()))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Account %s is blocked", out.Address.String()))
 		}
 	}
 
@@ -64,13 +64,13 @@ func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.K
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot block an address without being the government")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot block an address without being the government")
 	}
 
 	// Block the address
 	k.AddBlockedAddresses(ctx, msg.Address)
 
-	return sdk.Result{}, nil
+	return &sdk.Result{}, nil
 }
 
 // Handle MsgUnlockAccountSend.
@@ -78,11 +78,11 @@ func handleMsgUnlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot block an address without being the government")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot block an address without being the government")
 	}
 
 	// Block the address
 	k.RemoveBlockedAddress(ctx, msg.Address)
 
-	return sdk.Result{}, nil
+	return &sdk.Result{}, nil
 }
