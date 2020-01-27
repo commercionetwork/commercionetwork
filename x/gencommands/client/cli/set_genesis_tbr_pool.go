@@ -24,7 +24,7 @@ func SetGenesisVbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
-			coins, err := sdk.ParseDecCoins(args[0])
+			coins, err := sdk.ParseCoins(args[0])
 			if err != nil {
 				return err
 			}
@@ -43,7 +43,7 @@ func SetGenesisVbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			// set pool amount into the app state
 			var genState vbr.GenesisState
 			cdc.MustUnmarshalJSON(appState[vbr.ModuleName], &genState)
-			genState.PoolAmount = sdk.NewDecCoins(coins...)
+			genState.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
 			appState[vbr.ModuleName] = genesisStateBz
