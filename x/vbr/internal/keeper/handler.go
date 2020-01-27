@@ -28,8 +28,10 @@ func handleMsgIncrementBlockRewardsPool(ctx sdk.Context, k Keeper, bk bank.Keepe
 		return nil, err
 	}
 
+	adc := sdk.NewDecCoinsFromCoins(msg.Amount...)
+
 	// Set the total rewards pool
-	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(sdk.NewDecCoins(msg.Amount)))
+	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(adc...))
 
 	return &sdk.Result{}, nil
 }

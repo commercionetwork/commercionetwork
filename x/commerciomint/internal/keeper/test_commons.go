@@ -42,9 +42,9 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
+	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey])
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, nil)
+	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
 	maccPerms := map[string][]string{
 		types.ModuleName: {supply.Minter, supply.Burner},
 	}

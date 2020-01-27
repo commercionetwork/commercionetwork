@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
 	"github.com/commercionetwork/commercionetwork/app"
 	gencmds "github.com/commercionetwork/commercionetwork/x/gencommands/client/cli"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -20,7 +22,6 @@ import (
 
 	comgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
@@ -57,7 +58,7 @@ func main() {
 		),
 	)
 	rootCmd.AddCommand(genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics))
-	rootCmd.AddCommand(client.NewCompletionCmd(rootCmd, true))
+	rootCmd.AddCommand(flags.NewCompletionCmd(rootCmd, true))
 
 	// Custom commands
 	rootCmd.AddCommand(comgenutilcli.MigrationsListCmd(ctx, cdc))

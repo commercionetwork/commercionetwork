@@ -185,7 +185,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 		// Get his current reward and then add the new one
 		currentRewards := k.distKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
-		currentRewards.Rewards = currentRewards.Rewards.Add(reward)
+		currentRewards.Rewards = currentRewards.Rewards.Add(reward...)
 
 		// Set the just earned reward
 		k.distKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
