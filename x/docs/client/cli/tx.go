@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"bufio"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	uuid "github.com/satori/go.uuid"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
@@ -42,7 +45,7 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.RangeArgs(5, 8),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+			txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			sender := cliCtx.GetFromAddress()
 			recipient, err := sdk.AccAddressFromBech32(args[0])
@@ -85,7 +88,7 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }
@@ -97,7 +100,7 @@ func getCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.RangeArgs(3, 4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+			txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			sender := cliCtx.GetFromAddress()
 			recipient, err := sdk.AccAddressFromBech32(args[0])
@@ -128,7 +131,7 @@ func getCmdSendDocumentReceipt(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }

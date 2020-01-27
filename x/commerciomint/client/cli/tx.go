@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 	"strconv"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -42,14 +45,14 @@ func openCDPCmd(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }
 
 func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
 	amount, err := sdk.ParseCoins(args[0])
@@ -80,14 +83,14 @@ func closeCDPCmd(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }
 
 func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
 

@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -75,7 +77,7 @@ func (k Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
 func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount sdk.Coins) error {
 
 	if depositAmount.Empty() || !depositAmount.IsValid() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid deposit amount: %s", depositAmount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", depositAmount))
 	}
 
 	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them

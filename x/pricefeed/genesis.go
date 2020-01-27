@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
