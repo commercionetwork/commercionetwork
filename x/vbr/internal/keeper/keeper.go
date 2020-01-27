@@ -5,6 +5,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/staking/exported"
 )
