@@ -3,6 +3,8 @@ package government
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/government/client/cli"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -60,7 +62,7 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return nil
+	return cli.GetQueryCmd(cdc)
 }
 
 //____________________________________________________________________________
