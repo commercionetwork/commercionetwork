@@ -3,6 +3,8 @@ package government
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/government/client/rest"
+
 	"github.com/commercionetwork/commercionetwork/x/government/client/cli"
 
 	"github.com/gorilla/mux"
@@ -53,6 +55,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 // get the root tx command of this module
