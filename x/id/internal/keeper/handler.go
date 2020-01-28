@@ -227,7 +227,10 @@ func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Ke
 	}
 
 	// Set the request as handled
-	keeper.SetPowerUpRequestHandled(ctx, msg.ActivationReference)
+	err := keeper.SetPowerUpRequestHandled(ctx, msg.ActivationReference)
+	if err != nil {
+		return sdk.ResultFromError(err)
+	}
 
 	return sdk.Result{}
 }
