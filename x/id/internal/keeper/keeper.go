@@ -283,24 +283,38 @@ func (k Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUp
 // --- Deposits handling
 // ------------------------
 
-func (k Keeper) SetPowerUpRequestHandled(ctx sdk.Context, activationReference string) {
-	handledRequests := k.GetHandledPowerUpRequestsReferences(ctx)
-	if requests, edited := handledRequests.AppendIfMissing(activationReference); edited {
-		k.SetHandledPowerUpRequestsReferences(ctx, requests)
+func (k Keeper) SetPowerUpRequestHandled(ctx sdk.Context, activationReference string) error {
+	store := ctx.KVStore(k.storeKey)
+
+	if store.Has(getHandledPowerUpRequestsReferenceStoreKey(activationReference)) {
+		return fmt.Errorf("reference %s already marked as handled", activationReference)
 	}
+
+	k.SetHandledPowerUpRequestsReference(ctx, activationReference)
+	return nil
 }
 
 func (k Keeper) GetHandledPowerUpRequestsReferences(ctx sdk.Context) ctypes.Strings {
-	store := ctx.KVStore(k.storeKey)
+	hi := k.HandledPowerUpRequestsIterator(ctx)
+	defer hi.Close()
 
-	var handledRequests ctypes.Strings
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.HandledPowerUpRequestsStoreKey)), &handledRequests)
-	return handledRequests
+	data := ctypes.Strings{}
+	for ; hi.Valid(); hi.Next() {
+		data = append(data, string(hi.Value()))
+	}
+
+	return data
 }
 
-func (k Keeper) SetHandledPowerUpRequestsReferences(ctx sdk.Context, references ctypes.Strings) {
+func (k Keeper) SetHandledPowerUpRequestsReference(ctx sdk.Context, reference string) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.HandledPowerUpRequestsStoreKey), k.cdc.MustMarshalBinaryBare(&references))
+	store.Set(getHandledPowerUpRequestsReferenceStoreKey(reference), []byte(reference))
+}
+
+func (k Keeper) HandledPowerUpRequestsIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.storeKey)
+
+	return sdk.KVStorePrefixIterator(store, []byte(types.HandledPowerUpRequestsReferenceStorePrefix))
 }
 
 // DepositIntoPool allows to deposit the specified amount into the liquidity pool, taking it from the

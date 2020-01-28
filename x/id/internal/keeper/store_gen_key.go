@@ -16,3 +16,7 @@ func (k Keeper) getDepositRequestStoreKey(proof string) []byte {
 func (k Keeper) getDidPowerUpRequestStoreKey(proof string) []byte {
 	return []byte(types.DidPowerUpRequestStorePrefix + proof)
 }
+
+func getHandledPowerUpRequestsReferenceStoreKey(reference string) []byte {
+	return []byte(types.HandledPowerUpRequestsReferenceStorePrefix + reference)
+}

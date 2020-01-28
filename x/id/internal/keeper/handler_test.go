@@ -50,8 +50,8 @@ func Test_handleMsgRequestDidDeposit_NewRequest(t *testing.T) {
 	res := handler(ctx, msgRequestDidDeposit)
 	require.True(t, res.IsOK())
 
-	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, TestDidDepositRequest, stored)
 }
 
@@ -136,8 +136,8 @@ func Test_handleMsgChangeDidDepositRequestStatus_Cancel_ValidAddress(t *testing.
 
 	require.True(t, res.IsOK())
 
-	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, status, *stored.Status)
 }
 
@@ -177,8 +177,8 @@ func Test_handleMsgChangeDidDepositRequestStatus_AllGood(t *testing.T) {
 
 	require.True(t, res.IsOK())
 
-	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, status, *stored.Status)
 }
 
@@ -200,8 +200,8 @@ func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
 	res := handler(ctx, msgRequestDidPowerUp)
 	require.True(t, res.IsOK())
 
-	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, TestDidPowerUpRequest, stored)
 }
 
@@ -286,8 +286,8 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Cancel_ValidAddress(t *testing.
 
 	require.True(t, res.IsOK())
 
-	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, status, *stored.Status)
 }
 
@@ -326,8 +326,8 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_AllGood(t *testing.T) {
 
 	require.True(t, res.IsOK())
 
-	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, status, *stored.Status)
 }
 
@@ -427,7 +427,7 @@ func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
 	reference := "xxxxxx"
-	k.SetHandledPowerUpRequestsReferences(ctx, []string{reference})
+	k.SetHandledPowerUpRequestsReference(ctx, reference)
 
 	msg := types.MsgPowerUpDid{
 		Recipient:           TestDidPowerUpRequest.Claimant,

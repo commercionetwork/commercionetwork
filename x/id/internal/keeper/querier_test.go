@@ -35,18 +35,13 @@ func Test_queryResolveIdentity_ExistingIdentity(t *testing.T) {
 }
 
 func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
-	cdc, ctx, _, _, _, k := SetupTestInput()
+	_, ctx, _, _, _, k := SetupTestInput()
 
 	var querier = NewQuerier(k)
 	path := []string{types.QueryResolveDid, TestOwnerAddress.String()}
 	actual, err := querier(ctx, path, request)
-	require.Nil(t, err)
-
-	expected, _ := codec.MarshalJSONIndent(cdc, ResolveIdentityResponse{
-		Owner:       TestOwnerAddress,
-		DidDocument: nil,
-	})
-	require.Equal(t, string(expected), string(actual))
+	require.Error(t, err)
+	require.Nil(t, actual)
 }
 
 // -------------------
