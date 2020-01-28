@@ -30,7 +30,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 // --- Identities
 // ------------------
 
-func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 	address, err2 := sdk.AccAddressFromBech32(path[0])
 	if err2 != nil {
 		return nil, sdk.ErrInvalidAddress(path[0])
@@ -39,17 +39,19 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 	var response ResolveIdentityResponse
 	response.Owner = address
 
-	// Get the Did Document
-	if didDocument, found := keeper.GetDidDocumentByOwner(ctx, address); found {
-		response.DidDocument = &didDocument
+	didDocument, err := keeper.GetDidDocumentByOwner(ctx, address)
+	if err != nil {
+		return nil, sdk.ErrUnknownAddress(err.Error())
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, response)
-	if err2 != nil {
+	response.DidDocument = &didDocument
+
+	res, sErr := codec.MarshalJSONIndent(keeper.cdc, response)
+	if sErr != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 
-	return bz, nil
+	return res, nil
 }
 
 type ResolveIdentityResponse struct {
@@ -61,12 +63,12 @@ type ResolveIdentityResponse struct {
 // --- Pairwise Did
 //--------------------
 
-func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 
 	// Get the request
-	request, found := keeper.GetDidDepositRequestByProof(ctx, path[0])
-	if !found {
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Deposit request with proof %s not found", path[0]))
+	request, err := keeper.GetDidDepositRequestByProof(ctx, path[0])
+	if err != nil {
+		return nil, sdk.ErrUnknownRequest(err.Error())
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
@@ -77,16 +79,16 @@ func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (
 	return bz, nil
 }
 
-func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
 
 	// Get the request
-	request, found := keeper.GetPowerUpRequestByProof(ctx, path[0])
-	if !found {
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Poer up request with proof %s not found", path[0]))
+	request, err := keeper.GetPowerUpRequestByProof(ctx, path[0])
+	if err != nil {
+		return nil, sdk.ErrUnknownRequest(err.Error())
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
-	if err2 != nil {
+	bz, sErr := codec.MarshalJSONIndent(keeper.cdc, &request)
+	if sErr != nil {
 		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
 	}
 
