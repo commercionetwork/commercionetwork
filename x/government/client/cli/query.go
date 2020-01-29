@@ -45,7 +45,7 @@ func getCmdGetGovernmentAddrFunc(cmd *cobra.Command, args []string, cdc *codec.C
 	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGovernmentAddress)
 	res, _, err := cliCtx.QueryWithData(route, nil)
 	if err != nil {
-		return fmt.Errorf("could not get government address: \n %s", err)
+		return fmt.Errorf("could not get government address: %s", err)
 	}
 
 	fmt.Println(string(res))
