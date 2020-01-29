@@ -35,7 +35,7 @@ func GetCmdRetrieveBlockRewardsPoolFunds(cdc *codec.Codec, querierRoute string) 
 			route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryBlockRewardsPoolFunds)
 			res, _, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
-				return fmt.Errorf("Could not get total funds amount: \n %s", err)
+				return fmt.Errorf("could not get total funds amount: %s", err)
 			}
 
 			fmt.Println(string(res))
