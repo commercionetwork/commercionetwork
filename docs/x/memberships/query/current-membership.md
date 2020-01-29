@@ -1,5 +1,21 @@
 # Getting the current membership
 
+# CLI
+
+## Get membership invites for user
+
+```sh
+$ cncli query accreditations get-invites-for-user [address]
+```
+
+## Get all the membership invites
+
+```sh
+$ cncli query accreditations get-invites
+```
+
+# REST
+
 ## Endpoint     
 ```
 /memberships/${address}
