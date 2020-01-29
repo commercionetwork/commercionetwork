@@ -49,7 +49,7 @@ func getInvitesFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 		return err
 	}
 
-	fmt.Println(string(res))
+	cmd.Println(string(res))
 
 	return nil
 }
@@ -74,7 +74,7 @@ func getInvitesForUserFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) 
 		return err
 	}
 
-	fmt.Println(string(res))
+	cmd.Println(string(res))
 
 	return nil
 }
@@ -99,7 +99,7 @@ func getTrustedServiceProvidersFunc(cmd *cobra.Command, args []string, cdc *code
 		return err
 	}
 
-	fmt.Println(string(res))
+	cmd.Println(string(res))
 
 	return nil
 }
