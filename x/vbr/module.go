@@ -3,6 +3,8 @@ package vbr
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/vbr/client/rest"
+
 	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -50,6 +52,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
