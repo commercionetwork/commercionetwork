@@ -38,7 +38,7 @@ func GetCmdRetrieveBlockRewardsPoolFunds(cdc *codec.Codec, querierRoute string) 
 				fmt.Printf("Could not get total funds amount: \n %s", err)
 			}
 
-			fmt.Println(string(res))
+			cmd.Println(string(res))
 
 			return nil
 		},
