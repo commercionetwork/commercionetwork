@@ -3,6 +3,8 @@ package types
 import (
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"

@@ -3,6 +3,8 @@ package types_test
 import (
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -52,7 +54,11 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -119,7 +125,11 @@ func TestMsgSetUserVerified_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -179,7 +189,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 		{
 			name:  "Empty deposit amount returns error",
 			msg:   types.MsgDepositIntoLiquidityPool{Depositor: user, Amount: nil},
-			error: sdk.ErrInvalidCoins("Invalid deposit amount: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: "),
 		},
 		{
 			name: "Negative deposit amount returns error",
@@ -187,14 +197,18 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 				Depositor: user,
 				Amount:    sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(-100)}},
 			},
-			error: sdk.ErrInvalidCoins("Invalid deposit amount: -100uatom"),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: -100uatom"),
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -266,7 +280,11 @@ func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -340,7 +358,11 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }

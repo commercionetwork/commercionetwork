@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -41,7 +43,11 @@ func TestKeeper_InviteUser(t *testing.T) {
 		}
 
 		err := k.InviteUser(ctx, test.invite.User, test.invite.Sender)
-		require.Equal(t, test.error, err)
+		if test.error != nil {
+			require.Equal(t, test.error.Error(), err.Error())
+		} else {
+			require.NoError(t, err)
+		}
 
 		var invite types.Invite
 		accreditationBz := store.Get([]byte(types.InviteStorePrefix + testUser.String()))

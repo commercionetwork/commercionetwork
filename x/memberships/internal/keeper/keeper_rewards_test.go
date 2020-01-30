@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -49,7 +51,7 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			deposit:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000))),
 			expectedPool: sdk.NewCoins(),
 			expectedUser: sdk.NewCoins(),
-			error:        sdk.ErrInsufficientCoins("insufficient account funds;  < 1000ucommercio"),
+			error:        sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "insufficient account funds;  < 1000ucommercio"),
 		},
 	}
 
@@ -62,7 +64,11 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 		_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.existingPool)
 
 		err := k.DepositIntoPool(ctx, test.user, test.deposit)
-		require.Equal(t, test.error, err)
+		if test.error != nil {
+			require.Equal(t, test.error.Error(), err.Error())
+		} else {
+			require.NoError(t, err)
+		}
 
 		require.True(t, test.expectedPool.IsEqual(k.GetPoolFunds(ctx)))
 		require.True(t, test.expectedUser.IsEqual(bk.GetCoins(ctx, test.user)))
@@ -162,7 +168,11 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.poolFunds)
 
 			err := k.DistributeReward(ctx, test.invite)
-			require.Equal(t, test.error, err)
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), err.Error())
+			} else {
+				require.NoError(t, err)
+			}
 
 			if test.error == nil {
 				storedInvite, _ := k.GetInvite(ctx, test.invite.User)

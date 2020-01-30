@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
-	"strings"
 	"testing"
+
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,19 +18,20 @@ func TestValidMsg_StoreDoc(t *testing.T) {
 
 	handler := NewHandler(k, govK)
 	msgSetIdentity := types.MsgSetIdentity(TestDidDocument)
-	res := handler(ctx, msgSetIdentity)
+	_, err := handler(ctx, msgSetIdentity)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 }
 
 func TestInvalidMsg(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
+	tm := sdk.NewTestMsg()
 	handler := NewHandler(k, govK)
-	res := handler(ctx, sdk.NewTestMsg())
+	_, err := handler(ctx, tm)
 
-	require.False(t, res.IsOK())
-	require.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
+	require.Error(t, err)
+	require.Equal(t, fmt.Sprintf("unknown request: Unrecognized %s message type: %s", types.ModuleName, tm.Type()), err.Error())
 }
 
 // ----------------------------
@@ -47,8 +50,8 @@ func Test_handleMsgRequestDidDeposit_NewRequest(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msgRequestDidDeposit)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msgRequestDidDeposit)
+	require.NoError(t, err)
 
 	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
 	require.True(t, found)
@@ -60,10 +63,10 @@ func Test_handleMsgRequestDidDeposit_ExistingRequest(t *testing.T) {
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msgRequestDidDeposit)
+	_, err := handler(ctx, msgRequestDidDeposit)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Approved_ReturnsError(t *testing.T) {
@@ -74,11 +77,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_Approved_ReturnsError(t *testin
 	msg := types.NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.Recipient)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	require.Contains(t, res.Log, msg.Status.Type)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
+	require.Contains(t, err.Error(), msg.Status.Type)
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Rejected_InvalidGovernment(t *testing.T) {
@@ -88,11 +91,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_Rejected_InvalidGovernment(t *t
 	status := types.RequestStatus{Type: types.StatusRejected, Message: ""}
 	msg := types.NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.Recipient)
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
-	require.Contains(t, res.Log, msg.Status.Type)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
+	require.Contains(t, err.Error(), msg.Status.Type)
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Rejected_ValidGovernment(t *testing.T) {
@@ -103,9 +106,9 @@ func Test_handleMsgChangeDidDepositRequestStatus_Rejected_ValidGovernment(t *tes
 	msg := types.NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Canceled_InvalidAddress(t *testing.T) {
@@ -117,11 +120,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_Canceled_InvalidAddress(t *test
 	msg := types.NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, addr)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
-	require.Contains(t, res.Log, "poster")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
+	require.Contains(t, err.Error(), "poster")
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_Cancel_ValidAddress(t *testing.T) {
@@ -132,9 +135,9 @@ func Test_handleMsgChangeDidDepositRequestStatus_Cancel_ValidAddress(t *testing.
 	msg := types.NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 
 	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
 	require.True(t, found)
@@ -158,11 +161,11 @@ func Test_handleMsgChangeDidDepositRequestStatus_StatusAlreadySet(t *testing.T) 
 	msg := types.NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	require.Contains(t, res.Log, "status")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
+	require.Contains(t, err.Error(), "status")
 }
 
 func Test_handleMsgChangeDidDepositRequestStatus_AllGood(t *testing.T) {
@@ -173,9 +176,9 @@ func Test_handleMsgChangeDidDepositRequestStatus_AllGood(t *testing.T) {
 	msg := types.NewMsgInvalidateDidDepositRequest(status, TestDidDepositRequest.Proof, TestDidDepositRequest.FromAddress)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 
 	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
 	require.True(t, found)
@@ -197,8 +200,8 @@ func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msgRequestDidPowerUp)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msgRequestDidPowerUp)
+	require.NoError(t, err)
 
 	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
 	require.True(t, found)
@@ -210,10 +213,10 @@ func Test_handleMsgRequestDidPowerUp_ExistingRequest(t *testing.T) {
 	_ = k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msgRequestDidPowerUp)
+	_, err := handler(ctx, msgRequestDidPowerUp)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_ReturnsError(t *testing.T) {
@@ -224,11 +227,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Approved_ReturnsError(t *testin
 	msg := types.NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	require.Contains(t, res.Log, msg.Status.Type)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
+	require.Contains(t, err.Error(), msg.Status.Type)
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_InvalidGovernment(t *testing.T) {
@@ -238,11 +241,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_InvalidGovernment(t *t
 	status := types.RequestStatus{Type: types.StatusRejected, Message: ""}
 	msg := types.NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
-	require.Contains(t, res.Log, msg.Status.Type)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
+	require.Contains(t, err.Error(), msg.Status.Type)
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_ValidGovernment(t *testing.T) {
@@ -253,9 +256,9 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Rejected_ValidGovernment(t *tes
 	msg := types.NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, govK.GetGovernmentAddress(ctx))
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Canceled_InvalidAddress(t *testing.T) {
@@ -267,11 +270,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Canceled_InvalidAddress(t *test
 	msg := types.NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, addr)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
-	require.Contains(t, res.Log, "poster")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
+	require.Contains(t, err.Error(), "poster")
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_Cancel_ValidAddress(t *testing.T) {
@@ -282,9 +285,9 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Cancel_ValidAddress(t *testing.
 	msg := types.NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 
 	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
 	require.True(t, found)
@@ -307,11 +310,11 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_StatusAlreadySet(t *testing.T) 
 	msg := types.NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	require.Contains(t, res.Log, "status")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
+	require.Contains(t, err.Error(), "status")
 }
 
 func Test_handleMsgChangeDidPowerUpRequestStatus_AllGood(t *testing.T) {
@@ -322,9 +325,9 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_AllGood(t *testing.T) {
 	msg := types.NewMsgInvalidateDidPowerUpRequest(status, TestDidPowerUpRequest.Proof, TestDidPowerUpRequest.Claimant)
 
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 
 	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
 	require.True(t, found)
@@ -341,11 +344,11 @@ func Test_handleMsgWithdrawDeposit_InvalidGovernment(t *testing.T) {
 
 	msg := types.NewMsgMoveDeposit("", TestDidDepositRequest.FromAddress)
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
-	require.Contains(t, res.Log, "government")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
+	require.Contains(t, err.Error(), "government")
 }
 
 func Test_handleMsgWithdrawDeposit_InvalidRequestProof(t *testing.T) {
@@ -353,11 +356,11 @@ func Test_handleMsgWithdrawDeposit_InvalidRequestProof(t *testing.T) {
 
 	msg := types.NewMsgMoveDeposit("", govK.GetGovernmentAddress(ctx))
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	require.Contains(t, res.Log, "not found")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
+	require.Contains(t, err.Error(), "not found")
 }
 
 func Test_handleMsgWithdrawDeposit_RequestAlreadyHasAStatus(t *testing.T) {
@@ -378,11 +381,11 @@ func Test_handleMsgWithdrawDeposit_RequestAlreadyHasAStatus(t *testing.T) {
 
 	msg := types.NewMsgMoveDeposit(request.Proof, govK.GetGovernmentAddress(ctx))
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	require.Contains(t, res.Log, "already has a valid status")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
+	require.Contains(t, err.Error(), "already has a valid status")
 }
 
 func Test_handleMsgWithdrawDeposit_AllGood(t *testing.T) {
@@ -392,8 +395,8 @@ func Test_handleMsgWithdrawDeposit_AllGood(t *testing.T) {
 
 	msg := types.NewMsgMoveDeposit(TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msg)
+	require.NoError(t, err)
 
 	// Check the balances
 	require.Equal(t, TestDidDepositRequest.Amount, k.GetPoolAmount(ctx))
@@ -416,11 +419,11 @@ func Test_handleMsgPowerUpDid_InvalidGovernment(t *testing.T) {
 		Signer:              TestDidPowerUpRequest.Claimant,
 	}
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
-	require.Contains(t, res.Log, "government")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
+	require.Contains(t, err.Error(), "government")
 }
 
 func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
@@ -436,11 +439,11 @@ func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
 		Signer:              govK.GetGovernmentAddress(ctx),
 	}
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
-	require.Contains(t, res.Log, "already handled")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
+	require.Contains(t, err.Error(), "already handled")
 }
 
 func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
@@ -456,9 +459,9 @@ func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
 	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(msg.Amount))
 	_ = bK.SetCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), msg.Amount)
 	handler := NewHandler(k, govK)
-	res := handler(ctx, msg)
+	_, err := handler(ctx, msg)
 
-	require.True(t, res.IsOK())
+	require.NoError(t, err)
 
 	// Check the balances
 	require.Equal(t, msg.Amount, bK.GetCoins(ctx, msg.Recipient))

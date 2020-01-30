@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -47,7 +49,11 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			}
 
 			err := k.AssignMembership(ctx, test.user, test.membershipType)
-			require.Equal(t, test.error, err)
+			if err != nil {
+				require.Equal(t, test.error.Error(), err.Error())
+			} else {
+				require.NoError(t, err)
+			}
 		})
 	}
 }

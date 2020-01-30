@@ -1,9 +1,12 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
+
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
@@ -22,8 +25,8 @@ func Test_handleMsgShareDocument_CustomMetadataSpecs(t *testing.T) {
 
 	msgShareDocument := types.NewMsgShareDocument(TestingDocument)
 
-	res := handler(ctx, msgShareDocument)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msgShareDocument)
+	require.NoError(t, err)
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
@@ -48,8 +51,8 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 	}
 	k.AddSupportedMetadataScheme(ctx, supportedSchema)
 
-	res := handler(ctx, msgShareDocument)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msgShareDocument)
+	require.NoError(t, err)
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
@@ -67,9 +70,9 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 		Checksum:   TestingDocument.Checksum,
 	})
 
-	res := handler(ctx, msgShareDocument)
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeUnknownRequest, res.Code)
+	_, err := handler(ctx, msgShareDocument)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 }
 
 // -----------------------------------
@@ -86,8 +89,8 @@ func Test_handleMsgSendDocumentReceipt(t *testing.T) {
 
 	msgSendDocumentReceipt := types.MsgSendDocumentReceipt(tdr)
 
-	res := handler(ctx, msgSendDocumentReceipt)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msgSendDocumentReceipt)
+	require.NoError(t, err)
 }
 
 // -------------------------------------------
@@ -106,9 +109,9 @@ func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
 			Version:   "1.0.0",
 		},
 	}
-	res := handler(ctx, msgAddSupportedMetadataSchema)
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	_, err := handler(ctx, msgAddSupportedMetadataSchema)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
 }
 
 func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
@@ -125,8 +128,8 @@ func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
 			Version:   "1.0.0",
 		},
 	}
-	res := handler(ctx, msgAddSupportedMetadataSchema)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msgAddSupportedMetadataSchema)
+	require.NoError(t, err)
 }
 
 // ------------------------------------------------
@@ -141,9 +144,9 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_MissingGovernment(t *testing
 		Proposer: TestingSender,
 		Signer:   TestingRecipient,
 	}
-	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	_, err := handler(ctx, msgAddTrustedMetadataSchemaProposer)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T) {
@@ -155,9 +158,9 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T
 		Proposer: TestingSender,
 		Signer:   TestingSender,
 	}
-	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
-	require.False(t, res.IsOK())
-	require.Equal(t, sdk.CodeInvalidAddress, res.Code)
+	_, err := handler(ctx, msgAddTrustedMetadataSchemaProposer)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) {
@@ -169,8 +172,8 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) 
 		Proposer: TestingSender,
 		Signer:   TestingRecipient,
 	}
-	res := handler(ctx, msgAddTrustedMetadataSchemaProposer)
-	require.True(t, res.IsOK())
+	_, err := handler(ctx, msgAddTrustedMetadataSchemaProposer)
+	require.NoError(t, err)
 }
 
 // -------------------
@@ -180,7 +183,7 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) 
 func Test_invalidMsg(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 	var handler = NewHandler(k)
-	res := handler(ctx, sdk.NewTestMsg())
-	require.False(t, res.IsOK())
-	require.True(t, strings.Contains(res.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
+	_, err := handler(ctx, sdk.NewTestMsg())
+	require.Error(t, err)
+	require.True(t, strings.Contains(err.Error(), fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
 }

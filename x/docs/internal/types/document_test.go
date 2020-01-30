@@ -6,6 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 )
 

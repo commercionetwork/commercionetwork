@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"errors"
 	"testing"
+
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -78,7 +80,7 @@ func Test_queryResolveDepositRequest_NonExistingRequest(t *testing.T) {
 	_, err := querier(ctx, path, request)
 
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 	require.Contains(t, err.Error(), "proof")
 }
 
@@ -107,6 +109,6 @@ func Test_queryResolvePowerUpRequest_NonExistingRequest(t *testing.T) {
 	_, err := querier(ctx, path, request)
 
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 	require.Contains(t, err.Error(), "proof")
 }

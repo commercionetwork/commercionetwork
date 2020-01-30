@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -139,7 +141,7 @@ func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid amount returns error",
 			msg:   types.MsgRequestDidDeposit{Recipient: recipient, Amount: sdk.NewCoins()},
-			error: sdk.ErrInvalidCoins("Deposit amount not valid: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Deposit amount not valid: "),
 		},
 		{
 			name: "Valid message returns no error",
@@ -165,7 +167,11 @@ func TestMsgRequestDidDeposit_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -236,7 +242,11 @@ func TestMsgMoveDeposit_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -313,7 +323,11 @@ func TestMsgInvalidateDidDepositRequest_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -372,7 +386,7 @@ func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid amount returns error",
 			msg:   types.MsgRequestDidPowerUp{Claimant: claimant, Amount: sdk.NewCoins()},
-			error: sdk.ErrInvalidCoins("Power up amount not valid: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Power up amount not valid: "),
 		},
 		{
 			name: "Valid message returns no error",
@@ -393,7 +407,11 @@ func TestMsgRequestDidPowerUp_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -459,7 +477,7 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 		{
 			name:  "Invalid amount returns error",
 			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: sdk.NewCoins()},
-			error: sdk.ErrInvalidCoins("Invalid power up amount: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid power up amount: "),
 		},
 		{
 			name: "Valid message returns no error",
@@ -480,7 +498,11 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -556,7 +578,11 @@ func TestNewMsgInvalidateDidPowerUpRequest_ValidateBasic(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }

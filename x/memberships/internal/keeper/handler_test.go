@@ -57,13 +57,13 @@ func Test_handleMsgInviteUser(t *testing.T) {
 
 			handler := keeper.NewHandler(k, govK)
 			msg := types.NewMsgInviteUser(test.invitee, test.invitedUser)
-			res := handler(ctx, msg)
+			_, err := handler(ctx, msg)
 
 			if len(test.error) != 0 {
-				require.False(t, res.IsOK())
-				require.Contains(t, res.Log, test.error)
+				require.Error(t, err)
+				require.Contains(t, err.Error(), test.error)
 			} else {
-				require.True(t, res.IsOK())
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -114,13 +114,13 @@ func Test_handleMsgSetUserVerified(t *testing.T) {
 
 			handler := keeper.NewHandler(k, govK)
 			msg := types.NewMsgSetUserVerified(test.user, test.tsp)
-			res := handler(ctx, msg)
+			_, err := handler(ctx, msg)
 
 			if len(test.error) == 0 {
-				require.True(t, res.IsOK())
+				require.NoError(t, err)
 			} else {
-				require.False(t, res.IsOK())
-				require.Contains(t, res.Log, test.error)
+				require.Error(t, err)
+				require.Contains(t, err.Error(), test.error)
 			}
 		})
 	}
@@ -156,13 +156,13 @@ func Test_handleAddTrustedSigner(t *testing.T) {
 
 			handler := keeper.NewHandler(k, gk)
 			msg := types.NewMsgAddTsp(test.tsp, test.signer)
-			res := handler(ctx, msg)
+			_, err = handler(ctx, msg)
 
 			if len(test.error) != 0 {
-				require.False(t, res.IsOK())
-				require.Contains(t, res.Log, test.error)
+				require.Error(t, err)
+				require.Contains(t, err.Error(), test.error)
 			} else {
-				require.True(t, res.IsOK())
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -257,16 +257,16 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			}
 
 			handler := keeper.NewHandler(k, gk)
-			res := handler(ctx, test.msg)
+			_, err := handler(ctx, test.msg)
 
 			if len(test.error) == 0 {
-				require.True(t, res.IsOK())
+				require.NoError(t, err)
 
 				userAmt := bk.GetCoins(ctx, test.msg.GetSigners()[0])
 				require.True(t, userAmt.IsAllLT(test.bankAmount))
 			} else {
-				require.False(t, res.IsOK())
-				require.Contains(t, res.Log, test.error)
+				require.Error(t, err)
+				require.Contains(t, err.Error(), test.error)
 			}
 		})
 	}
