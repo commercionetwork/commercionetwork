@@ -48,7 +48,7 @@ func getCmdGetGovernmentAddrFunc(cmd *cobra.Command, args []string, cdc *codec.C
 		return fmt.Errorf("could not get government address: %s", err)
 	}
 
-	fmt.Println(string(res))
+	cmd.Println(string(res))
 
 	return nil
 }
