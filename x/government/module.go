@@ -3,9 +3,8 @@ package government
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/government/client/rest"
-
 	"github.com/commercionetwork/commercionetwork/x/government/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/government/client/rest"
 
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
