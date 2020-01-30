@@ -20,9 +20,11 @@ Running it several times after the first value has been set will result in an er
 
 ## Retrieving the government address
 ### End user
-There is currently no way to retrieve the government address using a CLI interface or a REST API endpoint.  
-The only way that a user can see the government address is by looking inside the `genesis.json` file, 
-specifically inside the `app_state.government.government_address` field value.  
+
+The government address can be retrieved by using either `cncli` or by making a REST request:
+
+ - via CLI, `cncli query government address`
+ - via REST, by making a GET request to the `/government/address` endpoint 
 
 ### From the codebase
 If you're developing a new module or implementing a new feature into an existing one and you need to access the current 

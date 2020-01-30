@@ -3,6 +3,9 @@ package government
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/government/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/government/client/rest"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -51,6 +54,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 // get the root tx command of this module
@@ -60,7 +64,7 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return nil
+	return cli.GetQueryCmd(cdc)
 }
 
 //____________________________________________________________________________
