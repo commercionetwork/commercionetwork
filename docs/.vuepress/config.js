@@ -31,7 +31,7 @@ module.exports = {
                     ["nodes/hardware-requirements", "Hardware requirements"],
                     ["nodes/full-node-installation", "Installing a full node"],
                     ["nodes/validator-node-installation", "Becoming a validator"],
-                    ["nodes/validator-node-installation-mainnet", "Becoming a validor in the Mainnet"],
+ //                   ["nodes/validator-node-installation-mainnet", "Becoming a validor in the Mainnet"],
                     ["nodes/validator-node-update", "Updating a validator"],
                 ]
             },
@@ -39,7 +39,7 @@ module.exports = {
                 title: "App Developers",
                 collapsable: false,
                 children: [
-                    ["app_developers/", "app_developers"]
+                    ["app_developers/", "Introduction"]
                 ]
             },
             {
