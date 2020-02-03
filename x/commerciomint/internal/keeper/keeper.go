@@ -194,3 +194,11 @@ func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
 		}
 	}
 }
+
+// Messages implements the MessageLister interface.
+func (k Keeper) Messages() []string {
+	return []string{
+		types.MsgTypeCloseCdp,
+		types.MsgTypeOpenCdp,
+	}
+}

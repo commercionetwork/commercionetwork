@@ -348,6 +348,14 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		ante.NewAnteHandler(
 			app.accountKeeper, app.supplyKeeper, app.priceFeedKeeper,
 			auth.DefaultSigVerificationGasConsumer, StableCreditsDenom,
+			[]types.MessageLister{
+				app.mintKeeper,
+				app.docsKeeper,
+				app.idKeeper,
+				app.membershipKeeper,
+				app.priceFeedKeeper,
+				app.vbrKeeper,
+			},
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)

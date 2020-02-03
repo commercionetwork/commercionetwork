@@ -194,3 +194,10 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 	return nil
 }
+
+// Messages implements the MessageLister interface.
+func (k Keeper) Messages() []string {
+	return []string{
+		types.MsgTypeIncrementBlockRewardsPool,
+	}
+}

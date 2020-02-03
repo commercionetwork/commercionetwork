@@ -168,3 +168,14 @@ func (k Keeper) SetStableCreditsDenom(ctx sdk.Context, denom string) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.StableCreditsStoreKey), []byte(denom))
 }
+
+// Messages implements the MessageLister interface.
+func (k Keeper) Messages() []string {
+	return []string{
+		types.MsgTypesDepositIntoLiquidityPool,
+		types.MsgTypeSetUserVerified,
+		types.MsgTypeAddTsp,
+		types.MsgTypeBuyMembership,
+		types.MsgTypeInviteUser,
+	}
+}

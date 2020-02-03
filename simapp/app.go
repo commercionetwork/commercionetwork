@@ -3,6 +3,8 @@ package simapp
 import (
 	"io"
 
+	"github.com/commercionetwork/commercionetwork/x/docs"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -96,6 +98,7 @@ type SimApp struct {
 
 	GovernmentKeeper government.Keeper
 	PriceFeedKeeper  pricefeed.Keeper
+	DocsKeeper       docs.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -118,7 +121,7 @@ func NewSimApp(
 
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, pricefeed.StoreKey)
+		gov.StoreKey, params.StoreKey, pricefeed.StoreKey, docs.StoreKey)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	app := &SimApp{
@@ -154,6 +157,7 @@ func NewSimApp(
 	app.CrisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.SupplyKeeper, auth.FeeCollectorName)
 	app.GovernmentKeeper = government.NewKeeper(app.cdc, keys[government.StoreKey])
 	app.PriceFeedKeeper = pricefeed.NewKeeper(app.cdc, keys[pricefeed.StoreKey])
+	app.DocsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.GovernmentKeeper, app.cdc)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -183,6 +187,7 @@ func NewSimApp(
 		slashing.NewAppModule(app.SlashingKeeper, app.StakingKeeper),
 		staking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
 		pricefeed.NewAppModule(app.PriceFeedKeeper, app.GovernmentKeeper),
+		docs.NewAppModule(app.DocsKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -198,7 +203,7 @@ func NewSimApp(
 		auth.ModuleName, distr.ModuleName, staking.ModuleName,
 		bank.ModuleName, slashing.ModuleName, gov.ModuleName,
 		mint.ModuleName, supply.ModuleName, crisis.ModuleName,
-		genutil.ModuleName,
+		genutil.ModuleName, docs.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)

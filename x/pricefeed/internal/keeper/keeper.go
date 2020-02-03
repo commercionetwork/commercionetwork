@@ -226,3 +226,11 @@ func (keeper Keeper) GetOracles(ctx sdk.Context) (oracles ctypes.Addresses) {
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.OraclePrefix)), &oracles)
 	return oracles
 }
+
+// Messages implements the MessageLister interface.
+func (k Keeper) Messages() []string {
+	return []string{
+		types.MsgTypeSetPrice,
+		types.MsgTypeAddOracle,
+	}
+}

@@ -352,3 +352,16 @@ func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.
 
 	return nil
 }
+
+// Messages implements the MessageLister interface.
+func (k Keeper) Messages() []string {
+	return []string{
+		types.MsgTypeInvalidateDidDepositRequest,
+		types.MsgTypeInvalidateDidPowerUpRequest,
+		types.MsgTypeMoveDeposit,
+		types.MsgTypePowerUpDid,
+		types.MsgTypeRequestDidDeposit,
+		types.MsgTypeRequestDidPowerUp,
+		types.MsgTypeSetIdentity,
+	}
+}

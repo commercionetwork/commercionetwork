@@ -218,3 +218,13 @@ func (keeper Keeper) ExtractTrustedSchemaProposer(iterVal []byte) sdk.AccAddress
 	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &tsp)
 	return tsp
 }
+
+// Messages implements the MessageLister interface.
+func (k Keeper) Messages() []string {
+	return []string{
+		types.MsgTypeAddSupportedMetadataSchema,
+		types.MsgTypeAddTrustedMetadataSchemaProposer,
+		types.MsgTypeSendDocumentReceipt,
+		types.MsgTypeShareDocument,
+	}
+}
