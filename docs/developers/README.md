@@ -1,21 +1,21 @@
-# Developers
-If you're a developer and you would like to start integrating your project with Commercio.network, 
-here you will find all the resources that might be most useful to you. 
+# SDK Developers
+If you would like to contribute to create the best opens source tools for Commercio.network and any Cosmos Blockchains this is the place.
+
 
 ## Existing SDKs
-If you want to integrate your solution with any Cosmos chain faster than ever, without having to deal with 
-manual transactions creation and signing, you can use the following SDKs.  
+we have developed the tools and the documentation to allow anyone to develop Blockchain Appilcations using the langu  
 
-|  | Dart/Flutter | Kotlin/Java | C#/Dot.net | GoLang |
-| ------ | ------ | ------ | ------ | ------ |
-| **Sacco**  | [Repo](https://github.com/commercionetwork/sacco.dart) | [Repo](https://github.com/commercionetwork/sacco.kt) | [Repo](https://github.com/commercionetwork/sacco.cs) |  [Repo](https://github.com/commercionetwork/sacco.go) |
-| (Cosmos Crypto Lib) | [Docs](https://pub.dev/documentation/sacco/latest/) | [Docs](https://github.com/commercionetwork/sacco.dart/blob/master/example/example.dart) | Later | Later |
-| **CommercioSDK**  | [Repo](https://github.com/commercionetwork/commercio-sdk.dart) | [Repo](https://github.com/commercionetwork/commercio-sdk.kt) | [Repo](https://github.com/commercionetwork/commercio-sdk.cs) | Later |  
-| (Commercio Application SDK) | [Docs](https://dart.sdk.docs.commercio.network) | [Docs](https://github.com/commercionetwork/commercio-sdk.kt/blob/master/src/test/kotlin/network/commercio/sdk/Examples.kt) | Later | Later |
+|  | Dart/Flutter | Kotlin/Java | C#/Dot.net | GoLang | C++ | Phyton | Rust |
+| ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+| **Sacco**  | [Repo](https://github.com/commercionetwork/sacco.dart) | [Repo](https://github.com/commercionetwork/sacco.kt) | [Repo](https://github.com/commercionetwork/sacco.cs) |  [Repo](https://github.com/commercionetwork/sacco.go) | Help us | Help us | Help us |
+| (Cosmos Crypto Lib) | [Docs](https://pub.dev/documentation/sacco/latest/) | [Docs](https://github.com/commercionetwork/sacco.dart/blob/master/example/example.dart) | Later | Later | Help us | Help us | Help us |
+| **CommercioSDK**  | [Repo](https://github.com/commercionetwork/commercio-sdk.dart) | [Repo](https://github.com/commercionetwork/commercio-sdk.kt) | [Repo](https://github.com/commercionetwork/commercio-sdk.cs) | Later | Help us | Help us | Help us | 
+| (Commercio Application SDK) | [Docs](https://dart.sdk.docs.commercio.network) | [Docs](https://github.com/commercionetwork/commercio-sdk.kt/blob/master/src/test/kotlin/network/commercio/sdk/Examples.kt) | Later | Later | Help us | Help us | Help us |
 
 
-## Generic documentation
-If you want to create a new SDK or you want to document yourself on how things should be done manually, 
+
+## Low level documentation
+If you want to create a new SDK or you want to learn the very low level Cosmos SDK and Comemrcio.network stuff 
 the following link are a *must read*.  
 
 - [Create, sign and send a transaction offline](./create-sign-broadcast-tx.md)
