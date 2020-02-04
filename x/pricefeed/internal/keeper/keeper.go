@@ -228,7 +228,7 @@ func (keeper Keeper) GetOracles(ctx sdk.Context) (oracles ctypes.Addresses) {
 }
 
 // Messages implements the MessageLister interface.
-func (k Keeper) Messages() []string {
+func (keeper Keeper) Messages() []string {
 	return []string{
 		types.MsgTypeSetPrice,
 		types.MsgTypeAddOracle,

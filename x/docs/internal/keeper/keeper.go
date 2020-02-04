@@ -220,7 +220,7 @@ func (keeper Keeper) ExtractTrustedSchemaProposer(iterVal []byte) sdk.AccAddress
 }
 
 // Messages implements the MessageLister interface.
-func (k Keeper) Messages() []string {
+func (keeper Keeper) Messages() []string {
 	return []string{
 		types.MsgTypeAddSupportedMetadataSchema,
 		types.MsgTypeAddTrustedMetadataSchemaProposer,
