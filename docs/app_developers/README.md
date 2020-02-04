@@ -1,10 +1,10 @@
 # Developers Guides
 
 ## Our Mission
-* We want to provide anyone anywhere the ability to exchange and sign digital documents using the blockchain technology.
+* We want to provide anyone anywhere the ability to exchange and sign digital documents using our blockchain.
 * We have created a set of guides and tools to provide the best Developer Experience (DX) in the blockchain sector.
 * We want to do what Stripe did for payments, make it super easy and super fast to develop apps on the blockchain.  
-* We want to make developers feel at home with therir own languages and paradigms, to ship things today not next year.
+* We want to make developers right feel at home with their own languages to ship things today, not next year.
 
 ## The Developers Guide (online)
 The step by step prtactical guide that explains to any developer how to master the technology that will change the world
