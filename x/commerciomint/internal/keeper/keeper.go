@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -195,10 +197,10 @@ func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
 	}
 }
 
-// Messages implements the MessageLister interface.
-func (k Keeper) Messages() []string {
-	return []string{
-		types.MsgTypeCloseCdp,
-		types.MsgTypeOpenCdp,
+// Messages implements the MessageFeeBinder interface.
+func (k Keeper) Messages() []ctypes.MessageFeeBinding {
+	return []ctypes.MessageFeeBinding{
+		ctypes.NewStandardBinding(types.MsgTypeCloseCdp),
+		ctypes.NewStandardBinding(types.MsgTypeOpenCdp),
 	}
 }

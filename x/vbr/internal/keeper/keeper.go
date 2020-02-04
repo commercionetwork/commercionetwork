@@ -195,9 +195,9 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 	return nil
 }
 
-// Messages implements the MessageLister interface.
-func (k Keeper) Messages() []string {
-	return []string{
-		types.MsgTypeIncrementBlockRewardsPool,
+// Messages implements the MessageFeeBinder interface.
+func (k Keeper) Messages() []ctypes.MessageFeeBinding {
+	return []ctypes.MessageFeeBinding{
+		ctypes.NewStandardBinding(types.MsgTypeIncrementBlockRewardsPool),
 	}
 }

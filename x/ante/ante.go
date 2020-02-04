@@ -25,14 +25,14 @@ func NewAnteHandler(
 	priceKeeper pricefeed.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	stableCreditsDemon string,
-	ml []ctypes.MessageLister,
+	ml ...ctypes.MessageFeeBinder,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		cosmosante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
-		NewMinFeeDecorator(priceKeeper, ml, stableCreditsDemon),
+		NewMinFeeDecorator(priceKeeper, stableCreditsDemon, ml...),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
@@ -53,13 +53,13 @@ type MinFeeDecorator struct {
 	stableCreditsDenom string
 }
 
-func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, ml []ctypes.MessageLister, stableCreditsDenom string) MinFeeDecorator {
+func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, stableCreditsDenom string, ml ...ctypes.MessageFeeBinder) MinFeeDecorator {
 	txTypesWithFixedFees = make(map[string]sdk.Dec)
 
 	// cycle through all the MessageListers and append their content to txTypesWithFixedFees
 	for _, mlister := range ml {
 		for _, message := range mlister.Messages() {
-			txTypesWithFixedFees[message] = sdk.NewDecWithPrec(1, 2)
+			txTypesWithFixedFees[message.Name] = message.Fee
 		}
 	}
 
@@ -82,6 +82,7 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	// Fet the ShareDocument messages
 	requiredFees := sdk.NewDec(0)
 	for _, msg := range stdTx.Msgs {
+		fmt.Println(msg.Type())
 		// if we find msg.Type() in txTypesWithFixedFees, that message must pay our custom fixed fee amount
 		if fee, msgTypeFound := txTypesWithFixedFees[msg.Type()]; msgTypeFound {
 			requiredFees = requiredFees.Add(fee)

@@ -64,7 +64,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	anteHandler := ante.NewAnteHandler(
 		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper,
 		cosmosante.DefaultSigVerificationGasConsumer,
-		stableCreditsDenom, []ctypes.MessageLister{app.DocsKeeper},
+		stableCreditsDenom, app.DocsKeeper,
 	)
 
 	// Keys and addresses

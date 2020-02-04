@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -219,12 +221,12 @@ func (keeper Keeper) ExtractTrustedSchemaProposer(iterVal []byte) sdk.AccAddress
 	return tsp
 }
 
-// Messages implements the MessageLister interface.
-func (keeper Keeper) Messages() []string {
-	return []string{
-		types.MsgTypeAddSupportedMetadataSchema,
-		types.MsgTypeAddTrustedMetadataSchemaProposer,
-		types.MsgTypeSendDocumentReceipt,
-		types.MsgTypeShareDocument,
+// Messages implements the MessageFeeBinder interface.
+func (keeper Keeper) Messages() []ctypes.MessageFeeBinding {
+	return []ctypes.MessageFeeBinding{
+		ctypes.NewStandardBinding(types.MsgTypeAddSupportedMetadataSchema),
+		ctypes.NewStandardBinding(types.MsgTypeAddTrustedMetadataSchemaProposer),
+		ctypes.NewStandardBinding(types.MsgTypeSendDocumentReceipt),
+		ctypes.NewStandardBinding(types.MsgTypeShareDocument),
 	}
 }

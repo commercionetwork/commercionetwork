@@ -227,10 +227,10 @@ func (keeper Keeper) GetOracles(ctx sdk.Context) (oracles ctypes.Addresses) {
 	return oracles
 }
 
-// Messages implements the MessageLister interface.
-func (keeper Keeper) Messages() []string {
-	return []string{
-		types.MsgTypeSetPrice,
-		types.MsgTypeAddOracle,
+// Messages implements the MessageFeeBinder interface.
+func (keeper Keeper) Messages() []ctypes.MessageFeeBinding {
+	return []ctypes.MessageFeeBinding{
+		ctypes.NewStandardBinding(types.MsgTypeSetPrice),
+		ctypes.NewStandardBinding(types.MsgTypeAddOracle),
 	}
 }

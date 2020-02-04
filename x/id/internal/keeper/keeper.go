@@ -353,15 +353,15 @@ func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.
 	return nil
 }
 
-// Messages implements the MessageLister interface.
-func (k Keeper) Messages() []string {
-	return []string{
-		types.MsgTypeInvalidateDidDepositRequest,
-		types.MsgTypeInvalidateDidPowerUpRequest,
-		types.MsgTypeMoveDeposit,
-		types.MsgTypePowerUpDid,
-		types.MsgTypeRequestDidDeposit,
-		types.MsgTypeRequestDidPowerUp,
-		types.MsgTypeSetIdentity,
+// Messages implements the MessageFeeBinder interface.
+func (k Keeper) Messages() []ctypes.MessageFeeBinding {
+	return []ctypes.MessageFeeBinding{
+		ctypes.NewStandardBinding(types.MsgTypeInvalidateDidDepositRequest),
+		ctypes.NewStandardBinding(types.MsgTypeInvalidateDidPowerUpRequest),
+		ctypes.NewStandardBinding(types.MsgTypeMoveDeposit),
+		ctypes.NewStandardBinding(types.MsgTypePowerUpDid),
+		ctypes.NewStandardBinding(types.MsgTypeRequestDidDeposit),
+		ctypes.NewStandardBinding(types.MsgTypeRequestDidPowerUp),
+		ctypes.NewStandardBinding(types.MsgTypeSetIdentity),
 	}
 }

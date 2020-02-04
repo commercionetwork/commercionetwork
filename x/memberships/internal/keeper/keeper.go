@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
@@ -169,13 +171,13 @@ func (k Keeper) SetStableCreditsDenom(ctx sdk.Context, denom string) {
 	store.Set([]byte(types.StableCreditsStoreKey), []byte(denom))
 }
 
-// Messages implements the MessageLister interface.
-func (k Keeper) Messages() []string {
-	return []string{
-		types.MsgTypesDepositIntoLiquidityPool,
-		types.MsgTypeSetUserVerified,
-		types.MsgTypeAddTsp,
-		types.MsgTypeBuyMembership,
-		types.MsgTypeInviteUser,
+// Messages implements the MessageFeeBinder interface.
+func (k Keeper) Messages() []ctypes.MessageFeeBinding {
+	return []ctypes.MessageFeeBinding{
+		ctypes.NewStandardBinding(types.MsgTypesDepositIntoLiquidityPool),
+		ctypes.NewStandardBinding(types.MsgTypeSetUserVerified),
+		ctypes.NewStandardBinding(types.MsgTypeAddTsp),
+		ctypes.NewStandardBinding(types.MsgTypeBuyMembership),
+		ctypes.NewStandardBinding(types.MsgTypeInviteUser),
 	}
 }
