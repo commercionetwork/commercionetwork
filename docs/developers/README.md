@@ -1,5 +1,6 @@
 # SDK Developers
-If you would like to contribute to create the best opens source tools for Commercio.network and any Cosmos Blockchains this is the place.
+If you would like to contribute to create the best open-source tools for Commercio.network or any Cosmos Blockchains this is the right place.
+Join our [telegram group](https://t.me/commercionetwork), say hi, and we will get on from there.
 
 
 ## Existing SDKs
