@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -262,6 +264,31 @@ func TestKeeper_GetStableCreditsDenom(t *testing.T) {
 			store.Set([]byte(types.StableCreditsStoreKey), []byte(test.denom))
 
 			require.Equal(t, test.denom, k.GetStableCreditsDenom(ctx))
+		})
+	}
+}
+
+func TestKeeper_Messages(t *testing.T) {
+	tests := []struct {
+		name string
+		want []ctypes.MessageFeeBinding
+	}{
+		{
+			"expected Messages",
+			[]ctypes.MessageFeeBinding{
+				ctypes.NewStandardBinding(types.MsgTypesDepositIntoLiquidityPool),
+				ctypes.NewStandardBinding(types.MsgTypeSetUserVerified),
+				ctypes.NewStandardBinding(types.MsgTypeAddTsp),
+				ctypes.NewStandardBinding(types.MsgTypeBuyMembership),
+				ctypes.NewStandardBinding(types.MsgTypeInviteUser),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, _, k := SetupTestInput()
+			require.Equal(t, tt.want, k.Messages())
 		})
 	}
 }

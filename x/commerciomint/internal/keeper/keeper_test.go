@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/stretchr/testify/require"
@@ -261,6 +263,28 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 			} else {
 				require.Len(t, result, len(test.existingCdps))
 			}
+		})
+	}
+}
+
+func TestKeeper_Messages(t *testing.T) {
+	tests := []struct {
+		name string
+		want []ctypes.MessageFeeBinding
+	}{
+		{
+			"expected Messages",
+			[]ctypes.MessageFeeBinding{
+				ctypes.NewStandardBinding(types.MsgTypeCloseCdp),
+				ctypes.NewStandardBinding(types.MsgTypeOpenCdp),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, _, k := SetupTestInput()
+			require.Equal(t, tt.want, k.Messages())
 		})
 	}
 }

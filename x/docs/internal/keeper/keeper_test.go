@@ -766,3 +766,27 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 		})
 	}
 }
+
+func TestKeeper_Messages(t *testing.T) {
+	tests := []struct {
+		name string
+		want []ctypes.MessageFeeBinding
+	}{
+		{
+			"expected Messages",
+			[]ctypes.MessageFeeBinding{
+				ctypes.NewStandardBinding(types.MsgTypeAddSupportedMetadataSchema),
+				ctypes.NewStandardBinding(types.MsgTypeAddTrustedMetadataSchemaProposer),
+				ctypes.NewStandardBinding(types.MsgTypeSendDocumentReceipt),
+				ctypes.NewStandardBinding(types.MsgTypeShareDocument),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, k := SetupTestInput()
+			require.Equal(t, tt.want, k.Messages())
+		})
+	}
+}

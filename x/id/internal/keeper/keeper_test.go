@@ -4,6 +4,8 @@ import (
 	"encoding/hex"
 	"testing"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -396,4 +398,31 @@ func TestKeeper_GetPoolAmount_NonEmptyCoins(t *testing.T) {
 
 	stored := k.GetPoolAmount(ctx)
 	require.Equal(t, pool, stored)
+}
+
+func TestKeeper_Messages(t *testing.T) {
+	tests := []struct {
+		name string
+		want []ctypes.MessageFeeBinding
+	}{
+		{
+			"expected Messages",
+			[]ctypes.MessageFeeBinding{
+				ctypes.NewStandardBinding(types.MsgTypeInvalidateDidDepositRequest),
+				ctypes.NewStandardBinding(types.MsgTypeInvalidateDidPowerUpRequest),
+				ctypes.NewStandardBinding(types.MsgTypeMoveDeposit),
+				ctypes.NewStandardBinding(types.MsgTypePowerUpDid),
+				ctypes.NewStandardBinding(types.MsgTypeRequestDidDeposit),
+				ctypes.NewStandardBinding(types.MsgTypeRequestDidPowerUp),
+				ctypes.NewStandardBinding(types.MsgTypeSetIdentity),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, _, _, _, k := SetupTestInput()
+			require.Equal(t, tt.want, k.Messages())
+		})
+	}
 }

@@ -269,3 +269,25 @@ func TestKeeper_GetOracles(t *testing.T) {
 
 	require.Equal(t, expected, k.GetOracles(ctx))
 }
+
+func TestKeeper_Messages(t *testing.T) {
+	tests := []struct {
+		name string
+		want []ctypes.MessageFeeBinding
+	}{
+		{
+			"expected Messages",
+			[]ctypes.MessageFeeBinding{
+				ctypes.NewStandardBinding(types.MsgTypeSetPrice),
+				ctypes.NewStandardBinding(types.MsgTypeAddOracle),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, _, k := SetupTestInput()
+			require.Equal(t, tt.want, k.Messages())
+		})
+	}
+}

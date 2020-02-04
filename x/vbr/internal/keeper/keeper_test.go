@@ -3,6 +3,8 @@ package keeper
 import (
 	"testing"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	dist "github.com/cosmos/cosmos-sdk/x/distribution"
@@ -202,4 +204,25 @@ func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 	err := k.DistributeBlockRewards(ctx, TestValidator, reward)
 
 	require.Error(t, err)
+}
+
+func TestKeeper_Messages(t *testing.T) {
+	tests := []struct {
+		name string
+		want []ctypes.MessageFeeBinding
+	}{
+		{
+			"expected Messages",
+			[]ctypes.MessageFeeBinding{
+				ctypes.NewStandardBinding(types.MsgTypeIncrementBlockRewardsPool),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, k, _, _ := SetupTestInput()
+			require.Equal(t, tt.want, k.Messages())
+		})
+	}
 }
