@@ -1,10 +1,11 @@
 # Developers Guides
 
 ## Our Mission
-* We want to provide anyone anywhere the ability to exchange and sign digital documents using our blockchain.
-* We have created a set of guides and tools to provide the best Developer Experience (DX) in the blockchain sector.
-* We want to do what Stripe did for payments, make it super easy and super fast to develop apps on the blockchain.  
-* We want to make developers right feel at home with their own languages to ship things today, not next year.
+* We want to give anyone the ability to exchange and sign documents with our eiDAS compliant blockchain.
+* We are creating tools to provide the best Developer Experience (DX) in the blockchain sector.
+* We want to do what Stripe did for payments: Make it easy and fast to develop on the blockchain.  
+* We want to make developers feel right at home by using their own languages. 
+* We want to provide a scalable blockchain today, to ship apps tomorrow, not in the next 2 years.
 
 ## The Developers Guide (online)
 The step by step prtactical guide that explains to any developer how to master the technology that will change the world
@@ -13,29 +14,29 @@ The step by step prtactical guide that explains to any developer how to master t
 
 
 ## The Developers Guide (Printed Book)
-For the developers that love reading things on the good old printed book we have published a beautifully designed visual guide. 
+For the developers that love reading things on the good old printed book we have published a beautifully designed visual guide. Any purchase will directly contribute to our Open Source effort 
 
 * Available on Amazon and Kindle (soon)
 
 ## The Commercio.app
 The Commercio Blockchain Challenge App.  Learn, take the Quiz and Try the Code. Serious developers only 😉
-If you feel confident with the material you can take The Blockchain Challenge and EARN €500 in Commercio Cash Credits.
+If you complete The Blockchain Challenge your company can join our Consortiunm as CERTIFIED DEVELOPER and you can and EARN €500 in Commercio Cash Credits.
 
 * Apple iOS App (soon)
 * Google Android App (soon)
 
 ### How It Works
 
-* DONLOAD THE APP and register providing your data and your company affiliation; you will be able to operate with FREE TOKENS on the [testnet.Commercio.netork](https://testnet.Commercio.netork)
+* DOWNLOAD THE APP Register providing your contacts and your company affiliation; you will be able to operate with FREE TESTNET TOKENS on the [testnet.Commercio.netork](https://testnet.Commercio.netork)
 
-* LEARN, QUIZ and TRY Find a Commercio.network Blockchain Developer primer with Copy Paste code examples to create your own App
+* LEARN, QUIZ and TRY  The pocket version of Developers Guide with Copy Paste code examples to create your own App
 
-* TAKE THE CHALLENGE If you pass ALL the Quizzes, then your company will be able to Join our [consortium](https://commercioconsortium.org) as Certified Developer and you will get €500 Cash Credits
+* TAKE THE CHALLENGE If you pass ALL the Quizzes, then your company will be able to Join our [consortium](https://commercioconsortium.org) as Certified Developer and you will EARN €500 in Commercio Cash Credits.
 
 
 ## Our SDKs 
 
-As a reference here all the Open source libraries and SDK.
+As a reference here uou can find all the Open source libraries and SDKs.
 
 |  | Dart/Flutter | Kotlin/Java | C#/Dot.net | GoLang | C++ | Phyton | Rust |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
