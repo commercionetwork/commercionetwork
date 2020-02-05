@@ -27,7 +27,7 @@ If you complete The Blockchain Challenge your company can join our Consortiunm a
 
 ### How It Works
 
-* DOWNLOAD THE APP Register providing your contacts and your company affiliation; you will be able to operate with FREE TESTNET TOKENS on the [testnet.Commercio.netork](https://testnet.Commercio.netork)
+* DOWNLOAD THE APP Register providing your contacts and your company affiliation; you will be able to operate with FREE TESTNET TOKENS on the [testnet.Commercio.network](https://testnet.Commercio.network)
 
 * LEARN, QUIZ and TRY  The pocket version of Developers Guide with Copy Paste code examples to create your own App
 
