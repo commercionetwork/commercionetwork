@@ -1,15 +1,6 @@
 package v1_5_0
 
 import (
-	"encoding/base64"
-	"fmt"
-	"strconv"
-
-	"github.com/tendermint/tendermint/crypto"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	v038auth "github.com/cosmos/cosmos-sdk/x/auth/legacy/v0_38"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -70,52 +61,4 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 	}
 
 	return appState
-}
-
-// getPk converts our Pubkey old serialization format into a proper Tendermint crypto.Pubkey.
-func getPk(p PubKey) crypto.PubKey {
-	var pk crypto.PubKey
-
-	if p.Value != "" {
-		// decode public key base64
-		pkHex, err := base64.StdEncoding.DecodeString(p.Value)
-		if err != nil {
-			panic(err)
-		}
-
-		// copy pkHex into castPk for type coherence
-		castPk := secp256k1.PubKeySecp256k1{}
-		copy(castPk[:], pkHex)
-
-		// transform castPk into a bech32 pubkey...
-		pks, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, castPk)
-		if err != nil {
-			panic(err)
-		}
-
-		// ...then finally transform the bech32 into a crypto.PublicKey instance
-		pk, err = sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, pks)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	return pk
-}
-
-// secAccnUint64 converts sequence number and account number strings to their uint64 values.
-func secAccnUint64(b *BaseAccount) (accNum uint64, seq uint64) {
-	var err error
-
-	accNum, err = strconv.ParseUint(b.AccountNumber, 10, 64)
-	if err != nil {
-		panic(fmt.Errorf("could not convert account_number to uint64: %w", err))
-	}
-
-	seq, err = strconv.ParseUint(b.Sequence, 10, 64)
-	if err != nil {
-		panic(fmt.Errorf("could not convert sequence to uint64: %w", err))
-	}
-
-	return
 }
