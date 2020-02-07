@@ -5,6 +5,8 @@ import (
 	"sort"
 	"time"
 
+	v150 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v1.5.0"
+
 	v038 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v0_38"
 
 	"github.com/spf13/cobra"
@@ -26,14 +28,14 @@ import (
 )
 
 var migrationMap = map[string][]extypes.MigrationCallback{
-	"cosmos-v0.38": {v038.Migrate},
-	"v1.2.0":       {v120.Migrate},
-	"v1.2.1":       {v121.Migrate},
-	"v1.3.0":       {v130.Migrate},
-	"v1.3.1":       {v131.Migrate},
-	"v1.3.2":       {v132.Migrate},
-	"v1.3.3":       {v133.Migrate},
-	"v1.3.4":       {v134.Migrate},
+	"v1.2.0": {v120.Migrate},
+	"v1.2.1": {v121.Migrate},
+	"v1.3.0": {v130.Migrate},
+	"v1.3.1": {v131.Migrate},
+	"v1.3.2": {v132.Migrate},
+	"v1.3.3": {v133.Migrate},
+	"v1.3.4": {v134.Migrate},
+	"v1.5.0": {v038.Migrate, v150.Migrate},
 }
 
 const (
