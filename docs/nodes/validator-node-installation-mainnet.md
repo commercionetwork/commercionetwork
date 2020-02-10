@@ -12,9 +12,10 @@ To becoming a validator in the Mainnet is quite different against mainnet
 When you create a full node for the first time you will use this command
 
 ```bash
-cnd init
+cnd init moniker
 ```
 
+where `moniker` is the name of your node.
 This command create by default a folder in home dir that named `.cnd`.    
 This folder contains two sub folder 
 
@@ -24,10 +25,10 @@ This folder contains two sub folder
 If use command with specific flag you can create the cnd home folder in other place. 
 
 ```bash
-cnd init --home /home/cnd-user/cnd
+cnd init moniker --home /home/cnd-user/cnd
 ```
 
-So you can choose a specific disc to register all data of the chain
+So you can choose a specific disk to register all data of the chain
 You can stop you service and move all your data to another place and modify the service script to update with new position, or create with simbolic link. For example
 
 ```bash
@@ -38,6 +39,86 @@ cd /home/cnd-user/
 ln -s /mnt/largedisk/cnd .
 systemctl cnd start
 ```
+
+When you want reset hard the state of chain you need use
+
+```bash
+systemctl cnd stop
+cnd unsafe-reset-all
+```
+
+or
+```bash
+cnd unsafe-reset-all --home /home/cnd-user/cnd
+```
+
+if you choose other place for your cnd home.    
+
+The command `cnd`  have a set of commands that you can retrive with `-h` flag. Every subcommand could have other subcommands or specific flags. At each level you can get informations about command and flags with `-h` flag.    
+For example 
+
+```bahs
+cnd -h
+```
+
+print out all command at the first level. One of this is `init`. You can get help of `init` command using
+
+```bash
+cnd init -h
+```
+
+
+
+## Undestanding node identity
+
+Your node has some peculiar data
+
+* Node id
+* Address
+* Validator address
+* Ip address
+
+### Node id
+
+You can get it using the command
+
+```bash
+cnd tendermint show-node-id [--home /home/cnd-user/cnd]
+```
+
+A alphanumeric string like `81dd15669daea0e6d3dacbcfdcc5ffd32b56c767` should be print. This the node id identifier of your node.
+This value is suitable to used in toml configurations like `persistant_peers`, `private_peers` etc. etc.
+
+
+### Address
+
+```bash
+cnd tendermint show-address [--home /home/cnd-user/cnd]
+```
+
+
+A alphanumeric string like `did:com:valcons1scc7lnhf3pqtwtjkcy57k9xrgp2kyu7grp24nw` should be print.
+
+### Validator address
+
+```bash
+cnd tendermint show-validator [--home /home/cnd-user/cnd]
+```
+
+
+A alphanumeric string like `did:com:valconspub1zcjduepqre74dapyqd76zelkp0rxhpsc34uqdas8l64dfyzxqqzfxj5s8qwqaka2y8` should be print. This is your public key of your validator, and should be used when you performing the create validator transaction
+
+
+### Ip address
+
+Ip address of your server. Your server could have multiple ip. If your server has only one ip you can get it with command 
+
+```bash
+
+```
+
+
+
 
 
 
@@ -68,6 +149,8 @@ Any node can configures a set of parameters to get own needs.
 The most important parameters of this file are
 
 * moniker: define the unique name of node
+* persistant_peers: define a set of 
+* seeds: define a set of 
 * persistant_peers: define a set of 
 
 
