@@ -182,12 +182,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 		k.SetTotalRewardPool(ctx, rewardPool.Sub(reward))
 		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(reward))
 
-		// Get his current reward and then add the new one
-		currentRewards := k.distKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
-		currentRewards.Rewards = currentRewards.Rewards.Add(reward)
-
-		// Set the just earned reward
-		k.distKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
+		k.distKeeper.AllocateTokensToValidator(ctx, validator, reward)
 	} else {
 		return sdk.ErrInsufficientFunds("Pool hasn't got enough funds to supply validator's rewards")
 	}
