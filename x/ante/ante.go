@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/docs"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,9 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-var messagesCosts = map[string]sdk.Dec{
-	docs.MsgTypeShareDocument: sdk.NewDecWithPrec(1, 2),
-}
+// fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
+var fixedRequiredFee sdk.Dec = sdk.NewDecWithPrec(1, 2)
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -70,16 +68,13 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 		return newCtx, errors.New("tx must be StdTx")
 	}
 
-	// Fet the ShareDocument messages
-	requiredFees := sdk.NewDec(0)
-	for _, msg := range stdTx.Msgs {
-		if value, ok := messagesCosts[msg.Type()]; ok {
-			requiredFees = requiredFees.Add(value)
-		}
+	// skip block with height 0, otherwise no chain initialization could happen!
+	if ctx.BlockHeight() == 0 {
+		return next(ctx, tx, simulate)
 	}
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.stableCreditsDenom, requiredFees); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.stableCreditsDenom); err != nil {
 		return ctx, err
 	}
 
@@ -91,7 +86,6 @@ func checkMinimumFees(
 	ctx sdk.Context,
 	pfk pricefeed.Keeper,
 	stableCreditsDenom string,
-	requiredFees sdk.Dec,
 ) sdk.Error {
 
 	// ----
@@ -105,7 +99,7 @@ func checkMinimumFees(
 	// ----
 
 	// Token quantity is always set as millionth of units
-	stableRequiredQty := requiredFees.MulInt64(1000000)
+	stableRequiredQty := fixedRequiredFee.MulInt64(1000000)
 	stableFeeAmount := sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(stableFeeAmount) {
 		return nil
@@ -136,8 +130,8 @@ func checkMinimumFees(
 		}
 	}
 
-	if !fiatAmount.GTE(requiredFees) {
-		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", requiredFees, fiatAmount)
+	if !fiatAmount.GTE(fixedRequiredFee) {
+		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", fixedRequiredFee, fiatAmount)
 		return sdk.ErrInsufficientFee(msg)
 	}
 

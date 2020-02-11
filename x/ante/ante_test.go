@@ -56,7 +56,7 @@ var testDocument = docs.Document{
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 
 	// Setup
-	app, ctx := createTestApp(true)
+	app, ctx := createTestApp(true, false)
 
 	tokenDenom := "ucommercio"
 	stableCreditsDenom := "uccc"
