@@ -1,10 +1,10 @@
 module github.com/commercionetwork/commercionetwork
 
-go 1.12
+go 1.13
 
 require (
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
-	github.com/cosmos/cosmos-sdk v0.38.0
+	github.com/cosmos/cosmos-sdk v0.38.1
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/gorilla/mux v1.7.3
