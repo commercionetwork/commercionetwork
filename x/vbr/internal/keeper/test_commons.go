@@ -87,7 +87,9 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())
 
-	k := NewKeeper(cdc, keys[types.StoreKey], dk)
+	// TODO: this test should be supply Keeper-enabled, this is just a placeholder and will
+	// likely crash!
+	k := NewKeeper(cdc, keys[types.StoreKey], dk, supply.Keeper{})
 
 	return cdc, ctx, k, ak, bk
 }

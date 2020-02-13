@@ -119,11 +119,13 @@ var (
 		commerciomint.ModuleName: {supply.Minter, supply.Burner},
 		memberships.ModuleName:   {supply.Burner},
 		id.ModuleName:            nil,
+		vbr.ModuleName:           {supply.Minter},
 	}
 
 	allowedModuleReceivers = types.Strings{
 		commerciomint.ModuleName,
 		memberships.ModuleName,
+		vbr.ModuleName,
 	}
 )
 
@@ -259,7 +261,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
-	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper)
+	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper, app.supplyKeeper)
 	app.mintKeeper = commerciomint.NewKeeper(app.cdc, app.keys[commerciomint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
 
 	// register the proposal types
@@ -358,6 +360,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 			cmn.Exit(err.Error())
 		}
 	}
+
 	return app
 }
 
@@ -375,6 +378,27 @@ func (app *CommercioNetworkApp) EndBlocker(ctx sdk.Context, req abci.RequestEndB
 func (app *CommercioNetworkApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
+
+	// TODO: find a more elegant way of doing this
+	vbrModuleAcc := app.supplyKeeper.GetModuleAccount(ctx, vbr.ModuleName)
+
+	if vbrModuleAcc.GetCoins().Len() == 0 {
+		// TODO: extract this amount from genesis
+		b, ok := sdk.NewIntFromString("12500000000000")
+		if !ok {
+			panic("cannot create int for pool")
+		}
+
+		coins := sdk.NewCoins(sdk.NewCoin("ucommercio", b))
+
+		err := vbrModuleAcc.SetCoins(coins)
+		if err != nil {
+			panic(err)
+		}
+
+		app.supplyKeeper.SetModuleAccount(ctx, vbrModuleAcc)
+	}
+
 	return app.mm.InitGenesis(ctx, genesisState)
 }
 

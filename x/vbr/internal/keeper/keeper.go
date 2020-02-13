@@ -7,19 +7,22 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/staking/exported"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 type Keeper struct {
-	cdc        *codec.Codec
-	storeKey   sdk.StoreKey
-	distKeeper distribution.Keeper
+	cdc          *codec.Codec
+	storeKey     sdk.StoreKey
+	distKeeper   distribution.Keeper
+	supplyKeeper supply.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper, sk supply.Keeper) Keeper {
 	return Keeper{
-		cdc:        cdc,
-		storeKey:   storeKey,
-		distKeeper: dk,
+		cdc:          cdc,
+		storeKey:     storeKey,
+		distKeeper:   dk,
+		supplyKeeper: sk,
 	}
 }
 
@@ -39,10 +42,10 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
-	var brPool sdk.DecCoins
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.PoolStoreKey)), &brPool)
-	return brPool
+	macc := k.supplyKeeper.GetModuleAccount(ctx, types.ModuleName)
+	mcoins := macc.GetCoins()
+
+	return sdk.NewDecCoins(mcoins)
 }
 
 // --------------------------
@@ -179,10 +182,13 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 	if ctypes.IsAllGTE(rewardPool, reward) && ctypes.IsAllGTE(yearlyPool, reward) {
 
 		// Decrement the total rewards pool and the yearly pool
-		k.SetTotalRewardPool(ctx, rewardPool.Sub(reward))
-		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(reward))
+		//k.SetTotalRewardPool(ctx, rewardPool.Sub(reward))
 
-		k.distKeeper.AllocateTokensToValidator(ctx, validator, reward)
+		rewardInt, _ := reward.TruncateDecimal()
+		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(sdk.NewDecCoins(rewardInt)))
+
+		k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distribution.ModuleName, rewardInt)
+		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoins(rewardInt))
 	} else {
 		return sdk.ErrInsufficientFunds("Pool hasn't got enough funds to supply validator's rewards")
 	}
