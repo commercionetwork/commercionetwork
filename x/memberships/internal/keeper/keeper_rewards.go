@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -37,7 +36,7 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
 	// Send the coins from the user wallet to the pool
 	for _, coin := range amount {
-		if coin.Denom != app.DefaultBondDenom {
+		if coin.Denom != "ucommercio" {
 			return sdk.ErrInsufficientCoins("deposit into membership pool can only be expressed in ucommercio")
 		}
 	}
@@ -69,7 +68,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 	rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
 
 	// Get the pool amount
-	poolAmount := k.GetPoolFunds(ctx).AmountOf(app.DefaultBondDenom)
+	poolAmount := k.GetPoolFunds(ctx).AmountOf("ucommercio")
 
 	// Distribute the reward taking it from the pool amount
 	if poolAmount.GT(sdk.ZeroInt()) {
@@ -78,7 +77,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 		if rewardAmount.GT(poolAmount) {
 			rewardAmount = poolAmount
 		}
-		rewardCoins := sdk.NewCoins(sdk.NewCoin(app.DefaultBondDenom, rewardAmount))
+		rewardCoins := sdk.NewCoins(sdk.NewCoin("ucommercio", rewardAmount))
 
 		// Send the reward to the invite sender
 		if err := k.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
