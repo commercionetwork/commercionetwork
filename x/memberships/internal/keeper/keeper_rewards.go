@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -61,11 +62,8 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 	// Multiply the found amount by 1.000.000 as coins are represented as millionth of units, and make it an int
 	rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
 
-	// Create the coins that represent the reward
-	stableCreditsDenom := k.GetStableCreditsDenom(ctx)
-
 	// Get the pool amount
-	poolAmount := k.GetPoolFunds(ctx).AmountOf(stableCreditsDenom)
+	poolAmount := k.GetPoolFunds(ctx).AmountOf(app.DefaultBondDenom)
 
 	// Distribute the reward taking it from the pool amount
 	if poolAmount.GT(sdk.ZeroInt()) {
@@ -74,7 +72,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 		if rewardAmount.GT(poolAmount) {
 			rewardAmount = poolAmount
 		}
-		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditsDenom, rewardAmount))
+		rewardCoins := sdk.NewCoins(sdk.NewCoin(app.DefaultBondDenom, rewardAmount))
 
 		// Send the reward to the invite sender
 		if err := k.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
