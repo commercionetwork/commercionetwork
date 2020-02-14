@@ -36,6 +36,12 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool
 func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
 	// Send the coins from the user wallet to the pool
+	for _, coin := range amount {
+		if coin.Denom != app.DefaultBondDenom {
+			return sdk.ErrInsufficientCoins("deposit into membership pool can only be expressed in ucommercio")
+		}
+	}
+
 	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amount); err != nil {
 		return err
 	}
