@@ -185,7 +185,7 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 	k.distKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
 
-	validatorOutstandingRewards := dist.ValidatorOutstandingRewards(sdk.DecCoins{})
+	validatorOutstandingRewards := sdk.DecCoins{}
 	k.distKeeper.SetValidatorOutstandingRewards(ctx, TestValidator.GetOperator(), validatorOutstandingRewards)
 
 	reward := sdk.DecCoins{sdk.NewDecCoin("stake", sdk.NewInt(1000))}
