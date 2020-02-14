@@ -207,3 +207,60 @@ func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
 
 	require.Error(t, err)
 }
+
+func TestKeeper_VbrAccount(t *testing.T) {
+	tests := []struct {
+		name              string
+		wantModName       string
+		wantModAccBalance sdk.Coins
+		emptyPool         bool
+	}{
+		{
+			"an empty vbr account",
+			"vbr",
+			sdk.NewCoins(),
+			true,
+		},
+		{
+			"a vbr account with coins in it",
+			"vbr",
+			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"}),
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k, _, _ := SetupTestInput(tt.emptyPool)
+			macc := k.VbrAccount(ctx)
+
+			require.Equal(t, macc.GetName(), tt.wantModName)
+			require.True(t, macc.GetCoins().IsEqual(tt.wantModAccBalance))
+		})
+	}
+}
+
+func TestKeeper_MintVBRTokens(t *testing.T) {
+	tests := []struct {
+		name       string
+		wantAmount sdk.Coins
+	}{
+		{
+			"add 10stake",
+			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: "stake"}),
+		},
+		{
+			"add no stake",
+			sdk.NewCoins(),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k, _, _ := SetupTestInput(true)
+			k.MintVBRTokens(ctx, tt.wantAmount)
+			macc := k.VbrAccount(ctx)
+			require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
+		})
+	}
+}

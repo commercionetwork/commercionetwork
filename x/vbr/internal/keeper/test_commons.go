@@ -80,6 +80,7 @@ func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper K
 	}
 
 	suk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
+	suk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
 	sk := staking.NewKeeper(cdc, keys[staking.StoreKey], suk, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
 	sk.SetParams(ctx, staking.DefaultParams())
 
