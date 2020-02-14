@@ -185,7 +185,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			msg:        types.NewMsgBuyMembership("gren", testUser),
 			invite:     types.NewInvite(testInviteSender, testUser),
 			credential: types.NewCredential(testUser, testTsp, 0),
-			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)),
+			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000)),
 			error:      "Invalid membership type: gren",
 		},
 		{
@@ -198,7 +198,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			msg:        types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
 			invite:     types.NewInvite(testInviteSender, testUser),
 			credential: types.NewCredential(testUser, testTsp, 0),
-			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)),
+			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000)),
 		},
 		{
 			name:  "Buying without invite returns error",
@@ -217,7 +217,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			msg:                types.NewMsgBuyMembership(types.MembershipTypeSilver, testUser),
 			invite:             types.NewInvite(testInviteSender, testUser),
 			credential:         types.NewCredential(testUser, testTsp, 0),
-			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)),
+			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000)),
 		},
 		{
 			name:               "Invalid upgrade works properly",
@@ -225,7 +225,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			msg:                types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
 			invite:             types.NewInvite(testInviteSender, testUser),
 			credential:         types.NewCredential(testUser, testTsp, 0),
-			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000)),
+			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000)),
 			error:              "Cannot upgrade from silver membership to bronze",
 		},
 	}

@@ -24,20 +24,19 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			name:         "Empty deposit pool is incremented properly",
 			existingPool: sdk.NewCoins(),
 			user:         testUser,
-			userAmt:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
-			deposit:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
-			expectedPool: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			userAmt:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
+			deposit:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
+			expectedPool: sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
 			expectedUser: sdk.Coins{},
 		},
 		{
 			name:         "Existing deposit pool in incremented properly",
 			user:         testUser,
 			userAmt:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000))),
-			existingPool: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			existingPool: sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
 			deposit:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000))),
 			expectedPool: sdk.NewCoins(
-				sdk.NewCoin("uatom", sdk.NewInt(100)),
-				sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
+				sdk.NewCoin("ucommercio", sdk.NewInt(1100)),
 			),
 			expectedUser: sdk.Coins{},
 		},
@@ -124,8 +123,8 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			inviteRecipientMembership: types.MembershipTypeGold,
 			invite:                    types.NewInvite(testInviteSender, testUser),
 			user:                      testUser,
-			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000)),
-			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000)),
+			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000)),
+			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000)),
 			expectedPoolAmt:           sdk.Coins{},
 		},
 		{
@@ -144,9 +143,9 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			inviteRecipientMembership: types.MembershipTypeGold,
 			invite:                    types.NewInvite(testInviteSender, testUser),
 			user:                      testUser,
-			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000000)),
-			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 2250000000)),
-			expectedPoolAmt:           sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 997750000000)),
+			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testDenom, 2250000000)),
+			expectedPoolAmt:           sdk.NewCoins(sdk.NewInt64Coin(testDenom, 997750000000)),
 		},
 	}
 
@@ -169,7 +168,8 @@ func TestKeeper_DistributeReward(t *testing.T) {
 				require.True(t, storedInvite.Rewarded)
 			}
 
-			require.True(t, test.expectedPoolAmt.IsEqual(k.GetPoolFunds(ctx)))
+			asd := test.expectedPoolAmt.IsEqual(k.GetPoolFunds(ctx))
+			require.True(t, asd)
 			require.True(t, test.expectedInviteSenderAmt.IsEqual(bk.GetCoins(ctx, test.invite.Sender)))
 		})
 	}

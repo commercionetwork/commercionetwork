@@ -51,7 +51,7 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) sdk.Error {
 	// Get the tokens from the buyer account
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
-	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(k.GetStableCreditsDenom(ctx), membershipPrice))
+	membershipCost := sdk.NewCoins(sdk.NewInt64Coin("ucommercio", membershipPrice))
 	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, membershipCost); err != nil {
 		return err
 	}

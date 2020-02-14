@@ -61,7 +61,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 	k.SupplyKeeper.SetModuleAccount(ctx, memAcc)
 
 	// Set the stable credits denom
-	k.SetStableCreditsDenom(ctx, testStableCreditsDenom)
+	k.SetStableCreditsDenom(ctx, "uccc")
 
 	return ctx, bk, govk, k
 }
@@ -86,4 +86,4 @@ func testCodec() *codec.Codec {
 var testUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var testUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var testStableCreditsDenom = "uccc"
+var testDenom = "ucommercio"
