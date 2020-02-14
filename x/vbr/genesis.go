@@ -31,6 +31,19 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	// Set the yearly reward pool and year number
 	keeper.SetYearlyRewardPool(ctx, data.YearlyPoolAmount)
 	keeper.SetYearNumber(ctx, data.YearNumber)
+
+	moduleAcc := keeper.VbrAccount(ctx)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
+	}
+
+	if moduleAcc.GetCoins().Empty() {
+		amount, _ := data.PoolAmount.TruncateDecimal()
+		err := keeper.MintVBRTokens(ctx, sdk.NewCoins(amount...))
+		if err != nil {
+			panic(err) // could not mint tokens on chain start, fatal!
+		}
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

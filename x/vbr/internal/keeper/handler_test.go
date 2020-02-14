@@ -16,19 +16,26 @@ var msgIncrementsBRPool = types.MsgIncrementBlockRewardsPool{
 }
 
 func TestValidMsg_IncrementBRPool(t *testing.T) {
-	_, ctx, k, _, bk := SetupTestInput()
+	_, ctx, k, _, bk := SetupTestInput(false)
 
 	_ = bk.SetCoins(ctx, TestFunder, TestAmount)
-	handler := NewHandler(k, bk)
+	handler := NewHandler(k)
 
 	res := handler(ctx, msgIncrementsBRPool)
 	require.True(t, res.IsOK())
+
+	macc := k.VbrAccount(ctx)
+
+	initialPool, _ := TestBlockRewardsPool.TruncateDecimal()
+	expectedTotalAmount := initialPool.Add(TestAmount)
+
+	require.Equal(t, expectedTotalAmount, macc.GetCoins())
 }
 
 func TestInvalidMsg(t *testing.T) {
-	_, ctx, k, _, bk := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
-	handler := NewHandler(k, bk)
+	handler := NewHandler(k)
 
 	res := handler(ctx, sdk.NewTestMsg())
 

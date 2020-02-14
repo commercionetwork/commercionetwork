@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -80,17 +79,15 @@ type AppModule struct {
 	AppModuleSimulation
 	keeper        Keeper
 	stakingKeeper staking.Keeper
-	bankKeeper    bank.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(k Keeper, sk staking.Keeper, bk bank.Keeper) AppModule {
+func NewAppModule(k Keeper, sk staking.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              k,
 		stakingKeeper:       sk,
-		bankKeeper:          bk,
 	}
 }
 
@@ -105,7 +102,7 @@ func (AppModule) Route() string {
 }
 
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper, am.bankKeeper)
+	return NewHandler(am.keeper)
 }
 
 func (AppModule) QuerierRoute() string {

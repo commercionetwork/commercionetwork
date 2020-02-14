@@ -30,7 +30,7 @@ var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
 var TestAmount = sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100)))
 var TestBlockRewardsPool = sdk.NewDecCoins(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"}))
 
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
+func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
 	memDB := db.NewMemDB()
 	cdc = testCodec()
 
@@ -76,9 +76,11 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 		distr.ModuleName:          nil,
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+		types.ModuleName:          {supply.Minter},
 	}
 
 	suk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
+	suk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
 	sk := staking.NewKeeper(cdc, keys[staking.StoreKey], suk, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
 	sk.SetParams(ctx, staking.DefaultParams())
 
@@ -87,7 +89,14 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())
 
-	k := NewKeeper(cdc, keys[types.StoreKey], dk)
+	k := NewKeeper(cdc, keys[types.StoreKey], dk, suk)
+
+	if !emptyPool {
+		pool, _ := TestBlockRewardsPool.TruncateDecimal()
+		macc := k.VbrAccount(ctx)
+		_ = macc.SetCoins(sdk.NewCoins(pool...))
+		suk.SetModuleAccount(ctx, macc)
+	}
 
 	return cdc, ctx, k, ak, bk
 }
