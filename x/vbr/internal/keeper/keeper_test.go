@@ -3,9 +3,10 @@ package keeper
 import (
 	"testing"
 
+	dist "github.com/cosmos/cosmos-sdk/x/distribution"
+
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	dist "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,7 +15,7 @@ import (
 // -------------
 
 func TestKeeper_SetTotalRewardPool(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _ := SetupTestInput(true)
 
 	k.SetTotalRewardPool(ctx, TestBlockRewardsPool)
 
@@ -26,14 +27,14 @@ func TestKeeper_SetTotalRewardPool(t *testing.T) {
 }
 
 func TestKeeper_GetTotalRewardPool_EmptyPool(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(true)
 
 	actual := k.GetTotalRewardPool(ctx)
 	require.Empty(t, actual)
 }
 
 func TestKeeper_GetTotalRewardPool_ExistingPool(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _ := SetupTestInput(false)
 
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.PoolStoreKey), cdc.MustMarshalBinaryBare(&TestBlockRewardsPool))
@@ -47,14 +48,14 @@ func TestKeeper_GetTotalRewardPool_ExistingPool(t *testing.T) {
 // --------------------------
 
 func TestKeeper_GetYearlyRewardPool_EmptyPool(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(true)
 
 	actual := k.GetYearlyRewardPool(ctx)
 	require.Empty(t, actual)
 }
 
 func TestKeeper_GetYearlyRewardPool_ExistingPool(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _ := SetupTestInput(false)
 
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.YearlyPoolStoreKey), cdc.MustMarshalBinaryBare(&TestBlockRewardsPool))
@@ -64,7 +65,7 @@ func TestKeeper_GetYearlyRewardPool_ExistingPool(t *testing.T) {
 }
 
 func TestKeeper_SetYearlyRewardPool(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
 	k.SetYearlyRewardPool(ctx, TestBlockRewardsPool)
 
@@ -88,7 +89,7 @@ func Test_computeYearFromBlockHeight(t *testing.T) {
 }
 
 func TestKeeper_SetYearNumber(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _ := SetupTestInput(false)
 
 	k.SetYearNumber(ctx, 5)
 
@@ -100,12 +101,12 @@ func TestKeeper_SetYearNumber(t *testing.T) {
 }
 
 func TestKeeper_GetYearNumber_Empty(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 	require.Equal(t, int64(0), k.GetYearNumber(ctx))
 }
 
 func TestKeeper_GetYearNumber_Set(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _ := SetupTestInput(false)
 	store := ctx.KVStore(k.storeKey)
 
 	store.Set([]byte(types.YearNumberStoreKey), cdc.MustMarshalBinaryBare(0))
@@ -119,9 +120,9 @@ func TestKeeper_GetYearNumber_Set(t *testing.T) {
 }
 
 func TestKeeper_UpdateYearlyPool_SameYear(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
-	rewards := sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 100)}
+	rewards := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100000)}
 	k.SetYearNumber(ctx, 0)
 	k.SetTotalRewardPool(ctx, rewards)
 
@@ -132,16 +133,16 @@ func TestKeeper_UpdateYearlyPool_SameYear(t *testing.T) {
 }
 
 func TestKeeper_UpdateYearlyPool_DifferentYear(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
-	rewards := sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 100)}
+	rewards := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 20000)}
 	k.SetYearNumber(ctx, 0)
 	k.SetTotalRewardPool(ctx, rewards)
 
 	k.UpdateYearlyPool(ctx, 6311520)
 
 	require.Equal(t, int64(1), k.GetYearNumber(ctx))
-	require.Equal(t, sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 20)}, k.GetYearlyRewardPool(ctx))
+	require.Equal(t, sdk.DecCoins{sdk.NewInt64DecCoin("stake", 20000)}, k.GetYearlyRewardPool(ctx))
 }
 
 // ---------------------------
@@ -149,7 +150,7 @@ func TestKeeper_UpdateYearlyPool_DifferentYear(t *testing.T) {
 // ---------------------------
 
 func TestKeeper_ComputeProposerReward_50ValidatorsBalanced(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
 	k.SetYearlyRewardPool(ctx, sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 2500000)})
 	TestValidator = TestValidator.UpdateStatus(sdk.Bonded)
@@ -162,7 +163,7 @@ func TestKeeper_ComputeProposerReward_50ValidatorsBalanced(t *testing.T) {
 }
 
 func TestKeeper_ComputeProposerReward_100ValidatorsBalanced(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
 	k.SetYearlyRewardPool(ctx, sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 2500000)})
 	TestValidator = TestValidator.UpdateStatus(sdk.Bonded)
@@ -175,7 +176,7 @@ func TestKeeper_ComputeProposerReward_100ValidatorsBalanced(t *testing.T) {
 }
 
 func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
 	pool := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100000)}
 	k.SetTotalRewardPool(ctx, pool)
@@ -184,11 +185,14 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 	validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 	k.distKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
 
-	reward := sdk.DecCoins{sdk.NewDecCoin("stake", sdk.NewInt(1000))}
-	_ = k.DistributeBlockRewards(ctx, TestValidator, reward)
+	validatorOutstandingRewards := dist.ValidatorOutstandingRewards(sdk.DecCoins{})
+	k.distKeeper.SetValidatorOutstandingRewards(ctx, TestValidator.GetOperator(), validatorOutstandingRewards)
 
-	actual := k.distKeeper.GetValidatorCurrentRewards(ctx, TestValidator.OperatorAddress)
-	require.Equal(t, reward, actual.Rewards)
+	reward := sdk.DecCoins{sdk.NewDecCoin("stake", sdk.NewInt(1000))}
+	err := k.DistributeBlockRewards(ctx, TestValidator, reward)
+	require.NoError(t, err)
+	actual := k.distKeeper.GetValidatorOutstandingRewards(ctx, TestValidator.OperatorAddress)
+	require.Equal(t, reward, actual)
 
 	remaining := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 99000)}
 	require.Equal(t, remaining, k.GetTotalRewardPool(ctx))
@@ -196,7 +200,7 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 }
 
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
 	reward := sdk.DecCoins{sdk.NewDecCoin("stake", sdk.NewInt(12000))}
 	err := k.DistributeBlockRewards(ctx, TestValidator, reward)

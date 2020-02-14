@@ -16,7 +16,7 @@ var msgIncrementsBRPool = types.MsgIncrementBlockRewardsPool{
 }
 
 func TestValidMsg_IncrementBRPool(t *testing.T) {
-	_, ctx, k, _, bk := SetupTestInput()
+	_, ctx, k, _, bk := SetupTestInput(false)
 
 	_ = bk.SetCoins(ctx, TestFunder, TestAmount)
 	handler := NewHandler(k)
@@ -33,7 +33,7 @@ func TestValidMsg_IncrementBRPool(t *testing.T) {
 }
 
 func TestInvalidMsg(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _ := SetupTestInput(false)
 
 	handler := NewHandler(k)
 
