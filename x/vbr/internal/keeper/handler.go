@@ -5,14 +5,13 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 )
 
-func NewHandler(keeper Keeper, bankKeeper bank.Keeper) sdk.Handler {
+func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case types.MsgIncrementBlockRewardsPool:
-			return handleMsgIncrementBlockRewardsPool(ctx, keeper, bankKeeper, msg)
+			return handleMsgIncrementBlockRewardsPool(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -20,9 +19,9 @@ func NewHandler(keeper Keeper, bankKeeper bank.Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgIncrementBlockRewardsPool(ctx sdk.Context, k Keeper, bk bank.Keeper, msg types.MsgIncrementBlockRewardsPool) sdk.Result {
+func handleMsgIncrementBlockRewardsPool(ctx sdk.Context, k Keeper, msg types.MsgIncrementBlockRewardsPool) sdk.Result {
 	// Subtract the coins from the account
-	if _, err := bk.SubtractCoins(ctx, msg.Funder, msg.Amount); err != nil {
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Funder, types.ModuleName, msg.Amount); err != nil {
 		return err.Result()
 	}
 

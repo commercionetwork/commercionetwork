@@ -299,7 +299,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper),
 		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
-		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper, app.bankKeeper),
+		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -378,27 +378,6 @@ func (app *CommercioNetworkApp) EndBlocker(ctx sdk.Context, req abci.RequestEndB
 func (app *CommercioNetworkApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
-
-	// TODO: find a more elegant way of doing this
-	vbrModuleAcc := app.supplyKeeper.GetModuleAccount(ctx, vbr.ModuleName)
-
-	if vbrModuleAcc.GetCoins().Len() == 0 {
-		// TODO: extract this amount from genesis
-		b, ok := sdk.NewIntFromString("12500000000000")
-		if !ok {
-			panic("cannot create int for pool")
-		}
-
-		coins := sdk.NewCoins(sdk.NewCoin("ucommercio", b))
-
-		err := vbrModuleAcc.SetCoins(coins)
-		if err != nil {
-			panic(err)
-		}
-
-		app.supplyKeeper.SetModuleAccount(ctx, vbrModuleAcc)
-	}
-
 	return app.mm.InitGenesis(ctx, genesisState)
 }
 

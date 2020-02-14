@@ -76,6 +76,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 		distr.ModuleName:          nil,
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+		types.ModuleName:          {supply.Minter},
 	}
 
 	suk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
@@ -87,9 +88,12 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeep
 	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())
 
-	// TODO: this test should be supply Keeper-enabled, this is just a placeholder and will
-	// likely crash!
-	k := NewKeeper(cdc, keys[types.StoreKey], dk, supply.Keeper{})
+	k := NewKeeper(cdc, keys[types.StoreKey], dk, suk)
+
+	pool, _ := TestBlockRewardsPool.TruncateDecimal()
+	macc := k.VbrAccount(ctx)
+	_ = macc.SetCoins(sdk.NewCoins(pool...))
+	suk.SetModuleAccount(ctx, macc)
 
 	return cdc, ctx, k, ak, bk
 }
