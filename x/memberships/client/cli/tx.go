@@ -24,6 +24,8 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	txCmd.AddCommand(
 		getCmdVerifyUser(cdc),
 		getCmdDepositIntoPool(cdc),
+		getCmdGovAssignMembership(cdc),
+		getCmdInviteUser(cdc),
 	)
 
 	return txCmd
@@ -62,7 +64,7 @@ func getCmdVerifyUser(cdc *codec.Codec) *cobra.Command {
 func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [amount]",
-		Short: "Increments the block rewards pool's liquidity by the given amount",
+		Short: "Increments the membership rewards pool's liquidity by the given amount",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getCmdDepositIntoPoolFunc(cdc, args)
@@ -91,6 +93,76 @@ func getCmdDepositIntoPoolFunc(cdc *codec.Codec, args []string) error {
 	}
 
 	msg := types.NewMsgDepositIntoLiquidityPool(amount, funder)
+	err = msg.ValidateBasic()
+	if err != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func getCmdGovAssignMembership(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "gov-assign-black-membership [subscriber]",
+		Short: "As government, assign Black membership to a user",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdGovAssignMembershipFunc(cdc, args)
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func getCmdGovAssignMembershipFunc(cdc *codec.Codec, args []string) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	govAddr := cliCtx.GetFromAddress()
+	recipient, err := sdk.AccAddressFromBech32(args[0])
+
+	if err != nil {
+		return err
+	}
+
+	msg := types.NewMsgSetBlackMembership(recipient, govAddr)
+	err = msg.ValidateBasic()
+	if err != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func getCmdInviteUser(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "invite-user [subscriber]",
+		Short: "Invite user to buy a membership",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdInviteUserFunc(cdc, args)
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func getCmdInviteUserFunc(cdc *codec.Codec, args []string) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	inviter := cliCtx.GetFromAddress()
+	invitee, err := sdk.AccAddressFromBech32(args[0])
+
+	if err != nil {
+		return err
+	}
+
+	msg := types.NewMsgInviteUser(inviter, invitee)
 	err = msg.ValidateBasic()
 	if err != nil {
 		return err
