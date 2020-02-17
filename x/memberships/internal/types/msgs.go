@@ -235,3 +235,46 @@ func (msg MsgBuyMembership) GetSignBytes() []byte {
 func (msg MsgBuyMembership) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Buyer}
 }
+
+// MsgSetBlackMembership allows government to assign a black membership to Subscriber,
+// which has been already invited by another black membership user.
+type MsgSetBlackMembership struct {
+	GovernmentAddress sdk.AccAddress `json:"government_address"`
+	Subscriber        sdk.AccAddress `json:"subscriber"`
+}
+
+func NewMsgSetBlackMembership(subscriber sdk.AccAddress, govAddr sdk.AccAddress) MsgSetBlackMembership {
+	return MsgSetBlackMembership{
+		Subscriber:        subscriber,
+		GovernmentAddress: govAddr,
+	}
+}
+
+// Route Implements Msg.
+func (msg MsgSetBlackMembership) Route() string { return RouterKey }
+
+// Type Implements Msg.
+func (msg MsgSetBlackMembership) Type() string { return MsgTypeSetBlackMembership }
+
+// ValidateBasic Implements Msg.
+func (msg MsgSetBlackMembership) ValidateBasic() sdk.Error {
+	if msg.Subscriber.Empty() {
+		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
+	}
+
+	if msg.GovernmentAddress.Empty() {
+		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid government address: %s", msg.GovernmentAddress))
+	}
+
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgSetBlackMembership) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgSetBlackMembership) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.GovernmentAddress}
+}
