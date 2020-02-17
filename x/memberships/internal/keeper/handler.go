@@ -32,6 +32,10 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 }
 
 func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser) sdk.Result {
+	if keeper.accountKeeper.GetAccount(ctx, msg.Recipient) != nil {
+		return sdk.ErrUnauthorized("cannot invite existing user").Result()
+	}
+
 	// Verify that the user that is inviting has already a membership
 	if _, err := keeper.GetMembership(ctx, msg.Sender); err != nil {
 		return sdk.ErrUnauthorized("Cannot send an invitation without having a membership").Result()

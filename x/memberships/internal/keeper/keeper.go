@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/x/auth"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
@@ -23,10 +25,11 @@ type Keeper struct {
 	StoreKey         sdk.StoreKey
 	SupplyKeeper     supply.Keeper
 	governmentKeeper government.Keeper
+	accountKeeper    auth.AccountKeeper
 }
 
 // NewKeeper creates new instances of the accreditation module Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, governmentKeeper government.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, governmentKeeper government.Keeper, accountKeeper auth.AccountKeeper) Keeper {
 
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -38,6 +41,7 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keep
 		StoreKey:         storeKey,
 		SupplyKeeper:     supplyKeeper,
 		governmentKeeper: governmentKeeper,
+		accountKeeper:    accountKeeper,
 	}
 }
 

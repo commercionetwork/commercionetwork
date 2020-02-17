@@ -39,10 +39,15 @@ func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.In
 	return types.Invite{}, false
 }
 
+// InvitesIterator returns an Iterator which iterates over all the invites.
+func (k Keeper) InvitesIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.StoreKey)
+	return sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
+}
+
 // GetInvites returns all the invites ever made
 func (k Keeper) GetInvites(ctx sdk.Context) types.Invites {
-	store := ctx.KVStore(k.StoreKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
+	iterator := k.InvitesIterator(ctx)
 
 	invites := types.Invites{}
 	defer iterator.Close()
@@ -59,4 +64,10 @@ func (k Keeper) GetInvites(ctx sdk.Context) types.Invites {
 func (k Keeper) SaveInvite(ctx sdk.Context, invite types.Invite) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getInviteStoreKey(invite.User), k.Cdc.MustMarshalBinaryBare(&invite))
+}
+
+// RemoveInvite removes the invite from the store.
+func (k Keeper) RemoveInvite(ctx sdk.Context, invite types.Invite) {
+	store := ctx.KVStore(k.StoreKey)
+	store.Delete(k.getInviteStoreKey(invite.User))
 }
