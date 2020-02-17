@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -21,6 +23,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 	txCmd.AddCommand(
 		getCmdVerifyUser(cdc),
+		getCmdDepositIntoPool(cdc),
 	)
 
 	return txCmd
@@ -54,4 +57,44 @@ func getCmdVerifyUser(cdc *codec.Codec) *cobra.Command {
 	cmd = client.PostCommands(cmd)[0]
 
 	return cmd
+}
+
+func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit [amount]",
+		Short: "Increments the block rewards pool's liquidity by the given amount",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdDepositIntoPoolFunc(cdc, args)
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func getCmdDepositIntoPoolFunc(cdc *codec.Codec, args []string) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	funder := cliCtx.GetFromAddress()
+	amount, err := sdk.ParseCoins(args[0])
+	if err != nil {
+		return err
+	}
+
+	for _, coin := range amount {
+		if coin.Denom != "ucommercio" {
+			return errors.New("only ucommercio amounts are accepted")
+		}
+	}
+
+	msg := types.NewMsgDepositIntoLiquidityPool(amount, funder)
+	err = msg.ValidateBasic()
+	if err != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
