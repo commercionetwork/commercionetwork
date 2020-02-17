@@ -15,7 +15,7 @@ var membershipCosts = map[string]int64{
 	types.MembershipTypeBronze: 25,
 	types.MembershipTypeSilver: 250,
 	types.MembershipTypeGold:   2500,
-	types.MembershipTypeBlack:  25000,
+	types.MembershipTypeBlack:  50000,
 }
 
 type Keeper struct {
