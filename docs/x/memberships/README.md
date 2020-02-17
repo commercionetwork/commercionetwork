@@ -40,7 +40,7 @@ Please note that each price is expressed using *Commercio Cash Credit* as measur
 | Bronze | `bronze` | `25` | 
 | Silver | `silver` | `250` | 
 | Gold | `gold` | `2500` | 
-| Black | `black` | `25000` |
+| Black | `black` | `50000` |
 
 ## Rewards values
 The reward value given to you is based on your membership type and the membership 
