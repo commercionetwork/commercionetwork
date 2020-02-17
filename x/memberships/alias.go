@@ -23,17 +23,22 @@ var (
 	IsMembershipTypeValid = types.IsMembershipTypeValid
 
 	RegisterInvariants = keeper.RegisterInvariants
+
+	InviteStatusInvalid  = types.InviteStatusInvalid
+	InviteStatusPending  = types.InviteStatusPending
+	InviteStatusRewarded = types.InviteStatusRewarded
 )
 
 type (
 	Keeper = keeper.Keeper
 
-	Invite      = types.Invite
-	Invites     = types.Invites
-	Credential  = types.Credential
-	Credentials = types.Credentials
-	Membership  = types.Membership
-	Memberships = types.Memberships
+	Invite       = types.Invite
+	Invites      = types.Invites
+	Credential   = types.Credential
+	Credentials  = types.Credentials
+	Membership   = types.Membership
+	Memberships  = types.Memberships
+	InviteStatus = types.InviteStatus
 
 	MsgInviteUser               = types.MsgInviteUser
 	MsgSetUserVerified          = types.MsgSetUserVerified
