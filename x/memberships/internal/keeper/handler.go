@@ -87,11 +87,14 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 // 3. The membership must be valid
 // 4. The user has enough stable credits in his wallet
 func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMembership) sdk.Result {
-
 	// 1. Check the invitation and the invitee membership type
 	invite, found := keeper.GetInvite(ctx, msg.Buyer)
 	if !found {
 		return sdk.ErrUnauthorized("Cannot buy a membership without being invited").Result()
+	}
+
+	if invite.Status == types.InviteStatusInvalid {
+		sdk.ErrUnauthorized(fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer)).Result()
 	}
 
 	// 2. Make sure the user has properly being verified

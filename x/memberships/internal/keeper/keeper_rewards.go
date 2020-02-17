@@ -86,7 +86,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 	}
 
 	// Set the invitation as rewarded
-	newInvite := types.Invite{Sender: invite.Sender, User: invite.User, Rewarded: true}
+	newInvite := types.Invite{Sender: invite.Sender, User: invite.User, Status: types.InviteStatusRewarded}
 	k.SaveInvite(ctx, newInvite)
 
 	return nil

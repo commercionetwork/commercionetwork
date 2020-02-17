@@ -36,8 +36,8 @@ func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 			}
 
 			// check that the user has been invited
-			_, found := k.GetInvite(ctx, user.Owner)
-			if !found {
+			invite, found := k.GetInvite(ctx, user.Owner)
+			if !found || (invite.Status == types.InviteStatusPending || invite.Status == types.InviteStatusInvalid) {
 				return sdk.FormatInvariant(
 					types.ModuleName,
 					membershipVerifiedInvName,

@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -8,19 +10,28 @@ import (
 // --- Invite
 // --------------
 
+type InviteStatus uint8
+
+const (
+	InviteStatusPending InviteStatus = iota
+	InviteStatusRewarded
+	InviteStatusInvalid
+)
+
 // Invite represents an invitation that a user has made towards another user
 type Invite struct {
-	Sender   sdk.AccAddress `json:"sender"`   // User that has sent the invitation
-	User     sdk.AccAddress `json:"user"`     // Invited user
-	Rewarded bool           `json:"rewarded"` // Tells if the invitee has already been rewarded
+	Sender sdk.AccAddress `json:"sender"` // User that has sent the invitation
+	User   sdk.AccAddress `json:"user"`   // Invited user
+	Status InviteStatus   `json:"status"` // Tells if the invite is pending, rewarded or invalid
 }
 
-// NewInvite creates a new invite object representing an invitation from the sender to the specified user
+// NewInvite creates a new invite object representing an invitation from the sender to the specified user.
+// By default, NewInvite returns a Pending invite.
 func NewInvite(sender, user sdk.AccAddress) Invite {
 	return Invite{
-		Sender:   sender,
-		User:     user,
-		Rewarded: false,
+		Sender: sender,
+		User:   user,
+		Status: InviteStatusPending,
 	}
 }
 
@@ -33,7 +44,7 @@ func (invite Invite) Empty() bool {
 func (invite Invite) Equals(other Invite) bool {
 	return invite.Sender.Equals(other.Sender) &&
 		invite.User.Equals(other.User) &&
-		invite.Rewarded == other.Rewarded
+		invite.Status == other.Status
 }
 
 // --------------
@@ -57,4 +68,13 @@ func (slice Invites) Equals(other Invites) bool {
 	}
 
 	return true
+}
+
+func (invite Invite) ValidateBasic() error {
+	switch invite.Status {
+	case InviteStatusPending, InviteStatusRewarded, InviteStatusInvalid:
+		return nil
+	default:
+		return fmt.Errorf("invite has invalid status: %d", invite.Status)
+	}
 }
