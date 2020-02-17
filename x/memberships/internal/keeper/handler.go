@@ -22,6 +22,8 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 			return handleMsgAddTrustedSigner(ctx, keeper, governmentKeeper, msg)
 		case types.MsgBuyMembership:
 			return handleMsgBuyMembership(ctx, keeper, msg)
+		case types.MsgSetBlackMembership:
+			return handleMsgSetBlackMembership(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -114,6 +116,45 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	// Give the reward to the invitee
 	if err := keeper.DistributeReward(ctx, invite); err != nil {
 		return err.Result()
+	}
+
+	return sdk.Result{}
+}
+
+// handleMsgSetBlackMembership handles MsgSetBlackMembership messages.
+// It checks that whoever sent the message is actually the government, assigns the membership and then
+// distribute the reward to the inviter.
+func handleMsgSetBlackMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetBlackMembership) sdk.Result {
+	if !keeper.governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.GovernmentAddress) {
+		return sdk.ErrUnknownAddress(
+			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
+		).Result()
+	}
+
+	invite, found := keeper.GetInvite(ctx, msg.Subscriber)
+	if !found {
+		return sdk.ErrUnknownAddress(
+			fmt.Sprintf("no membership invite found for user %s", msg.Subscriber.String()),
+		).Result()
+	}
+
+	if credentials := keeper.GetUserCredentials(ctx, msg.Subscriber); len(credentials) == 0 {
+		msg := "User has not yet been verified by a Trusted Service Provider"
+		return sdk.ErrUnknownRequest(msg).Result()
+	}
+
+	err := keeper.AssignMembership(ctx, msg.Subscriber, types.MembershipTypeBlack)
+	if err != nil {
+		return sdk.ErrUnknownRequest(
+			fmt.Sprintf("could not assign black membership to user %s: %s", msg.Subscriber, err.Error()),
+		).Result()
+	}
+
+	err = keeper.DistributeReward(ctx, invite)
+	if err != nil {
+		return sdk.ErrUnknownRequest(
+			fmt.Sprintf("could not distribute membership reward to user %s: %s", invite.Sender, err.Error()),
+		).Result()
 	}
 
 	return sdk.Result{}
