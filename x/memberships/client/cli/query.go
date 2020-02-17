@@ -24,6 +24,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		getCmdGetInvites(cdc),
 		getCmdGetInvitesForUser(cdc),
 		getCmdGetTrustedServiceProviders(cdc),
+		getCmdGetPoolFunds(cdc),
 	)
 
 	return cmd
@@ -100,6 +101,31 @@ func getTrustedServiceProvidersFunc(cmd *cobra.Command, args []string, cdc *code
 	}
 
 	cmd.Println(string(res))
+
+	return nil
+}
+
+func getCmdGetPoolFunds(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "pool-funds",
+		Short: "Get the pool funds amounts",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdGetPoolFundsFunc(cdc)
+		},
+	}
+}
+
+func getCmdGetPoolFundsFunc(cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetPoolFunds)
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		return fmt.Errorf("could not get pool funds schemes: %w", err)
+	}
+
+	fmt.Println(string(res))
 
 	return nil
 }
