@@ -49,6 +49,10 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 // BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) sdk.Error {
+	if membershipType == types.MembershipTypeBlack {
+		return sdk.ErrInvalidAddress("cannot buy black membership")
+	}
+
 	// Get the tokens from the buyer account
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin("ucommercio", membershipPrice))
