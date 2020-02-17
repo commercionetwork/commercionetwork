@@ -65,9 +65,3 @@ func (k Keeper) SaveInvite(ctx sdk.Context, invite types.Invite) {
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(k.getInviteStoreKey(invite.User), k.Cdc.MustMarshalBinaryBare(&invite))
 }
-
-// RemoveInvite removes the invite from the store.
-func (k Keeper) RemoveInvite(ctx sdk.Context, invite types.Invite) {
-	store := ctx.KVStore(k.StoreKey)
-	store.Delete(k.getInviteStoreKey(invite.User))
-}
