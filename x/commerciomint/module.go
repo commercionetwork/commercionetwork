@@ -97,7 +97,9 @@ func NewAppModule(keeper Keeper, sk supply.Keeper) AppModule {
 func (AppModule) Name() string { return ModuleName }
 
 // register invariants
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	RegisterInvariants(ir, am.keeper)
+}
 
 // module message route name
 func (AppModule) Route() string { return RouterKey }

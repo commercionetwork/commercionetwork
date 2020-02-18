@@ -19,8 +19,9 @@ var (
 	RegisterCodec = types.RegisterCodec
 	ModuleCdc     = types.ModuleCdc
 
-	NewMsgOpenCdp  = types.NewMsgOpenCdp
-	NewMsgCloseCdp = types.NewMsgCloseCdp
+	NewMsgOpenCdp      = types.NewMsgOpenCdp
+	NewMsgCloseCdp     = types.NewMsgCloseCdp
+	RegisterInvariants = keeper.RegisterInvariants
 )
 
 type (
