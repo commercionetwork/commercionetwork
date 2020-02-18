@@ -5,15 +5,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (k Keeper) getIdentityStoreKey(owner sdk.AccAddress) []byte {
+func getIdentityStoreKey(owner sdk.AccAddress) []byte {
 	return append([]byte(types.IdentitiesStorePrefix), owner...)
 }
 
-func (k Keeper) getDepositRequestStoreKey(proof string) []byte {
+func getDepositRequestStoreKey(proof string) []byte {
 	return []byte(types.DidDepositRequestStorePrefix + proof)
 }
 
-func (k Keeper) getDidPowerUpRequestStoreKey(proof string) []byte {
+func getDidPowerUpRequestStoreKey(proof string) []byte {
 	return []byte(types.DidPowerUpRequestStorePrefix + proof)
 }
 

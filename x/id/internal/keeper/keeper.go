@@ -109,7 +109,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk
 
 	// Set the Did Document into the store
 	identitiesStore := ctx.KVStore(k.storeKey)
-	identitiesStore.Set(k.getIdentityStoreKey(owner), k.cdc.MustMarshalBinaryBare(document))
+	identitiesStore.Set(getIdentityStoreKey(owner), k.cdc.MustMarshalBinaryBare(document))
 
 	return nil
 }
@@ -119,7 +119,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk
 func (k Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	identityKey := k.getIdentityStoreKey(owner)
+	identityKey := getIdentityStoreKey(owner)
 	if !store.Has(identityKey) {
 		return types.DidDocument{}, fmt.Errorf("did document with owner %s not found", owner.String())
 	}
@@ -158,7 +158,7 @@ func (k Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
 func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) sdk.Error {
 	store := ctx.KVStore(k.storeKey)
 
-	requestKey := k.getDepositRequestStoreKey(request.Proof)
+	requestKey := getDepositRequestStoreKey(request.Proof)
 	if store.Has(requestKey) {
 		return sdk.ErrUnknownRequest("Did deposit request with the same proof already exists")
 	}
@@ -172,7 +172,7 @@ func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDeposit
 func (k Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (types.DidDepositRequest, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	requestKey := k.getDepositRequestStoreKey(proof)
+	requestKey := getDepositRequestStoreKey(proof)
 	if !store.Has(requestKey) {
 		return types.DidDepositRequest{}, fmt.Errorf("deposit request with proof %s not found", proof)
 	}
@@ -194,7 +194,7 @@ func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status
 
 	// Update and store the request
 	request.Status = &status
-	store.Set(k.getDepositRequestStoreKey(request.Proof), k.cdc.MustMarshalBinaryBare(request))
+	store.Set(getDepositRequestStoreKey(request.Proof), k.cdc.MustMarshalBinaryBare(request))
 
 	return nil
 }
@@ -223,7 +223,7 @@ func (k Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDeposit
 func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) sdk.Error {
 	store := ctx.KVStore(k.storeKey)
 
-	requestStoreKey := k.getDidPowerUpRequestStoreKey(request.Proof)
+	requestStoreKey := getDidPowerUpRequestStoreKey(request.Proof)
 	if store.Has(requestStoreKey) {
 		return sdk.ErrUnknownRequest("PowerUp request with the same proof already exists")
 	}
@@ -237,7 +237,7 @@ func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpReq
 func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (types.DidPowerUpRequest, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	requestStoreKey := k.getDidPowerUpRequestStoreKey(proof)
+	requestStoreKey := getDidPowerUpRequestStoreKey(proof)
 	if !store.Has(requestStoreKey) {
 		return types.DidPowerUpRequest{}, fmt.Errorf("power-up request with proof %s not found", proof)
 	}
@@ -259,7 +259,7 @@ func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status
 
 	// Update and store the request
 	request.Status = &status
-	store.Set(k.getDidPowerUpRequestStoreKey(proof), k.cdc.MustMarshalBinaryBare(&request))
+	store.Set(getDidPowerUpRequestStoreKey(proof), k.cdc.MustMarshalBinaryBare(&request))
 
 	return nil
 }
