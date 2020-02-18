@@ -14,7 +14,7 @@ business documents using the blockchain technology.
 
 ## References
 * [Official website](https://commercio.network/)
-* [Documentation](./docs)
+* [Documentation](https://docs.commercio.network/)
 * [Telegram group](https://t.me/commercionetwork)
 
 ## Installation

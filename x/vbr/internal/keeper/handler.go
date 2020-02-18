@@ -3,35 +3,30 @@ package keeper
 import (
 	"fmt"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 )
 
-func NewHandler(keeper Keeper, bankKeeper bank.Keeper) sdk.Handler {
-	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+func NewHandler(keeper Keeper) sdk.Handler {
+	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
 		case types.MsgIncrementBlockRewardsPool:
-			return handleMsgIncrementBlockRewardsPool(ctx, keeper, bankKeeper, msg)
+			return handleMsgIncrementBlockRewardsPool(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, (errMsg))
+			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 	}
 }
 
-func handleMsgIncrementBlockRewardsPool(ctx sdk.Context, k Keeper, bk bank.Keeper, msg types.MsgIncrementBlockRewardsPool) (*sdk.Result, error) {
+func handleMsgIncrementBlockRewardsPool(ctx sdk.Context, k Keeper, msg types.MsgIncrementBlockRewardsPool) sdk.Result {
 	// Subtract the coins from the account
-	if _, err := bk.SubtractCoins(ctx, msg.Funder, msg.Amount); err != nil {
-		return nil, err
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Funder, types.ModuleName, msg.Amount); err != nil {
+		return err.Result()
 	}
 
-	adc := sdk.NewDecCoinsFromCoins(msg.Amount...)
-
 	// Set the total rewards pool
-	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(adc...))
+	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(sdk.NewDecCoins(msg.Amount)))
 
-	return &sdk.Result{}, nil
+	return sdk.Result{}
 }

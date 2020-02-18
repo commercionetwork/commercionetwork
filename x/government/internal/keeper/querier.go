@@ -12,6 +12,10 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
+type QueryGovernmentResponse struct {
+	GovernmentAddress string `json:"government_address"`
+}
+
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
@@ -27,7 +31,11 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 func queryGetGovernmentAddress(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 	address := keeper.GetGovernmentAddress(ctx)
 
-	bz, err := codec.MarshalJSONIndent(keeper.cdc, address)
+	r := QueryGovernmentResponse{
+		GovernmentAddress: address.String(),
+	}
+
+	bz, err := codec.MarshalJSONIndent(keeper.cdc, r)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Could not marshal result to JSON"))
 	}

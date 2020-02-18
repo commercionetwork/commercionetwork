@@ -1,26 +1,31 @@
 package keeper
 
 import (
+	"fmt"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/staking/exported"
+	"github.com/cosmos/cosmos-sdk/x/supply"
+	supplyExported "github.com/cosmos/cosmos-sdk/x/supply/exported"
 )
 
 type Keeper struct {
-	cdc        *codec.Codec
-	storeKey   sdk.StoreKey
-	distKeeper distribution.Keeper
+	cdc          *codec.Codec
+	storeKey     sdk.StoreKey
+	distKeeper   distribution.Keeper
+	supplyKeeper supply.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper, sk supply.Keeper) Keeper {
 	return Keeper{
-		cdc:        cdc,
-		storeKey:   storeKey,
-		distKeeper: dk,
+		cdc:          cdc,
+		storeKey:     storeKey,
+		distKeeper:   dk,
+		supplyKeeper: sk,
 	}
 }
 
@@ -40,10 +45,10 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
-	var brPool sdk.DecCoins
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.PoolStoreKey)), &brPool)
-	return brPool
+	macc := k.supplyKeeper.GetModuleAccount(ctx, types.ModuleName)
+	mcoins := macc.GetCoins()
+
+	return sdk.NewDecCoins(mcoins)
 }
 
 // --------------------------
@@ -178,19 +183,31 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 	// Check if the yearly pool and the total pool have enough funds
 	if ctypes.IsAllGTE(rewardPool, reward) && ctypes.IsAllGTE(yearlyPool, reward) {
+		// truncate fractional part and only take the integer part into account
+		rewardInt, _ := reward.TruncateDecimal()
+		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(sdk.NewDecCoins(rewardInt)))
 
-		// Decrement the total rewards pool and the yearly pool
-		k.SetTotalRewardPool(ctx, rewardPool.Sub(reward))
-		k.SetYearlyRewardPool(ctx, yearlyPool.Sub(reward))
-
-		// Get his current reward and then add the new one
-		currentRewards := k.distKeeper.GetValidatorCurrentRewards(ctx, validator.GetOperator())
-		currentRewards.Rewards = currentRewards.Rewards.Add(reward...)
-
-		// Set the just earned reward
-		k.distKeeper.SetValidatorCurrentRewards(ctx, validator.GetOperator(), currentRewards)
+		err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distribution.ModuleName, rewardInt)
+		if err != nil {
+			return fmt.Errorf("could not send tokens from vbr to distribution module accounts: %w", err)
+		}
+		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoins(rewardInt))
 	} else {
-		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
+		return sdk.ErrInsufficientFunds("Pool hasn't got enough funds to supply validator's rewards")
+	}
+
+	return nil
+}
+
+// VbrAccount returns vbr's ModuleAccount
+func (k Keeper) VbrAccount(ctx sdk.Context) supplyExported.ModuleAccountI {
+	return k.supplyKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
+// MintVBRTokens mints coins into the vbr's ModuleAccount
+func (k Keeper) MintVBRTokens(ctx sdk.Context, coins sdk.Coins) error {
+	if err := k.supplyKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
+		return fmt.Errorf("could not mint requested coins: %w", err)
 	}
 
 	return nil

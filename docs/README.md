@@ -1,8 +1,6 @@
 # Commercio.network Documentation
 
-::: tip  
-This documentation is valid for the **v1.3.0** software version  
-:::
+
 
 ## What is `cn`
 `cn` is the name of the Commercio.network application for the [Cosmos Hub](https://hub.cosmos.network/). It is shipped
@@ -28,10 +26,15 @@ A part from these modules, `cn` comes with the following custom modules:
 * [`x/id`](x/id/README.md): Pseudonymous identities creation.
 * [`x/government`](x/government/README.md): On-chain government. 
 
-## Nodes
+## Running Nodes
 If you wish to learn about the different node types that are present inside the Commercio.network chain or you 
 wish to setup a new node, please refer to our [nodes section](nodes/README.md).  
 
-## Developers
-If you're a developer and would like to integrate to Commercio.network, please refer to our 
-[developer guide](developers/README.md). 
+## App Developers
+If you're an App  developer and would like to integrate to Commercio.network, please refer to our 
+[App developers guide](app_developers/README.md). 
+
+
+## SDK Developers
+If you're a developer and would like to help us build a SDK in your favourite language please refer to our 
+[SDK developers guide](developers/README.md). 
