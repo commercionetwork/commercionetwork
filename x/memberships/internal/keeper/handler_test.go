@@ -31,7 +31,7 @@ func Test_handleMsgInviteUser(t *testing.T) {
 			membershipType: types.MembershipTypeBronze,
 			invitee:        testUser2,
 			invitedUser:    testUser,
-			existingInvite: types.Invite{Sender: testUser2, User: testUser, Rewarded: false},
+			existingInvite: types.Invite{Sender: testUser2, User: testUser, Status: types.InviteStatusPending},
 			error:          fmt.Sprintf("%s has already been invited", testUser),
 		},
 		{

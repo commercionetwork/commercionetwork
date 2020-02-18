@@ -165,7 +165,7 @@ func TestKeeper_DistributeReward(t *testing.T) {
 
 			if test.error == nil {
 				storedInvite, _ := k.GetInvite(ctx, test.invite.User)
-				require.True(t, storedInvite.Rewarded)
+				require.Equal(t, storedInvite.Status, types.InviteStatusRewarded)
 			}
 
 			asd := test.expectedPoolAmt.IsEqual(k.GetPoolFunds(ctx))

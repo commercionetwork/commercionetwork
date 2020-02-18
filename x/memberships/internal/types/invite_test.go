@@ -34,7 +34,7 @@ func TestInvite_Empty(t *testing.T) {
 		},
 		{
 			name:          "Only rewarded invite is not empty",
-			invite:        types.Invite{Rewarded: true},
+			invite:        types.Invite{Status: types.InviteStatusRewarded},
 			expectedEmpty: false,
 		},
 	}
@@ -73,7 +73,7 @@ func TestInvite_Equals(t *testing.T) {
 		{
 			name:          "Different rewarded returns false",
 			first:         invite,
-			second:        types.Invite{User: user, Sender: sender, Rewarded: true},
+			second:        types.Invite{User: user, Sender: sender, Status: types.InviteStatusRewarded},
 			shouldBeEqual: false,
 		},
 		{
