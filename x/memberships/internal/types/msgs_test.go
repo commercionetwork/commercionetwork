@@ -227,10 +227,8 @@ func TestMsgDepositIntoLiquidityPool_UnmarshalJson(t *testing.T) {
 
 var government, _ = sdk.AccAddressFromBech32("cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg")
 var tsp, _ = sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
-var msgAddTsp = types.MsgAddTsp{
-	Government: government,
-	Tsp:        tsp,
-}
+
+var msgAddTsp = types.NewMsgAddTsp(tsp, government)
 
 func TestMsgAddTsp_Route(t *testing.T) {
 	require.Equal(t, types.RouterKey, msgAddTsp.Route())
@@ -353,4 +351,55 @@ func TestMsgBuyMembership_GetSignBytes(t *testing.T) {
 func TestMsgBuyMembership_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgBuyMembership.Buyer}
 	require.Equal(t, expected, msgBuyMembership.GetSigners())
+}
+
+var msgSetBlackmembership = types.NewMsgSetBlackMembership(testBuyer, government)
+
+func TestNewMsgSetBlackMembership_Route(t *testing.T) {
+	require.Equal(t, types.RouterKey, msgSetBlackmembership.Route())
+}
+
+func TestNewMsgSetBlackMembership_Type(t *testing.T) {
+	require.Equal(t, types.MsgTypeSetBlackMembership, msgSetBlackmembership.Type())
+}
+
+func TestNewMsgSetBlackMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
+	tests := []struct {
+		name  string
+		msg   types.MsgSetBlackMembership
+		error sdk.Error
+	}{
+		{
+			name:  "Valid message does not return any error",
+			msg:   msgSetBlackmembership,
+			error: nil,
+		},
+		{
+			name:  "Missing gov address returns error",
+			msg:   types.NewMsgSetBlackMembership(testBuyer, nil),
+			error: sdk.ErrInvalidAddress("Invalid government address: "),
+		},
+		{
+			name:  "Missing subscriber returns error",
+			msg:   types.NewMsgSetBlackMembership(nil, government),
+			error: sdk.ErrInvalidAddress("Invalid subscriber address: "),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.error, test.msg.ValidateBasic())
+		})
+	}
+}
+
+func TestNewMsgSetBlackMembership_GetSignBytes(t *testing.T) {
+	expected := `{"type":"commercio/MsgSetBlackMembership","value":{"government_address":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","subscriber":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
+	require.Equal(t, expected, string(msgSetBlackmembership.GetSignBytes()))
+}
+
+func TestNewMsgSetBlackMembership_GetSigners(t *testing.T) {
+	expected := []sdk.AccAddress{msgSetBlackmembership.GovernmentAddress}
+	require.Equal(t, expected, msgSetBlackmembership.GetSigners())
 }
