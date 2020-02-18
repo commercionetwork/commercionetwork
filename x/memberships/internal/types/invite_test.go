@@ -91,3 +91,59 @@ func TestInvite_Equals(t *testing.T) {
 		})
 	}
 }
+
+func TestInvite_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name    string
+		invite  types.Invite
+		wantErr bool
+	}{
+		{
+			"A valid rewarded invite",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: types.InviteStatusRewarded,
+			},
+			false,
+		},
+		{
+			"A valid pending invite",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: types.InviteStatusPending,
+			},
+			false,
+		},
+		{
+			"A valid invalid invite",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: types.InviteStatusInvalid,
+			},
+			false,
+		},
+		{
+			"An invite with invalid status",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: 42,
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			res := tt.invite.ValidateBasic()
+			if tt.wantErr {
+				require.Error(t, res)
+			} else {
+				require.NoError(t, res)
+			}
+		})
+	}
+}

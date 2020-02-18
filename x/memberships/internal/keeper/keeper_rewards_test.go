@@ -50,6 +50,16 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			expectedUser: sdk.NewCoins(),
 			error:        sdk.ErrInsufficientCoins("insufficient account funds;  < 1000ucommercio"),
 		},
+		{
+			name:         "deposit fails because not expressed in ucommercio",
+			user:         testUser,
+			userAmt:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			existingPool: sdk.NewCoins(),
+			deposit:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(99))),
+			expectedPool: sdk.NewCoins(),
+			expectedUser: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			error:        sdk.ErrInsufficientCoins("deposit into membership pool can only be expressed in ucommercio"),
+		},
 	}
 
 	for _, test := range tests {
