@@ -59,7 +59,7 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 
 	// Get the tokens from the buyer account
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
-	membershipCost := sdk.NewCoins(sdk.NewInt64Coin("ucommercio", membershipPrice))
+	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(k.GetStableCreditsDenom(ctx), membershipPrice))
 	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, membershipCost); err != nil {
 		return err
 	}
