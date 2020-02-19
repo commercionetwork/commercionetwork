@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -101,22 +101,61 @@ func TestCdpsForExistingPrice(t *testing.T) {
 }
 
 func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
-	type args struct {
-		k Keeper
-	}
 	tests := []struct {
-		name string
-		args args
-		want types.Invariant
+		name      string
+		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, types.Context) error
+		wantFail  bool
 	}{
-		// TODO: Add test cases.
+		{
+			"One cdp opened equals the value of the liquidity pool",
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+				err := bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
+				if err != nil {
+					return err
+				}
+
+				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
+
+				return k.OpenCdp(ctx, testCdpOwner, testCdp.DepositedAmount)
+			},
+			false,
+		},
+		{
+			"One cdp opened and the liquidity pool is zero",
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+				err := bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
+				if err != nil {
+					return err
+				}
+
+				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
+
+				err = k.OpenCdp(ctx, testCdpOwner, testCdp.DepositedAmount)
+				if err != nil {
+					return err
+				}
+
+				macc := k.GetMintModuleAccount(ctx)
+
+				if err := macc.SetCoins(sdk.NewCoins()); err != nil {
+					return fmt.Errorf("could not set zero coins to pricefeed account")
+				}
+
+				k.supplyKeeper.SetModuleAccount(ctx, macc)
+
+				return nil
+			},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LiquidityPoolAmountEqualsCdps(tt.args.k); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("LiquidityPoolAmountEqualsCdps() = %v, want %v", got, tt.want)
-			}
+			ctx, bk, pfk, k := SetupTestInput()
+			require.NoError(t, tt.setupFunc(k, bk, pfk, ctx))
+			_, failed := LiquidityPoolAmountEqualsCdps(k)(ctx)
+
+			require.Equal(t, tt.wantFail, failed)
 		})
 	}
 }

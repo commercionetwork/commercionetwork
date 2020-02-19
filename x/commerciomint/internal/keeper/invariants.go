@@ -63,6 +63,16 @@ func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
 
 		pool := k.GetLiquidityPoolAmount(ctx)
 
+		if pool.IsZero() && len(cdps) > 0 {
+			return sdk.FormatInvariant(
+				types.ModuleName,
+				cdpsForExistingPrice,
+				fmt.Sprintf(
+					"cdps opened and liquidity pool is empty",
+				),
+			), true
+		}
+
 		for name, sum := range sums {
 			for _, token := range pool {
 				if token.Denom == name {
