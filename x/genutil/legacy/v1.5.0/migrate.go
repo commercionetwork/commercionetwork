@@ -1,8 +1,11 @@
 package v1_5_0
 
 import (
+	"fmt"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	v134memberships "github.com/commercionetwork/commercionetwork/x/memberships/legacy/v1.3.4"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -16,7 +19,7 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 	v150Codec := codec.New()
 	codec.RegisterCrypto(v150Codec)
 
-	// Migrate vbr state
+	// Migrate memberships state
 	if appState[v134memberships.ModuleName] != nil {
 		var genMemberships v134memberships.GenesisState
 		v134Codec.MustUnmarshalJSON(appState[v134memberships.ModuleName], &genMemberships)
@@ -48,12 +51,28 @@ func migrateMemberships(oldState v134memberships.GenesisState) memberships.Genes
 	}
 
 	for _, invite := range oldState.Invites {
+		m, err := lookupMembership(oldState.Memberships, invite.Sender)
+		if err != nil {
+			panic(err)
+		}
+
 		ng.Invites = append(ng.Invites, memberships.Invite{
-			Sender: invite.Sender,
-			User:   invite.User,
-			Status: mutateStatus(invite.Rewarded),
+			Sender:           invite.Sender,
+			User:             invite.User,
+			Status:           mutateStatus(invite.Rewarded),
+			SenderMembership: m,
 		})
 	}
 
 	return ng
+}
+
+func lookupMembership(memberships memberships.Memberships, owner sdk.AccAddress) (string, error) {
+	for _, m := range memberships {
+		if m.Owner.Equals(owner) {
+			return m.MembershipType, nil
+		}
+	}
+
+	return "", fmt.Errorf("could not find membership for user %s", owner.String())
 }
