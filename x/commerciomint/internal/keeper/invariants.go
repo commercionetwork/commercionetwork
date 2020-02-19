@@ -26,8 +26,8 @@ func CdpsForExistingPrice(k Keeper) sdk.Invariant {
 
 		for _, cdp := range cdps {
 			for _, depositAmount := range cdp.DepositedAmount {
-				_, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, depositAmount.Denom)
-				if !ok {
+				price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, depositAmount.Denom)
+				if !ok || price.Value.IsZero() {
 					return sdk.FormatInvariant(
 						types.ModuleName,
 						cdpsForExistingPrice,
@@ -62,6 +62,16 @@ func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
 		}
 
 		pool := k.GetLiquidityPoolAmount(ctx)
+
+		if pool.IsZero() && len(cdps) > 0 {
+			return sdk.FormatInvariant(
+				types.ModuleName,
+				cdpsForExistingPrice,
+				fmt.Sprintf(
+					"cdps opened and liquidity pool is empty",
+				),
+			), true
+		}
 
 		for name, sum := range sums {
 			for _, token := range pool {
