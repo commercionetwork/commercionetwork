@@ -20,8 +20,12 @@ func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) sd
 		return sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", recipient))
 	}
 
+	inviterMembership, err := k.GetMembership(ctx, sender)
+	if err != nil {
+		return err
+	}
 	// Build and save the invite
-	accreditation := types.NewInvite(sender, recipient)
+	accreditation := types.NewInvite(sender, recipient, inviterMembership.MembershipType)
 	store.Set(inviteKey, k.Cdc.MustMarshalBinaryBare(&accreditation))
 	return nil
 }

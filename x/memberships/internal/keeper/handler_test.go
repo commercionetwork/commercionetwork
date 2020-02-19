@@ -201,7 +201,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 		{
 			name:       "Invalid membership type returns error",
 			msg:        types.NewMsgBuyMembership("gren", testUser),
-			invite:     types.NewInvite(testInviteSender, testUser),
+			invite:     types.NewInvite(testInviteSender, testUser, "bronze"),
 			credential: types.NewCredential(testUser, testTsp, 0),
 			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 1000000000)),
 			error:      "Invalid membership type: gren",
@@ -214,7 +214,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 		{
 			name:       "Valid membership allows buying",
 			msg:        types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
-			invite:     types.NewInvite(testInviteSender, testUser),
+			invite:     types.NewInvite(testInviteSender, testUser, "bronze"),
 			credential: types.NewCredential(testUser, testTsp, 0),
 			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 1000000000)),
 		},
@@ -226,14 +226,14 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 		{
 			name:   "Buying without verification returns error",
 			msg:    types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
-			invite: types.NewInvite(testInviteSender, testUser),
+			invite: types.NewInvite(testInviteSender, testUser, "bronze"),
 			error:  "User has not yet been verified by a Trusted Service Provider",
 		},
 		{
 			name:               "Valid upgrade works properly",
 			existingMembership: types.MembershipTypeBronze,
 			msg:                types.NewMsgBuyMembership(types.MembershipTypeSilver, testUser),
-			invite:             types.NewInvite(testInviteSender, testUser),
+			invite:             types.NewInvite(testInviteSender, testUser, "bronze"),
 			credential:         types.NewCredential(testUser, testTsp, 0),
 			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 1000000000)),
 		},
@@ -241,7 +241,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			name:               "Invalid upgrade works properly",
 			existingMembership: types.MembershipTypeSilver,
 			msg:                types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
-			invite:             types.NewInvite(testInviteSender, testUser),
+			invite:             types.NewInvite(testInviteSender, testUser, "bronze"),
 			credential:         types.NewCredential(testUser, testTsp, 0),
 			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000)),
 			error:              "Cannot upgrade from silver membership to bronze",

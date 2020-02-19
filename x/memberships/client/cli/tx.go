@@ -26,6 +26,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		getCmdDepositIntoPool(cdc),
 		getCmdGovAssignMembership(cdc),
 		getCmdInviteUser(cdc),
+		getCmdBuyMembership(cdc),
 	)
 
 	return txCmd
@@ -164,6 +165,38 @@ func getCmdInviteUserFunc(cdc *codec.Codec, args []string) error {
 
 	msg := types.NewMsgInviteUser(inviter, invitee)
 	err = msg.ValidateBasic()
+	if err != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func getCmdBuyMembership(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "buy-membership [membership-type]",
+		Short: "Buy a membership",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdBuyMembershipFunc(cdc, args)
+		},
+	}
+
+	cmd = client.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func getCmdBuyMembershipFunc(cdc *codec.Codec, args []string) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	buyer := cliCtx.GetFromAddress()
+	membershipType := args[0]
+
+	msg := types.NewMsgBuyMembership(membershipType, buyer)
+
+	err := msg.ValidateBasic()
 	if err != nil {
 		return err
 	}

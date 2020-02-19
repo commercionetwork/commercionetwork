@@ -50,7 +50,7 @@ func TestInvite_Empty(t *testing.T) {
 func TestInvite_Equals(t *testing.T) {
 	user, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
 	sender, _ := sdk.AccAddressFromBech32("cosmos1007jzaanx5kmqnn3akgype2jseawfj80dne9t6")
-	invite := types.NewInvite(sender, user)
+	invite := types.NewInvite(sender, user, "bronze")
 
 	tests := []struct {
 		name          string
@@ -61,13 +61,13 @@ func TestInvite_Equals(t *testing.T) {
 		{
 			name:          "Different sender returns false",
 			first:         invite,
-			second:        types.NewInvite(user, user),
+			second:        types.NewInvite(user, user, "bronze"),
 			shouldBeEqual: false,
 		},
 		{
 			name:          "Different user returns false",
 			first:         invite,
-			second:        types.NewInvite(sender, sender),
+			second:        types.NewInvite(sender, sender, "bronze"),
 			shouldBeEqual: false,
 		},
 		{

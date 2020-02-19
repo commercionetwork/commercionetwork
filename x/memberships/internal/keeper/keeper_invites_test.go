@@ -19,15 +19,15 @@ func TestKeeper_InviteUser(t *testing.T) {
 	}{
 		{
 			name:           "Existing invitation returns error",
-			existingInvite: types.NewInvite(testInviteSender, testUser),
-			invite:         types.NewInvite(testUser2, testUser),
-			expected:       types.NewInvite(testInviteSender, testUser),
+			existingInvite: types.NewInvite(testInviteSender, testUser, "bronze"),
+			invite:         types.NewInvite(testUser2, testUser, "bronze"),
+			expected:       types.NewInvite(testInviteSender, testUser, "bronze"),
 			error:          sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", testUser)),
 		},
 		{
 			name:     "New invite works properly",
-			invite:   types.NewInvite(testInviteSender, testUser),
-			expected: types.NewInvite(testInviteSender, testUser),
+			invite:   types.NewInvite(testInviteSender, testUser, "bronze"),
+			expected: types.NewInvite(testInviteSender, testUser, "bronze"),
 		},
 	}
 
@@ -67,14 +67,14 @@ func TestKeeper_GetInvite(t *testing.T) {
 		{
 			name:          "Existing invite is handled properly",
 			user:          testUser,
-			storedInvite:  types.NewInvite(testInviteSender, testUser),
-			expected:      types.NewInvite(testInviteSender, testUser),
+			storedInvite:  types.NewInvite(testInviteSender, testUser, "bronze"),
+			expected:      types.NewInvite(testInviteSender, testUser, "bronze"),
 			shouldBeFound: true,
 		},
 		{
 			name:          "Existing invite for different user returns empty",
 			user:          testUser,
-			storedInvite:  types.NewInvite(testInviteSender, testUser2),
+			storedInvite:  types.NewInvite(testInviteSender, testUser2, "bronze"),
 			expected:      types.Invite{},
 			shouldBeFound: false,
 		},
@@ -108,12 +108,12 @@ func TestKeeper_GetInvites_EmptyList(t *testing.T) {
 		{
 			name: "Existing list is returned properly",
 			stored: types.Invites{
-				types.NewInvite(testInviteSender, testUser2),
-				types.NewInvite(testUser2, testUser),
+				types.NewInvite(testInviteSender, testUser2, "bronze"),
+				types.NewInvite(testUser2, testUser, "bronze"),
 			},
 			expected: types.Invites{
-				types.NewInvite(testInviteSender, testUser2),
-				types.NewInvite(testUser2, testUser),
+				types.NewInvite(testInviteSender, testUser2, "bronze"),
+				types.NewInvite(testUser2, testUser, "bronze"),
 			},
 		},
 	}

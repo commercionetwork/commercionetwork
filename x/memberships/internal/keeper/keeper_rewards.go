@@ -50,8 +50,9 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 // DistributeReward allows to distribute the rewards to the sender of the specified invite upon the receiver has
 // properly bought a membership of the given membershipType
 func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error {
-	senderMembership, err := k.GetMembership(ctx, invite.Sender)
-	if err != nil {
+	// Calculate reward for invite
+	_, err := k.GetMembership(ctx, invite.Sender)
+	if err != nil || invite.SenderMembership == "" {
 		return sdk.ErrUnauthorized("Invite sender does not have a membership")
 	}
 
@@ -60,7 +61,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 		return sdk.ErrUnauthorized("Invite recipient does not have a membership")
 	}
 
-	senderMembershipType := senderMembership.MembershipType
+	senderMembershipType := invite.SenderMembership
 	recipientMembershipType := recipientMembership.MembershipType
 
 	// Get the reward amount by searching up inside the matrix.
@@ -86,7 +87,12 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 	}
 
 	// Set the invitation as rewarded
-	newInvite := types.Invite{Sender: invite.Sender, User: invite.User, Status: types.InviteStatusRewarded}
+	newInvite := types.Invite{
+		Sender:           invite.Sender,
+		User:             invite.User,
+		SenderMembership: invite.SenderMembership,
+		Status:           types.InviteStatusRewarded}
+
 	k.SaveInvite(ctx, newInvite)
 
 	return nil
