@@ -26,8 +26,8 @@ func CdpsForExistingPrice(k Keeper) sdk.Invariant {
 
 		for _, cdp := range cdps {
 			for _, depositAmount := range cdp.DepositedAmount {
-				_, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, depositAmount.Denom)
-				if !ok {
+				price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, depositAmount.Denom)
+				if !ok || price.Value.IsZero() {
 					return sdk.FormatInvariant(
 						types.ModuleName,
 						cdpsForExistingPrice,
