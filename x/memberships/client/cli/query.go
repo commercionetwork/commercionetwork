@@ -111,12 +111,12 @@ func getCmdGetPoolFunds(cdc *codec.Codec) *cobra.Command {
 		Short: "Get the pool funds amounts",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdGetPoolFundsFunc(cdc)
+			return getCmdGetPoolFundsFunc(cmd, cdc)
 		},
 	}
 }
 
-func getCmdGetPoolFundsFunc(cdc *codec.Codec) error {
+func getCmdGetPoolFundsFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetPoolFunds)
@@ -125,7 +125,7 @@ func getCmdGetPoolFundsFunc(cdc *codec.Codec) error {
 		return fmt.Errorf("could not get pool funds schemes: %w", err)
 	}
 
-	fmt.Println(string(res))
+	cmd.Println(string(res))
 
 	return nil
 }
