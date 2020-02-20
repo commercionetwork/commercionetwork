@@ -94,7 +94,7 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	}
 
 	if invite.Status == types.InviteStatusInvalid {
-		sdk.ErrUnauthorized(fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer)).Result()
+		return sdk.ErrUnauthorized(fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer)).Result()
 	}
 
 	// 2. Make sure the user has properly being verified
