@@ -157,6 +157,28 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testDenom, 2250000000)),
 			expectedPoolAmt:           sdk.NewCoins(sdk.NewInt64Coin(testDenom, 997750000000)),
 		},
+		{
+			name: "Invite is already rewarded",
+			invite: types.Invite{
+				Sender:           testInviteSender,
+				SenderMembership: "black",
+				User:             testUser,
+				Status:           types.InviteStatusRewarded,
+			},
+			poolFunds:       sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+			expectedPoolAmt: sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+		},
+		{
+			name: "Invite is invalid",
+			invite: types.Invite{
+				Sender:           testInviteSender,
+				SenderMembership: "black",
+				User:             testUser,
+				Status:           types.InviteStatusInvalid,
+			},
+			poolFunds:       sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+			expectedPoolAmt: sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+		},
 	}
 
 	for _, test := range tests {
@@ -173,7 +195,7 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			err := k.DistributeReward(ctx, test.invite)
 			require.Equal(t, test.error, err)
 
-			if test.error == nil {
+			if test.error == nil && test.invite.Status != types.InviteStatusInvalid {
 				storedInvite, _ := k.GetInvite(ctx, test.invite.User)
 				require.Equal(t, storedInvite.Status, types.InviteStatusRewarded)
 			}
