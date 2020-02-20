@@ -3,6 +3,8 @@ package memberships
 import (
 	"encoding/json"
 
+	"github.com/cosmos/cosmos-sdk/x/auth"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
@@ -92,16 +94,18 @@ type AppModule struct {
 	keeper           Keeper
 	governmentKeeper government.Keeper
 	supplyKeeper     supply.Keeper
+	accountKeeper    auth.AccountKeeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, supplyKeeper supply.Keeper, govK government.Keeper) AppModule {
+func NewAppModule(keeper Keeper, supplyKeeper supply.Keeper, govK government.Keeper, accountKeeper auth.AccountKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
 		governmentKeeper:    govK,
 		supplyKeeper:        supplyKeeper,
+		accountKeeper:       accountKeeper,
 	}
 }
 
@@ -154,6 +158,6 @@ func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
 }
 
 // module end-block
-func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	return EndBlocker(ctx, am.keeper, am.accountKeeper)
 }

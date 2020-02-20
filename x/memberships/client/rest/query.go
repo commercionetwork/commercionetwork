@@ -29,6 +29,11 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		fmt.Sprintf("/tsps"),
 		getTrustedServiceProvidersHandler(cliCtx)).
 		Methods("GET")
+
+	r.HandleFunc(
+		"/accreditations-funds",
+		getGetPoolFunds(cliCtx)).
+		Methods("GET")
 }
 
 // ----------------------------------
@@ -71,6 +76,19 @@ func getInvitesForUserHandler(cliCtx context.CLIContext) http.HandlerFunc {
 func getTrustedServiceProvidersHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetTrustedServiceProviders)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+func getGetPoolFunds(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetPoolFunds)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())

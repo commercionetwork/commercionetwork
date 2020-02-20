@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/x/auth"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
@@ -15,7 +17,7 @@ var membershipCosts = map[string]int64{
 	types.MembershipTypeBronze: 25,
 	types.MembershipTypeSilver: 250,
 	types.MembershipTypeGold:   2500,
-	types.MembershipTypeBlack:  25000,
+	types.MembershipTypeBlack:  50000,
 }
 
 type Keeper struct {
@@ -23,10 +25,11 @@ type Keeper struct {
 	StoreKey         sdk.StoreKey
 	SupplyKeeper     supply.Keeper
 	governmentKeeper government.Keeper
+	accountKeeper    auth.AccountKeeper
 }
 
 // NewKeeper creates new instances of the accreditation module Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, governmentKeeper government.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, governmentKeeper government.Keeper, accountKeeper auth.AccountKeeper) Keeper {
 
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -38,6 +41,7 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keep
 		StoreKey:         storeKey,
 		SupplyKeeper:     supplyKeeper,
 		governmentKeeper: governmentKeeper,
+		accountKeeper:    accountKeeper,
 	}
 }
 
@@ -49,6 +53,10 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 // BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) sdk.Error {
+	if membershipType == types.MembershipTypeBlack {
+		return sdk.ErrInvalidAddress("cannot buy black membership")
+	}
+
 	// Get the tokens from the buyer account
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(k.GetStableCreditsDenom(ctx), membershipPrice))

@@ -34,7 +34,7 @@ func TestInvite_Empty(t *testing.T) {
 		},
 		{
 			name:          "Only rewarded invite is not empty",
-			invite:        types.Invite{Rewarded: true},
+			invite:        types.Invite{Status: types.InviteStatusRewarded},
 			expectedEmpty: false,
 		},
 	}
@@ -50,7 +50,7 @@ func TestInvite_Empty(t *testing.T) {
 func TestInvite_Equals(t *testing.T) {
 	user, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
 	sender, _ := sdk.AccAddressFromBech32("cosmos1007jzaanx5kmqnn3akgype2jseawfj80dne9t6")
-	invite := types.NewInvite(sender, user)
+	invite := types.NewInvite(sender, user, "bronze")
 
 	tests := []struct {
 		name          string
@@ -61,19 +61,19 @@ func TestInvite_Equals(t *testing.T) {
 		{
 			name:          "Different sender returns false",
 			first:         invite,
-			second:        types.NewInvite(user, user),
+			second:        types.NewInvite(user, user, "bronze"),
 			shouldBeEqual: false,
 		},
 		{
 			name:          "Different user returns false",
 			first:         invite,
-			second:        types.NewInvite(sender, sender),
+			second:        types.NewInvite(sender, sender, "bronze"),
 			shouldBeEqual: false,
 		},
 		{
 			name:          "Different rewarded returns false",
 			first:         invite,
-			second:        types.Invite{User: user, Sender: sender, Rewarded: true},
+			second:        types.Invite{User: user, Sender: sender, Status: types.InviteStatusRewarded},
 			shouldBeEqual: false,
 		},
 		{
@@ -88,6 +88,62 @@ func TestInvite_Equals(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			require.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
+		})
+	}
+}
+
+func TestInvite_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name    string
+		invite  types.Invite
+		wantErr bool
+	}{
+		{
+			"A valid rewarded invite",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: types.InviteStatusRewarded,
+			},
+			false,
+		},
+		{
+			"A valid pending invite",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: types.InviteStatusPending,
+			},
+			false,
+		},
+		{
+			"A valid invalid invite",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: types.InviteStatusInvalid,
+			},
+			false,
+		},
+		{
+			"An invite with invalid status",
+			types.Invite{
+				Sender: sender,
+				User:   user,
+				Status: 42,
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			res := tt.invite.ValidateBasic()
+			if tt.wantErr {
+				require.Error(t, res)
+			} else {
+				require.NoError(t, res)
+			}
 		})
 	}
 }

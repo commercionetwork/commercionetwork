@@ -24,20 +24,19 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			name:         "Empty deposit pool is incremented properly",
 			existingPool: sdk.NewCoins(),
 			user:         testUser,
-			userAmt:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
-			deposit:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
-			expectedPool: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			userAmt:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
+			deposit:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
+			expectedPool: sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
 			expectedUser: sdk.Coins{},
 		},
 		{
 			name:         "Existing deposit pool in incremented properly",
 			user:         testUser,
 			userAmt:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000))),
-			existingPool: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			existingPool: sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
 			deposit:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000))),
 			expectedPool: sdk.NewCoins(
-				sdk.NewCoin("uatom", sdk.NewInt(100)),
-				sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
+				sdk.NewCoin("ucommercio", sdk.NewInt(1100)),
 			),
 			expectedUser: sdk.Coins{},
 		},
@@ -50,6 +49,16 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			expectedPool: sdk.NewCoins(),
 			expectedUser: sdk.NewCoins(),
 			error:        sdk.ErrInsufficientCoins("insufficient account funds;  < 1000ucommercio"),
+		},
+		{
+			name:         "deposit fails because not expressed in ucommercio",
+			user:         testUser,
+			userAmt:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			existingPool: sdk.NewCoins(),
+			deposit:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(99))),
+			expectedPool: sdk.NewCoins(),
+			expectedUser: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
+			error:        sdk.ErrInsufficientCoins("deposit into membership pool can only be expressed in ucommercio"),
 		},
 	}
 
@@ -114,7 +123,7 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		{
 			name:                   "Invite recipient without membership returns error",
 			inviteSenderMembership: types.MembershipTypeBlack,
-			invite:                 types.NewInvite(testInviteSender, testUser),
+			invite:                 types.NewInvite(testInviteSender, testUser, "black"),
 			user:                   testUser,
 			error:                  sdk.ErrUnauthorized("Invite recipient does not have a membership"),
 		},
@@ -122,17 +131,17 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			name:                      "Insufficient pool funds greater than zero gives all reward available",
 			inviteSenderMembership:    types.MembershipTypeBlack,
 			inviteRecipientMembership: types.MembershipTypeGold,
-			invite:                    types.NewInvite(testInviteSender, testUser),
+			invite:                    types.NewInvite(testInviteSender, testUser, "black"),
 			user:                      testUser,
-			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000)),
-			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000)),
+			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000)),
+			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000)),
 			expectedPoolAmt:           sdk.Coins{},
 		},
 		{
 			name:                      "Empty pool funds does not distribute anything",
 			inviteSenderMembership:    types.MembershipTypeBlack,
 			inviteRecipientMembership: types.MembershipTypeGold,
-			invite:                    types.NewInvite(testInviteSender, testUser),
+			invite:                    types.NewInvite(testInviteSender, testUser, "black"),
 			user:                      testUser,
 			poolFunds:                 sdk.Coins{},
 			expectedInviteSenderAmt:   sdk.Coins{},
@@ -142,11 +151,33 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			name:                      "Enough pool funds",
 			inviteSenderMembership:    types.MembershipTypeBlack,
 			inviteRecipientMembership: types.MembershipTypeGold,
-			invite:                    types.NewInvite(testInviteSender, testUser),
+			invite:                    types.NewInvite(testInviteSender, testUser, "black"),
 			user:                      testUser,
-			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 1000000000000)),
-			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 2250000000)),
-			expectedPoolAmt:           sdk.NewCoins(sdk.NewInt64Coin(testStableCreditsDenom, 997750000000)),
+			poolFunds:                 sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+			expectedInviteSenderAmt:   sdk.NewCoins(sdk.NewInt64Coin(testDenom, 2250000000)),
+			expectedPoolAmt:           sdk.NewCoins(sdk.NewInt64Coin(testDenom, 997750000000)),
+		},
+		{
+			name: "Invite is already rewarded",
+			invite: types.Invite{
+				Sender:           testInviteSender,
+				SenderMembership: "black",
+				User:             testUser,
+				Status:           types.InviteStatusRewarded,
+			},
+			poolFunds:       sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+			expectedPoolAmt: sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+		},
+		{
+			name: "Invite is invalid",
+			invite: types.Invite{
+				Sender:           testInviteSender,
+				SenderMembership: "black",
+				User:             testUser,
+				Status:           types.InviteStatusInvalid,
+			},
+			poolFunds:       sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
+			expectedPoolAmt: sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000000)),
 		},
 	}
 
@@ -164,12 +195,13 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			err := k.DistributeReward(ctx, test.invite)
 			require.Equal(t, test.error, err)
 
-			if test.error == nil {
+			if test.error == nil && test.invite.Status != types.InviteStatusInvalid {
 				storedInvite, _ := k.GetInvite(ctx, test.invite.User)
-				require.True(t, storedInvite.Rewarded)
+				require.Equal(t, storedInvite.Status, types.InviteStatusRewarded)
 			}
 
-			require.True(t, test.expectedPoolAmt.IsEqual(k.GetPoolFunds(ctx)))
+			asd := test.expectedPoolAmt.IsEqual(k.GetPoolFunds(ctx))
+			require.True(t, asd)
 			require.True(t, test.expectedInviteSenderAmt.IsEqual(bk.GetCoins(ctx, test.invite.Sender)))
 		})
 	}
