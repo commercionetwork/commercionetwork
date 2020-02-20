@@ -50,6 +50,10 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 // DistributeReward allows to distribute the rewards to the sender of the specified invite upon the receiver has
 // properly bought a membership of the given membershipType
 func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error {
+	// the invite we got is either invalid or already rewarded, get out!
+	if invite.Status == types.InviteStatusRewarded || invite.Status == types.InviteStatusInvalid {
+		return nil
+	}
 	// Calculate reward for invite
 	_, err := k.GetMembership(ctx, invite.Sender)
 	if err != nil || invite.SenderMembership == "" {
