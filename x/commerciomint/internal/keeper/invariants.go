@@ -24,6 +24,11 @@ func CdpsForExistingPrice(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		cdps := k.GetCdps(ctx)
 
+		if ctx.BlockHeight() == 0 {
+			// ignore this invariant when blockHeight is zero
+			return "", false
+		}
+
 		for _, cdp := range cdps {
 			for _, depositAmount := range cdp.DepositedAmount {
 				price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, depositAmount.Denom)
@@ -63,14 +68,16 @@ func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
 
 		pool := k.GetLiquidityPoolAmount(ctx)
 
-		if pool.IsZero() && len(cdps) > 0 {
-			return sdk.FormatInvariant(
-				types.ModuleName,
-				cdpsForExistingPrice,
-				fmt.Sprintf(
-					"cdps opened and liquidity pool is empty",
-				),
-			), true
+		if ctx.BlockHeight() != 0 {
+			if pool.IsZero() && len(cdps) > 0 {
+				return sdk.FormatInvariant(
+					types.ModuleName,
+					cdpsForExistingPrice,
+					fmt.Sprintf(
+						"cdps opened and liquidity pool is empty",
+					),
+				), true
+			}
 		}
 
 		for name, sum := range sums {
