@@ -42,10 +42,6 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, accKeeper auth.AccountKe
 // --- Identities
 // ------------------
 
-func (k Keeper) getIdentityStoreKey(owner sdk.AccAddress) []byte {
-	return []byte(types.IdentitiesStorePrefix + owner.String())
-}
-
 // SaveDidDocument saves the given didDocumentUri associating it with the given owner, replacing any existent one.
 func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk.Error {
 	owner := document.ID
@@ -113,24 +109,24 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk
 
 	// Set the Did Document into the store
 	identitiesStore := ctx.KVStore(k.storeKey)
-	identitiesStore.Set(k.getIdentityStoreKey(owner), k.cdc.MustMarshalBinaryBare(document))
+	identitiesStore.Set(getIdentityStoreKey(owner), k.cdc.MustMarshalBinaryBare(document))
 
 	return nil
 }
 
 // GetIdentity returns the Did Document reference associated to a given Did.
 // If the given Did has no Did Document reference associated, returns nil.
-func (k Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, bool) {
+func (k Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	identityKey := k.getIdentityStoreKey(owner)
+	identityKey := getIdentityStoreKey(owner)
 	if !store.Has(identityKey) {
-		return types.DidDocument{}, false
+		return types.DidDocument{}, fmt.Errorf("did document with owner %s not found", owner.String())
 	}
 
 	var didDocument types.DidDocument
 	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &didDocument)
-	return didDocument, true
+	return didDocument, nil
 }
 
 // -------------------------
@@ -157,16 +153,12 @@ func (k Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
 // --- Did deposit requests
 // ----------------------------
 
-func (k Keeper) getDepositRequestStoreKey(proof string) []byte {
-	return []byte(types.DidDepositRequestStorePrefix + proof)
-}
-
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
 func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) sdk.Error {
 	store := ctx.KVStore(k.storeKey)
 
-	requestKey := k.getDepositRequestStoreKey(request.Proof)
+	requestKey := getDepositRequestStoreKey(request.Proof)
 	if store.Has(requestKey) {
 		return sdk.ErrUnknownRequest("Did deposit request with the same proof already exists")
 	}
@@ -177,16 +169,17 @@ func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDeposit
 }
 
 // GetDidDepositRequestByProof returns the request having the same proof.
-func (k Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (request types.DidDepositRequest, found bool) {
+func (k Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (types.DidDepositRequest, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	requestKey := k.getDepositRequestStoreKey(proof)
+	requestKey := getDepositRequestStoreKey(proof)
 	if !store.Has(requestKey) {
-		return types.DidDepositRequest{}, false
+		return types.DidDepositRequest{}, fmt.Errorf("deposit request with proof %s not found", proof)
 	}
 
+	request := types.DidDepositRequest{}
 	k.cdc.MustUnmarshalBinaryBare(store.Get(requestKey), &request)
-	return request, true
+	return request, nil
 }
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
@@ -194,14 +187,14 @@ func (k Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (requ
 func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
 	store := ctx.KVStore(k.storeKey)
 
-	request, found := k.GetDidDepositRequestByProof(ctx, proof)
-	if !found {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Did deposit request with proof %s not fond", proof))
+	request, err := k.GetDidDepositRequestByProof(ctx, proof)
+	if err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
 	}
 
 	// Update and store the request
 	request.Status = &status
-	store.Set(k.getDepositRequestStoreKey(request.Proof), k.cdc.MustMarshalBinaryBare(request))
+	store.Set(getDepositRequestStoreKey(request.Proof), k.cdc.MustMarshalBinaryBare(request))
 
 	return nil
 }
@@ -225,16 +218,12 @@ func (k Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDeposit
 // --- Did power up requests
 // ----------------------------
 
-func (k Keeper) getDidPowerUpRequestStoreKey(proof string) []byte {
-	return []byte(types.DidPowerUpRequestStorePrefix + proof)
-}
-
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
 func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) sdk.Error {
 	store := ctx.KVStore(k.storeKey)
 
-	requestStoreKey := k.getDidPowerUpRequestStoreKey(request.Proof)
+	requestStoreKey := getDidPowerUpRequestStoreKey(request.Proof)
 	if store.Has(requestStoreKey) {
 		return sdk.ErrUnknownRequest("PowerUp request with the same proof already exists")
 	}
@@ -245,16 +234,17 @@ func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpReq
 }
 
 // GetDidDepositRequestByProof returns the request having the same proof.
-func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (request types.DidPowerUpRequest, found bool) {
+func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (types.DidPowerUpRequest, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	requestStoreKey := k.getDidPowerUpRequestStoreKey(proof)
+	requestStoreKey := getDidPowerUpRequestStoreKey(proof)
 	if !store.Has(requestStoreKey) {
-		return types.DidPowerUpRequest{}, false
+		return types.DidPowerUpRequest{}, fmt.Errorf("power-up request with proof %s not found", proof)
 	}
 
+	request := types.DidPowerUpRequest{}
 	k.cdc.MustUnmarshalBinaryBare(store.Get(requestStoreKey), &request)
-	return request, true
+	return request, nil
 }
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
@@ -262,14 +252,14 @@ func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (request
 func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
 	store := ctx.KVStore(k.storeKey)
 
-	request, found := k.GetPowerUpRequestByProof(ctx, proof)
-	if !found {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("PowerUp request with proof %s not found", proof))
+	request, err := k.GetPowerUpRequestByProof(ctx, proof)
+	if err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
 	}
 
 	// Update and store the request
 	request.Status = &status
-	store.Set(k.getDidPowerUpRequestStoreKey(proof), k.cdc.MustMarshalBinaryBare(&request))
+	store.Set(getDidPowerUpRequestStoreKey(proof), k.cdc.MustMarshalBinaryBare(&request))
 
 	return nil
 }
@@ -293,24 +283,38 @@ func (k Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUp
 // --- Deposits handling
 // ------------------------
 
-func (k Keeper) SetPowerUpRequestHandled(ctx sdk.Context, activationReference string) {
-	handledRequests := k.GetHandledPowerUpRequestsReferences(ctx)
-	if requests, edited := handledRequests.AppendIfMissing(activationReference); edited {
-		k.SetHandledPowerUpRequestsReferences(ctx, requests)
+func (k Keeper) SetPowerUpRequestHandled(ctx sdk.Context, activationReference string) error {
+	store := ctx.KVStore(k.storeKey)
+
+	if store.Has(getHandledPowerUpRequestsReferenceStoreKey(activationReference)) {
+		return fmt.Errorf("reference %s already marked as handled", activationReference)
 	}
+
+	k.SetHandledPowerUpRequestsReference(ctx, activationReference)
+	return nil
 }
 
 func (k Keeper) GetHandledPowerUpRequestsReferences(ctx sdk.Context) ctypes.Strings {
-	store := ctx.KVStore(k.storeKey)
+	hi := k.HandledPowerUpRequestsIterator(ctx)
+	defer hi.Close()
 
-	var handledRequests ctypes.Strings
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.HandledPowerUpRequestsStoreKey)), &handledRequests)
-	return handledRequests
+	data := ctypes.Strings{}
+	for ; hi.Valid(); hi.Next() {
+		data = append(data, string(hi.Value()))
+	}
+
+	return data
 }
 
-func (k Keeper) SetHandledPowerUpRequestsReferences(ctx sdk.Context, references ctypes.Strings) {
+func (k Keeper) SetHandledPowerUpRequestsReference(ctx sdk.Context, reference string) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.HandledPowerUpRequestsStoreKey), k.cdc.MustMarshalBinaryBare(&references))
+	store.Set(getHandledPowerUpRequestsReferenceStoreKey(reference), []byte(reference))
+}
+
+func (k Keeper) HandledPowerUpRequestsIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.storeKey)
+
+	return sdk.KVStorePrefixIterator(store, []byte(types.HandledPowerUpRequestsReferenceStorePrefix))
 }
 
 // DepositIntoPool allows to deposit the specified amount into the liquidity pool, taking it from the

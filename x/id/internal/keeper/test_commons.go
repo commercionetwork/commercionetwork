@@ -17,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
-	"github.com/tendermint/tendermint/libs/bech32"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 )
@@ -73,11 +72,6 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 
 	// Set module accounts
 	idAcc := supply.NewEmptyModuleAccount(types.ModuleName)
-	bech32Addr, err := bech32.ConvertAndEncode("did:com:", idAcc.Address.Bytes())
-	if err != nil {
-		panic(err)
-	}
-	fmt.Print(bech32Addr)
 
 	idk.supplyKeeper.SetModuleAccount(ctx, idAcc)
 

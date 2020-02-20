@@ -54,7 +54,11 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 	}
 
 	if data.HandledPowerUpRequests != nil {
-		keeper.SetHandledPowerUpRequestsReferences(ctx, data.HandledPowerUpRequests)
+		for _, hpur := range data.HandledPowerUpRequests {
+			if err := keeper.SetPowerUpRequestHandled(ctx, hpur); err != nil {
+				panic(err)
+			}
+		}
 	}
 }
 
