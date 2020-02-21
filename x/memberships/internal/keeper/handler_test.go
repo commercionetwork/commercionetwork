@@ -224,6 +224,17 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			error: "Cannot buy a membership without being invited",
 		},
 		{
+			name: "Buying with invalid invite returns error",
+			msg:  types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
+			invite: types.Invite{
+				Sender:           testInviteSender,
+				SenderMembership: "bronze",
+				User:             testUser,
+				Status:           types.InviteStatusInvalid,
+			},
+			error: "invite for account cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae has been marked as invalid previously, cannot continue",
+		},
+		{
 			name:   "Buying without verification returns error",
 			msg:    types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
 			invite: types.NewInvite(testInviteSender, testUser, "bronze"),
