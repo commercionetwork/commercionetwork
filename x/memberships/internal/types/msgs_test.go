@@ -389,29 +389,33 @@ func TestNewMsgSetBlackMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgSetBlackMembership
-		error sdk.Error
+		error string
 	}{
 		{
 			name:  "Valid message does not return any error",
 			msg:   msgSetBlackmembership,
-			error: nil,
+			error: "",
 		},
 		{
 			name:  "Missing gov address returns error",
 			msg:   types.NewMsgSetBlackMembership(testBuyer, nil),
-			error: sdk.ErrInvalidAddress("Invalid government address: "),
+			error: "Invalid government address: ",
 		},
 		{
 			name:  "Missing subscriber returns error",
 			msg:   types.NewMsgSetBlackMembership(nil, government),
-			error: sdk.ErrInvalidAddress("Invalid subscriber address: "),
+			error: "Invalid subscriber address: ",
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != "" {
+				require.Contains(t, test.msg.ValidateBasic().Error(), test.error)
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }

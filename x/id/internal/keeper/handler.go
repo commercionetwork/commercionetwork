@@ -87,7 +87,7 @@ func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKee
 	// Get the existing request
 	existing, err := keeper.GetDidDepositRequestByProof(ctx, msg.DepositProof)
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error()).Result()
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Check the signer if status is canceled
@@ -148,7 +148,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 	// Get the existing request
 	existing, err := keeper.GetPowerUpRequestByProof(ctx, msg.PowerUpProof)
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error()).Result()
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Check the signer if status is canceled
@@ -185,7 +185,7 @@ func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.K
 	// Get the existing request
 	existing, err := keeper.GetDidDepositRequestByProof(ctx, msg.DepositProof)
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error()).Result()
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Check that the existing request does not have a status set yet
@@ -231,7 +231,7 @@ func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Ke
 	// Set the request as handled
 	err := keeper.SetPowerUpRequestHandled(ctx, msg.ActivationReference)
 	if err != nil {
-		return sdk.ResultFromError(err)
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	return &sdk.Result{}, nil

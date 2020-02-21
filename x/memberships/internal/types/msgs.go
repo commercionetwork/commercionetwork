@@ -222,7 +222,7 @@ func (msg MsgBuyMembership) ValidateBasic() error {
 
 	membershipType := strings.TrimSpace(msg.MembershipType)
 	if !IsMembershipTypeValid(membershipType) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid membership type: %s", msg.MembershipType)))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", msg.MembershipType))
 	}
 
 	return nil
@@ -259,13 +259,13 @@ func (msg MsgSetBlackMembership) Route() string { return RouterKey }
 func (msg MsgSetBlackMembership) Type() string { return MsgTypeSetBlackMembership }
 
 // ValidateBasic Implements Msg.
-func (msg MsgSetBlackMembership) ValidateBasic() sdk.Error {
+func (msg MsgSetBlackMembership) ValidateBasic() error {
 	if msg.Subscriber.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
 	}
 
 	if msg.GovernmentAddress.Empty() {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("Invalid government address: %s", msg.GovernmentAddress))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.GovernmentAddress))
 	}
 
 	return nil

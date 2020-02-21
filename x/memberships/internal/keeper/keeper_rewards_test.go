@@ -60,7 +60,7 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			deposit:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(99))),
 			expectedPool: sdk.NewCoins(),
 			expectedUser: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
-			error:        sdk.ErrInsufficientCoins("deposit into membership pool can only be expressed in ucommercio"),
+			error:        sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "deposit into membership pool can only be expressed in ucommercio"),
 		},
 	}
 

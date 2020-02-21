@@ -43,7 +43,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 
 	didDocument, err := keeper.GetDidDocumentByOwner(ctx, address)
 	if err != nil {
-		return nil, sdk.ErrUnknownAddress(err.Error())
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress, err.Error())
 	}
 
 	response.DidDocument = &didDocument
@@ -70,7 +70,7 @@ func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (
 	// Get the request
 	request, err := keeper.GetDidDepositRequestByProof(ctx, path[0])
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(err.Error())
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
@@ -86,12 +86,12 @@ func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (
 	// Get the request
 	request, err := keeper.GetPowerUpRequestByProof(ctx, path[0])
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(err.Error())
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	bz, sErr := codec.MarshalJSONIndent(keeper.cdc, &request)
 	if sErr != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
 	}
 
 	return bz, nil

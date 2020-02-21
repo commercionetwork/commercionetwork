@@ -191,7 +191,7 @@ func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status
 
 	request, err := k.GetDidDepositRequestByProof(ctx, proof)
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Update and store the request
@@ -256,7 +256,7 @@ func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status
 
 	request, err := k.GetPowerUpRequestByProof(ctx, proof)
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Update and store the request

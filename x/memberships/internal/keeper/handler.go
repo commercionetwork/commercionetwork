@@ -33,9 +33,9 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser) sdk.Result {
+func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser) (*sdk.Result, error) {
 	if keeper.accountKeeper.GetAccount(ctx, msg.Recipient) != nil {
-		return sdk.ErrUnauthorized("cannot invite existing user").Result()
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot invite existing user")
 	}
 
 	// Verify that the user that is inviting has already a membership
@@ -96,7 +96,7 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	}
 
 	if invite.Status == types.InviteStatusInvalid {
-		return sdk.ErrUnauthorized(fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer)).Result()
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
 	}
 
 	// 2. Make sure the user has properly being verified
@@ -133,38 +133,38 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 // handleMsgSetBlackMembership handles MsgSetBlackMembership messages.
 // It checks that whoever sent the message is actually the government, assigns the membership and then
 // distribute the reward to the inviter.
-func handleMsgSetBlackMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetBlackMembership) sdk.Result {
+func handleMsgSetBlackMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetBlackMembership) (*sdk.Result, error) {
 	if !keeper.governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.GovernmentAddress) {
-		return sdk.ErrUnknownAddress(
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
-		).Result()
+		)
 	}
 
 	invite, found := keeper.GetInvite(ctx, msg.Subscriber)
 	if !found {
-		return sdk.ErrUnknownAddress(
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("no membership invite found for user %s", msg.Subscriber.String()),
-		).Result()
+		)
 	}
 
 	if credentials := keeper.GetUserCredentials(ctx, msg.Subscriber); len(credentials) == 0 {
 		msg := "User has not yet been verified by a Trusted Service Provider"
-		return sdk.ErrUnknownRequest(msg).Result()
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, msg)
 	}
 
 	err := keeper.AssignMembership(ctx, msg.Subscriber, types.MembershipTypeBlack)
 	if err != nil {
-		return sdk.ErrUnknownRequest(
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not assign black membership to user %s: %s", msg.Subscriber, err.Error()),
-		).Result()
+		)
 	}
 
 	err = keeper.DistributeReward(ctx, invite)
 	if err != nil {
-		return sdk.ErrUnknownRequest(
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not distribute membership reward to user %s: %s", invite.Sender, err.Error()),
-		).Result()
+		)
 	}
 
-	return sdk.Result{}
+	return &sdk.Result{}, nil
 }

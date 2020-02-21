@@ -308,7 +308,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 		invite      *types.Invite
 		verify      bool
 		senderIsGov bool
-		want        sdk.Result
+		want        string
 	}{
 		{
 			"invited user gets black membership by government",
@@ -324,7 +324,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 			},
 			true,
 			true,
-			sdk.Result{},
+			"",
 		},
 		{
 			"non-invited user doesn't get black membership by government",
@@ -335,11 +335,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 			nil,
 			true,
 			true,
-			sdk.Result{
-				Code:      0x9,
-				Codespace: "sdk",
-				Log:       "{\"codespace\":\"sdk\",\"code\":9,\"message\":\"no membership invite found for user cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae\"}",
-			},
+			"no membership invite found for user cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae",
 		},
 		{
 			"invited, non-verified user doesn't get black membership by government",
@@ -355,11 +351,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 			},
 			false,
 			true,
-			sdk.Result{
-				Code:      0x6,
-				Codespace: "sdk",
-				Log:       "{\"codespace\":\"sdk\",\"code\":6,\"message\":\"User has not yet been verified by a Trusted Service Provider\"}",
-			},
+			"User has not yet been verified by a Trusted Service Provider",
 		},
 		{
 			"invited, verified user doesn't get black membership because sender is not government",
@@ -375,11 +367,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 			},
 			true,
 			false,
-			sdk.Result{
-				Code:      0x9,
-				Codespace: "sdk",
-				Log:       "{\"codespace\":\"sdk\",\"code\":9,\"message\":\"cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my is not a government address\"}",
-			},
+			"cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my is not a government address",
 		},
 	}
 	for _, tt := range tests {
@@ -404,9 +392,13 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 			}
 
 			handler := keeper.NewHandler(k, gk)
-			res := handler(ctx, tt.message)
+			_, err := handler(ctx, tt.message)
 
-			require.Equal(t, tt.want, res)
+			if tt.want != "" && err != nil {
+				require.Contains(t, err.Error(), tt.want)
+			} else {
+				require.NoError(t, err)
+			}
 		})
 	}
 }

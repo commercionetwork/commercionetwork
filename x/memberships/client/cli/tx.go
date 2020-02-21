@@ -73,18 +73,18 @@ func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
 		Short: "Increments the membership rewards pool's liquidity by the given amount",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdDepositIntoPoolFunc(cdc, args)
+			return getCmdDepositIntoPoolFunc(cdc, cmd, args)
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }
 
-func getCmdDepositIntoPoolFunc(cdc *codec.Codec, args []string) error {
+func getCmdDepositIntoPoolFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	funder := cliCtx.GetFromAddress()
 	amount, err := sdk.ParseCoins(args[0])
@@ -113,18 +113,18 @@ func getCmdGovAssignMembership(cdc *codec.Codec) *cobra.Command {
 		Short: "As government, assign Black membership to a user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdGovAssignMembershipFunc(cdc, args)
+			return getCmdGovAssignMembershipFunc(cdc, cmd, args)
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }
 
-func getCmdGovAssignMembershipFunc(cdc *codec.Codec, args []string) error {
+func getCmdGovAssignMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	govAddr := cliCtx.GetFromAddress()
 	recipient, err := sdk.AccAddressFromBech32(args[0])
@@ -148,18 +148,18 @@ func getCmdInviteUser(cdc *codec.Codec) *cobra.Command {
 		Short: "Invite user to buy a membership",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdInviteUserFunc(cdc, args)
+			return getCmdInviteUserFunc(cdc, cmd, args)
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }
 
-func getCmdInviteUserFunc(cdc *codec.Codec, args []string) error {
+func getCmdInviteUserFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	inviter := cliCtx.GetFromAddress()
 	invitee, err := sdk.AccAddressFromBech32(args[0])
@@ -183,18 +183,18 @@ func getCmdBuyMembership(cdc *codec.Codec) *cobra.Command {
 		Short: "Buy a membership",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdBuyMembershipFunc(cdc, args)
+			return getCmdBuyMembershipFunc(cdc, cmd, args)
 		},
 	}
 
-	cmd = client.PostCommands(cmd)[0]
+	cmd = flags.PostCommands(cmd)[0]
 
 	return cmd
 }
 
-func getCmdBuyMembershipFunc(cdc *codec.Codec, args []string) error {
+func getCmdBuyMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	buyer := cliCtx.GetFromAddress()
 	membershipType := args[0]

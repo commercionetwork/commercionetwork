@@ -56,7 +56,7 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) error {
 	if membershipType == types.MembershipTypeBlack {
-		return sdk.ErrInvalidAddress("cannot buy black membership")
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "cannot buy black membership")
 	}
 
 	// Get the tokens from the buyer account
