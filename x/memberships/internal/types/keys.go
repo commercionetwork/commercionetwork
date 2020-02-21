@@ -19,6 +19,7 @@ const (
 	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
 	MsgTypeAddTsp                    = "addTsp"
 	MsgTypeBuyMembership             = "buyMembership"
+	MsgTypeSetBlackMembership        = "setBlackMembership"
 
 	QueryGetInvites                 = "invites"
 	QueryGetTrustedServiceProviders = "tsps"

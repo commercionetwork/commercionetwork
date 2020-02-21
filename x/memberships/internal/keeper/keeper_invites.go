@@ -22,8 +22,12 @@ func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) er
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", recipient))
 	}
 
+	inviterMembership, err := k.GetMembership(ctx, sender)
+	if err != nil {
+		return err
+	}
 	// Build and save the invite
-	accreditation := types.NewInvite(sender, recipient)
+	accreditation := types.NewInvite(sender, recipient, inviterMembership.MembershipType)
 	store.Set(inviteKey, k.Cdc.MustMarshalBinaryBare(&accreditation))
 	return nil
 }
@@ -41,10 +45,15 @@ func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.In
 	return types.Invite{}, false
 }
 
+// InvitesIterator returns an Iterator which iterates over all the invites.
+func (k Keeper) InvitesIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.StoreKey)
+	return sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
+}
+
 // GetInvites returns all the invites ever made
 func (k Keeper) GetInvites(ctx sdk.Context) types.Invites {
-	store := ctx.KVStore(k.StoreKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
+	iterator := k.InvitesIterator(ctx)
 
 	invites := types.Invites{}
 	defer iterator.Close()

@@ -36,6 +36,12 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool
 func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
 	// Send the coins from the user wallet to the pool
+	for _, coin := range amount {
+		if coin.Denom != "ucommercio" {
+			return sdk.ErrInsufficientCoins("deposit into membership pool can only be expressed in ucommercio")
+		}
+	}
+
 	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amount); err != nil {
 		return err
 	}
@@ -44,10 +50,15 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 
 // DistributeReward allows to distribute the rewards to the sender of the specified invite upon the receiver has
 // properly bought a membership of the given membershipType
-func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
-	senderMembership, err := k.GetMembership(ctx, invite.Sender)
-	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership")
+func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error {
+	// the invite we got is either invalid or already rewarded, get out!
+	if invite.Status == types.InviteStatusRewarded || invite.Status == types.InviteStatusInvalid {
+		return nil
+	}
+	// Calculate reward for invite
+	_, err := k.GetMembership(ctx, invite.Sender)
+	if err != nil || invite.SenderMembership == "" {
+		return sdk.ErrUnauthorized("Invite sender does not have a membership")
 	}
 
 	recipientMembership, err := k.GetMembership(ctx, invite.User)
@@ -55,18 +66,15 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership")
 	}
 
-	senderMembershipType := senderMembership.MembershipType
+	senderMembershipType := invite.SenderMembership
 	recipientMembershipType := recipientMembership.MembershipType
 
 	// Get the reward amount by searching up inside the matrix.
 	// Multiply the found amount by 1.000.000 as coins are represented as millionth of units, and make it an int
 	rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
 
-	// Create the coins that represent the reward
-	stableCreditsDenom := k.GetStableCreditsDenom(ctx)
-
 	// Get the pool amount
-	poolAmount := k.GetPoolFunds(ctx).AmountOf(stableCreditsDenom)
+	poolAmount := k.GetPoolFunds(ctx).AmountOf("ucommercio")
 
 	// Distribute the reward taking it from the pool amount
 	if poolAmount.GT(sdk.ZeroInt()) {
@@ -75,7 +83,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		if rewardAmount.GT(poolAmount) {
 			rewardAmount = poolAmount
 		}
-		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditsDenom, rewardAmount))
+		rewardCoins := sdk.NewCoins(sdk.NewCoin("ucommercio", rewardAmount))
 
 		// Send the reward to the invite sender
 		if err := k.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
@@ -84,7 +92,13 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	}
 
 	// Set the invitation as rewarded
-	newInvite := types.Invite{Sender: invite.Sender, User: invite.User, Rewarded: true}
+	newInvite := types.Invite{
+		Sender:           invite.Sender,
+		User:             invite.User,
+		SenderMembership: invite.SenderMembership,
+		Status:           types.InviteStatusRewarded,
+	}
+
 	k.SaveInvite(ctx, newInvite)
 
 	return nil

@@ -105,6 +105,8 @@ func TestCanUpgrade(t *testing.T) {
 		{first: types.MembershipTypeBlack, second: types.MembershipTypeSilver, shouldBeUpgradable: false},
 		{first: types.MembershipTypeBlack, second: types.MembershipTypeGold, shouldBeUpgradable: false},
 		{first: types.MembershipTypeBlack, second: types.MembershipTypeBlack, shouldBeUpgradable: false},
+
+		{first: "nonexistingmembership", second: "neitheristhis", shouldBeUpgradable: false},
 	}
 
 	for _, test := range tests {

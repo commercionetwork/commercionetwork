@@ -19,6 +19,7 @@ import (
 	v132 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v1.3.2"
 	v133 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v1.3.3"
 	v134 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v1.3.4"
+	v150 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v1.5.0"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -35,6 +36,7 @@ var migrationMap = map[string][]extypes.MigrationCallback{
 	"v1.3.2": {v132.Migrate},
 	"v1.3.3": {v133.Migrate},
 	"v1.3.4": {v134.Migrate},
+	"v1.5.0": {v150.Migrate},
 	"v2.0.0": {v038.Migrate, v200.Migrate},
 }
 

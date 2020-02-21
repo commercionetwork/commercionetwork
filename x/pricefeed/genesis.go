@@ -37,6 +37,10 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
 			panic(err)
 		}
 	}
+
+	if err := keeper.ComputeAndUpdateCurrentPrices(ctx); err != nil {
+		panic(err)
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

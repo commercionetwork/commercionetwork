@@ -27,7 +27,7 @@ func TestKeeper_CreateIdentity(t *testing.T) {
 
 	var stored types.DidDocument
 	store := ctx.KVStore(k.storeKey)
-	storedBz := store.Get(k.getIdentityStoreKey(TestOwnerAddress))
+	storedBz := store.Get(getIdentityStoreKey(TestOwnerAddress))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
 	require.Equal(t, TestDidDocument, stored)
@@ -37,7 +37,7 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	cdc, ctx, aK, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
+	store.Set(getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
 
 	updatedDocument := types.DidDocument{}
 	err := copier.Copy(&updatedDocument, &TestDidDocument)
@@ -59,7 +59,7 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	require.NoError(t, err)
 
 	var stored types.DidDocument
-	storedBz := store.Get(k.getIdentityStoreKey(TestOwnerAddress))
+	storedBz := store.Get(getIdentityStoreKey(TestOwnerAddress))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
 	require.Equal(t, updatedDocument, stored)
@@ -70,11 +70,11 @@ func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
+	store.Set(getIdentityStoreKey(TestOwnerAddress), cdc.MustMarshalBinaryBare(TestDidDocument))
 
-	actual, found := k.GetDidDocumentByOwner(ctx, TestOwnerAddress)
+	actual, err := k.GetDidDocumentByOwner(ctx, TestOwnerAddress)
 
-	require.True(t, found)
+	require.NoError(t, err)
 	require.Equal(t, TestDidDocument, actual)
 }
 
@@ -88,11 +88,11 @@ func TestKeeper_GetDidDocuments(t *testing.T) {
 	fourth := setupDidDocument(ctx, aK, "cosmos177ap6yqt87znxmep5l7vdaac59uxyn582kv0gl")
 	fifth := setupDidDocument(ctx, aK, "cosmos1ajv8j3e0ud2uduzdqmxfcvwm3nwdgr447yvu5m")
 
-	store.Set(k.getIdentityStoreKey(first.ID), cdc.MustMarshalBinaryBare(first))
-	store.Set(k.getIdentityStoreKey(second.ID), cdc.MustMarshalBinaryBare(second))
-	store.Set(k.getIdentityStoreKey(third.ID), cdc.MustMarshalBinaryBare(third))
-	store.Set(k.getIdentityStoreKey(fourth.ID), cdc.MustMarshalBinaryBare(fourth))
-	store.Set(k.getIdentityStoreKey(fifth.ID), cdc.MustMarshalBinaryBare(fifth))
+	store.Set(getIdentityStoreKey(first.ID), cdc.MustMarshalBinaryBare(first))
+	store.Set(getIdentityStoreKey(second.ID), cdc.MustMarshalBinaryBare(second))
+	store.Set(getIdentityStoreKey(third.ID), cdc.MustMarshalBinaryBare(third))
+	store.Set(getIdentityStoreKey(fourth.ID), cdc.MustMarshalBinaryBare(fourth))
+	store.Set(getIdentityStoreKey(fifth.ID), cdc.MustMarshalBinaryBare(fifth))
 
 	actual, err := k.GetDidDocuments(ctx)
 
@@ -117,7 +117,7 @@ func TestKeeper_StoreDidDepositRequest_NewRequest(t *testing.T) {
 
 	var stored types.DidDepositRequest
 	store := ctx.KVStore(k.storeKey)
-	storedBz := store.Get(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof))
+	storedBz := store.Get(getDepositRequestStoreKey(TestDidDepositRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
 	require.Equal(t, TestDidDepositRequest, stored)
@@ -127,7 +127,7 @@ func TestKeeper_StoreDidDepositRequest_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
+	store.Set(getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
 	err := k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 	require.Error(t, err)
@@ -138,18 +138,18 @@ func TestKeeper_StoreDidDepositRequest_ExistingRequest(t *testing.T) {
 func TestKeeper_GetDidDepositRequestByProof_NonExistingRequest(t *testing.T) {
 	_, ctx, _, _, _, k := SetupTestInput()
 
-	_, found := k.GetDidDepositRequestByProof(ctx, "")
-	require.False(t, found)
+	_, err := k.GetDidDepositRequestByProof(ctx, "")
+	require.Error(t, err)
 }
 
 func TestKeeper_GetDidDepositRequestByProof_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
+	store.Set(getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
-	stored, found := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetDidDepositRequestByProof(ctx, TestDidDepositRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, TestDidDepositRequest, stored)
 }
 
@@ -172,7 +172,7 @@ func TestKeeper_ChangeDepositRequestStatus_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
+	store.Set(getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
 	status := types.RequestStatus{Type: "status-type", Message: "status-message"}
 	err := k.ChangeDepositRequestStatus(ctx, TestDidDepositRequest.Proof, status)
@@ -188,7 +188,7 @@ func TestKeeper_ChangeDepositRequestStatus_ExistingRequest(t *testing.T) {
 	}
 
 	var stored types.DidDepositRequest
-	storedBz := store.Get(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof))
+	storedBz := store.Get(getDepositRequestStoreKey(TestDidDepositRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 	require.Equal(t, expected, stored)
 }
@@ -204,7 +204,7 @@ func TestKeeper_GetDepositRequests_ExistingList(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
+	store.Set(getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
 
 	didDepositRequests := k.GetDepositRequests(ctx)
 	require.Equal(t, 1, len(didDepositRequests))
@@ -223,7 +223,7 @@ func TestKeeper_StorePowerUpRequest_NewRequest(t *testing.T) {
 
 	var stored types.DidPowerUpRequest
 	store := ctx.KVStore(k.storeKey)
-	storedBz := store.Get(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof))
+	storedBz := store.Get(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 
 	require.Equal(t, TestDidPowerUpRequest, stored)
@@ -233,7 +233,7 @@ func TestKeeper_StorePowerUpRequest_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
 	err := k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 	require.Error(t, err)
@@ -244,18 +244,18 @@ func TestKeeper_StorePowerUpRequest_ExistingRequest(t *testing.T) {
 func TestKeeper_GetPowerUpRequestByProof_NonExistingRequest(t *testing.T) {
 	_, ctx, _, _, _, k := SetupTestInput()
 
-	_, found := k.GetPowerUpRequestByProof(ctx, "")
-	require.False(t, found)
+	_, err := k.GetPowerUpRequestByProof(ctx, "")
+	require.Error(t, err)
 }
 
 func TestKeeper_GetPowerUpRequestByProof_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
-	stored, found := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
-	require.True(t, found)
+	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	require.NoError(t, err)
 	require.Equal(t, TestDidPowerUpRequest, stored)
 }
 
@@ -277,7 +277,7 @@ func TestKeeper_ChangePowerUpRequestStatus_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
 	status := types.RequestStatus{
 		Type:    "status-type",
@@ -296,7 +296,7 @@ func TestKeeper_ChangePowerUpRequestStatus_ExistingRequest(t *testing.T) {
 	}
 
 	var stored types.DidPowerUpRequest
-	storedBz := store.Get(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof))
+	storedBz := store.Get(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof))
 	cdc.MustUnmarshalBinaryBare(storedBz, &stored)
 	require.Equal(t, expected, stored)
 }
@@ -312,7 +312,7 @@ func TestKeeper_GetPowerUpRequests_ExistingList(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
 	didPowerUpRequests := k.GetPowerUpRequests(ctx)
 	require.Equal(t, 1, len(didPowerUpRequests))

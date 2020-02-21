@@ -13,23 +13,25 @@ import (
 
 func TestKeeper_InviteUser(t *testing.T) {
 	tests := []struct {
-		name           string
-		existingInvite types.Invite
-		invite         types.Invite
-		expected       types.Invite
-		error          error
+		name              string
+		inviterMembership string
+		existingInvite    types.Invite
+		invite            types.Invite
+		expected          types.Invite
+		error             error
 	}{
 		{
 			name:           "Existing invitation returns error",
-			existingInvite: types.NewInvite(testInviteSender, testUser),
-			invite:         types.NewInvite(testUser2, testUser),
-			expected:       types.NewInvite(testInviteSender, testUser),
-			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", testUser)),
+			existingInvite: types.NewInvite(testInviteSender, testUser, "bronze"),
+			invite:         types.NewInvite(testUser2, testUser, "bronze"),
+			expected:       types.NewInvite(testInviteSender, testUser, "bronze"),
+			error:          sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", testUser)),
 		},
 		{
-			name:     "New invite works properly",
-			invite:   types.NewInvite(testInviteSender, testUser),
-			expected: types.NewInvite(testInviteSender, testUser),
+			name:              "New invite works properly",
+			inviterMembership: "gold",
+			invite:            types.NewInvite(testInviteSender, testUser, "gold"),
+			expected:          types.NewInvite(testInviteSender, testUser, "gold"),
 		},
 	}
 
@@ -42,12 +44,12 @@ func TestKeeper_InviteUser(t *testing.T) {
 			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.Cdc.MustMarshalBinaryBare(test.existingInvite))
 		}
 
-		err := k.InviteUser(ctx, test.invite.User, test.invite.Sender)
-		if test.error != nil {
-			require.Equal(t, test.error.Error(), err.Error())
-		} else {
+		if test.inviterMembership != "" {
+			err := k.AssignMembership(ctx, test.invite.Sender, test.inviterMembership)
 			require.NoError(t, err)
 		}
+		err := k.InviteUser(ctx, test.invite.User, test.invite.Sender)
+		require.Equal(t, test.error, err)
 
 		var invite types.Invite
 		accreditationBz := store.Get([]byte(types.InviteStorePrefix + testUser.String()))
@@ -73,14 +75,14 @@ func TestKeeper_GetInvite(t *testing.T) {
 		{
 			name:          "Existing invite is handled properly",
 			user:          testUser,
-			storedInvite:  types.NewInvite(testInviteSender, testUser),
-			expected:      types.NewInvite(testInviteSender, testUser),
+			storedInvite:  types.NewInvite(testInviteSender, testUser, "bronze"),
+			expected:      types.NewInvite(testInviteSender, testUser, "bronze"),
 			shouldBeFound: true,
 		},
 		{
 			name:          "Existing invite for different user returns empty",
 			user:          testUser,
-			storedInvite:  types.NewInvite(testInviteSender, testUser2),
+			storedInvite:  types.NewInvite(testInviteSender, testUser2, "bronze"),
 			expected:      types.Invite{},
 			shouldBeFound: false,
 		},
@@ -114,12 +116,12 @@ func TestKeeper_GetInvites_EmptyList(t *testing.T) {
 		{
 			name: "Existing list is returned properly",
 			stored: types.Invites{
-				types.NewInvite(testInviteSender, testUser2),
-				types.NewInvite(testUser2, testUser),
+				types.NewInvite(testInviteSender, testUser2, "bronze"),
+				types.NewInvite(testUser2, testUser, "bronze"),
 			},
 			expected: types.Invites{
-				types.NewInvite(testInviteSender, testUser2),
-				types.NewInvite(testUser2, testUser),
+				types.NewInvite(testInviteSender, testUser2, "bronze"),
+				types.NewInvite(testUser2, testUser, "bronze"),
 			},
 		},
 	}

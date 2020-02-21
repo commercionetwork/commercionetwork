@@ -36,11 +36,11 @@ func Test_queryGetInvites(t *testing.T) {
 		{
 			name: "Specific user and existing invite is returned properly",
 			storedInvites: types.Invites{
-				types.NewInvite(testInviteSender, testUser),
-				types.NewInvite(testInviteSender, testUser2),
+				types.NewInvite(testInviteSender, testUser, "bronze"),
+				types.NewInvite(testInviteSender, testUser2, "bronze"),
 			},
 			path:     []string{types.QueryGetInvites, testUser.String()},
-			expected: types.Invites{types.NewInvite(testInviteSender, testUser)},
+			expected: types.Invites{types.NewInvite(testInviteSender, testUser, "bronze")},
 		},
 		{
 			name:          "All invites and empty list is returned properly",
@@ -51,13 +51,13 @@ func Test_queryGetInvites(t *testing.T) {
 		{
 			name: "All invites and non empty list is returned properly",
 			storedInvites: types.Invites{
-				types.NewInvite(testInviteSender, testUser),
-				types.NewInvite(testInviteSender, testUser2),
+				types.NewInvite(testInviteSender, testUser, "bronze"),
+				types.NewInvite(testInviteSender, testUser2, "bronze"),
 			},
 			path: []string{types.QueryGetInvites},
 			expected: types.Invites{
-				types.NewInvite(testInviteSender, testUser2),
-				types.NewInvite(testInviteSender, testUser),
+				types.NewInvite(testInviteSender, testUser2, "bronze"),
+				types.NewInvite(testInviteSender, testUser, "bronze"),
 			},
 		},
 	}
