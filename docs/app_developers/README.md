@@ -19,8 +19,8 @@ For the developers that love reading things on the good old printed book we have
 * Available on Amazon and Kindle (soon)
 
 ## The Commercio.app
-The Commercio Blockchain Challenge App.  Learn, take the Quiz and Try the Code. Serious developers only 😉
-If you complete The Blockchain Challenge your company can join our Consortiunm as CERTIFIED DEVELOPER and you can and EARN €500 in Commercio Cash Credits.
+The Commercio Blockchain Certification App.  Learn, take the Quiz and Try the Code. Serious developers only 😉
+If you complete The Blockchain QUIZ, your company can join our Consortiunm as CERTIFIED DEVELOPER and you can and EARN €500 in Commercio Cash Credits.
 
 * Apple iOS App (soon)
 * Google Android App (soon)
@@ -31,7 +31,7 @@ If you complete The Blockchain Challenge your company can join our Consortiunm a
 
 * LEARN, QUIZ and TRY  The pocket version of Developers Guide with Copy Paste code examples to create your own App
 
-* TAKE THE CHALLENGE If you pass ALL the Quizzes, then your company will be able to Join our [consortium](https://commercioconsortium.org) as Certified Developer and you will EARN €500 in Commercio Cash Credits.
+* EARN €500 CREDITS If you pass ALL the Quizzes, then your company will be able to Join our [consortium](https://commercioconsortium.org) for €500 and as Certified Developer you will EARN €500 in Commercio Cash Credits.
 
 
 ## Our SDKs 
