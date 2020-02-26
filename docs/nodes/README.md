@@ -1,5 +1,5 @@
 # Commercio.network nodes
-Inside the Commercio.network blockchain there are two different nodes types: *full* nodes and *validator* nodes.  
+Commercio.network blockchain has two different nodes types: *full* nodes and *validator* nodes.  
 Inside this page you will learn the difference between them, which role they play inside the whole blockchain, 
 and how you can create either one of them. 
 
