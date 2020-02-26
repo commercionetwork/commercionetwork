@@ -151,8 +151,6 @@ func TestKeeper_OpenCdp(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			//require.Equal(t, test.error, err, "Invalid error: %s, %s", test.error, err)
-
 			if !test.returnedCredits.IsEqual(sdk.Coins{}) {
 				actual := bk.GetCoins(ctx, test.owner)
 				require.Equal(t, test.returnedCredits, actual)

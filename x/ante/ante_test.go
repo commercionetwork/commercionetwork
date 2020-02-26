@@ -30,7 +30,6 @@ func checkInvalidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, 
 	require.NotNil(t, err)
 
 	require.True(t, errors.Is(sdkErr.ErrInsufficientFee, code))
-	//require.Equal(t, sdk.CodespaceRoot, result.Codespace)
 }
 
 var testSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
