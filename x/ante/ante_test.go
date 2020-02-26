@@ -30,7 +30,6 @@ func checkInvalidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, 
 	require.NotNil(t, err)
 
 	require.True(t, errors.Is(sdkErr.ErrInsufficientFee, code))
-	//require.Equal(t, code, result.Code, fmt.Sprintf("Expected %v, got %v", code, result))
 	//require.Equal(t, sdk.CodespaceRoot, result.Codespace)
 }
 
