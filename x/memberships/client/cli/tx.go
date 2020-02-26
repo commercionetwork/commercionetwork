@@ -83,8 +83,9 @@ func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
 }
 
 func getCmdDepositIntoPoolFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	funder := cliCtx.GetFromAddress()
 	amount, err := sdk.ParseCoins(args[0])
@@ -123,8 +124,9 @@ func getCmdGovAssignMembership(cdc *codec.Codec) *cobra.Command {
 }
 
 func getCmdGovAssignMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	govAddr := cliCtx.GetFromAddress()
 	recipient, err := sdk.AccAddressFromBech32(args[0])
@@ -158,8 +160,9 @@ func getCmdInviteUser(cdc *codec.Codec) *cobra.Command {
 }
 
 func getCmdInviteUserFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	inviter := cliCtx.GetFromAddress()
 	invitee, err := sdk.AccAddressFromBech32(args[0])
@@ -193,8 +196,9 @@ func getCmdBuyMembership(cdc *codec.Codec) *cobra.Command {
 }
 
 func getCmdBuyMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	buyer := cliCtx.GetFromAddress()
 	membershipType := args[0]

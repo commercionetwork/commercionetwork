@@ -51,8 +51,9 @@ func openCDPCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
 	amount, err := sdk.ParseCoins(args[0])
@@ -89,8 +90,9 @@ func closeCDPCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
 

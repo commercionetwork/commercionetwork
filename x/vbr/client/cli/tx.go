@@ -33,8 +33,9 @@ func GetCmdIncrementBlockRewardsPool(cdc *codec.Codec) *cobra.Command {
 		Short: "Increments the block rewards pool's liquidity by the given amount",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI(bufio.NewReader(cmd.InOrStdin())).WithTxEncoder(utils.GetTxEncoder(cdc))
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			funder := cliCtx.GetFromAddress()
 			amount, err := sdk.ParseCoins(args[0])
