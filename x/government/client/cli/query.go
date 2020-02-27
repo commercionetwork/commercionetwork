@@ -23,6 +23,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 	cmd.AddCommand(
 		getCmdGetGovernmentAddr(cdc),
+		getCmdGetTumblerAddr(cdc),
 	)
 
 	return cmd
