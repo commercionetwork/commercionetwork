@@ -9,6 +9,7 @@ import (
 // GenesisState - docs genesis state
 type GenesisState struct {
 	GovernmentAddress sdk.AccAddress `json:"government_address"`
+	TumblerAddress    sdk.AccAddress `json:"tumbler_address"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -18,9 +19,16 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	err := keeper.SetGovernmentAddress(ctx, data.GovernmentAddress)
-	if err != nil {
-		panic(err)
+	errSetGov := keeper.SetGovernmentAddress(ctx, data.GovernmentAddress)
+
+	errSetTumb := keeper.SetTumblerAddress(ctx, data.TumblerAddress)
+
+	if errSetGov != nil {
+		panic(errSetGov)
+	}
+
+	if errSetTumb != nil {
+		panic(errSetTumb)
 	}
 }
 
@@ -28,6 +36,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
 		GovernmentAddress: keeper.GetGovernmentAddress(ctx),
+		TumblerAddress:    keeper.GetTumblerAddress(ctx),
 	}
 }
 
@@ -36,6 +45,10 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 func ValidateGenesis(data GenesisState) error {
 	if data.GovernmentAddress.Empty() {
 		return errors.New("government address cannot be empty. Use the set-genesis-government-address command to set one")
+	}
+
+	if data.TumblerAddress.Empty() {
+		return errors.New("tumbler address cannot be empty. Use the set-genesis-tumbler-address command to set one")
 	}
 	return nil
 }

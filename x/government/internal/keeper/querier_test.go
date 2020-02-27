@@ -33,3 +33,23 @@ func TestQuerier_queryGetGovernmentAddress(t *testing.T) {
 
 	require.Equal(t, want, actual)
 }
+
+func TestQuerier_queryGetTumblerAddress(t *testing.T) {
+	cdc, ctx, k := SetupTestInput()
+	var querier = NewQuerier(k)
+	err := k.SetTumblerAddress(ctx, TestAddress)
+
+	require.NoError(t, err)
+
+	want := QueryTumblerResponse{
+		TumblerAddress: TestAddress.String(),
+	}
+
+	path := []string{types.QueryTumblerAddress}
+
+	var actual QueryTumblerResponse
+	actualBz, _ := querier(ctx, path, request)
+	cdc.MustUnmarshalJSON(actualBz, &actual)
+
+	require.Equal(t, want, actual)
+}

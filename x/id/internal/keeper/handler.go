@@ -177,8 +177,8 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgMoveDeposit) (*sdk.Result, error) {
 
 	// Validate the signer
-	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
-		msg := fmt.Sprintf("Invalid signer, must be government: %s", msg.Signer)
+	if !govKeeper.GetTumblerAddress(ctx).Equals(msg.Signer) {
+		msg := fmt.Sprintf("Invalid signer, must be tumbler: %s", msg.Signer)
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg)
 	}
 
@@ -211,8 +211,8 @@ func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.K
 func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgPowerUpDid) (*sdk.Result, error) {
 
 	// Validate the signer
-	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
-		msg := fmt.Sprintf("Invalid signer, must be government: %s", msg.Signer)
+	if !govKeeper.GetTumblerAddress(ctx).Equals(msg.Signer) {
+		msg := fmt.Sprintf("Invalid signer, must be tumbler: %s", msg.Signer)
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg)
 	}
 

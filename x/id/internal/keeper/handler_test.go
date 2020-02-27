@@ -348,13 +348,13 @@ func Test_handleMsgWithdrawDeposit_InvalidGovernment(t *testing.T) {
 
 	require.Error(t, err)
 	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
-	require.Contains(t, err.Error(), "government")
+	require.Contains(t, err.Error(), "tumbler")
 }
 
 func Test_handleMsgWithdrawDeposit_InvalidRequestProof(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
-	msg := types.NewMsgMoveDeposit("", govK.GetGovernmentAddress(ctx))
+	msg := types.NewMsgMoveDeposit("", govK.GetTumblerAddress(ctx))
 	handler := NewHandler(k, govK)
 	_, err := handler(ctx, msg)
 
@@ -379,7 +379,7 @@ func Test_handleMsgWithdrawDeposit_RequestAlreadyHasAStatus(t *testing.T) {
 	}
 	_ = k.StoreDidDepositRequest(ctx, request)
 
-	msg := types.NewMsgMoveDeposit(request.Proof, govK.GetGovernmentAddress(ctx))
+	msg := types.NewMsgMoveDeposit(request.Proof, govK.GetTumblerAddress(ctx))
 	handler := NewHandler(k, govK)
 	_, err := handler(ctx, msg)
 
@@ -393,7 +393,7 @@ func Test_handleMsgWithdrawDeposit_AllGood(t *testing.T) {
 	_ = k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 	_ = bK.SetCoins(ctx, TestDidDepositRequest.FromAddress, TestDidDepositRequest.Amount)
 
-	msg := types.NewMsgMoveDeposit(TestDidDepositRequest.Proof, govK.GetGovernmentAddress(ctx))
+	msg := types.NewMsgMoveDeposit(TestDidDepositRequest.Proof, govK.GetTumblerAddress(ctx))
 	handler := NewHandler(k, govK)
 	_, err := handler(ctx, msg)
 	require.NoError(t, err)
@@ -409,7 +409,7 @@ func Test_handleMsgWithdrawDeposit_AllGood(t *testing.T) {
 	require.Equal(t, types.StatusApproved, request.Status.Type)
 }
 
-func Test_handleMsgPowerUpDid_InvalidGovernment(t *testing.T) {
+func Test_handleMsgPowerUpDid_InvalidTumbler(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
 	msg := types.MsgPowerUpDid{
@@ -423,7 +423,7 @@ func Test_handleMsgPowerUpDid_InvalidGovernment(t *testing.T) {
 
 	require.Error(t, err)
 	require.True(t, errors.Is(err, sdkErr.ErrInvalidAddress))
-	require.Contains(t, err.Error(), "government")
+	require.Contains(t, err.Error(), "tumbler")
 }
 
 func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
@@ -436,7 +436,7 @@ func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
 		Recipient:           TestDidPowerUpRequest.Claimant,
 		Amount:              TestDidPowerUpRequest.Amount,
 		ActivationReference: reference,
-		Signer:              govK.GetGovernmentAddress(ctx),
+		Signer:              govK.GetTumblerAddress(ctx),
 	}
 	handler := NewHandler(k, govK)
 	_, err := handler(ctx, msg)
@@ -453,7 +453,7 @@ func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
 		Recipient:           TestDidPowerUpRequest.Claimant,
 		Amount:              TestDidPowerUpRequest.Amount,
 		ActivationReference: "test-reference",
-		Signer:              govK.GetGovernmentAddress(ctx),
+		Signer:              govK.GetTumblerAddress(ctx),
 	}
 
 	k.supplyKeeper.SetSupply(ctx, supply.NewSupply(msg.Amount))

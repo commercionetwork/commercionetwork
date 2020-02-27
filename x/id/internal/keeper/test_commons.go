@@ -59,7 +59,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 	govK := government.NewKeeper(cdc, keys[government.StoreKey])
 
 	// Set the government address
-	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
+	_ = govK.SetTumblerAddress(ctx, TestGovernment)
 
 	// Setup the Did Document
 	TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
