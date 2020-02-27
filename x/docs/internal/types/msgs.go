@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,7 +26,7 @@ func (msg MsgShareDocument) Route() string { return ModuleName }
 func (msg MsgShareDocument) Type() string { return MsgTypeShareDocument }
 
 // ValidateBasic Implements Msg.
-func (msg MsgShareDocument) ValidateBasic() sdk.Error {
+func (msg MsgShareDocument) ValidateBasic() error {
 	return Document(msg).Validate()
 }
 
@@ -55,25 +57,25 @@ func (msg MsgSendDocumentReceipt) Route() string { return ModuleName }
 func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeSendDocumentReceipt }
 
 // ValidateBasic Implements Msg.
-func (msg MsgSendDocumentReceipt) ValidateBasic() sdk.Error {
+func (msg MsgSendDocumentReceipt) ValidateBasic() error {
 	if !validateUUID(msg.UUID) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid uuid: %s", msg.UUID))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid uuid: %s", msg.UUID)))
 	}
 
 	if msg.Sender.Empty() {
-		return sdk.ErrInvalidAddress(msg.Sender.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Sender.String()))
 	}
 
 	if msg.Recipient.Empty() {
-		return sdk.ErrInvalidAddress(msg.Recipient.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Recipient.String()))
 	}
 
 	if len(strings.TrimSpace(msg.TxHash)) == 0 {
-		return sdk.ErrUnknownRequest("Send Document's Transaction Hash can't be empty")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Send Document's Transaction Hash can't be empty"))
 	}
 
 	if !validateUUID(msg.DocumentUUID) {
-		return sdk.ErrUnknownRequest("Invalid document UUID")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid document UUID"))
 	}
 
 	return nil
@@ -105,12 +107,12 @@ func (msg MsgAddSupportedMetadataSchema) Route() string { return ModuleName }
 func (msg MsgAddSupportedMetadataSchema) Type() string { return MsgTypeAddSupportedMetadataSchema }
 
 // ValidateBasic Implements Msg.
-func (msg MsgAddSupportedMetadataSchema) ValidateBasic() sdk.Error {
+func (msg MsgAddSupportedMetadataSchema) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
 	}
 	if err := msg.Schema.Validate(); err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
 	}
 	return nil
 }
@@ -143,12 +145,12 @@ func (msg MsgAddTrustedMetadataSchemaProposer) Type() string {
 }
 
 // ValidateBasic Implements Msg.
-func (msg MsgAddTrustedMetadataSchemaProposer) ValidateBasic() sdk.Error {
+func (msg MsgAddTrustedMetadataSchemaProposer) ValidateBasic() error {
 	if msg.Proposer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Proposer.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Proposer.String()))
 	}
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
 	}
 	return nil
 }

@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -72,10 +74,10 @@ func (k Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
 // Errors occurs if:
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
-func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount sdk.Coins) sdk.Error {
+func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount sdk.Coins) error {
 
 	if depositAmount.Empty() || !depositAmount.IsValid() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid deposit amount: %s", depositAmount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", depositAmount))
 	}
 
 	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them
@@ -83,7 +85,7 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount
 	for _, token := range depositAmount {
 		assetPrice, found := k.priceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
 		if !found {
-			return sdk.ErrUnknownRequest(fmt.Sprintf("No current price for given token: %s", token.Denom))
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("No current price for given token: %s", token.Denom))
 		}
 		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Value.RoundInt()))
 	}
@@ -155,11 +157,11 @@ func (k Keeper) GetCdps(ctx sdk.Context) types.Cdps {
 // Errors occurs if:k.GetCdpsByOwner(ctx, testCdpOwner)
 // - cdp doesnt exist
 // - subtracting or adding fund to account don't end well
-func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) sdk.Error {
+func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) error {
 	cdp, found := k.GetCdpByOwnerAndTimeStamp(ctx, user, timestamp)
 	if !found {
 		msg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", user, timestamp)
-		return sdk.ErrUnknownRequest(msg)
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
 	// Send the coins from the user to the module and then burn them

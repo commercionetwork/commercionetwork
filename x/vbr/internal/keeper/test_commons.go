@@ -28,7 +28,7 @@ var pubKey = ed25519.GenPrivKey().PubKey()
 var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
 
 var TestAmount = sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100)))
-var TestBlockRewardsPool = sdk.NewDecCoins(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"}))
+var TestBlockRewardsPool = sdk.NewDecCoinsFromCoins(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})...)
 
 func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
 	memDB := db.NewMemDB()
@@ -66,9 +66,9 @@ func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper K
 
 	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
+	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey])
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), bank.DefaultCodespace, blacklistedAddrs)
+	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), blacklistedAddrs)
 
 	// add module accounts to supply keeper
 	maccPerms := map[string][]string{
@@ -81,10 +81,10 @@ func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper K
 
 	suk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 	suk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
-	sk := staking.NewKeeper(cdc, keys[staking.StoreKey], suk, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
+	sk := staking.NewKeeper(cdc, keys[staking.StoreKey], suk, pk.Subspace(staking.DefaultParamspace))
 	sk.SetParams(ctx, staking.DefaultParams())
 
-	dk := distr.NewKeeper(cdc, keys[distr.StoreKey], pk.Subspace(distr.DefaultParamspace), sk, suk, distr.DefaultCodespace, auth.FeeCollectorName, blacklistedAddrs)
+	dk := distr.NewKeeper(cdc, keys[distr.StoreKey], pk.Subspace(distr.DefaultParamspace), sk, suk, auth.FeeCollectorName, blacklistedAddrs)
 
 	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())

@@ -1,8 +1,10 @@
 package ante_test
 
 import (
-	"fmt"
+	"errors"
 	"testing"
+
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
@@ -23,14 +25,11 @@ func checkValidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, tx
 }
 
 // run the tx through the anteHandler and ensure it fails with the given code
-func checkInvalidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, tx sdk.Tx, simulate bool, code sdk.CodeType) {
+func checkInvalidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, tx sdk.Tx, simulate bool, code error) {
 	_, err := anteHandler(ctx, tx, simulate)
 	require.NotNil(t, err)
 
-	result := sdk.ResultFromError(err)
-
-	require.Equal(t, code, result.Code, fmt.Sprintf("Expected %v, got %v", code, result))
-	require.Equal(t, sdk.CodespaceRoot, result.Codespace)
+	require.True(t, errors.Is(sdkErr.ErrInsufficientFee, code))
 }
 
 var testSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
@@ -93,13 +92,13 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	var tx sdk.Tx
 	fees := sdk.NewCoins()
 	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
-	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has not specified enough stable credits
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 9999))
 	seqs = []uint64{1}
 	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
-	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough stable credits
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 10000))
@@ -114,7 +113,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{3}
 	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
-	checkInvalidTx(t, anteHandler, ctx, tx, false, sdk.CodeInsufficientFee)
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough token fees
 	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewPrice(tokenDenom, sdk.NewDec(2), sdk.NewInt(1000)))

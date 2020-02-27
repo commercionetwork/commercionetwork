@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/docs"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
@@ -92,7 +94,7 @@ func checkMinimumFees(
 	pfk pricefeed.Keeper,
 	stableCreditsDenom string,
 	requiredFees sdk.Dec,
-) sdk.Error {
+) error {
 
 	// ----
 	// Each message should cost 0.01€, which can be paid:
@@ -138,7 +140,7 @@ func checkMinimumFees(
 
 	if !fiatAmount.GTE(requiredFees) {
 		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", requiredFees, fiatAmount)
-		return sdk.ErrInsufficientFee(msg)
+		return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
 	}
 
 	return nil

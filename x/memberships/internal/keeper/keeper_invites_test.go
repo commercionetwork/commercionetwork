@@ -16,14 +16,14 @@ func TestKeeper_InviteUser(t *testing.T) {
 		existingInvite    types.Invite
 		invite            types.Invite
 		expected          types.Invite
-		error             sdk.Error
+		error             string
 	}{
 		{
 			name:           "Existing invitation returns error",
 			existingInvite: types.NewInvite(testInviteSender, testUser, "bronze"),
 			invite:         types.NewInvite(testUser2, testUser, "bronze"),
 			expected:       types.NewInvite(testInviteSender, testUser, "bronze"),
-			error:          sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", testUser)),
+			error:          fmt.Sprintf("unknown request: %s has already been invited", testUser),
 		},
 		{
 			name:              "New invite works properly",
@@ -47,7 +47,11 @@ func TestKeeper_InviteUser(t *testing.T) {
 			require.NoError(t, err)
 		}
 		err := k.InviteUser(ctx, test.invite.User, test.invite.Sender)
-		require.Equal(t, test.error, err)
+		if test.error != "" {
+			require.Equal(t, test.error, err.Error())
+		} else {
+			require.NoError(t, err)
+		}
 
 		var invite types.Invite
 		accreditationBz := store.Get([]byte(types.InviteStorePrefix + testUser.String()))

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -60,7 +62,7 @@ func ValidateGenesis(state GenesisState) error {
 	}
 	for _, oracle := range state.Oracles {
 		if oracle.Empty() {
-			return sdk.ErrInvalidAddress("Found Empty oracle address")
+			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Found Empty oracle address")
 		}
 	}
 	return nil

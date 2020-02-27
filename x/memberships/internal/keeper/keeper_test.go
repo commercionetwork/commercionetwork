@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -15,13 +17,13 @@ func TestKeeper_AssignMembership(t *testing.T) {
 		existingMembership string
 		membershipType     string
 		user               sdk.AccAddress
-		error              sdk.Error
+		error              error
 	}{
 		{
 			name:           "Invalid membership type returns error",
 			membershipType: "grn",
 			user:           testUser,
-			error:          sdk.ErrUnknownRequest("Invalid membership type: grn"),
+			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 		{
 			name:           "Non existing membership is properly saved",
@@ -47,7 +49,11 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			}
 
 			err := k.AssignMembership(ctx, test.user, test.membershipType)
-			require.Equal(t, test.error, err)
+			if err != nil {
+				require.Equal(t, test.error.Error(), err.Error())
+			} else {
+				require.NoError(t, err)
+			}
 		})
 	}
 }
@@ -96,13 +102,13 @@ func TestKeeper_GetMembership(t *testing.T) {
 		name                   string
 		existingMembershipType string
 		user                   sdk.AccAddress
-		expectedError          sdk.Error
+		expectedError          error
 		expectedMembership     types.Membership
 	}{
 		{
 			name: "Non existing membership is returned properly",
 			user: testUser,
-			expectedError: sdk.ErrUnknownRequest(
+			expectedError: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("membership not found for user \"%s\"", testUser.String()),
 			),
 		},

@@ -3,6 +3,8 @@ package types_test
 import (
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -64,22 +66,22 @@ func TestPubKey_Validate(t *testing.T) {
 	tests := []struct {
 		name string
 		pk   types.PubKey
-		want sdk.Error
+		want error
 	}{
 		{
 			"invalid key id",
 			types.NewPubKey("id", "type", controller, "13"),
-			sdk.ErrUnknownRequest("Invalid key id, must satisfy ^cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-[0-9]+$"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid key id, must satisfy ^cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-[0-9]+$"),
 		},
 		{
 			"invalid key type",
 			types.NewPubKey("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-1", "type", controller, "10"),
-			sdk.ErrUnknownRequest("Invalid key type, must be either RsaVerificationKey2018, Secp256k1VerificationKey2018 or Ed25519VerificationKey2018"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid key type, must be either RsaVerificationKey2018, Secp256k1VerificationKey2018 or Ed25519VerificationKey2018"),
 		},
 		{
 			"invaliod pubkey hex value",
 			types.NewPubKey("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-1", "RsaVerificationKey2018", controller, "lkasd"),
-			sdk.ErrUnknownRequest("Invalid publicKeyHex value"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid publicKeyHex value"),
 		},
 		{
 			"valid pubkey",

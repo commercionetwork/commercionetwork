@@ -20,8 +20,8 @@ func TestValidMsgSetPrice(t *testing.T) {
 
 	handler := NewHandler(k, govK)
 
-	actual := handler(ctx, msgSetPrice)
-	require.True(t, actual.IsOK())
+	_, err := handler(ctx, msgSetPrice)
+	require.NoError(t, err)
 }
 
 // ---------------------
@@ -34,8 +34,8 @@ func TestValidMsgAddOracle(t *testing.T) {
 
 	_ = govK.SetGovernmentAddress(ctx, testGovernment)
 
-	actual := handler(ctx, msgAddOracle)
-	require.True(t, actual.IsOK())
+	_, err := handler(ctx, msgAddOracle)
+	require.NoError(t, err)
 }
 
 func TestInvalidMsg(t *testing.T) {
@@ -43,8 +43,8 @@ func TestInvalidMsg(t *testing.T) {
 	_, ctx, govK, k := SetupTestInput()
 	handler := NewHandler(k, govK)
 
-	actual := handler(ctx, invalidMsg)
+	_, err := handler(ctx, invalidMsg)
 
-	require.False(t, actual.IsOK())
-	require.True(t, strings.Contains(actual.Log, fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
+	require.Error(t, err)
+	require.True(t, strings.Contains(err.Error(), fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
 }

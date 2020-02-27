@@ -3,7 +3,7 @@ package types
 import (
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // ----------------
@@ -36,17 +36,17 @@ func (service Service) Equals(other Service) bool {
 
 // Validate checks the data present inside service and returns an
 // error if something is invalid
-func (service Service) Validate() sdk.Error {
+func (service Service) Validate() error {
 	if len(strings.TrimSpace(service.ID)) == 0 {
-		return sdk.ErrUnknownRequest("Service id cannot be empty")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Service id cannot be empty"))
 	}
 
 	if len(strings.TrimSpace(service.Type)) == 0 {
-		return sdk.ErrUnknownRequest("Service type cannot be empty")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Service type cannot be empty"))
 	}
 
 	if len(strings.TrimSpace(service.ServiceEndpoint)) == 0 {
-		return sdk.ErrUnknownRequest("Service endpoint cannot be empty")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Service endpoint cannot be empty"))
 	}
 
 	return nil

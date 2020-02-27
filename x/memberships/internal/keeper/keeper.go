@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
@@ -52,9 +54,9 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 
 // BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
-func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) sdk.Error {
+func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) error {
 	if membershipType == types.MembershipTypeBlack {
-		return sdk.ErrInvalidAddress("cannot buy black membership")
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "cannot buy black membership")
 	}
 
 	// Get the tokens from the buyer account
@@ -78,10 +80,10 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 // AssignMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 // Returns the URI of the new minted token represented the assigned membership, or an error if something goes w
-func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) sdk.Error {
+func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) error {
 	// Check the membership type validity
 	if !types.IsMembershipTypeValid(membershipType) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid membership type: %s", membershipType))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
 
 	_ = k.RemoveMembership(ctx, user)
@@ -90,7 +92,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
-		return sdk.ErrUnknownRequest(
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf(
 				"cannot add membership \"%s\" for address %s: user already have a membership",
 				membershipType,
@@ -106,11 +108,11 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 // GetMembership allows to retrieve any existent membership for the specified user.
 // The second returned false (the boolean one) tells if the NFT token representing the membership was found or not
-func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, sdk.Error) {
+func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
 	store := ctx.KVStore(k.StoreKey)
 
 	if !store.Has(k.storageForAddr(user)) {
-		return types.Membership{}, sdk.ErrUnknownRequest(
+		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("membership not found for user \"%s\"", user.String()),
 		)
 	}
@@ -124,11 +126,11 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 }
 
 // RemoveMembership allows to remove any existing membership associated with the given user.
-func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) sdk.Error {
+func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
 
 	if !store.Has(k.storageForAddr(user)) {
-		return sdk.ErrUnknownRequest(
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
 		)
 	}

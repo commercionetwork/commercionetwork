@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
+
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -34,17 +37,18 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 		Short: "set price for a given token",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			tokenPrice, err := sdk.NewDecFromStr(args[1])
 			if err != nil {
-				return sdk.ErrInternal(err.Error())
+				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, (err.Error()))
 			}
 
 			expiry, ok := sdk.NewIntFromString(args[2])
 			if !ok {
-				return sdk.ErrInternal(fmt.Sprintf("Invalid expiration height, %s", args[2]))
+				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, (fmt.Sprintf("Invalid expiration height, %s", args[2])))
 			}
 
 			price := types.NewPrice(args[0], tokenPrice, expiry)
@@ -69,8 +73,9 @@ func GetCmdAddOracle(cdc *codec.Codec) *cobra.Command {
 		Short: "add a trusted oracle to the oracles' list",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			oracle, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {

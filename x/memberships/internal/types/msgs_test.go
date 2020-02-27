@@ -3,6 +3,8 @@ package types_test
 import (
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -30,7 +32,7 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgInviteUser
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message returns no error",
@@ -40,19 +42,23 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing recipient returns error",
 			msg:   types.MsgInviteUser{Recipient: nil, Sender: sender},
-			error: sdk.ErrInvalidAddress("Invalid recipient address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address: "),
 		},
 		{
 			name:  "Missing sender returns error",
 			msg:   types.MsgInviteUser{Recipient: user, Sender: nil},
-			error: sdk.ErrInvalidAddress("Invalid sender address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid sender address: "),
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -97,7 +103,7 @@ func TestMsgSetUserVerified_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgSetUserVerified
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid msg does not return any error",
@@ -107,19 +113,23 @@ func TestMsgSetUserVerified_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing user returns error",
 			msg:   types.NewMsgSetUserVerified(nil, tsp),
-			error: sdk.ErrInvalidAddress("Invalid user address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid user address: "),
 		},
 		{
 			name:  "Missing signer returns error",
 			msg:   types.NewMsgSetUserVerified(user, nil),
-			error: sdk.ErrInvalidAddress("Invalid verifier address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid verifier address: "),
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -164,7 +174,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgDepositIntoLiquidityPool
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message returns no error",
@@ -174,12 +184,12 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing deposit returns error",
 			msg:   types.MsgDepositIntoLiquidityPool{Depositor: nil, Amount: amount},
-			error: sdk.ErrInvalidAddress("Invalid depositor address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid depositor address: "),
 		},
 		{
 			name:  "Empty deposit amount returns error",
 			msg:   types.MsgDepositIntoLiquidityPool{Depositor: user, Amount: nil},
-			error: sdk.ErrInvalidCoins("Invalid deposit amount: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: "),
 		},
 		{
 			name: "Negative deposit amount returns error",
@@ -187,14 +197,18 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 				Depositor: user,
 				Amount:    sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(-100)}},
 			},
-			error: sdk.ErrInvalidCoins("Invalid deposit amount: -100uatom"),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: -100uatom"),
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -242,7 +256,7 @@ func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgAddTsp
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message does not return any error",
@@ -252,19 +266,23 @@ func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
 		{
 			name:  "Missing government returns error",
 			msg:   types.MsgAddTsp{Government: nil, Tsp: tsp},
-			error: sdk.ErrInvalidAddress("Invalid government address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid government address: "),
 		},
 		{
 			name:  "Missing tsp returns error",
 			msg:   types.MsgAddTsp{Government: government, Tsp: nil},
-			error: sdk.ErrInvalidAddress("Invalid TSP address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid TSP address: "),
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -311,7 +329,7 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgBuyMembership
-		error sdk.Error
+		error error
 	}{
 		{
 			name:  "Valid message does not return any error",
@@ -321,24 +339,28 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 		{
 			name:  "Missing buyer returns error",
 			msg:   types.NewMsgBuyMembership(TestMembershipType, nil),
-			error: sdk.ErrInvalidAddress("Invalid buyer address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid buyer address: "),
 		},
 		{
 			name:  "Missing membership returns error",
 			msg:   types.NewMsgBuyMembership("", testBuyer),
-			error: sdk.ErrUnknownRequest("Invalid membership type: "),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: "),
 		},
 		{
 			name:  "Invalid membership returns error",
 			msg:   types.NewMsgBuyMembership("grn", testBuyer),
-			error: sdk.ErrUnknownRequest("Invalid membership type: grn"),
+			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }
@@ -367,29 +389,33 @@ func TestNewMsgSetBlackMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgSetBlackMembership
-		error sdk.Error
+		error string
 	}{
 		{
 			name:  "Valid message does not return any error",
 			msg:   msgSetBlackmembership,
-			error: nil,
+			error: "",
 		},
 		{
 			name:  "Missing gov address returns error",
 			msg:   types.NewMsgSetBlackMembership(testBuyer, nil),
-			error: sdk.ErrInvalidAddress("Invalid government address: "),
+			error: "Invalid government address: ",
 		},
 		{
 			name:  "Missing subscriber returns error",
 			msg:   types.NewMsgSetBlackMembership(nil, government),
-			error: sdk.ErrInvalidAddress("Invalid subscriber address: "),
+			error: "Invalid subscriber address: ",
 		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.error, test.msg.ValidateBasic())
+			if test.error != "" {
+				require.Contains(t, test.msg.ValidateBasic().Error(), test.error)
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
 		})
 	}
 }

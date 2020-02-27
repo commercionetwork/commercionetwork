@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,8 +24,9 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 	pfk.SetCurrentPrice(ctx, pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
 	k.SetCreditsDenom(ctx, "uccc")
 
-	expected := sdk.Result{Log: "Cdp opened successfully"}
-	actual := handler(ctx, testMsgOpenCdp)
+	expected := &sdk.Result{Log: "Cdp opened successfully"}
+	actual, err := handler(ctx, testMsgOpenCdp)
+	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 }
 
@@ -35,8 +38,9 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.CreditsAmount)
 	k.AddCdp(ctx, testCdp)
 
-	expected := sdk.Result{Log: "Cdp closed successfully"}
-	actual := handler(ctx, testMsgCloseCdp)
+	expected := &sdk.Result{Log: "Cdp closed successfully"}
+	actual, err := handler(ctx, testMsgCloseCdp)
+	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 }
 
@@ -46,8 +50,9 @@ func TestHandler_InvalidMsg(t *testing.T) {
 
 	invalidMsg := sdk.NewTestMsg()
 	errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, invalidMsg.Type())
-	expected := sdk.ErrUnknownRequest(errMsg).Result()
-	actual := handler(ctx, invalidMsg)
+	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 
-	require.Equal(t, expected, actual)
+	_, err := handler(ctx, invalidMsg)
+	require.Error(t, err)
+	require.Equal(t, expected.Error(), err.Error())
 }

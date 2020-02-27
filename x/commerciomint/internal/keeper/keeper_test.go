@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/stretchr/testify/require"
@@ -88,7 +90,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 		amount          sdk.Coins
 		tokenPrice      pricefeed.Price
 		userFunds       sdk.Coins
-		error           sdk.Error
+		error           error
 		returnedCredits sdk.Coins
 	}{
 		{
@@ -96,7 +98,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			owner:      testCdp.Owner,
 			amount:     sdk.NewCoins(sdk.NewInt64Coin("testcoin", 0)),
 			tokenPrice: pricefeed.EmptyPrice(),
-			error: sdk.ErrInvalidCoins(fmt.Sprintf(
+			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf(
 				"Invalid deposit amount: %s",
 				sdk.NewCoins(sdk.NewInt64Coin("testcoin", 0)),
 			)),
@@ -106,14 +108,14 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			owner:      testCdp.Owner,
 			amount:     testCdp.DepositedAmount,
 			tokenPrice: pricefeed.EmptyPrice(),
-			error:      sdk.ErrUnknownRequest(fmt.Sprintf("No current price for given token: %s", testCdp.DepositedAmount[0].Denom)),
+			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("No current price for given token: %s", testCdp.DepositedAmount[0].Denom)),
 		},
 		{
 			name:       "Not enough funds inside user wallet",
 			amount:     testCdp.DepositedAmount,
 			owner:      testCdp.Owner,
 			tokenPrice: pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
-			error: sdk.ErrInsufficientCoins(fmt.Sprintf(
+			error: sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf(
 				"insufficient account funds; %s < %s",
 				sdk.Coins{},
 				sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 100)),
@@ -143,7 +145,11 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			}
 
 			err := k.OpenCdp(ctx, test.owner, test.amount)
-			require.Equal(t, test.error, err, "Invalid error: %s, %s", test.error, err)
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), err.Error())
+			} else {
+				require.NoError(t, err)
+			}
 
 			if !test.returnedCredits.IsEqual(sdk.Coins{}) {
 				actual := bk.GetCoins(ctx, test.owner)
@@ -202,7 +208,7 @@ func TestKeeper_CloseCdp(t *testing.T) {
 
 		err := k.CloseCdp(ctx, testCdp.Owner, testCdp.Timestamp)
 		errMsg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.Timestamp)
-		require.Equal(t, sdk.ErrUnknownRequest(errMsg), err)
+		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
 	})
 
 	t.Run("Existing CDP is closed properly", func(t *testing.T) {

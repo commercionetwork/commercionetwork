@@ -4,8 +4,9 @@ import (
 	"strconv"
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -35,8 +36,8 @@ func TestQuerier_queryGetCdp_notFound(t *testing.T) {
 	_, err := querier(ctx, path, req)
 
 	require.Error(t, err)
-	expected := sdk.ErrUnknownRequest("couldn't find any cdp associated with the given address and timestamp")
-	require.Equal(t, expected, err)
+	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, "couldn't find any cdp associated with the given address and timestamp")
+	require.Equal(t, expected.Error(), err.Error())
 }
 
 func TestQuerier_queryGetCdps_found(t *testing.T) {

@@ -2,7 +2,10 @@ package keeper
 
 import (
 	"encoding/hex"
+	"errors"
 	"testing"
+
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -128,7 +131,7 @@ func TestKeeper_StoreDidDepositRequest_ExistingRequest(t *testing.T) {
 
 	err := k.StoreDidDepositRequest(ctx, TestDidDepositRequest)
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 	require.Contains(t, err.Error(), "same proof")
 }
 
@@ -161,7 +164,7 @@ func TestKeeper_ChangeDepositRequestStatus_NonExistingRequest(t *testing.T) {
 	err := k.ChangeDepositRequestStatus(ctx, "", status)
 	require.Error(t, err)
 
-	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 	require.Contains(t, err.Error(), "proof")
 }
 
@@ -234,7 +237,7 @@ func TestKeeper_StorePowerUpRequest_ExistingRequest(t *testing.T) {
 
 	err := k.StorePowerUpRequest(ctx, TestDidPowerUpRequest)
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 	require.Contains(t, err.Error(), "same proof")
 }
 
@@ -266,7 +269,7 @@ func TestKeeper_ChangePowerUpRequestStatus_NonExistingRequest(t *testing.T) {
 
 	err := k.ChangePowerUpRequestStatus(ctx, "", status)
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeUnknownRequest, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
 	require.Contains(t, err.Error(), "proof")
 }
 
@@ -325,7 +328,7 @@ func TestKeeper_DepositIntoPool_InvalidAmount(t *testing.T) {
 
 	err := k.DepositIntoPool(ctx, TestDepositor, sdk.NewCoins())
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeInvalidCoins, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidCoins))
 }
 
 func TestKeeper_DepositIntoPool_InsufficientFunds(t *testing.T) {
@@ -334,7 +337,7 @@ func TestKeeper_DepositIntoPool_InsufficientFunds(t *testing.T) {
 
 	err := k.DepositIntoPool(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeInsufficientCoins, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrInsufficientFunds))
 }
 
 func TestKeeper_DepositIntoPool_ValidRequest(t *testing.T) {
@@ -354,7 +357,7 @@ func TestKeeper_FundAccount_InvalidAmount(t *testing.T) {
 
 	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins())
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeInvalidCoins, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrInvalidCoins))
 }
 
 func TestKeeper_FundAccount_InsufficientPoolFunds(t *testing.T) {
@@ -362,7 +365,7 @@ func TestKeeper_FundAccount_InsufficientPoolFunds(t *testing.T) {
 
 	err := k.FundAccount(ctx, TestDepositor, sdk.NewCoins(sdk.NewInt64Coin("uatom", 1000)))
 	require.Error(t, err)
-	require.Equal(t, sdk.CodeInsufficientCoins, err.Code())
+	require.True(t, errors.Is(err, sdkErr.ErrInsufficientFunds))
 }
 
 func TestKeeper_FundAccount_ValidRequest(t *testing.T) {

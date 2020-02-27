@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
@@ -12,7 +14,7 @@ import (
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryGetInvites:
 			return queryGetInvites(ctx, path[1:], keeper)
@@ -23,7 +25,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case types.QueryGetMembership:
 			return queryResolveMembership(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -33,7 +35,7 @@ type InviteResponse struct {
 	Sender    sdk.AccAddress `json:"sender"`
 }
 
-func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 
 	// Get the list of invites
 	var invites []types.Invite
@@ -53,13 +55,13 @@ func queryGetInvites(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, invites)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
-func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err error) {
 	signers := keeper.GetTrustedServiceProviders(ctx)
 	if signers == nil {
 		signers = make([]sdk.AccAddress, 0)
@@ -67,13 +69,13 @@ func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, er
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, signers)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
-func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, err error) {
 	value := keeper.GetPoolFunds(ctx)
 	if value == nil {
 		value = make([]sdk.Coin, 0)
@@ -81,7 +83,7 @@ func queryGetPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (res []byte, 
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, value)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -94,10 +96,10 @@ type MembershipResult struct {
 }
 
 // queryResolveMembership allows to retrieve the current membership of a user having a specified address
-func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err sdk.Error) {
+func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 	address, err2 := sdk.AccAddressFromBech32(path[0])
 	if err2 != nil {
-		return nil, sdk.ErrInvalidAddress(path[0])
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, path[0])
 	}
 
 	// Create the result type
@@ -114,7 +116,7 @@ func queryResolveMembership(ctx sdk.Context, path []string, keeper Keeper) (res 
 	result.MembershipType = membership.MembershipType
 	bz, err2 := codec.MarshalJSONIndent(keeper.Cdc, result)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil

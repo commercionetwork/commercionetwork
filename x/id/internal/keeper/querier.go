@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
@@ -12,7 +14,7 @@ import (
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryResolveDid:
 			return queryResolveIdentity(ctx, path[1:], keeper)
@@ -21,7 +23,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case types.QueryResolvePowerUpRequest:
 			return queryResolvePowerUpRequest(ctx, path[1:], keeper)
 		default:
-			return nil, sdk.ErrUnknownRequest(fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -30,10 +32,10 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 // --- Identities
 // ------------------
 
-func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 	address, err2 := sdk.AccAddressFromBech32(path[0])
 	if err2 != nil {
-		return nil, sdk.ErrInvalidAddress(path[0])
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, path[0])
 	}
 
 	var response ResolveIdentityResponse
@@ -41,17 +43,17 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) ([]byte
 
 	didDocument, err := keeper.GetDidDocumentByOwner(ctx, address)
 	if err != nil {
-		return nil, sdk.ErrUnknownAddress(err.Error())
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress, err.Error())
 	}
 
 	response.DidDocument = &didDocument
 
-	res, sErr := codec.MarshalJSONIndent(keeper.cdc, response)
-	if sErr != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, response)
+	if err2 != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
-	return res, nil
+	return bz, nil
 }
 
 type ResolveIdentityResponse struct {
@@ -63,33 +65,33 @@ type ResolveIdentityResponse struct {
 // --- Pairwise Did
 //--------------------
 
-func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 
 	// Get the request
 	request, err := keeper.GetDidDepositRequestByProof(ctx, path[0])
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(err.Error())
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
 	if err2 != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
-func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 
 	// Get the request
 	request, err := keeper.GetPowerUpRequestByProof(ctx, path[0])
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(err.Error())
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	bz, sErr := codec.MarshalJSONIndent(keeper.cdc, &request)
 	if sErr != nil {
-		return nil, sdk.ErrUnknownRequest("Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
 	}
 
 	return bz, nil

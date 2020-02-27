@@ -43,7 +43,7 @@ func SetGenesisVbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 			// set pool amount into the app state
 			var genState vbr.GenesisState
 			cdc.MustUnmarshalJSON(appState[vbr.ModuleName], &genState)
-			genState.PoolAmount = sdk.NewDecCoins(coins)
+			genState.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
 			appState[vbr.ModuleName] = genesisStateBz

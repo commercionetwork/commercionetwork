@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var membershipRewards = map[string]map[string]sdk.Dec{
@@ -33,11 +34,11 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 }
 
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool
-func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
+func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
 	// Send the coins from the user wallet to the pool
 	for _, coin := range amount {
 		if coin.Denom != "ucommercio" {
-			return sdk.ErrInsufficientCoins("deposit into membership pool can only be expressed in ucommercio")
+			return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "deposit into membership pool can only be expressed in ucommercio")
 		}
 	}
 
@@ -49,7 +50,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 
 // DistributeReward allows to distribute the rewards to the sender of the specified invite upon the receiver has
 // properly bought a membership of the given membershipType
-func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error {
+func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	// the invite we got is either invalid or already rewarded, get out!
 	if invite.Status == types.InviteStatusRewarded || invite.Status == types.InviteStatusInvalid {
 		return nil
@@ -57,12 +58,12 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 	// Calculate reward for invite
 	_, err := k.GetMembership(ctx, invite.Sender)
 	if err != nil || invite.SenderMembership == "" {
-		return sdk.ErrUnauthorized("Invite sender does not have a membership")
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership")
 	}
 
 	recipientMembership, err := k.GetMembership(ctx, invite.User)
 	if err != nil {
-		return sdk.ErrUnauthorized("Invite recipient does not have a membership")
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership")
 	}
 
 	senderMembershipType := invite.SenderMembership
@@ -95,7 +96,8 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) sdk.Error
 		Sender:           invite.Sender,
 		User:             invite.User,
 		SenderMembership: invite.SenderMembership,
-		Status:           types.InviteStatusRewarded}
+		Status:           types.InviteStatusRewarded,
+	}
 
 	k.SaveInvite(ctx, newInvite)
 

@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // A proof on a DID Document is cryptographic proof of the integrity of the DID Document according to either:
@@ -35,14 +35,14 @@ func (proof Proof) Equals(other Proof) bool {
 
 // Validate checks for the content contained inside the proof and
 // returns an error if something is invalid
-func (proof Proof) Validate() sdk.Error {
+func (proof Proof) Validate() error {
 
 	if proof.Type != "LinkedDataSignature2015" {
-		return sdk.ErrUnknownRequest("Invalid proof type, must be LinkedDataSignature2015")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof type, must be LinkedDataSignature2015"))
 	}
 
 	if proof.Created.IsZero() {
-		return sdk.ErrUnknownRequest("Invalid proof creation time")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof creation time"))
 	}
 
 	return nil

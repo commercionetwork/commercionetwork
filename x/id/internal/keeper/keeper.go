@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -43,13 +45,13 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, accKeeper auth.AccountKe
 // ------------------
 
 // SaveDidDocument saves the given didDocumentUri associating it with the given owner, replacing any existent one.
-func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk.Error {
+func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) error {
 	owner := document.ID
 
 	// Get the account and its public key
 	account := k.accKeeper.GetAccount(ctx, owner)
 	if account == nil {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Could not find account %s", owner.String()))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Could not find account %s", owner.String()))
 	}
 
 	accountPubKey := account.GetPubKey()
@@ -61,13 +63,13 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk
 	// Get the authentication key
 	authKey, found := document.PubKeys.FindByID(document.Authentication[0])
 	if !found {
-		return sdk.ErrUnknownRequest("Authentication key not found inside publicKey array")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Authentication key not found inside publicKey array")
 	}
 
 	// Get the authentication key bytes
 	authKeyBytes, err := hex.DecodeString(authKey.PublicKeyHex)
 	if err != nil {
-		return sdk.ErrUnknownRequest("Invalid authentication key hex value")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid authentication key hex value")
 	}
 
 	// TODO: The following code should be tested
@@ -77,7 +79,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk
 		// Check the auth key type coherence with its value
 		if authKey.Type != types.KeyTypeEd25519 {
 			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeEd25519)
-			return sdk.ErrUnknownRequest(msg)
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 		}
 		key = ed25519key[:]
 	}
@@ -86,7 +88,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk
 		// Check the auth key type coherence with its value
 		if authKey.Type != types.KeyTypeSecp256k1 {
 			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeSecp256k1)
-			return sdk.ErrUnknownRequest(msg)
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 		}
 		key = secp256k1key[:]
 	}
@@ -98,7 +100,7 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) sdk
 			hex.EncodeToString(key),
 			hex.EncodeToString(authKeyBytes),
 		)
-		return sdk.ErrUnknownRequest(msg)
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
 	// TODO: Check that the proof signatureValue is the valid signature of the entire Did Document made with the user private key
@@ -155,12 +157,12 @@ func (k Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
 
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
-func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) sdk.Error {
+func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) error {
 	store := ctx.KVStore(k.storeKey)
 
 	requestKey := getDepositRequestStoreKey(request.Proof)
 	if store.Has(requestKey) {
-		return sdk.ErrUnknownRequest("Did deposit request with the same proof already exists")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Did deposit request with the same proof already exists")
 	}
 
 	store.Set(requestKey, k.cdc.MustMarshalBinaryBare(&request))
@@ -184,12 +186,12 @@ func (k Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (type
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
-func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
+func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) error {
 	store := ctx.KVStore(k.storeKey)
 
 	request, err := k.GetDidDepositRequestByProof(ctx, proof)
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Update and store the request
@@ -220,12 +222,12 @@ func (k Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDeposit
 
 // StorePowerUpRequest allows to save the given request. Returns an error if a request with
 // the same proof already exists
-func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) sdk.Error {
+func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) error {
 	store := ctx.KVStore(k.storeKey)
 
 	requestStoreKey := getDidPowerUpRequestStoreKey(request.Proof)
 	if store.Has(requestStoreKey) {
-		return sdk.ErrUnknownRequest("PowerUp request with the same proof already exists")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "PowerUp request with the same proof already exists")
 	}
 
 	store.Set(requestStoreKey, k.cdc.MustMarshalBinaryBare(&request))
@@ -249,12 +251,12 @@ func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (types.D
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
-func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) sdk.Error {
+func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) error {
 	store := ctx.KVStore(k.storeKey)
 
 	request, err := k.GetPowerUpRequestByProof(ctx, proof)
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Update and store the request
@@ -319,10 +321,10 @@ func (k Keeper) HandledPowerUpRequestsIterator(ctx sdk.Context) sdk.Iterator {
 
 // DepositIntoPool allows to deposit the specified amount into the liquidity pool, taking it from the
 // specified depositor balance
-func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) sdk.Error {
+func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
 	// Check the amount
 	if !amount.IsValid() || amount.Empty() || amount.IsAnyNegative() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid coins: %s", amount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid coins: %s", amount))
 	}
 
 	// Subtract the coins from the user
@@ -335,10 +337,10 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 
 // FundAccount allows to take the specified amount from the liquidity pool and move them into the
 // specified account balance
-func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) sdk.Error {
+func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) error {
 	// Check the amount
 	if amount.Empty() || !amount.IsValid() {
-		return sdk.ErrInvalidCoins(fmt.Sprintf("Invalid coins: %s", amount))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid coins: %s", amount))
 	}
 
 	// Get the current pool
@@ -346,7 +348,7 @@ func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.
 
 	// Check that the pool has enough funds
 	if amount.IsAnyGT(currentPool) {
-		return sdk.ErrInsufficientFunds("Pool does not have enough funds")
+		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool does not have enough funds")
 	}
 
 	// Add the coins to the user

@@ -2,6 +2,7 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // ---------------------------
@@ -20,12 +21,12 @@ func (msg MsgBlockAccountSend) Route() string { return RouterKey }
 func (msg MsgBlockAccountSend) Type() string { return MsgTypeBlockAccountSend }
 
 // ValidateBasic Implements Msg.
-func (msg MsgBlockAccountSend) ValidateBasic() sdk.Error {
+func (msg MsgBlockAccountSend) ValidateBasic() error {
 	if msg.Address.Empty() {
-		return sdk.ErrInvalidAddress(msg.Address.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Address.String()))
 	}
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
 	}
 
 	return nil
@@ -57,12 +58,12 @@ func (msg MsgUnlockAccountSend) Route() string { return RouterKey }
 func (msg MsgUnlockAccountSend) Type() string { return MsgTypeUnlockAccountSend }
 
 // ValidateBasic Implements Msg.
-func (msg MsgUnlockAccountSend) ValidateBasic() sdk.Error {
+func (msg MsgUnlockAccountSend) ValidateBasic() error {
 	if msg.Address.Empty() {
-		return sdk.ErrInvalidAddress(msg.Address.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Address.String()))
 	}
 	if msg.Signer.Empty() {
-		return sdk.ErrInvalidAddress(msg.Signer.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
 	}
 
 	return nil

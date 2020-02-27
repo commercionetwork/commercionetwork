@@ -5,6 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -56,41 +57,41 @@ func validateUUID(uuidStr string) bool {
 // Validate certify whether doc is a valid Document instance or not.
 // It returns an error with the validation failure motivation when the validation process
 // fails.
-func (doc Document) Validate() sdk.Error {
+func (doc Document) Validate() error {
 	if doc.Sender.Empty() {
-		return sdk.ErrInvalidAddress(doc.Sender.String())
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (doc.Sender.String()))
 	}
 
 	if doc.Recipients.Empty() {
-		return sdk.ErrInvalidAddress("Recipients cannot be empty")
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, ("Recipients cannot be empty"))
 	}
 
 	for _, recipient := range doc.Recipients {
 		if recipient.Empty() {
-			return sdk.ErrInvalidAddress(recipient.String())
+			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (recipient.String()))
 		}
 	}
 
 	if !validateUUID(doc.UUID) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid document UUID: %s", doc.UUID)))
 	}
 
 	err := doc.Metadata.Validate()
 	if err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
 	}
 
 	if doc.Checksum != nil {
 		err = doc.Checksum.Validate()
 		if err != nil {
-			return sdk.ErrUnknownRequest(err.Error())
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
 		}
 	}
 
 	if doc.EncryptionData != nil {
 		err = doc.EncryptionData.Validate()
 		if err != nil {
-			return sdk.ErrUnknownRequest(err.Error())
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
 		}
 	}
 
@@ -103,7 +104,7 @@ func (doc Document) Validate() sdk.Error {
 					"%s is a recipient inside the document but not in the encryption data",
 					recipient.String(),
 				)
-				return sdk.ErrInvalidAddress(errMsg)
+				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (errMsg))
 			}
 		}
 
@@ -115,13 +116,13 @@ func (doc Document) Validate() sdk.Error {
 					"%s is a recipient inside encryption data but not inside the message",
 					encAdd.Recipient.String(),
 				)
-				return sdk.ErrInvalidAddress(errMsg)
+				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (errMsg))
 			}
 		}
 
 		// Check that the `encrypted_data' field name is actually present in doc
-		fNotPresent := func(s string) sdk.Error {
-			return sdk.ErrUnknownRequest(
+		fNotPresent := func(s string) error {
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", s),
 			)
 		}

@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -12,12 +14,12 @@ func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {
 }
 
 // InviteUser allows to set a given user as being invited by the given invite sender.
-func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) sdk.Error {
+func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
 	inviteKey := k.getInviteStoreKey(recipient)
 
 	if store.Has(inviteKey) {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("%s has already been invited", recipient))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", recipient))
 	}
 
 	inviterMembership, err := k.GetMembership(ctx, sender)

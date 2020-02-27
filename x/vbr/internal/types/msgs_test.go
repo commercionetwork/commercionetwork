@@ -3,6 +3,8 @@ package types
 import (
 	"testing"
 
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -48,9 +50,9 @@ func TestMsgIncrementBlockRewardsPool_ValidateBasic_valid(t *testing.T) {
 
 func TestMsgIncrementBlockRewardsPool_ValidateBasic_noFunds(t *testing.T) {
 	actual := msgIncrementsBrPoolNoFunds.ValidateBasic()
-	expected := sdk.ErrUnknownRequest("You can't transfer a null or negative amount")
+	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, "You can't transfer a null or negative amount")
 
-	require.Equal(t, expected, actual)
+	require.Equal(t, expected.Error(), actual.Error())
 }
 
 func TestMsgIncrementBlockRewardsPool_GetSignBytes(t *testing.T) {
