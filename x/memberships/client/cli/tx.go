@@ -42,8 +42,8 @@ func getCmdVerifyUser(cdc *codec.Codec) *cobra.Command {
 		Short: "Sets the given address as a verified user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			verifier := cliCtx.GetFromAddress()
