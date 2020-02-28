@@ -15,14 +15,11 @@ var request abci.RequestQuery
 // ----------------------------------
 
 func TestQuerier_queryGetGovernmentAddress(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, k := SetupTestInput(true)
 	var querier = NewQuerier(k)
-	err := k.SetGovernmentAddress(ctx, TestAddress)
-
-	require.NoError(t, err)
 
 	want := QueryGovernmentResponse{
-		GovernmentAddress: TestAddress.String(),
+		GovernmentAddress: governmentTestAddress.String(),
 	}
 
 	path := []string{types.QueryGovernmentAddress}
@@ -35,14 +32,11 @@ func TestQuerier_queryGetGovernmentAddress(t *testing.T) {
 }
 
 func TestQuerier_queryGetTumblerAddress(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+	cdc, ctx, k := SetupTestInput(true)
 	var querier = NewQuerier(k)
-	err := k.SetTumblerAddress(ctx, TestAddress)
-
-	require.NoError(t, err)
 
 	want := QueryTumblerResponse{
-		TumblerAddress: TestAddress.String(),
+		TumblerAddress: tumblerTestAddress.String(),
 	}
 
 	path := []string{types.QueryTumblerAddress}

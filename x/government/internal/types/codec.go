@@ -5,7 +5,9 @@ import (
 )
 
 // RegisterCodec registers concrete types on wire codec
-func RegisterCodec(_ *codec.Codec) {}
+func RegisterCodec(cdc *codec.Codec) {
+	cdc.RegisterConcrete(MsgSetTumblerAddress{}, "commercio/MsgSetTumblerAddress", nil)
+}
 
 var ModuleCdc *codec.Codec
 
