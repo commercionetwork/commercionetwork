@@ -50,35 +50,6 @@ func Test_queryResolveIdentity_nonExistentIdentity(t *testing.T) {
 // --- Pairwise did
 // -------------------
 
-func Test_queryResolveDepositRequest_ExistingRequest(t *testing.T) {
-	cdc, ctx, _, _, _, k := SetupTestInput()
-
-	store := ctx.KVStore(k.storeKey)
-	store.Set(getDepositRequestStoreKey(TestDidDepositRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidDepositRequest))
-
-	var querier = NewQuerier(k)
-	path := []string{types.QueryResolveDepositRequest, TestDidDepositRequest.Proof}
-	actualBz, err := querier(ctx, path, request)
-
-	var actual types.DidDepositRequest
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Nil(t, err)
-	require.Equal(t, TestDidDepositRequest, actual)
-}
-
-func Test_queryResolveDepositRequest_NonExistingRequest(t *testing.T) {
-	_, ctx, _, _, _, k := SetupTestInput()
-
-	var querier = NewQuerier(k)
-	path := []string{types.QueryResolveDepositRequest, ""}
-	_, err := querier(ctx, path, request)
-
-	require.Error(t, err)
-	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
-	require.Contains(t, err.Error(), "proof")
-}
-
 func Test_queryResolvePowerUpRequest_ExistingRequest(t *testing.T) {
 	cdc, ctx, _, _, _, k := SetupTestInput()
 

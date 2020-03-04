@@ -34,10 +34,7 @@ type (
 	// ---------------
 
 	MsgSetIdentity                 = types.MsgSetIdentity
-	MsgRequestDidDeposit           = types.MsgRequestDidDeposit
-	MsgInvalidateDidDepositRequest = types.MsgInvalidateDidDepositRequest
 	MsgRequestDidPowerUp           = types.MsgRequestDidPowerUp
 	MsgInvalidateDidPowerUpRequest = types.MsgInvalidateDidPowerUpRequest
-	MsgMoveDeposit                 = types.MsgMoveDeposit
 	MsgPowerUpDid                  = types.MsgPowerUpDid
 )

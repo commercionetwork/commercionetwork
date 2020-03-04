@@ -10,7 +10,6 @@ import (
 // GenesisState - id genesis state
 type GenesisState struct {
 	DidDocuments           []DidDocument       `json:"did_documents"`
-	DepositRequests        []DidDepositRequest `json:"deposit_requests"`
 	PowerUpRequests        []DidPowerUpRequest `json:"power_up_requests"`
 	DepositPool            sdk.Coins           `json:"deposit_pool"`
 	HandledPowerUpRequests []string            `json:"handled_power_up_requests"`
@@ -41,12 +40,6 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 		}
 	}
 
-	for _, deposit := range data.DepositRequests {
-		if err := keeper.StoreDidDepositRequest(ctx, deposit); err != nil {
-			panic(err)
-		}
-	}
-
 	for _, powerUp := range data.PowerUpRequests {
 		if err := keeper.StorePowerUpRequest(ctx, powerUp); err != nil {
 			panic(err)
@@ -71,7 +64,6 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 
 	return GenesisState{
 		DidDocuments:           identities,
-		DepositRequests:        keeper.GetDepositRequests(ctx),
 		PowerUpRequests:        keeper.GetPowerUpRequests(ctx),
 		DepositPool:            keeper.GetPoolAmount(ctx),
 		HandledPowerUpRequests: keeper.GetHandledPowerUpRequestsReferences(ctx),

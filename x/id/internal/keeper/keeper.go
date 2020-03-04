@@ -152,71 +152,6 @@ func (k Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
 }
 
 // ----------------------------
-// --- Did deposit requests
-// ----------------------------
-
-// StorePowerUpRequest allows to save the given request. Returns an error if a request with
-// the same proof already exists
-func (k Keeper) StoreDidDepositRequest(ctx sdk.Context, request types.DidDepositRequest) error {
-	store := ctx.KVStore(k.storeKey)
-
-	requestKey := getDepositRequestStoreKey(request.Proof)
-	if store.Has(requestKey) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Did deposit request with the same proof already exists")
-	}
-
-	store.Set(requestKey, k.cdc.MustMarshalBinaryBare(&request))
-
-	return nil
-}
-
-// GetDidDepositRequestByProof returns the request having the same proof.
-func (k Keeper) GetDidDepositRequestByProof(ctx sdk.Context, proof string) (types.DidDepositRequest, error) {
-	store := ctx.KVStore(k.storeKey)
-
-	requestKey := getDepositRequestStoreKey(proof)
-	if !store.Has(requestKey) {
-		return types.DidDepositRequest{}, fmt.Errorf("deposit request with proof %s not found", proof)
-	}
-
-	request := types.DidDepositRequest{}
-	k.cdc.MustUnmarshalBinaryBare(store.Get(requestKey), &request)
-	return request, nil
-}
-
-// ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
-// if no request with the given proof could be found
-func (k Keeper) ChangeDepositRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) error {
-	store := ctx.KVStore(k.storeKey)
-
-	request, err := k.GetDidDepositRequestByProof(ctx, proof)
-	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
-	}
-
-	// Update and store the request
-	request.Status = &status
-	store.Set(getDepositRequestStoreKey(request.Proof), k.cdc.MustMarshalBinaryBare(request))
-
-	return nil
-}
-
-// GetDepositRequests returns the list of the deposit requests existing inside the given context
-func (k Keeper) GetDepositRequests(ctx sdk.Context) (requests []types.DidDepositRequest) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidDepositRequestStorePrefix))
-
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var request types.DidDepositRequest
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
-		requests = append(requests, request)
-	}
-
-	return requests
-}
-
-// ----------------------------
 // --- Did power up requests
 // ----------------------------
 
@@ -317,44 +252,4 @@ func (k Keeper) HandledPowerUpRequestsIterator(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(k.storeKey)
 
 	return sdk.KVStorePrefixIterator(store, []byte(types.HandledPowerUpRequestsReferenceStorePrefix))
-}
-
-// DepositIntoPool allows to deposit the specified amount into the liquidity pool, taking it from the
-// specified depositor balance
-func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
-	// Check the amount
-	if !amount.IsValid() || amount.Empty() || amount.IsAnyNegative() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid coins: %s", amount))
-	}
-
-	// Subtract the coins from the user
-	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amount); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// FundAccount allows to take the specified amount from the liquidity pool and move them into the
-// specified account balance
-func (k Keeper) FundAccount(ctx sdk.Context, account sdk.AccAddress, amount sdk.Coins) error {
-	// Check the amount
-	if amount.Empty() || !amount.IsValid() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid coins: %s", amount))
-	}
-
-	// Get the current pool
-	currentPool := k.GetPoolAmount(ctx)
-
-	// Check that the pool has enough funds
-	if amount.IsAnyGT(currentPool) {
-		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool does not have enough funds")
-	}
-
-	// Add the coins to the user
-	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, account, amount); err != nil {
-		return err
-	}
-
-	return nil
 }

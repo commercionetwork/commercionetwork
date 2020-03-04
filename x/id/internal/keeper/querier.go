@@ -18,8 +18,6 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		switch path[0] {
 		case types.QueryResolveDid:
 			return queryResolveIdentity(ctx, path[1:], keeper)
-		case types.QueryResolveDepositRequest:
-			return queryResolveDepositRequest(ctx, path[1:], keeper)
 		case types.QueryResolvePowerUpRequest:
 			return queryResolvePowerUpRequest(ctx, path[1:], keeper)
 		default:
@@ -64,23 +62,6 @@ type ResolveIdentityResponse struct {
 // -------------------
 // --- Pairwise Did
 //--------------------
-
-func queryResolveDepositRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
-
-	// Get the request
-	request, err := keeper.GetDidDepositRequestByProof(ctx, path[0])
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
-	}
-
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, &request)
-	if err2 != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
-	}
-
-	return bz, nil
-}
-
 func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 
 	// Get the request
