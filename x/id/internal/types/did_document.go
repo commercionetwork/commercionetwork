@@ -92,7 +92,7 @@ func (d DidDocument) VerifyProof() error {
 	oProof := d.Proof
 
 	// get a public key object
-	pk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PrefixAccPub, oProof.VerificationMethod)
+	pk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, oProof.VerificationMethod)
 	if err != nil {
 		return err
 	}
