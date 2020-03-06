@@ -65,7 +65,7 @@ func (proof Proof) Validate() error {
 	}
 
 	// decode the bech32 public key
-	ppk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PrefixAccPub, proof.VerificationMethod)
+	ppk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, proof.VerificationMethod)
 	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "invalid verification method, must be a bech32-encoded public key")
 	}
