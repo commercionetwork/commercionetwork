@@ -1,9 +1,9 @@
 package types
 
 import (
-	"encoding/hex"
 	"fmt"
 	"regexp"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -15,18 +15,18 @@ import (
 
 // PubKey contains the information of a public key contained inside a Did Document
 type PubKey struct {
-	ID           string         `json:"id"`
-	Type         string         `json:"type"`
-	Controller   sdk.AccAddress `json:"controller"`
-	PublicKeyHex string         `json:"publicKeyHex"`
+	ID         string         `json:"id"`
+	Type       string         `json:"type"`
+	Controller sdk.AccAddress `json:"controller"`
+	PublicKey  string         `json:"publicKey"`
 }
 
 func NewPubKey(pubKeyID string, pubKeyType string, controller sdk.AccAddress, hexValue string) PubKey {
 	return PubKey{
-		ID:           pubKeyID,
-		Type:         pubKeyType,
-		Controller:   controller,
-		PublicKeyHex: hexValue,
+		ID:         pubKeyID,
+		Type:       pubKeyType,
+		Controller: controller,
+		PublicKey:  hexValue,
 	}
 }
 
@@ -35,7 +35,7 @@ func (pubKey PubKey) Equals(other PubKey) bool {
 	return pubKey.ID == other.ID &&
 		pubKey.Type == other.Type &&
 		pubKey.Controller.Equals(other.Controller) &&
-		pubKey.PublicKeyHex == other.PublicKeyHex
+		pubKey.PublicKey == other.PublicKey
 }
 
 // Validate checks the data contained inside pubKey and returns an error if something is wrong
@@ -46,14 +46,12 @@ func (pubKey PubKey) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid key id, must satisfy %s", regex)))
 	}
 
-	if pubKey.Type != KeyTypeRsa && pubKey.Type != KeyTypeSecp256k1 && pubKey.Type != KeyTypeEd25519 {
-		msg := fmt.Sprintf("Invalid key type, must be either %s, %s or %s", KeyTypeRsa, KeyTypeSecp256k1, KeyTypeEd25519)
+	if pubKey.Type != KeyTypeRsaVerification && pubKey.Type != KeyTypeRsaSignature && pubKey.Type != KeyTypeSecp256k1 && pubKey.Type != KeyTypeEd25519 {
+		msg := fmt.Sprintf("Invalid key type, must be either %s, %s, %s or %s", KeyTypeRsaVerification, KeyTypeRsaSignature, KeyTypeSecp256k1, KeyTypeEd25519)
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (msg))
 	}
 
-	if _, err := hex.DecodeString(pubKey.PublicKeyHex); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid publicKeyHex value"))
-	}
+	// TODO: validate the key
 
 	return nil
 }
@@ -90,4 +88,20 @@ func (pubKeys PubKeys) FindByID(id string) (PubKey, bool) {
 	}
 
 	return PubKey{}, false
+}
+
+func (pubKeys PubKeys) HasVerificationAndSignatureKey() bool {
+	hasVerification := false
+	hasSignature := false
+
+	for _, pk := range pubKeys {
+		switch {
+		case strings.HasSuffix(pk.ID, "#keys-1") && pk.Type == KeyTypeRsaVerification:
+			hasVerification = true
+		case strings.HasSuffix(pk.ID, "#keys-2") && pk.Type == KeyTypeRsaSignature:
+			hasSignature = true
+		}
+	}
+
+	return hasSignature && hasVerification
 }

@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"bytes"
-	"encoding/hex"
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -13,8 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 )
 
 type Keeper struct {
@@ -46,72 +42,14 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, accKeeper auth.AccountKe
 
 // SaveDidDocument saves the given didDocumentUri associating it with the given owner, replacing any existent one.
 func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) error {
-	owner := document.ID
-
-	// Get the account and its public key
-	account := k.accKeeper.GetAccount(ctx, owner)
-	if account == nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Could not find account %s", owner.String()))
+	// validate the DidDocument before saving it
+	if err := document.Validate(); err != nil {
+		return err
 	}
-
-	accountPubKey := account.GetPubKey()
-
-	// --------------------------------------------
-	// --- Check the authentication key validity
-	// --------------------------------------------
-
-	// Get the authentication key
-	authKey, found := document.PubKeys.FindByID(document.Authentication[0])
-	if !found {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Authentication key not found inside publicKey array")
-	}
-
-	// Get the authentication key bytes
-	authKeyBytes, err := hex.DecodeString(authKey.PublicKeyHex)
-	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid authentication key hex value")
-	}
-
-	// TODO: The following code should be tested
-
-	var key []byte
-	if ed25519key, isEd25519 := accountPubKey.(ed25519.PubKeyEd25519); isEd25519 {
-		// Check the auth key type coherence with its value
-		if authKey.Type != types.KeyTypeEd25519 {
-			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeEd25519)
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
-		}
-		key = ed25519key[:]
-	}
-
-	if secp256k1key, isSecp256k1 := accountPubKey.(secp256k1.PubKeySecp256k1); isSecp256k1 {
-		// Check the auth key type coherence with its value
-		if authKey.Type != types.KeyTypeSecp256k1 {
-			msg := fmt.Sprintf("Invalid authentication key value, must be of type %s", types.KeyTypeSecp256k1)
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
-		}
-		key = secp256k1key[:]
-	}
-
-	// Check that the authentication key bytes are the same of the key associated with the account
-	if !bytes.Equal(authKeyBytes, key) {
-		msg := fmt.Sprintf(
-			"Authentication key is not the one associated with the account. Expected %s but got %s",
-			hex.EncodeToString(key),
-			hex.EncodeToString(authKeyBytes),
-		)
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
-	}
-
-	// TODO: Check that the proof signatureValue is the valid signature of the entire Did Document made with the user private key
-
-	// ------------------------------
-	// --- Store the Did Document
-	// ------------------------------
 
 	// Set the Did Document into the store
 	identitiesStore := ctx.KVStore(k.storeKey)
-	identitiesStore.Set(getIdentityStoreKey(owner), k.cdc.MustMarshalBinaryBare(document))
+	identitiesStore.Set(getIdentityStoreKey(document.ID), k.cdc.MustMarshalBinaryBare(document))
 
 	return nil
 }

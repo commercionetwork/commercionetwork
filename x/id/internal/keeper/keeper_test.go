@@ -48,10 +48,10 @@ func TestKeeper_EditIdentity(t *testing.T) {
 
 	updatedDocument.PubKeys = types.PubKeys{
 		types.PubKey{
-			ID:           "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
-			Type:         "Secp256k1VerificationKey2018",
-			Controller:   TestOwnerAddress,
-			PublicKeyHex: hex.EncodeToString(secp256k1key[:]),
+			ID:         "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0#keys-1",
+			Type:       "Secp256k1VerificationKey2018",
+			Controller: TestOwnerAddress,
+			PublicKey:  hex.EncodeToString(secp256k1key[:]),
 		},
 	}
 

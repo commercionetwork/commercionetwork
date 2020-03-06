@@ -1,7 +1,11 @@
 package types
 
 import (
+	"encoding/base64"
+	"fmt"
 	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -10,18 +14,22 @@ import (
 // 1. The subject, or:
 // 1. The controller, if present.
 type Proof struct {
-	Type           string    `json:"type"`
-	Created        time.Time `json:"created"`
-	Creator        string    `json:"creator"`
-	SignatureValue string    `json:"signatureValue"`
+	Type               string    `json:"type"`
+	Created            time.Time `json:"created"`
+	ProofPurpose       string    `json:"proofPurpose"`
+	Controller         string    `json:"controller"`
+	VerificationMethod string    `json:"verificationMethod"`
+	SignatureValue     string    `json:"signatureValue"`
 }
 
-func NewProof(proofType string, created time.Time, creator, signatureValue string) Proof {
+func NewProof(proofType string, created time.Time, creator, proofPurpose, controller, verificationMethod, signatureValue string) Proof {
 	return Proof{
-		Type:           proofType,
-		Created:        created,
-		Creator:        creator,
-		SignatureValue: signatureValue,
+		Type:               proofType,
+		Created:            created,
+		ProofPurpose:       creator,
+		Controller:         controller,
+		VerificationMethod: verificationMethod,
+		SignatureValue:     signatureValue,
 	}
 }
 
@@ -29,7 +37,9 @@ func NewProof(proofType string, created time.Time, creator, signatureValue strin
 func (proof Proof) Equals(other Proof) bool {
 	return proof.Type == other.Type &&
 		proof.Created.Equal(other.Created) &&
-		proof.Creator == other.Creator &&
+		proof.ProofPurpose == other.ProofPurpose &&
+		proof.Controller == other.Controller &&
+		proof.VerificationMethod == other.VerificationMethod &&
 		proof.SignatureValue == other.SignatureValue
 }
 
@@ -37,13 +47,41 @@ func (proof Proof) Equals(other Proof) bool {
 // returns an error if something is invalid
 func (proof Proof) Validate() error {
 
-	if proof.Type != "LinkedDataSignature2015" {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof type, must be LinkedDataSignature2015"))
+	if proof.Type != "EcdsaSecp256k1VerificationKey2019" {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof type, must be EcdsaSecp256k1VerificationKey2019"))
 	}
 
 	if proof.Created.IsZero() {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof creation time"))
 	}
 
+	if proof.ProofPurpose != "authentication" {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "proof purpose must be \"authentication\"")
+	}
+
+	controller, err := sdk.AccAddressFromBech32(proof.Controller)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "invalid controller, must be a valid bech32-encoded address")
+	}
+
+	// decode the bech32 public key
+	ppk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PrefixAccPub, proof.VerificationMethod)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "invalid verification method, must be a bech32-encoded public key")
+	}
+
+	ppkAddress, err := sdk.AccAddressFromHex(ppk.Address().String())
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not derive AccAddress from verification method: %s", err))
+	}
+
+	if !controller.Equals(ppkAddress) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "verification method-derived AccAddress differs from controller")
+	}
+
+	_, err = base64.StdEncoding.DecodeString(proof.SignatureValue)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "signature value must be base64 encoded")
+	}
 	return nil
 }

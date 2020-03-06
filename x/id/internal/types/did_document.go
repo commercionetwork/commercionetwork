@@ -1,11 +1,15 @@
 package types
 
 import (
+	"crypto/sha512"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -13,12 +17,17 @@ import (
 // The Did Document contains attributes or claims about the DID Subject, and the DID itself is contained in
 // the id property.
 type DidDocument struct {
-	Context        string         `json:"@context"`
-	ID             sdk.AccAddress `json:"id"`
-	PubKeys        PubKeys        `json:"publicKey"`
-	Authentication ctypes.Strings `json:"authentication"`
-	Proof          Proof          `json:"proof"`
-	Services       Services       `json:"service"`
+	Context string         `json:"@context"`
+	ID      sdk.AccAddress `json:"id"`
+	PubKeys PubKeys        `json:"publicKey"`
+	Proof   Proof          `json:"proof"`
+}
+
+// didDocumentUnsigned is an intermediate type used to check for proof correctness
+type didDocumentUnsigned struct {
+	Context string         `json:"@context"`
+	ID      sdk.AccAddress `json:"id"`
+	PubKeys PubKeys        `json:"publicKey"`
 }
 
 // Equals returns true iff didDocument and other contain the same data
@@ -26,9 +35,7 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 	return didDocument.Context == other.Context &&
 		didDocument.ID.Equals(other.ID) &&
 		didDocument.PubKeys.Equals(other.PubKeys) &&
-		didDocument.Authentication.Equals(other.Authentication) &&
-		didDocument.Proof.Equals(other.Proof) &&
-		didDocument.Services.Equals(other.Services)
+		didDocument.Proof.Equals(other.Proof)
 }
 
 // Validate checks the data present inside this Did Document and returns an
@@ -43,32 +50,6 @@ func (didDocument DidDocument) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid context, must be https://www.w3.org/ns/did/v1"))
 	}
 
-	if len(didDocument.PubKeys) != 3 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Field publicKey must have length of 3"))
-	}
-
-	// -----------------------------------
-	// --- Validate the authentication
-	// -----------------------------------
-
-	if len(didDocument.Authentication) != 1 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Array authentication cannot have more than one item"))
-	}
-
-	authKey, found := didDocument.PubKeys.FindByID(didDocument.Authentication[0])
-	if !found {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Authentication key not found inside publicKey array"))
-	}
-
-	if authKey.Type != KeyTypeSecp256k1 && authKey.Type != KeyTypeEd25519 {
-		msg := fmt.Sprintf("Authentication key type must be either %s or %s", KeyTypeSecp256k1, KeyTypeEd25519)
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (msg))
-	}
-
-	// --------------------------------
-	// --- Validate public keys
-	// --------------------------------
-
 	for _, key := range didDocument.PubKeys {
 		if err := key.Validate(); err != nil {
 			return err
@@ -79,22 +60,65 @@ func (didDocument DidDocument) Validate() error {
 		}
 	}
 
-	// ------------------------------------------
-	// --- Validate the proof creator value
-	// ------------------------------------------
-
-	if didDocument.Proof.Creator != didDocument.Authentication[0] {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof key, must be the authentication one"))
+	if !didDocument.PubKeys.HasVerificationAndSignatureKey() {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "specified public keys are not in the correct format")
 	}
 
-	// -----------------------------
-	// --- Validate the services
-	// -----------------------------
+	if err := didDocument.Proof.Validate(); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("proof validation error: %s", err.Error()))
+	}
 
-	for _, service := range didDocument.Services {
-		if err := service.Validate(); err != nil {
-			return err
-		}
+	if err := didDocument.VerifyProof(); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, err.Error())
+	}
+
+	return nil
+}
+
+// VerifyProof verifies d's Proof against its content.
+// The Proof is constructed as follows:
+//  - let K be the Bech32 Account public key, embedded in the Proof "Verification Method" field
+//  - let S be K transformed in a raw Secp256k1 public key
+//  - let B be the SHA-512 (as defined in the FIPS 180-4) of the JSON representation of d minus the Proof field
+//  - let L be the Proof Signature Value, decoded from Base64 encoding
+// The Proof is verified if K.Verify(B, L) is verified.
+func (d DidDocument) VerifyProof() error {
+	u := didDocumentUnsigned{
+		Context: d.Context,
+		ID:      d.ID,
+		PubKeys: d.PubKeys,
+	}
+
+	oProof := d.Proof
+
+	// get a public key object
+	pk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PrefixAccPub, oProof.VerificationMethod)
+	if err != nil {
+		return err
+	}
+
+	// get a seck256k1 public key
+	sk := pk.(secp256k1.PubKeySecp256k1)
+
+	// marshal u in json
+	data, err := json.Marshal(u)
+	if err != nil {
+		return fmt.Errorf("could not marshal unsigned did document during proof verification: %w", err)
+	}
+
+	// calculate its sha512
+	dataSum := sha512.Sum512(data)
+
+	// get signature bytes from base64
+	sigBytes, err := base64.StdEncoding.DecodeString(oProof.SignatureValue)
+	if err != nil {
+		return fmt.Errorf("could not decode base64 signature value: %w", err)
+	}
+
+	verified := sk.VerifyBytes(dataSum[:], sigBytes)
+
+	if !verified {
+		return fmt.Errorf("proof signature verification failed")
 	}
 
 	return nil

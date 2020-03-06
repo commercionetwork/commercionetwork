@@ -24,25 +24,25 @@ func TestPubKey_Equals(t *testing.T) {
 		{
 			"different id",
 			pubKey,
-			types.NewPubKey(pubKey.ID+"2", pubKey.Type, pubKey.Controller, pubKey.PublicKeyHex),
+			types.NewPubKey(pubKey.ID+"2", pubKey.Type, pubKey.Controller, pubKey.PublicKey),
 			false,
 		},
 		{
 			"different type",
 			pubKey,
-			types.NewPubKey(pubKey.ID, pubKey.Type+"other", pubKey.Controller, pubKey.PublicKeyHex),
+			types.NewPubKey(pubKey.ID, pubKey.Type+"other", pubKey.Controller, pubKey.PublicKey),
 			false,
 		},
 		{
 			"different controller",
 			pubKey,
-			types.NewPubKey(pubKey.ID, pubKey.Type, controller2, pubKey.PublicKeyHex),
+			types.NewPubKey(pubKey.ID, pubKey.Type, controller2, pubKey.PublicKey),
 			false,
 		},
 		{
 			"different pubkey",
 			pubKey,
-			types.NewPubKey(pubKey.ID, pubKey.Type, pubKey.Controller, pubKey.PublicKeyHex+"a3"),
+			types.NewPubKey(pubKey.ID, pubKey.Type, pubKey.Controller, pubKey.PublicKey+"a3"),
 			false,
 		},
 		{
@@ -187,6 +187,82 @@ func TestPubKeys_FindByID(t *testing.T) {
 			pk, foundVal := tt.pubKeys.FindByID(tt.id)
 			require.Equal(t, tt.found, foundVal)
 			require.Equal(t, tt.wantPk, pk)
+		})
+	}
+}
+
+func TestPubKeys_HasVerificationAndSignatureKey(t *testing.T) {
+	tests := []struct {
+		name    string
+		pubKeys types.PubKeys
+		want    bool
+	}{
+		{
+			"empty keys",
+			types.PubKeys{},
+			false,
+		},
+		{
+			"keys-1 and keys-2 present, only keys-1 of proper type",
+			types.PubKeys{
+				types.PubKey{
+					ID:   "#keys-1",
+					Type: types.KeyTypeRsaVerification,
+				},
+				types.PubKey{
+					ID:   "#keys-2",
+					Type: "NotRsaSignature",
+				},
+			},
+			false,
+		},
+		{
+			"keys-1 and keys-2 present, only keys-2 of proper type",
+			types.PubKeys{
+				types.PubKey{
+					ID:   "#keys-1",
+					Type: "NotRsaVerification",
+				},
+				types.PubKey{
+					ID:   "#keys-2",
+					Type: types.KeyTypeRsaSignature,
+				},
+			},
+			false,
+		},
+		{
+			"keys-1 and keys-2 present, both proper type",
+			types.PubKeys{
+				types.PubKey{
+					ID:   "#keys-1",
+					Type: types.KeyTypeRsaVerification,
+				},
+				types.PubKey{
+					ID:   "#keys-2",
+					Type: types.KeyTypeRsaSignature,
+				},
+			},
+			true,
+		},
+		{
+			"keys-1 and keys-2 present, both not proper type",
+			types.PubKeys{
+				types.PubKey{
+					ID:   "#keys-1",
+					Type: "NotRsaVerification",
+				},
+				types.PubKey{
+					ID:   "#keys-2",
+					Type: "NotRsaSignature",
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, tt.pubKeys.HasVerificationAndSignatureKey())
 		})
 	}
 }

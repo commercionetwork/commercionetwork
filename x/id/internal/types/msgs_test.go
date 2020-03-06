@@ -18,9 +18,6 @@ var testOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu55
 var msgSetIdentity = types.NewMsgSetIdentity(types.DidDocument{
 	Context: "https://www.w3.org/ns/did/v1",
 	ID:      testOwnerAddress,
-	Authentication: []string{
-		fmt.Sprintf("%s#keys-1", testOwnerAddress),
-	},
 	Proof: types.Proof{
 		Type:           "LinkedDataSignature2015",
 		Created:        testTime,
@@ -29,22 +26,22 @@ var msgSetIdentity = types.NewMsgSetIdentity(types.DidDocument{
 	},
 	PubKeys: types.PubKeys{
 		types.PubKey{
-			ID:           fmt.Sprintf("%s#keys-1", testOwnerAddress),
-			Type:         "Secp256k1VerificationKey2018",
-			Controller:   testOwnerAddress,
-			PublicKeyHex: "02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71",
+			ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+			Type:       "Secp256k1VerificationKey2018",
+			Controller: testOwnerAddress,
+			PublicKey:  "02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71",
 		},
 		types.PubKey{
-			ID:           fmt.Sprintf("%s#keys-2", testOwnerAddress),
-			Type:         "RsaVerificationKey2018",
-			Controller:   testOwnerAddress,
-			PublicKeyHex: "04418834f5012c808a11830819f300d06092a864886f70d010101050003818d0030818902818100ccaf757e02ec9cfb3beddaa5fe8e9c24df033e9b60db7cb8e2981cb340321faf348731343c7ab2f4920ebd62c5c7617557f66219291ce4e95370381390252b080dfda319bb84808f04078737ab55f291a9024ef3b72aedcf26067d3cee2a470ed056f4e409b73dd6b4fddffa43dff02bf30a9de29357b606df6f0246be267a910203010001a",
+			ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+			Type:       "RsaVerificationKey2018",
+			Controller: testOwnerAddress,
+			PublicKey:  "04418834f5012c808a11830819f300d06092a864886f70d010101050003818d0030818902818100ccaf757e02ec9cfb3beddaa5fe8e9c24df033e9b60db7cb8e2981cb340321faf348731343c7ab2f4920ebd62c5c7617557f66219291ce4e95370381390252b080dfda319bb84808f04078737ab55f291a9024ef3b72aedcf26067d3cee2a470ed056f4e409b73dd6b4fddffa43dff02bf30a9de29357b606df6f0246be267a910203010001a",
 		},
 		types.PubKey{
-			ID:           fmt.Sprintf("%s#keys-1", testOwnerAddress),
-			Type:         "Secp256k1VerificationKey2018",
-			Controller:   testOwnerAddress,
-			PublicKeyHex: "035AD6810A47F073553FF30D2FCC7E0D3B1C0B74B61A1AAA2582344037151E143A",
+			ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+			Type:       "Secp256k1VerificationKey2018",
+			Controller: testOwnerAddress,
+			PublicKey:  "035AD6810A47F073553FF30D2FCC7E0D3B1C0B74B61A1AAA2582344037151E143A",
 		},
 	},
 })
