@@ -1,6 +1,8 @@
 package types
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"regexp"
 	"strings"
@@ -46,12 +48,16 @@ func (pubKey PubKey) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid key id, must satisfy %s", regex)))
 	}
 
-	if pubKey.Type != KeyTypeRsaVerification && pubKey.Type != KeyTypeRsaSignature && pubKey.Type != KeyTypeSecp256k1 && pubKey.Type != KeyTypeEd25519 {
-		msg := fmt.Sprintf("Invalid key type, must be either %s, %s, %s or %s", KeyTypeRsaVerification, KeyTypeRsaSignature, KeyTypeSecp256k1, KeyTypeEd25519)
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (msg))
+	if err := keyTypeApproved(pubKey.Type); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
-	// TODO: validate the key
+	if pubKey.Type == KeyTypeRsaSignature || pubKey.Type == KeyTypeRsaVerification {
+		err := validateRSAPubkey([]byte(pubKey.PublicKey))
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -104,4 +110,22 @@ func (pubKeys PubKeys) HasVerificationAndSignatureKey() bool {
 	}
 
 	return hasSignature && hasVerification
+}
+
+func validateRSAPubkey(key []byte) error {
+	block, _ := pem.Decode(key)
+	_, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return fmt.Errorf("invalid public key: %w", err)
+	}
+	return nil
+}
+
+func keyTypeApproved(t string) error {
+	switch t {
+	case KeyTypeRsaVerification, KeyTypeRsaSignature, KeyTypeSecp256k1, KeyTypeEd25519:
+		return nil
+	default:
+		return fmt.Errorf("key type %s not supported", t)
+	}
 }
