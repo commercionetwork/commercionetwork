@@ -152,8 +152,7 @@ var TestDidDepositRequest = types.DidDepositRequest{
 
 // Power up requests
 var TestDidPowerUpRequest = types.DidPowerUpRequest{
-	Claimant:      TestDepositor,
-	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
-	EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
+	Claimant: TestDepositor,
+	Amount:   sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
+	Proof:    "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 }

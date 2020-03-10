@@ -3,6 +3,8 @@ package id
 import (
 	"encoding/json"
 
+	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -64,7 +66,7 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 // get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return nil
+	return cli.GetQueryCmd(cdc)
 }
 
 //____________________________________________________________________________

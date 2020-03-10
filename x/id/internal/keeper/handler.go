@@ -49,10 +49,10 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 
 	// Crete the request
 	request := types.DidPowerUpRequest{
-		Claimant:      msg.Claimant,
-		Amount:        msg.Amount,
-		Proof:         msg.Proof,
-		EncryptionKey: msg.EncryptionKey,
+		Claimant: msg.Claimant,
+		Amount:   msg.Amount,
+		Proof:    msg.Proof,
+		ID:       msg.ID,
 	}
 
 	if err := keeper.StorePowerUpRequest(ctx, request); err != nil {
@@ -78,7 +78,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 	}
 
 	// Get the existing request
-	existing, err := keeper.GetPowerUpRequestByProof(ctx, msg.PowerUpProof)
+	existing, err := keeper.GetPowerUpRequestByID(ctx, msg.PowerUpProof)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}

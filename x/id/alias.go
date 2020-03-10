@@ -24,13 +24,14 @@ var (
 type (
 	Keeper = keeper.Keeper
 
-	DidDocument       = types.DidDocument
-	Proof             = types.Proof
-	PubKey            = types.PubKey
-	PubKeys           = types.PubKeys
-	DidDepositRequest = types.DidDepositRequest
-	DidPowerUpRequest = types.DidPowerUpRequest
-	RequestStatus     = types.RequestStatus
+	DidDocument         = types.DidDocument
+	Proof               = types.Proof
+	PubKey              = types.PubKey
+	PubKeys             = types.PubKeys
+	DidDepositRequest   = types.DidDepositRequest
+	DidPowerUpRequest   = types.DidPowerUpRequest
+	RequestStatus       = types.RequestStatus
+	PowerUpRequestProof = types.PowerUpRequestProof
 
 	// ---------------
 	// --- Messages

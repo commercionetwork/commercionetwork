@@ -1,7 +1,10 @@
 package types
 
 import (
+	"encoding/base64"
 	"fmt"
+
+	uuid "github.com/satori/go.uuid"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -39,10 +42,10 @@ func (msg MsgSetIdentity) GetSigners() []sdk.AccAddress {
 // ---------------------------
 
 type MsgRequestDidPowerUp struct {
-	Claimant      sdk.AccAddress `json:"claimant"`
-	Amount        sdk.Coins      `json:"amount"`
-	Proof         string         `json:"proof"`
-	EncryptionKey string         `json:"encryption_key"`
+	Claimant sdk.AccAddress `json:"claimant"`
+	Amount   sdk.Coins      `json:"amount"`
+	Proof    string         `json:"proof"`
+	ID       string         `json:"id"`
 }
 
 // Route Implements Msg.
@@ -61,12 +64,12 @@ func (msg MsgRequestDidPowerUp) ValidateBasic() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, (fmt.Sprintf("Power up amount not valid: %s", msg.Amount.String())))
 	}
 
-	if !ValidateHex(msg.Proof) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid proof: %s", msg.Proof)))
+	if _, err := base64.StdEncoding.DecodeString(msg.Proof); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "proof must be base64-encoded")
 	}
 
-	if !ValidateHex(msg.EncryptionKey) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid encryption key value: %s", msg.EncryptionKey)))
+	if _, err := uuid.FromString(msg.ID); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "invalid ID, must be a valid UUID")
 	}
 
 	return nil

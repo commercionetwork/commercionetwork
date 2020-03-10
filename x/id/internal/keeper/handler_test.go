@@ -52,7 +52,7 @@ func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
 	_, err := handler(ctx, msgRequestDidPowerUp)
 	require.NoError(t, err)
 
-	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	stored, err := k.GetPowerUpRequestByID(ctx, TestDidPowerUpRequest.Proof)
 	require.NoError(t, err)
 	require.Equal(t, TestDidPowerUpRequest, stored)
 }
@@ -138,7 +138,7 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_Cancel_ValidAddress(t *testing.
 
 	require.NoError(t, err)
 
-	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	stored, err := k.GetPowerUpRequestByID(ctx, TestDidPowerUpRequest.Proof)
 	require.NoError(t, err)
 	require.Equal(t, status, *stored.Status)
 }
@@ -178,7 +178,7 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_AllGood(t *testing.T) {
 
 	require.NoError(t, err)
 
-	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	stored, err := k.GetPowerUpRequestByID(ctx, TestDidPowerUpRequest.Proof)
 	require.NoError(t, err)
 	require.Equal(t, status, *stored.Status)
 }

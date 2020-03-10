@@ -8,9 +8,9 @@ import (
 // something to his pairwise Did. This request will be read and unencrypted from a central
 // identity that will later update the status and send the funds to the pairwise Did
 type DidPowerUpRequest struct {
-	Status        *RequestStatus `json:"status"`
-	Claimant      sdk.AccAddress `json:"claimant"`
-	Amount        sdk.Coins      `json:"amount"`
-	Proof         string         `json:"proof"`
-	EncryptionKey string         `json:"encryption_key"`
+	Status   *RequestStatus `json:"status"`
+	Claimant sdk.AccAddress `json:"claimant"`
+	Amount   sdk.Coins      `json:"amount"`
+	Proof    string         `json:"proof"`
+	ID       string         `json:"id"`
 }

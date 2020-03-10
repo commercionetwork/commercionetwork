@@ -98,9 +98,9 @@ func (k Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
 func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpRequest) error {
 	store := ctx.KVStore(k.storeKey)
 
-	requestStoreKey := getDidPowerUpRequestStoreKey(request.Proof)
+	requestStoreKey := getDidPowerUpRequestStoreKey(request.ID)
 	if store.Has(requestStoreKey) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "PowerUp request with the same proof already exists")
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "PowerUp request with the same id already exists")
 	}
 
 	store.Set(requestStoreKey, k.cdc.MustMarshalBinaryBare(&request))
@@ -109,12 +109,12 @@ func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpReq
 }
 
 // GetDidDepositRequestByProof returns the request having the same proof.
-func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (types.DidPowerUpRequest, error) {
+func (k Keeper) GetPowerUpRequestByID(ctx sdk.Context, id string) (types.DidPowerUpRequest, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	requestStoreKey := getDidPowerUpRequestStoreKey(proof)
+	requestStoreKey := getDidPowerUpRequestStoreKey(id)
 	if !store.Has(requestStoreKey) {
-		return types.DidPowerUpRequest{}, fmt.Errorf("power-up request with proof %s not found", proof)
+		return types.DidPowerUpRequest{}, fmt.Errorf("power-up request with id %s not found", id)
 	}
 
 	request := types.DidPowerUpRequest{}
@@ -124,17 +124,17 @@ func (k Keeper) GetPowerUpRequestByProof(ctx sdk.Context, proof string) (types.D
 
 // ChangePowerUpRequestStatus changes the status of the request having the same proof, or returns an error
 // if no request with the given proof could be found
-func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, proof string, status types.RequestStatus) error {
+func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, id string, status types.RequestStatus) error {
 	store := ctx.KVStore(k.storeKey)
 
-	request, err := k.GetPowerUpRequestByProof(ctx, proof)
+	request, err := k.GetPowerUpRequestByID(ctx, id)
 	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Update and store the request
 	request.Status = &status
-	store.Set(getDidPowerUpRequestStoreKey(proof), k.cdc.MustMarshalBinaryBare(&request))
+	store.Set(getDidPowerUpRequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
 
 	return nil
 }

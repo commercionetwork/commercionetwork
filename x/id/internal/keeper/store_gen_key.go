@@ -13,8 +13,8 @@ func getDepositRequestStoreKey(proof string) []byte {
 	return []byte(types.DidDepositRequestStorePrefix + proof)
 }
 
-func getDidPowerUpRequestStoreKey(proof string) []byte {
-	return []byte(types.DidPowerUpRequestStorePrefix + proof)
+func getDidPowerUpRequestStoreKey(id string) []byte {
+	return []byte(types.DidPowerUpRequestStorePrefix + id)
 }
 
 func getHandledPowerUpRequestsReferenceStoreKey(reference string) []byte {

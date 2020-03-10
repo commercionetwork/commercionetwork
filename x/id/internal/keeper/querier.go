@@ -65,7 +65,7 @@ type ResolveIdentityResponse struct {
 func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 
 	// Get the request
-	request, err := keeper.GetPowerUpRequestByProof(ctx, path[0])
+	request, err := keeper.GetPowerUpRequestByID(ctx, path[0])
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}

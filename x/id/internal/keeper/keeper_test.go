@@ -138,7 +138,7 @@ func TestKeeper_StorePowerUpRequest_ExistingRequest(t *testing.T) {
 func TestKeeper_GetPowerUpRequestByProof_NonExistingRequest(t *testing.T) {
 	_, ctx, _, _, _, k := SetupTestInput()
 
-	_, err := k.GetPowerUpRequestByProof(ctx, "")
+	_, err := k.GetPowerUpRequestByID(ctx, "")
 	require.Error(t, err)
 }
 
@@ -148,7 +148,7 @@ func TestKeeper_GetPowerUpRequestByProof_ExistingRequest(t *testing.T) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
 
-	stored, err := k.GetPowerUpRequestByProof(ctx, TestDidPowerUpRequest.Proof)
+	stored, err := k.GetPowerUpRequestByID(ctx, TestDidPowerUpRequest.Proof)
 	require.NoError(t, err)
 	require.Equal(t, TestDidPowerUpRequest, stored)
 }
