@@ -71,9 +71,9 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 	}
 
 	// Check the signer if status is approved or rejected
-	validGovernment := govKeeper.GetGovernmentAddress(ctx).Equals(msg.Editor)
+	validGovernment := govKeeper.GetTumblerAddress(ctx).Equals(msg.Editor)
 	if msg.Status.Type == types.StatusRejected && !validGovernment {
-		msg := fmt.Sprintf("Cannot set status of type %s without being the government", msg.Status.Type)
+		msg := fmt.Sprintf("Cannot set status of type %s without being the tumbler", msg.Status.Type)
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg)
 	}
 

@@ -46,6 +46,7 @@ type MsgRequestDidPowerUp struct {
 	Amount   sdk.Coins      `json:"amount"`
 	Proof    string         `json:"proof"`
 	ID       string         `json:"id"`
+	ProofKey string         `json:"proof_key"`
 }
 
 // Route Implements Msg.
@@ -70,6 +71,10 @@ func (msg MsgRequestDidPowerUp) ValidateBasic() error {
 
 	if _, err := uuid.FromString(msg.ID); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "invalid ID, must be a valid UUID")
+	}
+
+	if msg.ProofKey == "" {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "proof key cannot be empty")
 	}
 
 	return nil
