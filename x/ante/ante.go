@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/government"
+
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/docs"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -25,6 +26,7 @@ func NewAnteHandler(
 	ak keeper.AccountKeeper,
 	supplyKeeper types.SupplyKeeper,
 	priceKeeper pricefeed.Keeper,
+	govKeeper government.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	stableCreditsDemon string,
 ) sdk.AnteHandler {
@@ -33,7 +35,7 @@ func NewAnteHandler(
 		cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
-		NewMinFeeDecorator(priceKeeper, stableCreditsDemon),
+		NewMinFeeDecorator(priceKeeper, govKeeper, stableCreditsDemon),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
@@ -51,12 +53,14 @@ func NewAnteHandler(
 // by using any other token which price is contained inside the pricefeedKeeper.
 type MinFeeDecorator struct {
 	pfk                pricefeed.Keeper
+	govk               government.Keeper
 	stableCreditsDenom string
 }
 
-func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, stableCreditsDenom string) MinFeeDecorator {
+func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, govKeeper government.Keeper, stableCreditsDenom string) MinFeeDecorator {
 	return MinFeeDecorator{
 		pfk:                priceKeeper,
+		govk:               govKeeper,
 		stableCreditsDenom: stableCreditsDenom,
 	}
 }
@@ -77,7 +81,7 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	}
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.stableCreditsDenom); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.govk, mfd.stableCreditsDenom); err != nil {
 		return ctx, err
 	}
 
@@ -88,6 +92,7 @@ func checkMinimumFees(
 	stdTx types.StdTx,
 	ctx sdk.Context,
 	pfk pricefeed.Keeper,
+	govk government.Keeper,
 	stableCreditsDenom string,
 ) error {
 

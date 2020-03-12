@@ -349,7 +349,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
 		ante.NewAnteHandler(
-			app.accountKeeper, app.supplyKeeper, app.priceFeedKeeper,
+			app.accountKeeper, app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper,
 			auth.DefaultSigVerificationGasConsumer, StableCreditsDenom,
 		),
 	)
