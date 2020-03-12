@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/government"
+
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/docs"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,9 +16,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-var messagesCosts = map[string]sdk.Dec{
-	docs.MsgTypeShareDocument: sdk.NewDecWithPrec(1, 2),
-}
+// fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
+var fixedRequiredFee sdk.Dec = sdk.NewDecWithPrec(1, 2)
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -26,6 +26,7 @@ func NewAnteHandler(
 	ak keeper.AccountKeeper,
 	supplyKeeper types.SupplyKeeper,
 	priceKeeper pricefeed.Keeper,
+	govKeeper government.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	stableCreditsDemon string,
 ) sdk.AnteHandler {
@@ -34,7 +35,7 @@ func NewAnteHandler(
 		cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
-		NewMinFeeDecorator(priceKeeper, stableCreditsDemon),
+		NewMinFeeDecorator(priceKeeper, govKeeper, stableCreditsDemon),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
@@ -52,12 +53,14 @@ func NewAnteHandler(
 // by using any other token which price is contained inside the pricefeedKeeper.
 type MinFeeDecorator struct {
 	pfk                pricefeed.Keeper
+	govk               government.Keeper
 	stableCreditsDenom string
 }
 
-func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, stableCreditsDenom string) MinFeeDecorator {
+func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, govKeeper government.Keeper, stableCreditsDenom string) MinFeeDecorator {
 	return MinFeeDecorator{
 		pfk:                priceKeeper,
+		govk:               govKeeper,
 		stableCreditsDenom: stableCreditsDenom,
 	}
 }
@@ -72,16 +75,13 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 		return newCtx, errors.New("tx must be StdTx")
 	}
 
-	// Fet the ShareDocument messages
-	requiredFees := sdk.NewDec(0)
-	for _, msg := range stdTx.Msgs {
-		if value, ok := messagesCosts[msg.Type()]; ok {
-			requiredFees = requiredFees.Add(value)
-		}
+	// skip block with height 0, otherwise no chain initialization could happen!
+	if ctx.BlockHeight() == 0 {
+		return next(ctx, tx, simulate)
 	}
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.stableCreditsDenom, requiredFees); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.govk, mfd.stableCreditsDenom); err != nil {
 		return ctx, err
 	}
 
@@ -92,8 +92,8 @@ func checkMinimumFees(
 	stdTx types.StdTx,
 	ctx sdk.Context,
 	pfk pricefeed.Keeper,
+	govk government.Keeper,
 	stableCreditsDenom string,
-	requiredFees sdk.Dec,
 ) error {
 
 	// ----
@@ -107,7 +107,7 @@ func checkMinimumFees(
 	// ----
 
 	// Token quantity is always set as millionth of units
-	stableRequiredQty := requiredFees.MulInt64(1000000)
+	stableRequiredQty := fixedRequiredFee.MulInt64(1000000)
 	stableFeeAmount := sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(stableFeeAmount) {
 		return nil
@@ -138,8 +138,8 @@ func checkMinimumFees(
 		}
 	}
 
-	if !fiatAmount.GTE(requiredFees) {
-		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", requiredFees, fiatAmount)
+	if !fiatAmount.GTE(fixedRequiredFee) {
+		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", fixedRequiredFee, fiatAmount)
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
 	}
 
