@@ -19,10 +19,8 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 			return handleMsgSetIdentity(ctx, keeper, msg)
 		case types.MsgRequestDidPowerUp:
 			return handleMsgRequestDidPowerUp(ctx, keeper, msg)
-		case types.MsgInvalidateDidPowerUpRequest:
-			return handleMsgInvalidateDidPowerUpRequest(ctx, keeper, govKeeper, msg)
-		case types.MsgPowerUpDid:
-			return handleMsgPowerUpDid(ctx, keeper, govKeeper, msg)
+		case types.MsgChangePowerUpStatus:
+			return handleMsgChangePowerUpStatus(ctx, keeper, govKeeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
@@ -62,65 +60,35 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 	return &sdk.Result{}, nil
 }
 
-func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
-	msg types.MsgInvalidateDidPowerUpRequest) (*sdk.Result, error) {
-
-	// Check the status
-	if msg.Status.Type != types.StatusRejected && msg.Status.Type != types.StatusCanceled {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid status: %s", msg.Status.Type))
-	}
-
+// handleMsgChangePowerUpStatus marks the PowerUp request identified by the activation reference as handled successfully.
+func handleMsgChangePowerUpStatus(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgChangePowerUpStatus) (*sdk.Result, error) {
 	// Check the signer if status is approved or rejected
-	validGovernment := govKeeper.GetTumblerAddress(ctx).Equals(msg.Editor)
-	if msg.Status.Type == types.StatusRejected && !validGovernment {
-		msg := fmt.Sprintf("Cannot set status of type %s without being the tumbler", msg.Status.Type)
+	if !govKeeper.GetTumblerAddress(ctx).Equals(msg.Signer) {
+		msg := fmt.Sprintf("Cannot set request as handled without being the tumbler")
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg)
 	}
 
 	// Get the existing request
-	existing, err := keeper.GetPowerUpRequestByID(ctx, msg.PowerUpProof)
+	existing, err := keeper.GetPowerUpRequestByID(ctx, msg.PowerUpID)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	// Check the signer if status is canceled
-	if msg.Status.Type == types.StatusCanceled && !existing.Claimant.Equals(msg.Editor) {
+	if !existing.Claimant.Equals(msg.Recipient) {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Cannot edit this request without being the original poster")
 	}
 
 	// Check that the existing request does not have a status set yet
 	if existing.Status != nil {
-		msg := fmt.Sprintf("Did power up request with proof %s already has a valid status", existing.Proof)
+		msg := fmt.Sprintf("Did power up request with id %s already has a valid status", existing.Proof)
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
+	status := types.NewRequestStatus(types.StatusApproved, "request approved")
 	// Change the status, return any result
-	if err := keeper.ChangePowerUpRequestStatus(ctx, msg.PowerUpProof, msg.Status); err != nil {
+	if err := keeper.ChangePowerUpRequestStatus(ctx, msg.PowerUpID, status); err != nil {
 		return nil, err
-	}
-
-	return &sdk.Result{}, nil
-}
-
-func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgPowerUpDid) (*sdk.Result, error) {
-
-	// Validate the signer
-	if !govKeeper.GetTumblerAddress(ctx).Equals(msg.Signer) {
-		msg := fmt.Sprintf("Invalid signer, must be tumbler: %s", msg.Signer)
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg)
-	}
-
-	// Get the existing references
-	references := keeper.GetHandledPowerUpRequestsReferences(ctx)
-	if references.Contains(msg.ActivationReference) {
-		msg := fmt.Sprintf("Power up with reference %s already handled", msg.ActivationReference)
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
-	}
-
-	// Set the request as handled
-	err := keeper.SetPowerUpRequestHandled(ctx, msg.ActivationReference)
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	return &sdk.Result{}, nil

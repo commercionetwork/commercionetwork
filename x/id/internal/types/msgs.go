@@ -70,7 +70,7 @@ func (msg MsgRequestDidPowerUp) ValidateBasic() error {
 	}
 
 	if _, err := uuid.FromString(msg.ID); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "invalid ID, must be a valid UUID")
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "invalid PowerUpID, must be a valid UUID")
 	}
 
 	if msg.ProofKey == "" {
@@ -90,87 +90,35 @@ func (msg MsgRequestDidPowerUp) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Claimant}
 }
 
-// ------------------------
-// --- MsgPowerUpDid
-// ------------------------
+// ---------------------------
+// --- MsgChangePowerUpStatus
+// ---------------------------
 
-type MsgPowerUpDid struct {
-	Recipient           sdk.AccAddress `json:"recipient"`
-	Amount              sdk.Coins      `json:"amount"`
-	ActivationReference string         `json:"activation_reference"`
-	Signer              sdk.AccAddress `json:"signer"`
+type MsgChangePowerUpStatus struct {
+	Recipient sdk.AccAddress `json:"recipient"`
+	PowerUpID string         `json:"id"`
+	Status    RequestStatus  `json:"status"`
+	Signer    sdk.AccAddress `json:"signer"`
 }
 
 // Route Implements Msg.
-func (msg MsgPowerUpDid) Route() string { return ModuleName }
+func (msg MsgChangePowerUpStatus) Route() string { return ModuleName }
 
 // Type Implements Msg.
-func (msg MsgPowerUpDid) Type() string { return MsgTypePowerUpDid }
+func (msg MsgChangePowerUpStatus) Type() string { return MsgTypeChangePowerUpStatus }
 
 // ValidateBasic Implements Msg.
-func (msg MsgPowerUpDid) ValidateBasic() error {
+func (msg MsgChangePowerUpStatus) ValidateBasic() error {
 	if msg.Recipient.Empty() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid recipient address: %s", msg.Recipient)))
 	}
 
-	if msg.Amount.Empty() || !msg.Amount.IsValid() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, (fmt.Sprintf("Invalid power up amount: %s", msg.Amount)))
-	}
-
-	if !ValidateHex(msg.ActivationReference) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid activation_reference: %s", msg.ActivationReference)))
+	if _, err := uuid.FromString(msg.PowerUpID); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "invalid PowerUpID, must be a valid UUID")
 	}
 
 	if msg.Signer.Empty() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid signer address: %s", msg.Signer)))
-	}
-
-	return nil
-}
-
-// GetSignBytes Implements Msg.
-func (msg MsgPowerUpDid) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners Implements Msg.
-func (msg MsgPowerUpDid) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
-}
-
-// ---------------------------------------
-// --- MsgInvalidateDidPowerUpRequest
-// ---------------------------------------
-
-type MsgInvalidateDidPowerUpRequest struct {
-	PowerUpProof string         `json:"power_up_proof"`
-	Status       RequestStatus  `json:"status"`
-	Editor       sdk.AccAddress `json:"editor"`
-}
-
-func NewMsgInvalidateDidPowerUpRequest(status RequestStatus, proof string, editor sdk.AccAddress) MsgInvalidateDidPowerUpRequest {
-	return MsgInvalidateDidPowerUpRequest{
-		Editor:       editor,
-		PowerUpProof: proof,
-		Status:       status,
-	}
-}
-
-// Route Implements Msg.
-func (msg MsgInvalidateDidPowerUpRequest) Route() string { return ModuleName }
-
-// Type Implements Msg.
-func (msg MsgInvalidateDidPowerUpRequest) Type() string { return MsgTypeInvalidateDidPowerUpRequest }
-
-// ValidateBasic Implements Msg.
-func (msg MsgInvalidateDidPowerUpRequest) ValidateBasic() error {
-
-	if msg.Editor.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid editor address: %s", msg.Editor)))
-	}
-
-	if !ValidateHex(msg.PowerUpProof) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid power_up_proof: %s", msg.PowerUpProof)))
 	}
 
 	if err := msg.Status.Validate(); err != nil {
@@ -181,11 +129,11 @@ func (msg MsgInvalidateDidPowerUpRequest) ValidateBasic() error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgInvalidateDidPowerUpRequest) GetSignBytes() []byte {
+func (msg MsgChangePowerUpStatus) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgInvalidateDidPowerUpRequest) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Editor}
+func (msg MsgChangePowerUpStatus) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Signer}
 }

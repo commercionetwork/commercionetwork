@@ -8,8 +8,7 @@ import (
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgSetIdentity{}, "commercio/MsgSetIdentity", nil)
 	cdc.RegisterConcrete(MsgRequestDidPowerUp{}, "commercio/MsgRequestDidPowerUp", nil)
-	cdc.RegisterConcrete(MsgInvalidateDidPowerUpRequest{}, "commercio/MsgInvalidateDidPowerUpRequest", nil)
-	cdc.RegisterConcrete(MsgPowerUpDid{}, "commercio/MsgPowerUpDid", nil)
+	cdc.RegisterConcrete(MsgChangePowerUpStatus{}, "commercio/MsgChangePowerUpStatus", nil)
 }
 
 var ModuleCdc *codec.Codec

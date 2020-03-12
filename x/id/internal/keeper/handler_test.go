@@ -186,7 +186,7 @@ func Test_handleMsgChangeDidPowerUpRequestStatus_AllGood(t *testing.T) {
 func Test_handleMsgPowerUpDid_InvalidTumbler(t *testing.T) {
 	_, ctx, _, _, govK, k := SetupTestInput()
 
-	msg := types.MsgPowerUpDid{
+	msg := types.MsgChangePowerUpStatus{
 		Recipient:           TestDidPowerUpRequest.Claimant,
 		Amount:              TestDidPowerUpRequest.Amount,
 		ActivationReference: "xxxxxx",
@@ -206,7 +206,7 @@ func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
 	reference := "xxxxxx"
 	k.SetHandledPowerUpRequestsReference(ctx, reference)
 
-	msg := types.MsgPowerUpDid{
+	msg := types.MsgChangePowerUpStatus{
 		Recipient:           TestDidPowerUpRequest.Claimant,
 		Amount:              TestDidPowerUpRequest.Amount,
 		ActivationReference: reference,
@@ -223,7 +223,7 @@ func Test_handleMsgPowerUpDid_ReferenceAlreadyPresent(t *testing.T) {
 func Test_handleMsgPowerUpDid_AllGood(t *testing.T) {
 	_, ctx, _, bK, govK, k := SetupTestInput()
 
-	msg := types.MsgPowerUpDid{
+	msg := types.MsgChangePowerUpStatus{
 		Recipient:           TestDidPowerUpRequest.Claimant,
 		Amount:              TestDidPowerUpRequest.Amount,
 		ActivationReference: "test-reference",

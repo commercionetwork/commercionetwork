@@ -20,6 +20,12 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryResolveIdentity(ctx, path[1:], keeper)
 		case types.QueryResolvePowerUpRequest:
 			return queryResolvePowerUpRequest(ctx, path[1:], keeper)
+		case types.QueryGetApprovedPowerUpRequest:
+			return queryGetApprovedPowerUpRequest(ctx, keeper)
+		case types.QueryGetRejectedPowerUpRequest:
+			return queryGetRejectedPowerUpRequests(ctx, keeper)
+		case types.QueryGetPendingPowerUpRequest:
+			return queryGetPendingPowerUpRequests(ctx, keeper)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
@@ -71,6 +77,39 @@ func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (
 	}
 
 	bz, sErr := codec.MarshalJSONIndent(keeper.cdc, &request)
+	if sErr != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
+	}
+
+	return bz, nil
+}
+
+func queryGetApprovedPowerUpRequest(ctx sdk.Context, keeper Keeper) (res []byte, err error) {
+	requests := keeper.GetApprovedPowerUpRequests(ctx)
+
+	bz, sErr := codec.MarshalJSONIndent(keeper.cdc, &requests)
+	if sErr != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
+	}
+
+	return bz, nil
+}
+
+func queryGetRejectedPowerUpRequests(ctx sdk.Context, keeper Keeper) (res []byte, err error) {
+	requests := keeper.GetRejectedPowerUpRequests(ctx)
+
+	bz, sErr := codec.MarshalJSONIndent(keeper.cdc, &requests)
+	if sErr != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
+	}
+
+	return bz, nil
+}
+
+func queryGetPendingPowerUpRequests(ctx sdk.Context, keeper Keeper) (res []byte, err error) {
+	requests := keeper.GetPendingPowerUpRequests(ctx)
+
+	bz, sErr := codec.MarshalJSONIndent(keeper.cdc, &requests)
 	if sErr != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
 	}

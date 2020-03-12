@@ -30,8 +30,11 @@ const (
 
 	QueryResolveDid = "identities"
 
-	QueryResolveDepositRequest = "depositRequest"
-	QueryResolvePowerUpRequest = "powerUpRequest"
+	QueryResolveDepositRequest     = "depositRequest"
+	QueryResolvePowerUpRequest     = "powerUpRequest"
+	QueryGetApprovedPowerUpRequest = "approvedPowerUpRequest"
+	QueryGetRejectedPowerUpRequest = "rejectedPowerUpRequest"
+	QueryGetPendingPowerUpRequest  = "pendingPowerUpRequest"
 
 	// --------------
 	// --- Messages
@@ -44,6 +47,6 @@ const (
 	MsgTypeRequestDidPowerUp           = "requestDidPowerUp"
 	MsgTypeInvalidateDidPowerUpRequest = "invalidateDidPowerUpRequest"
 
-	MsgTypeMoveDeposit = "moveDeposit"
-	MsgTypePowerUpDid  = "powerUpDid"
+	MsgTypeMoveDeposit         = "moveDeposit"
+	MsgTypeChangePowerUpStatus = "changePowerUpStatus"
 )

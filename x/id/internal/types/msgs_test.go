@@ -194,10 +194,10 @@ func TestMsgRequestDidPowerUp_JSON(t *testing.T) {
 }
 
 // ------------------------
-// --- MsgPowerUpDid
+// --- MsgChangePowerUpStatus
 // ------------------------
 
-var msgPowerUpDid = types.MsgPowerUpDid{
+var msgPowerUpDid = types.MsgChangePowerUpStatus{
 	Recipient:           requestRecipient,
 	Amount:              sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
 	ActivationReference: "333b68743231343b6833346832313468354a40617364617364",
@@ -218,17 +218,17 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		msg   types.MsgPowerUpDid
+		msg   types.MsgChangePowerUpStatus
 		error error
 	}{
 		{
 			name:  "Invalid recipient returns error",
-			msg:   types.MsgPowerUpDid{Recipient: sdk.AccAddress{}},
+			msg:   types.MsgChangePowerUpStatus{Recipient: sdk.AccAddress{}},
 			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address: "),
 		},
 		{
 			name:  "Invalid amount returns error",
-			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: sdk.NewCoins()},
+			msg:   types.MsgChangePowerUpStatus{Recipient: claimant, Amount: sdk.NewCoins()},
 			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid power up amount: "),
 		},
 		{
@@ -237,12 +237,12 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 		},
 		{
 			name:  "Invalid activation reference returns error",
-			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: amount, ActivationReference: "230sd"},
+			msg:   types.MsgChangePowerUpStatus{Recipient: claimant, Amount: amount, ActivationReference: "230sd"},
 			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid activation_reference: 230sd"),
 		},
 		{
 			name:  "Invalid signer returns error",
-			msg:   types.MsgPowerUpDid{Recipient: claimant, Amount: amount, ActivationReference: "617364", Signer: sdk.AccAddress{}},
+			msg:   types.MsgChangePowerUpStatus{Recipient: claimant, Amount: amount, ActivationReference: "617364", Signer: sdk.AccAddress{}},
 			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid signer address: "),
 		},
 	}
@@ -260,7 +260,7 @@ func TestMsgPowerUpDid_ValidateBasic(t *testing.T) {
 }
 
 func TestMsgPowerUpDid_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgPowerUpDid","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
+	expected := `{"type":"commercio/MsgChangePowerUpStatus","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
 	require.Equal(t, expected, string(msgPowerUpDid.GetSignBytes()))
 }
 
@@ -270,9 +270,9 @@ func TestMsgPowerUpDid_GetSigners(t *testing.T) {
 }
 
 func TestMsgPowerUpDid_JSON(t *testing.T) {
-	json := `{"type":"commercio/MsgPowerUpDid","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
+	json := `{"type":"commercio/MsgChangePowerUpStatus","value":{"activation_reference":"333b68743231343b6833346832313468354a40617364617364","amount":[{"amount":"100","denom":"uatom"}],"recipient":"cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa","signer":"cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6"}}`
 
-	var actual types.MsgPowerUpDid
+	var actual types.MsgChangePowerUpStatus
 	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &actual)
 	require.Equal(t, msgPowerUpDid, actual)
 }

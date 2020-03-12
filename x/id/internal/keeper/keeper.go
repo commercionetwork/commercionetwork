@@ -5,7 +5,6 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -74,7 +73,7 @@ func (k Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress) (ty
 // -------------------------
 
 // GetDidDocuments returns the list of all identities for the given context
-func (k Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
+func (k Keeper) GetDidDocuments(ctx sdk.Context) []types.DidDocument {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
 
@@ -86,7 +85,7 @@ func (k Keeper) GetDidDocuments(ctx sdk.Context) ([]types.DidDocument, error) {
 		didDocuments = append(didDocuments, didDocument)
 	}
 
-	return didDocuments, nil
+	return didDocuments
 }
 
 // ----------------------------
@@ -141,6 +140,51 @@ func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, id string, status ty
 
 // GetPowerUpRequests returns the list the requests saved inside the given context
 func (k Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
+	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
+		return true
+	})
+}
+
+// GetApprovedPowerUpRequests returns the list of handled requests saved inside the given context
+func (k Keeper) GetApprovedPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
+	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
+		if r.Status != nil {
+			if r.Status.Type == types.StatusApproved {
+				return true
+			}
+		}
+
+		return false
+	})
+}
+
+// GetRejectedPowerUpRequests returns the list of rejected (canceled, invalid) requests saved inside the given context
+func (k Keeper) GetRejectedPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
+	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
+		if r.Status != nil {
+			if r.Status.Type != types.StatusApproved {
+				return true
+			}
+		}
+
+		return false
+	})
+}
+
+// GetPendingPowerUpRequests returns the list of pending requests saved inside the given context
+func (k Keeper) GetPendingPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
+	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
+		if r.Status == nil {
+			return true
+		}
+
+		return false
+	})
+}
+
+// iterRequestsWithFunc returns a slice of requests, based on the logic of rationale.
+// If rationale() returns true, r will be added to requests.
+func (k Keeper) iterRequestsWithFunc(ctx sdk.Context, rationale func(r types.DidPowerUpRequest) bool) (requests []types.DidPowerUpRequest) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidPowerUpRequestStorePrefix))
 
@@ -148,46 +192,11 @@ func (k Keeper) GetPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUp
 	for ; iterator.Valid(); iterator.Next() {
 		var request types.DidPowerUpRequest
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
-		requests = append(requests, request)
+
+		if rationale(request) {
+			requests = append(requests, request)
+		}
 	}
 
 	return requests
-}
-
-// ------------------------
-// --- Deposits handling
-// ------------------------
-
-func (k Keeper) SetPowerUpRequestHandled(ctx sdk.Context, activationReference string) error {
-	store := ctx.KVStore(k.storeKey)
-
-	if store.Has(getHandledPowerUpRequestsReferenceStoreKey(activationReference)) {
-		return fmt.Errorf("reference %s already marked as handled", activationReference)
-	}
-
-	k.SetHandledPowerUpRequestsReference(ctx, activationReference)
-	return nil
-}
-
-func (k Keeper) GetHandledPowerUpRequestsReferences(ctx sdk.Context) ctypes.Strings {
-	hi := k.HandledPowerUpRequestsIterator(ctx)
-	defer hi.Close()
-
-	data := ctypes.Strings{}
-	for ; hi.Valid(); hi.Next() {
-		data = append(data, string(hi.Value()))
-	}
-
-	return data
-}
-
-func (k Keeper) SetHandledPowerUpRequestsReference(ctx sdk.Context, reference string) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(getHandledPowerUpRequestsReferenceStoreKey(reference), []byte(reference))
-}
-
-func (k Keeper) HandledPowerUpRequestsIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.storeKey)
-
-	return sdk.KVStorePrefixIterator(store, []byte(types.HandledPowerUpRequestsReferenceStorePrefix))
 }

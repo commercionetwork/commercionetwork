@@ -37,8 +37,7 @@ type (
 	// --- Messages
 	// ---------------
 
-	MsgSetIdentity                 = types.MsgSetIdentity
-	MsgRequestDidPowerUp           = types.MsgRequestDidPowerUp
-	MsgInvalidateDidPowerUpRequest = types.MsgInvalidateDidPowerUpRequest
-	MsgPowerUpDid                  = types.MsgPowerUpDid
+	MsgSetIdentity         = types.MsgSetIdentity
+	MsgRequestDidPowerUp   = types.MsgRequestDidPowerUp
+	MsgChangePowerUpStatus = types.MsgChangePowerUpStatus
 )

@@ -19,7 +19,7 @@ func TestService_Equals(t *testing.T) {
 		equal bool
 	}{
 		{
-			"different ID",
+			"different PowerUpID",
 			service,
 			types.NewService(service.ID+"2", service.Type, service.ServiceEndpoint),
 			false,
