@@ -1,7 +1,6 @@
 package types
 
 import (
-	"crypto/sha512"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -106,16 +105,13 @@ func (d DidDocument) VerifyProof() error {
 		return fmt.Errorf("could not marshal unsigned did document during proof verification: %w", err)
 	}
 
-	// calculate its sha512
-	dataSum := sha512.Sum512(data)
-
 	// get signature bytes from base64
 	sigBytes, err := base64.StdEncoding.DecodeString(oProof.SignatureValue)
 	if err != nil {
 		return fmt.Errorf("could not decode base64 signature value: %w", err)
 	}
 
-	verified := sk.VerifyBytes(dataSum[:], sigBytes)
+	verified := sk.VerifyBytes(data, sigBytes)
 
 	if !verified {
 		return fmt.Errorf("proof signature verification failed")
