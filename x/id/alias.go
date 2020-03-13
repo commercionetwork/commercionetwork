@@ -11,6 +11,8 @@ const (
 	QuerierRoute = types.QuerierRoute
 
 	StatusRejected = types.StatusRejected
+	StatusApproved = types.StatusApproved
+	StatusCanceled = types.StatusCanceled
 )
 
 var (

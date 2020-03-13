@@ -24,8 +24,12 @@ func NewRequestStatus(statusType, message string) RequestStatus {
 // Validate returns an error if something present inside the status is wrong
 func (status RequestStatus) Validate() error {
 	statusType := strings.ToLower(status.Type)
-	if statusType != StatusRejected && statusType != StatusCanceled {
+
+	switch statusType {
+	case StatusRejected, StatusApproved, StatusCanceled:
+		return nil
+	default:
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid status type: %s", status.Type)))
+
 	}
-	return nil
 }

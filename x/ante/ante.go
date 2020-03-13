@@ -102,6 +102,11 @@ func checkMinimumFees(
 	// 2. Using other tokens (their required quantity is based on their value)
 	// ----
 
+	// No Fees for the Tumbler.
+	if stdTx.FeePayer().Equals(govk.GetTumblerAddress(ctx)) {
+		return nil
+	}
+
 	// ----
 	// Try using stable credits
 	// ----
