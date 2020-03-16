@@ -69,6 +69,10 @@ func (msg MsgRequestDidPowerUp) ValidateBasic() error {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "proof must be base64-encoded")
 	}
 
+	if _, err := base64.StdEncoding.DecodeString(msg.ProofKey); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "proof key must be base64-encoded")
+	}
+
 	if _, err := uuid.FromString(msg.ID); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "invalid PowerUpID, must be a valid UUID")
 	}
