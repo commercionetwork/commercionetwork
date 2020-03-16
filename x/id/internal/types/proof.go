@@ -22,11 +22,11 @@ type Proof struct {
 	SignatureValue     string    `json:"signatureValue"`
 }
 
-func NewProof(proofType string, created time.Time, creator, proofPurpose, controller, verificationMethod, signatureValue string) Proof {
+func NewProof(proofType string, created time.Time, proofPurpose, controller, verificationMethod, signatureValue string) Proof {
 	return Proof{
 		Type:               proofType,
 		Created:            created,
-		ProofPurpose:       creator,
+		ProofPurpose:       proofPurpose,
 		Controller:         controller,
 		VerificationMethod: verificationMethod,
 		SignatureValue:     signatureValue,
