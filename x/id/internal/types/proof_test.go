@@ -7,13 +7,14 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestProof_Equals(t *testing.T) {
 	zone, _ := time.LoadLocation("UTC")
 	date := time.Date(2019, 1, 1, 1, 1, 1, 1, zone)
-	proof := types.NewProof("type-1", date, "creator-1", "")
+	proof := types.NewProof("proof", date, "purpose", "controller", "verificationMethod", "sigvalue")
 
 	tests := []struct {
 		name  string
@@ -24,25 +25,37 @@ func TestProof_Equals(t *testing.T) {
 		{
 			"different type",
 			proof,
-			types.NewProof("type-2", proof.Created, proof.Creator, proof.SignatureValue),
-			false,
-		},
-		{
-			"different creator",
-			proof,
-			types.NewProof(proof.Type, proof.Created, "creator-2", proof.SignatureValue),
+			types.NewProof("prooff", date, "purpose", "controller", "verificationMethod", "sigvalue"),
 			false,
 		},
 		{
 			"off-by-1 day date",
 			proof,
-			types.NewProof(proof.Type, proof.Created.AddDate(0, 0, 1), proof.Creator, proof.SignatureValue),
+			types.NewProof("proof", date.AddDate(0, 0, 1), "purpose", "controller", "verificationMethod", "sigvalue"),
 			false,
 		},
 		{
 			"different signature value",
 			proof,
-			types.NewProof(proof.Type, proof.Created, proof.Creator, proof.SignatureValue+"1"),
+			types.NewProof("proof", date, "purpose", "controller", "verificationMethod", "sigvaluee"),
+			false,
+		},
+		{
+			"different purpose",
+			proof,
+			types.NewProof("proof", date, "purposee", "controller", "verificationMethod", "sigvalue"),
+			false,
+		},
+		{
+			"different controller",
+			proof,
+			types.NewProof("proof", date, "purpose", "controllerr", "verificationMethod", "sigvalue"),
+			false,
+		},
+		{
+			"different verificationMethod",
+			proof,
+			types.NewProof("proof", date, "purpose", "controller", "verificationMethodd", "sigvalue"),
 			false,
 		},
 		{
@@ -61,8 +74,20 @@ func TestProof_Equals(t *testing.T) {
 }
 
 func TestProof_Validate(t *testing.T) {
-	zone, _ := time.LoadLocation("UTC")
-	date := time.Date(2019, 1, 1, 1, 1, 1, 1, zone)
+	types.ConfigTestPrefixes()
+	var testZone, _ = time.LoadLocation("UTC")
+	var testTime = time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
+	var testOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
+	var testAnotherAddress, _ = sdk.AccAddressFromBech32("cosmos1gdpsu89prllyw49eehskv6t8800p6chefyuuwe")
+
+	validProof := types.Proof{
+		Type:               "EcdsaSecp256k1VerificationKey2019",
+		Created:            testTime,
+		ProofPurpose:       "authentication",
+		Controller:         testOwnerAddress.String(),
+		SignatureValue:     "4T2jhs4C0k7p649tdzQAOLqJ0GJsiFDP/NnsSkFpoXAxcgn6h/EgvOpHxW7FMNQ9RDgQbcE6FWP6I2UsNv1qXQ==",
+		VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
+	}
 
 	tests := []struct {
 		name    string
@@ -70,19 +95,67 @@ func TestProof_Validate(t *testing.T) {
 		wantErr error
 	}{
 		{
-			"no type",
-			types.NewProof("", date, "creator", "signature"),
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof type, must be LinkedDataSignature2015"),
+			"invalid type",
+			types.Proof{
+				Type: "wrongType",
+			},
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof type, must be EcdsaSecp256k1VerificationKey2019"),
 		},
 		{
-			"no creation date",
-			types.NewProof("LinkedDataSignature2015", time.Time{}, "creator", "signature"),
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof creation time"),
+			"invalid created",
+			types.Proof{
+				Type:    validProof.Type,
+				Created: time.Time{},
+			},
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof creation time")),
+		},
+		{
+			"invalid proof purpose",
+			types.Proof{
+				Type:         validProof.Type,
+				Created:      validProof.Created,
+				ProofPurpose: "notvalid",
+			},
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "proof purpose must be \"authentication\""),
+		},
+		{
+			"invalid controller",
+			types.Proof{
+				Type:         validProof.Type,
+				Created:      validProof.Created,
+				ProofPurpose: validProof.ProofPurpose,
+				Controller:   "not bech32",
+			},
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "invalid controller, must be a valid bech32-encoded address"),
 		},
 		{
 			"valid proof",
-			types.NewProof("LinkedDataSignature2015", date, "creator", "signatureValue"),
+			validProof,
 			nil,
+		},
+		{
+			"valid proof but controller is not associated to the public key",
+			types.Proof{
+				Type:               validProof.Type,
+				Created:            validProof.Created,
+				ProofPurpose:       validProof.ProofPurpose,
+				Controller:         testAnotherAddress.String(),
+				VerificationMethod: validProof.VerificationMethod,
+				SignatureValue:     validProof.SignatureValue,
+			},
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "verification method-derived AccAddress differs from controller"),
+		},
+		{
+			"valid proof but signature does not match",
+			types.Proof{
+				Type:               validProof.Type,
+				Created:            validProof.Created,
+				ProofPurpose:       validProof.ProofPurpose,
+				Controller:         validProof.Controller,
+				VerificationMethod: validProof.VerificationMethod,
+				SignatureValue:     validProof.SignatureValue + "oh no!",
+			},
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "signature value must be base64 encoded"),
 		},
 	}
 	for _, tt := range tests {
