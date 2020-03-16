@@ -24,8 +24,8 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 			return handleMsgAddTrustedSigner(ctx, keeper, governmentKeeper, msg)
 		case types.MsgBuyMembership:
 			return handleMsgBuyMembership(ctx, keeper, msg)
-		case types.MsgSetBlackMembership:
-			return handleMsgSetBlackMembership(ctx, keeper, msg)
+		case types.MsgSetMembership:
+			return handleMsgSetMembership(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
@@ -130,10 +130,10 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	return &sdk.Result{}, nil
 }
 
-// handleMsgSetBlackMembership handles MsgSetBlackMembership messages.
+// handleMsgSetMembership handles MsgSetMembership messages.
 // It checks that whoever sent the message is actually the government, assigns the membership and then
 // distribute the reward to the inviter.
-func handleMsgSetBlackMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetBlackMembership) (*sdk.Result, error) {
+func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMembership) (*sdk.Result, error) {
 	if !keeper.governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.GovernmentAddress) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
@@ -152,10 +152,10 @@ func handleMsgSetBlackMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSe
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, msg)
 	}
 
-	err := keeper.AssignMembership(ctx, msg.Subscriber, types.MembershipTypeBlack)
+	err := keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-			fmt.Sprintf("could not assign black membership to user %s: %s", msg.Subscriber, err.Error()),
+			fmt.Sprintf("could not assign membership to user %s: %s", msg.Subscriber, err.Error()),
 		)
 	}
 

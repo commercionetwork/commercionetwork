@@ -375,20 +375,20 @@ func TestMsgBuyMembership_GetSigners(t *testing.T) {
 	require.Equal(t, expected, msgBuyMembership.GetSigners())
 }
 
-var msgSetBlackmembership = types.NewMsgSetBlackMembership(testBuyer, government)
+var msgSetBlackmembership = types.NewMsgSetMembership(testBuyer, government, "black")
 
-func TestNewMsgSetBlackMembership_Route(t *testing.T) {
+func TestNewMsgSetMembership_Route(t *testing.T) {
 	require.Equal(t, types.RouterKey, msgSetBlackmembership.Route())
 }
 
-func TestNewMsgSetBlackMembership_Type(t *testing.T) {
-	require.Equal(t, types.MsgTypeSetBlackMembership, msgSetBlackmembership.Type())
+func TestNewMsgSetMembership_Type(t *testing.T) {
+	require.Equal(t, types.MsgTypeSetMembership, msgSetBlackmembership.Type())
 }
 
-func TestNewMsgSetBlackMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
+func TestNewMsgSetMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	tests := []struct {
 		name  string
-		msg   types.MsgSetBlackMembership
+		msg   types.MsgSetMembership
 		error string
 	}{
 		{
@@ -398,13 +398,18 @@ func TestNewMsgSetBlackMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 		},
 		{
 			name:  "Missing gov address returns error",
-			msg:   types.NewMsgSetBlackMembership(testBuyer, nil),
+			msg:   types.NewMsgSetMembership(testBuyer, nil, "black"),
 			error: "Invalid government address: ",
 		},
 		{
 			name:  "Missing subscriber returns error",
-			msg:   types.NewMsgSetBlackMembership(nil, government),
+			msg:   types.NewMsgSetMembership(nil, government, "black"),
 			error: "Invalid subscriber address: ",
+		},
+		{
+			name:  "Missing membership returns error",
+			msg:   types.NewMsgSetMembership(testBuyer, government, ""),
+			error: "new membership must not be empty",
 		},
 	}
 
@@ -420,12 +425,12 @@ func TestNewMsgSetBlackMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 	}
 }
 
-func TestNewMsgSetBlackMembership_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgSetBlackMembership","value":{"government_address":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","subscriber":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
+func TestNewMsgSetMembership_GetSignBytes(t *testing.T) {
+	expected := `{"type":"commercio/MsgSetMembership","value":{"government_address":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","new_membership":"black","subscriber":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 	require.Equal(t, expected, string(msgSetBlackmembership.GetSignBytes()))
 }
 
-func TestNewMsgSetBlackMembership_GetSigners(t *testing.T) {
+func TestNewMsgSetMembership_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgSetBlackmembership.GovernmentAddress}
 	require.Equal(t, expected, msgSetBlackmembership.GetSigners())
 }
