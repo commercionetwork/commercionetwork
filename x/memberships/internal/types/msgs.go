@@ -238,28 +238,30 @@ func (msg MsgBuyMembership) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Buyer}
 }
 
-// MsgSetBlackMembership allows government to assign a black membership to Subscriber,
+// MsgSetMembership allows government to assign a membership to Subscriber,
 // which has been already invited by another black membership user.
-type MsgSetBlackMembership struct {
+type MsgSetMembership struct {
 	GovernmentAddress sdk.AccAddress `json:"government_address"`
 	Subscriber        sdk.AccAddress `json:"subscriber"`
+	NewMembership     string         `json:"new_membership"`
 }
 
-func NewMsgSetBlackMembership(subscriber sdk.AccAddress, govAddr sdk.AccAddress) MsgSetBlackMembership {
-	return MsgSetBlackMembership{
+func NewMsgSetMembership(subscriber sdk.AccAddress, govAddr sdk.AccAddress, newMembership string) MsgSetMembership {
+	return MsgSetMembership{
 		Subscriber:        subscriber,
 		GovernmentAddress: govAddr,
+		NewMembership:     newMembership,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgSetBlackMembership) Route() string { return RouterKey }
+func (msg MsgSetMembership) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgSetBlackMembership) Type() string { return MsgTypeSetBlackMembership }
+func (msg MsgSetMembership) Type() string { return MsgTypeSetMembership }
 
 // ValidateBasic Implements Msg.
-func (msg MsgSetBlackMembership) ValidateBasic() error {
+func (msg MsgSetMembership) ValidateBasic() error {
 	if msg.Subscriber.Empty() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
 	}
@@ -268,15 +270,19 @@ func (msg MsgSetBlackMembership) ValidateBasic() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.GovernmentAddress))
 	}
 
+	if msg.NewMembership == "" {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "new membership must not be empty")
+	}
+
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgSetBlackMembership) GetSignBytes() []byte {
+func (msg MsgSetMembership) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgSetBlackMembership) GetSigners() []sdk.AccAddress {
+func (msg MsgSetMembership) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.GovernmentAddress}
 }

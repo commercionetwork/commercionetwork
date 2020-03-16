@@ -301,10 +301,10 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 	}
 }
 
-func Test_handleMsgSetBlackMembership(t *testing.T) {
+func Test_handleMsgSetMembership(t *testing.T) {
 	tests := []struct {
 		name        string
-		message     types.MsgSetBlackMembership
+		message     types.MsgSetMembership
 		invite      *types.Invite
 		verify      bool
 		senderIsGov bool
@@ -312,9 +312,10 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 	}{
 		{
 			"invited user gets black membership by government",
-			types.MsgSetBlackMembership{
+			types.MsgSetMembership{
 				GovernmentAddress: testInviteSender,
 				Subscriber:        testUser,
+				NewMembership:     "black",
 			},
 			&types.Invite{
 				Sender:           testInviteSender,
@@ -328,7 +329,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 		},
 		{
 			"non-invited user doesn't get black membership by government",
-			types.MsgSetBlackMembership{
+			types.MsgSetMembership{
 				GovernmentAddress: testInviteSender,
 				Subscriber:        testUser,
 			},
@@ -339,7 +340,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 		},
 		{
 			"invited, non-verified user doesn't get black membership by government",
-			types.MsgSetBlackMembership{
+			types.MsgSetMembership{
 				GovernmentAddress: testInviteSender,
 				Subscriber:        testUser,
 			},
@@ -355,7 +356,7 @@ func Test_handleMsgSetBlackMembership(t *testing.T) {
 		},
 		{
 			"invited, verified user doesn't get black membership because sender is not government",
-			types.MsgSetBlackMembership{
+			types.MsgSetMembership{
 				GovernmentAddress: testInviteSender,
 				Subscriber:        testUser,
 			},

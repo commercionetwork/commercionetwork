@@ -25,6 +25,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		getCmdGetInvitesForUser(cdc),
 		getCmdGetTrustedServiceProviders(cdc),
 		getCmdGetPoolFunds(cdc),
+		getCmdMembershipForUser(cdc),
 	)
 
 	return cmd
@@ -123,6 +124,31 @@ func getCmdGetPoolFundsFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 	res, _, err := cliCtx.QueryWithData(route, nil)
 	if err != nil {
 		return fmt.Errorf("could not get pool funds schemes: %w", err)
+	}
+
+	cmd.Println(string(res))
+
+	return nil
+}
+
+func getCmdMembershipForUser(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "user-membership [user]",
+		Short: "Get user membership",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdMembershipForUserFunc(cmd, args, cdc)
+		},
+	}
+}
+
+func getCmdMembershipForUserFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetMembership, args[0])
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		return fmt.Errorf("could not get membership for user: %w", err)
 	}
 
 	cmd.Println(string(res))

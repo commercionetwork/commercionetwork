@@ -110,9 +110,9 @@ func getCmdDepositIntoPoolFunc(cdc *codec.Codec, cmd *cobra.Command, args []stri
 
 func getCmdGovAssignMembership(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "gov-assign-black-membership [subscriber]",
-		Short: "As government, assign Black membership to a user",
-		Args:  cobra.ExactArgs(1),
+		Use:   "gov-assign-membership [subscriber] [membership]",
+		Short: "As government, assign membership to a user",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getCmdGovAssignMembershipFunc(cdc, cmd, args)
 		},
@@ -131,11 +131,13 @@ func getCmdGovAssignMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []
 	govAddr := cliCtx.GetFromAddress()
 	recipient, err := sdk.AccAddressFromBech32(args[0])
 
+	membership := args[1]
+
 	if err != nil {
 		return err
 	}
 
-	msg := types.NewMsgSetBlackMembership(recipient, govAddr)
+	msg := types.NewMsgSetMembership(recipient, govAddr, membership)
 	err = msg.ValidateBasic()
 	if err != nil {
 		return err
