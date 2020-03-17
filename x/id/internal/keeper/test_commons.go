@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -16,9 +15,49 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+)
+
+var (
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32MainPrefix = "did:com:"
+
+	// PrefixValidator is the prefix for validator keys
+	PrefixValidator = "val"
+	// PrefixConsensus is the prefix for consensus keys
+	PrefixConsensus = "cons"
+	// PrefixPublic is the prefix for public keys
+	PrefixPublic = "pub"
+	// PrefixOperator is the prefix for operator keys
+	PrefixOperator = "oper"
+
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32PrefixAccAddr = Bech32MainPrefix
+	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
+	Bech32PrefixAccPub = Bech32MainPrefix + PrefixPublic
+	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
+	Bech32PrefixValAddr = Bech32MainPrefix + PrefixValidator + PrefixOperator
+	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
+	Bech32PrefixValPub = Bech32MainPrefix + PrefixValidator + PrefixOperator + PrefixPublic
+	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
+	Bech32PrefixConsAddr = Bech32MainPrefix + PrefixValidator + PrefixConsensus
+	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
+	Bech32PrefixConsPub = Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
+
+	TestOwnerAddress sdk.AccAddress
+	TestDidDocument  types.DidDocument
+
+	TestGovernment  sdk.AccAddress
+	TestDepositor   sdk.AccAddress
+	TestPairwiseDid sdk.AccAddress
+
+	// Power up requests
+	TestDidPowerUpRequest = types.DidPowerUpRequest{
+		Claimant: TestDepositor,
+		Amount:   sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 100)),
+		Proof:    "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
+	}
 )
 
 //This function create an environment to test modules
@@ -58,12 +97,22 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 	govK := government.NewKeeper(cdc, keys[government.StoreKey])
 
-	// Set the government address
-	_ = govK.SetTumblerAddress(ctx, TestGovernment)
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+	config.Seal()
 
 	// Setup the Did Document
-	TestOwnerAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-	TestDidDocument = setupDidDocument(ctx, ak, "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+	TestOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
+	TestDidDocument = setupDidDocument(ctx, ak, "did:com:1zla8arsc5rju9wekz00yz54zguj20a96jn9cy6")
+
+	TestGovernment, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
+	TestDepositor, _ = sdk.AccAddressFromBech32("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6")
+	TestPairwiseDid, _ = sdk.AccAddressFromBech32("did:com:15jv74vsdk23pvvf2a8arex339505mgjytz98xc")
+
+	_ = govK.SetTumblerAddress(ctx, TestGovernment)
+	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
 
 	idk := NewKeeper(cdc, keys[types.StoreKey], ak, sk)
 
@@ -95,64 +144,50 @@ func testCodec() *codec.Codec {
 }
 
 func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address string) types.DidDocument {
-	// Create a public key
-	var secp256k1Key secp256k1.PubKeySecp256k1
-	bz, _ := hex.DecodeString("02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71")
-	copy(secp256k1Key[:], bz)
-
-	// Create the owner account
-	address, _ := sdk.AccAddressFromBech32(bech32Address)
-	account := ak.NewAccountWithAddress(ctx, address)
-	_ = account.SetPubKey(secp256k1Key)
-	ak.SetAccount(ctx, account)
-
-	testZone, _ := time.LoadLocation("UTC")
-	testTime := time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
+	var testZone, _ = time.LoadLocation("UTC")
+	var testTime = time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
+	var testOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
 
 	return types.DidDocument{
 		Context: "https://www.w3.org/ns/did/v1",
-		ID:      address,
+		ID:      testOwnerAddress,
 		Proof: types.Proof{
-			Type:           "LinkedDataSignature2015",
-			Created:        testTime,
-			SignatureValue: "QNB13Y7Q9...1tzjn4w==",
+			Type:               "EcdsaSecp256k1VerificationKey2019",
+			Created:            testTime,
+			ProofPurpose:       "authentication",
+			Controller:         testOwnerAddress.String(),
+			SignatureValue:     "4T2jhs4C0k7p649tdzQAOLqJ0GJsiFDP/NnsSkFpoXAxcgn6h/EgvOpHxW7FMNQ9RDgQbcE6FWP6I2UsNv1qXQ==",
+			VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
 		},
 		PubKeys: types.PubKeys{
 			types.PubKey{
-				ID:         fmt.Sprintf("%s#keys-1", address),
-				Type:       "Secp256k1VerificationKey2018",
-				Controller: address,
-				PublicKey:  hex.EncodeToString(secp256k1Key[:]),
+				ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+				Type:       "RsaVerificationKey2018",
+				Controller: testOwnerAddress,
+				PublicKey: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
+2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
+Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
+V1tz8zU9NmdR+DvGkAYYxoIx74YaTAxH+GCArfWMG1tRJPI9MELZbOWd9xkKlPic
+bLp8coZh9NgLajMDWKXpuHQ8cdJSxQ/ekZaTuEy7qbjbGBMVzbjhPjcxffQmGV1W
+gNY1BGplZz9mbBmH7siKnKIVZ5Bp55uLfEw+u2yOVx/0yKUdsmZoe4jhevCSq3aw
+GwIDAQAB
+-----END PUBLIC KEY-----`,
 			},
 			types.PubKey{
-				ID:         fmt.Sprintf("%s#keys-2", address),
-				Type:       "RsaVerificationKey2018",
-				Controller: address,
-				PublicKey:  "04418834f5012c808a11830819f300d06092a864886f70d010101050003818d0030818902818100ccaf757e02ec9cfb3beddaa5fe8e9c24df033e9b60db7cb8e2981cb340321faf348731343c7ab2f4920ebd62c5c7617557f66219291ce4e95370381390252b080dfda319bb84808f04078737ab55f291a9024ef3b72aedcf26067d3cee2a470ed056f4e409b73dd6b4fddffa43dff02bf30a9de29357b606df6f0246be267a910203010001a",
+				ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+				Type:       "RsaSignatureKey2018",
+				Controller: testOwnerAddress,
+				PublicKey: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
 			},
 		},
 	}
-}
-
-// Identities
-var TestOwnerAddress sdk.AccAddress
-var TestDidDocument types.DidDocument
-
-// Deposit requests
-var TestGovernment, _ = sdk.AccAddressFromBech32("cosmos1gdpsu89prllyw49eehskv6t8800p6chefyuuwe")
-var TestDepositor, _ = sdk.AccAddressFromBech32("cosmos187pz9tpycrhaes72c77p62zjh6p9zwt9amzpp6")
-var TestPairwiseDid, _ = sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
-var TestDidDepositRequest = types.DidDepositRequest{
-	Recipient:     TestPairwiseDid,
-	Amount:        sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-	Proof:         "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
-	EncryptionKey: "333b68743231343b6833346832313468354a40617364617364",
-	FromAddress:   TestDepositor,
-}
-
-// Power up requests
-var TestDidPowerUpRequest = types.DidPowerUpRequest{
-	Claimant: TestDepositor,
-	Amount:   sdk.NewCoins(sdk.NewInt64Coin("uatom", 100)),
-	Proof:    "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
 }

@@ -74,7 +74,6 @@ func TestProof_Equals(t *testing.T) {
 }
 
 func TestProof_Validate(t *testing.T) {
-	types.ConfigTestPrefixes()
 	var testZone, _ = time.LoadLocation("UTC")
 	var testTime = time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
 	var testOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
