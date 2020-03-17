@@ -30,7 +30,6 @@ type (
 	Proof               = types.Proof
 	PubKey              = types.PubKey
 	PubKeys             = types.PubKeys
-	DidDepositRequest   = types.DidDepositRequest
 	DidPowerUpRequest   = types.DidPowerUpRequest
 	RequestStatus       = types.RequestStatus
 	PowerUpRequestProof = types.PowerUpRequestProof
