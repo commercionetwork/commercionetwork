@@ -1,6 +1,7 @@
 package simapp
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -10,8 +11,9 @@ import (
 
 // Setup initializes a new SimApp. A Nop logger is set in SimApp.
 func Setup(isCheckTx bool) *SimApp {
-	db := dbm.NewMemDB()
-	app := NewSimApp(log.NewNopLogger(), db, nil, true, 0)
+	memDB := dbm.NewMemDB()
+
+	app := NewSimApp(log.NewNopLogger(), memDB, nil, true, 0)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewDefaultGenesisState()
@@ -27,6 +29,19 @@ func Setup(isCheckTx bool) *SimApp {
 				AppStateBytes: stateBytes,
 			},
 		)
+	}
+
+	header := abci.Header{}
+
+	ctx := app.BaseApp.NewContext(isCheckTx, header)
+	t, err := sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+	if err != nil {
+		panic(err)
+	}
+
+	err = app.GovernmentKeeper.SetTumblerAddress(ctx, t)
+	if err != nil {
+		panic(err)
 	}
 
 	return app

@@ -61,7 +61,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	stableCreditsDenom := "uccc"
 
 	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper,
+		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper, app.GovernmentKeeper,
 		cosmosante.DefaultSigVerificationGasConsumer,
 		stableCreditsDenom,
 	)
@@ -122,4 +122,47 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	seqs = []uint64{2}
 	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
 	checkValidTx(t, anteHandler, ctx, tx, true)
+}
+
+func TestAnteHandlerFees_MsgShareDocFromTumbler(t *testing.T) {
+
+	// Setup
+	app, ctx := createTestApp(true, false)
+
+	stableCreditsDenom := "uccc"
+
+	anteHandler := ante.NewAnteHandler(
+		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper, app.GovernmentKeeper,
+		cosmosante.DefaultSigVerificationGasConsumer,
+		stableCreditsDenom,
+	)
+
+	// Keys and addresses
+	priv1, _, addr1 := types.KeyTestPubAddr()
+
+	// Set the accounts
+	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
+	_ = acc1.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
+	app.AccountKeeper.SetAccount(ctx, acc1)
+	require.NoError(t, app.GovernmentKeeper.SetTumblerAddress(ctx, addr1))
+
+	// Msg and signatures
+
+	msg := docs.NewMsgShareDocument(docs.Document{
+		UUID:           testDocument.UUID,
+		Metadata:       testDocument.Metadata,
+		ContentURI:     testDocument.ContentURI,
+		Checksum:       testDocument.Checksum,
+		EncryptionData: testDocument.EncryptionData,
+		Sender:         acc1.GetAddress(),
+		Recipients:     testDocument.Recipients,
+	})
+	privs, accnums, seqs := []crypto.PrivKey{priv1}, []uint64{0}, []uint64{0}
+	msgs := []sdk.Msg{msg}
+
+	// Signer has not specified the fees
+	var tx sdk.Tx
+	fees := sdk.NewCoins()
+	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	checkValidTx(t, anteHandler, ctx, tx, false)
 }
