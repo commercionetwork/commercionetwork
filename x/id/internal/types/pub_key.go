@@ -3,6 +3,7 @@ package types
 import (
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -42,6 +43,10 @@ func (pubKey PubKey) Equals(other PubKey) bool {
 
 // Validate checks the data contained inside pubKey and returns an error if something is wrong
 func (pubKey PubKey) Validate() error {
+
+	if pubKey.Controller == nil {
+		return errors.New("controller must be non-null")
+	}
 
 	regex, _ := regexp.Compile(fmt.Sprintf("^%s#keys-[0-9]+$", pubKey.Controller))
 	if !regex.MatchString(pubKey.ID) {
@@ -114,6 +119,9 @@ func (pubKeys PubKeys) HasVerificationAndSignatureKey() bool {
 
 func validateRSAPubkey(key []byte) error {
 	block, _ := pem.Decode(key)
+	if block == nil {
+		return errors.New("no valid PEM data found")
+	}
 	_, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return fmt.Errorf("invalid public key: %w", err)
