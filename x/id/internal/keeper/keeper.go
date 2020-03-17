@@ -174,11 +174,7 @@ func (k Keeper) GetRejectedPowerUpRequests(ctx sdk.Context) (requests []types.Di
 // GetPendingPowerUpRequests returns the list of pending requests saved inside the given context
 func (k Keeper) GetPendingPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
 	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
-		if r.Status == nil {
-			return true
-		}
-
-		return false
+		return r.Status == nil
 	})
 }
 

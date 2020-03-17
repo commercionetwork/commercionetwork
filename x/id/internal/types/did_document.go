@@ -81,14 +81,14 @@ func (didDocument DidDocument) Validate() error {
 //  - let B be the SHA-512 (as defined in the FIPS 180-4) of the JSON representation of d minus the Proof field
 //  - let L be the Proof Signature Value, decoded from Base64 encoding
 // The Proof is verified if K.Verify(B, L) is verified.
-func (d DidDocument) VerifyProof() error {
+func (didDocument DidDocument) VerifyProof() error {
 	u := didDocumentUnsigned{
-		Context: d.Context,
-		ID:      d.ID,
-		PubKeys: d.PubKeys,
+		Context: didDocument.Context,
+		ID:      didDocument.ID,
+		PubKeys: didDocument.PubKeys,
 	}
 
-	oProof := d.Proof
+	oProof := didDocument.Proof
 
 	// get a public key object
 	pk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, oProof.VerificationMethod)
