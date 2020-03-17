@@ -10,8 +10,3 @@ import (
 func (k Keeper) GetIdentitiesModuleAccount(ctx sdk.Context) exported.ModuleAccountI {
 	return k.supplyKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
-
-// GetPoolAmount returns the current pool amount
-func (k Keeper) GetPoolAmount(ctx sdk.Context) (pool sdk.Coins) {
-	return k.GetIdentitiesModuleAccount(ctx).GetCoins()
-}
