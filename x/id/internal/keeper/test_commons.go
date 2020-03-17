@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
@@ -57,7 +58,10 @@ var (
 		Claimant: TestDepositor,
 		Amount:   sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 100)),
 		Proof:    "68576d5a7134743777217a25432646294a404e635266556a586e327235753878",
+		Status:   &types.RequestStatus{},
 	}
+
+	configSealOnce sync.Once
 )
 
 //This function create an environment to test modules
@@ -97,11 +101,13 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 	govK := government.NewKeeper(cdc, keys[government.StoreKey])
 
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
-	config.Seal()
+	configSealOnce.Do(func() {
+		config := sdk.GetConfig()
+		config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
+		config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
+		config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+		config.Seal()
+	})
 
 	// Setup the Did Document
 	TestOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")

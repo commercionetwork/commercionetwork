@@ -192,3 +192,97 @@ func TestKeeper_GetPowerUpRequests_ExistingList(t *testing.T) {
 	require.Equal(t, 1, len(didPowerUpRequests))
 	require.Contains(t, didPowerUpRequests, TestDidPowerUpRequest)
 }
+
+func TestKeeper_GetApprovedPowerUpRequests_EmptyList(t *testing.T) {
+	cdc, ctx, _, _, _, k := SetupTestInput()
+
+	store := ctx.KVStore(k.storeKey)
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&TestDidPowerUpRequest))
+
+	didPowerUpRequests := k.GetApprovedPowerUpRequests(ctx)
+
+	require.Empty(t, didPowerUpRequests)
+}
+
+func TestKeeper_GetApprovedPowerUpRequests_ExistingList(t *testing.T) {
+	cdc, ctx, _, _, _, k := SetupTestInput()
+
+	store := ctx.KVStore(k.storeKey)
+
+	r := TestDidPowerUpRequest
+	r.Status = &types.RequestStatus{
+		Type:    types.StatusApproved,
+		Message: "",
+	}
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&r))
+
+	didPowerUpRequests := k.GetApprovedPowerUpRequests(ctx)
+
+	require.Equal(t, 1, len(didPowerUpRequests))
+	require.Contains(t, didPowerUpRequests, r)
+}
+
+func TestKeeper_GetRejectedPowerUpRequests_EmptyList(t *testing.T) {
+	cdc, ctx, _, _, _, k := SetupTestInput()
+
+	store := ctx.KVStore(k.storeKey)
+	r := TestDidPowerUpRequest
+	r.Status = &types.RequestStatus{
+		Type: types.StatusRejected,
+	}
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&r))
+
+	didPowerUpRequests := k.GetRejectedPowerUpRequests(ctx)
+
+	require.Contains(t, didPowerUpRequests, r)
+}
+
+func TestKeeper_GetRejectedPowerUpRequests_ExistingList(t *testing.T) {
+	cdc, ctx, _, _, _, k := SetupTestInput()
+
+	store := ctx.KVStore(k.storeKey)
+
+	r := TestDidPowerUpRequest
+	r.Status = &types.RequestStatus{
+		Type:    types.StatusRejected,
+		Message: "",
+	}
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&r))
+
+	didPowerUpRequests := k.GetRejectedPowerUpRequests(ctx)
+
+	require.Equal(t, 1, len(didPowerUpRequests))
+	require.Contains(t, didPowerUpRequests, r)
+}
+
+func TestKeeper_GetPendingPowerUpRequests_EmptyList(t *testing.T) {
+	cdc, ctx, _, _, _, k := SetupTestInput()
+
+	store := ctx.KVStore(k.storeKey)
+
+	r := TestDidPowerUpRequest
+	r.Status = nil
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&r))
+
+	didPowerUpRequests := k.GetPendingPowerUpRequests(ctx)
+
+	require.Contains(t, didPowerUpRequests, r)
+}
+
+func TestKeeper_GetPendingPowerUpRequests_ExistingList(t *testing.T) {
+	cdc, ctx, _, _, _, k := SetupTestInput()
+
+	store := ctx.KVStore(k.storeKey)
+
+	r := TestDidPowerUpRequest
+	r.Status = &types.RequestStatus{
+		Type:    types.StatusApproved,
+		Message: "",
+	}
+	store.Set(getDidPowerUpRequestStoreKey(TestDidPowerUpRequest.Proof), cdc.MustMarshalBinaryBare(&r))
+
+	didPowerUpRequests := k.GetPendingPowerUpRequests(ctx)
+
+	require.Equal(t, 0, len(didPowerUpRequests))
+	require.NotContains(t, didPowerUpRequests, r)
+}

@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"errors"
 	"testing"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -11,8 +12,8 @@ import (
 )
 
 func TestPubKey_Equals(t *testing.T) {
-	controller, _ := sdk.AccAddressFromBech32("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc")
-	controller2, _ := sdk.AccAddressFromBech32("cosmos1007jzaanx5kmqnn3akgype2jseawfj80dne9t6")
+	controller, _ := sdk.AccAddressFromBech32("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6")
+	controller2, _ := sdk.AccAddressFromBech32("did:com:15jv74vsdk23pvvf2a8arex339505mgjytz98xc")
 	pubKey := types.NewPubKey("id", "type", controller, "hex-value")
 
 	tests := []struct {
@@ -61,7 +62,7 @@ func TestPubKey_Equals(t *testing.T) {
 }
 
 func TestPubKey_Validate(t *testing.T) {
-	controller, _ := sdk.AccAddressFromBech32("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc")
+	controller, _ := sdk.AccAddressFromBech32("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6")
 
 	tests := []struct {
 		name string
@@ -71,22 +72,45 @@ func TestPubKey_Validate(t *testing.T) {
 		{
 			"invalid key id",
 			types.NewPubKey("id", "type", controller, "13"),
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid key id, must satisfy ^cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-[0-9]+$"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid key id, must satisfy ^did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-[0-9]+$"),
 		},
 		{
 			"invalid key type",
-			types.NewPubKey("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-1", "type", controller, "10"),
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid key type, must be either RsaVerificationKey2018, Secp256k1VerificationKey2018 or Ed25519VerificationKey2018"),
-		},
-		{
-			"invaliod pubkey hex value",
-			types.NewPubKey("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-1", "RsaVerificationKey2018", controller, "lkasd"),
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid publicKeyHex value"),
+			types.NewPubKey("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-1", "type", controller, "10"),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "key type type not supported"),
 		},
 		{
 			"valid pubkey",
-			types.NewPubKey("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc#keys-1", "RsaVerificationKey2018", controller, "6369616f6369616f63"),
+			types.PubKey{
+				ID:         "did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-1",
+				Type:       "RsaVerificationKey2018",
+				Controller: controller,
+				PublicKey: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
+2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
+Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
+V1tz8zU9NmdR+DvGkAYYxoIx74YaTAxH+GCArfWMG1tRJPI9MELZbOWd9xkKlPic
+bLp8coZh9NgLajMDWKXpuHQ8cdJSxQ/ekZaTuEy7qbjbGBMVzbjhPjcxffQmGV1W
+gNY1BGplZz9mbBmH7siKnKIVZ5Bp55uLfEw+u2yOVx/0yKUdsmZoe4jhevCSq3aw
+GwIDAQAB
+-----END PUBLIC KEY-----`,
+			},
 			nil,
+		},
+		{
+			"invalid controller",
+			types.NewPubKey("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-1", "RsaVerificationKey2018", nil, ""),
+			errors.New("controller must be non-null"),
+		},
+		{
+			"empty public key",
+			types.PubKey{
+				ID:         "did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-1",
+				Type:       "RsaVerificationKey2018",
+				Controller: controller,
+				PublicKey:  ``,
+			},
+			errors.New("no valid PEM data found"),
 		},
 	}
 	for _, tt := range tests {
@@ -102,7 +126,7 @@ func TestPubKey_Validate(t *testing.T) {
 }
 
 func TestPubKeys_Equals(t *testing.T) {
-	controller, _ := sdk.AccAddressFromBech32("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc")
+	controller, _ := sdk.AccAddressFromBech32("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6")
 
 	first := types.NewPubKey("id-1", "type-1", controller, "hexValue-1")
 	second := types.NewPubKey("id-2", "type-2", controller, "hexValue-2")
@@ -147,7 +171,7 @@ func TestPubKeys_Equals(t *testing.T) {
 }
 
 func TestPubKeys_FindByID(t *testing.T) {
-	controller, _ := sdk.AccAddressFromBech32("cosmos18q5k63dkyazl88hzvcyx26lqas7al62hqaxlyc")
+	controller, _ := sdk.AccAddressFromBech32("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6")
 
 	first := types.NewPubKey("id-1", "type-1", controller, "hexValue-1")
 	second := types.NewPubKey("id-2", "type-2", controller, "hexValue-2")

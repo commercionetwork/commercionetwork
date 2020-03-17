@@ -64,7 +64,13 @@ func Test_queryResolvePowerUpRequest_ExistingRequest(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	require.Nil(t, err)
-	require.Equal(t, TestDidPowerUpRequest, actual)
+	require.Equal(t, TestDidPowerUpRequest.Proof, actual.Proof)
+	require.Equal(t, TestDidPowerUpRequest.Amount.String(), actual.Amount.String())
+	require.Equal(t, TestDidPowerUpRequest.ID, actual.ID)
+	require.Equal(t, TestDidPowerUpRequest.Status.Type, actual.Status.Type)
+	require.Equal(t, TestDidPowerUpRequest.Status.Message, actual.Status.Message)
+	require.Equal(t, TestDidPowerUpRequest.Claimant.String(), actual.Claimant.String())
+
 }
 
 func Test_queryResolvePowerUpRequest_NonExistingRequest(t *testing.T) {
@@ -76,5 +82,5 @@ func Test_queryResolvePowerUpRequest_NonExistingRequest(t *testing.T) {
 
 	require.Error(t, err)
 	require.True(t, errors.Is(err, sdkErr.ErrUnknownRequest))
-	require.Contains(t, err.Error(), "proof")
+	require.Contains(t, err.Error(), "power-up request with id  not found")
 }

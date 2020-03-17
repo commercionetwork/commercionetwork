@@ -50,6 +50,7 @@ func TestKeeper_getDidPowerUpRequestStoreKey(t *testing.T) {
 }
 
 func TestKeeper_getIdentityStoreKey(t *testing.T) {
+	SetupTestInput()
 	tests := []struct {
 		name    string
 		owner   sdk.AccAddress
@@ -58,7 +59,7 @@ func TestKeeper_getIdentityStoreKey(t *testing.T) {
 		{
 			"get identity store key request from a proof",
 			TestGovernment,
-			"aWQ6aWRlbnRpdGllczpDQw4coR/+R1S5zeFmaWc73h1i+Q==",
+			"aWQ6aWRlbnRpdGllczpQVVgsvYJiWsmPrk8DD+XET1lIDg==",
 		},
 	}
 	for _, tt := range tests {
@@ -70,6 +71,7 @@ func TestKeeper_getIdentityStoreKey(t *testing.T) {
 }
 
 func Test_getHandledPowerUpRequestsReferenceStoreKey(t *testing.T) {
+	SetupTestInput()
 	tests := []struct {
 		name      string
 		reference string
