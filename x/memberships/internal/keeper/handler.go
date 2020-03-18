@@ -133,18 +133,22 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 // handleMsgSetMembership handles MsgSetMembership messages.
 // It checks that whoever sent the message is actually the government, assigns the membership and then
 // distribute the reward to the inviter.
+// If the user isn't invited already, an invite and credentials will be created.
 func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMembership) (*sdk.Result, error) {
-	if !keeper.governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.GovernmentAddress) {
+	govAddr := keeper.governmentKeeper.GetGovernmentAddress(ctx)
+	if !govAddr.Equals(msg.GovernmentAddress) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
 		)
 	}
 
-	invite, found := keeper.GetInvite(ctx, msg.Subscriber)
-	if !found {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
-			fmt.Sprintf("no membership invite found for user %s", msg.Subscriber.String()),
-		)
+	if !types.IsMembershipTypeValid(msg.NewMembership) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid membership type: %s", msg.NewMembership))
+	}
+
+	invite, err := governmentInvitesUser(ctx, keeper, msg.Subscriber)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("government could not invite user"))
 	}
 
 	if credentials := keeper.GetUserCredentials(ctx, msg.Subscriber); len(credentials) == 0 {
@@ -152,7 +156,7 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, msg)
 	}
 
-	err := keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership)
+	err = keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not assign membership to user %s: %s", msg.Subscriber, err.Error()),
@@ -167,4 +171,41 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 	}
 
 	return &sdk.Result{}, nil
+}
+
+// governmentInvitesUser makes government invite an user if it isn't already invited and validated.
+// This function is used when there's the need to assign an arbitrary membership to a given user.
+func governmentInvitesUser(ctx sdk.Context, keeper Keeper, user sdk.AccAddress) (types.Invite, error) {
+	govAddr := keeper.governmentKeeper.GetGovernmentAddress(ctx)
+
+	// check the user has already been invited
+	// if there's an invite, save a credential for it,
+	// this way invited, but non-verified users will be able to receive a membership
+	invite, found := keeper.GetInvite(ctx, user)
+	if found {
+		credential := types.NewCredential(user, govAddr, ctx.BlockHeight())
+		keeper.SaveCredential(ctx, credential)
+		return invite, nil
+	}
+
+	// otherwise, create an invite from the government
+	err := keeper.InviteUser(ctx, user, govAddr)
+	if err != nil {
+		return types.Invite{}, err
+	}
+
+	// verify credentials for such user
+	credential := types.NewCredential(user, govAddr, ctx.BlockHeight())
+	keeper.SaveCredential(ctx, credential)
+
+	// get the invite again, mark it as rewarded, and return it
+	invite, found = keeper.GetInvite(ctx, user)
+	if !found {
+		return types.Invite{}, fmt.Errorf("invite from government created correctly, but invite lookup failed")
+	}
+
+	invite.Status = types.InviteStatusRewarded
+	keeper.SaveInvite(ctx, invite)
+
+	return invite, nil
 }

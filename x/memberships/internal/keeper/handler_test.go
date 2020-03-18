@@ -328,21 +328,23 @@ func Test_handleMsgSetMembership(t *testing.T) {
 			"",
 		},
 		{
-			"non-invited user doesn't get black membership by government",
+			"non-invited user gets black membership by government",
 			types.MsgSetMembership{
 				GovernmentAddress: testInviteSender,
 				Subscriber:        testUser,
+				NewMembership:     types.MembershipTypeBlack,
 			},
 			nil,
+			false,
 			true,
-			true,
-			"no membership invite found for user cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae",
+			"",
 		},
 		{
 			"invited, non-verified user doesn't get black membership by government",
 			types.MsgSetMembership{
 				GovernmentAddress: testInviteSender,
 				Subscriber:        testUser,
+				NewMembership:     types.MembershipTypeBlack,
 			},
 			&types.Invite{
 				Sender:           testInviteSender,
