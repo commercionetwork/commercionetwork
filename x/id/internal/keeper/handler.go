@@ -51,6 +51,7 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 		Amount:   msg.Amount,
 		Proof:    msg.Proof,
 		ID:       msg.ID,
+		ProofKey: msg.ProofKey,
 	}
 
 	if err := keeper.StorePowerUpRequest(ctx, request); err != nil {

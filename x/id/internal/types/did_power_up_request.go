@@ -13,4 +13,5 @@ type DidPowerUpRequest struct {
 	Amount   sdk.Coins      `json:"amount"`
 	Proof    string         `json:"proof"`
 	ID       string         `json:"id"`
+	ProofKey string         `json:"proof_key"`
 }

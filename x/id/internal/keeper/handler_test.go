@@ -42,6 +42,7 @@ var msgRequestDidPowerUp = types.MsgRequestDidPowerUp{
 	Amount:   TestDidPowerUpRequest.Amount,
 	Proof:    TestDidPowerUpRequest.Proof,
 	ID:       TestDidPowerUpRequest.ID,
+	ProofKey: TestDidPowerUpRequest.ProofKey,
 }
 
 func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
@@ -57,6 +58,7 @@ func Test_handleMsgRequestDidPowerUp_NewRequest(t *testing.T) {
 	require.Equal(t, TestDidPowerUpRequest.Amount.String(), stored.Amount.String())
 	require.Equal(t, TestDidPowerUpRequest.ID, stored.ID)
 	require.Equal(t, TestDidPowerUpRequest.Claimant.String(), stored.Claimant.String())
+	require.Equal(t, TestDidPowerUpRequest.ProofKey, stored.ProofKey)
 }
 
 func Test_handleMsgRequestDidPowerUp_ExistingRequest(t *testing.T) {
