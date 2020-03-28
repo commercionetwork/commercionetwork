@@ -61,7 +61,8 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	stableCreditsDenom := "uccc"
 
 	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper, app.GovernmentKeeper,
+		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper,
+		app.GovernmentKeeper,
 		cosmosante.DefaultSigVerificationGasConsumer,
 		stableCreditsDenom,
 	)
