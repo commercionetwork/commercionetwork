@@ -2,13 +2,14 @@ package types
 
 import (
 	"fmt"
-	"github.com/tendermint/go-amino"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/go-amino"
+
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 func TestDocument_Equals_NilValues(t *testing.T) {
@@ -344,7 +345,7 @@ func TestDocument_Validate(t *testing.T) {
 }
 
 func TestCreateDoc_DoSign(t *testing.T) {
-	document := Document{
+	baseDocument := Document{
 		UUID: "uuid",
 		Metadata: DocumentMetadata{
 			ContentURI: "document_metadata_content_uri",
@@ -355,12 +356,58 @@ func TestCreateDoc_DoSign(t *testing.T) {
 		EncryptionData: nil,
 	}
 
-	require.True(t, document.Equals(document))
+	tests := []struct {
+		name           string
+		documentDoSign *DocumentDoSign
+		expectedResult string
+	}{
+		{
+			"no do sign (null)",
+			nil,
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":null}",
+		},
+		{
+			"some data but empty sdn data",
+			&DocumentDoSign{
+				StorageUri:         "abc",
+				SignerInstance:     "abc",
+				SdnData:            SdnData{},
+				VcrId:              "abc",
+				CertificateProfile: "abc",
+			},
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":{\"first_name\":\"\",\"last_name\":\"\",\"tin\":\"\",\"email\":\"\",\"organization\":\"\",\"country\":\"\"},\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+		},
+		{
+			"all data",
+			&DocumentDoSign{
+				StorageUri:     "abc",
+				SignerInstance: "abc",
+				SdnData: SdnData{
+					FirstName:    "Carl",
+					LastName:     "Wilson",
+					Tin:          "1234",
+					Email:        "fsdaf@safdfds.es",
+					Organization: "asdf",
+					Country:      "USA",
+				},
+				VcrId:              "abc",
+				CertificateProfile: "abc",
+			},
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":{\"first_name\":\"Carl\",\"last_name\":\"Wilson\",\"tin\":\"1234\",\"email\":\"fsdaf@safdfds.es\",\"organization\":\"asdf\",\"country\":\"USA\"},\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+		},
+	}
 
 	cdc := amino.NewCodec()
 
-	json, err := cdc.MarshalJSON(document)
-	require.NoError(t, err)
+	for _, tt := range tests {
+		tt := tt
+		baseDoc := baseDocument
 
-	fmt.Printf("%s", json)
+		t.Run(tt.name, func(t *testing.T) {
+			baseDoc.DoSign = tt.documentDoSign
+			json, err := cdc.MarshalJSON(baseDoc)
+			require.NoError(t, err)
+			require.Equal(t, tt.expectedResult, string(json))
+		})
+	}
 }

@@ -9,10 +9,10 @@ type DocumentDoSign struct {
 }
 
 type SdnData struct {
-	FirstName    string
-	LastName     string
-	Tin          string
-	Email        string
-	Organization string
-	Country      string
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	Tin          string `json:"tin"`
+	Email        string `json:"email"`
+	Organization string `json:"organization"`
+	Country      string `json:"country"`
 }

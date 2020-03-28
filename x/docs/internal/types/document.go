@@ -21,7 +21,7 @@ type Document struct {
 	ContentURI     string                  `json:"content_uri"`     // Optional
 	Checksum       *DocumentChecksum       `json:"checksum"`        // Optional
 	EncryptionData *DocumentEncryptionData `json:"encryption_data"` // Optional
-	DoSign
+	DoSign         *DocumentDoSign         `json:"do_sign"`
 }
 
 // Equals returns true when doc equals other, false otherwise.
