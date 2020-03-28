@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/tendermint/go-amino"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/common/types"
@@ -340,4 +341,26 @@ func TestDocument_Validate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCreateDoc_DoSign(t *testing.T) {
+	document := Document{
+		UUID: "uuid",
+		Metadata: DocumentMetadata{
+			ContentURI: "document_metadata_content_uri",
+			SchemaType: "document_metadata_schema_type",
+		},
+		ContentURI:     "",
+		Checksum:       nil,
+		EncryptionData: nil,
+	}
+
+	require.True(t, document.Equals(document))
+
+	cdc := amino.NewCodec()
+
+	json, err := cdc.MarshalJSON(document)
+	require.NoError(t, err)
+
+	fmt.Printf("%s", json)
 }
