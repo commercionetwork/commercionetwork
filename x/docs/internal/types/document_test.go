@@ -342,7 +342,7 @@ func TestDocument_Validate(t *testing.T) {
 				},
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 				DoSign: &DocumentDoSign{
-					StorageUri: "theuri",
+					StorageURI: "theuri",
 				},
 			},
 			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
@@ -366,7 +366,7 @@ func TestDocument_Validate(t *testing.T) {
 				},
 				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
 				DoSign: &DocumentDoSign{
-					StorageUri: "theuri",
+					StorageURI: "theuri",
 				},
 			},
 			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
@@ -413,10 +413,10 @@ func TestCreateDoc_DoSign(t *testing.T) {
 		{
 			"some data but empty sdn data",
 			&DocumentDoSign{
-				StorageUri:         "abc",
+				StorageURI:         "abc",
 				SignerInstance:     "abc",
 				SdnData:            SdnData{},
-				VcrId:              "abc",
+				VcrID:              "abc",
 				CertificateProfile: "abc",
 			},
 			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":{\"first_name\":\"\",\"last_name\":\"\",\"tin\":\"\",\"email\":\"\",\"organization\":\"\",\"country\":\"\"},\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
@@ -424,7 +424,7 @@ func TestCreateDoc_DoSign(t *testing.T) {
 		{
 			"all data",
 			&DocumentDoSign{
-				StorageUri:     "abc",
+				StorageURI:     "abc",
 				SignerInstance: "abc",
 				SdnData: SdnData{
 					FirstName:    "Carl",
@@ -434,7 +434,7 @@ func TestCreateDoc_DoSign(t *testing.T) {
 					Organization: "asdf",
 					Country:      "USA",
 				},
-				VcrId:              "abc",
+				VcrID:              "abc",
 				CertificateProfile: "abc",
 			},
 			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":{\"first_name\":\"Carl\",\"last_name\":\"Wilson\",\"tin\":\"1234\",\"email\":\"fsdaf@safdfds.es\",\"organization\":\"asdf\",\"country\":\"USA\"},\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
