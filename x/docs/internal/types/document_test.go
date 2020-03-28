@@ -329,6 +329,50 @@ func TestDocument_Validate(t *testing.T) {
 				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", "metadata.schema.uri"),
 			),
 		},
+		{
+			name: "good document that has do_sign but no checksum",
+			doc: Document{
+				Sender: sender,
+				Recipients: types.Addresses{
+					recipient,
+				},
+				Metadata: DocumentMetadata{
+					ContentURI: "content_uri",
+					SchemaType: "a schema type",
+				},
+				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
+				DoSign: &DocumentDoSign{
+					StorageUri: "theuri",
+				},
+			},
+			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				fmt.Sprintf("field \"%s\" not present in document, but marked do_sign", "checksum"),
+			),
+		},
+		{
+			name: "good document that has do_sign but no content_uri",
+			doc: Document{
+				Sender: sender,
+				Recipients: types.Addresses{
+					recipient,
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
+					Algorithm: "sha-1",
+				},
+				Metadata: DocumentMetadata{
+					ContentURI: "content_uri",
+					SchemaType: "a schema type",
+				},
+				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
+				DoSign: &DocumentDoSign{
+					StorageUri: "theuri",
+				},
+			},
+			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				fmt.Sprintf("field \"%s\" not present in document, but marked do_sign", "content_uri"),
+			),
+		},
 	}
 
 	for _, tt := range tests {
