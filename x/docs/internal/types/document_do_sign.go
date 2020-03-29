@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 type DocumentDoSign struct {
 	StorageURI         string  `json:"storage_uri"`
 	SignerInstance     string  `json:"signer_instance"`
@@ -8,11 +10,23 @@ type DocumentDoSign struct {
 	CertificateProfile string  `json:"certificate_profile"`
 }
 
-type SdnData struct {
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	Tin          string `json:"tin"`
-	Email        string `json:"email"`
-	Organization string `json:"organization"`
-	Country      string `json:"country"`
+var validSdnData = map[string]struct{}{
+	"first_name":   {},
+	"last_name":    {},
+	"tin":          {},
+	"email":        {},
+	"organization": {},
+	"country":      {},
+}
+
+type SdnData []string
+
+func (s SdnData) Validate() error {
+	for _, val := range s {
+		if _, ok := validSdnData[val]; !ok {
+			return fmt.Errorf("sdn_data value %s is not supported", val)
+		}
+	}
+
+	return nil
 }
