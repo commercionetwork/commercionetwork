@@ -419,26 +419,26 @@ func TestCreateDoc_DoSign(t *testing.T) {
 				VcrID:              "abc",
 				CertificateProfile: "abc",
 			},
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":{\"first_name\":\"\",\"last_name\":\"\",\"tin\":\"\",\"email\":\"\",\"organization\":\"\",\"country\":\"\"},\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
 		},
-		//{
-		//	"all data",
-		//	&DocumentDoSign{
-		//		StorageURI:     "abc",
-		//		SignerInstance: "abc",
-		//		SdnData: SdnData{
-		//			FirstName:    "Carl",
-		//			LastName:     "Wilson",
-		//			Tin:          "1234",
-		//			Email:        "fsdaf@safdfds.es",
-		//			Organization: "asdf",
-		//			Country:      "USA",
-		//		},
-		//		VcrID:              "abc",
-		//		CertificateProfile: "abc",
-		//	},
-		//	"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":{\"first_name\":\"Carl\",\"last_name\":\"Wilson\",\"tin\":\"1234\",\"email\":\"fsdaf@safdfds.es\",\"organization\":\"asdf\",\"country\":\"USA\"},\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
-		//},
+		{
+			"all data",
+			&DocumentDoSign{
+				StorageURI:     "abc",
+				SignerInstance: "abc",
+				SdnData: SdnData{
+					"first_name",
+					"last_name",
+					"tin",
+					"email",
+					"organization",
+					"country",
+				},
+				VcrID:              "abc",
+				CertificateProfile: "abc",
+			},
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[\"first_name\",\"last_name\",\"tin\",\"email\",\"organization\",\"country\"],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+		},
 	}
 
 	cdc := amino.NewCodec()
