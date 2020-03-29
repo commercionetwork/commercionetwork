@@ -39,9 +39,9 @@ func TestGetTxCmd_WithDoSign(t *testing.T) {
 
 	sender := "cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm"
 	recipient, uuid := "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0", "ac33043b-5cb4-4645-a3f9-819140847252"
-	contentUriMetadata := "http://thecontentmetadata.com"
+	contentURIMetadata := "http://thecontentmetadata.com"
 	schemaURI, schemaVersion := "theSchemaUri", "theSchemaVersion"
-	contentUri := "http://contenturi.com"
+	contentURI := "http://contenturi.com"
 	checksumValue, checksumAlgo := "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8", "sha-1"
 
 	// Do Sign Params
@@ -63,10 +63,10 @@ func TestGetTxCmd_WithDoSign(t *testing.T) {
 	err := cmd.RunE(cmd, []string{
 		recipient,
 		uuid,
-		contentUriMetadata,
+		contentURIMetadata,
 		schemaURI,
 		schemaVersion,
-		contentUri,
+		contentURI,
 		checksumValue,
 		checksumAlgo,
 	})

@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bufio"
-	"fmt"
 
 	"github.com/spf13/viper"
 
@@ -112,8 +111,6 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 						Country:      viper.GetString(FlagSignSdnDataCountry),
 					},
 				}
-
-				fmt.Printf("doc %v+", document.DoSign)
 			}
 
 			msg := types.NewMsgShareDocument(document)
