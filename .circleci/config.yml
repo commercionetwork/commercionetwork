@@ -3,7 +3,7 @@ version: 2.1
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.13
+      - image: circleci/golang:1.14
 
 commands:
   make:
@@ -60,13 +60,6 @@ jobs:
             - ".git"
 
   test:
-    executor: golang
-    steps:
-      - make:
-          target: test
-          description: "Test all"
-
-  test-cover:
     executor: golang
     parallelism: 4
     steps:
@@ -132,13 +125,6 @@ workflows:
               ignore:
                 - gh-pages
       - test:
-          filters:
-            branches:
-              ignore:
-                - gh-pages
-          requires:
-            - setup-dependencies
-      - test-cover:
           requires:
             - setup-dependencies
           filters:
@@ -147,7 +133,7 @@ workflows:
                 - gh-pages
       - upload-coverage:
           requires:
-            - test-cover
+            - test
           filters:
             branches:
               ignore:
