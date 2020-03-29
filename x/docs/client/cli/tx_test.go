@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/viper"
@@ -9,34 +12,7 @@ import (
 	"github.com/tendermint/go-amino"
 )
 
-func TestCliTx_HappyPath(t *testing.T) {
-	cdc := amino.NewCodec()
-
-	cmd := getCmdShareDocument(cdc)
-
-	sender := "cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm"
-	recipient, uuid := "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0", "ac33043b-5cb4-4645-a3f9-819140847252"
-	contentURI := "http://thecontent.com"
-	schemaURI, schemaVersion := "theSchemaUri", "theSchemaVersion"
-
-	viper.Set(flags.FlagFrom, sender)
-	viper.Set(flags.FlagGenerateOnly, true)
-
-	err := cmd.RunE(cmd, []string{
-		recipient,
-		uuid,
-		contentURI,
-		schemaURI,
-		schemaVersion,
-	})
-
-	// It tries to broadcast, so it means it passes.
-	require.EqualError(t, err, "no RPC client defined")
-}
-
-func TestGetTxCmd_WithDoSign(t *testing.T) {
-	cmd := getCmdShareDocument(amino.NewCodec())
-
+func TestCliTx(t *testing.T) {
 	sender := "cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm"
 	recipient, uuid := "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0", "ac33043b-5cb4-4645-a3f9-819140847252"
 	contentURIMetadata := "http://thecontentmetadata.com"
@@ -44,63 +20,84 @@ func TestGetTxCmd_WithDoSign(t *testing.T) {
 	contentURI := "http://contenturi.com"
 	checksumValue, checksumAlgo := "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8", "sha-1"
 
-	// Do Sign Params
-	viper.Set(FlagSign, true)
-	viper.Set(FlagSignStorageURI, "http://theSignStorageURI.com")
-	viper.Set(FlagSignSignerInstance, "theSignerInstance")
-	viper.Set(FlagSignVcrID, "theVcrId")
-	viper.Set(FlagSignCertificateProfile, "theCertificateProfile")
+	type flagValue struct {
+		flag  string
+		value interface{}
+	}
 
-	viper.Set(flags.FlagFrom, sender)
-	viper.Set(flags.FlagGenerateOnly, true)
+	tests := []struct {
+		name        string
+		expectedErr error
+		params      []string
+		flags       []flagValue
+	}{
+		{
+			"happy path",
+			fmt.Errorf("no RPC client defined"), // It means it tries to broadcast, so it works.
+			[]string{
+				recipient,
+				uuid,
+				contentURI,
+				schemaURI,
+				schemaVersion,
+			},
+			[]flagValue{},
+		},
+		{
+			"happy path with do_sign",
+			fmt.Errorf("no RPC client defined"), // It means it tries to broadcast, so it works.
+			[]string{
+				recipient,
+				uuid,
+				contentURIMetadata,
+				schemaURI,
+				schemaVersion,
+				contentURI,
+				checksumValue,
+				checksumAlgo,
+			},
+			[]flagValue{},
+		},
+		{
+			"with invalid sign sdn data",
+			fmt.Errorf("sdn_data value \"invalid\" is not supported"), // It means it tries to broadcast, so it works.
+			[]string{
+				recipient,
+				uuid,
+				contentURIMetadata,
+				schemaURI,
+				schemaVersion,
+				contentURI,
+				checksumValue,
+				checksumAlgo,
+			},
+			[]flagValue{
+				{FlagSign, true},
+				{FlagSignStorageURI, "http://theSignStorageURI.com"},
+				{FlagSignSignerInstance, "theSignerInstance"},
+				{FlagSignVcrID, "theVcrId"},
+				{FlagSignCertificateProfile, "theCertificateProfile"},
+				{FlagSignSdnData, fmt.Sprintf("%s,%s", types.SdnDataCommonName, "invalid")},
+			},
+		},
+	}
 
-	err := cmd.RunE(cmd, []string{
-		recipient,
-		uuid,
-		contentURIMetadata,
-		schemaURI,
-		schemaVersion,
-		contentURI,
-		checksumValue,
-		checksumAlgo,
-	})
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			cdc := amino.NewCodec()
+			cmd := getCmdShareDocument(cdc)
 
-	// It tries to broadcast, so it means it passes.
-	require.EqualError(t, err, "no RPC client defined")
-}
+			viper.Set(flags.FlagFrom, sender)
+			viper.Set(flags.FlagGenerateOnly, true)
 
-func TestGetTxCmd_WithDoSign_InvalidSdn(t *testing.T) {
-	cmd := getCmdShareDocument(amino.NewCodec())
+			for _, fl := range tt.flags {
+				viper.Set(fl.flag, fl.value)
+			}
 
-	sender := "cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm"
-	recipient, uuid := "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0", "ac33043b-5cb4-4645-a3f9-819140847252"
-	contentURIMetadata := "http://thecontentmetadata.com"
-	schemaURI, schemaVersion := "theSchemaUri", "theSchemaVersion"
-	contentURI := "http://contenturi.com"
-	checksumValue, checksumAlgo := "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8", "sha-1"
+			err := cmd.RunE(cmd, tt.params)
 
-	// Do Sign Params
-	viper.Set(FlagSign, true)
-	viper.Set(FlagSignStorageURI, "http://theSignStorageURI.com")
-	viper.Set(FlagSignSignerInstance, "theSignerInstance")
-	viper.Set(FlagSignVcrID, "theVcrId")
-	viper.Set(FlagSignCertificateProfile, "theCertificateProfile")
-	viper.Set(FlagSignSdnData, "invalid")
-
-	viper.Set(flags.FlagFrom, sender)
-	viper.Set(flags.FlagGenerateOnly, true)
-
-	err := cmd.RunE(cmd, []string{
-		recipient,
-		uuid,
-		contentURIMetadata,
-		schemaURI,
-		schemaVersion,
-		contentURI,
-		checksumValue,
-		checksumAlgo,
-	})
-
-	// It tries to broadcast, so it means it passes.
-	require.EqualError(t, err, "sdn_data value \"invalid\" is not supported")
+			require.EqualError(t, err, tt.expectedErr.Error())
+		})
+	}
 }
