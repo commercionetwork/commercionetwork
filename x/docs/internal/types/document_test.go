@@ -372,6 +372,33 @@ func TestDocument_Validate(t *testing.T) {
 			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("field \"%s\" not present in document, but marked do_sign", "content_uri"),
 			),
+		}, {
+			name: "good document that has do_sign but invalid do_sign sdndata",
+			doc: Document{
+				Sender: sender,
+				Recipients: types.Addresses{
+					recipient,
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
+					Algorithm: "sha-1",
+				},
+				ContentURI: "theContentUri",
+				Metadata: DocumentMetadata{
+					ContentURI: "content_uri",
+					SchemaType: "a schema type",
+				},
+				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
+				DoSign: &DocumentDoSign{
+					StorageURI: "theuri",
+					SdnData: SdnData{
+						"invalid",
+					},
+				},
+			},
+			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				"sdn_data value \"invalid\" is not supported",
+			),
 		},
 	}
 

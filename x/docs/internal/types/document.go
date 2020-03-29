@@ -157,6 +157,14 @@ func (doc Document) Validate() error {
 				"field \"content_uri\" not present in document, but marked do_sign",
 			)
 		}
+
+		err := doc.DoSign.SdnData.Validate()
+		if err != nil {
+			return sdkErr.Wrap(
+				sdkErr.ErrUnknownRequest,
+				err.Error(),
+			)
+		}
 	}
 
 	return nil

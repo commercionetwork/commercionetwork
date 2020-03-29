@@ -17,32 +17,32 @@ func TestValidateSdnData(t *testing.T) {
 		{
 			"invalid: invalid field empty",
 			SdnData{
-				"common_name",
-				"surname",
+				SdnDataCommonName,
+				SdnDataSurname,
 				"",
 			},
 			false,
-			fmt.Errorf("sdn_data value %s is not supported", ""),
+			fmt.Errorf("sdn_data value \"%s\" is not supported", ""),
 		},
 		{
 			"invalid: strange value not included in supportedSdnData",
 			SdnData{
-				"common_name",
-				"surname",
+				SdnDataCommonName,
+				SdnDataSurname,
 				"age",
 			},
 			false,
-			fmt.Errorf("sdn_data value %s is not supported", "age"),
+			fmt.Errorf("sdn_data value \"%s\" is not supported", "age"),
 		},
 		{
 			"valid: all supported fields",
 			SdnData{
-				"common_name",
-				"surname",
-				"serial_number",
-				"given_name",
-				"organization",
-				"country",
+				SdnDataCommonName,
+				SdnDataSurname,
+				SdnDataSurname,
+				SdnDataGivenName,
+				SdnDataOrganization,
+				SdnDataCountry,
 			},
 			true,
 			nil,
@@ -50,10 +50,10 @@ func TestValidateSdnData(t *testing.T) {
 		{
 			"valid: subset of supported fields",
 			SdnData{
-				"common_name",
-				"surname",
-				"given_name",
-				"country",
+				SdnDataCommonName,
+				SdnDataSurname,
+				SdnDataGivenName,
+				SdnDataCountry,
 			},
 			true,
 			nil,
@@ -69,6 +69,58 @@ func TestValidateSdnData(t *testing.T) {
 				require.NoError(t, err)
 			} else {
 				require.EqualError(t, err, tt.expectedErr.Error())
+			}
+		})
+	}
+}
+
+func TestNewSdnDataFromString(t *testing.T) {
+	tests := []struct {
+		name            string
+		inputString     string
+		shouldFail      bool
+		expectedErr     error
+		expectedSdnData SdnData
+	}{
+		{
+			"empty string returns a default value",
+			"",
+			false,
+			nil,
+			SdnData{
+				"serial_number",
+			},
+		},
+		{
+			"valid fields included",
+			fmt.Sprintf("%s,%s,%s,%s", SdnDataGivenName, SdnDataSurname, SdnDataOrganization, SdnDataSerialNumber),
+			false,
+			nil,
+			SdnData{
+				SdnDataGivenName,
+				SdnDataSurname,
+				SdnDataOrganization,
+				SdnDataSerialNumber,
+			},
+		},
+		{
+			"invalid fields included",
+			fmt.Sprintf("%s,%s,%s,%s", SdnDataGivenName, "invalid", SdnDataOrganization, SdnDataSerialNumber),
+			true,
+			fmt.Errorf("sdn_data value \"invalid\" is not supported"),
+			SdnData{},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			sdnData, err := NewSdnDataFromString(tt.inputString)
+			if tt.shouldFail {
+				require.EqualError(t, err, tt.expectedErr.Error())
+			} else {
+				require.Equal(t, tt.expectedSdnData, sdnData)
 			}
 		})
 	}
