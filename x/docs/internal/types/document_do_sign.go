@@ -11,12 +11,12 @@ type DocumentDoSign struct {
 }
 
 var validSdnData = map[string]struct{}{
-	"first_name":   {},
-	"last_name":    {},
-	"tin":          {},
-	"email":        {},
-	"organization": {},
-	"country":      {},
+	"common_name":   {},
+	"surname":       {},
+	"serial_number": {},
+	"given_name":    {},
+	"organization":  {},
+	"country":       {},
 }
 
 type SdnData []string

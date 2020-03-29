@@ -17,7 +17,8 @@ func TestValidateSdnData(t *testing.T) {
 		{
 			"invalid: invalid field empty",
 			SdnData{
-				"first_name",
+				"common_name",
+				"surname",
 				"",
 			},
 			false,
@@ -26,8 +27,8 @@ func TestValidateSdnData(t *testing.T) {
 		{
 			"invalid: strange value not included in supportedSdnData",
 			SdnData{
-				"first_name",
-				"last_name",
+				"common_name",
+				"surname",
 				"age",
 			},
 			false,
@@ -36,10 +37,10 @@ func TestValidateSdnData(t *testing.T) {
 		{
 			"valid: all supported fields",
 			SdnData{
-				"first_name",
-				"last_name",
-				"tin",
-				"email",
+				"common_name",
+				"surname",
+				"serial_number",
+				"given_name",
 				"organization",
 				"country",
 			},
@@ -49,9 +50,9 @@ func TestValidateSdnData(t *testing.T) {
 		{
 			"valid: subset of supported fields",
 			SdnData{
-				"first_name",
-				"tin",
-				"email",
+				"common_name",
+				"surname",
+				"given_name",
 				"country",
 			},
 			true,
