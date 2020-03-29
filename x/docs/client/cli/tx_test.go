@@ -53,7 +53,6 @@ func TestGetTxCmd_WithDoSign(t *testing.T) {
 		contentUriMetadata,
 		schemaURI,
 		schemaVersion,
-		"", // Unexpected and unused
 		contentUri,
 		checksumValue,
 		checksumAlgo,
