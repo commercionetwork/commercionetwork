@@ -427,17 +427,17 @@ func TestCreateDoc_DoSign(t *testing.T) {
 				StorageURI:     "abc",
 				SignerInstance: "abc",
 				SdnData: SdnData{
-					"first_name",
-					"last_name",
-					"tin",
-					"email",
+					"common_name",
+					"surname",
+					"serial_number",
+					"given_name",
 					"organization",
 					"country",
 				},
 				VcrID:              "abc",
 				CertificateProfile: "abc",
 			},
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[\"first_name\",\"last_name\",\"tin\",\"email\",\"organization\",\"country\"],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[\"common_name\",\"surname\",\"serial_number\",\"given_name\",\"organization\",\"country\"],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
 		},
 	}
 
