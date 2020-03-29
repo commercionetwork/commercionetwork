@@ -16,7 +16,7 @@ func TestCliTx_HappyPath(t *testing.T) {
 
 	sender := "cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm"
 	recipient, uuid := "cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0", "ac33043b-5cb4-4645-a3f9-819140847252"
-	contentUri := "http://thecontent.com"
+	contentURI := "http://thecontent.com"
 	schemaURI, schemaVersion := "theSchemaUri", "theSchemaVersion"
 
 	viper.Set(flags.FlagFrom, sender)
@@ -25,7 +25,7 @@ func TestCliTx_HappyPath(t *testing.T) {
 	err := cmd.RunE(cmd, []string{
 		recipient,
 		uuid,
-		contentUri,
+		contentURI,
 		schemaURI,
 		schemaVersion,
 	})
