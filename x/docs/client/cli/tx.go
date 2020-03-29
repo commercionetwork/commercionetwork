@@ -2,6 +2,9 @@ package cli
 
 import (
 	"bufio"
+	"fmt"
+
+	"github.com/spf13/viper"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	uuid "github.com/satori/go.uuid"
@@ -17,6 +20,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+const (
+	FlagSign                    = "sign"
+	FlagSignStorageURI          = "sign-storage-uri"
+	FlagSignSignerInstance      = "sign-signer-instance"
+	FlagSignVcrID               = "sign-vcr-id"
+	FlagSignCertificateProfile  = "sign-certificate-profile"
+	FlagSignSdnDataFirstName    = "sign-sdn-data-first-name"
+	FlagSignSdnDataLastName     = "sign-sdn-data-last-name"
+	FlagSignSdnDataTin          = "sign-sdn-data-tin"
+	FlagSignSdnDataEmail        = "sign-sdn-data-email"
+	FlagSignSdnDataOrganization = "sign-sdn-data-org"
+	FlagSignSdnDataCountry      = "sign-sdn-data-country"
 )
 
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
@@ -80,6 +97,25 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				Recipients: ctypes.Addresses{recipient},
 			}
 
+			if viper.GetBool(FlagSign) {
+				document.DoSign = &types.DocumentDoSign{
+					StorageURI:         viper.GetString(FlagSignStorageURI),
+					SignerInstance:     viper.GetString(FlagSignSignerInstance),
+					VcrID:              viper.GetString(FlagSignVcrID),
+					CertificateProfile: viper.GetString(FlagSignCertificateProfile),
+					SdnData: types.SdnData{
+						FirstName:    viper.GetString(FlagSignSdnDataFirstName),
+						LastName:     viper.GetString(FlagSignSdnDataLastName),
+						Tin:          viper.GetString(FlagSignSdnDataTin),
+						Email:        viper.GetString(FlagSignSdnDataEmail),
+						Organization: viper.GetString(FlagSignSdnDataOrganization),
+						Country:      viper.GetString(FlagSignSdnDataCountry),
+					},
+				}
+
+				fmt.Printf("doc %v+", document.DoSign)
+			}
+
 			msg := types.NewMsgShareDocument(document)
 			err = msg.ValidateBasic()
 			if err != nil {
@@ -91,6 +127,18 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	}
 
 	cmd = flags.PostCommands(cmd)[0]
+
+	cmd.Flags().Bool(FlagSign, false, "flag that specifies that we want to sign the document")
+	cmd.Flags().String(FlagSignStorageURI, "", "flag that specifies the storage URI to sign")
+	cmd.Flags().String(FlagSignSignerInstance, "", "the signer instance needed to sign")
+	cmd.Flags().String(FlagSignVcrID, "", "the vcr id needed to sign")
+	cmd.Flags().String(FlagSignCertificateProfile, "", "the certificate profile needed to sign")
+	cmd.Flags().String(FlagSignSdnDataFirstName, "", "the first name field of the sdn data needed to sign")
+	cmd.Flags().String(FlagSignSdnDataLastName, "", "the last name field of the sdn data needed to sign")
+	cmd.Flags().String(FlagSignSdnDataTin, "", "the tin field of the sdn data needed to sign")
+	cmd.Flags().String(FlagSignSdnDataEmail, "", "the email field of the sdn data needed to sign")
+	cmd.Flags().String(FlagSignSdnDataOrganization, "", "the organization field of the sdn data needed to sign")
+	cmd.Flags().String(FlagSignSdnDataCountry, "", "the country field of the sdn data needed to sign")
 
 	return cmd
 }

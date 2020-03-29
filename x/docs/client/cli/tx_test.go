@@ -44,6 +44,19 @@ func TestGetTxCmd_WithDoSign(t *testing.T) {
 	contentUri := "http://contenturi.com"
 	checksumValue, checksumAlgo := "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8", "sha-1"
 
+	// Do Sign Params
+	viper.Set(FlagSign, true)
+	viper.Set(FlagSignStorageURI, "http://theSignStorageURI.com")
+	viper.Set(FlagSignSignerInstance, "theSignerInstance")
+	viper.Set(FlagSignVcrID, "theVcrId")
+	viper.Set(FlagSignCertificateProfile, "theCertificateProfile")
+	viper.Set(FlagSignSdnDataFirstName, "firstName")
+	viper.Set(FlagSignSdnDataLastName, "lastName")
+	viper.Set(FlagSignSdnDataTin, "tinData")
+	viper.Set(FlagSignSdnDataEmail, "theEmail")
+	viper.Set(FlagSignSdnDataOrganization, "theOrganization")
+	viper.Set(FlagSignSdnDataCountry, "theCountry")
+
 	viper.Set(flags.FlagFrom, sender)
 	viper.Set(flags.FlagGenerateOnly, true)
 
