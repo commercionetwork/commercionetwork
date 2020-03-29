@@ -61,13 +61,6 @@ jobs:
 
   test:
     executor: golang
-    steps:
-      - make:
-          target: test
-          description: "Test all"
-
-  test-cover:
-    executor: golang
     parallelism: 4
     steps:
       - checkout
@@ -132,13 +125,6 @@ workflows:
               ignore:
                 - gh-pages
       - test:
-          filters:
-            branches:
-              ignore:
-                - gh-pages
-          requires:
-            - setup-dependencies
-      - test-cover:
           requires:
             - setup-dependencies
           filters:
@@ -147,7 +133,7 @@ workflows:
                 - gh-pages
       - upload-coverage:
           requires:
-            - test-cover
+            - test
           filters:
             branches:
               ignore:
