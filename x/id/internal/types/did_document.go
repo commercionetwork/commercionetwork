@@ -20,7 +20,7 @@ type DidDocument struct {
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
 	Proof   Proof          `json:"proof"`
-	Service []Service      `json:"service"`
+	Service Services       `json:"service"`
 }
 
 type Services []Service
@@ -81,7 +81,8 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 	return didDocument.Context == other.Context &&
 		didDocument.ID.Equals(other.ID) &&
 		didDocument.PubKeys.Equals(other.PubKeys) &&
-		didDocument.Proof.Equals(other.Proof)
+		didDocument.Proof.Equals(other.Proof) &&
+		didDocument.Service.Equals(other.Service)
 }
 
 // Validate checks the data present inside this Did Document and returns an

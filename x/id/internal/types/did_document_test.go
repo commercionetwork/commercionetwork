@@ -199,10 +199,7 @@ func TestServices_Equal(t *testing.T) {
 }
 
 func TestDidDocument_Equals_Service(t *testing.T) {
-	addr, err := sdk.AccAddressFromBech32("did:com:1lwmppctrr6ssnrmuyzu554dzf50apkfv6l2exu")
-	require.NoError(t, err)
-
-	baseDidDocument := getBaseDocumentWithServices(addr, []Service{
+	baseDidDocument := getBaseDocumentWithServices([]Service{
 		{
 			Id:              "serviceId",
 			Type:            "theServiceType",
@@ -220,6 +217,13 @@ func TestDidDocument_Equals_Service(t *testing.T) {
 			true,
 			baseDidDocument,
 		},
+		{
+			"different services",
+			false,
+			getBaseDocumentWithServices(Services{
+				{"otherId", "otherType", "otherEndpoint"},
+			}),
+		},
 	}
 
 	for _, tt := range tests {
@@ -230,7 +234,9 @@ func TestDidDocument_Equals_Service(t *testing.T) {
 	}
 }
 
-func getBaseDocumentWithServices(addr sdk.AccAddress, services []Service) DidDocument {
+func getBaseDocumentWithServices(services []Service) DidDocument {
+	addr, _ := sdk.AccAddressFromBech32("did:com:1lwmppctrr6ssnrmuyzu554dzf50apkfv6l2exu")
+
 	return DidDocument{
 		Context: "",
 		ID:      addr,
