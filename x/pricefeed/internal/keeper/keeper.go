@@ -64,7 +64,7 @@ func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price t
 	keeper.AddAsset(ctx, price.AssetName)
 
 	// Update the raw prices
-	rawPrice := types.RawPrice{Oracle: oracle, Price: price, Created: sdk.NewInt(ctx.BlockHeight())}
+	rawPrice := types.OraclePrice{Oracle: oracle, Price: price, Created: sdk.NewInt(ctx.BlockHeight())}
 	rawPrices := keeper.GetRawPricesForAsset(ctx, rawPrice.Price.AssetName)
 	if rawPrices, updated := rawPrices.UpdatePriceOrAppendIfMissing(rawPrice); updated {
 		store := ctx.KVStore(keeper.StoreKey)
@@ -76,23 +76,23 @@ func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price t
 }
 
 // GetRawPricesForAsset retrieves all the raw prices of the given asset
-func (keeper Keeper) GetRawPricesForAsset(ctx sdk.Context, assetName string) types.RawPrices {
+func (keeper Keeper) GetRawPricesForAsset(ctx sdk.Context, assetName string) types.OraclePrices {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	var rawPrices types.RawPrices
+	var rawPrices types.OraclePrices
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(keeper.getRawPricesKey(assetName)), &rawPrices)
 	return rawPrices
 }
 
 // GetRawPrices returns the list of the whole raw prices currently stored
-func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.RawPrices {
+func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.OraclePrices {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	prices := types.RawPrices{}
+	prices := types.OraclePrices{}
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.RawPricesPrefix))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var price types.RawPrices
+		var price types.OraclePrices
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &price)
 		prices = append(prices, price...)
 	}
@@ -118,7 +118,7 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) {
 		// Get all raw prices posted by oracles
 		rawPrices := keeper.GetRawPricesForAsset(ctx, asset)
 
-		var notExpiredPrices = types.RawPrices{}
+		var notExpiredPrices = types.OraclePrices{}
 		var rawPricesSum = sdk.NewDec(0)
 		var rawExpirySum = sdk.NewInt(0)
 

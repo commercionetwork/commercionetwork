@@ -14,7 +14,7 @@ import (
 type GenesisState struct {
 	Oracles        ctypes.Addresses `json:"oracles"`
 	Assets         ctypes.Strings   `json:"assets"`
-	RawPrices      RawPrices        `json:"raw_prices"`
+	RawPrices      OraclePrices     `json:"raw_prices"`
 	DenomBlacklist []string         `json:"denom_blacklist"`
 }
 

@@ -28,10 +28,10 @@ var (
 type (
 	Keeper = keeper.Keeper
 
-	Price     = types.Price
-	Prices    = types.Prices
-	RawPrice  = types.RawPrice
-	RawPrices = types.RawPrices
+	Price        = types.Price
+	Prices       = types.Prices
+	OraclePrice  = types.OraclePrice
+	OraclePrices = types.OraclePrices
 
 	MsgSetPrice  = types.MsgSetPrice
 	MsgAddOracle = types.MsgAddOracle

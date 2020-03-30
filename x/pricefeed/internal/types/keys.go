@@ -19,4 +19,6 @@ const (
 	RawPricesPrefix     = StoreKey + ":rawPrices:"
 
 	OraclePrefix = StoreKey + ":oracles:"
+
+	DenomBlacklistKey = StoreKey + ":denomBlacklist:"
 )

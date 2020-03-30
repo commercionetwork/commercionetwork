@@ -44,10 +44,10 @@ func TestPrice_Equals_true(t *testing.T) {
 }
 
 // -----------------
-// --- RawPrice
+// --- OraclePrice
 // -----------------
 
-var testRawPrice = RawPrice{
+var testRawPrice = OraclePrice{
 	Oracle:  testOracle,
 	Price:   Price{AssetName: "uatom", Value: sdk.NewDecWithPrec(15423, 2), Expiry: sdk.NewInt(1100)},
 	Created: sdk.NewInt(0),
@@ -56,26 +56,26 @@ var testRawPrice = RawPrice{
 func TestRawPrices_UpdatePriceOrAppendIfMissing(t *testing.T) {
 	testData := []struct {
 		name            string
-		prices          RawPrices
-		price           RawPrice
+		prices          OraclePrices
+		price           OraclePrice
 		shouldBeUpdated bool
 	}{
 		{
 			name:            "New price inserted correctly",
-			prices:          RawPrices{},
+			prices:          OraclePrices{},
 			price:           testRawPrice,
 			shouldBeUpdated: true,
 		},
 		{
 			name:            "Price already inserted is not appended",
-			prices:          RawPrices{testRawPrice},
+			prices:          OraclePrices{testRawPrice},
 			price:           testRawPrice,
 			shouldBeUpdated: false,
 		},
 		{
 			name:   "Different expiration date price is replaced",
-			prices: RawPrices{testRawPrice},
-			price: RawPrice{
+			prices: OraclePrices{testRawPrice},
+			price: OraclePrice{
 				Oracle: testRawPrice.Oracle,
 				Price: Price{
 					AssetName: testRawPrice.Price.AssetName,
@@ -88,8 +88,8 @@ func TestRawPrices_UpdatePriceOrAppendIfMissing(t *testing.T) {
 		},
 		{
 			name:   "Different creation date price is replaced",
-			prices: RawPrices{testRawPrice},
-			price: RawPrice{
+			prices: OraclePrices{testRawPrice},
+			price: OraclePrice{
 				Oracle:  testRawPrice.Oracle,
 				Created: testRawPrice.Created.Add(sdk.NewInt(10)),
 				Price:   testRawPrice.Price,
