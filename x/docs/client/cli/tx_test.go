@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
-
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/go-amino"
+
+	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 )
 
 func TestCliTx(t *testing.T) {
