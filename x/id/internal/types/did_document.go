@@ -22,6 +22,28 @@ type DidDocument struct {
 	Proof   Proof          `json:"proof"`
 }
 
+type Service struct {
+	Id              string `json:"id"`
+	Type            string `json:"type"`
+	ServiceEndpoint string `json:"serviceEndpoint"`
+}
+
+func (s Service) Validate() error {
+	if s.Id == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"id\" is required")
+	}
+
+	if s.Type == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"type\" is required")
+	}
+
+	if s.ServiceEndpoint == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"serviceEndpoint\" is required")
+	}
+
+	return nil
+}
+
 // didDocumentUnsigned is an intermediate type used to check for proof correctness
 type didDocumentUnsigned struct {
 	Context string         `json:"@context"`
