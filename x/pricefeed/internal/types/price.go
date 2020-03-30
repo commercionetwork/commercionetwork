@@ -57,6 +57,7 @@ func (prices Prices) AppendIfMissing(price Price) (Prices, bool) {
 // --- RawPrice
 // ---------------
 
+// TODO: rename to OraclePrice
 // RawPrice represents a raw price
 type RawPrice struct {
 	Oracle  sdk.AccAddress `json:"oracle"`
@@ -68,6 +69,7 @@ func (rawPrice RawPrice) Equals(rp RawPrice) bool {
 	return rawPrice.Oracle.Equals(rp.Oracle) && rawPrice.Price.Equals(rp.Price) && rawPrice.Created.Equal(rp.Created)
 }
 
+// TODO: rename to OraclePrices
 type RawPrices []RawPrice
 
 func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) (RawPrices, bool) {

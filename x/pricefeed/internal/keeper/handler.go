@@ -30,6 +30,8 @@ func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg types.MsgSetPrice) (*
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s is not an oracle", msg.Oracle.String()))
 	}
 
+	// TODO: we need a blacklist here, else what if oracles begin sending price for ucommercio?
+
 	// Set the raw price
 	if err := keeper.AddRawPrice(ctx, msg.Oracle, msg.Price); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))

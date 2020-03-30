@@ -42,7 +42,7 @@ func TestMsgSetPrice_ValidateBasic_InvalidMessage(t *testing.T) {
 }
 
 func TestMsgSetPrice_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","expiry":"1100","value":"154.230000000000000000"}}}`
+	expected := `{"type":"commercio/MsgSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","expiry":"1100","rate":"0","value":"154.230000000000000000"}}}`
 	require.Equal(t, expected, string(msgSetPrice.GetSignBytes()))
 }
 

@@ -1,15 +1,15 @@
 package keeper
 
 import (
-	"errors"
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 )
 
 type Keeper struct {
@@ -108,7 +108,7 @@ func (keeper Keeper) getCurrentPriceKey(assetName string) []byte {
 	return []byte(types.CurrentPricesPrefix + assetName)
 }
 
-func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
+func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) {
 	// Get all the listed assets
 	assets := keeper.GetAssets(ctx)
 
@@ -139,7 +139,8 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 		switch pricesLength {
 		case 0:
 			// Error if there are no valid prices in the raw prices store
-			return errors.New("no valid raw prices to calculate current prices")
+			ctx.Logger().Debug("no valid raw prices to calculate current prices")
+			continue
 
 		case 1:
 			// Return if there's only one price
@@ -161,9 +162,7 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 
 		// Set the price
 		keeper.SetCurrentPrice(ctx, currentPrice)
-
 	}
-	return nil
 }
 
 // SetCurrentPrice allows to set the current price of a specific asset.

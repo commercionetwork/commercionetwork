@@ -12,9 +12,10 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Oracles   ctypes.Addresses `json:"oracles"`
-	Assets    ctypes.Strings   `json:"assets"`
-	RawPrices RawPrices        `json:"raw_prices"`
+	Oracles        ctypes.Addresses `json:"oracles"`
+	Assets         ctypes.Strings   `json:"assets"`
+	RawPrices      RawPrices        `json:"raw_prices"`
+	DenomBlacklist []string         `json:"denom_blacklist"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -38,9 +39,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
 		}
 	}
 
-	if err := keeper.ComputeAndUpdateCurrentPrices(ctx); err != nil {
-		panic(err)
-	}
+	keeper.ComputeAndUpdateCurrentPrices(ctx)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
