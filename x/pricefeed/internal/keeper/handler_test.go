@@ -48,3 +48,45 @@ func TestInvalidMsg(t *testing.T) {
 	require.Error(t, err)
 	require.True(t, strings.Contains(err.Error(), fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
 }
+
+func Test_handleMsgBlacklistDenom(t *testing.T) {
+	tests := []struct {
+		name        string
+		msg         types.MsgBlacklistDenom
+		senderIsGov bool
+		wantErr     bool
+	}{
+		{
+			"sender is not gov",
+			types.NewMsgBlacklistDenom(testOracle, "denom"),
+			false,
+			true,
+		},
+		{
+			"sender is gov",
+			types.NewMsgBlacklistDenom(testOracle, "denom"),
+			true,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, govK, k := SetupTestInput()
+
+			if tt.senderIsGov {
+				_ = govK.SetGovernmentAddress(ctx, tt.msg.Signer)
+			}
+
+			_, err := handleMsgBlacklistDenom(ctx, k, govK, tt.msg)
+
+			if tt.wantErr {
+				require.Error(t, err)
+				return
+			}
+
+			require.Contains(t, k.DenomBlacklist(ctx), tt.msg.Denom)
+
+		})
+	}
+}

@@ -42,7 +42,7 @@ func TestMsgSetPrice_ValidateBasic_InvalidMessage(t *testing.T) {
 }
 
 func TestMsgSetPrice_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","expiry":"1100","rate":"0","value":"154.230000000000000000"}}}`
+	expected := `{"type":"commercio/MsgSetPrice","value":{"oracle":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","price":{"asset_name":"uatom","expiry":"1100","value":"154.230000000000000000"}}}`
 	require.Equal(t, expected, string(msgSetPrice.GetSignBytes()))
 }
 
@@ -91,4 +91,37 @@ func TestMsgAddOracle_GetSignBytes(t *testing.T) {
 func TestMsgAddOracle_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgAddOracle.Signer}
 	require.Equal(t, expected, msgAddOracle.GetSigners())
+}
+
+// -------------------
+// --- MsgBlacklistDenom
+// -------------------
+
+var msgBlacklistDenom = NewMsgBlacklistDenom(testOracle, "ucommercio")
+
+func TestMsgBlacklistDenom_Route(t *testing.T) {
+	require.Equal(t, RouterKey, msgBlacklistDenom.Route())
+}
+
+func TestMsgBlacklistDenom_Type(t *testing.T) {
+	require.Equal(t, MsgTypeBlacklistDenom, msgBlacklistDenom.Type())
+}
+
+func TestMsgBlacklistDenom_ValidateBasic_ValidMessage(t *testing.T) {
+	require.Nil(t, msgBlacklistDenom.ValidateBasic())
+}
+
+func TestMsgBlacklistDenom_ValidateBasic_InvalidMessage(t *testing.T) {
+	msgInvalid := MsgBlacklistDenom{Signer: nil, Denom: ""}
+	require.Error(t, msgInvalid.ValidateBasic())
+}
+
+func TestMsgBlacklistDenom_GetSignBytes(t *testing.T) {
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgBlacklistDenom))
+	require.Equal(t, expected, msgBlacklistDenom.GetSignBytes())
+}
+
+func TestMsgBlacklistDenom_GetSigners(t *testing.T) {
+	expected := []sdk.AccAddress{msgBlacklistDenom.Signer}
+	require.Equal(t, expected, msgBlacklistDenom.GetSigners())
 }

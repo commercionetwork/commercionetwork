@@ -17,6 +17,8 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 			return handleMsgSetPrice(ctx, keeper, msg)
 		case types.MsgAddOracle:
 			return handleMsgAddOracle(ctx, keeper, govKeeper, msg)
+		case types.MsgBlacklistDenom:
+			return handleMsgBlacklistDenom(ctx, keeper, govKeeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, (errMsg))
@@ -30,7 +32,11 @@ func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg types.MsgSetPrice) (*
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s is not an oracle", msg.Oracle.String()))
 	}
 
-	// TODO: we need a blacklist here, else what if oracles begin sending price for ucommercio?
+	for _, denom := range keeper.DenomBlacklist(ctx) {
+		if denom == msg.Price.AssetName {
+			return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, msg.Price.AssetName+" has been blacklisted")
+		}
+	}
 
 	// Set the raw price
 	if err := keeper.AddRawPrice(ctx, msg.Oracle, msg.Price); err != nil {
@@ -48,5 +54,15 @@ func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, govKeeper government.Kee
 	}
 
 	keeper.AddOracle(ctx, msg.Oracle)
+	return &sdk.Result{}, nil
+}
+
+func handleMsgBlacklistDenom(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgBlacklistDenom) (*sdk.Result, error) {
+	if !msg.Signer.Equals(govKeeper.GetGovernmentAddress(ctx)) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s hasn't the rights to blacklist a denom", msg.Signer))
+	}
+
+	keeper.BlacklistDenom(ctx, msg.Denom)
+
 	return &sdk.Result{}, nil
 }

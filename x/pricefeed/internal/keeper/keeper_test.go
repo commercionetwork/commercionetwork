@@ -268,3 +268,112 @@ func TestKeeper_GetOracles(t *testing.T) {
 
 	require.Equal(t, expected, k.GetOracles(ctx))
 }
+
+func Test_bdKey(t *testing.T) {
+	tests := []struct {
+		name  string
+		denom string
+		want  []byte
+	}{
+		{
+			"key for ucommercio is created correctly",
+			"ucomercio",
+			[]byte(types.DenomBlacklistKey + "ucommercio"),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, bdKey(tt.denom), []byte(types.DenomBlacklistKey+tt.denom))
+		})
+	}
+}
+
+func TestKeeper_DenomBlacklistIterator(t *testing.T) {
+	// test that the keeper returns a non-nil iterator
+	_, ctx, _, keeper := SetupTestInput()
+
+	require.NotNil(t, keeper.DenomBlacklistIterator(ctx))
+
+}
+
+func TestKeeper_BlacklistDenom(t *testing.T) {
+	tests := []struct {
+		name        string
+		newDenoms   []string
+		preexisting []string
+		want        []string
+	}{
+		{
+			"no preexisting denom",
+			[]string{"a"},
+			nil,
+			[]string{"a"},
+		},
+		{
+			"some preexisting denom",
+			[]string{"a"},
+			[]string{"b"},
+			[]string{"a", "b"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, _, keeper := SetupTestInput()
+
+			if tt.preexisting != nil {
+				store := ctx.KVStore(keeper.StoreKey)
+
+				for _, d := range tt.preexisting {
+					store.Set(bdKey(d), []byte(d))
+				}
+			}
+
+			keeper.BlacklistDenom(ctx, tt.newDenoms...)
+
+			sd := keeper.DenomBlacklist(ctx)
+			for _, cd := range sd {
+				require.Contains(t, tt.want, cd)
+			}
+		})
+	}
+}
+
+func TestKeeper_DenomBlacklist(t *testing.T) {
+	tests := []struct {
+		name        string
+		preexisting []string
+		want        []string
+	}{
+		{
+			"no preexisting denom",
+			nil,
+			nil,
+		},
+		{
+			"some preexisting denom",
+			[]string{"b"},
+			[]string{"b"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, _, keeper := SetupTestInput()
+
+			if tt.preexisting != nil {
+				store := ctx.KVStore(keeper.StoreKey)
+
+				for _, d := range tt.preexisting {
+					store.Set(bdKey(d), []byte(d))
+				}
+			}
+
+			sd := keeper.DenomBlacklist(ctx)
+			for _, cd := range sd {
+				require.Contains(t, tt.want, cd)
+			}
+		})
+	}
+}

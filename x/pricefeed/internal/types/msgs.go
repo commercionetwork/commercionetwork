@@ -99,3 +99,46 @@ func (msg MsgAddOracle) GetSignBytes() []byte {
 func (msg MsgAddOracle) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Signer}
 }
+
+// -------------------
+// --- MsgBlacklistDenom
+// -------------------
+
+type MsgBlacklistDenom struct {
+	Signer sdk.AccAddress `json:"signer"`
+	Denom  string         `json:"denom"`
+}
+
+func NewMsgBlacklistDenom(signer sdk.AccAddress, denom string) MsgBlacklistDenom {
+	return MsgBlacklistDenom{
+		Signer: signer,
+		Denom:  denom,
+	}
+}
+
+// Route Implements Msg.
+func (msg MsgBlacklistDenom) Route() string { return RouterKey }
+
+// Type Implements Msg.
+func (msg MsgBlacklistDenom) Type() string { return MsgTypeBlacklistDenom }
+
+// ValidateBasic Implements Msg.
+func (msg MsgBlacklistDenom) ValidateBasic() error {
+	if msg.Signer.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
+	}
+	if msg.Denom == "" {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "missing denom")
+	}
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgBlacklistDenom) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgBlacklistDenom) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Signer}
+}

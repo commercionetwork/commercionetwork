@@ -26,7 +26,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	txCmd.AddCommand(GetCmdSetPrice(cdc), GetCmdAddOracle(cdc))
+	txCmd.AddCommand(GetCmdSetPrice(cdc), GetCmdAddOracle(cdc), GetCmdBlacklistDenom(cdc))
 
 	return txCmd
 }
@@ -93,4 +93,33 @@ func GetCmdAddOracle(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
+}
+
+// GetCmdBlacklistDenom cli command for blacklisting denoms.
+func GetCmdBlacklistDenom(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "blacklist-denom [denom]",
+		Short: "blacklists a denom, prevent oracle from setting price for it",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdBlacklistDenomFunc(cmd, cdc, args)
+		},
+	}
+}
+
+func getCmdBlacklistDenomFunc(cmd *cobra.Command, cdc *codec.Codec, args []string) error {
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	denom := args[0]
+	signer := cliCtx.GetFromAddress()
+	msg := types.NewMsgBlacklistDenom(signer, denom)
+
+	err := msg.ValidateBasic()
+	if err != nil {
+		return err
+	}
+
+	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 }

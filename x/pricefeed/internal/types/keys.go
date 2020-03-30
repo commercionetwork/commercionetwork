@@ -6,12 +6,14 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	MsgTypeSetPrice  = "setPrice"
-	MsgTypeAddOracle = "addOracle"
+	MsgTypeSetPrice       = "setPrice"
+	MsgTypeAddOracle      = "addOracle"
+	MsgTypeBlacklistDenom = "blacklistDenom"
 
-	QueryGetCurrentPrice  = "price"
-	QueryGetCurrentPrices = "prices"
-	QueryGetOracles       = "oracles"
+	QueryGetCurrentPrice      = "price"
+	QueryGetCurrentPrices     = "prices"
+	QueryGetOracles           = "oracles"
+	QueryGetBlacklistedDenoms = "blacklistedDenom"
 
 	AssetsStoreKey = StoreKey + ":assets:"
 

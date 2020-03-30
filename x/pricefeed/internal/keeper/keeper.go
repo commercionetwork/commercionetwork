@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/government"
+
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,14 +15,16 @@ import (
 )
 
 type Keeper struct {
-	StoreKey sdk.StoreKey
-	cdc      *codec.Codec
+	StoreKey  sdk.StoreKey
+	cdc       *codec.Codec
+	govKeeper government.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, govKeeper government.Keeper) Keeper {
 	return Keeper{
-		StoreKey: storeKey,
-		cdc:      cdc,
+		StoreKey:  storeKey,
+		cdc:       cdc,
+		govKeeper: govKeeper,
 	}
 }
 
@@ -226,4 +230,41 @@ func (keeper Keeper) GetOracles(ctx sdk.Context) (oracles ctypes.Addresses) {
 	store := ctx.KVStore(keeper.StoreKey)
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.OraclePrefix)), &oracles)
 	return oracles
+}
+
+// ------------------
+// --- DenomBlacklist management
+// ------------------
+
+// bdKey returns a byte slice containing the store key for a given denom
+func bdKey(denom string) []byte {
+	return []byte(types.DenomBlacklistKey + denom)
+}
+
+// DenomBlacklistIterator returns a store iterator for all the blacklisted denoms
+func (keeper Keeper) DenomBlacklistIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+	return sdk.KVStorePrefixIterator(store, []byte(types.DenomBlacklistKey))
+}
+
+// BlacklistDenom blacklists a list of denoms.
+func (keeper Keeper) BlacklistDenom(ctx sdk.Context, denom ...string) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	for _, d := range denom {
+		store.Set(bdKey(d), []byte(d))
+	}
+}
+
+// DenomBlacklist returns the list of all the blacklisted denoms
+func (keeper Keeper) DenomBlacklist(ctx sdk.Context) []string {
+	iter := keeper.DenomBlacklistIterator(ctx)
+	defer iter.Close()
+
+	var ret []string
+	for ; iter.Valid(); iter.Next() {
+		ret = append(ret, string(iter.Value()))
+	}
+
+	return ret
 }

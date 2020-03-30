@@ -21,6 +21,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryGetCurrentPrice(ctx, path[1:], keeper)
 		case types.QueryGetOracles:
 			return queryGetOracles(ctx, path[1:], keeper)
+		case types.QueryGetBlacklistedDenoms:
+			return queryGetBlacklistedDenoms(ctx, path[1:], keeper)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
@@ -69,4 +71,15 @@ func queryGetOracles(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, error)
 	}
 
 	return oraclesBz, nil
+}
+
+func queryGetBlacklistedDenoms(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, error) {
+	denomBlacklist := keeper.DenomBlacklist(ctx)
+
+	denomBlacklistBz, err := codec.MarshalJSONIndent(keeper.cdc, denomBlacklist)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+	}
+
+	return denomBlacklistBz, nil
 }

@@ -27,7 +27,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 		params.StoreKey,
 		supply.StoreKey,
 		pricefeed.StoreKey,
-
+		government.StoreKey,
 		types.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -50,7 +50,9 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 		types.ModuleName: {supply.Minter, supply.Burner},
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
-	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey])
+
+	govkeeper := government.NewKeeper(cdc, keys[government.StoreKey])
+	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey], govkeeper)
 
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk)
 
