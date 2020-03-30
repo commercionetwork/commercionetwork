@@ -48,8 +48,7 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 		Use: "share [recipient] [document-uuid] [document-metadata-uri] " +
 			"[metadata-schema-uri] [metadata-schema-version] " +
 			"[document-content-uri] " +
-			"[checksum-value] [checksum-algorithm] " +
-			"",
+			"[checksum-value] [checksum-algorithm] ",
 		Short: "Shares the document with the given recipient address",
 		Args:  cobra.RangeArgs(5, 8),
 		RunE: func(cmd *cobra.Command, args []string) error {
