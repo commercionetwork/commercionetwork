@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/stretchr/testify/require"
+
+	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 )
 
 func Test_handleMsgInviteUser(t *testing.T) {
@@ -264,6 +266,7 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			ctx, bk, gk, k := SetupTestInput()
 
+			require.True(t, k.SupplyKeeper.GetModuleAccount(ctx, creditrisk.ModuleName).GetCoins().IsZero())
 			if !test.invite.Empty() {
 				err := k.AssignMembership(ctx, test.invite.Sender, types.MembershipTypeBlack)
 				require.NoError(t, err)
@@ -293,6 +296,8 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 
 				userAmt := bk.GetCoins(ctx, test.msg.GetSigners()[0])
 				require.True(t, userAmt.IsAllLT(test.bankAmount))
+				spent := test.bankAmount.Sub(userAmt)
+				require.True(t, k.SupplyKeeper.GetModuleAccount(ctx, creditrisk.ModuleName).GetCoins().IsEqual(spent))
 			} else {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), test.error)

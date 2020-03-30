@@ -6,10 +6,11 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
 var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.DepositedAmount, testCdp.Owner)

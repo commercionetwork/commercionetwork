@@ -1,6 +1,8 @@
-package keeper_test
+package creditrisk_test
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -8,18 +10,48 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 
-	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
+	"github.com/commercionetwork/commercionetwork/x/creditrisk"
+	"github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 )
 
-//This function create an environment to test modules
-func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keeper) {
+func TestWrongPath(t *testing.T) {
+	ctx, _, k := SetupTestInput()
+	querier := creditrisk.NewQuerier(k)
+	path := []string{"invalid"}
+	var req abci.RequestQuery
+	_, err := querier(ctx, path, req)
+	require.Error(t, err)
+}
+
+func TestGetPoolFunds(t *testing.T) {
+	ctx, sk, k := SetupTestInput()
+	querier := creditrisk.NewQuerier(k)
+	path := []string{"pool"}
+	var req abci.RequestQuery
+	res, err := querier(ctx, path, req)
+	require.NoError(t, err)
+	var coins sdk.Coins
+	require.NoError(t, creditrisk.ModuleCdc.UnmarshalJSON(res, &coins))
+	require.True(t, coins.IsZero())
+
+	modAcc := sk.GetModuleAccount(ctx, types.ModuleName)
+	newcoins := modAcc.GetCoins().Add(sdk.NewInt64Coin("coin", 10))
+	modAcc.SetCoins(newcoins)
+	sk.SetModuleAccount(ctx, modAcc)
+
+	res, err = querier(ctx, path, req)
+	require.NoError(t, err)
+	require.NoError(t, creditrisk.ModuleCdc.UnmarshalJSON(res, &coins))
+	require.True(t, coins.IsEqual(newcoins))
+}
+
+func SetupTestInput() (sdk.Context, supply.Keeper, creditrisk.Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -49,24 +81,18 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
 	maccPerms := map[string][]string{
-		types.ModuleName:      {supply.Minter, supply.Burner},
-		creditrisk.ModuleName: nil,
+		types.ModuleName: nil,
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("stake", 1))))
 
-	govk := government.NewKeeper(cdc, keys[government.StoreKey])
-
-	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk, govk, ak)
+	k := creditrisk.NewKeeper(cdc, keys[types.StoreKey], sk)
 
 	// Set module accounts
-	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
-	k.SupplyKeeper.SetModuleAccount(ctx, memAcc)
+	// memAcc := supply.NewEmptyModuleAccount(ModuleName, supply.Minter, supply.Burner)
+	// k.supplyKeeper.SetModuleAccount(ctx, memAcc)
 
-	// Set the stable credits denom
-	k.SetStableCreditsDenom(ctx, "uccc")
-
-	return ctx, bk, govk, k
+	return ctx, sk, k
 }
 
 func testCodec() *codec.Codec {
@@ -78,16 +104,9 @@ func testCodec() *codec.Codec {
 	sdk.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
 
-	types.RegisterCodec(cdc)
+	creditrisk.RegisterCodec(cdc)
 
 	cdc.Seal()
 
 	return cdc
 }
-
-// Testing variables
-var testUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-var testUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
-var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var testDenom = "ucommercio"
-var stableCreditDenom = "uccc"
