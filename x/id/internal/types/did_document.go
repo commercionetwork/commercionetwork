@@ -20,14 +20,17 @@ type DidDocument struct {
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
 	Proof   Proof          `json:"proof"`
+	Service []Service      `json:"service"`
 }
 
+// Service represents a service type needed for DidDocument.
 type Service struct {
 	Id              string `json:"id"`
 	Type            string `json:"type"`
 	ServiceEndpoint string `json:"serviceEndpoint"`
 }
 
+// Validate returns error when Service is not valid.
 func (s Service) Validate() error {
 	if s.Id == "" {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"id\" is required")

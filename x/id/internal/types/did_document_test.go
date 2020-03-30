@@ -3,9 +3,8 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
 )
 
 func TestService_Validate(t *testing.T) {
