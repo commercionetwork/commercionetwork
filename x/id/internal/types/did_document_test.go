@@ -2,6 +2,9 @@ package types
 
 import (
 	"testing"
+	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
@@ -63,5 +66,190 @@ func TestService_Validate(t *testing.T) {
 
 			require.EqualError(t, err, tt.expectedErr.Error())
 		})
+	}
+}
+
+func TestService_Equals(t *testing.T) {
+	baseValue := Service{
+		Id:              "did:example:123456789abcdefghi#vcr",
+		Type:            "CredentialRepositoryService",
+		ServiceEndpoint: "http://theUrl",
+	}
+
+	tests := []struct {
+		name     string
+		areEqual bool
+		service  Service
+	}{
+		{
+			"are equal",
+			true,
+			baseValue,
+		},
+		{
+			"not equal #1: id",
+			false,
+			Service{
+				Id:              "did:example:otherid#vcr",
+				Type:            "CredentialRepositoryService",
+				ServiceEndpoint: "http://theUrl",
+			},
+		},
+		{
+			"not equal #2: type",
+			false,
+			Service{
+				Id:              "did:example:123456789abcdefghi#vcr",
+				Type:            "OtherCredentialRepositoryService",
+				ServiceEndpoint: "http://theUrl",
+			},
+		},
+		{
+			"not equal #3: service endpoint",
+			false,
+			Service{
+				Id:              "did:example:123456789abcdefghi#vcr",
+				Type:            "CredentialRepositoryService",
+				ServiceEndpoint: "http://otherUrl",
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.areEqual, baseValue.Equals(tt.service))
+		})
+	}
+}
+
+func TestServices_Equal(t *testing.T) {
+	baseServices := Services{
+		{
+			"service1",
+			"type1",
+			"entrypoint1",
+		},
+		{
+			"service2",
+			"type2",
+			"entrypoint2",
+		},
+	}
+	tests := []struct {
+		name     string
+		services Services
+		areEqual bool
+	}{
+		{
+			"equals",
+			baseServices,
+			true,
+		},
+		{
+			"different in number",
+			Services{
+				Service{
+					Id:              "otherId1",
+					Type:            "otherType1",
+					ServiceEndpoint: "otherEndpoint1",
+				},
+			},
+			false,
+		},
+		{
+			"different in order",
+			Services{
+				{
+					"service2",
+					"type2",
+					"entrypoint2",
+				},
+				{
+					"service1",
+					"type1",
+					"entrypoint1",
+				},
+			},
+			false,
+		},
+		{
+			"value different",
+			Services{
+				{
+					"service1",
+					"type1",
+					"otherEntrypoint", // The different
+				},
+				{
+					"service2",
+					"type2",
+					"entrypoint2",
+				},
+			},
+			false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.areEqual, tt.services.Equals(baseServices))
+		})
+	}
+}
+
+func TestDidDocument_Equals_Service(t *testing.T) {
+	addr, err := sdk.AccAddressFromBech32("did:com:1lwmppctrr6ssnrmuyzu554dzf50apkfv6l2exu")
+	require.NoError(t, err)
+
+	baseDidDocument := getBaseDocumentWithServices(addr, []Service{
+		{
+			Id:              "serviceId",
+			Type:            "theServiceType",
+			ServiceEndpoint: "theServiceEndpoint",
+		},
+	})
+
+	tests := []struct {
+		name     string
+		areEqual bool
+		document DidDocument
+	}{
+		{
+			"equal services",
+			true,
+			baseDidDocument,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.areEqual, baseDidDocument.Equals(tt.document))
+		})
+	}
+}
+
+func getBaseDocumentWithServices(addr sdk.AccAddress, services []Service) DidDocument {
+	return DidDocument{
+		Context: "",
+		ID:      addr,
+		PubKeys: PubKeys{
+			PubKey{
+				ID:         "abcd",
+				Type:       "thePubKeyType",
+				Controller: addr,
+				PublicKey:  "thePublicKey",
+			},
+		},
+		Proof: Proof{
+			Type:               "someType",
+			Created:            time.Time{},
+			ProofPurpose:       "theProofPurpose",
+			Controller:         "TheController",
+			VerificationMethod: "verificationMethod",
+			SignatureValue:     "signatureValue",
+		},
+		Service: services,
 	}
 }

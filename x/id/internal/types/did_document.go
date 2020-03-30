@@ -23,6 +23,22 @@ type DidDocument struct {
 	Service []Service      `json:"service"`
 }
 
+type Services []Service
+
+func (s Services) Equals(other Services) bool {
+	if len(s) != len(other) {
+		return false
+	}
+
+	for key, value := range other {
+		if !s[key].Equals(value) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Service represents a service type needed for DidDocument.
 type Service struct {
 	Id              string `json:"id"`
@@ -45,6 +61,12 @@ func (s Service) Validate() error {
 	}
 
 	return nil
+}
+
+func (s Service) Equals(otherService Service) bool {
+	return s.ServiceEndpoint == otherService.ServiceEndpoint &&
+		s.Type == otherService.Type &&
+		s.Id == otherService.Id
 }
 
 // didDocumentUnsigned is an intermediate type used to check for proof correctness
