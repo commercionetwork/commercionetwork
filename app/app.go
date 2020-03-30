@@ -4,9 +4,18 @@ import (
 	"io"
 	"os"
 
+	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/tendermint/tendermint/libs/log"
+
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/creditrisk"
+	creditriskTypes "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	"github.com/commercionetwork/commercionetwork/x/docs"
 	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
@@ -20,12 +29,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/vbr"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -109,6 +112,7 @@ var (
 		commerciomint.NewAppModuleBasic(StableCreditsDenom),
 		pricefeed.AppModuleBasic{},
 		vbr.AppModuleBasic{},
+		creditrisk.AppModuleBasic{},
 	)
 
 	maccPerms = map[string][]string{
@@ -119,16 +123,18 @@ var (
 		gov.ModuleName:            {supply.Burner},
 
 		// Custom modules
-		commerciomint.ModuleName: {supply.Minter, supply.Burner},
-		memberships.ModuleName:   {supply.Burner},
-		idtypes.ModuleName:       nil,
-		vbr.ModuleName:           {supply.Minter},
+		commerciomint.ModuleName:   {supply.Minter, supply.Burner},
+		memberships.ModuleName:     {supply.Burner},
+		idtypes.ModuleName:              nil,
+		vbr.ModuleName:             {supply.Minter},
+		creditriskTypes.ModuleName: nil,
 	}
 
 	allowedModuleReceivers = types.Strings{
 		commerciomint.ModuleName,
 		memberships.ModuleName,
 		vbr.ModuleName,
+		creditriskTypes.ModuleName,
 	}
 )
 
@@ -185,6 +191,7 @@ type CommercioNetworkApp struct {
 	mintKeeper       commerciomint.Keeper
 	priceFeedKeeper  pricefeed.Keeper
 	vbrKeeper        vbr.Keeper
+	creditriskKeeper creditrisk.Keeper
 
 	mm *module.Manager
 }
@@ -218,6 +225,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		commerciomint.StoreKey,
 		pricefeed.StoreKey,
 		vbr.StoreKey,
+		creditriskTypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -263,9 +271,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.supplyKeeper, app.governmentKeeper, app.accountKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = idkeeper.NewKeeper(app.cdc, app.keys[idtypes.StoreKey], app.accountKeeper, app.supplyKeeper)
-	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
+	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey], app.governmentKeeper)
 	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper, app.supplyKeeper)
 	app.mintKeeper = commerciomint.NewKeeper(app.cdc, app.keys[commerciomint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
+	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -303,6 +312,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
 		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper),
+		creditrisk.NewAppModule(app.creditriskKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -338,6 +348,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		commerciomint.ModuleName,
 		pricefeed.ModuleName,
 		vbr.ModuleName,
+		creditriskTypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

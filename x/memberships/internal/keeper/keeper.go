@@ -7,12 +7,14 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
+	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 )
 
 var membershipCosts = map[string]int64{
@@ -59,22 +61,15 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "cannot buy black membership")
 	}
 
-	// Get the tokens from the buyer account
+	// Transfer the buyer's tokens to the credit risk pool
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(k.GetStableCreditsDenom(ctx), membershipPrice))
-	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, membershipCost); err != nil {
-		return err
-	}
-	if err := k.SupplyKeeper.BurnCoins(ctx, types.ModuleName, membershipCost); err != nil {
+	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, buyer, creditrisk.ModuleName, membershipCost); err != nil {
 		return err
 	}
 
 	// Assign the membership
-	if err := k.AssignMembership(ctx, buyer, membershipType); err != nil {
-		return err
-	}
-
-	return nil
+	return k.AssignMembership(ctx, buyer, membershipType)
 }
 
 // AssignMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
