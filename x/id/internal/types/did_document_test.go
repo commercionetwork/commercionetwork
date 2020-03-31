@@ -20,7 +20,7 @@ func TestService_Validate(t *testing.T) {
 		{
 			"valid",
 			Service{
-				Id:              "did:example:123456789abcdefghi#vcr",
+				ID:              "did:example:123456789abcdefghi#vcr",
 				Type:            "CredentialRepositoryService",
 				ServiceEndpoint: "http://theUrl",
 			},
@@ -39,7 +39,7 @@ func TestService_Validate(t *testing.T) {
 		{
 			"no type",
 			Service{
-				Id:              "did:example:123456789abcdefghi#vcr",
+				ID:              "did:example:123456789abcdefghi#vcr",
 				ServiceEndpoint: "http://theUrl",
 			},
 			false,
@@ -48,7 +48,7 @@ func TestService_Validate(t *testing.T) {
 		{
 			"no service point",
 			Service{
-				Id:   "did:example:123456789abcdefghi#vcr",
+				ID:   "did:example:123456789abcdefghi#vcr",
 				Type: "CredentialRepositoryService",
 			},
 			false,
@@ -71,7 +71,7 @@ func TestService_Validate(t *testing.T) {
 
 func TestService_Equals(t *testing.T) {
 	baseValue := Service{
-		Id:              "did:example:123456789abcdefghi#vcr",
+		ID:              "did:example:123456789abcdefghi#vcr",
 		Type:            "CredentialRepositoryService",
 		ServiceEndpoint: "http://theUrl",
 	}
@@ -90,7 +90,7 @@ func TestService_Equals(t *testing.T) {
 			"not equal #1: id",
 			false,
 			Service{
-				Id:              "did:example:otherid#vcr",
+				ID:              "did:example:otherid#vcr",
 				Type:            "CredentialRepositoryService",
 				ServiceEndpoint: "http://theUrl",
 			},
@@ -99,7 +99,7 @@ func TestService_Equals(t *testing.T) {
 			"not equal #2: type",
 			false,
 			Service{
-				Id:              "did:example:123456789abcdefghi#vcr",
+				ID:              "did:example:123456789abcdefghi#vcr",
 				Type:            "OtherCredentialRepositoryService",
 				ServiceEndpoint: "http://theUrl",
 			},
@@ -108,7 +108,7 @@ func TestService_Equals(t *testing.T) {
 			"not equal #3: service endpoint",
 			false,
 			Service{
-				Id:              "did:example:123456789abcdefghi#vcr",
+				ID:              "did:example:123456789abcdefghi#vcr",
 				Type:            "CredentialRepositoryService",
 				ServiceEndpoint: "http://otherUrl",
 			},
@@ -149,7 +149,7 @@ func TestServices_Equal(t *testing.T) {
 			"different in number",
 			Services{
 				Service{
-					Id:              "otherId1",
+					ID:              "otherId1",
 					Type:            "otherType1",
 					ServiceEndpoint: "otherEndpoint1",
 				},
@@ -201,7 +201,7 @@ func TestServices_Equal(t *testing.T) {
 func TestDidDocument_Equals_Service(t *testing.T) {
 	baseDidDocument := getBaseDocumentWithServices([]Service{
 		{
-			Id:              "serviceId",
+			ID:              "serviceId",
 			Type:            "theServiceType",
 			ServiceEndpoint: "theServiceEndpoint",
 		},

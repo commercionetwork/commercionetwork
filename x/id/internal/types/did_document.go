@@ -41,14 +41,14 @@ func (s Services) Equals(other Services) bool {
 
 // Service represents a service type needed for DidDocument.
 type Service struct {
-	Id              string `json:"id"`
+	ID              string `json:"id"`
 	Type            string `json:"type"`
 	ServiceEndpoint string `json:"serviceEndpoint"`
 }
 
 // Validate returns error when Service is not valid.
 func (s Service) Validate() error {
-	if s.Id == "" {
+	if s.ID == "" {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"id\" is required")
 	}
 
@@ -66,7 +66,7 @@ func (s Service) Validate() error {
 func (s Service) Equals(otherService Service) bool {
 	return s.ServiceEndpoint == otherService.ServiceEndpoint &&
 		s.Type == otherService.Type &&
-		s.Id == otherService.Id
+		s.ID == otherService.ID
 }
 
 // didDocumentUnsigned is an intermediate type used to check for proof correctness
