@@ -14,6 +14,9 @@ import (
 	customstaking "github.com/commercionetwork/commercionetwork/x/encapsulated/staking"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id"
+	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
+	idtypes "github.com/commercionetwork/commercionetwork/x/id/types"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/vbr"
@@ -118,7 +121,7 @@ var (
 		// Custom modules
 		commerciomint.ModuleName: {supply.Minter, supply.Burner},
 		memberships.ModuleName:   {supply.Burner},
-		id.ModuleName:            nil,
+		idtypes.ModuleName:       nil,
 		vbr.ModuleName:           {supply.Minter},
 	}
 
@@ -177,7 +180,7 @@ type CommercioNetworkApp struct {
 	// Custom modules
 	docsKeeper       docs.Keeper
 	governmentKeeper government.Keeper
-	idKeeper         id.Keeper
+	idKeeper         idkeeper.Keeper
 	membershipKeeper memberships.Keeper
 	mintKeeper       commerciomint.Keeper
 	priceFeedKeeper  pricefeed.Keeper
@@ -210,7 +213,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Custom modules
 		docs.StoreKey,
 		government.StoreKey,
-		id.StoreKey,
+		idtypes.StoreKey,
 		memberships.StoreKey,
 		commerciomint.StoreKey,
 		pricefeed.StoreKey,
@@ -259,7 +262,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.supplyKeeper, app.governmentKeeper, app.accountKeeper)
 	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
-	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.supplyKeeper)
+	app.idKeeper = idkeeper.NewKeeper(app.cdc, app.keys[idtypes.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey])
 	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper, app.supplyKeeper)
 	app.mintKeeper = commerciomint.NewKeeper(app.cdc, app.keys[commerciomint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
@@ -330,7 +333,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Custom modules
 		government.ModuleName,
 		docs.ModuleName,
-		id.ModuleName,
+		idtypes.ModuleName,
 		memberships.ModuleName,
 		commerciomint.ModuleName,
 		pricefeed.ModuleName,
