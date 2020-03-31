@@ -5,7 +5,7 @@ package docs
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/keeper"
+	"github.com/commercionetwork/commercionetwork/x/docs/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
