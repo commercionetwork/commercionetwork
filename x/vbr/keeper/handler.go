@@ -5,7 +5,7 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

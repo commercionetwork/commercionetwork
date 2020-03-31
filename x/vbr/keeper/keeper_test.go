@@ -5,7 +5,7 @@ import (
 
 	dist "github.com/cosmos/cosmos-sdk/x/distribution"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -258,7 +258,7 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			_, ctx, k, _, _ := SetupTestInput(true)
-			k.MintVBRTokens(ctx, tt.wantAmount)
+			require.NoError(t, k.MintVBRTokens(ctx, tt.wantAmount))
 			macc := k.VbrAccount(ctx)
 			require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
 		})

@@ -23,10 +23,10 @@ func (msg MsgIncrementBlockRewardsPool) Type() string { return MsgTypeIncrementB
 
 func (msg MsgIncrementBlockRewardsPool) ValidateBasic() error {
 	if msg.Funder.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Funder.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Funder.String())
 	}
 	if msg.Amount.IsZero() || msg.Amount.IsAnyNegative() {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("You can't transfer a null or negative amount"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "You can't transfer a null or negative amount")
 	}
 
 	return nil
