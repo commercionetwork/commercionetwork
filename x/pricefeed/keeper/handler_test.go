@@ -5,9 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 // -------------------
@@ -36,6 +37,9 @@ func TestValidMsgAddOracle(t *testing.T) {
 
 	_, err := handler(ctx, msgAddOracle)
 	require.NoError(t, err)
+
+	_, err = handler(ctx, types.NewMsgAddOracle(testOracle, testOracle))
+	require.Error(t, err)
 }
 
 func TestInvalidMsg(t *testing.T) {
@@ -47,4 +51,44 @@ func TestInvalidMsg(t *testing.T) {
 
 	require.Error(t, err)
 	require.True(t, strings.Contains(err.Error(), fmt.Sprintf("Unrecognized %s message type", types.ModuleName)))
+}
+
+func Test_handleMsgBlacklistDenom(t *testing.T) {
+	tests := []struct {
+		name        string
+		msg         types.MsgBlacklistDenom
+		senderIsGov bool
+		wantErr     bool
+	}{
+		{
+			"sender is not gov",
+			types.NewMsgBlacklistDenom(testOracle, "denom"),
+			false,
+			true,
+		},
+		{
+			"sender is gov",
+			types.NewMsgBlacklistDenom(testOracle, "denom"),
+			true,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, govK, k := SetupTestInput()
+
+			if tt.senderIsGov {
+				_ = govK.SetGovernmentAddress(ctx, tt.msg.Signer)
+			}
+
+			_, err := NewHandler(k, govK)(ctx, tt.msg)
+			if tt.wantErr {
+				require.Error(t, err)
+				return
+			}
+			require.Contains(t, k.DenomBlacklist(ctx), tt.msg.Denom)
+
+		})
+	}
 }

@@ -58,7 +58,7 @@ Also adds the specified address as a valid oracle and the given token name as a 
 			cdc.MustUnmarshalJSON(appState[pricefeed.ModuleName], &genState)
 
 			// save the raw price, the asset name and the oracle
-			rawPrice := pricefeed.RawPrice{Oracle: oracle, Price: price, Created: sdk.ZeroInt()}
+			rawPrice := pricefeed.OraclePrice{Oracle: oracle, Price: price, Created: sdk.ZeroInt()}
 			genState.RawPrices, _ = genState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
 			genState.Assets, _ = genState.Assets.AppendIfMissing(price.AssetName)
 			genState.Oracles, _ = genState.Oracles.AppendIfMissing(oracle)

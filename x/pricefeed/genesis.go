@@ -10,16 +10,24 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// blacklistedByDefault is a list of tokens which oracles can't set prices on
+var blacklistedByDefault = []string{
+	"uccc",
+}
+
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Oracles   ctypes.Addresses `json:"oracles"`
-	Assets    ctypes.Strings   `json:"assets"`
-	RawPrices RawPrices        `json:"raw_prices"`
+	Oracles        ctypes.Addresses `json:"oracles"`
+	Assets         ctypes.Strings   `json:"assets"`
+	RawPrices      OraclePrices     `json:"raw_prices"`
+	DenomBlacklist []string         `json:"denom_blacklist"`
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
-	return GenesisState{}
+	return GenesisState{
+		DenomBlacklist: blacklistedByDefault,
+	}
 }
 
 // InitGenesis sets docs information for genesis.
@@ -38,17 +46,18 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
 		}
 	}
 
-	if err := keeper.ComputeAndUpdateCurrentPrices(ctx); err != nil {
-		panic(err)
-	}
+	keeper.BlacklistDenom(ctx, genState.DenomBlacklist...)
+
+	keeper.ComputeAndUpdateCurrentPrices(ctx)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	return GenesisState{
-		Oracles:   keeper.GetOracles(ctx),
-		Assets:    keeper.GetAssets(ctx),
-		RawPrices: keeper.GetRawPrices(ctx),
+		Oracles:        keeper.GetOracles(ctx),
+		Assets:         keeper.GetAssets(ctx),
+		RawPrices:      keeper.GetRawPrices(ctx),
+		DenomBlacklist: keeper.DenomBlacklist(ctx),
 	}
 }
 
