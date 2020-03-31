@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,9 +49,8 @@ var (
 	TestOwnerAddress sdk.AccAddress
 	TestDidDocument  types.DidDocument
 
-	TestGovernment  sdk.AccAddress
-	TestDepositor   sdk.AccAddress
-	TestPairwiseDid sdk.AccAddress
+	TestGovernment sdk.AccAddress
+	TestDepositor  sdk.AccAddress
 
 	// Power up requests
 	TestDidPowerUpRequest = types.DidPowerUpRequest{
@@ -111,11 +110,10 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 
 	// Setup the Did Document
 	TestOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
-	TestDidDocument = setupDidDocument(ctx, ak, "did:com:1zla8arsc5rju9wekz00yz54zguj20a96jn9cy6")
+	TestDidDocument = setupDidDocument()
 
 	TestGovernment, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
 	TestDepositor, _ = sdk.AccAddressFromBech32("did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6")
-	TestPairwiseDid, _ = sdk.AccAddressFromBech32("did:com:15jv74vsdk23pvvf2a8arex339505mgjytz98xc")
 
 	_ = govK.SetTumblerAddress(ctx, TestGovernment)
 	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
@@ -149,7 +147,7 @@ func testCodec() *codec.Codec {
 	return cdc
 }
 
-func setupDidDocument(ctx sdk.Context, ak auth.AccountKeeper, bech32Address string) types.DidDocument {
+func setupDidDocument() types.DidDocument {
 	var testZone, _ = time.LoadLocation("UTC")
 	var testTime = time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
 	var testOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")

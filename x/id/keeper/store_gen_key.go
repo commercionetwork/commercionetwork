@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

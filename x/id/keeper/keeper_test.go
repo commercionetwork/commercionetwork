@@ -7,7 +7,7 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/require"
 )
@@ -73,10 +73,10 @@ func TestKeeper_GetDidDocumentByOwner_ExistingDidDocument(t *testing.T) {
 }
 
 func TestKeeper_GetDidDocuments(t *testing.T) {
-	cdc, ctx, aK, _, _, k := SetupTestInput()
+	cdc, ctx, _, _, _, k := SetupTestInput()
 	store := ctx.KVStore(k.storeKey)
 
-	first := setupDidDocument(ctx, aK, "cosmos18xffcd029jn3thr0wwxah6gjdldr3kchvydkuj")
+	first := setupDidDocument()
 
 	store.Set(getIdentityStoreKey(first.ID), cdc.MustMarshalBinaryBare(first))
 

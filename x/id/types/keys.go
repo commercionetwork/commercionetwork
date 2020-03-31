@@ -40,13 +40,7 @@ const (
 	// --- Messages
 	// --------------
 
-	MsgTypeSetIdentity = "setIdentity"
-
-	MsgTypeRequestDidDeposit           = "requestDidDeposit"
-	MsgTypeInvalidateDidDepositRequest = "invalidateDidDepositRequest"
-	MsgTypeRequestDidPowerUp           = "requestDidPowerUp"
-	MsgTypeInvalidateDidPowerUpRequest = "invalidateDidPowerUpRequest"
-
-	MsgTypeMoveDeposit         = "moveDeposit"
+	MsgTypeSetIdentity         = "setIdentity"
+	MsgTypeRequestDidPowerUp   = "requestDidPowerUp"
 	MsgTypeChangePowerUpStatus = "changePowerUpStatus"
 )

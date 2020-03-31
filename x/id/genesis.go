@@ -1,14 +1,15 @@
 package id
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/id/keeper"
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 // GenesisState - id genesis state
 type GenesisState struct {
-	DidDocuments    []DidDocument       `json:"did_documents"`
-	PowerUpRequests []DidPowerUpRequest `json:"power_up_requests"`
+	DidDocuments    []types.DidDocument       `json:"did_documents"`
+	PowerUpRequests []types.DidPowerUpRequest `json:"power_up_requests"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -17,7 +18,7 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets ids information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	for _, didDocument := range data.DidDocuments {
 		if err := keeper.SaveDidDocument(ctx, didDocument); err != nil {
 			panic(err)
@@ -32,7 +33,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	identities := keeper.GetDidDocuments(ctx)
 	requests := keeper.GetPowerUpRequests(ctx)
 
