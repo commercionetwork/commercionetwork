@@ -346,7 +346,7 @@ func TestDocument_Validate(t *testing.T) {
 				},
 			},
 			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but marked do_sign", "checksum"),
+				fmt.Sprintf("field \"%s\" not present in document, but required when using do_sign", "checksum"),
 			),
 		},
 		{
@@ -370,7 +370,7 @@ func TestDocument_Validate(t *testing.T) {
 				},
 			},
 			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but marked do_sign", "content_uri"),
+				fmt.Sprintf("field \"%s\" not present in document, but required when using do_sign", "content_uri"),
 			),
 		}, {
 			name: "good document that has do_sign but invalid do_sign sdndata",

@@ -147,14 +147,14 @@ func (doc Document) Validate() error {
 		if doc.Checksum == nil {
 			return sdkErr.Wrap(
 				sdkErr.ErrUnknownRequest,
-				"field \"checksum\" not present in document, but marked do_sign",
+				"field \"checksum\" not present in document, but required when using do_sign",
 			)
 		}
 
 		if doc.ContentURI == "" {
 			return sdkErr.Wrap(
 				sdkErr.ErrUnknownRequest,
-				"field \"content_uri\" not present in document, but marked do_sign",
+				"field \"content_uri\" not present in document, but required when using do_sign",
 			)
 		}
 
