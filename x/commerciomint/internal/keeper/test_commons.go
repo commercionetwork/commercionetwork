@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,7 +16,6 @@ import (
 	db "github.com/tendermint/tm-db"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
@@ -27,7 +28,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 		params.StoreKey,
 		supply.StoreKey,
 		pricefeed.StoreKey,
-		government.StoreKey,
+		governmentTypes.StoreKey,
 		types.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -51,7 +52,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 
-	govkeeper := government.NewKeeper(cdc, keys[government.StoreKey])
+	govkeeper := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey])
 	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey], govkeeper)
 
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk)
@@ -77,7 +78,7 @@ func testCodec() *codec.Codec {
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
 	pricefeed.RegisterCodec(cdc)
-	government.RegisterCodec(cdc)
+	governmentTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	types.RegisterCodec(cdc)

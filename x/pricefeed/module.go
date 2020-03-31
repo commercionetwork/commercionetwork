@@ -3,7 +3,8 @@ package pricefeed
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -83,11 +84,11 @@ type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
 	keeper    Keeper
-	govKeeper government.Keeper
+	govKeeper governmentKeeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, govKeeper government.Keeper) AppModule {
+func NewAppModule(keeper Keeper, govKeeper governmentKeeper.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},

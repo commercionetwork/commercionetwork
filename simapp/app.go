@@ -3,7 +3,10 @@ package simapp
 import (
 	"io"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -94,7 +97,7 @@ type SimApp struct {
 	CrisisKeeper   crisis.Keeper
 	ParamsKeeper   params.Keeper
 
-	GovernmentKeeper government.Keeper
+	GovernmentKeeper governmentKeeper.Keeper
 	PriceFeedKeeper  pricefeed.Keeper
 
 	// the module manager
@@ -152,7 +155,7 @@ func NewSimApp(
 	app.SlashingKeeper = slashing.NewKeeper(app.cdc, keys[slashing.StoreKey], &stakingKeeper,
 		slashingSubspace)
 	app.CrisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.SupplyKeeper, auth.FeeCollectorName)
-	app.GovernmentKeeper = government.NewKeeper(app.cdc, keys[government.StoreKey])
+	app.GovernmentKeeper = governmentKeeper.NewKeeper(app.cdc, keys[governmentTypes.StoreKey])
 	app.PriceFeedKeeper = pricefeed.NewKeeper(app.cdc, keys[pricefeed.StoreKey], app.GovernmentKeeper)
 
 	// register the proposal types

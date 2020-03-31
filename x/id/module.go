@@ -3,13 +3,13 @@ package id
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/id/keeper"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/id/types"
 
 	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -69,7 +69,7 @@ func (AppModuleBasic) GetTxCmd(_ *codec.Codec) *cobra.Command {
 }
 
 // get the root query command of this module
-func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+func (AppModuleBasic) GetQueryCmd(_ *codec.Codec) *cobra.Command {
 	return cli.GetQueryCmd(cdc)
 }
 
@@ -87,12 +87,12 @@ type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
 	keeper       keeper.Keeper
-	govKeeper    government.Keeper
+	govKeeper    governmentKeeper.Keeper
 	supplyKeeper supply.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper keeper.Keeper, govKeeper government.Keeper, supplyKeeper supply.Keeper) AppModule {
+func NewAppModule(keeper keeper.Keeper, govKeeper governmentKeeper.Keeper, supplyKeeper supply.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
