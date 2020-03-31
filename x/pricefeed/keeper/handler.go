@@ -5,9 +5,10 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {

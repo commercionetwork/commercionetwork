@@ -96,11 +96,6 @@ func NewAppModule(keeper Keeper, govKeeper government.Keeper) AppModule {
 	}
 }
 
-// module name
-func (AppModule) Name() string {
-	return ModuleName
-}
-
 // register invariants
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
@@ -143,6 +138,6 @@ func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {}
 
 // module end-block
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	EndBlocker(ctx, am.keeper)
+	am.keeper.ComputeAndUpdateCurrentPrices(ctx)
 	return []abci.ValidatorUpdate{}
 }

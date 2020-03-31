@@ -100,6 +100,8 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount
 	// Get the credits amount
 	// creditsAmount = (DepositAmount value / credits price) / 2
 	// Our credit price is always 1 euro, so we simply divide the fiat value by 2
+
+	// collateralRate is 2 here (cashcredit = fiat / collateralRate(government calls the shots here))
 	creditsAmount := fiatValue.Quo(sdk.NewInt(2))
 
 	// Mint the tokens and send them to the user

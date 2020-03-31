@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 type Keeper struct {

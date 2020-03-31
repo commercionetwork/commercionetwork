@@ -5,9 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 // -------------------
@@ -36,6 +37,9 @@ func TestValidMsgAddOracle(t *testing.T) {
 
 	_, err := handler(ctx, msgAddOracle)
 	require.NoError(t, err)
+
+	_, err = handler(ctx, types.NewMsgAddOracle(testOracle, testOracle))
+	require.Error(t, err)
 }
 
 func TestInvalidMsg(t *testing.T) {
@@ -78,13 +82,11 @@ func Test_handleMsgBlacklistDenom(t *testing.T) {
 				_ = govK.SetGovernmentAddress(ctx, tt.msg.Signer)
 			}
 
-			_, err := handleMsgBlacklistDenom(ctx, k, govK, tt.msg)
-
+			_, err := NewHandler(k, govK)(ctx, tt.msg)
 			if tt.wantErr {
 				require.Error(t, err)
 				return
 			}
-
 			require.Contains(t, k.DenomBlacklist(ctx), tt.msg.Denom)
 
 		})

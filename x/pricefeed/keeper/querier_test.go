@@ -3,11 +3,12 @@ package keeper
 import (
 	"testing"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 var request abci.RequestQuery
@@ -71,6 +72,22 @@ func TestQuerier_getOracles(t *testing.T) {
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
 	require.Equal(t, expected, actual)
+}
+
+func TestQuerier_queryGetBlacklistedDenoms(t *testing.T) {
+	cdc, ctx, _, k := SetupTestInput()
+
+	blacklisted := "blacklisted"
+	k.BlacklistDenom(ctx, blacklisted)
+
+	path := []string{types.QueryGetBlacklistedDenoms}
+	querier := NewQuerier(k)
+	actualBz, _ := querier(ctx, path, request)
+
+	var actual []string
+	cdc.MustUnmarshalJSON(actualBz, &actual)
+
+	require.Equal(t, []string{"blacklisted"}, actual)
 }
 
 func TestQuerier_unknownEndpoint(t *testing.T) {

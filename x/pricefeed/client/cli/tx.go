@@ -6,8 +6,9 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
+
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"

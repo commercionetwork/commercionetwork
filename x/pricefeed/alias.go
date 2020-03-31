@@ -1,8 +1,8 @@
 package pricefeed
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 const (

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 const (
