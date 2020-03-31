@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/cosmos/cosmos-sdk/client/context"

@@ -7,7 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
