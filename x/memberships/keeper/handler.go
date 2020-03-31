@@ -5,13 +5,13 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.
-func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
+func NewHandler(keeper Keeper, governmentKeeper governmentKeeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		case types.MsgInviteUser:
@@ -73,7 +73,7 @@ func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepos
 	return &sdk.Result{}, nil
 }
 
-func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgAddTsp) (*sdk.Result, error) {
+func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper governmentKeeper.Keeper, msg types.MsgAddTsp) (*sdk.Result, error) {
 	if !governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.Government) {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}

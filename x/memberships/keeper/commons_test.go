@@ -1,6 +1,9 @@
 package keeper_test
 
 import (
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,13 +16,12 @@ import (
 	db "github.com/tendermint/tm-db"
 
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, governmentKeeper.Keeper, keeper.Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -28,7 +30,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		government.StoreKey,
+		governmentTypes.StoreKey,
 
 		types.StoreKey,
 	)
@@ -55,7 +57,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("stake", 1))))
 
-	govk := government.NewKeeper(cdc, keys[government.StoreKey])
+	govk := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey])
 
 	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk, govk, ak)
 

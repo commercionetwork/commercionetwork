@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
