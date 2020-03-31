@@ -1,8 +1,8 @@
 package commerciomint
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 const (

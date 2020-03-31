@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 

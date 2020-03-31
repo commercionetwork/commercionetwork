@@ -3,8 +3,9 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 const (

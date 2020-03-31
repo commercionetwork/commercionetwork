@@ -6,9 +6,10 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 var req abci.RequestQuery

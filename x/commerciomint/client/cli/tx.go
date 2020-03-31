@@ -14,9 +14,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {

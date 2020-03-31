@@ -6,9 +6,10 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )
