@@ -38,11 +38,11 @@ func (proof Proof) Equals(other Proof) bool {
 func (proof Proof) Validate() error {
 
 	if proof.Type != "LinkedDataSignature2015" {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof type, must be LinkedDataSignature2015"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof type, must be LinkedDataSignature2015")
 	}
 
 	if proof.Created.IsZero() {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof creation time"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof creation time")
 	}
 
 	return nil

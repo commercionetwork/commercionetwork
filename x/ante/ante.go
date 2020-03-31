@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -17,7 +17,7 @@ import (
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
-var fixedRequiredFee sdk.Dec = sdk.NewDecWithPrec(1, 2)
+var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -26,7 +26,7 @@ func NewAnteHandler(
 	ak keeper.AccountKeeper,
 	supplyKeeper types.SupplyKeeper,
 	priceKeeper pricefeed.Keeper,
-	govKeeper government.Keeper,
+	govKeeper governmentKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	stableCreditsDemon string,
 ) sdk.AnteHandler {
@@ -53,11 +53,11 @@ func NewAnteHandler(
 // by using any other token which price is contained inside the pricefeedKeeper.
 type MinFeeDecorator struct {
 	pfk                pricefeed.Keeper
-	govk               government.Keeper
+	govk               governmentKeeper.Keeper
 	stableCreditsDenom string
 }
 
-func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, govKeeper government.Keeper, stableCreditsDenom string) MinFeeDecorator {
+func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, govKeeper governmentKeeper.Keeper, stableCreditsDenom string) MinFeeDecorator {
 	return MinFeeDecorator{
 		pfk:                priceKeeper,
 		govk:               govKeeper,
@@ -81,20 +81,14 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	}
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.govk, mfd.stableCreditsDenom); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.stableCreditsDenom); err != nil {
 		return ctx, err
 	}
 
 	return next(ctx, tx, simulate)
 }
 
-func checkMinimumFees(
-	stdTx types.StdTx,
-	ctx sdk.Context,
-	pfk pricefeed.Keeper,
-	govk government.Keeper,
-	stableCreditsDenom string,
-) error {
+func checkMinimumFees(stdTx types.StdTx, ctx sdk.Context, pfk pricefeed.Keeper, stableCreditsDenom string) error {
 
 	// ----
 	// Each message should cost 0.01€, which can be paid:

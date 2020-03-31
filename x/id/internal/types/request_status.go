@@ -25,7 +25,7 @@ func NewRequestStatus(statusType, message string) RequestStatus {
 func (status RequestStatus) Validate() error {
 	statusType := strings.ToLower(status.Type)
 	if statusType != StatusRejected && statusType != StatusCanceled {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid status type: %s", status.Type)))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid status type: %s", status.Type))
 	}
 	return nil
 }

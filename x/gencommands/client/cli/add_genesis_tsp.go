@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/commercionetwork/commercionetwork/x/memberships"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -36,13 +37,13 @@ func AddGenesisTspCmd(ctx *server.Context, cdc *codec.Codec,
 
 			// add tsp to the app state
 			var genState memberships.GenesisState
-			cdc.MustUnmarshalJSON(appState[memberships.ModuleName], &genState)
+			cdc.MustUnmarshalJSON(appState[membershipsTypes.ModuleName], &genState)
 
 			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(address)
 
 			// save the app state
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[memberships.ModuleName] = genesisStateBz
+			appState[membershipsTypes.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/docs"
+	docs "github.com/commercionetwork/commercionetwork/x/docs/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"

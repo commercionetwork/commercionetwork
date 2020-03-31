@@ -3,16 +3,17 @@ package keeper
 import (
 	"fmt"
 
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler returns a handler for type messages and is essentially a sub-router that directs
 // messages coming into this module to the proper handler.
-func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
+func NewHandler(keeper Keeper, govKeeper governmentKeeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		case types.MsgSetIdentity:
@@ -69,7 +70,7 @@ func handleMsgRequestDidDeposit(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 	return &sdk.Result{}, nil
 }
 
-func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
+func handleMsgInvalidateDidDepositRequest(ctx sdk.Context, keeper Keeper, govKeeper governmentKeeper.Keeper,
 	msg types.MsgInvalidateDidDepositRequest) (*sdk.Result, error) {
 
 	// Check the status
@@ -130,7 +131,7 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 	return &sdk.Result{}, nil
 }
 
-func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper,
+func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKeeper governmentKeeper.Keeper,
 	msg types.MsgInvalidateDidPowerUpRequest) (*sdk.Result, error) {
 
 	// Check the status
@@ -174,7 +175,7 @@ func handleMsgInvalidateDidPowerUpRequest(ctx sdk.Context, keeper Keeper, govKee
 // --- Deposits handling
 // ------------------------
 
-func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgMoveDeposit) (*sdk.Result, error) {
+func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper governmentKeeper.Keeper, msg types.MsgMoveDeposit) (*sdk.Result, error) {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
@@ -208,7 +209,7 @@ func handleMsgMoveDeposit(ctx sdk.Context, keeper Keeper, govKeeper government.K
 	return &sdk.Result{}, nil
 }
 
-func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgPowerUpDid) (*sdk.Result, error) {
+func handleMsgPowerUpDid(ctx sdk.Context, keeper Keeper, govKeeper governmentKeeper.Keeper, msg types.MsgPowerUpDid) (*sdk.Result, error) {
 
 	// Validate the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {

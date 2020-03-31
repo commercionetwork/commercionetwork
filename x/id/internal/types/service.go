@@ -38,15 +38,15 @@ func (service Service) Equals(other Service) bool {
 // error if something is invalid
 func (service Service) Validate() error {
 	if len(strings.TrimSpace(service.ID)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Service id cannot be empty"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Service id cannot be empty")
 	}
 
 	if len(strings.TrimSpace(service.Type)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Service type cannot be empty"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Service type cannot be empty")
 	}
 
 	if len(strings.TrimSpace(service.ServiceEndpoint)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Service endpoint cannot be empty"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Service endpoint cannot be empty")
 	}
 
 	return nil

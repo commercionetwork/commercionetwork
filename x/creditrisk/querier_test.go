@@ -3,6 +3,8 @@ package creditrisk_test
 import (
 	"testing"
 
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +19,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/creditrisk"
 	"github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
 )
 
 func TestWrongPath(t *testing.T) {
@@ -60,7 +61,7 @@ func SetupTestInput() (sdk.Context, supply.Keeper, creditrisk.Keeper) {
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		government.StoreKey,
+		governmentTypes.StoreKey,
 
 		types.StoreKey,
 	)

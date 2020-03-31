@@ -3,15 +3,16 @@ package custombank
 import (
 	"fmt"
 
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 )
 
 // NewHandler returns a handler for "bank" type messages.
-func NewHandler(h sdk.Handler, k Keeper, govKeeper government.Keeper) sdk.Handler {
+func NewHandler(h sdk.Handler, k Keeper, govKeeper governmentKeeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
@@ -60,7 +61,7 @@ func handleMsgMultiSend(ctx sdk.Context, k Keeper, h sdk.Handler, msg bank.MsgMu
 }
 
 // Handle MsgBlockAccountSend.
-func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.Keeper, msg MsgBlockAddressSend) (*sdk.Result, error) {
+func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper governmentKeeper.Keeper, msg MsgBlockAddressSend) (*sdk.Result, error) {
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {
@@ -74,7 +75,7 @@ func handleMsgBlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.K
 }
 
 // Handle MsgUnlockAccountSend.
-func handleMsgUnlockAddressSend(ctx sdk.Context, k Keeper, govKeeper government.Keeper, msg MsgUnlockAddressSend) (*sdk.Result, error) {
+func handleMsgUnlockAddressSend(ctx sdk.Context, k Keeper, govKeeper governmentKeeper.Keeper, msg MsgUnlockAddressSend) (*sdk.Result, error) {
 
 	// Check the signer
 	if !govKeeper.GetGovernmentAddress(ctx).Equals(msg.Signer) {

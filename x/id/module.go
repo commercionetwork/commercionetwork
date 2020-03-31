@@ -3,7 +3,8 @@ package id
 import (
 	"encoding/json"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -58,12 +59,12 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 }
 
 // get the root tx command of this module
-func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
+func (AppModuleBasic) GetTxCmd(_ *codec.Codec) *cobra.Command {
 	return nil
 }
 
 // get the root query command of this module
-func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+func (AppModuleBasic) GetQueryCmd(_ *codec.Codec) *cobra.Command {
 	return nil
 }
 
@@ -73,7 +74,7 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 type AppModuleSimulation struct{}
 
 // RegisterStoreDecoder registers a decoder for auth module's types
-func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
+func (AppModuleSimulation) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
 
 //___________________________
 // app module
@@ -81,12 +82,12 @@ type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
 	keeper       Keeper
-	govKeeper    government.Keeper
+	govKeeper    governmentKeeper.Keeper
 	supplyKeeper supply.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, govKeeper government.Keeper, supplyKeeper supply.Keeper) AppModule {
+func NewAppModule(keeper Keeper, govKeeper governmentKeeper.Keeper, supplyKeeper supply.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
@@ -139,7 +140,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // module begin-block
-func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {
+func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
 }
 
 // module end-block

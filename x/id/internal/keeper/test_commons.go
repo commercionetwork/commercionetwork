@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+
 	"github.com/commercionetwork/commercionetwork/x/id/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -22,7 +24,7 @@ import (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keeper, governmentKeeper.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -31,7 +33,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		government.StoreKey,
+		governmentTypes.StoreKey,
 		types.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -56,7 +58,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, auth.AccountKeeper, bank.Keepe
 		types.ModuleName: nil,
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
-	govK := government.NewKeeper(cdc, keys[government.StoreKey])
+	govK := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey])
 
 	// Set the government address
 	_ = govK.SetGovernmentAddress(ctx, TestGovernment)
@@ -85,7 +87,7 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
-	government.RegisterCodec(cdc)
+	governmentTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	types.RegisterCodec(cdc)
