@@ -20,6 +20,53 @@ type DidDocument struct {
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
 	Proof   Proof          `json:"proof"`
+	Service Services       `json:"service"`
+}
+
+type Services []Service
+
+func (s Services) Equals(other Services) bool {
+	if len(s) != len(other) {
+		return false
+	}
+
+	for key, value := range other {
+		if !s[key].Equals(value) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Service represents a service type needed for DidDocument.
+type Service struct {
+	ID              string `json:"id"`
+	Type            string `json:"type"`
+	ServiceEndpoint string `json:"serviceEndpoint"`
+}
+
+// Validate returns error when Service is not valid.
+func (s Service) Validate() error {
+	if s.ID == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"id\" is required")
+	}
+
+	if s.Type == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"type\" is required")
+	}
+
+	if s.ServiceEndpoint == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"serviceEndpoint\" is required")
+	}
+
+	return nil
+}
+
+func (s Service) Equals(otherService Service) bool {
+	return s.ServiceEndpoint == otherService.ServiceEndpoint &&
+		s.Type == otherService.Type &&
+		s.ID == otherService.ID
 }
 
 // didDocumentUnsigned is an intermediate type used to check for proof correctness
@@ -34,7 +81,8 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 	return didDocument.Context == other.Context &&
 		didDocument.ID.Equals(other.ID) &&
 		didDocument.PubKeys.Equals(other.PubKeys) &&
-		didDocument.Proof.Equals(other.Proof)
+		didDocument.Proof.Equals(other.Proof) &&
+		didDocument.Service.Equals(other.Service)
 }
 
 // Validate checks the data present inside this Did Document and returns an
