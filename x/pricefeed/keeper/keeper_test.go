@@ -3,10 +3,11 @@ package keeper
 import (
 	"testing"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 // --------------
@@ -80,9 +81,9 @@ func TestKeeper_AddRawPrice_withValidSigner_PricesNotAlreadyPresent(t *testing.T
 	require.NoError(t, k.AddRawPrice(ctx, testOracle2, testPrice2))
 
 	// List prices
-	expected := types.RawPrices{
-		types.RawPrice{Oracle: testOracle1, Price: testPrice1, Created: sdk.NewInt(0)},
-		types.RawPrice{Oracle: testOracle2, Price: testPrice2, Created: sdk.NewInt(0)},
+	expected := types.OraclePrices{
+		types.OraclePrice{Oracle: testOracle1, Price: testPrice1, Created: sdk.NewInt(0)},
+		types.OraclePrice{Oracle: testOracle2, Price: testPrice2, Created: sdk.NewInt(0)},
 	}
 	require.Equal(t, expected, k.GetRawPricesForAsset(ctx, assetName))
 }
@@ -94,7 +95,7 @@ func TestKeeper_AddRawPrice_withValidSigner_PriceAlreadyPresent(t *testing.T) {
 	testPrice := types.Price{AssetName: "test", Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
 
 	store := ctx.KVStore(k.StoreKey)
-	prices := types.RawPrices{types.RawPrice{Oracle: testOracle, Price: testPrice, Created: sdk.NewInt(ctx.BlockHeight())}}
+	prices := types.OraclePrices{types.OraclePrice{Oracle: testOracle, Price: testPrice, Created: sdk.NewInt(ctx.BlockHeight())}}
 	store.Set(k.getRawPricesKey(testPrice.AssetName), k.cdc.MustMarshalBinaryBare(&prices))
 
 	// Try adding the price again
@@ -122,9 +123,9 @@ func TestKeeper_GetRawPrices(t *testing.T) {
 
 	// List prices
 	actual := k.GetRawPricesForAsset(ctx, assetName)
-	expected := types.RawPrices{
-		types.RawPrice{Oracle: testOracle1, Price: testPrice1, Created: sdk.NewInt(ctx.BlockHeight())},
-		types.RawPrice{Oracle: testOracle2, Price: testPrice2, Created: sdk.NewInt(ctx.BlockHeight())},
+	expected := types.OraclePrices{
+		types.OraclePrice{Oracle: testOracle1, Price: testPrice1, Created: sdk.NewInt(ctx.BlockHeight())},
+		types.OraclePrice{Oracle: testOracle2, Price: testPrice2, Created: sdk.NewInt(ctx.BlockHeight())},
 	}
 	require.Equal(t, expected, actual)
 }
@@ -152,7 +153,7 @@ func TestKeeper_SetCurrentPrices_MoreThanOneNotExpiredPrice(t *testing.T) {
 	expectedMedianPrice := sumPrice.Quo(sdk.NewDec(2))
 	expectedMedianExpiry := sumExpiry.Quo(sdk.NewInt(2))
 
-	_ = k.ComputeAndUpdateCurrentPrices(ctx)
+	k.ComputeAndUpdateCurrentPrices(ctx)
 
 	actual, found := k.GetCurrentPrice(ctx, assetName)
 
@@ -171,8 +172,7 @@ func TestKeeper_SetCurrentPrices_AllExpiredRawPrices(t *testing.T) {
 	price := types.Price{AssetName: "uccc", Value: sdk.NewDec(20), Expiry: sdk.NewInt(-1)}
 	_ = k.AddRawPrice(ctx, testOracle, price)
 
-	err := k.ComputeAndUpdateCurrentPrices(ctx)
-	require.Error(t, err)
+	k.ComputeAndUpdateCurrentPrices(ctx)
 }
 
 func TestKeeper_SetCurrentPrice_OneNotExpiredPrice(t *testing.T) {
@@ -186,7 +186,7 @@ func TestKeeper_SetCurrentPrice_OneNotExpiredPrice(t *testing.T) {
 	testPrice := types.Price{AssetName: assetName, Value: sdk.NewDec(10), Expiry: sdk.NewInt(5000)}
 	require.NoError(t, k.AddRawPrice(ctx, testOracle, testPrice))
 
-	_ = k.ComputeAndUpdateCurrentPrices(ctx)
+	k.ComputeAndUpdateCurrentPrices(ctx)
 
 	actual, _ := k.GetCurrentPrice(ctx, assetName)
 	require.Equal(t, testPrice.Value, actual.Value)
@@ -268,4 +268,113 @@ func TestKeeper_GetOracles(t *testing.T) {
 	k.AddOracle(ctx, testOracle)
 
 	require.Equal(t, expected, k.GetOracles(ctx))
+}
+
+func Test_bdKey(t *testing.T) {
+	tests := []struct {
+		name  string
+		denom string
+		want  []byte
+	}{
+		{
+			"key for ucommercio is created correctly",
+			"ucomercio",
+			[]byte(types.DenomBlacklistKey + "ucommercio"),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, bdKey(tt.denom), []byte(types.DenomBlacklistKey+tt.denom))
+		})
+	}
+}
+
+func TestKeeper_DenomBlacklistIterator(t *testing.T) {
+	// test that the keeper returns a non-nil iterator
+	_, ctx, _, keeper := SetupTestInput()
+
+	require.NotNil(t, keeper.DenomBlacklistIterator(ctx))
+
+}
+
+func TestKeeper_BlacklistDenom(t *testing.T) {
+	tests := []struct {
+		name        string
+		newDenoms   []string
+		preexisting []string
+		want        []string
+	}{
+		{
+			"no preexisting denom",
+			[]string{"a"},
+			nil,
+			[]string{"a"},
+		},
+		{
+			"some preexisting denom",
+			[]string{"a"},
+			[]string{"b"},
+			[]string{"a", "b"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, _, keeper := SetupTestInput()
+
+			if tt.preexisting != nil {
+				store := ctx.KVStore(keeper.StoreKey)
+
+				for _, d := range tt.preexisting {
+					store.Set(bdKey(d), []byte(d))
+				}
+			}
+
+			keeper.BlacklistDenom(ctx, tt.newDenoms...)
+
+			sd := keeper.DenomBlacklist(ctx)
+			for _, cd := range sd {
+				require.Contains(t, tt.want, cd)
+			}
+		})
+	}
+}
+
+func TestKeeper_DenomBlacklist(t *testing.T) {
+	tests := []struct {
+		name        string
+		preexisting []string
+		want        []string
+	}{
+		{
+			"no preexisting denom",
+			nil,
+			nil,
+		},
+		{
+			"some preexisting denom",
+			[]string{"b"},
+			[]string{"b"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, _, keeper := SetupTestInput()
+
+			if tt.preexisting != nil {
+				store := ctx.KVStore(keeper.StoreKey)
+
+				for _, d := range tt.preexisting {
+					store.Set(bdKey(d), []byte(d))
+				}
+			}
+
+			sd := keeper.DenomBlacklist(ctx)
+			for _, cd := range sd {
+				require.Contains(t, tt.want, cd)
+			}
+		})
+	}
 }

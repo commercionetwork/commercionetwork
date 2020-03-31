@@ -3,11 +3,12 @@ package cli
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
@@ -19,7 +20,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(getCmdOraclesList(cdc), getCmdCurrentPrice(cdc), getCmdCurrentPrices(cdc))
+	cmd.AddCommand(getCmdOraclesList(cdc), getCmdCurrentPrice(cdc), getCmdCurrentPrices(cdc), getCmdBlacklistedDenoms(cdc))
 
 	return cmd
 }
@@ -85,4 +86,29 @@ func getCmdCurrentPrices(cdc *codec.Codec) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func getCmdBlacklistedDenoms(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "blacklisted-denoms",
+		Short: "Get the current blacklisted denoms",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdBlacklistedDenomsFunc(cmd, cdc)
+		},
+	}
+}
+
+func getCmdBlacklistedDenomsFunc(cmd *cobra.Command, cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetBlacklistedDenoms)
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		cmd.Println("could not get blacklisted denoms:", err)
+	}
+
+	cmd.Println(string(res))
+
+	return nil
 }

@@ -1,8 +1,8 @@
 package pricefeed
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 const (
@@ -28,10 +28,10 @@ var (
 type (
 	Keeper = keeper.Keeper
 
-	Price     = types.Price
-	Prices    = types.Prices
-	RawPrice  = types.RawPrice
-	RawPrices = types.RawPrices
+	Price        = types.Price
+	Prices       = types.Prices
+	OraclePrice  = types.OraclePrice
+	OraclePrices = types.OraclePrices
 
 	MsgSetPrice  = types.MsgSetPrice
 	MsgAddOracle = types.MsgAddOracle

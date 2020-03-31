@@ -54,34 +54,34 @@ func (prices Prices) AppendIfMissing(price Price) (Prices, bool) {
 }
 
 // ---------------
-// --- RawPrice
+// --- OraclePrice
 // ---------------
 
-// RawPrice represents a raw price
-type RawPrice struct {
+// OraclePrice represents a raw price
+type OraclePrice struct {
 	Oracle  sdk.AccAddress `json:"oracle"`
 	Price   Price          `json:"price"`
 	Created sdk.Int        `json:"created"`
 }
 
-func (rawPrice RawPrice) Equals(rp RawPrice) bool {
-	return rawPrice.Oracle.Equals(rp.Oracle) && rawPrice.Price.Equals(rp.Price) && rawPrice.Created.Equal(rp.Created)
+func (oraclePrice OraclePrice) Equals(rp OraclePrice) bool {
+	return oraclePrice.Oracle.Equals(rp.Oracle) && oraclePrice.Price.Equals(rp.Price) && oraclePrice.Created.Equal(rp.Created)
 }
 
-type RawPrices []RawPrice
+type OraclePrices []OraclePrice
 
-func (rawPrices RawPrices) UpdatePriceOrAppendIfMissing(rp RawPrice) (RawPrices, bool) {
-	for index, ele := range rawPrices {
+func (oraclePrices OraclePrices) UpdatePriceOrAppendIfMissing(rp OraclePrice) (OraclePrices, bool) {
+	for index, ele := range oraclePrices {
 		if ele.Equals(rp) {
-			return rawPrices, false
+			return oraclePrices, false
 		}
 		if ele.Oracle.Equals(rp.Oracle) &&
 			ele.Price.AssetName == rp.Price.AssetName &&
 			ele.Price.Expiry.LT(rp.Price.Expiry) &&
 			ele.Created.LT(rp.Created) {
-			rawPrices[index] = rp
-			return rawPrices, true
+			oraclePrices[index] = rp
+			return oraclePrices, true
 		}
 	}
-	return append(rawPrices, rp), true
+	return append(oraclePrices, rp), true
 }

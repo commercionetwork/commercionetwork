@@ -1,26 +1,30 @@
 package keeper
 
 import (
-	"errors"
 	"fmt"
+
+	"github.com/commercionetwork/commercionetwork/x/government"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 type Keeper struct {
-	StoreKey sdk.StoreKey
-	cdc      *codec.Codec
+	StoreKey  sdk.StoreKey
+	cdc       *codec.Codec
+	govKeeper government.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, govKeeper government.Keeper) Keeper {
 	return Keeper{
-		StoreKey: storeKey,
-		cdc:      cdc,
+		StoreKey:  storeKey,
+		cdc:       cdc,
+		govKeeper: govKeeper,
 	}
 }
 
@@ -64,7 +68,7 @@ func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price t
 	keeper.AddAsset(ctx, price.AssetName)
 
 	// Update the raw prices
-	rawPrice := types.RawPrice{Oracle: oracle, Price: price, Created: sdk.NewInt(ctx.BlockHeight())}
+	rawPrice := types.OraclePrice{Oracle: oracle, Price: price, Created: sdk.NewInt(ctx.BlockHeight())}
 	rawPrices := keeper.GetRawPricesForAsset(ctx, rawPrice.Price.AssetName)
 	if rawPrices, updated := rawPrices.UpdatePriceOrAppendIfMissing(rawPrice); updated {
 		store := ctx.KVStore(keeper.StoreKey)
@@ -76,23 +80,23 @@ func (keeper Keeper) AddRawPrice(ctx sdk.Context, oracle sdk.AccAddress, price t
 }
 
 // GetRawPricesForAsset retrieves all the raw prices of the given asset
-func (keeper Keeper) GetRawPricesForAsset(ctx sdk.Context, assetName string) types.RawPrices {
+func (keeper Keeper) GetRawPricesForAsset(ctx sdk.Context, assetName string) types.OraclePrices {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	var rawPrices types.RawPrices
+	var rawPrices types.OraclePrices
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get(keeper.getRawPricesKey(assetName)), &rawPrices)
 	return rawPrices
 }
 
 // GetRawPrices returns the list of the whole raw prices currently stored
-func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.RawPrices {
+func (keeper Keeper) GetRawPrices(ctx sdk.Context) types.OraclePrices {
 	store := ctx.KVStore(keeper.StoreKey)
 
-	prices := types.RawPrices{}
+	prices := types.OraclePrices{}
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.RawPricesPrefix))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var price types.RawPrices
+		var price types.OraclePrices
 		keeper.cdc.MustUnmarshalBinaryBare(iterator.Value(), &price)
 		prices = append(prices, price...)
 	}
@@ -108,7 +112,7 @@ func (keeper Keeper) getCurrentPriceKey(assetName string) []byte {
 	return []byte(types.CurrentPricesPrefix + assetName)
 }
 
-func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
+func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) {
 	// Get all the listed assets
 	assets := keeper.GetAssets(ctx)
 
@@ -118,7 +122,7 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 		// Get all raw prices posted by oracles
 		rawPrices := keeper.GetRawPricesForAsset(ctx, asset)
 
-		var notExpiredPrices = types.RawPrices{}
+		var notExpiredPrices = types.OraclePrices{}
 		var rawPricesSum = sdk.NewDec(0)
 		var rawExpirySum = sdk.NewInt(0)
 
@@ -139,7 +143,8 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 		switch pricesLength {
 		case 0:
 			// Error if there are no valid prices in the raw prices store
-			return errors.New("no valid raw prices to calculate current prices")
+			ctx.Logger().Debug("no valid raw prices to calculate current prices")
+			continue
 
 		case 1:
 			// Return if there's only one price
@@ -161,9 +166,7 @@ func (keeper Keeper) ComputeAndUpdateCurrentPrices(ctx sdk.Context) error {
 
 		// Set the price
 		keeper.SetCurrentPrice(ctx, currentPrice)
-
 	}
-	return nil
 }
 
 // SetCurrentPrice allows to set the current price of a specific asset.
@@ -227,4 +230,41 @@ func (keeper Keeper) GetOracles(ctx sdk.Context) (oracles ctypes.Addresses) {
 	store := ctx.KVStore(keeper.StoreKey)
 	keeper.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.OraclePrefix)), &oracles)
 	return oracles
+}
+
+// ------------------
+// --- DenomBlacklist management
+// ------------------
+
+// bdKey returns a byte slice containing the store key for a given denom
+func bdKey(denom string) []byte {
+	return []byte(types.DenomBlacklistKey + denom)
+}
+
+// DenomBlacklistIterator returns a store iterator for all the blacklisted denoms
+func (keeper Keeper) DenomBlacklistIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(keeper.StoreKey)
+	return sdk.KVStorePrefixIterator(store, []byte(types.DenomBlacklistKey))
+}
+
+// BlacklistDenom blacklists a list of denoms.
+func (keeper Keeper) BlacklistDenom(ctx sdk.Context, denom ...string) {
+	store := ctx.KVStore(keeper.StoreKey)
+
+	for _, d := range denom {
+		store.Set(bdKey(d), []byte(d))
+	}
+}
+
+// DenomBlacklist returns the list of all the blacklisted denoms
+func (keeper Keeper) DenomBlacklist(ctx sdk.Context) []string {
+	iter := keeper.DenomBlacklistIterator(ctx)
+	defer iter.Close()
+
+	var ret []string
+	for ; iter.Valid(); iter.Next() {
+		ret = append(ret, string(iter.Value()))
+	}
+
+	return ret
 }

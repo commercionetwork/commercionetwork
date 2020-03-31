@@ -153,7 +153,7 @@ func NewSimApp(
 		slashingSubspace)
 	app.CrisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.SupplyKeeper, auth.FeeCollectorName)
 	app.GovernmentKeeper = government.NewKeeper(app.cdc, keys[government.StoreKey])
-	app.PriceFeedKeeper = pricefeed.NewKeeper(app.cdc, keys[pricefeed.StoreKey])
+	app.PriceFeedKeeper = pricefeed.NewKeeper(app.cdc, keys[pricefeed.StoreKey], app.GovernmentKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()

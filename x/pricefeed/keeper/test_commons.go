@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +10,9 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 //This function create an environment to test modules
@@ -43,7 +44,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, government.Keeper, Keeper) {
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
-	return cdc, ctx, govkeeper, NewKeeper(cdc, pricefeedKey)
+	return cdc, ctx, govkeeper, NewKeeper(cdc, pricefeedKey, govkeeper)
 }
 
 func testCodec() *codec.Codec {
