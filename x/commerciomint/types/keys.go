@@ -8,10 +8,12 @@ const (
 
 	CdpStorePrefix       = ":cdp:"
 	CreditsDenomStoreKey = "creditsDenom"
+	CdpCollateralRateKey = StoreKey + ":cdpCollateralRate"
 
 	QueryGetCdp  = "cdp"
 	QueryGetCdps = "cdps"
 
-	MsgTypeOpenCdp  = "openCdp"
-	MsgTypeCloseCdp = "closeCdp"
+	MsgTypeOpenCdp              = "openCdp"
+	MsgTypeCloseCdp             = "closeCdp"
+	MsgTypeSetCdpCollateralRate = "setCdpCollateralRate"
 )

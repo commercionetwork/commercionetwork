@@ -271,3 +271,24 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 		})
 	}
 }
+
+// --------------
+// --- CdpCollateralRate
+// --------------
+
+func TestKeeper_SetCdpCollateralRate(t *testing.T) {
+	ctx, _, _, k := SetupTestInput()
+	rate := sdk.NewDec(3)
+	k.SetCdpCollateralRate(ctx, rate)
+
+	var got sdk.Dec
+	k.cdc.MustUnmarshalBinaryBare(ctx.KVStore(k.storeKey).Get([]byte(types.CdpCollateralRateKey)), &got)
+	require.True(t, rate.Equal(got))
+}
+
+func TestKeeper_GetCdpCollateralRate(t *testing.T) {
+	ctx, _, _, k := SetupTestInput()
+	rate := sdk.NewDec(3)
+	k.SetCdpCollateralRate(ctx, rate)
+	require.Equal(t, rate, k.GetCdpCollateralRate(ctx))
+}
