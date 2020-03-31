@@ -46,7 +46,7 @@ func queryPoolFunds(cmd *cobra.Command, _ []string, cdc *codec.Codec) error {
 	}
 
 	var funds sdk.Coins
-	if err := cdc.UnmarshalJSON(res, funds); err != nil {
+	if err := cdc.UnmarshalJSON(res, &funds); err != nil {
 		return err
 	}
 
