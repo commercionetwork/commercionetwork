@@ -47,7 +47,7 @@ func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) (*
 func handleMsgSetCdpCollateralRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetCdpCollateralRate) (*sdk.Result, error) {
 	gov := keeper.govKeeper.GetGovernmentAddress(ctx)
 	if !(gov.Equals(msg.Signer)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s hasn't the rights to add an oracle", msg.Signer))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set collateral rate", msg.Signer))
 	}
 	if err := keeper.SetCollateralRate(ctx, msg.CdpCollateralRate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
