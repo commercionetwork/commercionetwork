@@ -270,7 +270,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.idKeeper = id.NewKeeper(app.cdc, app.keys[id.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey], app.governmentKeeper)
 	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper, app.supplyKeeper)
-	app.mintKeeper = commerciomint.NewKeeper(app.cdc, app.keys[commerciomint.StoreKey], app.supplyKeeper, app.priceFeedKeeper)
+	app.mintKeeper = commerciomint.NewKeeper(app.cdc, app.keys[commerciomint.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
 	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
 
 	// register the proposal types

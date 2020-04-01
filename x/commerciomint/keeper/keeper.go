@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
@@ -18,10 +19,10 @@ type Keeper struct {
 	storeKey        sdk.StoreKey
 	priceFeedKeeper pricefeed.Keeper
 	supplyKeeper    supply.Keeper
+	govKeeper       government.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeed.Keeper) Keeper {
-
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeed.Keeper, govKeeper government.Keeper) Keeper {
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -32,6 +33,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, p
 		storeKey:        key,
 		priceFeedKeeper: pk,
 		supplyKeeper:    supplyKeeper,
+		govKeeper:       govKeeper,
 	}
 }
 

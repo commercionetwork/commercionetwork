@@ -15,7 +15,7 @@ import (
 var req abci.RequestQuery
 
 func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 
 	k.AddCdp(ctx, testCdp)
 
@@ -30,7 +30,7 @@ func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
 }
 
 func TestQuerier_queryGetCdp_notFound(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
 	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.Timestamp, 10)}
@@ -42,7 +42,7 @@ func TestQuerier_queryGetCdp_notFound(t *testing.T) {
 }
 
 func TestQuerier_queryGetCdps_found(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
 	k.AddCdp(ctx, testCdp)
@@ -57,7 +57,7 @@ func TestQuerier_queryGetCdps_found(t *testing.T) {
 }
 
 func TestQuerier_queryGetCdps_notFound(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
 	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.Timestamp, 10)}

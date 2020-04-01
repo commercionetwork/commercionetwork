@@ -19,8 +19,7 @@ import (
 // --------------
 
 func TestKeeper_SetCreditsDenom(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-
+	ctx, _, _, _, k := SetupTestInput()
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 
@@ -30,7 +29,7 @@ func TestKeeper_SetCreditsDenom(t *testing.T) {
 }
 
 func TestKeeper_GetCreditsDenom(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 	actual := k.GetCreditsDenom(ctx)
@@ -65,7 +64,7 @@ func TestKeeper_AddCdp(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, k := SetupTestInput()
+			ctx, _, _, _, k := SetupTestInput()
 
 			for _, cdp := range test.cdps {
 				k.AddCdp(ctx, cdp)
@@ -135,7 +134,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, bk, pfk, k := SetupTestInput()
+			ctx, bk, pfk, _, k := SetupTestInput()
 
 			// Setup
 			if !test.userFunds.Empty() {
@@ -163,12 +162,12 @@ func TestKeeper_OpenCdp(t *testing.T) {
 
 func TestKeeper_GetCdpsByOwner(t *testing.T) {
 	t.Run("Empty list is returned properly", func(t *testing.T) {
-		ctx, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 		require.Empty(t, k.GetCdpsByOwner(ctx, testCdpOwner))
 	})
 
 	t.Run("Existing list is returned properly", func(t *testing.T) {
-		ctx, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 
 		k.AddCdp(ctx, testCdp)
 
@@ -181,7 +180,7 @@ func TestKeeper_GetCdpsByOwner(t *testing.T) {
 
 func TestKeeper_GetCdpByOwnerAndTimeStamp(t *testing.T) {
 	t.Run("Existing cdp with given timestamp returned properly", func(t *testing.T) {
-		ctx, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 		k.AddCdp(ctx, testCdp)
 
 		store := ctx.KVStore(k.storeKey)
@@ -191,7 +190,7 @@ func TestKeeper_GetCdpByOwnerAndTimeStamp(t *testing.T) {
 		require.Equal(t, testCdp, actual)
 	})
 	t.Run("not existent cdp with given timestamp return empty cdp and false", func(t *testing.T) {
-		ctx, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 
 		store := ctx.KVStore(k.storeKey)
 		var cdps types.Cdps
@@ -205,7 +204,7 @@ func TestKeeper_GetCdpByOwnerAndTimeStamp(t *testing.T) {
 func TestKeeper_CloseCdp(t *testing.T) {
 
 	t.Run("Non existing CDP returns error", func(t *testing.T) {
-		ctx, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 
 		err := k.CloseCdp(ctx, testCdp.Owner, testCdp.Timestamp)
 		errMsg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.Timestamp)
@@ -213,7 +212,7 @@ func TestKeeper_CloseCdp(t *testing.T) {
 	})
 
 	t.Run("Existing CDP is closed properly", func(t *testing.T) {
-		ctx, bk, _, k := SetupTestInput()
+		ctx, bk, _, _, k := SetupTestInput()
 
 		k.AddCdp(ctx, testCdp)
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
@@ -254,7 +253,7 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, k := SetupTestInput()
+			ctx, _, _, _, k := SetupTestInput()
 
 			for _, cdp := range test.existingCdps {
 				k.AddCdp(ctx, cdp)
@@ -277,7 +276,7 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 // --------------
 
 func TestKeeper_SetCdpCollateralRate(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	rate := sdk.NewDec(3)
 	k.SetCdpCollateralRate(ctx, rate)
 
@@ -287,7 +286,7 @@ func TestKeeper_SetCdpCollateralRate(t *testing.T) {
 }
 
 func TestKeeper_GetCdpCollateralRate(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	rate := sdk.NewDec(3)
 	k.SetCdpCollateralRate(ctx, rate)
 	require.Equal(t, rate, k.GetCdpCollateralRate(ctx))

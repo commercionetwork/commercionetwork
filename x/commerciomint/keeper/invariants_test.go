@@ -89,7 +89,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, bk, pfk, k := SetupTestInput()
+			ctx, bk, pfk, _, k := SetupTestInput()
 
 			require.NoError(t, tt.setupFunc(k, bk, pfk, ctx))
 
@@ -151,7 +151,7 @@ func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, bk, pfk, k := SetupTestInput()
+			ctx, bk, pfk, _, k := SetupTestInput()
 			require.NoError(t, tt.setupFunc(k, bk, pfk, ctx))
 			_, failed := LiquidityPoolAmountEqualsCdps(k)(ctx)
 

@@ -18,7 +18,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -54,7 +54,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	govkeeper := government.NewKeeper(cdc, keys[government.StoreKey])
 	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey], govkeeper)
 
-	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk)
+	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk, govkeeper)
 
 	// Set initial supply
 	sk.SetSupply(ctx, supply.NewSupply(testCdp.CreditsAmount))
@@ -66,7 +66,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, Keeper) {
 	// Set the credits denom
 	mintK.SetCreditsDenom(ctx, testCreditsDenom)
 
-	return ctx, bk, pfk, mintK
+	return ctx, bk, pfk, govkeeper, mintK
 }
 
 func testCodec() *codec.Codec {

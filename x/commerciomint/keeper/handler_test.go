@@ -17,7 +17,7 @@ var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.DepositedAmount, testCdp.Owner)
 var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.Timestamp)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
-	ctx, bk, pfk, k := SetupTestInput()
+	ctx, bk, pfk, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	// Test setup
@@ -32,7 +32,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 }
 
 func TestHandler_handleMsgCloseCdp(t *testing.T) {
-	ctx, bk, _, k := SetupTestInput()
+	ctx, bk, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.DepositedAmount)
@@ -46,7 +46,7 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	invalidMsg := sdk.NewTestMsg()
