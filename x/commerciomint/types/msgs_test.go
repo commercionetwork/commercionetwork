@@ -147,6 +147,7 @@ func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {
 		{"negative collateral rate", fields{[]byte("test"), sdk.NewDec(-1)}, true},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			msg := NewMsgSetCdpCollateralRate(tt.fields.Signer, tt.fields.CdpCollateralRate)
 			require.Equal(t, "commerciomint", msg.Route())
