@@ -197,9 +197,13 @@ func (k Keeper) GetCollateralRate(ctx sdk.Context) sdk.Dec {
 }
 
 // SetCollateralRate store the cdp collateral rate.
-func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Dec) {
+func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Dec) error {
+	if err := types.ValidateCollateralRate(rate); err != nil {
+		return err
+	}
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.CollateralRateKey), k.cdc.MustMarshalBinaryBare(rate))
+	return nil
 }
 
 func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {

@@ -49,8 +49,8 @@ func handleMsgSetCdpCollateralRate(ctx sdk.Context, keeper Keeper, msg types.Msg
 	if !(gov.Equals(msg.Signer)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s hasn't the rights to add an oracle", msg.Signer))
 	}
-
-	keeper.SetCollateralRate(ctx, msg.CdpCollateralRate)
-
+	if err := keeper.SetCollateralRate(ctx, msg.CdpCollateralRate); err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+	}
 	return &sdk.Result{Log: fmt.Sprintf("Cdp collateral rate changed successfully to %s", msg.CdpCollateralRate)}, nil
 }

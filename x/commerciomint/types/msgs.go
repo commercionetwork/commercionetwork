@@ -111,15 +111,19 @@ func (msg MsgSetCdpCollateralRate) ValidateBasic() error {
 	if msg.Signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
 	}
-	if msg.CdpCollateralRate.IsNil() {
-		return fmt.Errorf("cdp collateral rate must be not nil")
-	}
-	if !msg.CdpCollateralRate.IsPositive() {
-		return fmt.Errorf("cdp collateral rate must be positive: %s", msg.CdpCollateralRate)
-	}
-	return nil
+	return ValidateCollateralRate(msg.CdpCollateralRate)
 }
 
 func (msg MsgSetCdpCollateralRate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func ValidateCollateralRate(rate sdk.Dec) error {
+	if rate.IsNil() {
+		return fmt.Errorf("cdp collateral rate must be not nil")
+	}
+	if !rate.IsPositive() {
+		return fmt.Errorf("cdp collateral rate must be positive: %s", rate)
+	}
+	return nil
 }

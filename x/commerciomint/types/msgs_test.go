@@ -1,5 +1,12 @@
 package types
 
+import (
+	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+)
+
 //
 //import (
 //	"testing"
@@ -123,3 +130,28 @@ package types
 //	expected := []sdk.AccAddress{testMsgCloseCdp.Signer}
 //	require.Equal(t, expected, actual)
 //}
+
+func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {
+	type fields struct {
+		Signer            sdk.AccAddress
+		CdpCollateralRate sdk.Dec
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{"empty signer", fields{nil, sdk.NewDec(2)}, true},
+		{"ok", fields{[]byte("test"), sdk.NewDec(2)}, false},
+		{"zero collateral rate", fields{[]byte("test"), sdk.NewDec(0)}, true},
+		{"negative collateral rate", fields{[]byte("test"), sdk.NewDec(-1)}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := NewMsgSetCdpCollateralRate(tt.fields.Signer, tt.fields.CdpCollateralRate)
+			require.Equal(t, "commerciomint", msg.Route())
+			require.Equal(t, "setCdpCollateralRate", msg.Type())
+			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)
+		})
+	}
+}
