@@ -13,7 +13,7 @@ import (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
+func SetupTestInput(setGovTumbAddresses bool) (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc = testCodec()
@@ -41,6 +41,10 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	govk := NewKeeper(cdc, keyGovernment)
 
+	if setGovTumbAddresses {
+		_ = govk.SetGovernmentAddress(ctx, governmentTestAddress)
+		_ = govk.SetTumblerAddress(ctx, tumblerTestAddress)
+	}
 	return cdc, ctx, govk
 }
 
@@ -55,4 +59,6 @@ func testCodec() *codec.Codec {
 }
 
 // Testing variables
-var TestAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var governmentTestAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var tumblerTestAddress, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
+var notGovernmentAddress, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")

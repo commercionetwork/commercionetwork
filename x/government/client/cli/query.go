@@ -23,6 +23,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 	cmd.AddCommand(
 		getCmdGetGovernmentAddr(cdc),
+		getCmdGetTumblerAddr(cdc),
 	)
 
 	return cmd
@@ -30,7 +31,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 func getCmdGetGovernmentAddr(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "address",
+		Use:   "gov-address",
 		Short: "Get the government address",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -46,6 +47,31 @@ func getCmdGetGovernmentAddrFunc(cmd *cobra.Command, args []string, cdc *codec.C
 	res, _, err := cliCtx.QueryWithData(route, nil)
 	if err != nil {
 		return fmt.Errorf("could not get government address: %s", err)
+	}
+
+	cmd.Println(string(res))
+
+	return nil
+}
+
+func getCmdGetTumblerAddr(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "tumbler-address",
+		Short: "Get the Tumbler address",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdGetTumblerAddrFunc(cmd, args, cdc)
+		},
+	}
+}
+
+func getCmdGetTumblerAddrFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTumblerAddress)
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		return fmt.Errorf("could not get Tumbler address: %s", err)
 	}
 
 	cmd.Println(string(res))

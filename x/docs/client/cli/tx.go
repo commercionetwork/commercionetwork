@@ -3,20 +3,28 @@ package cli
 import (
 	"bufio"
 
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	"github.com/spf13/cobra"
+)
 
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/codec"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
+const (
+	FlagSign                   = "sign"
+	FlagSignStorageURI         = "sign-storage-uri"
+	FlagSignSignerInstance     = "sign-signer-instance"
+	FlagSignVcrID              = "sign-vcr-id"
+	FlagSignCertificateProfile = "sign-certificate-profile"
+	FlagSignSdnData            = "sign-sdn-data"
 )
 
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
@@ -39,8 +47,8 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "share [recipient] [document-uuid] [document-metadata-uri] " +
 			"[metadata-schema-uri] [metadata-schema-version] " +
-			"[document-content-uri]" +
-			"[checksum-value] [checksum-algorithm]",
+			"[document-content-uri] " +
+			"[checksum-value] [checksum-algorithm] ",
 		Short: "Shares the document with the given recipient address",
 		Args:  cobra.RangeArgs(5, 8),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -56,11 +64,11 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 
 			var checksum *types.DocumentChecksum
 			var contentURI string
-			if len(args) > 6 {
-				contentURI = args[6]
+			if len(args) > 5 {
+				contentURI = args[5]
 				checksum = &types.DocumentChecksum{
-					Value:     args[7],
-					Algorithm: args[8],
+					Value:     args[6],
+					Algorithm: args[7],
 				}
 			}
 
@@ -79,6 +87,21 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 				Recipients: ctypes.Addresses{recipient},
 			}
 
+			if viper.GetBool(FlagSign) {
+				sdnData, err := types.NewSdnDataFromString(viper.GetString(FlagSignSdnData))
+				if err != nil {
+					return err
+				}
+
+				document.DoSign = &types.DocumentDoSign{
+					StorageURI:         viper.GetString(FlagSignStorageURI),
+					SignerInstance:     viper.GetString(FlagSignSignerInstance),
+					VcrID:              viper.GetString(FlagSignVcrID),
+					CertificateProfile: viper.GetString(FlagSignCertificateProfile),
+					SdnData:            sdnData,
+				}
+			}
+
 			msg := types.NewMsgShareDocument(document)
 			err = msg.ValidateBasic()
 			if err != nil {
@@ -90,6 +113,13 @@ func getCmdShareDocument(cdc *codec.Codec) *cobra.Command {
 	}
 
 	cmd = flags.PostCommands(cmd)[0]
+
+	cmd.Flags().Bool(FlagSign, false, "flag that specifies that we want to sign the document")
+	cmd.Flags().String(FlagSignStorageURI, "", "flag that specifies the storage URI to sign")
+	cmd.Flags().String(FlagSignSignerInstance, "", "the signer instance needed to sign")
+	cmd.Flags().String(FlagSignVcrID, "", "the vcr id needed to sign")
+	cmd.Flags().String(FlagSignCertificateProfile, "", "the certificate profile needed to sign")
+	cmd.Flags().String(FlagSignSdnData, "", "the sdn data needed to sign")
 
 	return cmd
 }

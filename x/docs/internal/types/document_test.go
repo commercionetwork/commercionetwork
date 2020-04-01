@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/go-amino"
+
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 func TestDocument_Equals_NilValues(t *testing.T) {
@@ -327,6 +329,77 @@ func TestDocument_Validate(t *testing.T) {
 				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", "metadata.schema.uri"),
 			),
 		},
+		{
+			name: "good document that has do_sign but no checksum",
+			doc: Document{
+				Sender: sender,
+				Recipients: types.Addresses{
+					recipient,
+				},
+				Metadata: DocumentMetadata{
+					ContentURI: "content_uri",
+					SchemaType: "a schema type",
+				},
+				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
+				DoSign: &DocumentDoSign{
+					StorageURI: "theuri",
+				},
+			},
+			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				fmt.Sprintf("field \"%s\" not present in document, but required when using do_sign", "checksum"),
+			),
+		},
+		{
+			name: "good document that has do_sign but no content_uri",
+			doc: Document{
+				Sender: sender,
+				Recipients: types.Addresses{
+					recipient,
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
+					Algorithm: "sha-1",
+				},
+				Metadata: DocumentMetadata{
+					ContentURI: "content_uri",
+					SchemaType: "a schema type",
+				},
+				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
+				DoSign: &DocumentDoSign{
+					StorageURI: "theuri",
+				},
+			},
+			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				fmt.Sprintf("field \"%s\" not present in document, but required when using do_sign", "content_uri"),
+			),
+		}, {
+			name: "good document that has do_sign but invalid do_sign sdndata",
+			doc: Document{
+				Sender: sender,
+				Recipients: types.Addresses{
+					recipient,
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
+					Algorithm: "sha-1",
+				},
+				ContentURI: "theContentUri",
+				Metadata: DocumentMetadata{
+					ContentURI: "content_uri",
+					SchemaType: "a schema type",
+				},
+				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
+				DoSign: &DocumentDoSign{
+					StorageURI: "theuri",
+					SdnData: SdnData{
+						"invalid",
+					},
+				},
+			},
+			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				"sdn_data value \"invalid\" is not supported",
+			),
+		},
 	}
 
 	for _, tt := range tests {
@@ -338,6 +411,74 @@ func TestDocument_Validate(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
+		})
+	}
+}
+
+func TestCreateDoc_DoSign(t *testing.T) {
+	baseDocument := Document{
+		UUID: "uuid",
+		Metadata: DocumentMetadata{
+			ContentURI: "document_metadata_content_uri",
+			SchemaType: "document_metadata_schema_type",
+		},
+		ContentURI:     "",
+		Checksum:       nil,
+		EncryptionData: nil,
+	}
+
+	tests := []struct {
+		name           string
+		documentDoSign *DocumentDoSign
+		expectedResult string
+	}{
+		{
+			"no do sign (null)",
+			nil,
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":null}",
+		},
+		{
+			"some data but empty sdn data",
+			&DocumentDoSign{
+				StorageURI:         "abc",
+				SignerInstance:     "abc",
+				SdnData:            SdnData{},
+				VcrID:              "abc",
+				CertificateProfile: "abc",
+			},
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+		},
+		{
+			"all data",
+			&DocumentDoSign{
+				StorageURI:     "abc",
+				SignerInstance: "abc",
+				SdnData: SdnData{
+					"common_name",
+					"surname",
+					"serial_number",
+					"given_name",
+					"organization",
+					"country",
+				},
+				VcrID:              "abc",
+				CertificateProfile: "abc",
+			},
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[\"common_name\",\"surname\",\"serial_number\",\"given_name\",\"organization\",\"country\"],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+		},
+	}
+
+	cdc := amino.NewCodec()
+
+	for _, tt := range tests {
+		tt := tt
+		baseDoc := baseDocument
+
+		t.Run(tt.name, func(t *testing.T) {
+			baseDoc.DoSign = tt.documentDoSign
+			json, err := cdc.MarshalJSON(baseDoc)
+			require.NoError(t, err)
+			require.Equal(t, tt.expectedResult, string(json))
 		})
 	}
 }
