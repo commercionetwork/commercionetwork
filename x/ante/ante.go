@@ -81,14 +81,14 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	}
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.stableCreditsDenom); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.govk, mfd.stableCreditsDenom); err != nil {
 		return ctx, err
 	}
 
 	return next(ctx, tx, simulate)
 }
 
-func checkMinimumFees(stdTx types.StdTx, ctx sdk.Context, pfk pricefeed.Keeper, stableCreditsDenom string) error {
+func checkMinimumFees(stdTx types.StdTx, ctx sdk.Context, pfk pricefeed.Keeper, govk governmentKeeper.Keeper, stableCreditsDenom string) error {
 
 	// ----
 	// Each message should cost 0.01€, which can be paid:

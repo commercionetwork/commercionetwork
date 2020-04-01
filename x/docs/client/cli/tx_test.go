@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"testing"
 
+	types2 "github.com/commercionetwork/commercionetwork/x/docs/types"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/go-amino"
-
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 )
 
 func TestCliTx(t *testing.T) {
@@ -77,7 +77,7 @@ func TestCliTx(t *testing.T) {
 				{FlagSignSignerInstance, "theSignerInstance"},
 				{FlagSignVcrID, "theVcrId"},
 				{FlagSignCertificateProfile, "theCertificateProfile"},
-				{FlagSignSdnData, fmt.Sprintf("%s,%s", types.SdnDataCommonName, "invalid")},
+				{FlagSignSdnData, fmt.Sprintf("%s,%s", types2.SdnDataCommonName, "invalid")},
 			},
 		},
 	}

@@ -135,7 +135,7 @@ var (
 		// Custom modules
 		commerciomint.ModuleName:    {supply.Minter, supply.Burner},
 		membershipsTypes.ModuleName: {supply.Burner},
-		idtypes.ModuleName:               nil,
+		idtypes.ModuleName:          nil,
 		vbrTypes.ModuleName:         {supply.Minter},
 		creditriskTypes.ModuleName:  nil,
 	}

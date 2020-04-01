@@ -3,13 +3,13 @@ package keeper
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr"
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+
+	types2 "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/commercionetwork/commercionetwork/x/government/internal/types"
 )
 
 func Test_handleMsgSetTumblerAddress(t *testing.T) {
@@ -41,7 +41,7 @@ func Test_handleMsgSetTumblerAddress(t *testing.T) {
 			err := k.SetTumblerAddress(ctx, notGovernmentAddress)
 			require.NoError(t, err)
 
-			msg := types.NewMsgSetTumblerAddress(tt.govAddr, tt.tumblerAddr)
+			msg := types2.NewMsgSetTumblerAddress(tt.govAddr, tt.tumblerAddr)
 
 			handler := NewHandler(k)
 
@@ -68,12 +68,12 @@ func TestKeeper_handlerFunc(t *testing.T) {
 	}{
 		{
 			"a message which is not MsgSetTumblerAddress",
-			vbr.MsgIncrementsBlockRewardsPool{},
+			vbrTypes.MsgIncrementBlockRewardsPool{},
 			true,
 		},
 		{
 			"MsgSetTumblerAddress",
-			types.NewMsgSetTumblerAddress(governmentTestAddress, tumblerTestAddress),
+			types2.NewMsgSetTumblerAddress(governmentTestAddress, tumblerTestAddress),
 			false,
 		},
 	}

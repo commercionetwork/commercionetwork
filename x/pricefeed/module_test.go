@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 )
@@ -31,7 +32,7 @@ func TestAppModuleBasic(t *testing.T) {
 }
 
 func TestNewAppModule(t *testing.T) {
-	am := pricefeed.NewAppModule(pricefeed.Keeper{}, government.Keeper{})
+	am := pricefeed.NewAppModule(pricefeed.Keeper{}, governmentKeeper.Keeper{})
 
 	require.Equal(t, "pricefeed", am.QuerierRoute())
 	require.Equal(t, "pricefeed", am.Route())

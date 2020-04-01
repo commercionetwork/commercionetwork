@@ -3,14 +3,14 @@ package id
 import (
 	"encoding/json"
 
-	governmentKeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/id/types"
 
 	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 
-	"github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/id/keeper"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
@@ -69,7 +69,7 @@ func (AppModuleBasic) GetTxCmd(_ *codec.Codec) *cobra.Command {
 }
 
 // get the root query command of this module
-func (AppModuleBasic) GetQueryCmd(_ *codec.Codec) *cobra.Command {
+func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetQueryCmd(cdc)
 }
 
