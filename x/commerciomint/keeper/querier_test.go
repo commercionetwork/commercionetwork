@@ -72,7 +72,7 @@ func TestQuerier_queryGetCdps_notFound(t *testing.T) {
 
 func TestQuerier_queryCollateralRate(t *testing.T) {
 	ctx, _, _, _, k := SetupTestInput()
-	k.SetCdpCollateralRate(ctx, sdk.NewInt(2).ToDec())
+	k.SetCollateralRate(ctx, sdk.NewInt(2).ToDec())
 	querier := NewQuerier(k)
 	actualBz, err := querier(ctx, []string{"collateral_rate"}, req)
 	require.Nil(t, err)

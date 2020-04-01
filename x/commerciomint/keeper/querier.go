@@ -62,5 +62,5 @@ func queryGetCdps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error)
 }
 
 func queryCollateralRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {
-	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetCdpCollateralRate(ctx))
+	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetCollateralRate(ctx))
 }

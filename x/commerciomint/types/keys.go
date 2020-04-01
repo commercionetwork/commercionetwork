@@ -8,7 +8,7 @@ const (
 
 	CdpStorePrefix       = ":cdp:"
 	CreditsDenomStoreKey = "creditsDenom"
-	CdpCollateralRateKey = StoreKey + ":cdpCollateralRate"
+	CollateralRateKey    = StoreKey + ":collateralRate"
 
 	QueryGetCdp         = "cdp"
 	QueryGetCdps        = "cdps"
