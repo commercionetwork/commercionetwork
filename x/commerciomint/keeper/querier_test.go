@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/stretchr/testify/require"
@@ -67,4 +68,16 @@ func TestQuerier_queryGetCdps_notFound(t *testing.T) {
 	var cdps types.Cdps
 	k.cdc.MustUnmarshalJSON(actualBz, &cdps)
 	require.Equal(t, types.Cdps(nil), cdps)
+}
+
+func TestQuerier_queryCollateralRate(t *testing.T) {
+	ctx, _, _, _, k := SetupTestInput()
+	k.SetCdpCollateralRate(ctx, sdk.NewInt(2).ToDec())
+	querier := NewQuerier(k)
+	actualBz, err := querier(ctx, []string{"collateral_rate"}, req)
+	require.Nil(t, err)
+
+	var rate sdk.Dec
+	k.cdc.MustUnmarshalJSON(actualBz, &rate)
+	require.Equal(t, sdk.NewDec(2), rate)
 }
