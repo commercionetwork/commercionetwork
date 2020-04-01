@@ -26,6 +26,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	cmd.AddCommand(
 		getCdp(cdc),
 		getCdps(cdc),
+		getCdpCollateralRate(cdc),
 	)
 
 	return cmd
