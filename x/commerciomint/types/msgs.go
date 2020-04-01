@@ -16,7 +16,7 @@ type MsgOpenCdp struct {
 	DepositedAmount sdk.Coins      `json:"deposit_amount"`
 }
 
-func NewMsgOpenCdp(depositAmount sdk.Coins, depositor sdk.AccAddress) MsgOpenCdp {
+func NewMsgOpenCdp(depositor sdk.AccAddress, depositAmount sdk.Coins) MsgOpenCdp {
 	return MsgOpenCdp{
 		DepositedAmount: depositAmount,
 		Depositor:       depositor,

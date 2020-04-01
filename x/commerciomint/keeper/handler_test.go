@@ -13,7 +13,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.DepositedAmount, testCdp.Owner)
+var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.DepositedAmount)
 var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.Timestamp)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
