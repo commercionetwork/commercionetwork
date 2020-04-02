@@ -6,15 +6,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Cdps                Cdps      `json:"cdps"`
-	LiquidityPoolAmount sdk.Coins `json:"pool_amount"`
-	CreditsDenom        string    `json:"credits_denom"`
-	CollateralRate      sdk.Dec   `json:"collateral_rate"`
+	Cdps                types.Cdps `json:"cdps"`
+	LiquidityPoolAmount sdk.Coins  `json:"pool_amount"`
+	CreditsDenom        string     `json:"credits_denom"`
+	CollateralRate      sdk.Dec    `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -28,12 +29,12 @@ func DefaultGenesisState(creditsDenom string) GenesisState {
 }
 
 // InitGenesis sets docs information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keeper, data GenesisState) {
 
 	// Get the module account
 	moduleAcc := keeper.GetMintModuleAccount(ctx)
 	if moduleAcc == nil {
-		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	// Get the initial pool coins
@@ -54,7 +55,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
 		Cdps:                keeper.GetCdps(ctx),
 		LiquidityPoolAmount: keeper.GetLiquidityPoolAmount(ctx),

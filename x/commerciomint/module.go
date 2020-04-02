@@ -5,6 +5,8 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -26,24 +28,18 @@ func NewAppModuleBasic(creditsDenom string) AppModuleBasic {
 }
 
 // module name
-func (AppModuleBasic) Name() string {
-	return ModuleName
-}
-
-// register module codec
-func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
-	RegisterCodec(cdc)
-}
+func (AppModuleBasic) Name() string                   { return types.ModuleName }
+func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { types.RegisterCodec(cdc) }
 
 // default genesis state
 func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.CreditsDenom))
+	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.CreditsDenom))
 }
 
 // module genesis validation
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	var data GenesisState
-	err := ModuleCdc.UnmarshalJSON(bz, &data)
+	err := types.ModuleCdc.UnmarshalJSON(bz, &data)
 	if err != nil {
 		return err
 	}
@@ -79,12 +75,12 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper       Keeper
+	keeper       keeper.Keeper
 	supplyKeeper supply.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, sk supply.Keeper) AppModule {
+func NewAppModule(keeper keeper.Keeper, sk supply.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
@@ -94,41 +90,32 @@ func NewAppModule(keeper Keeper, sk supply.Keeper) AppModule {
 }
 
 // module name
-func (AppModule) Name() string { return ModuleName }
+func (AppModule) Name() string { return types.ModuleName }
 
 // register invariants
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
-	RegisterInvariants(ir, am.keeper)
+	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // module message route name
-func (AppModule) Route() string { return RouterKey }
+func (AppModule) Route() string { return types.RouterKey }
 
 // module handler
-func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
-}
-
-// module querier route name
-func (AppModule) QuerierRoute() string { return QuerierRoute }
-
-// module querier
-func (am AppModule) NewQuerierHandler() sdk.Querier {
-	return NewQuerier(am.keeper)
-}
+func (am AppModule) NewHandler() sdk.Handler        { return keeper.NewHandler(am.keeper) }
+func (AppModule) QuerierRoute() string              { return types.QuerierRoute }
+func (am AppModule) NewQuerierHandler() sdk.Querier { return keeper.NewQuerier(am.keeper) }
 
 // module init-genesis
 func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
-	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, am.supplyKeeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
 // module export genesis
 func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
-	gs := ExportGenesis(ctx, am.keeper)
-	return ModuleCdc.MustMarshalJSON(gs)
+	return types.ModuleCdc.MustMarshalJSON(ExportGenesis(ctx, am.keeper))
 }
 
 // module begin-block
