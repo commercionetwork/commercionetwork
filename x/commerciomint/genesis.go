@@ -3,9 +3,10 @@ package commerciomint
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 // GenesisState - docs genesis state
@@ -13,6 +14,7 @@ type GenesisState struct {
 	Cdps                Cdps      `json:"cdps"`
 	LiquidityPoolAmount sdk.Coins `json:"pool_amount"`
 	CreditsDenom        string    `json:"credits_denom"`
+	CollateralRate      sdk.Dec   `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -21,6 +23,7 @@ func DefaultGenesisState(creditsDenom string) GenesisState {
 		Cdps:                types.Cdps{},
 		LiquidityPoolAmount: sdk.Coins{},
 		CreditsDenom:        creditsDenom,
+		CollateralRate:      sdk.NewDec(2),
 	}
 }
 
@@ -56,6 +59,7 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 		Cdps:                keeper.GetCdps(ctx),
 		LiquidityPoolAmount: keeper.GetLiquidityPoolAmount(ctx),
 		CreditsDenom:        keeper.GetCreditsDenom(ctx),
+		CollateralRate:      keeper.GetCollateralRate(ctx),
 	}
 }
 
@@ -68,5 +72,5 @@ func ValidateGenesis(state GenesisState) error {
 			return err
 		}
 	}
-	return nil
+	return types.ValidateCollateralRate(state.CollateralRate)
 }

@@ -9,7 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
@@ -18,10 +19,10 @@ type Keeper struct {
 	storeKey        sdk.StoreKey
 	priceFeedKeeper pricefeed.Keeper
 	supplyKeeper    supply.Keeper
+	govKeeper       government.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeed.Keeper) Keeper {
-
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeed.Keeper, govKeeper government.Keeper) Keeper {
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -32,6 +33,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, p
 		storeKey:        key,
 		priceFeedKeeper: pk,
 		supplyKeeper:    supplyKeeper,
+		govKeeper:       govKeeper,
 	}
 }
 
@@ -102,7 +104,7 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount
 	// Our credit price is always 1 euro, so we simply divide the fiat value by 2
 
 	// collateralRate is 2 here (cashcredit = fiat / collateralRate(government calls the shots here))
-	creditsAmount := fiatValue.Quo(sdk.NewInt(2))
+	creditsAmount := fiatValue.ToDec().Quo(k.GetCollateralRate(ctx)).TruncateInt()
 
 	// Mint the tokens and send them to the user
 	credits := sdk.NewCoins(sdk.NewCoin(k.GetCreditsDenom(ctx), creditsAmount))
@@ -183,6 +185,24 @@ func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) 
 	// Delete the CDP
 	k.deleteCdp(ctx, cdp)
 
+	return nil
+}
+
+// GetCollateralRate retrieve the cdp collateral rate.
+func (k Keeper) GetCollateralRate(ctx sdk.Context) sdk.Dec {
+	store := ctx.KVStore(k.storeKey)
+	var rate sdk.Dec
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.CollateralRateKey)), &rate)
+	return rate
+}
+
+// SetCollateralRate store the cdp collateral rate.
+func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Dec) error {
+	if err := types.ValidateCollateralRate(rate); err != nil {
+		return err
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.CollateralRateKey), k.cdc.MustMarshalBinaryBare(rate))
 	return nil
 }
 

@@ -6,9 +6,10 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -20,6 +21,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryGetCdp(ctx, path[1:], keeper)
 		case types.QueryGetCdps:
 			return queryGetCdps(ctx, path[1:], keeper)
+		case types.QueryCollateralRate:
+			return queryCollateralRate(ctx, keeper)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
@@ -56,4 +59,8 @@ func queryGetCdps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error)
 	}
 
 	return cdpsBz, nil
+}
+
+func queryCollateralRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {
+	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetCollateralRate(ctx))
 }

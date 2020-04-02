@@ -6,6 +6,7 @@ import "github.com/cosmos/cosmos-sdk/codec"
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgOpenCdp{}, "commercio/MsgOpenCdp", nil)
 	cdc.RegisterConcrete(MsgCloseCdp{}, "commercio/MsgCloseCdp", nil)
+	cdc.RegisterConcrete(MsgSetCdpCollateralRate{}, "commercio/MsgSetCdpCollateralRate", nil)
 }
 
 var ModuleCdc *codec.Codec

@@ -14,9 +14,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
@@ -30,6 +31,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	txCmd.AddCommand(
 		openCDPCmd(cdc),
 		closeCDPCmd(cdc),
+		setCollateralRateCmd(cdc),
 	)
 
 	return txCmd
@@ -61,17 +63,12 @@ func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 		return err
 	}
 
-	cdpMsg := types.MsgOpenCdp{
-		Depositor:       sender,
-		DepositedAmount: amount,
-	}
-
-	err = cdpMsg.ValidateBasic()
-	if err != nil {
+	msg := types.NewMsgOpenCdp(sender, amount)
+	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
 
-	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{cdpMsg})
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
 
 func closeCDPCmd(cdc *codec.Codec) *cobra.Command {
@@ -101,15 +98,43 @@ func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error 
 		return fmt.Errorf("timestamp must be a number")
 	}
 
-	cdpMsg := types.MsgCloseCdp{
-		Signer:    sender,
-		Timestamp: timestamp,
-	}
-
-	err = cdpMsg.ValidateBasic()
-	if err != nil {
+	msg := types.NewMsgCloseCdp(sender, timestamp)
+	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
 
-	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{cdpMsg})
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func setCollateralRateCmd(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-collateral-rate [rate]",
+		Short: "Set CDP collateral rate",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return setCollateralRateCmdFunc(cmd, args, cdc)
+		},
+	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func setCollateralRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	signer := cliCtx.GetFromAddress()
+	rate, err := sdk.NewDecFromStr(args[0])
+	if err != nil {
+		return err
+	}
+	msg := types.NewMsgSetCdpCollateralRate(signer, rate)
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }

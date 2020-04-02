@@ -6,11 +6,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
@@ -25,6 +26,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	cmd.AddCommand(
 		getCdp(cdc),
 		getCdps(cdc),
+		getCdpCollateralRate(cdc),
 	)
 
 	return cmd
@@ -93,4 +95,32 @@ func getCdpsFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	fmt.Println(string(res))
 
 	return nil
+}
+
+func getCdpCollateralRate(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "collateral-rate",
+		Short: "Display the current Cdp collateral rate",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			return getCdpCollateralRateFunc(cdc)
+		},
+	}
+}
+
+func getCdpCollateralRateFunc(cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryCollateralRate)
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		return err
+	}
+
+	var rate sdk.Dec
+	if err := cliCtx.Codec.UnmarshalJSON(res, &rate); err != nil {
+		return err
+	}
+
+	return cliCtx.PrintOutput(rate)
 }

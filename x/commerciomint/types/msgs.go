@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -14,7 +16,7 @@ type MsgOpenCdp struct {
 	DepositedAmount sdk.Coins      `json:"deposit_amount"`
 }
 
-func NewMsgOpenCdp(depositAmount sdk.Coins, depositor sdk.AccAddress) MsgOpenCdp {
+func NewMsgOpenCdp(depositor sdk.AccAddress, depositAmount sdk.Coins) MsgOpenCdp {
 	return MsgOpenCdp{
 		DepositedAmount: depositAmount,
 		Depositor:       depositor,
@@ -87,4 +89,41 @@ func (msg MsgCloseCdp) GetSignBytes() []byte {
 // GetSigners Implements Msg.
 func (msg MsgCloseCdp) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Signer}
+}
+
+// -------------------
+// --- MsgSetCdpCollateralRate
+// -------------------
+
+type MsgSetCdpCollateralRate struct {
+	Signer            sdk.AccAddress `json:"signer"`
+	CdpCollateralRate sdk.Dec        `json:"cdp_collateral_rate"`
+}
+
+func NewMsgSetCdpCollateralRate(signer sdk.AccAddress, cdpCollateralRate sdk.Dec) MsgSetCdpCollateralRate {
+	return MsgSetCdpCollateralRate{Signer: signer, CdpCollateralRate: cdpCollateralRate}
+}
+
+func (MsgSetCdpCollateralRate) Route() string                    { return RouterKey }
+func (MsgSetCdpCollateralRate) Type() string                     { return MsgTypeSetCdpCollateralRate }
+func (msg MsgSetCdpCollateralRate) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Signer} }
+func (msg MsgSetCdpCollateralRate) ValidateBasic() error {
+	if msg.Signer.Empty() {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
+	}
+	return ValidateCollateralRate(msg.CdpCollateralRate)
+}
+
+func (msg MsgSetCdpCollateralRate) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func ValidateCollateralRate(rate sdk.Dec) error {
+	if rate.IsNil() {
+		return fmt.Errorf("cdp collateral rate must be not nil")
+	}
+	if !rate.IsPositive() {
+		return fmt.Errorf("cdp collateral rate must be positive: %s", rate)
+	}
+	return nil
 }
