@@ -7,11 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testMsgOpenCdp = MsgOpenCdp{}
-var testMsgCloseCdp = MsgCloseCdp{
-	Signer: testOwner,
-}
-
 func TestMsgBasics(t *testing.T) {
 	require.Equal(t, "commerciomint", MsgOpenCdp{}.Route())
 	require.Equal(t, "openCdp", MsgOpenCdp{}.Type())
