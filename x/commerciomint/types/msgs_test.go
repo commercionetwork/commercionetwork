@@ -12,19 +12,17 @@ var testMsgCloseCdp = MsgCloseCdp{
 	Signer: testOwner,
 }
 
-func TestMsgOpenCdp_Route(t *testing.T) {
-	actual := MsgOpenCdp{}.Route()
-	require.Equal(t, RouterKey, actual)
-}
+func TestMsgBasics(t *testing.T) {
+	require.Equal(t, "commerciomint", MsgOpenCdp{}.Route())
+	require.Equal(t, "openCdp", MsgOpenCdp{}.Type())
+	require.Equal(t, 1, len(MsgOpenCdp{}.GetSigners()))
+	require.NotNil(t, MsgOpenCdp{}.GetSignBytes())
 
-func TestMsgOpenCdp_Type(t *testing.T) {
-	actual := MsgOpenCdp{}.Type()
-	require.Equal(t, MsgTypeOpenCdp, actual)
-}
-
-func TestMsgOpenCdp_ValidateBasic_Valid(t *testing.T) {
-	actual := MsgOpenCdp{}.ValidateBasic()
-	require.Nil(t, actual)
+	msg := NewMsgCloseCdp(nil, 0)
+	require.Equal(t, "commerciomint", msg.Route())
+	require.Equal(t, "closeCdp", msg.Type())
+	require.Equal(t, 1, len(msg.GetSigners()))
+	require.NotNil(t, msg.GetSignBytes())
 }
 
 func TestMsgOpenCdp_ValidateBasic(t *testing.T) {
@@ -32,56 +30,6 @@ func TestMsgOpenCdp_ValidateBasic(t *testing.T) {
 	require.Error(t, NewMsgOpenCdp(testOwner, nil).ValidateBasic())
 	require.NoError(t, NewMsgOpenCdp(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
 }
-
-/////////////////////
-/////MsgCloseCdp////
-///////////////////
-//func TestMsgCloseCdp_Route(t *testing.T) {
-//	actual := testMsgCloseCdp.Route()
-//	require.Equal(t, RouterKey, actual)
-//}
-//
-//func TestMsgCloseCdp_Type(t *testing.T) {
-//	actual := testMsgCloseCdp.Type()
-//	require.Equal(t, MsgTypeCloseCdp, actual)
-//}
-//
-//func TestMsgCloseCdp_ValidateBasic_Valid(t *testing.T) {
-//	actual := testMsgCloseCdp.ValidateBasic()
-//	require.Nil(t, actual)
-//}
-//
-//func TestMsgCloseCdp_ValidateBasic_InvalidSigner(t *testing.T) {
-//	msg := MsgCloseCdp{
-//		Signer:    nil,
-//		Timestamp: time.Time{},
-//	}
-//	actual := msg.ValidateBasic()
-//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String()), actual)
-//	require.Error(t, actual)
-//}
-//
-//func TestMsgCloseCdp_ValidateBasic_InvalidTimestamp(t *testing.T) {
-//	msg := MsgCloseCdp{
-//		Signer:    testOwner,
-//		Timestamp: time.Time{},
-//	}
-//	actual := msg.ValidateBasic()
-//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "cdp's timestamp is invalid"), actual)
-//	require.Error(t, actual)
-//}
-//
-//func TestMsgCloseCdp_GetSignBytes(t *testing.T) {
-//	actual := testMsgCloseCdp.GetSignBytes()
-//	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(testMsgCloseCdp))
-//	require.Equal(t, expected, actual)
-//}
-//
-//func TestMsgCloseCdp_GetSigners(t *testing.T) {
-//	actual := testMsgCloseCdp.GetSigners()
-//	expected := []sdk.AccAddress{testMsgCloseCdp.Signer}
-//	require.Equal(t, expected, actual)
-//}
 
 func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {
 	type fields struct {
