@@ -7,80 +7,32 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//
-//import (
-//	"testing"
-//	"time"
-//
-//	sdk "github.com/cosmos/cosmos-sdk/types"
-//	"github.com/stretchr/testify/assert"
-//)
-//
-//var testMsgOpenCdp = MsgOpenCdp{}
-//var testMsgCloseCdp = MsgCloseCdp{
-//	Signer:    testOwner,
-//}
-//
-//func TestMsgOpenCdp_Route(t *testing.T) {
-//	actual := testMsgOpenCdp.Route()
-//	require.Equal(t, RouterKey, actual)
-//}
-//
-//func TestMsgOpenCdp_Type(t *testing.T) {
-//	actual := testMsgOpenCdp.Type()
-//	require.Equal(t, MsgTypeOpenCdp, actual)
-//}
-//
-//func TestMsgOpenCdp_ValidateBasic_Valid(t *testing.T) {
-//	actual := testMsgOpenCdp.ValidateBasic()
-//	require.Nil(t, actual)
-//}
-//
-//func TestMsgOpenCdp_ValidateBasic_InvalidOwnerAddr(t *testing.T) {
-//	invalidMsg := MsgOpenCdp(CdpRequest{
-//		Signer:          nil,
-//		DepositedAmount: nil,
-//		Timestamp:       time.Time{},
-//	})
-//	err := invalidMsg.ValidateBasic()
-//	require.Error(t, err)
-//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrInvalidAddress, invalidMsg.Depositor.String()), err)
-//}
-//
-//func TestMsgOpenCdp_ValidateBasic_InvalidDepositedAmount(t *testing.T) {
-//	invalidMsg := MsgOpenCdp(CdpRequest{
-//		Signer:          testOwner,
-//		DepositedAmount: nil,
-//		Timestamp:       time.Time{},
-//	})
-//	err := invalidMsg.ValidateBasic()
-//	require.Error(t, err)
-//	require.Equal(t, sdk.ErrInvalidCoins(invalidMsg.DepositedAmount.String()), err)
-//}
-//
-//func TestMsgOpenCdp_ValidateBasic_InvalidTimestamp(t *testing.T) {
-//	invalidMsg := MsgOpenCdp(CdpRequest{
-//		Signer:          testOwner,
-//		DepositedAmount: TestDepositedAmount,
-//		Timestamp:       time.Time{},
-//	})
-//	err := invalidMsg.ValidateBasic()
-//	require.Error(t, err)
-//	require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "cdp request's timestamp is invalid"), err)
-//}
-//
-//func TestMsgOpenCdp_GetSignBytes(t *testing.T) {
-//	actual := testMsgOpenCdp.GetSignBytes()
-//	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(testMsgOpenCdp))
-//	require.Equal(t, expected, actual)
-//}
-//
-//func TestMsgOpenCdp_GetSigners(t *testing.T) {
-//	actual := testMsgOpenCdp.GetSigners()
-//	expected := []sdk.AccAddress{testMsgOpenCdp.Depositor}
-//	require.Equal(t, expected, actual)
-//}
-//
+var testMsgOpenCdp = MsgOpenCdp{}
+var testMsgCloseCdp = MsgCloseCdp{
+	Signer: testOwner,
+}
+
+func TestMsgOpenCdp_Route(t *testing.T) {
+	actual := MsgOpenCdp{}.Route()
+	require.Equal(t, RouterKey, actual)
+}
+
+func TestMsgOpenCdp_Type(t *testing.T) {
+	actual := MsgOpenCdp{}.Type()
+	require.Equal(t, MsgTypeOpenCdp, actual)
+}
+
+func TestMsgOpenCdp_ValidateBasic_Valid(t *testing.T) {
+	actual := MsgOpenCdp{}.ValidateBasic()
+	require.Nil(t, actual)
+}
+
+func TestMsgOpenCdp_ValidateBasic(t *testing.T) {
+	require.Error(t, NewMsgOpenCdp(nil, nil).ValidateBasic())
+	require.Error(t, NewMsgOpenCdp(testOwner, nil).ValidateBasic())
+	require.NoError(t, NewMsgOpenCdp(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
+}
+
 /////////////////////
 /////MsgCloseCdp////
 ///////////////////
