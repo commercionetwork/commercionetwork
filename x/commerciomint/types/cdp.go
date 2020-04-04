@@ -13,18 +13,18 @@ import (
 // Cdp represents a Collateralized Debt position that is open from a user in order to convert
 // any currently priced token into stable Commercio Cash Credits
 type Cdp struct {
-	Owner           sdk.AccAddress `json:"owner"`
-	DepositedAmount sdk.Coins      `json:"deposited_amount"`
-	CreditsAmount   sdk.Coins      `json:"credits_amount"`
-	Timestamp       int64          `json:"timestamp"` // Block height at which the CDP has been created
+	Owner     sdk.AccAddress `json:"owner"`
+	Deposit   sdk.Coin       `json:"deposit"`
+	Credits   sdk.Coins      `json:"credits"`
+	CreatedAt int64          `json:"timestamp"` // Block height at which the CDP has been created
 }
 
-func NewCdp(owner sdk.AccAddress, depositAmount sdk.Coins, liquidityAmount sdk.Coins, timeStamp int64) Cdp {
+func NewCdp(owner sdk.AccAddress, deposit sdk.Coin, liquidity sdk.Coins, timeStamp int64) Cdp {
 	return Cdp{
-		Owner:           owner,
-		DepositedAmount: depositAmount,
-		CreditsAmount:   liquidityAmount,
-		Timestamp:       timeStamp,
+		Owner:     owner,
+		Deposit:   deposit,
+		Credits:   liquidity,
+		CreatedAt: timeStamp,
 	}
 }
 
@@ -34,14 +34,14 @@ func (current Cdp) Validate() error {
 	if current.Owner.Empty() {
 		return fmt.Errorf("invalid owner address: %s", current.Owner)
 	}
-	if current.DepositedAmount.Empty() || current.DepositedAmount.IsAnyNegative() {
-		return fmt.Errorf("invalid deposit amount: %s", current.DepositedAmount)
+	if !current.Deposit.IsPositive() {
+		return fmt.Errorf("invalid deposit amount: %s", current.Deposit)
 	}
-	if current.CreditsAmount.Empty() || current.CreditsAmount.IsAnyNegative() {
-		return fmt.Errorf("invalid liquidity amount: %s", current.CreditsAmount)
+	if current.Credits.Empty() || current.Credits.IsAnyNegative() {
+		return fmt.Errorf("invalid liquidity amount: %s", current.Credits)
 	}
-	if current.Timestamp == 0 {
-		return fmt.Errorf("invalid timestamp: %d", current.Timestamp)
+	if current.CreatedAt < 1 {
+		return fmt.Errorf("invalid timestamp: %d", current.CreatedAt)
 	}
 	return nil
 }
@@ -49,9 +49,9 @@ func (current Cdp) Validate() error {
 // Equals returns true if and only if the two CDPs instances contain the same data
 func (current Cdp) Equals(cdp Cdp) bool {
 	return current.Owner.Equals(cdp.Owner) &&
-		current.DepositedAmount.IsEqual(cdp.DepositedAmount) &&
-		current.CreditsAmount.IsEqual(cdp.CreditsAmount) &&
-		current.Timestamp == cdp.Timestamp
+		current.Deposit.IsEqual(cdp.Deposit) &&
+		current.Credits.IsEqual(cdp.Credits) &&
+		current.CreatedAt == cdp.CreatedAt
 }
 
 // -------------
@@ -77,7 +77,7 @@ func (cdps Cdps) RemoveWhenFound(timestamp int64) (Cdps, bool) {
 	tmp := cdps[:0]
 	removed := false
 	for _, ele := range cdps {
-		if ele.Timestamp != timestamp {
+		if ele.CreatedAt != timestamp {
 			tmp = append(tmp, ele)
 		} else {
 			removed = true

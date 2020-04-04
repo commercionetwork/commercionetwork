@@ -29,25 +29,25 @@ func TestCdp_Validate(t *testing.T) {
 	}{
 		{
 			name:          "Invalid CDP owner",
-			cdp:           NewCdp(sdk.AccAddress{}, testCdp.DepositedAmount, testCdp.CreditsAmount, testCdp.Timestamp),
+			cdp:           NewCdp(sdk.AccAddress{}, testCdp.Deposit, testCdp.Credits, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid owner address: %s", sdk.AccAddress{}),
 		},
 		{
 			name:          "Invalid deposited amount",
-			cdp:           NewCdp(testCdp.Owner, sdk.Coins{}, testCdp.CreditsAmount, testCdp.Timestamp),
+			cdp:           NewCdp(testCdp.Owner, sdk.Coins{}, testCdp.Credits, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid deposit amount: %s", sdk.Coins{}),
 		},
 		{
 			name:          "Invalid liquidity amount",
-			cdp:           NewCdp(testCdp.Owner, testCdp.DepositedAmount, sdk.Coins{}, testCdp.Timestamp),
+			cdp:           NewCdp(testCdp.Owner, testCdp.Deposit, sdk.Coins{}, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid liquidity amount: %s", sdk.Coins{}),
 		},
 		{
 			name:          "Invalid timestamp",
-			cdp:           NewCdp(testCdp.Owner, testCdp.DepositedAmount, testCdp.CreditsAmount, 0),
+			cdp:           NewCdp(testCdp.Owner, testCdp.Deposit, testCdp.Credits, 0),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid timestamp: %d", 0),
 		},
@@ -84,10 +84,10 @@ func TestCdp_Equals(t *testing.T) {
 			name:  "CDPs are different",
 			first: testCdp,
 			second: Cdp{
-				Owner:           testCdp.Owner,
-				DepositedAmount: testCdp.DepositedAmount,
-				CreditsAmount:   testCdp.CreditsAmount,
-				Timestamp:       testCdp.Timestamp + 1,
+				Owner:     testCdp.Owner,
+				Deposit:   testCdp.Deposit,
+				Credits:   testCdp.Credits,
+				CreatedAt: testCdp.CreatedAt + 1,
 			},
 			shouldBeEqual: false,
 		},
@@ -148,13 +148,13 @@ func TestCdps_RemoveWhenFound(t *testing.T) {
 		{
 			name:            "Found CDP is removed",
 			cdps:            Cdps{testCdp},
-			timestamp:       testCdp.Timestamp,
+			timestamp:       testCdp.CreatedAt,
 			shouldBeRemoved: true,
 		},
 		{
 			name:            "Not found CDP is not remove",
 			cdps:            Cdps{testCdp},
-			timestamp:       testCdp.Timestamp - 1,
+			timestamp:       testCdp.CreatedAt - 1,
 			shouldBeRemoved: false,
 		},
 	}

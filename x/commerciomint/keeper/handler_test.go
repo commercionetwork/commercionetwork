@@ -13,15 +13,15 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.DepositedAmount)
-var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.Timestamp)
+var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.Deposit)
+var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.CreatedAt)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
 	ctx, bk, pfk, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	// Test setup
-	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.DepositedAmount)
+	_, _ = bk.AddCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Deposit))
 	balance := bk.GetCoins(ctx, testCdpOwner)
 
 	// Check balance
@@ -44,9 +44,11 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 	ctx, bk, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.DepositedAmount)
-	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.CreditsAmount)
-	k.AddCdp(ctx, testCdp)
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
+	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.Credits)
+	require.Equal(t, 0, len(k.GetCdps(ctx)))
+	k.StoreCdp(ctx, testCdp)
+	require.Equal(t, 1, len(k.GetCdps(ctx)))
 
 	expected := &sdk.Result{Log: "Cdp closed successfully"}
 	actual, err := handler(ctx, testMsgCloseCdp)

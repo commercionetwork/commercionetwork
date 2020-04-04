@@ -12,56 +12,41 @@ import (
 // -----------------
 
 type MsgOpenCdp struct {
-	Depositor       sdk.AccAddress `json:"depositor"`
-	DepositedAmount sdk.Coins      `json:"deposit_amount"`
+	Owner   sdk.AccAddress `json:"owner"`
+	Deposit sdk.Coin       `json:"deposit"`
 }
 
-func NewMsgOpenCdp(depositor sdk.AccAddress, depositAmount sdk.Coins) MsgOpenCdp {
+func NewMsgOpenCdp(owner sdk.AccAddress, deposit sdk.Coin) MsgOpenCdp {
 	return MsgOpenCdp{
-		DepositedAmount: depositAmount,
-		Depositor:       depositor,
+		Deposit: deposit,
+		Owner:   owner,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgOpenCdp) Route() string { return RouterKey }
-
-// Type Implements Msg.
-func (msg MsgOpenCdp) Type() string { return MsgTypeOpenCdp }
-
+func (msg MsgOpenCdp) Route() string                { return RouterKey }
+func (msg MsgOpenCdp) Type() string                 { return MsgTypeOpenCdp }
+func (msg MsgOpenCdp) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Owner} }
+func (msg MsgOpenCdp) GetSignBytes() []byte         { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) }
 func (msg MsgOpenCdp) ValidateBasic() error {
-	if msg.Depositor.Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor.String())
+	if msg.Owner.Empty() {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Owner.String())
 	}
-	if msg.DepositedAmount.Empty() || msg.DepositedAmount.IsAnyNegative() {
-		return errors.Wrap(errors.ErrInvalidCoins, msg.DepositedAmount.String())
+	if !msg.Deposit.IsPositive() {
+		return errors.Wrap(errors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	return nil
 }
 
-// GetSignBytes Implements Msg.
-func (msg MsgOpenCdp) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners Implements Msg.
-func (msg MsgOpenCdp) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Depositor}
-}
-
-///////////////////
-///MsgCloseCdp////
-/////////////////
-
 type MsgCloseCdp struct {
-	Signer    sdk.AccAddress `json:"signer"`
-	Timestamp int64          `json:"cdp_timestamp"` // Block height at which the CDP has been created
+	Signer  sdk.AccAddress `json:"signer"`
+	Created int64          `json:"cdp_created_at"` // Block height at which the CDP has been created
 }
 
 func NewMsgCloseCdp(signer sdk.AccAddress, timestamp int64) MsgCloseCdp {
 	return MsgCloseCdp{
-		Signer:    signer,
-		Timestamp: timestamp,
+		Signer:  signer,
+		Created: timestamp,
 	}
 }
 
@@ -75,7 +60,7 @@ func (msg MsgCloseCdp) ValidateBasic() error {
 	if msg.Signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
 	}
-	if msg.Timestamp == 0 {
+	if msg.Created == 0 {
 		return errors.Wrap(errors.ErrInvalidCoins, "CDP timestamp is invalid")
 	}
 	return nil

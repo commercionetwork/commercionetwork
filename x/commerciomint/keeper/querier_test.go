@@ -21,7 +21,7 @@ func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
 	k.AddCdp(ctx, testCdp)
 
 	querier := NewQuerier(k)
-	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.Timestamp, 10)}
+	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)
 
 	var cdp types.Cdp
@@ -34,7 +34,7 @@ func TestQuerier_queryGetCdp_notFound(t *testing.T) {
 	ctx, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.Timestamp, 10)}
+	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	_, err := querier(ctx, path, req)
 
 	require.Error(t, err)
@@ -48,7 +48,7 @@ func TestQuerier_queryGetCdps_found(t *testing.T) {
 
 	k.AddCdp(ctx, testCdp)
 
-	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.Timestamp, 10)}
+	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 
@@ -61,7 +61,7 @@ func TestQuerier_queryGetCdps_notFound(t *testing.T) {
 	ctx, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.Timestamp, 10)}
+	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 
