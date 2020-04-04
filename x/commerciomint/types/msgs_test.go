@@ -21,9 +21,9 @@ func TestMsgBasics(t *testing.T) {
 }
 
 func TestMsgOpenCdp_ValidateBasic(t *testing.T) {
-	require.Error(t, NewMsgOpenCdp(nil, nil).ValidateBasic())
-	require.Error(t, NewMsgOpenCdp(testOwner, nil).ValidateBasic())
-	require.NoError(t, NewMsgOpenCdp(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
+	require.Error(t, NewMsgOpenCdp(nil, sdk.NewInt64Coin("atom", 100)).ValidateBasic())
+	require.Error(t, NewMsgOpenCdp(testOwner, sdk.Coin{}).ValidateBasic())
+	require.NoError(t, NewMsgOpenCdp(testOwner, sdk.NewInt64Coin("atom", 100)).ValidateBasic())
 }
 
 func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {

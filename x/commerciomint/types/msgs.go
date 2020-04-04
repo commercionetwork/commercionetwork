@@ -32,7 +32,7 @@ func (msg MsgOpenCdp) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Owner.String())
 	}
-	if !msg.Deposit.IsPositive() {
+	if !msg.Deposit.IsValid() || !msg.Deposit.IsPositive() {
 		return errors.Wrap(errors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	return nil

@@ -47,7 +47,7 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
 	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.Credits)
 	require.Equal(t, 0, len(k.GetCdps(ctx)))
-	k.StoreCdp(ctx, testCdp)
+	k.SetCdp(ctx, testCdp)
 	require.Equal(t, 1, len(k.GetCdps(ctx)))
 
 	expected := &sdk.Result{Log: "Cdp closed successfully"}

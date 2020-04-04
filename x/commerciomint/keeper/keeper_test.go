@@ -21,7 +21,7 @@ func TestKeeper_StoreCdp(t *testing.T) {
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
 	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.Credits)
 	require.Equal(t, 0, len(k.GetCdps(ctx)))
-	k.StoreCdp(ctx, testCdp)
+	k.SetCdp(ctx, testCdp)
 	require.Equal(t, 1, len(k.GetCdps(ctx)))
 	cdp, found := k.GetCdp(ctx, testCdp.Owner, testCdp.CreatedAt)
 	require.True(t, found)
@@ -55,22 +55,22 @@ func TestKeeper_GetCreditsDenom(t *testing.T) {
 // --- CDPs
 // --------------
 
-func TestKeeper_AddCdp(t *testing.T) {
+func TestKeeper_StoreCdpBasic(t *testing.T) {
 	testData := []struct {
 		name             string
-		cdps             types.Cdps
+		cdps             []types.Cdp
 		newCdp           types.Cdp
 		shouldBeInserted bool
 	}{
 		{
 			name:             "Existing CDP is not inserted",
-			cdps:             types.Cdps{testCdp},
+			cdps:             []types.Cdp{testCdp},
 			newCdp:           testCdp,
 			shouldBeInserted: false,
 		},
 		{
 			name:             "New CDP is inserted properly",
-			cdps:             types.Cdps{},
+			cdps:             nil,
 			newCdp:           testCdp,
 			shouldBeInserted: true,
 		},
@@ -80,19 +80,20 @@ func TestKeeper_AddCdp(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, _, k := SetupTestInput()
-
 			for _, cdp := range test.cdps {
-				k.AddCdp(ctx, cdp)
+				k.SetCdp(ctx, cdp)
 			}
 
-			k.AddCdp(ctx, test.newCdp)
-
-			result := k.GetCdps(ctx)
-
 			if test.shouldBeInserted {
-				require.Len(t, result, len(test.cdps)+1)
-			} else {
-				require.Len(t, result, len(test.cdps))
+				require.NotPanics(t, func() { k.SetCdp(ctx, test.newCdp) })
+				require.Len(t, k.GetCdps(ctx), len(test.cdps)+1)
+				return
+			}
+
+			if !test.shouldBeInserted {
+				require.Panics(t, func() { k.SetCdp(ctx, test.newCdp) })
+				require.Len(t, k.GetCdps(ctx), len(test.cdps))
+				return
 			}
 		})
 	}
@@ -111,11 +112,10 @@ func TestKeeper_OpenCdp(t *testing.T) {
 		{
 			name:       "Invalid deposited amount",
 			owner:      testCdp.Owner,
-			amount:     sdk.NewInt64Coin("testcoin", 0),
-			tokenPrice: pricefeed.EmptyPrice(),
+			amount:     sdk.NewInt64Coin("ucommercio", 0),
+			tokenPrice: pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
 			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf(
-				"Invalid deposit amount: %s",
-				sdk.NewCoins(sdk.NewInt64Coin("testcoin", 0)),
+				"Invalid deposit amount: %s", sdk.NewInt64Coin("ucommercio", 0),
 			)),
 		},
 		{
@@ -161,6 +161,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 
 			err := k.OpenCdp(ctx, test.owner, test.amount)
 			if test.error != nil {
+				require.Error(t, err)
 				require.Equal(t, test.error.Error(), err.Error())
 			} else {
 				require.NoError(t, err)
@@ -180,44 +181,14 @@ func TestKeeper_GetCdpsByOwner(t *testing.T) {
 		ctx, _, _, _, k := SetupTestInput()
 		require.Empty(t, k.CdpsByOwner(ctx, testCdpOwner))
 	})
-
 	t.Run("Existing list is returned properly", func(t *testing.T) {
 		ctx, _, _, _, k := SetupTestInput()
-
-		k.AddCdp(ctx, testCdp)
-
-		store := ctx.KVStore(k.storeKey)
-		var cdps types.Cdps
-		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
-		require.Equal(t, types.Cdps{testCdp}, k.CdpsByOwner(ctx, testCdpOwner))
-	})
-}
-
-func TestKeeper_GetCdpByOwnerAndTimeStamp(t *testing.T) {
-	t.Run("Existing cdp with given timestamp returned properly", func(t *testing.T) {
-		ctx, _, _, _, k := SetupTestInput()
-		k.AddCdp(ctx, testCdp)
-
-		store := ctx.KVStore(k.storeKey)
-		var cdps types.Cdps
-		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
-		actual, _ := k.GetCdp(ctx, testCdpOwner, 10)
-		require.Equal(t, testCdp, actual)
-	})
-	t.Run("not existent cdp with given timestamp return empty cdp and false", func(t *testing.T) {
-		ctx, _, _, _, k := SetupTestInput()
-
-		store := ctx.KVStore(k.storeKey)
-		var cdps types.Cdps
-		k.cdc.MustUnmarshalBinaryBare(store.Get(k.getCdpKey(testCdp.Owner)), &cdps)
-		actual, isFalse := k.GetCdp(ctx, testCdpOwner, 10)
-		require.Equal(t, types.Cdp{}, actual)
-		require.False(t, isFalse)
+		k.SetCdp(ctx, testCdp)
+		require.Equal(t, []types.Cdp{testCdp}, k.CdpsByOwner(ctx, testCdpOwner))
 	})
 }
 
 func TestKeeper_CloseCdp(t *testing.T) {
-
 	t.Run("Non existing CDP returns error", func(t *testing.T) {
 		ctx, _, _, _, k := SetupTestInput()
 
@@ -229,12 +200,12 @@ func TestKeeper_CloseCdp(t *testing.T) {
 	t.Run("Existing CDP is closed properly", func(t *testing.T) {
 		ctx, bk, _, _, k := SetupTestInput()
 
-		k.AddCdp(ctx, testCdp)
+		k.SetCdp(ctx, testCdp)
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_, _ = bk.AddCoins(ctx, testCdpOwner, testCdp.Credits)
 
 		require.NoError(t, k.CloseCdp(ctx, testCdpOwner, testCdp.CreatedAt))
-		require.Equal(t, testCdp.Deposit, bk.GetCoins(ctx, testCdpOwner))
+		require.Equal(t, sdk.NewCoins(testCdp.Deposit), bk.GetCoins(ctx, testCdpOwner))
 	})
 
 }
@@ -242,19 +213,19 @@ func TestKeeper_CloseCdp(t *testing.T) {
 func TestKeeper_DeleteCdp(t *testing.T) {
 	testData := []struct {
 		name            string
-		existingCdps    types.Cdps
+		existingCdps    []types.Cdp
 		deletedCdp      types.Cdp
 		shouldBeDeleted bool
 	}{
 		{
 			name:            "Existing CDP is deleted",
-			existingCdps:    types.Cdps{testCdp},
+			existingCdps:    []types.Cdp{testCdp},
 			deletedCdp:      testCdp,
 			shouldBeDeleted: true,
 		},
 		{
 			name:         "Non existent CDP is not deleted",
-			existingCdps: types.Cdps{testCdp},
+			existingCdps: []types.Cdp{testCdp},
 			deletedCdp: types.Cdp{
 				Owner:     testCdp.Owner,
 				Deposit:   testCdp.Deposit,
@@ -271,10 +242,14 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 			ctx, _, _, _, k := SetupTestInput()
 
 			for _, cdp := range test.existingCdps {
-				k.AddCdp(ctx, cdp)
+				k.SetCdp(ctx, cdp)
 			}
 
-			k.deleteCdp(ctx, test.deletedCdp)
+			if test.shouldBeDeleted {
+				require.NotPanics(t, func() { k.deleteCdp(ctx, test.deletedCdp) })
+			} else {
+				require.Panics(t, func() { k.deleteCdp(ctx, test.deletedCdp) })
+			}
 
 			result := k.GetCdps(ctx)
 			if test.shouldBeDeleted {

@@ -3,11 +3,9 @@ package keeper
 import (
 	"fmt"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/prometheus/common/log"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
@@ -57,19 +55,9 @@ func (k Keeper) GetCreditsDenom(ctx sdk.Context) string {
 // --- CDPs
 // --------------
 
-func makeCdpKey(address sdk.AccAddress, height int64) []byte {
-	return []byte(fmt.Sprintf("%s%s:%d", types.CdpStorePrefix, address.String(), height))
-}
-
-func (k Keeper) getCdpKey(address sdk.AccAddress) []byte {
-	return []byte(types.CdpStorePrefix + address.String())
-}
-
-func (k Keeper) StoreCdp(ctx sdk.Context, cdp types.Cdp) {
+func (k Keeper) SetCdp(ctx sdk.Context, cdp types.Cdp) {
 	store := ctx.KVStore(k.storeKey)
 	key := makeCdpKey(cdp.Owner, cdp.CreatedAt)
-	x := string(key)
-	log.Debug(x)
 	if bs := store.Get(key); bs != nil {
 		panic(fmt.Errorf("cannot overwrite cdp at key %s", key))
 	}
@@ -86,27 +74,6 @@ func (k Keeper) GetCdp(ctx sdk.Context, owner sdk.AccAddress, createdAt int64) (
 	}
 	k.cdc.MustUnmarshalBinaryBare(bs, &cdp)
 	return cdp, true
-}
-
-func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
-	store := ctx.KVStore(k.storeKey)
-	key := makeCdpKey(cdp.Owner, cdp.CreatedAt)
-	if bs := store.Get(key); bs == nil {
-		panic(fmt.Sprintf("no cdp stored at key %s", key))
-	}
-	store.Delete(key)
-}
-
-// AddCdp adds a Cdp to the user's Cdps list
-func (k Keeper) AddCdp(ctx sdk.Context, cdp types.Cdp) {
-	store := ctx.KVStore(k.storeKey)
-	storeKey := k.getCdpKey(cdp.Owner)
-
-	var cdps types.Cdps
-	k.cdc.MustUnmarshalBinaryBare(store.Get(storeKey), &cdps)
-	if cdps, edited := cdps.AppendIfMissing(cdp); edited {
-		store.Set(storeKey, k.cdc.MustMarshalBinaryBare(cdps))
-	}
 }
 
 func (k Keeper) CdpsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
@@ -137,8 +104,7 @@ func (k Keeper) CdpsByOwner(ctx sdk.Context, owner sdk.AccAddress) []types.Cdp {
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
 func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coin) error {
-
-	if !deposit.IsValid() {
+	if !deposit.IsValid() || !deposit.IsPositive() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", deposit))
 	}
 
@@ -170,20 +136,10 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.C
 
 	// Create the CDP and save it
 	cdp := types.NewCdp(depositor, deposit, credits, ctx.BlockHeight())
-	k.StoreCdp(ctx, cdp)
+	k.SetCdp(ctx, cdp)
 
 	return nil
 }
-
-// func (k Keeper) GetCdpByOwnerAndTimeStamp(ctx sdk.Context, owner sdk.AccAddress, timestamp int64) (cdp types.Cdp, found bool) {
-// 	cdps := k.GetCdpsByOwner(ctx, owner)
-// 	for _, ele := range cdps {
-// 		if ele.CreatedAt == timestamp {
-// 			return ele, true
-// 		}
-// 	}
-// 	return types.Cdp{}, false
-// }
 
 func (k Keeper) GetCdps(ctx sdk.Context) types.Cdps {
 	cdps := []types.Cdp{}
@@ -293,4 +249,17 @@ func (k Keeper) liquidate(ctx sdk.Context, cdp types.Cdp) error {
 	// Delete the CDP
 	k.deleteCdp(ctx, cdp)
 	return nil
+}
+
+func makeCdpKey(address sdk.AccAddress, height int64) []byte {
+	return []byte(fmt.Sprintf("%s%s:%d", types.CdpStorePrefix, address.String(), height))
+}
+
+func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
+	store := ctx.KVStore(k.storeKey)
+	key := makeCdpKey(cdp.Owner, cdp.CreatedAt)
+	if bs := store.Get(key); bs == nil {
+		panic(fmt.Sprintf("no cdp stored at key %s", key))
+	}
+	store.Delete(key)
 }

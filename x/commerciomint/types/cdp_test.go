@@ -15,7 +15,7 @@ import (
 var testOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testCdp = NewCdp(
 	testOwner,
-	sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
+	sdk.NewCoin("ucommercio", sdk.NewInt(100)),
 	sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50))),
 	10,
 )
@@ -35,9 +35,9 @@ func TestCdp_Validate(t *testing.T) {
 		},
 		{
 			name:          "Invalid deposited amount",
-			cdp:           NewCdp(testCdp.Owner, sdk.Coins{}, testCdp.Credits, testCdp.CreatedAt),
+			cdp:           NewCdp(testCdp.Owner, sdk.Coin{}, testCdp.Credits, testCdp.CreatedAt),
 			shouldBeValid: false,
-			error:         fmt.Errorf("invalid deposit amount: %s", sdk.Coins{}),
+			error:         fmt.Errorf("invalid deposit amount: <nil>"),
 		},
 		{
 			name:          "Invalid liquidity amount",

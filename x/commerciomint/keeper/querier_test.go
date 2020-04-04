@@ -18,7 +18,7 @@ var req abci.RequestQuery
 func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
 	ctx, _, _, _, k := SetupTestInput()
 
-	k.AddCdp(ctx, testCdp)
+	k.SetCdp(ctx, testCdp)
 
 	querier := NewQuerier(k)
 	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
@@ -46,7 +46,7 @@ func TestQuerier_queryGetCdps_found(t *testing.T) {
 	ctx, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	k.AddCdp(ctx, testCdp)
+	k.SetCdp(ctx, testCdp)
 
 	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)

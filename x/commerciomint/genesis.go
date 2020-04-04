@@ -47,7 +47,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 
 	// Add the existing CDPs
 	for _, cdp := range data.Cdps {
-		keeper.AddCdp(ctx, cdp)
+		keeper.SetCdp(ctx, cdp)
 	}
 
 	// Set the stable credits denom

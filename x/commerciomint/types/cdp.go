@@ -34,7 +34,7 @@ func (current Cdp) Validate() error {
 	if current.Owner.Empty() {
 		return fmt.Errorf("invalid owner address: %s", current.Owner)
 	}
-	if !current.Deposit.IsPositive() {
+	if !current.Deposit.IsValid() || !current.Deposit.IsPositive() {
 		return fmt.Errorf("invalid deposit amount: %s", current.Deposit)
 	}
 	if current.Credits.Empty() || current.Credits.IsAnyNegative() {
