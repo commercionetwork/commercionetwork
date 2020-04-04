@@ -58,12 +58,12 @@ func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
-	amount, err := sdk.ParseCoins(args[0])
+	deposit, err := sdk.ParseCoin(args[0])
 	if err != nil {
 		return err
 	}
 
-	msg := types.NewMsgOpenCdp(sender, amount)
+	msg := types.NewMsgOpenCdp(sender, deposit)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
