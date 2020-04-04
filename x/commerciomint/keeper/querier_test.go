@@ -16,7 +16,7 @@ import (
 var req abci.RequestQuery
 
 func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 
 	k.SetCdp(ctx, testCdp)
 
@@ -31,7 +31,7 @@ func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
 }
 
 func TestQuerier_queryGetCdp_notFound(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
 	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
@@ -43,7 +43,7 @@ func TestQuerier_queryGetCdp_notFound(t *testing.T) {
 }
 
 func TestQuerier_queryGetCdps_found(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
 	k.SetCdp(ctx, testCdp)
@@ -58,7 +58,7 @@ func TestQuerier_queryGetCdps_found(t *testing.T) {
 }
 
 func TestQuerier_queryGetCdps_notFound(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
 	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
@@ -71,7 +71,7 @@ func TestQuerier_queryGetCdps_notFound(t *testing.T) {
 }
 
 func TestQuerier_queryCollateralRate(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	require.NoError(t, k.SetCollateralRate(ctx, sdk.NewInt(2).ToDec()))
 	querier := NewQuerier(k)
 	actualBz, err := querier(ctx, []string{"collateral_rate"}, req)

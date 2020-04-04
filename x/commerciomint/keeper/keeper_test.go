@@ -15,7 +15,7 @@ import (
 )
 
 func TestKeeper_StoreCdp(t *testing.T) {
-	ctx, bk, _, _, k := SetupTestInput()
+	ctx, bk, _, _, _, k := SetupTestInput()
 	//handler := NewHandler(k)
 
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
@@ -34,7 +34,7 @@ func TestKeeper_StoreCdp(t *testing.T) {
 // --------------
 
 func TestKeeper_SetCreditsDenom(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 
@@ -44,7 +44,7 @@ func TestKeeper_SetCreditsDenom(t *testing.T) {
 }
 
 func TestKeeper_GetCreditsDenom(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	denom := "test"
 	k.SetCreditsDenom(ctx, denom)
 	actual := k.GetCreditsDenom(ctx)
@@ -79,7 +79,7 @@ func TestKeeper_StoreCdpBasic(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, _, k := SetupTestInput()
+			ctx, _, _, _, _, k := SetupTestInput()
 			for _, cdp := range test.cdps {
 				k.SetCdp(ctx, cdp)
 			}
@@ -149,7 +149,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, bk, pfk, _, k := SetupTestInput()
+			ctx, bk, pfk, _, _, k := SetupTestInput()
 
 			// Setup
 			if !test.userFunds.Empty() {
@@ -178,11 +178,11 @@ func TestKeeper_OpenCdp(t *testing.T) {
 
 func TestKeeper_GetCdpsByOwner(t *testing.T) {
 	t.Run("Empty list is returned properly", func(t *testing.T) {
-		ctx, _, _, _, k := SetupTestInput()
+		ctx, _, _, _, _, k := SetupTestInput()
 		require.Empty(t, k.CdpsByOwner(ctx, testCdpOwner))
 	})
 	t.Run("Existing list is returned properly", func(t *testing.T) {
-		ctx, _, _, _, k := SetupTestInput()
+		ctx, _, _, _, _, k := SetupTestInput()
 		k.SetCdp(ctx, testCdp)
 		require.Equal(t, []types.Cdp{testCdp}, k.CdpsByOwner(ctx, testCdpOwner))
 	})
@@ -190,7 +190,7 @@ func TestKeeper_GetCdpsByOwner(t *testing.T) {
 
 func TestKeeper_CloseCdp(t *testing.T) {
 	t.Run("Non existing CDP returns error", func(t *testing.T) {
-		ctx, _, _, _, k := SetupTestInput()
+		ctx, _, _, _, _, k := SetupTestInput()
 
 		err := k.CloseCdp(ctx, testCdp.Owner, testCdp.CreatedAt)
 		errMsg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.CreatedAt)
@@ -198,7 +198,7 @@ func TestKeeper_CloseCdp(t *testing.T) {
 	})
 
 	t.Run("Existing CDP is closed properly", func(t *testing.T) {
-		ctx, bk, _, _, k := SetupTestInput()
+		ctx, bk, _, _, _, k := SetupTestInput()
 
 		k.SetCdp(ctx, testCdp)
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
@@ -239,7 +239,7 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, _, k := SetupTestInput()
+			ctx, _, _, _, _, k := SetupTestInput()
 
 			for _, cdp := range test.existingCdps {
 				k.SetCdp(ctx, cdp)
@@ -262,7 +262,7 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 }
 
 func TestKeeper_AutoLiquidateCdp(t *testing.T) {
-	ctx, bk, pfk, _, k := SetupTestInput()
+	ctx, bk, pfk, _, _, k := SetupTestInput()
 	// Setup
 	if !testCdp.Deposit.IsZero() {
 		_ = bk.SetCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Deposit))
@@ -286,7 +286,7 @@ func TestKeeper_AutoLiquidateCdp(t *testing.T) {
 // --------------
 
 func TestKeeper_SetCdpCollateralRate(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	require.Error(t, k.SetCollateralRate(ctx, sdk.NewInt(0).ToDec()))
 	require.Error(t, k.SetCollateralRate(ctx, sdk.NewInt(-1).ToDec()))
 	require.NoError(t, k.SetCollateralRate(ctx, sdk.NewInt(2).ToDec()))
@@ -299,7 +299,7 @@ func TestKeeper_SetCdpCollateralRate(t *testing.T) {
 }
 
 func TestKeeper_GetCdpCollateralRate(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	rate := sdk.NewDec(3)
 	require.NoError(t, k.SetCollateralRate(ctx, rate))
 	require.Equal(t, rate, k.GetCollateralRate(ctx))

@@ -17,7 +17,7 @@ var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.Deposit)
 var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.CreatedAt)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
-	ctx, bk, pfk, _, k := SetupTestInput()
+	ctx, bk, pfk, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	// Test setup
@@ -41,7 +41,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 }
 
 func TestHandler_handleMsgCloseCdp(t *testing.T) {
-	ctx, bk, _, _, k := SetupTestInput()
+	ctx, bk, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
@@ -57,7 +57,7 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 }
 
 func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
-	ctx, _, _, gk, k := SetupTestInput()
+	ctx, _, _, gk, _, k := SetupTestInput()
 	govAddr := []byte("governance")
 	gk.SetGovernmentAddress(ctx, govAddr)
 	handler := NewHandler(k)
@@ -81,7 +81,7 @@ func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 
 	invalidMsg := sdk.NewTestMsg()

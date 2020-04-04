@@ -19,7 +19,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, supply.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -71,7 +71,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	// Set cdp collateral rate
 	mintK.SetCollateralRate(ctx, sdk.NewDec(2))
 
-	return ctx, bk, pfk, govkeeper, mintK
+	return ctx, bk, pfk, govkeeper, sk, mintK
 }
 
 func testCodec() *codec.Codec {
