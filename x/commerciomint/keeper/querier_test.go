@@ -52,9 +52,9 @@ func TestQuerier_queryGetCdps_found(t *testing.T) {
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 
-	var cdps types.Cdps
+	var cdps []types.Cdp
 	k.cdc.MustUnmarshalJSON(actualBz, &cdps)
-	require.Equal(t, types.Cdps{testCdp}, cdps)
+	require.Equal(t, []types.Cdp{testCdp}, cdps)
 }
 
 func TestQuerier_queryGetCdps_notFound(t *testing.T) {
@@ -65,9 +65,9 @@ func TestQuerier_queryGetCdps_notFound(t *testing.T) {
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 
-	var cdps types.Cdps
+	var cdps []types.Cdp
 	k.cdc.MustUnmarshalJSON(actualBz, &cdps)
-	require.Equal(t, types.Cdps(nil), cdps)
+	require.Equal(t, []types.Cdp(nil), cdps)
 }
 
 func TestQuerier_queryCollateralRate(t *testing.T) {

@@ -141,7 +141,7 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.C
 	return nil
 }
 
-func (k Keeper) GetCdps(ctx sdk.Context) types.Cdps {
+func (k Keeper) GetCdps(ctx sdk.Context) []types.Cdp {
 	cdps := []types.Cdp{}
 	iterator := k.CdpsIterator(ctx)
 	defer iterator.Close()

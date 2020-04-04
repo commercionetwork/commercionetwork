@@ -12,16 +12,16 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Cdps                types.Cdps `json:"cdps"`
-	LiquidityPoolAmount sdk.Coins  `json:"pool_amount"`
-	CreditsDenom        string     `json:"credits_denom"`
-	CollateralRate      sdk.Dec    `json:"collateral_rate"`
+	Cdps                []types.Cdp `json:"cdps"`
+	LiquidityPoolAmount sdk.Coins   `json:"pool_amount"`
+	CreditsDenom        string      `json:"credits_denom"`
+	CollateralRate      sdk.Dec     `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState(creditsDenom string) GenesisState {
 	return GenesisState{
-		Cdps:                types.Cdps{},
+		Cdps:                []types.Cdp{},
 		LiquidityPoolAmount: sdk.Coins{},
 		CreditsDenom:        creditsDenom,
 		CollateralRate:      sdk.NewDec(2),
