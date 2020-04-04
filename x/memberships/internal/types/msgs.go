@@ -55,51 +55,6 @@ func (msg MsgInviteUser) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }
 
-// --------------------------
-// --- MsgSetUserVerified
-// --------------------------
-
-// MsgSetUserVerified is used to set a specific user as properly verified.
-// Note that the verifier address should identify a Trusted Service Provider account.
-type MsgSetUserVerified struct {
-	User     sdk.AccAddress `json:"user"`
-	Verifier sdk.AccAddress `json:"verifier"`
-}
-
-func NewMsgSetUserVerified(user, verifier sdk.AccAddress) MsgSetUserVerified {
-	return MsgSetUserVerified{
-		User:     user,
-		Verifier: verifier,
-	}
-}
-
-// Route Implements Msg.
-func (msg MsgSetUserVerified) Route() string { return RouterKey }
-
-// Type Implements Msg.
-func (msg MsgSetUserVerified) Type() string { return MsgTypeSetUserVerified }
-
-// ValidateBasic Implements Msg.
-func (msg MsgSetUserVerified) ValidateBasic() error {
-	if msg.User.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid user address: %s", msg.User)))
-	}
-	if msg.Verifier.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid verifier address: %s", msg.Verifier)))
-	}
-	return nil
-}
-
-// GetSignBytes Implements Msg.
-func (msg MsgSetUserVerified) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners Implements Msg.
-func (msg MsgSetUserVerified) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Verifier}
-}
-
 // --------------------------------
 // --- MsgDepositIntoLiquidityPool
 // --------------------------------

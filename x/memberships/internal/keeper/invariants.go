@@ -29,7 +29,6 @@ func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 		defer i.Close()
 		for ; i.Valid(); i.Next() {
 			user := k.ExtractMembership(i.Key(), i.Value())
-			credentials := k.GetUserCredentials(ctx, user.Owner)
 
 			if govAddr.Equals(user.Owner) {
 				continue
@@ -46,34 +45,6 @@ func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 						user.Owner.String(),
 					),
 				), true
-			}
-
-			// check that there are credentials for user
-			if len(credentials) == 0 {
-				return sdk.FormatInvariant(
-					types.ModuleName,
-					membershipVerifiedInvName,
-					fmt.Sprintf(
-						"found user with membership but with no credentials: %s",
-						user.Owner.String(),
-					),
-				), true
-			}
-
-			// for each credential, check that the Verifier is actually
-			// a tsp
-			for _, credential := range credentials {
-				if !k.IsTrustedServiceProvider(ctx, credential.Verifier) {
-					return sdk.FormatInvariant(
-						types.ModuleName,
-						membershipVerifiedInvName,
-						fmt.Sprintf(
-							"found user whose credential was verified by a non-Verifier %s user but with no credentials: %s",
-							credential.Verifier.String(),
-							user.Owner.String(),
-						),
-					), true
-				}
 			}
 		}
 

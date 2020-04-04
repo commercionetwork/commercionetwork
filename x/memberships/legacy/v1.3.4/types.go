@@ -23,7 +23,6 @@ type GenesisState struct {
 	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
 	Invites                 Invites           `json:"invites"`                   // List of invites
 	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"` // List of trusted service providers
-	Credentials             types.Credentials `json:"credentials"`               // List of verifiable credentials
 	StableCreditsDenom      string            `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
 	Memberships             types.Memberships `json:"memberships"`               // List of all the existing memberships
 }

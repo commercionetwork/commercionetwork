@@ -89,63 +89,6 @@ func Test_handleMsgInviteUser(t *testing.T) {
 	}
 }
 
-func Test_handleMsgSetUserVerified(t *testing.T) {
-	testData := []struct {
-		name            string
-		tsp             sdk.AccAddress
-		user            sdk.AccAddress
-		alreadyVerified bool
-		error           string
-	}{
-		{
-			name:            "Invalid signer returns error",
-			tsp:             nil,
-			user:            testUser,
-			alreadyVerified: false,
-			error:           " is not a valid TSP",
-		},
-		{
-			name:            "Existing credential",
-			tsp:             testTsp,
-			user:            testUser,
-			alreadyVerified: true,
-		},
-		{
-			name:            "New credential",
-			tsp:             testTsp,
-			user:            testUser,
-			alreadyVerified: false,
-		},
-	}
-
-	for _, test := range testData {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			ctx, _, govK, k := SetupTestInput()
-
-			if test.tsp != nil {
-				k.AddTrustedServiceProvider(ctx, test.tsp)
-			}
-
-			if test.alreadyVerified {
-				credential := types.NewCredential(test.user, test.tsp, ctx.BlockHeight())
-				k.SaveCredential(ctx, credential)
-			}
-
-			handler := keeper.NewHandler(k, govK)
-			msg := types.NewMsgSetUserVerified(test.user, test.tsp)
-			_, err := handler(ctx, msg)
-
-			if len(test.error) == 0 {
-				require.NoError(t, err)
-			} else {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), test.error)
-			}
-		})
-	}
-}
-
 func Test_handleAddTrustedSigner(t *testing.T) {
 	government, _ := sdk.AccAddressFromBech32("cosmos15ne6fy8uukkyyf072qklkeleh2zf39k52mcg2f")
 	tests := []struct {
@@ -195,7 +138,6 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 		name               string
 		msg                sdk.Msg
 		existingMembership string
-		credential         types.Credential
 		invite             types.Invite
 		bankAmount         sdk.Coins
 		error              string
@@ -204,7 +146,6 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			name:       "Invalid membership type returns error",
 			msg:        types.NewMsgBuyMembership("gren", testUser),
 			invite:     types.NewInvite(testInviteSender, testUser, "bronze"),
-			credential: types.NewCredential(testUser, testTsp, 0),
 			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 1000000000)),
 			error:      "Invalid membership type: gren",
 		},
@@ -217,7 +158,6 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			name:       "Valid membership allows buying",
 			msg:        types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
 			invite:     types.NewInvite(testInviteSender, testUser, "bronze"),
-			credential: types.NewCredential(testUser, testTsp, 0),
 			bankAmount: sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 1000000000)),
 		},
 		{
@@ -237,17 +177,10 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			error: "invite for account cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae has been marked as invalid previously, cannot continue",
 		},
 		{
-			name:   "Buying without verification returns error",
-			msg:    types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
-			invite: types.NewInvite(testInviteSender, testUser, "bronze"),
-			error:  "User has not yet been verified by a Trusted Service Provider",
-		},
-		{
 			name:               "Valid upgrade works properly",
 			existingMembership: types.MembershipTypeBronze,
 			msg:                types.NewMsgBuyMembership(types.MembershipTypeSilver, testUser),
 			invite:             types.NewInvite(testInviteSender, testUser, "bronze"),
-			credential:         types.NewCredential(testUser, testTsp, 0),
 			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 1000000000)),
 		},
 		{
@@ -255,7 +188,6 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 			existingMembership: types.MembershipTypeSilver,
 			msg:                types.NewMsgBuyMembership(types.MembershipTypeBronze, testUser),
 			invite:             types.NewInvite(testInviteSender, testUser, "bronze"),
-			credential:         types.NewCredential(testUser, testTsp, 0),
 			bankAmount:         sdk.NewCoins(sdk.NewInt64Coin(testDenom, 1000000000)),
 			error:              "Cannot upgrade from silver membership to bronze",
 		},
@@ -271,10 +203,6 @@ func TestHandler_ValidMsgAssignMembership(t *testing.T) {
 				err := k.AssignMembership(ctx, test.invite.Sender, types.MembershipTypeBlack)
 				require.NoError(t, err)
 				k.SaveInvite(ctx, test.invite)
-			}
-
-			if !test.credential.Empty() {
-				k.SaveCredential(ctx, test.credential)
 			}
 
 			if msg, ok := test.msg.(types.MsgBuyMembership); ok {
@@ -311,7 +239,6 @@ func Test_handleMsgSetMembership(t *testing.T) {
 		name        string
 		message     types.MsgSetMembership
 		invite      *types.Invite
-		verify      bool
 		senderIsGov bool
 		want        string
 	}{
@@ -329,7 +256,6 @@ func Test_handleMsgSetMembership(t *testing.T) {
 				SenderMembership: types.MembershipTypeBlack,
 			},
 			true,
-			true,
 			"",
 		},
 		{
@@ -340,7 +266,6 @@ func Test_handleMsgSetMembership(t *testing.T) {
 				NewMembership:     types.MembershipTypeBlack,
 			},
 			nil,
-			false,
 			true,
 			"",
 		},
@@ -357,7 +282,6 @@ func Test_handleMsgSetMembership(t *testing.T) {
 				Status:           types.InviteStatusPending,
 				SenderMembership: types.MembershipTypeBlack,
 			},
-			false,
 			true,
 			"User has not yet been verified by a Trusted Service Provider",
 		},
@@ -373,7 +297,6 @@ func Test_handleMsgSetMembership(t *testing.T) {
 				Status:           types.InviteStatusPending,
 				SenderMembership: types.MembershipTypeBlack,
 			},
-			true,
 			false,
 			"cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my is not a government address",
 		},
@@ -392,11 +315,6 @@ func Test_handleMsgSetMembership(t *testing.T) {
 			if tt.senderIsGov {
 				require.NoError(t, gk.SetGovernmentAddress(ctx, tt.message.GovernmentAddress))
 				k.AddTrustedServiceProvider(ctx, tt.message.GovernmentAddress)
-			}
-
-			if tt.verify {
-				credential := types.NewCredential(tt.message.Subscriber, tt.message.GovernmentAddress, ctx.BlockHeight())
-				k.SaveCredential(ctx, credential)
 			}
 
 			handler := keeper.NewHandler(k, gk)

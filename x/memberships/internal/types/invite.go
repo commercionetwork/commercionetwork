@@ -72,6 +72,7 @@ func (slice Invites) Equals(other Invites) bool {
 	return true
 }
 
+// ValidateBasic returns error if Invite status is not Pending, Reward or Invalid
 func (invite Invite) ValidateBasic() error {
 	switch invite.Status {
 	case InviteStatusPending, InviteStatusRewarded, InviteStatusInvalid:
