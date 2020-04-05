@@ -26,28 +26,28 @@ func NewPosition(owner sdk.AccAddress, deposit sdk.Coins, liquidity sdk.Coin, ti
 
 // Validate verifies that the data contained inside this position are all valid,
 // returning an error is something isn't valid
-func (current Position) Validate() error {
-	if current.Owner.Empty() {
-		return fmt.Errorf("invalid owner address: %s", current.Owner)
+func (pos Position) Validate() error {
+	if pos.Owner.Empty() {
+		return fmt.Errorf("invalid owner address: %s", pos.Owner)
 	}
-	if !ValidateDeposit(current.Deposit) {
-		return fmt.Errorf("invalid deposit amount: %s", current.Deposit)
+	if !ValidateDeposit(pos.Deposit) {
+		return fmt.Errorf("invalid deposit amount: %s", pos.Deposit)
 	}
-	if !ValidateCredits(current.Credits) {
-		return fmt.Errorf("invalid liquidity amount: %s", current.Credits)
+	if !ValidateCredits(pos.Credits) {
+		return fmt.Errorf("invalid liquidity amount: %s", pos.Credits)
 	}
-	if current.CreatedAt < 1 {
-		return fmt.Errorf("invalid timestamp: %d", current.CreatedAt)
+	if pos.CreatedAt < 1 {
+		return fmt.Errorf("invalid timestamp: %d", pos.CreatedAt)
 	}
 	return nil
 }
 
 // Equals returns true if and only if the two Position instances are equal.
-func (current Position) Equals(cdp Position) bool {
-	return current.Owner.Equals(cdp.Owner) &&
-		current.Deposit.IsEqual(cdp.Deposit) &&
-		current.Credits.IsEqual(cdp.Credits) &&
-		current.CreatedAt == cdp.CreatedAt
+func (pos Position) Equals(cdp Position) bool {
+	return pos.Owner.Equals(cdp.Owner) &&
+		pos.Deposit.IsEqual(cdp.Deposit) &&
+		pos.Credits.IsEqual(cdp.Credits) &&
+		pos.CreatedAt == cdp.CreatedAt
 }
 
 func ValidateCredits(credits sdk.Coin) bool {
