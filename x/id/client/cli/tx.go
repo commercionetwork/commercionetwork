@@ -8,6 +8,9 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
 
+const flagPrivRsaVerKey = "privRsaVerKey"
+const flagPrivRsaSignKey = "privRsaSignKey"
+
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -24,11 +27,19 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "setidentity",
 		Short: "sets the identity",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return nil
 		},
 	}
+
+	cmd.Flags().String(flagPrivRsaVerKey, "", "")
+	cmd.MarkFlagRequired(flagPrivRsaVerKey)
+
+	cmd.Flags().String(flagPrivRsaSignKey, "", "")
+	cmd.MarkFlagRequired(flagPrivRsaSignKey)
+
+	return cmd
 }
