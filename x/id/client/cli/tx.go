@@ -3,6 +3,8 @@ package cli
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
 
 	"github.com/commercionetwork/commercionetwork/x/id/types"
@@ -31,7 +33,20 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 		Use:   "setidentity",
 		Short: "sets the identity",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return nil
+			msg := types.NewMsgSetIdentity(types.DidDocument{
+				Context: "",
+				ID:      nil,
+				PubKeys: nil,
+				Proof:   types.Proof{},
+				Service: nil,
+			})
+
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 		},
 	}
 
