@@ -99,7 +99,6 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", deposit))
 	}
 
-	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them
 	fiatValue, err := k.calculateFiatValue(ctx, deposit)
 	if err != nil {
 		return err
@@ -231,7 +230,6 @@ func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
 }
 
 func (k Keeper) calculateFiatValue(ctx sdk.Context, deposit sdk.Coin) (sdk.Dec, error) {
-	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them
 	fiatValue := sdk.ZeroDec()
 	assetPrice, found := k.priceFeedKeeper.GetCurrentPrice(ctx, deposit.Denom)
 	if !found {
