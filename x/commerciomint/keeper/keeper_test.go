@@ -18,8 +18,8 @@ func TestKeeper_StoreCdp(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	//handler := NewHandler(k)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
-	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.Credits)
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Deposit)
+	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
 	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
 	k.SetPosition(ctx, testCdp)
 	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
@@ -103,27 +103,25 @@ func TestKeeper_OpenCdp(t *testing.T) {
 	testData := []struct {
 		name            string
 		owner           sdk.AccAddress
-		amount          sdk.Coin
+		amount          sdk.Coins
 		tokenPrice      pricefeed.Price
 		userFunds       sdk.Coins
 		error           error
 		returnedCredits sdk.Coins
 	}{
 		{
-			name:       "Invalid deposited amount",
+			name:       "invalid deposited amount",
 			owner:      testCdp.Owner,
-			amount:     sdk.NewInt64Coin("ucommercio", 0),
+			amount:     sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 0)),
 			tokenPrice: pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
-			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf(
-				"Invalid deposit amount: %s", sdk.NewInt64Coin("ucommercio", 0),
-			)),
+			error:      fmt.Errorf("invalid position: invalid deposit amount: "),
 		},
 		{
 			name:       "Token price not found",
 			owner:      testCdp.Owner,
 			amount:     testCdp.Deposit,
 			tokenPrice: pricefeed.EmptyPrice(),
-			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", testCdp.Deposit.Denom)),
+			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", testCdp.Deposit[0].Denom)),
 		},
 		{
 			name:       "Not enough funds inside user wallet",
@@ -132,7 +130,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			tokenPrice: pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
 			error: sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf(
 				"insufficient account funds; %s < %s",
-				sdk.Coins{},
+				sdk.NewCoins(sdk.NewInt64Coin("stake", 500)),
 				sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 100)),
 			)),
 		},
@@ -141,7 +139,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			amount:          testCdp.Deposit,
 			owner:           testCdp.Owner,
 			tokenPrice:      pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)),
-			userFunds:       sdk.NewCoins(testCdp.Deposit),
+			userFunds:       testCdp.Deposit,
 			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin(testCreditsDenom, 10*50)),
 		},
 	}
@@ -150,6 +148,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, bk, pfk, _, _, k := SetupTestInput()
+			ctx = ctx.WithBlockHeight(10)
 
 			// Setup
 			if !test.userFunds.Empty() {
@@ -176,7 +175,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 
 }
 
-func TestKeeper_GetCdpsByOwner(t *testing.T) {
+func TestKeeper_GetAllPositionsOwnedBy(t *testing.T) {
 	t.Run("Empty list is returned properly", func(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
 		require.Empty(t, k.GetAllPositionsOwnedBy(ctx, testCdpOwner))
@@ -193,7 +192,7 @@ func TestKeeper_CloseCdp(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
 
 		err := k.CloseCdp(ctx, testCdp.Owner, testCdp.CreatedAt)
-		errMsg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.CreatedAt)
+		errMsg := fmt.Sprintf("position for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.CreatedAt)
 		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
 	})
 
@@ -202,10 +201,10 @@ func TestKeeper_CloseCdp(t *testing.T) {
 
 		k.SetPosition(ctx, testCdp)
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
-		_, _ = bk.AddCoins(ctx, testCdpOwner, testCdp.Credits)
+		_, _ = bk.AddCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Credits))
 
 		require.NoError(t, k.CloseCdp(ctx, testCdpOwner, testCdp.CreatedAt))
-		require.Equal(t, sdk.NewCoins(testCdp.Deposit), bk.GetCoins(ctx, testCdpOwner))
+		require.Equal(t, testCdp.Deposit, bk.GetCoins(ctx, testCdpOwner))
 	})
 
 }
@@ -263,9 +262,10 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 
 func TestKeeper_AutoLiquidateCdp(t *testing.T) {
 	ctx, bk, pfk, _, _, k := SetupTestInput()
+	ctx = ctx.WithBlockHeight(10)
 	// Setup
 	if !testCdp.Deposit.IsZero() {
-		_ = bk.SetCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Deposit))
+		_ = bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
 	}
 	tokenPrice := pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000))
 	if !tokenPrice.Equals(pricefeed.EmptyPrice()) {

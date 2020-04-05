@@ -13,10 +13,10 @@ import (
 
 type MsgOpenCdp struct {
 	Owner   sdk.AccAddress `json:"owner"`
-	Deposit sdk.Coin       `json:"deposit"`
+	Deposit sdk.Coins      `json:"deposit"`
 }
 
-func NewMsgOpenCdp(owner sdk.AccAddress, deposit sdk.Coin) MsgOpenCdp {
+func NewMsgOpenCdp(owner sdk.AccAddress, deposit sdk.Coins) MsgOpenCdp {
 	return MsgOpenCdp{
 		Deposit: deposit,
 		Owner:   owner,
@@ -32,7 +32,7 @@ func (msg MsgOpenCdp) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Owner.String())
 	}
-	if !msg.Deposit.IsValid() || !msg.Deposit.IsPositive() {
+	if !ValidateDeposit(msg.Deposit) {
 		return errors.Wrap(errors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	return nil

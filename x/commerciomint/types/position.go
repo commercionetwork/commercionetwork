@@ -10,12 +10,12 @@ import (
 // any currently priced token into stable Commercio Cash Credits.
 type Position struct {
 	Owner     sdk.AccAddress `json:"owner"`
-	Deposit   sdk.Coin       `json:"deposit"`
-	Credits   sdk.Coins      `json:"credits"`
+	Deposit   sdk.Coins      `json:"deposit"`
+	Credits   sdk.Coin       `json:"credits"`
 	CreatedAt int64          `json:"timestamp"` // Block height at which the CDP has been created
 }
 
-func NewPosition(owner sdk.AccAddress, deposit sdk.Coin, liquidity sdk.Coins, timeStamp int64) Position {
+func NewPosition(owner sdk.AccAddress, deposit sdk.Coins, liquidity sdk.Coin, timeStamp int64) Position {
 	return Position{
 		Owner:     owner,
 		Deposit:   deposit,
@@ -30,10 +30,10 @@ func (current Position) Validate() error {
 	if current.Owner.Empty() {
 		return fmt.Errorf("invalid owner address: %s", current.Owner)
 	}
-	if !current.Deposit.IsValid() || !current.Deposit.IsPositive() {
+	if !ValidateDeposit(current.Deposit) {
 		return fmt.Errorf("invalid deposit amount: %s", current.Deposit)
 	}
-	if current.Credits.Empty() || current.Credits.IsAnyNegative() {
+	if !ValidateCredits(current.Credits) {
 		return fmt.Errorf("invalid liquidity amount: %s", current.Credits)
 	}
 	if current.CreatedAt < 1 {
@@ -48,4 +48,18 @@ func (current Position) Equals(cdp Position) bool {
 		current.Deposit.IsEqual(cdp.Deposit) &&
 		current.Credits.IsEqual(cdp.Credits) &&
 		current.CreatedAt == cdp.CreatedAt
+}
+
+func ValidateCredits(credits sdk.Coin) bool {
+	if credits.IsValid() && credits.IsPositive() {
+		return true
+	}
+	return false
+}
+
+func ValidateDeposit(deposit sdk.Coins) bool {
+	if !deposit.IsValid() || deposit.Empty() || !deposit.IsAllPositive() {
+		return false
+	}
+	return true
 }

@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/pkg/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
@@ -94,18 +95,9 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 // Errors occurs if:
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
-func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coin) error {
-	if !deposit.IsValid() || !deposit.IsPositive() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", deposit))
-	}
-
+func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins) error {
 	fiatValue, err := k.calculateFiatValue(ctx, deposit)
 	if err != nil {
-		return err
-	}
-
-	// Send the deposit from the user to the commerciomint account
-	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, sdk.NewCoins(deposit)); err != nil {
 		return err
 	}
 
@@ -114,19 +106,30 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 	// Our credit price is always 1, so we simply divide the fiat value by collateral_rate
 	creditsAmount := fiatValue.Quo(k.GetCollateralRate(ctx)).TruncateInt()
 
+	// Create credits token
+	credits := sdk.NewCoin(k.GetCreditsDenom(ctx), creditsAmount)
+	// Create the CDP and validate it
+	position := types.NewPosition(depositor, deposit, credits, ctx.BlockHeight())
+	if err := position.Validate(); err != nil {
+		return errors.Wrap(err, "invalid position")
+	}
+
 	// Mint the tokens and send them to the user
-	credits := sdk.NewCoins(sdk.NewCoin(k.GetCreditsDenom(ctx), creditsAmount))
-	if err := k.supplyKeeper.MintCoins(ctx, types.ModuleName, credits); err != nil {
+	creditsCoins := sdk.NewCoins(credits)
+	if err := k.supplyKeeper.MintCoins(ctx, types.ModuleName, creditsCoins); err != nil {
+		return errors.Wrap(err, "couldn't mint credits")
+	}
+	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, creditsCoins); err != nil {
 		return err
 	}
 
-	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, credits); err != nil {
+	// Send the deposit from the user to the commerciomint account
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, deposit); err != nil {
 		return err
 	}
 
-	// Create the CDP and save it
-	cdp := types.NewPosition(depositor, deposit, credits, ctx.BlockHeight())
-	k.SetPosition(ctx, cdp)
+	// Create positon
+	k.SetPosition(ctx, position)
 
 	return nil
 }
@@ -152,20 +155,21 @@ func (k Keeper) GetAllPositions(ctx sdk.Context) []types.Position {
 func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) error {
 	cdp, found := k.GetPosition(ctx, user, timestamp)
 	if !found {
-		msg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", user, timestamp)
+		msg := fmt.Sprintf("position for user with address %s and timestamp %d does not exist", user, timestamp)
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
 	// Send the coins from the user to the module and then burn them
-	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, cdp.Owner, types.ModuleName, cdp.Credits); err != nil {
+	creditsCoins := sdk.NewCoins(cdp.Credits)
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, cdp.Owner, types.ModuleName, creditsCoins); err != nil {
 		return err
 	}
-	if err := k.supplyKeeper.BurnCoins(ctx, types.ModuleName, cdp.Credits); err != nil {
+	if err := k.supplyKeeper.BurnCoins(ctx, types.ModuleName, creditsCoins); err != nil {
 		return err
 	}
 
 	// Get the user the deposited amount
-	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cdp.Owner, sdk.NewCoins(cdp.Deposit)); err != nil {
+	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cdp.Owner, cdp.Deposit); err != nil {
 		return err
 	}
 
@@ -200,7 +204,7 @@ func (k Keeper) ShouldLiquidateCdp(ctx sdk.Context, cdp types.Position) (bool, e
 		return false, err
 	}
 
-	creditsAmount := cdp.Credits.AmountOf(k.GetCreditsDenom(ctx)).ToDec()
+	creditsAmount := cdp.Credits.Amount.ToDec()
 	if creditsAmount.LTE(fiatValue) {
 		return true, nil
 	}
@@ -229,19 +233,21 @@ func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte(types.CdpStorePrefix))
 }
 
-func (k Keeper) calculateFiatValue(ctx sdk.Context, deposit sdk.Coin) (sdk.Dec, error) {
+func (k Keeper) calculateFiatValue(ctx sdk.Context, deposits sdk.Coins) (sdk.Dec, error) {
 	fiatValue := sdk.ZeroDec()
-	assetPrice, found := k.priceFeedKeeper.GetCurrentPrice(ctx, deposit.Denom)
-	if !found {
-		return fiatValue, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", deposit.Denom))
+	for _, deposit := range deposits {
+		assetPrice, found := k.priceFeedKeeper.GetCurrentPrice(ctx, deposit.Denom)
+		if !found {
+			return fiatValue, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", deposit.Denom))
+		}
+		fiatValue = fiatValue.Add(deposit.Amount.ToDec().Mul(assetPrice.Value))
 	}
-	fiatValue = fiatValue.Add(deposit.Amount.ToDec().Mul(assetPrice.Value))
 	return fiatValue, nil
 }
 
 func (k Keeper) liquidate(ctx sdk.Context, cdp types.Position) error {
 	// Send the coins from the user to the module and then burn them
-	if err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, creditrisk.ModuleName, sdk.NewCoins(cdp.Deposit)); err != nil {
+	if err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, creditrisk.ModuleName, cdp.Deposit); err != nil {
 		return err
 	}
 	// Delete the CDP

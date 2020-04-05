@@ -19,9 +19,10 @@ var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.CreatedAt)
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
 	ctx, bk, pfk, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
 	// Test setup
-	_, _ = bk.AddCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Deposit))
+	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.Deposit)
 	balance := bk.GetCoins(ctx, testCdpOwner)
 
 	// Check balance
@@ -43,9 +44,10 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 func TestHandler_handleMsgCloseCdp(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
-	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.Credits)
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Deposit)
+	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
 	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
 	k.SetPosition(ctx, testCdp)
 	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
@@ -61,6 +63,7 @@ func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
 	govAddr := []byte("governance")
 	gk.SetGovernmentAddress(ctx, govAddr)
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
 	msg := types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(3))
 
@@ -83,6 +86,7 @@ func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
 func TestHandler_InvalidMsg(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
 	invalidMsg := sdk.NewTestMsg()
 	errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, invalidMsg.Type())

@@ -9,15 +9,34 @@ import (
 )
 
 const (
+	validateCdps               string = "validate-cdps"
 	cdpsForExistingPrice       string = "cdp-existing-price"
 	liquidityPoolSumEqualsCdps string = "liquidity-pool-sum-equals-cdps"
 )
 
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
+	ir.RegisterRoute(types.ModuleName, validateCdps, ValidateCdps(k))
 	ir.RegisterRoute(types.ModuleName, cdpsForExistingPrice,
 		CdpsForExistingPrice(k))
-	// ir.RegisterRoute(types.ModuleName, liquidityPoolSumEqualsCdps,
-	// 	LiquidityPoolAmountEqualsCdps(k))
+	ir.RegisterRoute(types.ModuleName, liquidityPoolSumEqualsCdps,
+		LiquidityPoolAmountEqualsCdps(k))
+}
+
+// ValidateCdps ensures that all Positions are correct.
+func ValidateCdps(k Keeper) sdk.Invariant {
+	return func(ctx sdk.Context) (string, bool) {
+		cdps := k.GetAllPositions(ctx)
+		if len(cdps) == 0 {
+			return "", false
+		}
+		for _, cdp := range cdps {
+			if err := cdp.Validate(); err != nil {
+				return sdk.FormatInvariant(types.ModuleName, validateCdps,
+					fmt.Sprintf("found inconsistent position %+v: %v", cdp, err)), true
+			}
+		}
+		return "", false
+	}
 }
 
 // CdpsForExistingPrice checks that each Position currently opened refers to an existing token priced by x/pricefeed.
@@ -26,18 +45,20 @@ func CdpsForExistingPrice(k Keeper) sdk.Invariant {
 		cdps := k.GetAllPositions(ctx)
 
 		for _, cdp := range cdps {
-			price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, cdp.Deposit.Denom)
-			if !ok || price.Value.IsZero() {
-				return sdk.FormatInvariant(
-					types.ModuleName,
-					cdpsForExistingPrice,
-					fmt.Sprintf(
-						"found cdp from owner %s which refers to a nonexistent asset %s for %s amount",
-						cdp.Owner.String(),
-						cdp.Deposit.Denom,
-						cdp.Deposit.Amount.String(),
-					),
-				), true
+			for _, deposit := range cdp.Deposit {
+				price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, deposit.Denom)
+				if !ok || price.Value.IsZero() {
+					return sdk.FormatInvariant(
+						types.ModuleName,
+						cdpsForExistingPrice,
+						fmt.Sprintf(
+							"found cdp from owner %s which refers to a nonexistent asset %s for %s amount",
+							cdp.Owner.String(),
+							deposit.Denom,
+							deposit.Amount.String(),
+						),
+					), true
+				}
 			}
 
 		}
@@ -52,7 +73,7 @@ func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
 
 		var sums sdk.Coins
 		for _, cdp := range cdps {
-			sums.Add(cdp.Deposit)
+			sums.Add(cdp.Deposit...)
 		}
 
 		pool := k.GetLiquidityPoolAmount(ctx)

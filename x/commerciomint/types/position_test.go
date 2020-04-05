@@ -15,8 +15,8 @@ import (
 var testOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testCdp = NewPosition(
 	testOwner,
-	sdk.NewCoin("ucommercio", sdk.NewInt(100)),
-	sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50))),
+	sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
+	sdk.NewCoin("ucc", sdk.NewInt(50)),
 	10,
 )
 
@@ -35,15 +35,15 @@ func TestCdp_Validate(t *testing.T) {
 		},
 		{
 			name:          "Invalid deposited amount",
-			cdp:           NewPosition(testCdp.Owner, sdk.Coin{}, testCdp.Credits, testCdp.CreatedAt),
+			cdp:           NewPosition(testCdp.Owner, sdk.NewCoins(), testCdp.Credits, testCdp.CreatedAt),
 			shouldBeValid: false,
-			error:         fmt.Errorf("invalid deposit amount: <nil>"),
+			error:         fmt.Errorf("invalid deposit amount: "),
 		},
 		{
 			name:          "Invalid liquidity amount",
-			cdp:           NewPosition(testCdp.Owner, testCdp.Deposit, sdk.Coins{}, testCdp.CreatedAt),
+			cdp:           NewPosition(testCdp.Owner, testCdp.Deposit, sdk.Coin{}, testCdp.CreatedAt),
 			shouldBeValid: false,
-			error:         fmt.Errorf("invalid liquidity amount: %s", sdk.Coins{}),
+			error:         fmt.Errorf("invalid liquidity amount: %s", sdk.Coin{}),
 		},
 		{
 			name:          "Invalid timestamp",
