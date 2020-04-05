@@ -52,10 +52,10 @@ func (k Keeper) GetCreditsDenom(ctx sdk.Context) string {
 }
 
 // --------------
-// --- CDPs
+// --- Positions
 // --------------
 
-func (k Keeper) SetCdp(ctx sdk.Context, cdp types.Cdp) {
+func (k Keeper) SetPosition(ctx sdk.Context, cdp types.Position) {
 	store := ctx.KVStore(k.storeKey)
 	key := makeCdpKey(cdp.Owner, cdp.CreatedAt)
 	if bs := store.Get(key); bs != nil {
@@ -64,8 +64,8 @@ func (k Keeper) SetCdp(ctx sdk.Context, cdp types.Cdp) {
 	store.Set(key, k.cdc.MustMarshalBinaryBare(cdp))
 }
 
-func (k Keeper) GetCdp(ctx sdk.Context, owner sdk.AccAddress, createdAt int64) (types.Cdp, bool) {
-	cdp := types.Cdp{}
+func (k Keeper) GetPosition(ctx sdk.Context, owner sdk.AccAddress, createdAt int64) (types.Position, bool) {
+	cdp := types.Position{}
 	key := makeCdpKey(owner, createdAt)
 	store := ctx.KVStore(k.storeKey)
 	bs := store.Get(key)
@@ -76,34 +76,25 @@ func (k Keeper) GetCdp(ctx sdk.Context, owner sdk.AccAddress, createdAt int64) (
 	return cdp, true
 }
 
-func (k Keeper) CdpsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
-	prefix := []byte(fmt.Sprintf("%s%s:", types.CdpStorePrefix, owner.String()))
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
-}
-
-func (k Keeper) CdpsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte(types.CdpStorePrefix))
-}
-
-func (k Keeper) CdpsByOwner(ctx sdk.Context, owner sdk.AccAddress) []types.Cdp {
-	cdps := []types.Cdp{}
-	i := k.CdpsByOwnerIterator(ctx, owner)
+func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []types.Position {
+	cdps := []types.Position{}
+	i := k.newPositionsByOwnerIterator(ctx, owner)
 	defer i.Close()
 	for ; i.Valid(); i.Next() {
-		var cdp types.Cdp
+		var cdp types.Position
 		k.cdc.MustUnmarshalBinaryBare(i.Value(), &cdp)
 		cdps = append(cdps, cdp)
 	}
 	return cdps
 }
 
-// OpenCdp subtract the given token's amount from user's wallet and deposit it into the liquidity pool then,
+// NewPosition subtract the given token's amount from user's wallet and deposit it into the liquidity pool then,
 // sending him the corresponding credits amount.
 // If all these operations are done correctly, a Collateralized Debt Position is opened.
 // Errors occurs if:
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
-func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coin) error {
+func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coin) error {
 	if !deposit.IsValid() || !deposit.IsPositive() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", deposit))
 	}
@@ -135,18 +126,18 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.C
 	}
 
 	// Create the CDP and save it
-	cdp := types.NewCdp(depositor, deposit, credits, ctx.BlockHeight())
-	k.SetCdp(ctx, cdp)
+	cdp := types.NewPosition(depositor, deposit, credits, ctx.BlockHeight())
+	k.SetPosition(ctx, cdp)
 
 	return nil
 }
 
-func (k Keeper) GetCdps(ctx sdk.Context) []types.Cdp {
-	cdps := []types.Cdp{}
-	iterator := k.CdpsIterator(ctx)
+func (k Keeper) GetAllPositions(ctx sdk.Context) []types.Position {
+	cdps := []types.Position{}
+	iterator := k.newPositionsIterator(ctx)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var cdp types.Cdp
+		var cdp types.Position
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &cdp)
 		cdps = append(cdps, cdp)
 	}
@@ -154,13 +145,13 @@ func (k Keeper) GetCdps(ctx sdk.Context) []types.Cdp {
 	return cdps
 }
 
-// CloseCdp subtract the Cdp's liquidity amount (commercio cash credits) from user's wallet, after that sends the
-// deposited amount back to it. If these two operations ends without errors, the Cdp get closed.
+// CloseCdp subtract the Position's liquidity amount (commercio cash credits) from user's wallet, after that sends the
+// deposited amount back to it. If these two operations ends without errors, the Position get closed.
 // Errors occurs if:k.GetCdpsByOwner(ctx, testCdpOwner)
 // - cdp doesnt exist
 // - subtracting or adding fund to account don't end well
 func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) error {
-	cdp, found := k.GetCdp(ctx, user, timestamp)
+	cdp, found := k.GetPosition(ctx, user, timestamp)
 	if !found {
 		msg := fmt.Sprintf("CDP for user with address %s and timestamp %d does not exist", user, timestamp)
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
@@ -204,7 +195,7 @@ func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Dec) error {
 }
 
 // ShouldLiquidateCdp returns true if the CDP should be liquidated.
-func (k Keeper) ShouldLiquidateCdp(ctx sdk.Context, cdp types.Cdp) (bool, error) {
+func (k Keeper) ShouldLiquidateCdp(ctx sdk.Context, cdp types.Position) (bool, error) {
 	fiatValue, err := k.calculateFiatValue(ctx, cdp.Deposit)
 	if err != nil {
 		return false, err
@@ -218,7 +209,7 @@ func (k Keeper) ShouldLiquidateCdp(ctx sdk.Context, cdp types.Cdp) (bool, error)
 }
 
 func (k Keeper) AutoLiquidateCdps(ctx sdk.Context) {
-	for _, cdp := range k.GetCdps(ctx) {
+	for _, cdp := range k.GetAllPositions(ctx) {
 		if yes, err := k.ShouldLiquidateCdp(ctx, cdp); err != nil {
 			panic(err)
 		} else if !yes {
@@ -228,6 +219,15 @@ func (k Keeper) AutoLiquidateCdps(ctx sdk.Context) {
 			panic(err)
 		}
 	}
+}
+
+func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
+	prefix := []byte(fmt.Sprintf("%s%s:", types.CdpStorePrefix, owner.String()))
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
+}
+
+func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte(types.CdpStorePrefix))
 }
 
 func (k Keeper) calculateFiatValue(ctx sdk.Context, deposit sdk.Coin) (sdk.Dec, error) {
@@ -241,7 +241,7 @@ func (k Keeper) calculateFiatValue(ctx sdk.Context, deposit sdk.Coin) (sdk.Dec, 
 	return fiatValue, nil
 }
 
-func (k Keeper) liquidate(ctx sdk.Context, cdp types.Cdp) error {
+func (k Keeper) liquidate(ctx sdk.Context, cdp types.Position) error {
 	// Send the coins from the user to the module and then burn them
 	if err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, creditrisk.ModuleName, sdk.NewCoins(cdp.Deposit)); err != nil {
 		return err
@@ -255,7 +255,7 @@ func makeCdpKey(address sdk.AccAddress, height int64) []byte {
 	return []byte(fmt.Sprintf("%s%s:%d", types.CdpStorePrefix, address.String(), height))
 }
 
-func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
+func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Position) {
 	store := ctx.KVStore(k.storeKey)
 	key := makeCdpKey(cdp.Owner, cdp.CreatedAt)
 	if bs := store.Get(key); bs == nil {

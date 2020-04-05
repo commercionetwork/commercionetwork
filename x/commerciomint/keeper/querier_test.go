@@ -18,13 +18,13 @@ var req abci.RequestQuery
 func TestQuerier_queryGetCdp_foundCdp(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
 
-	k.SetCdp(ctx, testCdp)
+	k.SetPosition(ctx, testCdp)
 
 	querier := NewQuerier(k)
 	path := []string{types.QueryGetCdp, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)
 
-	var cdp types.Cdp
+	var cdp types.Position
 	k.cdc.MustUnmarshalJSON(actualBz, &cdp)
 	require.Nil(t, err)
 	require.Equal(t, testCdp, cdp)
@@ -46,15 +46,15 @@ func TestQuerier_queryGetCdps_found(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	k.SetCdp(ctx, testCdp)
+	k.SetPosition(ctx, testCdp)
 
 	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 
-	var cdps []types.Cdp
+	var cdps []types.Position
 	k.cdc.MustUnmarshalJSON(actualBz, &cdps)
-	require.Equal(t, []types.Cdp{testCdp}, cdps)
+	require.Equal(t, []types.Position{testCdp}, cdps)
 }
 
 func TestQuerier_queryGetCdps_notFound(t *testing.T) {
@@ -65,9 +65,9 @@ func TestQuerier_queryGetCdps_notFound(t *testing.T) {
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 
-	var cdps []types.Cdp
+	var cdps []types.Position
 	k.cdc.MustUnmarshalJSON(actualBz, &cdps)
-	require.Equal(t, []types.Cdp(nil), cdps)
+	require.Equal(t, []types.Position(nil), cdps)
 }
 
 func TestQuerier_queryCollateralRate(t *testing.T) {

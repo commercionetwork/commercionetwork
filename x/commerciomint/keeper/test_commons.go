@@ -99,7 +99,7 @@ var testCreditsDenom = "stake"
 var testLiquidityDenom = "ucommercio"
 var testCdpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
-var testCdp = types.NewCdp(
+var testCdp = types.NewPosition(
 	testCdpOwner,
 	sdk.NewCoin(testLiquidityDenom, sdk.NewInt(100)),
 	sdk.NewCoins(sdk.NewCoin(testCreditsDenom, sdk.NewInt(50))),

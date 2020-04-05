@@ -20,10 +20,10 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 	// 	LiquidityPoolAmountEqualsCdps(k))
 }
 
-// CdpsForExistingPrice checks that each Cdp currently opened refers to an existing token priced by x/pricefeed.
+// CdpsForExistingPrice checks that each Position currently opened refers to an existing token priced by x/pricefeed.
 func CdpsForExistingPrice(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		cdps := k.GetCdps(ctx)
+		cdps := k.GetAllPositions(ctx)
 
 		for _, cdp := range cdps {
 			price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, cdp.Deposit.Denom)
@@ -48,7 +48,7 @@ func CdpsForExistingPrice(k Keeper) sdk.Invariant {
 // LiquidityPoolAmountEqualsCdps checks that the value of all the opened cdps equals the liquidity pool amount.
 func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		cdps := k.GetCdps(ctx)
+		cdps := k.GetAllPositions(ctx)
 
 		var sums sdk.Coins
 		for _, cdp := range cdps {

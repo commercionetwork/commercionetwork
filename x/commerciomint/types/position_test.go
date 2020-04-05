@@ -9,11 +9,11 @@ import (
 )
 
 // -----------
-// --- Cdp
+// --- Position
 // -----------
 
 var testOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var testCdp = NewCdp(
+var testCdp = NewPosition(
 	testOwner,
 	sdk.NewCoin("ucommercio", sdk.NewInt(100)),
 	sdk.NewCoins(sdk.NewCoin("ucc", sdk.NewInt(50))),
@@ -23,31 +23,31 @@ var testCdp = NewCdp(
 func TestCdp_Validate(t *testing.T) {
 	testData := []struct {
 		name          string
-		cdp           Cdp
+		cdp           Position
 		shouldBeValid bool
 		error         error
 	}{
 		{
 			name:          "Invalid CDP owner",
-			cdp:           NewCdp(sdk.AccAddress{}, testCdp.Deposit, testCdp.Credits, testCdp.CreatedAt),
+			cdp:           NewPosition(sdk.AccAddress{}, testCdp.Deposit, testCdp.Credits, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid owner address: %s", sdk.AccAddress{}),
 		},
 		{
 			name:          "Invalid deposited amount",
-			cdp:           NewCdp(testCdp.Owner, sdk.Coin{}, testCdp.Credits, testCdp.CreatedAt),
+			cdp:           NewPosition(testCdp.Owner, sdk.Coin{}, testCdp.Credits, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid deposit amount: <nil>"),
 		},
 		{
 			name:          "Invalid liquidity amount",
-			cdp:           NewCdp(testCdp.Owner, testCdp.Deposit, sdk.Coins{}, testCdp.CreatedAt),
+			cdp:           NewPosition(testCdp.Owner, testCdp.Deposit, sdk.Coins{}, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid liquidity amount: %s", sdk.Coins{}),
 		},
 		{
 			name:          "Invalid timestamp",
-			cdp:           NewCdp(testCdp.Owner, testCdp.Deposit, testCdp.Credits, 0),
+			cdp:           NewPosition(testCdp.Owner, testCdp.Deposit, testCdp.Credits, 0),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid timestamp: %d", 0),
 		},
@@ -70,8 +70,8 @@ func TestCdp_Validate(t *testing.T) {
 func TestCdp_Equals(t *testing.T) {
 	testData := []struct {
 		name          string
-		first         Cdp
-		second        Cdp
+		first         Position
+		second        Position
 		shouldBeEqual bool
 	}{
 		{
@@ -83,7 +83,7 @@ func TestCdp_Equals(t *testing.T) {
 		{
 			name:  "CDPs are different",
 			first: testCdp,
-			second: Cdp{
+			second: Position{
 				Owner:     testCdp.Owner,
 				Deposit:   testCdp.Deposit,
 				Credits:   testCdp.Credits,

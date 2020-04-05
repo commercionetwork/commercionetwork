@@ -33,7 +33,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 
 	actual, err := handler(ctx, testMsgOpenCdp)
 	require.NoError(t, err)
-	require.Equal(t, &sdk.Result{Log: "Cdp opened successfully"}, actual)
+	require.Equal(t, &sdk.Result{Log: "Position opened successfully"}, actual)
 
 	// Check final balance
 	balance = bk.GetCoins(ctx, testCdpOwner)
@@ -46,11 +46,11 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(testCdp.Deposit))
 	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.Credits)
-	require.Equal(t, 0, len(k.GetCdps(ctx)))
-	k.SetCdp(ctx, testCdp)
-	require.Equal(t, 1, len(k.GetCdps(ctx)))
+	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
+	k.SetPosition(ctx, testCdp)
+	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
 
-	expected := &sdk.Result{Log: "Cdp closed successfully"}
+	expected := &sdk.Result{Log: "Position closed successfully"}
 	actual, err := handler(ctx, testMsgCloseCdp)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
@@ -64,7 +64,7 @@ func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
 
 	msg := types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(3))
 
-	expected := &sdk.Result{Log: "Cdp collateral rate changed successfully to 3.000000000000000000"}
+	expected := &sdk.Result{Log: "Position collateral rate changed successfully to 3.000000000000000000"}
 	actual, err := handler(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)

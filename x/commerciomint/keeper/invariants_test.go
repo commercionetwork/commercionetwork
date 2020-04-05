@@ -21,7 +21,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 		wantFail  bool
 	}{
 		{
-			"Each Cdp opened refers to an existing price",
+			"Each Position opened refers to an existing price",
 			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Deposit))
 				if err != nil {
@@ -30,12 +30,12 @@ func TestCdpsForExistingPrice(t *testing.T) {
 
 				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				return k.OpenCdp(ctx, testCdpOwner, testCdp.Deposit)
+				return k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 			},
 			false,
 		},
 		{
-			"Cdp opened with corresponding price set to zero values (no value, no expiry)",
+			"Position opened with corresponding price set to zero values (no value, no expiry)",
 			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Deposit))
 				if err != nil {
@@ -44,7 +44,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 
 				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				err = k.OpenCdp(ctx, testCdpOwner, testCdp.Deposit)
+				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
@@ -56,7 +56,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 			true,
 		},
 		{
-			"Cdp opened with corresponding price nonexistant",
+			"Position opened with corresponding price nonexistant",
 			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Deposit))
 				if err != nil {
@@ -65,7 +65,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 
 				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				err = k.OpenCdp(ctx, testCdpOwner, testCdp.Deposit)
+				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
@@ -116,7 +116,7 @@ func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
 
 				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				return k.OpenCdp(ctx, testCdpOwner, testCdp.Deposit)
+				return k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 			},
 			false,
 		},
@@ -130,7 +130,7 @@ func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
 
 				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				err = k.OpenCdp(ctx, testCdpOwner, testCdp.Deposit)
+				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}

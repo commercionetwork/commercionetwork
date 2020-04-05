@@ -12,16 +12,16 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Cdps                []types.Cdp `json:"cdps"`
-	LiquidityPoolAmount sdk.Coins   `json:"pool_amount"`
-	CreditsDenom        string      `json:"credits_denom"`
-	CollateralRate      sdk.Dec     `json:"collateral_rate"`
+	Cdps                []types.Position `json:"cdps"`
+	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
+	CreditsDenom        string           `json:"credits_denom"`
+	CollateralRate      sdk.Dec          `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState(creditsDenom string) GenesisState {
 	return GenesisState{
-		Cdps:                []types.Cdp{},
+		Cdps:                []types.Position{},
 		LiquidityPoolAmount: sdk.Coins{},
 		CreditsDenom:        creditsDenom,
 		CollateralRate:      sdk.NewDec(2),
@@ -47,7 +47,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 
 	// Add the existing CDPs
 	for _, cdp := range data.Cdps {
-		keeper.SetCdp(ctx, cdp)
+		keeper.SetPosition(ctx, cdp)
 	}
 
 	// Set the stable credits denom
@@ -57,7 +57,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
-		Cdps:                keeper.GetCdps(ctx),
+		Cdps:                keeper.GetAllPositions(ctx),
 		LiquidityPoolAmount: keeper.GetLiquidityPoolAmount(ctx),
 		CreditsDenom:        keeper.GetCreditsDenom(ctx),
 		CollateralRate:      keeper.GetCollateralRate(ctx),
