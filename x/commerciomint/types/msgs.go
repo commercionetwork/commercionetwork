@@ -12,8 +12,8 @@ import (
 // -----------------
 
 type MsgOpenCdp struct {
-	Owner   sdk.AccAddress `json:"owner"`
-	Deposit sdk.Coins      `json:"deposit"`
+	Owner   sdk.AccAddress `json:"depositor"`
+	Deposit sdk.Coins      `json:"deposit_amount"`
 }
 
 func NewMsgOpenCdp(owner sdk.AccAddress, deposit sdk.Coins) MsgOpenCdp {
@@ -40,7 +40,7 @@ func (msg MsgOpenCdp) ValidateBasic() error {
 
 type MsgCloseCdp struct {
 	Signer  sdk.AccAddress `json:"signer"`
-	Created int64          `json:"cdp_created_at"` // Block height at which the CDP has been created
+	Created int64          `json:"cdp_timestamp"` // Block height at which the CDP has been created
 }
 
 func NewMsgCloseCdp(signer sdk.AccAddress, timestamp int64) MsgCloseCdp {

@@ -22,7 +22,7 @@ func NewQuerier(q sdk.Querier, k Keeper) sdk.Querier {
 }
 
 // queryBlockedAccounts fetch an account's balance for the supplied height.
-// CreatedAt and account address are passed as first and second path components respectively.
+// Height and account address are passed as first and second path components respectively.
 func queryBlockedAccounts(ctx sdk.Context, _ abci.RequestQuery, k Keeper) ([]byte, error) {
 	bz, err := codec.MarshalJSONIndent(types.ModuleCdc, k.GetBlockedAddresses(ctx))
 	if err != nil {
