@@ -9,51 +9,51 @@ import (
 )
 
 const (
-	validateCdps               string = "validate-cdps"
-	cdpsForExistingPrice       string = "cdp-existing-price"
-	liquidityPoolSumEqualsCdps string = "liquidity-pool-sum-equals-cdps"
+	validatePositions               string = "validate-positions"
+	positionsForExistingPrice       string = "position-existing-price"
+	liquidityPoolSumEqualsPositions string = "liquidity-pool-sum-equals-positions"
 )
 
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
-	ir.RegisterRoute(types.ModuleName, validateCdps, ValidateCdps(k))
-	ir.RegisterRoute(types.ModuleName, cdpsForExistingPrice,
-		CdpsForExistingPrice(k))
-	ir.RegisterRoute(types.ModuleName, liquidityPoolSumEqualsCdps,
-		LiquidityPoolAmountEqualsCdps(k))
+	ir.RegisterRoute(types.ModuleName, validatePositions, ValidateAllPositions(k))
+	ir.RegisterRoute(types.ModuleName, positionsForExistingPrice,
+		PositionsForExistingPrice(k))
+	ir.RegisterRoute(types.ModuleName, liquidityPoolSumEqualsPositions,
+		LiquidityPoolAmountEqualsPositions(k))
 }
 
-// ValidateCdps ensures that all Positions are correct.
-func ValidateCdps(k Keeper) sdk.Invariant {
+// ValidateAllPositions ensures that all Positions are correct.
+func ValidateAllPositions(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		cdps := k.GetAllPositions(ctx)
-		if len(cdps) == 0 {
+		positions := k.GetAllPositions(ctx)
+		if len(positions) == 0 {
 			return "", false
 		}
-		for _, cdp := range cdps {
-			if err := cdp.Validate(); err != nil {
-				return sdk.FormatInvariant(types.ModuleName, validateCdps,
-					fmt.Sprintf("found inconsistent position %+v: %v", cdp, err)), true
+		for _, position := range positions {
+			if err := position.Validate(); err != nil {
+				return sdk.FormatInvariant(types.ModuleName, validatePositions,
+					fmt.Sprintf("found inconsistent position %+v: %v", position, err)), true
 			}
 		}
 		return "", false
 	}
 }
 
-// CdpsForExistingPrice checks that each Position currently opened refers to an existing token priced by x/pricefeed.
-func CdpsForExistingPrice(k Keeper) sdk.Invariant {
+// PositionsForExistingPrice checks that each Position currently opened refers to an existing token priced by x/pricefeed.
+func PositionsForExistingPrice(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		cdps := k.GetAllPositions(ctx)
+		positions := k.GetAllPositions(ctx)
 
-		for _, cdp := range cdps {
-			for _, deposit := range cdp.Deposit {
+		for _, position := range positions {
+			for _, deposit := range position.Deposit {
 				price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, deposit.Denom)
 				if !ok || price.Value.IsZero() {
 					return sdk.FormatInvariant(
 						types.ModuleName,
-						cdpsForExistingPrice,
+						positionsForExistingPrice,
 						fmt.Sprintf(
-							"found cdp from owner %s which refers to a nonexistent asset %s for %s amount",
-							cdp.Owner.String(),
+							"found position from owner %s which refers to a nonexistent asset %s for %s amount",
+							position.Owner.String(),
 							deposit.Denom,
 							deposit.Amount.String(),
 						),
@@ -66,23 +66,23 @@ func CdpsForExistingPrice(k Keeper) sdk.Invariant {
 	}
 }
 
-// LiquidityPoolAmountEqualsCdps checks that the value of all the opened cdps equals the liquidity pool amount.
-func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
+// LiquidityPoolAmountEqualsPositions checks that the value of all the opened cdps equals the liquidity pool amount.
+func LiquidityPoolAmountEqualsPositions(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		cdps := k.GetAllPositions(ctx)
+		positions := k.GetAllPositions(ctx)
 
 		var sums sdk.Coins
-		for _, cdp := range cdps {
-			sums.Add(cdp.Deposit...)
+		for _, position := range positions {
+			sums.Add(position.Deposit...)
 		}
 
 		pool := k.GetLiquidityPoolAmount(ctx)
-		if pool.IsZero() && len(cdps) > 0 {
+		if pool.IsZero() && len(positions) > 0 {
 			return sdk.FormatInvariant(
 				types.ModuleName,
-				cdpsForExistingPrice,
+				positionsForExistingPrice,
 				fmt.Sprintf(
-					"cdps opened and liquidity pool is empty",
+					"positions opened and liquidity pool is empty",
 				),
 			), true
 		}
@@ -92,8 +92,8 @@ func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
 			for _, token := range pool {
 				if token.Denom == name {
 					if !sum.Equal(token.Amount) {
-						return sdk.FormatInvariant(types.ModuleName, cdpsForExistingPrice, fmt.Sprintf(
-							"pool amount for denom %s doesn't correspond to the sum of all the cdps opened for it, which is %s%s",
+						return sdk.FormatInvariant(types.ModuleName, positionsForExistingPrice, fmt.Sprintf(
+							"pool amount for denom %s doesn't correspond to the sum of all the positions opened for it, which is %s%s",
 							name, sum.String(), name)), true
 					}
 				}

@@ -245,9 +245,9 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 			}
 
 			if test.shouldBeDeleted {
-				require.NotPanics(t, func() { k.deleteCdp(ctx, test.deletedCdp) })
+				require.NotPanics(t, func() { k.deletePosition(ctx, test.deletedCdp) })
 			} else {
-				require.Panics(t, func() { k.deleteCdp(ctx, test.deletedCdp) })
+				require.Panics(t, func() { k.deletePosition(ctx, test.deletedCdp) })
 			}
 
 			result := k.GetAllPositions(ctx)
@@ -274,10 +274,10 @@ func TestKeeper_AutoLiquidateCdp(t *testing.T) {
 	require.NoError(t, k.NewPosition(ctx, testCdp.Owner, testCdp.Deposit))
 	cdps := k.GetAllPositionsOwnedBy(ctx, testCdp.Owner)
 	require.Equal(t, 1, len(cdps))
-	yes, err := k.ShouldLiquidateCdp(ctx, cdps[0])
+	yes, err := k.ShouldLiquidatePosition(ctx, cdps[0])
 	require.NoError(t, err)
 	require.True(t, yes)
-	require.NotPanics(t, func() { k.AutoLiquidateCdps(ctx) })
+	require.NotPanics(t, func() { k.AutoLiquidatePositions(ctx) })
 	require.Equal(t, 0, len(k.GetAllPositionsOwnedBy(ctx, testCdp.Owner)))
 }
 

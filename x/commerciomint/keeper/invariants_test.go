@@ -12,7 +12,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-func TestValidateCdps(t *testing.T) {
+func TestValidatePositions(t *testing.T) {
 	tests := []struct {
 		name      string
 		positions []types.Position
@@ -37,14 +37,14 @@ func TestValidateCdps(t *testing.T) {
 			for _, pos := range tt.positions {
 				k.SetPosition(ctx, pos)
 			}
-			msg, failed := ValidateCdps(k)(ctx)
+			msg, failed := ValidateAllPositions(k)(ctx)
 			require.Equal(t, tt.wantErr, failed)
 			t.Log(msg)
 		})
 	}
 }
 
-func TestCdpsForExistingPrice(t *testing.T) {
+func TestPositionsForExistingPrice(t *testing.T) {
 	tests := []struct {
 		name      string
 		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, sdk.Context) error
@@ -125,14 +125,14 @@ func TestCdpsForExistingPrice(t *testing.T) {
 
 			require.NoError(t, tt.setupFunc(k, bk, pfk, ctx))
 
-			_, failed := CdpsForExistingPrice(k)(ctx)
+			_, failed := PositionsForExistingPrice(k)(ctx)
 
 			require.Equal(t, tt.wantFail, failed)
 		})
 	}
 }
 
-func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
+func TestLiquidityPoolAmountEqualsPositions(t *testing.T) {
 	tests := []struct {
 		name      string
 		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, sdk.Context) error
@@ -186,7 +186,7 @@ func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
 			ctx, bk, pfk, _, _, k := SetupTestInput()
 			ctx = ctx.WithBlockHeight(1)
 			require.NoError(t, tt.setupFunc(k, bk, pfk, ctx))
-			_, failed := LiquidityPoolAmountEqualsCdps(k)(ctx)
+			_, failed := LiquidityPoolAmountEqualsPositions(k)(ctx)
 
 			require.Equal(t, tt.wantFail, failed)
 		})
