@@ -19,13 +19,13 @@ func TestValidatePositions(t *testing.T) {
 		wantErr   bool
 	}{
 		{"nil", nil, false},
-		{"no owner", []types.Position{types.Position{}}, true},
-		{"no deposit", []types.Position{types.Position{Owner: []byte("ciao")}}, true},
-		{"invalid liquidity", []types.Position{types.Position{Owner: []byte("ciao"), Deposit: sdk.NewCoins(sdk.NewInt64Coin("test", 10))}}, true},
-		{"invalid block height", []types.Position{types.Position{Owner: []byte("ciao"),
+		{"no owner", []types.Position{{}}, true},
+		{"no deposit", []types.Position{{Owner: []byte("ciao")}}, true},
+		{"invalid liquidity", []types.Position{{Owner: []byte("ciao"), Deposit: sdk.NewCoins(sdk.NewInt64Coin("test", 10))}}, true},
+		{"invalid block height", []types.Position{{Owner: []byte("ciao"),
 			Deposit: sdk.NewCoins(sdk.NewInt64Coin("test", 10)), Credits: sdk.NewInt64Coin("credit", 100),
 		}}, true},
-		{"ok", []types.Position{types.Position{Owner: []byte("ciao"), CreatedAt: 10,
+		{"ok", []types.Position{{Owner: []byte("ciao"), CreatedAt: 10,
 			Deposit: sdk.NewCoins(sdk.NewInt64Coin("test", 10)), Credits: sdk.NewInt64Coin("credit", 100),
 		}}, false},
 	}
