@@ -16,8 +16,6 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case types.MsgInviteUser:
 			return handleMsgInviteUser(ctx, keeper, msg)
-		case types.MsgSetUserVerified:
-			return handleMsgSetUserVerified(ctx, keeper, msg)
 		case types.MsgDepositIntoLiquidityPool:
 			return handleMsgDepositIntoPool(ctx, keeper, msg)
 		case types.MsgAddTsp:
@@ -51,20 +49,6 @@ func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser
 	return &sdk.Result{}, nil
 }
 
-func handleMsgSetUserVerified(ctx sdk.Context, keeper Keeper, msg types.MsgSetUserVerified) (*sdk.Result, error) {
-
-	// Check the accreditation
-	if !keeper.IsTrustedServiceProvider(ctx, msg.Verifier) {
-		msg := fmt.Sprintf("%s is not a valid TSP", msg.Verifier.String())
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, msg)
-	}
-
-	// Create a credentials and store it
-	credential := types.NewCredential(msg.User, msg.Verifier, ctx.BlockHeight())
-	keeper.SaveCredential(ctx, credential)
-	return &sdk.Result{}, nil
-}
-
 func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepositIntoLiquidityPool) (*sdk.Result, error) {
 	if err := keeper.DepositIntoPool(ctx, msg.Depositor, msg.Amount); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
@@ -85,9 +69,8 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 // handleMsgBuyMembership allows to handle a MsgBuyMembership message.
 // In order to be able to buy a membership the following requirements must be met.
 // 1. The user has been invited from a member already having a membership
-// 2. The user has been verified from a TSP
-// 3. The membership must be valid
-// 4. The user has enough stable credits in his wallet
+// 2. The membership must be valid
+// 3. The user has enough stable credits in his wallet
 func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMembership) (*sdk.Result, error) {
 	// 1. Check the invitation and the invitee membership type
 	invite, found := keeper.GetInvite(ctx, msg.Buyer)
@@ -99,13 +82,7 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
 	}
 
-	// 2. Make sure the user has properly being verified
-	if credentials := keeper.GetUserCredentials(ctx, msg.Buyer); len(credentials) == 0 {
-		msg := "User has not yet been verified by a Trusted Service Provider"
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
-	}
-
-	// 3. Verify the membership validity
+	// 2. Verify the membership validity
 	if !types.IsMembershipTypeValid(msg.MembershipType) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", msg.MembershipType))
 	}
@@ -133,7 +110,7 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 // handleMsgSetMembership handles MsgSetMembership messages.
 // It checks that whoever sent the message is actually the government, assigns the membership and then
 // distribute the reward to the inviter.
-// If the user isn't invited already, an invite and credentials will be created.
+// If the user isn't invited already, an invite will be created.
 func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMembership) (*sdk.Result, error) {
 	govAddr := keeper.governmentKeeper.GetGovernmentAddress(ctx)
 	if !govAddr.Equals(msg.GovernmentAddress) {
@@ -149,11 +126,6 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 	invite, err := governmentInvitesUser(ctx, keeper, msg.Subscriber)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("government could not invite user"))
-	}
-
-	if credentials := keeper.GetUserCredentials(ctx, msg.Subscriber); len(credentials) == 0 {
-		msg := "User has not yet been verified by a Trusted Service Provider"
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, msg)
 	}
 
 	err = keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership)
@@ -183,8 +155,6 @@ func governmentInvitesUser(ctx sdk.Context, keeper Keeper, user sdk.AccAddress) 
 	// this way invited, but non-verified users will be able to receive a membership
 	invite, found := keeper.GetInvite(ctx, user)
 	if found {
-		credential := types.NewCredential(user, govAddr, ctx.BlockHeight())
-		keeper.SaveCredential(ctx, credential)
 		return invite, nil
 	}
 
@@ -193,10 +163,6 @@ func governmentInvitesUser(ctx sdk.Context, keeper Keeper, user sdk.AccAddress) 
 	if err != nil {
 		return types.Invite{}, err
 	}
-
-	// verify credentials for such user
-	credential := types.NewCredential(user, govAddr, ctx.BlockHeight())
-	keeper.SaveCredential(ctx, credential)
 
 	// get the invite again, mark it as rewarded, and return it
 	invite, found = keeper.GetInvite(ctx, user)

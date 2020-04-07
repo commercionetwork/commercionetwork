@@ -16,7 +16,6 @@ type GenesisState struct {
 	LiquidityPoolAmount     sdk.Coins        `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
 	Invites                 Invites          `json:"invites"`                   // List of invites
 	TrustedServiceProviders ctypes.Addresses `json:"trusted_service_providers"` // List of trusted service providers
-	Credentials             Credentials      `json:"credentials"`               // List of verifiable credentials
 	StableCreditsDenom      string           `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
 	Memberships             Memberships      `json:"memberships"`               // List of all the existing memberships
 }
@@ -52,11 +51,6 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 		keeper.SaveInvite(ctx, invite)
 	}
 
-	// Import the credentials
-	for _, credential := range data.Credentials {
-		keeper.SaveCredential(ctx, credential)
-	}
-
 	// Import the memberships
 	for _, membership := range data.Memberships {
 		err := keeper.AssignMembership(ctx, membership.Owner, membership.MembershipType)
@@ -83,7 +77,6 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 		LiquidityPoolAmount:     keeper.GetPoolFunds(ctx),
 		Invites:                 keeper.GetInvites(ctx),
 		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
-		Credentials:             keeper.GetCredentials(ctx),
 		Memberships:             ms,
 		StableCreditsDenom:      keeper.GetStableCreditsDenom(ctx),
 	}

@@ -34,14 +34,11 @@ type (
 
 	Invite       = types.Invite
 	Invites      = types.Invites
-	Credential   = types.Credential
-	Credentials  = types.Credentials
 	Membership   = types.Membership
 	Memberships  = types.Memberships
 	InviteStatus = types.InviteStatus
 
 	MsgInviteUser               = types.MsgInviteUser
-	MsgSetUserVerified          = types.MsgSetUserVerified
 	MsgDepositIntoLiquidityPool = types.MsgDepositIntoLiquidityPool
 	MsgAddTrustedSigner         = types.MsgAddTsp
 	MsgBuyMembership            = types.MsgBuyMembership

@@ -37,7 +37,6 @@ func migrateMemberships(oldState v134memberships.GenesisState) memberships.Genes
 	ng := memberships.GenesisState{
 		LiquidityPoolAmount:     oldState.LiquidityPoolAmount,
 		TrustedServiceProviders: oldState.TrustedServiceProviders,
-		Credentials:             oldState.Credentials,
 		StableCreditsDenom:      oldState.StableCreditsDenom,
 		Memberships:             oldState.Memberships,
 	}

@@ -26,7 +26,6 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		getCmdVerifyUser(cdc),
 		getCmdDepositIntoPool(cdc),
 		getCmdGovAssignMembership(cdc),
 		getCmdInviteUser(cdc),
@@ -34,37 +33,6 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	)
 
 	return txCmd
-}
-
-func getCmdVerifyUser(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "verify-user [address]",
-		Short: "Sets the given address as a verified user",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			verifier := cliCtx.GetFromAddress()
-			user, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-
-			msg := types.NewMsgSetUserVerified(user, verifier)
-			err = msg.ValidateBasic()
-			if err != nil {
-				return err
-			}
-
-			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
-		},
-	}
-
-	cmd = flags.PostCommands(cmd)[0]
-
-	return cmd
 }
 
 func getCmdDepositIntoPool(cdc *codec.Codec) *cobra.Command {
