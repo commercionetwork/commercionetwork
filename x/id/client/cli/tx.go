@@ -1,7 +1,15 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/auth"
+
+	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/spf13/viper"
 
@@ -39,6 +47,8 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 		Short: "sets the identity",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			verPubKey, err := getVerificationPublicKey(cliCtx, viper.GetString(flagPrivRsaVerKey))
 			if err != nil {
@@ -59,9 +69,35 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 				},
 			}
 
-			fmt.Printf("%+v", unsignedDoc)
+			json, err := cdc.MarshalJSON(unsignedDoc)
+			if err != nil {
+				return fmt.Errorf("error marshaling doc into json")
+			}
 
-			return nil
+			sign, _, err := cliCtx.Keybase.Sign(cliCtx.GetFromName(), "", json)
+			if err != nil {
+				return fmt.Errorf("failed to sign tx")
+			}
+
+			proof := types.Proof{
+				Type:               types.KeyTypeSecp256k12019,
+				Created:            time.Now(),
+				ProofPurpose:       types.ProofPurposeAuthentication,
+				Controller:         cliCtx.GetFromAddress().String(),
+				VerificationMethod: cliCtx.GetFromAddress().String(),
+				SignatureValue:     string(sign),
+			}
+
+			msg := types.NewMsgSetIdentity(types.DidDocument{
+				Context: unsignedDoc.Context,
+				ID:      unsignedDoc.ID,
+				PubKeys: unsignedDoc.PubKeys,
+				Proof:   proof,
+				Service: nil,
+			})
+
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+
 		},
 	}
 
