@@ -3,7 +3,10 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"time"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
 
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
@@ -69,14 +72,9 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 				},
 			}
 
-			json, err := cdc.MarshalJSON(unsignedDoc)
+			signature, err := signDidDocument(cliCtx, cdc, unsignedDoc)
 			if err != nil {
-				return fmt.Errorf("error marshaling doc into json")
-			}
-
-			sign, _, err := cliCtx.Keybase.Sign(cliCtx.GetFromName(), "", json)
-			if err != nil {
-				return fmt.Errorf("failed to sign tx")
+				return err
 			}
 
 			proof := types.Proof{
@@ -85,7 +83,7 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 				ProofPurpose:       types.ProofPurposeAuthentication,
 				Controller:         cliCtx.GetFromAddress().String(),
 				VerificationMethod: cliCtx.GetFromAddress().String(),
-				SignatureValue:     string(sign),
+				SignatureValue:     string(signature),
 			}
 
 			msg := types.NewMsgSetIdentity(types.DidDocument{
@@ -111,6 +109,24 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 	cmd.MarkFlagRequired(flags.FlagFrom)
 
 	return cmd
+}
+
+func signDidDocument(cliCtx context.CLIContext, cdc *codec.Codec, unsignedDoc types.DidDocumentUnsigned) ([]byte, error) {
+	jsonUnsigned, err := cdc.MarshalJSON(unsignedDoc)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling doc into json")
+	}
+
+	keybase, err := keys.NewKeyring(sdk.KeyringServiceName(), viper.GetString(flags.FlagKeyringBackend), viper.GetString(flags.FlagHome), os.Stdin)
+	if err != nil {
+		return nil, fmt.Errorf("error accesing to keyring: %s", err)
+	}
+
+	sign, _, err := keybase.Sign(cliCtx.GetFromName(), "", jsonUnsigned)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign tx")
+	}
+	return sign, nil
 }
 
 func getVerificationPublicKey(cliCtx context.CLIContext, path string) (types.PubKey, error) {
