@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"encoding/pem"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"testing"
 
@@ -51,4 +53,15 @@ func TestGetTxCmd_SetIdentityCommand(t *testing.T) {
 		})
 	}
 
+}
+
+func TestPrivKey(t *testing.T) {
+	file := "/Users/jgimeno/.ssh/test"
+
+	priv, err := ioutil.ReadFile(file)
+	require.NoError(t, err)
+
+	decode, _ := pem.Decode(priv)
+
+	fmt.Printf("%v", decode)
 }
