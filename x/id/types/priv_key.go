@@ -8,6 +8,21 @@ import (
 	"io/ioutil"
 )
 
+// LoadRSAPrivKeyFromDisk returns an rsa.PrivateKey from the contents of a pem private key file.
+func LoadRSAPrivKeyFromDisk(location string) (*rsa.PrivateKey, error) {
+	keyData, err := ioutil.ReadFile(location)
+	if err != nil {
+		return nil, err
+	}
+	key, err := ParseRsaPrivKeyFromPEM(keyData)
+	if err != nil {
+		return nil, err
+	}
+
+	return key, nil
+}
+
+// ParseRsaPrivKeyFromPEM returns a rsa.PrivateKey from Pem private key file content.
 func ParseRsaPrivKeyFromPEM(key []byte) (*rsa.PrivateKey, error) {
 	var err error
 
@@ -33,6 +48,7 @@ func ParseRsaPrivKeyFromPEM(key []byte) (*rsa.PrivateKey, error) {
 	return pkey, nil
 }
 
+// PublicKeyToPemString returns in string format the pem representation of a rsa.PublicKey
 func PublicKeyToPemString(pub *rsa.PublicKey) string {
 	return string(
 		pem.EncodeToMemory(
@@ -42,17 +58,4 @@ func PublicKeyToPemString(pub *rsa.PublicKey) string {
 			},
 		),
 	)
-}
-
-func LoadRSAPrivKeyFromDisk(location string) (*rsa.PrivateKey, error) {
-	keyData, err := ioutil.ReadFile(location)
-	if err != nil {
-		return nil, err
-	}
-	key, err := ParseRsaPrivKeyFromPEM(keyData)
-	if err != nil {
-		return nil, err
-	}
-
-	return key, nil
 }
