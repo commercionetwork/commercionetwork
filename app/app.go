@@ -111,7 +111,7 @@ var (
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
 		memberships.NewAppModuleBasic(StableCreditsDenom),
-		commerciomint.NewAppModuleBasic(StableCreditsDenom),
+		commerciomint.NewAppModuleBasic(),
 		pricefeed.AppModuleBasic{},
 		vbr.AppModuleBasic{},
 		creditrisk.AppModuleBasic{},
