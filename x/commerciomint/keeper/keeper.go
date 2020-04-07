@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
@@ -84,37 +85,28 @@ func (k Keeper) OpenCdp(ctx sdk.Context, depositor sdk.AccAddress, depositAmount
 	}
 
 	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them
-	fiatValue := sdk.NewInt(0)
-	for _, token := range depositAmount {
-		assetPrice, found := k.priceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
-		if !found {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("No current price for given token: %s", token.Denom))
-		}
-		fiatValue = fiatValue.Add(token.Amount.Mul(assetPrice.Value.RoundInt()))
+	fiatValue, err := k.calculateFiatValue(ctx, depositAmount)
+	if err != nil {
+		return err
 	}
 
 	// Send the deposit from the user to the commerciomint account
-	err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositAmount)
-	if err != nil {
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositAmount); err != nil {
 		return err
 	}
 
 	// Get the credits amount
-	// creditsAmount = (DepositAmount value / credits price) / 2
-	// Our credit price is always 1 euro, so we simply divide the fiat value by 2
-
-	// collateralRate is 2 here (cashcredit = fiat / collateralRate(government calls the shots here))
-	creditsAmount := fiatValue.ToDec().Quo(k.GetCollateralRate(ctx)).TruncateInt()
+	// creditsAmount = (DepositAmount value / credits price) / collateral_rate
+	// Our credit price is always 1, so we simply divide the fiat value by collateral_rate
+	creditsAmount := fiatValue.Quo(k.GetCollateralRate(ctx)).TruncateInt()
 
 	// Mint the tokens and send them to the user
 	credits := sdk.NewCoins(sdk.NewCoin(k.GetCreditsDenom(ctx), creditsAmount))
-	err = k.supplyKeeper.MintCoins(ctx, types.ModuleName, credits)
-	if err != nil {
+	if err := k.supplyKeeper.MintCoins(ctx, types.ModuleName, credits); err != nil {
 		return err
 	}
 
-	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, credits)
-	if err != nil {
+	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, credits); err != nil {
 		return err
 	}
 
@@ -206,6 +198,20 @@ func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Dec) error {
 	return nil
 }
 
+// ShouldLiquidateCdp returns true if the CDP should be liquidated.
+func (k Keeper) ShouldLiquidateCdp(ctx sdk.Context, cdp types.Cdp) (bool, error) {
+	fiatValue, err := k.calculateFiatValue(ctx, cdp.DepositedAmount)
+	if err != nil {
+		return false, err
+	}
+
+	creditsAmount := cdp.CreditsAmount.AmountOf(k.GetCreditsDenom(ctx)).ToDec()
+	if creditsAmount.LTE(fiatValue) {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -218,4 +224,40 @@ func (k Keeper) deleteCdp(ctx sdk.Context, cdp types.Cdp) {
 			store.Set(k.getCdpKey(cdp.Owner), k.cdc.MustMarshalBinaryBare(cdps))
 		}
 	}
+}
+
+func (k Keeper) AutoLiquidateCdps(ctx sdk.Context) {
+	for _, cdp := range k.GetCdps(ctx) {
+		if yes, err := k.ShouldLiquidateCdp(ctx, cdp); err != nil {
+			panic(err)
+		} else if !yes {
+			continue
+		}
+		if err := k.liquidate(ctx, cdp); err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (k Keeper) calculateFiatValue(ctx sdk.Context, depositAmount sdk.Coins) (sdk.Dec, error) {
+	// Check if all the tokens inside the deposit amount have a price and calculate the total fiat value of them
+	fiatValue := sdk.ZeroDec()
+	for _, token := range depositAmount {
+		assetPrice, found := k.priceFeedKeeper.GetCurrentPrice(ctx, token.Denom)
+		if !found {
+			return fiatValue, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", token.Denom))
+		}
+		fiatValue = fiatValue.Add(token.Amount.ToDec().Mul(assetPrice.Value))
+	}
+	return fiatValue, nil
+}
+
+func (k Keeper) liquidate(ctx sdk.Context, cdp types.Cdp) error {
+	// Send the coins from the user to the module and then burn them
+	if err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, creditrisk.ModuleName, cdp.DepositedAmount); err != nil {
+		return err
+	}
+	// Delete the CDP
+	k.deleteCdp(ctx, cdp)
+	return nil
 }

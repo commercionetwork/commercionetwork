@@ -122,6 +122,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {}
 
 // module end-block
-func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	am.keeper.AutoLiquidateCdps(ctx)
 	return []abci.ValidatorUpdate{}
 }

@@ -108,7 +108,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			owner:      testCdp.Owner,
 			amount:     testCdp.DepositedAmount,
 			tokenPrice: pricefeed.EmptyPrice(),
-			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("No current price for given token: %s", testCdp.DepositedAmount[0].Denom)),
+			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", testCdp.DepositedAmount[0].Denom)),
 		},
 		{
 			name:       "Not enough funds inside user wallet",
@@ -269,6 +269,26 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestKeeper_AutoLiquidateCdp(t *testing.T) {
+	ctx, bk, pfk, _, k := SetupTestInput()
+	// Setup
+	if !testCdp.DepositedAmount.Empty() {
+		_ = bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
+	}
+	tokenPrice := pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000))
+	if !tokenPrice.Equals(pricefeed.EmptyPrice()) {
+		pfk.SetCurrentPrice(ctx, tokenPrice)
+	}
+	require.NoError(t, k.OpenCdp(ctx, testCdp.Owner, testCdp.DepositedAmount))
+	cdps := k.GetCdpsByOwner(ctx, testCdp.Owner)
+	require.Equal(t, 1, len(cdps))
+	yes, err := k.ShouldLiquidateCdp(ctx, cdps[0])
+	require.NoError(t, err)
+	require.True(t, yes)
+	require.NotPanics(t, func() { k.AutoLiquidateCdps(ctx) })
+	require.Equal(t, 0, len(k.GetCdpsByOwner(ctx, testCdp.Owner)))
 }
 
 // --------------

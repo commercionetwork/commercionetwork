@@ -54,6 +54,30 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
+func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
+	ctx, _, _, gk, k := SetupTestInput()
+	govAddr := []byte("governance")
+	gk.SetGovernmentAddress(ctx, govAddr)
+	handler := NewHandler(k)
+
+	msg := types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(3))
+
+	expected := &sdk.Result{Log: "Cdp collateral rate changed successfully to 3.000000000000000000"}
+	actual, err := handler(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, expected, actual)
+
+	msg = types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(0))
+	_, err = handler(ctx, msg)
+	require.Error(t, err)
+	require.Equal(t, "invalid request: cdp collateral rate must be positive: 0.000000000000000000", err.Error())
+
+	msg = types.NewMsgSetCdpCollateralRate([]byte("invalidAddr"), sdk.NewDec(3))
+	_, err = handler(ctx, msg)
+	require.Error(t, err)
+	require.Equal(t, "unauthorized: cosmos1d9h8vctvd9jyzerywgt84wdv cannot set collateral rate", err.Error())
+}
+
 func TestHandler_InvalidMsg(t *testing.T) {
 	ctx, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
