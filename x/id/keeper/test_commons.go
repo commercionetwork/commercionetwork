@@ -153,7 +153,7 @@ func setupDidDocument() types.DidDocument {
 	var testOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
 
 	return types.DidDocument{
-		Context: "https://www.w3.org/ns/did/v1",
+		Context: types.ContextDidV1,
 		ID:      testOwnerAddress,
 		Proof: types.Proof{
 			Type:               "EcdsaSecp256k1VerificationKey2019",

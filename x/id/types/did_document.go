@@ -69,8 +69,8 @@ func (s Service) Equals(otherService Service) bool {
 		s.ID == otherService.ID
 }
 
-// didDocumentUnsigned is an intermediate type used to check for proof correctness
-type didDocumentUnsigned struct {
+// DidDocumentUnsigned is an intermediate type used to check for proof correctness
+type DidDocumentUnsigned struct {
 	Context string         `json:"@context"`
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
@@ -93,8 +93,8 @@ func (didDocument DidDocument) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (didDocument.ID.String()))
 	}
 
-	if didDocument.Context != "https://www.w3.org/ns/did/v1" {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid context, must be https://www.w3.org/ns/did/v1"))
+	if didDocument.Context != ContextDidV1 {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid context, must be https://www.w3.org/ns/did/v1")
 	}
 
 	for _, key := range didDocument.PubKeys {
@@ -103,7 +103,7 @@ func (didDocument DidDocument) Validate() error {
 		}
 
 		if !didDocument.ID.Equals(key.Controller) {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Public key controller must match did document id"))
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Public key controller must match did document id")
 		}
 	}
 
@@ -130,7 +130,7 @@ func (didDocument DidDocument) Validate() error {
 //  - let L be the Proof Signature Value, decoded from Base64 encoding
 // The Proof is verified if K.Verify(B, L) is verified.
 func (didDocument DidDocument) VerifyProof() error {
-	u := didDocumentUnsigned{
+	u := DidDocumentUnsigned{
 		Context: didDocument.Context,
 		ID:      didDocument.ID,
 		PubKeys: didDocument.PubKeys,

@@ -43,4 +43,9 @@ const (
 	MsgTypeSetIdentity         = "setIdentity"
 	MsgTypeRequestDidPowerUp   = "requestDidPowerUp"
 	MsgTypeChangePowerUpStatus = "changePowerUpStatus"
+
+	// --------------
+	// --- Context
+	// --------------
+	ContextDidV1 = "https://www.w3.org/ns/did/v1"
 )

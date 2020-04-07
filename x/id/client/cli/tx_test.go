@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
 	thelper "github.com/cosmos/cosmos-sdk/tests"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -24,6 +26,7 @@ func TestGetTxCmd_SetIdentityCommand(t *testing.T) {
 			errStr: "required flag(s) \"privRsaVerKey\" not set",
 			flags: []string{
 				fmt.Sprintf("--%s=%s", flagPrivRsaSignKey, "someValue"),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, "someValue"),
 			},
 		},
 		{
@@ -31,6 +34,15 @@ func TestGetTxCmd_SetIdentityCommand(t *testing.T) {
 			errStr: "required flag(s) \"privRsaSignKey\" not set",
 			flags: []string{
 				fmt.Sprintf("--%s=%s", flagPrivRsaVerKey, "someValue"),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, "someValue"),
+			},
+		},
+		{
+			name:   "from flag not set",
+			errStr: "required flag(s) \"from\" not set",
+			flags: []string{
+				fmt.Sprintf("--%s=%s", flagPrivRsaVerKey, "someValue"),
+				fmt.Sprintf("--%s=%s", flagPrivRsaSignKey, "someValue"),
 			},
 		},
 	}
