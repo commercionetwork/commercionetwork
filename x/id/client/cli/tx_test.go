@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
-
 	thelper "github.com/cosmos/cosmos-sdk/tests"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"

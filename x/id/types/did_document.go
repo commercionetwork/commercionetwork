@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/tendermint/tendermint/crypto/secp256k1"
-
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 )
 
 // DidDocument is the concrete serialization of the data model, according to a particular syntax.

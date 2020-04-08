@@ -6,22 +6,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
-
-	"github.com/cosmos/cosmos-sdk/x/auth"
-
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/spf13/viper"
-
-	"github.com/cosmos/cosmos-sdk/client/flags"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/commercionetwork/commercionetwork/x/id/types"
 )

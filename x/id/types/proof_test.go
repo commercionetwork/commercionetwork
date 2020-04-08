@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/id/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
 )
 
 func TestProof_Equals(t *testing.T) {
