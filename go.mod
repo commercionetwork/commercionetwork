@@ -9,7 +9,6 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/keybase/go-keychain v0.0.0-20191022214133-1c06e666bc46 // indirect
-	github.com/magiconair/properties v1.8.1
 	github.com/onsi/ginkgo v1.10.3 // indirect
 	github.com/onsi/gomega v1.7.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563 // indirect
