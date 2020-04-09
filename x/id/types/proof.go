@@ -6,9 +6,10 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
+
+const ProofPurposeAuthentication = "authentication"
 
 // A proof on a DID Document is cryptographic proof of the integrity of the DID Document according to either:
 // 1. The subject, or:
@@ -47,15 +48,15 @@ func (proof Proof) Equals(other Proof) bool {
 // returns an error if something is invalid
 func (proof Proof) Validate() error {
 
-	if proof.Type != "EcdsaSecp256k1VerificationKey2019" {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof type, must be EcdsaSecp256k1VerificationKey2019"))
+	if proof.Type != KeyTypeSecp256k12019 {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid proof type, must be %s", KeyTypeSecp256k12019))
 	}
 
 	if proof.Created.IsZero() {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof creation time"))
 	}
 
-	if proof.ProofPurpose != "authentication" {
+	if proof.ProofPurpose != ProofPurposeAuthentication {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "proof purpose must be \"authentication\"")
 	}
 

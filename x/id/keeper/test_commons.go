@@ -5,8 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/id/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,6 +16,9 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
 
 var (
@@ -153,12 +154,12 @@ func setupDidDocument() types.DidDocument {
 	var testOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
 
 	return types.DidDocument{
-		Context: "https://www.w3.org/ns/did/v1",
+		Context: types.ContextDidV1,
 		ID:      testOwnerAddress,
 		Proof: types.Proof{
-			Type:               "EcdsaSecp256k1VerificationKey2019",
+			Type:               types.KeyTypeSecp256k12019,
 			Created:            testTime,
-			ProofPurpose:       "authentication",
+			ProofPurpose:       types.ProofPurposeAuthentication,
 			Controller:         testOwnerAddress.String(),
 			SignatureValue:     "4T2jhs4C0k7p649tdzQAOLqJ0GJsiFDP/NnsSkFpoXAxcgn6h/EgvOpHxW7FMNQ9RDgQbcE6FWP6I2UsNv1qXQ==",
 			VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",

@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/id/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
 )
 
 func TestProof_Equals(t *testing.T) {
@@ -80,9 +80,9 @@ func TestProof_Validate(t *testing.T) {
 	var testAnotherAddress, _ = sdk.AccAddressFromBech32("cosmos1gdpsu89prllyw49eehskv6t8800p6chefyuuwe")
 
 	validProof := types.Proof{
-		Type:               "EcdsaSecp256k1VerificationKey2019",
+		Type:               types.KeyTypeSecp256k12019,
 		Created:            testTime,
-		ProofPurpose:       "authentication",
+		ProofPurpose:       types.ProofPurposeAuthentication,
 		Controller:         testOwnerAddress.String(),
 		SignatureValue:     "4T2jhs4C0k7p649tdzQAOLqJ0GJsiFDP/NnsSkFpoXAxcgn6h/EgvOpHxW7FMNQ9RDgQbcE6FWP6I2UsNv1qXQ==",
 		VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",

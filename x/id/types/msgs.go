@@ -4,10 +4,9 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	uuid "github.com/satori/go.uuid"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	uuid "github.com/satori/go.uuid"
 )
 
 type MsgSetIdentity DidDocument
