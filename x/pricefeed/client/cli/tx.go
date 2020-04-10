@@ -11,6 +11,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
@@ -33,7 +34,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "set-price [token-name] [token-price] [expiry]",
 		Short: "set price for a given token",
 		Args:  cobra.ExactArgs(3),
@@ -65,11 +66,16 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+
 }
 
 // GetCmdAddOracle cli command for posting prices.
 func GetCmdAddOracle(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "add-oracle [oracle-address]",
 		Short: "add a trusted oracle to the oracles' list",
 		Args:  cobra.ExactArgs(1),
@@ -94,11 +100,16 @@ func GetCmdAddOracle(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+
 }
 
 // GetCmdBlacklistDenom cli command for blacklisting denoms.
 func GetCmdBlacklistDenom(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "blacklist-denom [denom]",
 		Short: "blacklists a denom, prevent oracle from setting price for it",
 		Args:  cobra.ExactArgs(1),
@@ -106,6 +117,11 @@ func GetCmdBlacklistDenom(cdc *codec.Codec) *cobra.Command {
 			return getCmdBlacklistDenomFunc(cmd, cdc, args)
 		},
 	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+
 }
 
 func getCmdBlacklistDenomFunc(cmd *cobra.Command, cdc *codec.Codec, args []string) error {
