@@ -276,6 +276,13 @@ func TestKeeper_AutoLiquidateCdp(t *testing.T) {
 	require.Equal(t, 1, len(cdps))
 	yes, err := k.ShouldLiquidatePosition(ctx, cdps[0])
 	require.NoError(t, err)
+	require.False(t, yes)
+
+	// price dropped, position should  be liquidated
+	tokenPrice = pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(1), sdk.NewInt(1000))
+	pfk.SetCurrentPrice(ctx, tokenPrice)
+	yes, err = k.ShouldLiquidatePosition(ctx, cdps[0])
+	require.NoError(t, err)
 	require.True(t, yes)
 	require.NotPanics(t, func() { k.AutoLiquidatePositions(ctx) })
 	require.Equal(t, 0, len(k.GetAllPositionsOwnedBy(ctx, testCdp.Owner)))
