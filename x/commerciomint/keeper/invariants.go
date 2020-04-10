@@ -66,11 +66,7 @@ func LiquidityPoolAmountEqualsCdps(k Keeper) sdk.Invariant {
 
 		if pool.IsZero() && len(cdps) > 0 {
 			return sdk.FormatInvariant(
-				types.ModuleName,
-				cdpsForExistingPrice,
-				fmt.Sprintf(
-					"cdps opened and liquidity pool is empty",
-				),
+				types.ModuleName, cdpsForExistingPrice, "cdps opened and liquidity pool is empty",
 			), true
 		}
 

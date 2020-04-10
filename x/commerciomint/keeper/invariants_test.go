@@ -10,19 +10,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestCdpsForExistingPrice(t *testing.T) {
 	tests := []struct {
 		name      string
-		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, types.Context) error
+		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, sdk.Context) error
 		wantFail  bool
 	}{
 		{
 			"Each Cdp opened refers to an existing price",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
 				if err != nil {
 					return err
@@ -36,7 +34,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 		},
 		{
 			"Cdp opened with corresponding price set to zero values (no value, no expiry)",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
 				if err != nil {
 					return err
@@ -57,7 +55,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 		},
 		{
 			"Cdp opened with corresponding price nonexistant",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
 				if err != nil {
 					return err
@@ -80,7 +78,7 @@ func TestCdpsForExistingPrice(t *testing.T) {
 		},
 		{
 			"No cdps and no prices",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
 				return nil
 			},
 			false,
@@ -103,12 +101,12 @@ func TestCdpsForExistingPrice(t *testing.T) {
 func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
 	tests := []struct {
 		name      string
-		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, types.Context) error
+		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, sdk.Context) error
 		wantFail  bool
 	}{
 		{
 			"One cdp opened equals the value of the liquidity pool",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
 				if err != nil {
 					return err
@@ -122,7 +120,7 @@ func TestLiquidityPoolAmountEqualsCdps(t *testing.T) {
 		},
 		{
 			"One cdp opened and the liquidity pool is zero",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx types.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.DepositedAmount)
 				if err != nil {
 					return err
