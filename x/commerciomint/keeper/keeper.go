@@ -205,7 +205,7 @@ func (k Keeper) ShouldLiquidatePosition(ctx sdk.Context, position types.Position
 	}
 
 	creditsAmount := position.Credits.Amount.ToDec()
-	if creditsAmount.LTE(fiatValue) {
+	if creditsAmount.GTE(fiatValue) {
 		return true, nil
 	}
 	return false, nil
