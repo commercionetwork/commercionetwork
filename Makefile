@@ -137,11 +137,11 @@ build-docker-cndode:
 	$(MAKE) -C contrib/localnet
 
 
-.PHONY:  build-docker-cndode
-
 localnet-start:
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
 
 localnet-stop:
 	docker-compose down
+
+.PHONY: localnet-start localnet-stop build-docker-cndode
