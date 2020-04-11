@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+
 	"github.com/commercionetwork/commercionetwork/x/vbr"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
@@ -295,6 +297,20 @@ func initGenFiles(
 	tokens := sdk.TokensFromConsensusPower(1000)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	appGenState[vbr.ModuleName] = cdc.MustMarshalJSON(vbrState)
+
+	// cnd set-genesis-price ucommercio 1 100000000
+	var genState pricefeed.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[pricefeed.ModuleName], &genState)
+
+	// save the raw price, the asset name and the oracle
+	price := pricefeed.Price{AssetName: app.DefaultBondDenom, Value: sdk.NewDec(1), Expiry: sdk.NewInt(100000000)}
+	rawPrice := pricefeed.OraclePrice{Oracle: genAccounts[0].GetAddress(), Price: price, Created: sdk.ZeroInt()}
+	genState.RawPrices, _ = genState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
+	genState.Assets, _ = genState.Assets.AppendIfMissing(price.AssetName)
+	genState.Oracles, _ = genState.Oracles.AppendIfMissing(genAccounts[0].GetAddress())
+
+	genesisStateBz := cdc.MustMarshalJSON(genState)
+	appGenState[pricefeed.ModuleName] = genesisStateBz
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	if err != nil {
