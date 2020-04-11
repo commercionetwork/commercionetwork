@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/commercionetwork/commercionetwork/x/vbr"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 
 	"github.com/commercionetwork/commercionetwork/app"
@@ -285,6 +287,14 @@ func initGenFiles(
 	governmentState.TumblerAddress = genAccounts[0].GetAddress()
 
 	appGenState[government.ModuleName] = cdc.MustMarshalJSON(governmentState)
+
+	// set-genesis-vbr-pool-amount 1000000000ucommercio
+	var vbrState vbr.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[vbr.ModuleName], &vbrState)
+
+	tokens := sdk.TokensFromConsensusPower(1000)
+	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
+	appGenState[vbr.ModuleName] = cdc.MustMarshalJSON(vbrState)
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	if err != nil {
