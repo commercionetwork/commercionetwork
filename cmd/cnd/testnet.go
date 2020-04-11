@@ -281,6 +281,9 @@ func initGenFiles(
 	cdc.MustUnmarshalJSON(appGenState[government.ModuleName], &authGenState)
 
 	governmentState.GovernmentAddress = genAccounts[0].GetAddress()
+	// cnd set-genesis-tumbler-address
+	governmentState.TumblerAddress = genAccounts[0].GetAddress()
+
 	appGenState[government.ModuleName] = cdc.MustMarshalJSON(governmentState)
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
