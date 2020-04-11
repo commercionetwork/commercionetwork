@@ -74,11 +74,11 @@ install: go.sum
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
-	go build -mod=readonly -o ./build/cnd.exe $(BUILD_FLAGS) ./cmd/cnd/main.go
-	go build -mod=readonly -o ./build/cncli.exe $(BUILD_FLAGS) ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
+	go build -mod=readonly -o ./build/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
 else
-	go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd/main.go
-	go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd
+	go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli
 endif
 
 
