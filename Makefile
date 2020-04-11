@@ -145,4 +145,7 @@ localnet-start: localnet-stop
 localnet-stop:
 	docker-compose down
 
-.PHONY: localnet-start localnet-stop build-docker-cndode
+clean:
+	rm -rf build/
+
+.PHONY: localnet-start localnet-stop build-docker-cndode clean
