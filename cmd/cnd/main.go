@@ -59,6 +59,7 @@ func main() {
 	)
 	rootCmd.AddCommand(genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics))
 	rootCmd.AddCommand(flags.NewCompletionCmd(rootCmd, true))
+	rootCmd.AddCommand(testnetCmd(ctx, cdc, app.ModuleBasics, auth.GenesisAccountIterator{}))
 
 	// Custom commands
 	rootCmd.AddCommand(comgenutilcli.MigrationsListCmd(ctx, cdc))
