@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/commercionetwork/commercionetwork/x/memberships"
+
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr"
@@ -276,41 +278,41 @@ func initGenFiles(
 	// set the accounts in the genesis state
 	var authGenState auth.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[auth.ModuleName], &authGenState)
-
 	authGenState.Accounts = genAccounts
 	appGenState[auth.ModuleName] = cdc.MustMarshalJSON(authGenState)
 
 	// cnd set-genesis-government-address
+	// cnd set-genesis-tumbler-address
 	var governmentState government.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[government.ModuleName], &authGenState)
-
 	governmentState.GovernmentAddress = genAccounts[0].GetAddress()
-	// cnd set-genesis-tumbler-address
 	governmentState.TumblerAddress = genAccounts[0].GetAddress()
-
 	appGenState[government.ModuleName] = cdc.MustMarshalJSON(governmentState)
 
 	// set-genesis-vbr-pool-amount 1000000000ucommercio
 	var vbrState vbr.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[vbr.ModuleName], &vbrState)
-
 	tokens := sdk.TokensFromConsensusPower(1000)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	appGenState[vbr.ModuleName] = cdc.MustMarshalJSON(vbrState)
 
 	// cnd set-genesis-price ucommercio 1 100000000
-	var genState pricefeed.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[pricefeed.ModuleName], &genState)
-
-	// save the raw price, the asset name and the oracle
+	var priceState pricefeed.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[pricefeed.ModuleName], &priceState)
 	price := pricefeed.Price{AssetName: app.DefaultBondDenom, Value: sdk.NewDec(1), Expiry: sdk.NewInt(100000000)}
 	rawPrice := pricefeed.OraclePrice{Oracle: genAccounts[0].GetAddress(), Price: price, Created: sdk.ZeroInt()}
-	genState.RawPrices, _ = genState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
-	genState.Assets, _ = genState.Assets.AppendIfMissing(price.AssetName)
-	genState.Oracles, _ = genState.Oracles.AppendIfMissing(genAccounts[0].GetAddress())
-
-	genesisStateBz := cdc.MustMarshalJSON(genState)
+	priceState.RawPrices, _ = priceState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
+	priceState.Assets, _ = priceState.Assets.AppendIfMissing(price.AssetName)
+	priceState.Oracles, _ = priceState.Oracles.AppendIfMissing(genAccounts[0].GetAddress())
+	genesisStateBz := cdc.MustMarshalJSON(priceState)
 	appGenState[pricefeed.ModuleName] = genesisStateBz
+
+	// cnd add-genesis-tsp
+	var memberState memberships.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[memberships.ModuleName], &memberState)
+	memberState.TrustedServiceProviders, _ = memberState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
+	genesisStateBz = cdc.MustMarshalJSON(memberState)
+	appGenState[memberships.ModuleName] = genesisStateBz
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	if err != nil {
