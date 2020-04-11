@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/commercionetwork/commercionetwork/x/government"
+
 	"github.com/commercionetwork/commercionetwork/app"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -273,6 +275,13 @@ func initGenFiles(
 
 	authGenState.Accounts = genAccounts
 	appGenState[auth.ModuleName] = cdc.MustMarshalJSON(authGenState)
+
+	// cnd set-genesis-government-address
+	var governmentState government.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[government.ModuleName], &authGenState)
+
+	governmentState.GovernmentAddress = genAccounts[0].GetAddress()
+	appGenState[government.ModuleName] = cdc.MustMarshalJSON(governmentState)
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	if err != nil {
