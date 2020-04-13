@@ -12,16 +12,16 @@ import (
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Cdps                types.Cdps `json:"cdps"`
-	LiquidityPoolAmount sdk.Coins  `json:"pool_amount"`
-	CreditsDenom        string     `json:"credits_denom"`
-	CollateralRate      sdk.Dec    `json:"collateral_rate"`
+	Positions           []types.Position `json:"positions"`
+	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
+	CreditsDenom        string           `json:"credits_denom"`
+	CollateralRate      sdk.Dec          `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState(creditsDenom string) GenesisState {
 	return GenesisState{
-		Cdps:                types.Cdps{},
+		Positions:           []types.Position{},
 		LiquidityPoolAmount: sdk.Coins{},
 		CreditsDenom:        creditsDenom,
 		CollateralRate:      sdk.NewDec(2),
@@ -46,8 +46,8 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 	}
 
 	// Add the existing CDPs
-	for _, cdp := range data.Cdps {
-		keeper.AddCdp(ctx, cdp)
+	for _, position := range data.Positions {
+		keeper.SetPosition(ctx, position)
 	}
 
 	// Set the stable credits denom
@@ -57,7 +57,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
-		Cdps:                keeper.GetCdps(ctx),
+		Positions:           keeper.GetAllPositions(ctx),
 		LiquidityPoolAmount: keeper.GetLiquidityPoolAmount(ctx),
 		CreditsDenom:        keeper.GetCreditsDenom(ctx),
 		CollateralRate:      keeper.GetCollateralRate(ctx),
@@ -67,8 +67,8 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 // ValidateGenesis performs basic validation of genesis data returning an
 // error for any failed validation criteria.
 func ValidateGenesis(state GenesisState) error {
-	for _, cdp := range state.Cdps {
-		err := cdp.Validate()
+	for _, position := range state.Positions {
+		err := position.Validate()
 		if err != nil {
 			return err
 		}

@@ -13,15 +13,16 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.DepositedAmount)
-var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.Timestamp)
+var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.Deposit)
+var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.CreatedAt)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
-	ctx, bk, pfk, _, k := SetupTestInput()
+	ctx, bk, pfk, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
 	// Test setup
-	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.DepositedAmount)
+	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.Deposit)
 	balance := bk.GetCoins(ctx, testCdpOwner)
 
 	// Check balance
@@ -33,7 +34,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 
 	actual, err := handler(ctx, testMsgOpenCdp)
 	require.NoError(t, err)
-	require.Equal(t, &sdk.Result{Log: "Cdp opened successfully"}, actual)
+	require.Equal(t, &sdk.Result{Log: "Position opened successfully"}, actual)
 
 	// Check final balance
 	balance = bk.GetCoins(ctx, testCdpOwner)
@@ -41,28 +42,32 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 }
 
 func TestHandler_handleMsgCloseCdp(t *testing.T) {
-	ctx, bk, _, _, k := SetupTestInput()
+	ctx, bk, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.DepositedAmount)
-	_ = bk.SetCoins(ctx, testCdp.Owner, testCdp.CreditsAmount)
-	k.AddCdp(ctx, testCdp)
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Deposit)
+	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
+	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
+	k.SetPosition(ctx, testCdp)
+	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
 
-	expected := &sdk.Result{Log: "Cdp closed successfully"}
+	expected := &sdk.Result{Log: "Position closed successfully"}
 	actual, err := handler(ctx, testMsgCloseCdp)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 }
 
 func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
-	ctx, _, _, gk, k := SetupTestInput()
+	ctx, _, _, gk, _, k := SetupTestInput()
 	govAddr := []byte("governance")
 	gk.SetGovernmentAddress(ctx, govAddr)
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
 	msg := types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(3))
 
-	expected := &sdk.Result{Log: "Cdp collateral rate changed successfully to 3.000000000000000000"}
+	expected := &sdk.Result{Log: "Position collateral rate changed successfully to 3.000000000000000000"}
 	actual, err := handler(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
@@ -79,8 +84,9 @@ func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
-	ctx, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
 
 	invalidMsg := sdk.NewTestMsg()
 	errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, invalidMsg.Type())

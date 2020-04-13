@@ -35,8 +35,7 @@ func queryGetCdp(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) 
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("timestamp not valid: %s", path[1]))
 	}
-	cdp, found := keeper.GetCdpByOwnerAndTimeStamp(ctx, ownerAddr, timestamp)
-
+	cdp, found := keeper.GetPosition(ctx, ownerAddr, timestamp)
 	if !found {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "couldn't find any cdp associated with the given address and timestamp")
 	}
@@ -51,8 +50,7 @@ func queryGetCdp(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) 
 
 func queryGetCdps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
-	cdps := keeper.GetCdpsByOwner(ctx, ownerAddr)
-
+	cdps := keeper.GetAllPositionsOwnedBy(ctx, ownerAddr)
 	cdpsBz, err := codec.MarshalJSONIndent(keeper.cdc, cdps)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")

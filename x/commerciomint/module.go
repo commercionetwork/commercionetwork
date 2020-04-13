@@ -18,13 +18,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const DefaultCreditsDenom = "uccc"
+
 // AppModuleBasic defines the basic application module used by the docs module.
 type AppModuleBasic struct {
 	CreditsDenom string
 }
 
-func NewAppModuleBasic(creditsDenom string) AppModuleBasic {
-	return AppModuleBasic{CreditsDenom: creditsDenom}
+func NewAppModuleBasic() AppModuleBasic {
+	return AppModuleBasic{}
 }
 
 // module name
@@ -33,7 +35,7 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { types.RegisterCodec(cdc)
 
 // default genesis state
 func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState(amb.CreditsDenom))
+	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState(DefaultCreditsDenom))
 }
 
 // module genesis validation
@@ -123,6 +125,6 @@ func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {}
 
 // module end-block
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	am.keeper.AutoLiquidateCdps(ctx)
+	am.keeper.AutoLiquidatePositions(ctx)
 	return []abci.ValidatorUpdate{}
 }

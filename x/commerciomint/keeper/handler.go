@@ -27,21 +27,21 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) (*sdk.Result, error) {
-	err := keeper.OpenCdp(ctx, msg.Depositor, msg.DepositedAmount)
+	err := keeper.NewPosition(ctx, msg.Owner, msg.Deposit)
 	if err != nil {
 		return nil, err
 	}
 
-	return &sdk.Result{Log: "Cdp opened successfully"}, nil
+	return &sdk.Result{Log: "Position opened successfully"}, nil
 }
 
 func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) (*sdk.Result, error) {
-	err := keeper.CloseCdp(ctx, msg.Signer, msg.Timestamp)
+	err := keeper.CloseCdp(ctx, msg.Signer, msg.Created)
 	if err != nil {
 		return nil, err
 	}
 
-	return &sdk.Result{Log: "Cdp closed successfully"}, nil
+	return &sdk.Result{Log: "Position closed successfully"}, nil
 }
 
 func handleMsgSetCdpCollateralRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetCdpCollateralRate) (*sdk.Result, error) {
@@ -52,5 +52,5 @@ func handleMsgSetCdpCollateralRate(ctx sdk.Context, keeper Keeper, msg types.Msg
 	if err := keeper.SetCollateralRate(ctx, msg.CdpCollateralRate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	return &sdk.Result{Log: fmt.Sprintf("Cdp collateral rate changed successfully to %s", msg.CdpCollateralRate)}, nil
+	return &sdk.Result{Log: fmt.Sprintf("Position collateral rate changed successfully to %s", msg.CdpCollateralRate)}, nil
 }

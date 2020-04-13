@@ -74,11 +74,11 @@ install: go.sum
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
-	go build -mod=readonly -o ./build/cnd.exe $(BUILD_FLAGS) ./cmd/cnd/main.go
-	go build -mod=readonly -o ./build/cncli.exe $(BUILD_FLAGS) ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
+	go build -mod=readonly -o ./build/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
 else
-	go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd/main.go
-	go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli/main.go
+	go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd
+	go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli
 endif
 
 
@@ -132,3 +132,20 @@ test_unit:
 	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_NOSIMULATION) -tags='ledger test_ledger_mock'
 
 .PHONY: lint test test_unit go-mod-cache
+
+build-docker-cndode:
+	$(MAKE) -C contrib/localnet
+
+
+localnet-start: localnet-stop
+	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
+	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
+	docker-compose up
+
+localnet-stop:
+	docker-compose down
+
+clean:
+	rm -rf build/
+
+.PHONY: localnet-start localnet-stop build-docker-cndode clean
