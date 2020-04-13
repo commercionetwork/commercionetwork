@@ -197,24 +197,24 @@ func TestKeeper_GetCurrentPrices(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.CurrentPricesPrefix+TestPrice.AssetName), k.cdc.MustMarshalBinaryBare(TestPrice))
+	store.Set([]byte(types.CurrentPricesPrefix+testPrice.AssetName), k.cdc.MustMarshalBinaryBare(testPrice))
 
-	require.Equal(t, types.Prices{TestPrice}, k.GetCurrentPrices(ctx))
+	require.Equal(t, types.Prices{testPrice}, k.GetCurrentPrices(ctx))
 }
 
 func TestKeeper_GetCurrentPrice_Found(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.CurrentPricesPrefix+TestPrice.AssetName), k.cdc.MustMarshalBinaryBare(TestPrice))
+	store.Set([]byte(types.CurrentPricesPrefix+testPrice.AssetName), k.cdc.MustMarshalBinaryBare(testPrice))
 
-	actual, _ := k.GetCurrentPrice(ctx, TestPrice.AssetName)
-	require.Equal(t, TestPrice, actual)
+	actual, _ := k.GetCurrentPrice(ctx, testPrice.AssetName)
+	require.Equal(t, testPrice, actual)
 }
 
 func TestKeeper_GetCurrentPrice_NotFound(t *testing.T) {
 	_, ctx, _, k := SetupTestInput()
-	_, found := k.GetCurrentPrice(ctx, TestPrice.AssetName)
+	_, found := k.GetCurrentPrice(ctx, testPrice.AssetName)
 	require.False(t, found)
 }
 

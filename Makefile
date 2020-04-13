@@ -118,11 +118,10 @@ go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	go mod verify
 
-lint: golangci-lint
-	$(BINDIR)/golangci-lint run
+lint:
+	golangci-lint run
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
-.PHONY: lint
 
 ########################################
 ### Testing
@@ -132,6 +131,7 @@ test: test_unit
 test_unit:
 	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_NOSIMULATION) -tags='ledger test_ledger_mock'
 
+.PHONY: lint test test_unit go-mod-cache
 
 build-docker-cndode:
 	$(MAKE) -C contrib/localnet

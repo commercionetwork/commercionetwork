@@ -31,18 +31,18 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, querierRoute 
 		resolvePowerUpRequestHandler(cliCtx, querierRoute)).
 		Methods("GET")
 
-	r.HandleFunc(fmt.Sprintf(
-		"/approvedPowerUpRequests"),
+	r.HandleFunc(
+		"/approvedPowerUpRequests",
 		resolveApprovedPowerUpRequests(cliCtx, querierRoute)).
 		Methods("GET")
 
-	r.HandleFunc(fmt.Sprintf(
-		"/rejectedPowerUpRequests"),
+	r.HandleFunc(
+		"/rejectedPowerUpRequests",
 		resolveRejectedPowerUpRequests(cliCtx, querierRoute)).
 		Methods("GET")
 
-	r.HandleFunc(fmt.Sprintf(
-		"/pendingPowerUpRequests"),
+	r.HandleFunc(
+		"/pendingPowerUpRequests",
 		resolvePendingPowerUpRequests(cliCtx, querierRoute)).
 		Methods("GET")
 }

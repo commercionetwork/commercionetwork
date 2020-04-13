@@ -76,8 +76,7 @@ func handleMsgAddTrustedMetadataSchemaProposer(ctx sdk.Context, keeper Keeper, m
 	// Authenticate the signer
 	governmentAddr := keeper.GovernmentKeeper.GetGovernmentAddress(ctx)
 	if !msg.Signer.Equals(governmentAddr) {
-		errMsg := fmt.Sprintf("Only the government can add a trusted metadata schema proposer")
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Only the government can add a trusted metadata schema proposer")
 	}
 
 	// Add the trusted schema proposer

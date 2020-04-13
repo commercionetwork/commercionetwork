@@ -36,12 +36,12 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/docs/metadataSchemes"),
+		"/docs/metadataSchemes",
 		getSupportedMetadataSchemesHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/docs/metadataSchemes/proposers"),
+		"/docs/metadataSchemes/proposers",
 		getTrustedMetadataSchemesProposersHandler(cliCtx)).
 		Methods("GET")
 }
