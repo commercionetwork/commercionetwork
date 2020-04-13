@@ -3,6 +3,9 @@ package simapp
 import (
 	"io"
 
+	"github.com/commercionetwork/commercionetwork/app"
+	customstaking "github.com/commercionetwork/commercionetwork/x/encapsulated/staking"
+
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -40,7 +43,7 @@ var (
 		supply.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
-		staking.AppModuleBasic{},
+		customstaking.NewAppModuleBasic(app.DefaultBondDenom),
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
@@ -181,7 +184,7 @@ func NewSimApp(
 		mint.NewAppModule(app.MintKeeper),
 		distr.NewAppModule(app.DistrKeeper, app.AccountKeeper, app.SupplyKeeper, app.StakingKeeper),
 		slashing.NewAppModule(app.SlashingKeeper, app.AccountKeeper, app.StakingKeeper),
-		staking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
+		customstaking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
 		pricefeed.NewAppModule(app.PriceFeedKeeper, app.GovernmentKeeper),
 	)
 

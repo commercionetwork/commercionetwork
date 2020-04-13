@@ -1,8 +1,9 @@
 package customstaking
 
 import (
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	tmstrings "github.com/tendermint/tendermint/libs/strings"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -12,6 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
+
+var MinimumDeposit = sdk.NewCoin("ucommercio", sdk.TokensFromConsensusPower(50000))
 
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
@@ -54,6 +57,10 @@ func handleMsgCreateValidator(ctx sdk.Context, msg types.MsgCreateValidator, k k
 
 	if msg.Value.Denom != k.BondDenom(ctx) {
 		return nil, staking.ErrBadDenom
+	}
+
+	if msg.Value.IsLT(MinimumDeposit) {
+		return nil, ErrMinimumDeposit
 	}
 
 	if _, err := msg.Description.EnsureLength(); err != nil {
