@@ -333,6 +333,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Custom modules
 		pricefeed.ModuleName,
 		memberships.ModuleName,
+		commerciominttypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
