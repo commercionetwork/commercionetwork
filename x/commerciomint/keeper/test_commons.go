@@ -19,7 +19,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, supply.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -60,7 +60,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk, govkeeper)
 
 	// Set initial supply
-	sk.SetSupply(ctx, supply.NewSupply(testCdp.CreditsAmount))
+	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testCdp.Credits)))
 
 	// Set module accounts
 	mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
@@ -71,7 +71,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	// Set cdp collateral rate
 	mintK.SetCollateralRate(ctx, sdk.NewDec(2))
 
-	return ctx, bk, pfk, govkeeper, mintK
+	return ctx, bk, pfk, govkeeper, sk, mintK
 }
 
 func testCodec() *codec.Codec {
@@ -99,10 +99,10 @@ var testCreditsDenom = "stake"
 var testLiquidityDenom = "ucommercio"
 var testCdpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
-var testCdp = types.NewCdp(
+var testCdp = types.NewPosition(
 	testCdpOwner,
 	sdk.NewCoins(sdk.NewCoin(testLiquidityDenom, sdk.NewInt(100))),
-	sdk.NewCoins(sdk.NewCoin(testCreditsDenom, sdk.NewInt(50))),
+	sdk.NewCoin(testCreditsDenom, sdk.NewInt(50)),
 	10,
 )
 

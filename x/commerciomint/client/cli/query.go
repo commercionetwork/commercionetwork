@@ -100,7 +100,7 @@ func getCdpsFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 func getCdpCollateralRate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "collateral-rate",
-		Short: "Display the current Cdp collateral rate",
+		Short: "Display the current Position collateral rate",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return getCdpCollateralRateFunc(cdc)
