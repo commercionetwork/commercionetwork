@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"time"
@@ -46,6 +47,10 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			keybase, err := keys.NewKeyring(sdk.KeyringServiceName(), viper.GetString(flags.FlagKeyringBackend), viper.GetString(flags.FlagHome), os.Stdin)
+			if err != nil {
+				return fmt.Errorf("error accesing to keyring: %w", err)
+			}
 
 			verPubKey, err := getVerificationPublicKey(cliCtx, viper.GetString(flagPrivRsaVerKey))
 			if err != nil {
@@ -66,9 +71,19 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 				},
 			}
 
-			signature, err := signDidDocument(cliCtx, cdc, unsignedDoc)
+			signature, err := signDidDocument(cliCtx, cdc, unsignedDoc, keybase)
 			if err != nil {
 				return err
+			}
+
+			fromAddressPubkey, err := keybase.GetByAddress(cliCtx.GetFromAddress())
+			if err != nil {
+				return fmt.Errorf("could not get keybase for address: %w", err)
+			}
+
+			verMeth, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, fromAddressPubkey.GetPubKey())
+			if err != nil {
+				return fmt.Errorf("could not derive address public key: %w", err)
 			}
 
 			proof := types.Proof{
@@ -76,8 +91,8 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 				Created:            time.Now(),
 				ProofPurpose:       types.ProofPurposeAuthentication,
 				Controller:         cliCtx.GetFromAddress().String(),
-				VerificationMethod: cliCtx.GetFromAddress().String(),
-				SignatureValue:     string(signature),
+				VerificationMethod: verMeth,
+				SignatureValue:     signature,
 			}
 
 			msg := types.NewMsgSetIdentity(types.DidDocument{
@@ -105,22 +120,17 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func signDidDocument(cliCtx context.CLIContext, cdc *codec.Codec, unsignedDoc types.DidDocumentUnsigned) ([]byte, error) {
+func signDidDocument(cliCtx context.CLIContext, cdc *codec.Codec, unsignedDoc types.DidDocumentUnsigned, keybase keys.Keybase) (string, error) {
 	jsonUnsigned, err := cdc.MarshalJSON(unsignedDoc)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling doc into json")
-	}
-
-	keybase, err := keys.NewKeyring(sdk.KeyringServiceName(), viper.GetString(flags.FlagKeyringBackend), viper.GetString(flags.FlagHome), os.Stdin)
-	if err != nil {
-		return nil, fmt.Errorf("error accesing to keyring: %s", err)
+		return "", fmt.Errorf("error marshaling doc into json")
 	}
 
 	sign, _, err := keybase.Sign(cliCtx.GetFromName(), "", jsonUnsigned)
 	if err != nil {
-		return nil, fmt.Errorf("failed to sign tx")
+		return "", fmt.Errorf("failed to sign tx")
 	}
-	return sign, nil
+	return base64.StdEncoding.EncodeToString(sign), nil
 }
 
 func getVerificationPublicKey(cliCtx context.CLIContext, path string) (types.PubKey, error) {
