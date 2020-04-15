@@ -37,10 +37,10 @@ func (msg MsgInviteUser) Type() string { return MsgTypeInviteUser }
 // ValidateBasic Implements Msg.
 func (msg MsgInviteUser) ValidateBasic() error {
 	if msg.Recipient.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid recipient address: %s", msg.Recipient)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid recipient address: %s", msg.Recipient))
 	}
 	if msg.Sender.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid sender address: %s", msg.Sender)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid sender address: %s", msg.Sender))
 	}
 	return nil
 }
@@ -83,10 +83,10 @@ func (msg MsgDepositIntoLiquidityPool) Type() string { return MsgTypesDepositInt
 // ValidateBasic Implements Msg.
 func (msg MsgDepositIntoLiquidityPool) ValidateBasic() error {
 	if msg.Depositor.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid depositor address: %s", msg.Depositor)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid depositor address: %s", msg.Depositor))
 	}
 	if msg.Amount.Empty() || !msg.Amount.IsValid() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, (fmt.Sprintf("Invalid deposit amount: %s", msg.Amount)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", msg.Amount))
 	}
 	return nil
 }
@@ -127,10 +127,10 @@ func (msg MsgAddTsp) Type() string { return MsgTypeAddTsp }
 // ValidateBasic Implements Msg.
 func (msg MsgAddTsp) ValidateBasic() error {
 	if msg.Tsp.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid TSP address: %s", msg.Tsp)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid TSP address: %s", msg.Tsp))
 	}
 	if msg.Government.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid government address: %s", msg.Government)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 	return nil
 }
@@ -172,7 +172,7 @@ func (msg MsgBuyMembership) Type() string { return MsgTypeBuyMembership }
 // ValidateBasic Implements Msg.
 func (msg MsgBuyMembership) ValidateBasic() error {
 	if msg.Buyer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid buyer address: %s", msg.Buyer)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid buyer address: %s", msg.Buyer))
 	}
 
 	membershipType := strings.TrimSpace(msg.MembershipType)
