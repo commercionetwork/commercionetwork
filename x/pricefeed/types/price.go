@@ -23,6 +23,10 @@ func NewPrice(assetName string, price sdk.Dec, expiry sdk.Int) Price {
 	}
 }
 
+func EmptyPrice() Price {
+	return Price{AssetName: "", Value: sdk.ZeroDec(), Expiry: sdk.ZeroInt()}
+}
+
 // Implements equatable
 func (currentPrice Price) Equals(cp Price) bool {
 	return currentPrice.AssetName == cp.AssetName &&
