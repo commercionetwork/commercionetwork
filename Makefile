@@ -83,16 +83,16 @@ endif
 
 
 build-darwin: go.sum
-	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli/main.go
-	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd/main.go
+	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
+	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
 
 build-linux: go.sum
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli/main.go
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd/main.go
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
 
 build-windows: go.sum
-	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe $(BUILD_FLAGS) ./cmd/cncli/main.go
-	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe $(BUILD_FLAGS) ./cmd/cnd/main.go
+	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
+	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
 
 build-all: go.sum
 	make build-darwin
@@ -118,11 +118,10 @@ go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	go mod verify
 
-lint: golangci-lint
-	$(BINDIR)/golangci-lint run
+lint:
+	golangci-lint run
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
-.PHONY: lint
 
 ########################################
 ### Testing
@@ -132,6 +131,7 @@ test: test_unit
 test_unit:
 	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_NOSIMULATION) -tags='ledger test_ledger_mock'
 
+.PHONY: lint test test_unit go-mod-cache
 
 build-docker-cndode:
 	$(MAKE) -C contrib/localnet

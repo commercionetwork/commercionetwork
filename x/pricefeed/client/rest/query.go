@@ -16,15 +16,11 @@ const (
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
-	r.HandleFunc(
-		fmt.Sprintf("/pricefeed/prices"),
-		getCurrentPricesHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/pricefeed/prices", getCurrentPricesHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
 		fmt.Sprintf("/pricefeed/prices/{%s}", restTokenName),
 		getCurrentPriceHandler(cliCtx)).Methods("GET")
-	r.HandleFunc(
-		fmt.Sprintf("/pricefeed/oracles"),
-		getOraclesHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/pricefeed/oracles", getOraclesHandler(cliCtx)).Methods("GET")
 }
 
 func getCurrentPriceHandler(cliCtx context.CLIContext) http.HandlerFunc {

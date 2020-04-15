@@ -65,8 +65,7 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 func handleMsgChangePowerUpStatus(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgChangePowerUpStatus) (*sdk.Result, error) {
 	// Check the signer if status is approved or rejected
 	if !govKeeper.GetTumblerAddress(ctx).Equals(msg.Signer) {
-		msg := fmt.Sprintf("Cannot set request as handled without being the tumbler")
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg)
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Cannot set request as handled without being the tumbler")
 	}
 
 	// Get the existing request

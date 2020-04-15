@@ -15,20 +15,13 @@ const (
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
-	r.HandleFunc(
-		fmt.Sprintf("/invites"),
-		getInvitesHandler(cliCtx)).
-		Methods("GET")
-
+	r.HandleFunc("/invites", getInvitesHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
 		fmt.Sprintf("/invites/{%s}", restParamAddress),
 		getInvitesForUserHandler(cliCtx)).
 		Methods("GET")
 
-	r.HandleFunc(
-		fmt.Sprintf("/tsps"),
-		getTrustedServiceProvidersHandler(cliCtx)).
-		Methods("GET")
+	r.HandleFunc("/tsps", getTrustedServiceProvidersHandler(cliCtx)).Methods("GET")
 
 	r.HandleFunc(
 		"/accreditations-funds",

@@ -125,7 +125,7 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 
 	invite, err := governmentInvitesUser(ctx, keeper, msg.Subscriber)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("government could not invite user"))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "government could not invite user")
 	}
 
 	err = keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership)

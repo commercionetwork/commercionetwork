@@ -52,6 +52,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 
 	// Set the stable credits denom
 	keeper.SetCreditsDenom(ctx, data.CreditsDenom)
+	keeper.SetCollateralRate(ctx, data.CollateralRate)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

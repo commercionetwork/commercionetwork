@@ -24,7 +24,7 @@ func TestQuerier_getCurrentPrices(t *testing.T) {
 
 	//setup the keystore with two current prices
 	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.CurrentPricesPrefix+TestPrice.AssetName), k.cdc.MustMarshalBinaryBare(TestPrice))
+	store.Set([]byte(types.CurrentPricesPrefix+testPrice.AssetName), k.cdc.MustMarshalBinaryBare(testPrice))
 	store.Set([]byte(types.CurrentPricesPrefix+TestPriceInfo2.AssetName), k.cdc.MustMarshalBinaryBare(TestPriceInfo2))
 
 	path := []string{types.QueryGetCurrentPrices}
@@ -34,7 +34,7 @@ func TestQuerier_getCurrentPrices(t *testing.T) {
 	var actual types.Prices
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, types.Prices{TestPrice, TestPriceInfo2}, actual)
+	require.Equal(t, types.Prices{testPrice, TestPriceInfo2}, actual)
 }
 
 func TestQuerier_getCurrentPrice(t *testing.T) {
@@ -42,17 +42,17 @@ func TestQuerier_getCurrentPrice(t *testing.T) {
 
 	//setup the keystore with two current prices
 	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.CurrentPricesPrefix+TestPrice.AssetName), k.cdc.MustMarshalBinaryBare(TestPrice))
+	store.Set([]byte(types.CurrentPricesPrefix+testPrice.AssetName), k.cdc.MustMarshalBinaryBare(testPrice))
 	store.Set([]byte(types.CurrentPricesPrefix+TestPriceInfo2.AssetName), k.cdc.MustMarshalBinaryBare(TestPriceInfo2))
 
-	path := []string{types.QueryGetCurrentPrice, TestPrice.AssetName}
+	path := []string{types.QueryGetCurrentPrice, testPrice.AssetName}
 	querier := NewQuerier(k)
 	actualBz, _ := querier(ctx, path, request)
 
 	var actual types.Price
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, TestPrice, actual)
+	require.Equal(t, testPrice, actual)
 }
 
 func TestQuerier_getOracles(t *testing.T) {

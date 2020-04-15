@@ -59,7 +59,7 @@ func testCodec() *codec.Codec {
 }
 
 // Test variables
-var TestPrice = types.Price{
+var testPrice = types.Price{
 	AssetName: "test",
 	Value:     sdk.NewDec(10),
 	Expiry:    sdk.NewInt(5000),
