@@ -32,16 +32,16 @@ func (msg MsgSetPrice) Type() string { return MsgTypeSetPrice }
 // ValidateBasic Implements Msg.
 func (msg MsgSetPrice) ValidateBasic() error {
 	if msg.Oracle.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Oracle.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Oracle.String())
 	}
 	if msg.Price.Value.IsNegative() {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Token's price cannot be zero or negative"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Token's price cannot be zero or negative")
 	}
 	if len(strings.TrimSpace(msg.Price.AssetName)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Cannot set price for unnamed token"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Cannot set price for unnamed token")
 	}
 	if msg.Price.Expiry.IsZero() || msg.Price.Expiry.IsNegative() {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Cannot set price with an expire height of zero or negative"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Cannot set price with an expire height of zero or negative")
 	}
 
 	return nil
@@ -82,10 +82,10 @@ func (msg MsgAddOracle) Type() string { return MsgTypeAddOracle }
 // ValidateBasic Implements Msg.
 func (msg MsgAddOracle) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
 	}
 	if msg.Oracle.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Oracle.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Oracle.String())
 	}
 	return nil
 }
@@ -125,7 +125,7 @@ func (msg MsgBlacklistDenom) Type() string { return MsgTypeBlacklistDenom }
 // ValidateBasic Implements Msg.
 func (msg MsgBlacklistDenom) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
 	}
 	if msg.Denom == "" {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "missing denom")
