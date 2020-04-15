@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -36,12 +37,12 @@ func SetGenesisTumblerAddressCmd(ctx *server.Context, cdc *codec.Codec,
 
 			// add minter to the app state
 			var genState government.GenesisState
-			cdc.MustUnmarshalJSON(appState[government.ModuleName], &genState)
+			cdc.MustUnmarshalJSON(appState[governmentTypes.ModuleName], &genState)
 
 			genState.TumblerAddress = address
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[government.ModuleName] = genesisStateBz
+			appState[governmentTypes.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

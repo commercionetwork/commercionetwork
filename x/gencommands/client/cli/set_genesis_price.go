@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -51,20 +52,20 @@ Also adds the specified address as a valid oracle and the given token name as a 
 			}
 
 			// create the price object
-			price := pricefeed.Price{AssetName: args[0], Value: value, Expiry: expiry}
+			price := pricefeedTypes.Price{AssetName: args[0], Value: value, Expiry: expiry}
 
 			// add the price to the app state
 			var genState pricefeed.GenesisState
-			cdc.MustUnmarshalJSON(appState[pricefeed.ModuleName], &genState)
+			cdc.MustUnmarshalJSON(appState[pricefeedTypes.ModuleName], &genState)
 
 			// save the raw price, the asset name and the oracle
-			rawPrice := pricefeed.OraclePrice{Oracle: oracle, Price: price, Created: sdk.ZeroInt()}
+			rawPrice := pricefeedTypes.OraclePrice{Oracle: oracle, Price: price, Created: sdk.ZeroInt()}
 			genState.RawPrices, _ = genState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
 			genState.Assets, _ = genState.Assets.AppendIfMissing(price.AssetName)
 			genState.Oracles, _ = genState.Oracles.AppendIfMissing(oracle)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[pricefeed.ModuleName] = genesisStateBz
+			appState[pricefeedTypes.ModuleName] = genesisStateBz
 
 			appStateJSON, err2 := cdc.MarshalJSON(appState)
 			if err2 != nil {

@@ -1,6 +1,10 @@
 package keeper
 
 import (
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,11 +19,9 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
-func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, supply.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, pricefeedKeeper.Keeper, governmentKeeper.Keeper, supply.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -27,8 +29,8 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		pricefeed.StoreKey,
-		government.StoreKey,
+		pricefeedTypes.StoreKey,
+		governmentTypes.StoreKey,
 		creditrisk.StoreKey,
 		types.StoreKey,
 	)
@@ -54,8 +56,8 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 
-	govkeeper := government.NewKeeper(cdc, keys[government.StoreKey])
-	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey], govkeeper)
+	govkeeper := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey])
+	pfk := pricefeedKeeper.NewKeeper(cdc, keys[pricefeedTypes.StoreKey], govkeeper)
 
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk, govkeeper)
 
@@ -81,8 +83,8 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
-	pricefeed.RegisterCodec(cdc)
-	government.RegisterCodec(cdc)
+	pricefeedTypes.RegisterCodec(cdc)
+	governmentTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	types.RegisterCodec(cdc)

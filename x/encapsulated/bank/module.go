@@ -2,10 +2,10 @@ package custombank
 
 import (
 	"encoding/json"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -81,11 +81,11 @@ func (amb AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 type AppModule struct {
 	cosmosbank.AppModule
 	keeper    keeper.Keeper
-	govKeeper government.Keeper
+	govKeeper governmentKeeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(appModule cosmosbank.AppModule, keeper keeper.Keeper, govKeeper government.Keeper) AppModule {
+func NewAppModule(appModule cosmosbank.AppModule, keeper keeper.Keeper, govKeeper governmentKeeper.Keeper) AppModule {
 	return AppModule{
 		AppModule: appModule,
 		keeper:    keeper,

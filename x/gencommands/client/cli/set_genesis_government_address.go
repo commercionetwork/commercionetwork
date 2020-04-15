@@ -3,9 +3,12 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -40,7 +43,7 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 
 			// add minter to the app state
 			var genStateGovernment government.GenesisState
-			cdc.MustUnmarshalJSON(appState[government.ModuleName], &genStateGovernment)
+			cdc.MustUnmarshalJSON(appState[governmentTypes.ModuleName], &genStateGovernment)
 
 			if !genStateGovernment.GovernmentAddress.Empty() {
 				return fmt.Errorf("cannot replace existing government address")
@@ -49,21 +52,21 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 			genStateGovernment.GovernmentAddress = address
 
 			genesisStateBzGovernment := cdc.MustMarshalJSON(genStateGovernment)
-			appState[government.ModuleName] = genesisStateBzGovernment
+			appState[governmentTypes.ModuleName] = genesisStateBzGovernment
 
 			// set a black membership to the government address
 			// add a membership to the genesis state
 			var genStateMemberships memberships.GenesisState
-			err = json.Unmarshal(appState[memberships.ModuleName], &genStateMemberships)
+			err = json.Unmarshal(appState[membershipsTypes.ModuleName], &genStateMemberships)
 			if err != nil {
 				return err
 			}
 
-			membership := memberships.NewMembership("black", address)
+			membership := membershipsTypes.NewMembership("black", address)
 			genStateMemberships.Memberships, _ = genStateMemberships.Memberships.AppendIfMissing(membership)
 
 			genesisStateBzMemberships := cdc.MustMarshalJSON(genStateMemberships)
-			appState[memberships.ModuleName] = genesisStateBzMemberships
+			appState[membershipsTypes.ModuleName] = genesisStateBzMemberships
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {
