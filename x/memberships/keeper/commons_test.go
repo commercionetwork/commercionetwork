@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,6 +11,9 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"

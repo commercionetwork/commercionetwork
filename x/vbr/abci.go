@@ -1,9 +1,10 @@
 package vbr
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

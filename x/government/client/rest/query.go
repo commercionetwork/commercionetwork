@@ -6,9 +6,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/gorilla/mux"
+
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {

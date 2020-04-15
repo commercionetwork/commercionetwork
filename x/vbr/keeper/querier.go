@@ -7,9 +7,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 func NewQuerier(keeper Keeper) sdk.Querier {

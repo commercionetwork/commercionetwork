@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // AddTrustedServiceProvider allows to add the given signer as a trusted entity

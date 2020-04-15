@@ -5,10 +5,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 func GetQueryCmd(cdc *codec.Codec) *cobra.Command {

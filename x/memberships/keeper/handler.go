@@ -7,8 +7,9 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.

@@ -8,11 +8,12 @@ import (
 	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
+
+	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"

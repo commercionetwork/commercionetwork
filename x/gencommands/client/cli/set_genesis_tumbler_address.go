@@ -1,11 +1,12 @@
 package cli
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/government"
-	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"

@@ -3,11 +3,12 @@ package cli
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 func GetQueryCmd(cdc *codec.Codec, moduleName, querierRoute string) *cobra.Command {

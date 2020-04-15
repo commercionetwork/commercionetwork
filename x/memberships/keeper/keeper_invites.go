@@ -5,8 +5,9 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {

@@ -3,13 +3,14 @@ package commerciomint
 import (
 	"encoding/json"
 
+	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/gorilla/mux"
+	"github.com/spf13/cobra"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/gorilla/mux"
-	"github.com/spf13/cobra"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 

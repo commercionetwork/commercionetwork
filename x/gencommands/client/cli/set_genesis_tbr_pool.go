@@ -5,7 +5,6 @@ import (
 
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr"
 )
 
 // SetGenesisVbrPoolAmount returns set-genesis-tbr-pool-amount cobra Command.

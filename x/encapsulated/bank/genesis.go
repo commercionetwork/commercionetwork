@@ -3,9 +3,10 @@ package custombank
 import (
 	"encoding/json"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // GenesisState - bank genesis state

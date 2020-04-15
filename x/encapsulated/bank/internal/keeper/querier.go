@@ -1,11 +1,12 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/types"
 )
 
 // NewQuerier returns a new sdk.Keeper instance.

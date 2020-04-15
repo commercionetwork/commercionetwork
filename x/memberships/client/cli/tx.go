@@ -7,7 +7,6 @@ import (
 
 	"errors"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -15,6 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
