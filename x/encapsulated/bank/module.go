@@ -5,8 +5,6 @@ import (
 
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/client/rest"
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/keeper"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +13,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/keeper"
 )
 
 var (

@@ -3,9 +3,10 @@ package keeper
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/government/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 func TestKeeper_SetGovernmentAddress_NonExisting(t *testing.T) {

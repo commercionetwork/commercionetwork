@@ -6,10 +6,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/commercionetwork/commercionetwork/app"
-	gencmds "github.com/commercionetwork/commercionetwork/x/gencommands/client/cli"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+
+	"github.com/commercionetwork/commercionetwork/app"
+	gencmds "github.com/commercionetwork/commercionetwork/x/gencommands/client/cli"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -20,12 +21,13 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	comgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+
+	comgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
 )
 
 // cnd custom flags

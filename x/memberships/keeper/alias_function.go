@@ -1,9 +1,10 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply/exported"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 // GetPoolFunds returns the funds currently present inside the rewards pool

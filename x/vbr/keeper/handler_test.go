@@ -5,9 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 var msgIncrementsBRPool = types.MsgIncrementBlockRewardsPool{

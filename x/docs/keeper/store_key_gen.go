@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/docs/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 )
 
 // metadataSchemaKey generates an unique store key for a MetadataSchema

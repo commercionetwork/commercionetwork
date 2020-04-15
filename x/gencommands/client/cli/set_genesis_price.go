@@ -5,13 +5,14 @@ import (
 
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

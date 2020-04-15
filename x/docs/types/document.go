@@ -3,10 +3,11 @@ package types
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
+
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // Document contains the generic information about a single document which has been sent from a user to another user.

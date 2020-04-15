@@ -8,9 +8,10 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // GenesisState - accreditations genesis state

@@ -11,11 +11,12 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 
-	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 

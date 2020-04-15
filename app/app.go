@@ -1,20 +1,18 @@
 package app
 
 import (
-	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
-	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
-
-	docsKeeper "github.com/commercionetwork/commercionetwork/x/docs/keeper"
-	membershipsKeeper "github.com/commercionetwork/commercionetwork/x/memberships/keeper"
-	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
-	vbrKeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
-
 	"io"
 	"os"
 
+	docsKeeper "github.com/commercionetwork/commercionetwork/x/docs/keeper"
+	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	membershipsKeeper "github.com/commercionetwork/commercionetwork/x/memberships/keeper"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
+	vbrKeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	"github.com/cosmos/cosmos-sdk/simapp"

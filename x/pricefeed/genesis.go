@@ -9,8 +9,9 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // blacklistedByDefault is a list of tokens which oracles can't set prices on

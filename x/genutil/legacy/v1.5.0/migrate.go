@@ -5,9 +5,10 @@ import (
 
 	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	v134memberships "github.com/commercionetwork/commercionetwork/x/memberships/legacy/v1.3.4"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/genutil"

@@ -1,9 +1,6 @@
 package keeper
 
 import (
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/docs/types"
-	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,6 +10,10 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
 //This function create an environment to test modules

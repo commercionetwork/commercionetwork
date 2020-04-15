@@ -5,9 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 func TestMembership_Equals(t *testing.T) {

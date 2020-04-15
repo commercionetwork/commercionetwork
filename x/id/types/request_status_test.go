@@ -5,8 +5,9 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/id/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
 
 func TestRequestStatus_Validate(t *testing.T) {

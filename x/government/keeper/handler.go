@@ -3,9 +3,10 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/government/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.

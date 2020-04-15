@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +10,9 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )

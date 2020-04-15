@@ -8,7 +8,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/client/rest"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,6 +16,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
 )
 
 var (

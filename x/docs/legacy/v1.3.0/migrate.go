@@ -5,10 +5,11 @@ package v1_3_0
 import (
 	"strconv"
 
-	"github.com/commercionetwork/commercionetwork/x/common/types"
-	v120docs "github.com/commercionetwork/commercionetwork/x/docs/legacy/v1.2.0"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	uuid "github.com/satori/go.uuid"
+
+	"github.com/commercionetwork/commercionetwork/x/common/types"
+	v120docs "github.com/commercionetwork/commercionetwork/x/docs/legacy/v1.2.0"
 )
 
 // Migrate accepts exported genesis state from v1.1.0 and migrates it to v1.2.0

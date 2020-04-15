@@ -10,8 +10,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 func TestKeeper_StoreCdp(t *testing.T) {

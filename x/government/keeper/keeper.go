@@ -3,9 +3,10 @@ package keeper
 import (
 	"errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 type Keeper struct {

@@ -9,10 +9,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/memberships/client/rest"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"

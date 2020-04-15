@@ -5,8 +5,9 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/docs/types"
 
-	"github.com/commercionetwork/commercionetwork/x/docs/keeper"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/docs/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

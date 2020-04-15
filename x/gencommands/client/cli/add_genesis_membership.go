@@ -6,13 +6,14 @@ import (
 
 	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 )
 
 // AddGenesisTspCmd returns add-genesis-tsp cobra Command.

@@ -3,7 +3,6 @@ package cli
 import (
 	"bufio"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -12,6 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
