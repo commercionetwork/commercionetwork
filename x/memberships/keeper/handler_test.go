@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/keeper"
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 func Test_handleMsgInviteUser(t *testing.T) {

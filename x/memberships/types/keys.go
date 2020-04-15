@@ -11,11 +11,10 @@ const (
 	StableCreditsStoreKey  = StoreKey + ":stableCreditsDenom"
 	TrustedSignersStoreKey = StoreKey + ":signers"
 	InviteStorePrefix      = "invite:"
-	CredentialsStorePrefix = "credentials:"
 
 	// --- Messages
-	MsgTypeInviteUser                = "inviteUser"
-	MsgTypeSetUserVerified           = "setUserVerified"
+	MsgTypeInviteUser = "inviteUser"
+
 	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
 	MsgTypeAddTsp                    = "addTsp"
 	MsgTypeBuyMembership             = "buyMembership"

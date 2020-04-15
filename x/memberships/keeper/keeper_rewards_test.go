@@ -5,7 +5,7 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/stretchr/testify/require"
