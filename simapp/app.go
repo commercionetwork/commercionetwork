@@ -59,7 +59,7 @@ var (
 		mint.ModuleName:           {supply.Minter},
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-		gov.ModuleName:            {supply.Burner},
+		//gov.ModuleName:            {supply.Burner},
 	}
 )
 
@@ -93,7 +93,7 @@ type SimApp struct {
 	SlashingKeeper slashing.Keeper
 	MintKeeper     mint.Keeper
 	DistrKeeper    distr.Keeper
-	GovKeeper      gov.Keeper
+	//GovKeeper      gov.Keeper
 	CrisisKeeper   crisis.Keeper
 	ParamsKeeper   params.Keeper
 
@@ -121,7 +121,8 @@ func NewSimApp(
 
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, pricefeed.StoreKey, government.StoreKey)
+		//gov.StoreKey,
+		params.StoreKey, pricefeed.StoreKey, government.StoreKey)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	app := &SimApp{
@@ -140,7 +141,7 @@ func NewSimApp(
 	mintSubspace := app.ParamsKeeper.Subspace(mint.DefaultParamspace)
 	distrSubspace := app.ParamsKeeper.Subspace(distr.DefaultParamspace)
 	slashingSubspace := app.ParamsKeeper.Subspace(slashing.DefaultParamspace)
-	govSubspace := app.ParamsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
+	//govSubspace := app.ParamsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	crisisSubspace := app.ParamsKeeper.Subspace(crisis.DefaultParamspace)
 
 	// add keepers
@@ -159,12 +160,12 @@ func NewSimApp(
 	app.PriceFeedKeeper = pricefeed.NewKeeper(app.cdc, keys[pricefeed.StoreKey], app.GovernmentKeeper)
 
 	// register the proposal types
-	govRouter := gov.NewRouter()
-	govRouter.AddRoute(gov.RouterKey, gov.ProposalHandler).
-		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
-		AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper))
-	app.GovKeeper = gov.NewKeeper(app.cdc, keys[gov.StoreKey], govSubspace,
-		app.SupplyKeeper, &stakingKeeper, govRouter)
+	//govRouter := gov.NewRouter()
+	//govRouter.AddRoute(gov.RouterKey, gov.ProposalHandler).
+	//	AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
+	//	AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper))
+	//app.GovKeeper = gov.NewKeeper(app.cdc, keys[gov.StoreKey], govSubspace,
+	//	app.SupplyKeeper, &stakingKeeper, govRouter)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -180,7 +181,7 @@ func NewSimApp(
 		bank.NewAppModule(app.BankKeeper, app.AccountKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper),
 		supply.NewAppModule(app.SupplyKeeper, app.AccountKeeper),
-		gov.NewAppModule(app.GovKeeper, app.AccountKeeper, app.SupplyKeeper),
+		//gov.NewAppModule(app.GovKeeper, app.AccountKeeper, app.SupplyKeeper),
 		mint.NewAppModule(app.MintKeeper),
 		distr.NewAppModule(app.DistrKeeper, app.AccountKeeper, app.SupplyKeeper, app.StakingKeeper),
 		slashing.NewAppModule(app.SlashingKeeper, app.AccountKeeper, app.StakingKeeper),
@@ -193,13 +194,14 @@ func NewSimApp(
 	// CanWithdrawInvariant invariant.
 	app.mm.SetOrderBeginBlockers(mint.ModuleName, distr.ModuleName, slashing.ModuleName)
 
-	app.mm.SetOrderEndBlockers(crisis.ModuleName, gov.ModuleName, staking.ModuleName)
+	app.mm.SetOrderEndBlockers(crisis.ModuleName, staking.ModuleName)
 
 	// NOTE: The genutils moodule must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(
 		auth.ModuleName, distr.ModuleName, staking.ModuleName,
-		bank.ModuleName, slashing.ModuleName, gov.ModuleName,
+		bank.ModuleName, slashing.ModuleName,
+		//gov.ModuleName,
 		mint.ModuleName, supply.ModuleName, crisis.ModuleName,
 		genutil.ModuleName,
 	)
@@ -215,7 +217,7 @@ func NewSimApp(
 		auth.NewAppModule(app.AccountKeeper),
 		bank.NewAppModule(app.BankKeeper, app.AccountKeeper),
 		supply.NewAppModule(app.SupplyKeeper, app.AccountKeeper),
-		gov.NewAppModule(app.GovKeeper, app.AccountKeeper, app.SupplyKeeper),
+		//gov.NewAppModule(app.GovKeeper, app.AccountKeeper, app.SupplyKeeper),
 		mint.NewAppModule(app.MintKeeper),
 		distr.NewAppModule(app.DistrKeeper, app.AccountKeeper, app.SupplyKeeper, app.StakingKeeper),
 		staking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
