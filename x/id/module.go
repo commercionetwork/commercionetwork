@@ -2,6 +2,7 @@ package id
 
 import (
 	"encoding/json"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/id/keeper"
 
@@ -9,7 +10,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -87,12 +87,12 @@ type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
 	keeper       keeper.Keeper
-	govKeeper    government.Keeper
+	govKeeper    governmentKeeper.Keeper
 	supplyKeeper supply.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper keeper.Keeper, govKeeper government.Keeper, supplyKeeper supply.Keeper) AppModule {
+func NewAppModule(keeper keeper.Keeper, govKeeper governmentKeeper.Keeper, supplyKeeper supply.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},

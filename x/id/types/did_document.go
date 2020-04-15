@@ -88,7 +88,7 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 func (didDocument DidDocument) Validate() error {
 
 	if didDocument.ID.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (didDocument.ID.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, didDocument.ID.String())
 	}
 
 	if didDocument.Context != ContextDidV1 {

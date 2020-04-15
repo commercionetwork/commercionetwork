@@ -57,11 +57,11 @@ func (msg MsgRequestDidPowerUp) Type() string { return MsgTypeRequestDidPowerUp 
 // ValidateBasic Implements Msg.
 func (msg MsgRequestDidPowerUp) ValidateBasic() error {
 	if msg.Claimant.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid claimant: %s", msg.Claimant)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid claimant: %s", msg.Claimant))
 	}
 
 	if !msg.Amount.IsValid() || msg.Amount.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, (fmt.Sprintf("Power up amount not valid: %s", msg.Amount.String())))
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Power up amount not valid: %s", msg.Amount.String()))
 	}
 
 	if _, err := base64.StdEncoding.DecodeString(msg.Proof); err != nil {
@@ -113,7 +113,7 @@ func (msg MsgChangePowerUpStatus) Type() string { return MsgTypeChangePowerUpSta
 // ValidateBasic Implements Msg.
 func (msg MsgChangePowerUpStatus) ValidateBasic() error {
 	if msg.Recipient.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid recipient address: %s", msg.Recipient)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid recipient address: %s", msg.Recipient))
 	}
 
 	if _, err := uuid.FromString(msg.PowerUpID); err != nil {
@@ -121,7 +121,7 @@ func (msg MsgChangePowerUpStatus) ValidateBasic() error {
 	}
 
 	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (fmt.Sprintf("Invalid signer address: %s", msg.Signer)))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid signer address: %s", msg.Signer))
 	}
 
 	if err := msg.Status.Validate(); err != nil {
