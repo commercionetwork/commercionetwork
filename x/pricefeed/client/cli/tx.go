@@ -45,12 +45,12 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 
 			tokenPrice, err := sdk.NewDecFromStr(args[1])
 			if err != nil {
-				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, (err.Error()))
+				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 			}
 
 			expiry, ok := sdk.NewIntFromString(args[2])
 			if !ok {
-				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, (fmt.Sprintf("Invalid expiration height, %s", args[2])))
+				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("Invalid expiration height, %s", args[2]))
 			}
 
 			price := types.NewPrice(args[0], tokenPrice, expiry)

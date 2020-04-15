@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,12 +13,11 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (*codec.Codec, sdk.Context, government.Keeper, Keeper) {
+func SetupTestInput() (*codec.Codec, sdk.Context, governmentKeeper.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -40,7 +41,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, government.Keeper, Keeper) {
 
 	_ = ms.LoadLatestVersion()
 
-	govkeeper := government.NewKeeper(cdc, govKey)
+	govkeeper := governmentKeeper.NewKeeper(cdc, govKey)
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 
@@ -49,7 +50,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, government.Keeper, Keeper) {
 
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
-	government.RegisterCodec(cdc)
+	governmentTypes.RegisterCodec(cdc)
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	auth.RegisterCodec(cdc)

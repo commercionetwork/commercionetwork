@@ -2,6 +2,8 @@ package pricefeed
 
 import (
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	"strings"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -17,10 +19,10 @@ var blacklistedByDefault = []string{
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Oracles        ctypes.Addresses `json:"oracles"`
-	Assets         ctypes.Strings   `json:"assets"`
-	RawPrices      OraclePrices     `json:"raw_prices"`
-	DenomBlacklist []string         `json:"denom_blacklist"`
+	Oracles        ctypes.Addresses   `json:"oracles"`
+	Assets         ctypes.Strings     `json:"assets"`
+	RawPrices      types.OraclePrices `json:"raw_prices"`
+	DenomBlacklist []string           `json:"denom_blacklist"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -31,7 +33,7 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets docs information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, genState GenesisState) {
 	for _, oracle := range genState.Oracles {
 		keeper.AddOracle(ctx, oracle)
 	}
@@ -52,7 +54,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, genState GenesisState) {
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
 		Oracles:        keeper.GetOracles(ctx),
 		Assets:         keeper.GetAssets(ctx),

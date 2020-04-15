@@ -2,16 +2,16 @@ package keeper
 
 import (
 	"fmt"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
-func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
+func NewHandler(keeper Keeper, govKeeper governmentKeeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		case types.MsgSetPrice:
@@ -22,7 +22,7 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 			return handleMsgBlacklistDenom(ctx, keeper, govKeeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, (errMsg))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 		}
 	}
 }
@@ -41,12 +41,12 @@ func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg types.MsgSetPrice) (*
 
 	// Set the raw price
 	if err := keeper.AddRawPrice(ctx, msg.Oracle, msg.Price); err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 	return &sdk.Result{}, nil
 }
 
-func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgAddOracle) (*sdk.Result, error) {
+func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, govKeeper governmentKeeper.Keeper, msg types.MsgAddOracle) (*sdk.Result, error) {
 	gov := govKeeper.GetGovernmentAddress(ctx)
 
 	// Someone who's not the government is trying to add an oracle
@@ -58,7 +58,7 @@ func handleMsgAddOracle(ctx sdk.Context, keeper Keeper, govKeeper government.Kee
 	return &sdk.Result{}, nil
 }
 
-func handleMsgBlacklistDenom(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgBlacklistDenom) (*sdk.Result, error) {
+func handleMsgBlacklistDenom(ctx sdk.Context, keeper Keeper, govKeeper governmentKeeper.Keeper, msg types.MsgBlacklistDenom) (*sdk.Result, error) {
 	if !msg.Signer.Equals(govKeeper.GetGovernmentAddress(ctx)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s hasn't the rights to blacklist a denom", msg.Signer))
 	}
