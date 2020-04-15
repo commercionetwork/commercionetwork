@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/commercionetwork/commercionetwork/x/government/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 func Test_handleMsgSetTumblerAddress(t *testing.T) {

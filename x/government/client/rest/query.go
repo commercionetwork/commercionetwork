@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
-	"github.com/commercionetwork/commercionetwork/x/government/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/gorilla/mux"
 )

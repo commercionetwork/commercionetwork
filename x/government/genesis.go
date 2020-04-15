@@ -2,6 +2,7 @@ package government
 
 import (
 	"errors"
+	"github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -18,7 +19,7 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets docs information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	errSetGov := keeper.SetGovernmentAddress(ctx, data.GovernmentAddress)
 
 	errSetTumb := keeper.SetTumblerAddress(ctx, data.TumblerAddress)
@@ -33,7 +34,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
 		GovernmentAddress: keeper.GetGovernmentAddress(ctx),
 		TumblerAddress:    keeper.GetTumblerAddress(ctx),

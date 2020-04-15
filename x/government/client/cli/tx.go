@@ -3,7 +3,7 @@ package cli
 import (
 	"bufio"
 
-	"github.com/commercionetwork/commercionetwork/x/government/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
