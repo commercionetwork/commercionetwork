@@ -1,6 +1,18 @@
 package app
 
 import (
+	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
+
+	docsKeeper "github.com/commercionetwork/commercionetwork/x/docs/keeper"
+	membershipsKeeper "github.com/commercionetwork/commercionetwork/x/memberships/keeper"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	vbrKeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
+
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"io"
 	"os"
 
@@ -13,7 +25,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint"
-	commerciomintkeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	commerciominttypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/creditrisk"
@@ -24,8 +36,8 @@ import (
 	customstaking "github.com/commercionetwork/commercionetwork/x/encapsulated/staking"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/commercionetwork/commercionetwork/x/id"
-	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
-	idtypes "github.com/commercionetwork/commercionetwork/x/id/types"
+	idKeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
+	idTypes "github.com/commercionetwork/commercionetwork/x/id/types"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -122,16 +134,16 @@ var (
 
 		// Custom modules
 		commerciominttypes.ModuleName: {supply.Minter, supply.Burner},
-		memberships.ModuleName:        {supply.Burner},
-		idtypes.ModuleName:            nil,
-		vbr.ModuleName:                {supply.Minter},
+		membershipsTypes.ModuleName:   {supply.Burner},
+		idTypes.ModuleName:            nil,
+		vbrTypes.ModuleName:           {supply.Minter},
 		creditriskTypes.ModuleName:    nil,
 	}
 
 	allowedModuleReceivers = types.Strings{
 		commerciominttypes.ModuleName,
-		memberships.ModuleName,
-		vbr.ModuleName,
+		membershipsTypes.ModuleName,
+		vbrTypes.ModuleName,
 		creditriskTypes.ModuleName,
 	}
 )
@@ -182,13 +194,13 @@ type CommercioNetworkApp struct {
 	customBankKeeper custombank.Keeper
 
 	// Custom modules
-	docsKeeper       docs.Keeper
-	governmentKeeper government.Keeper
-	idKeeper         idkeeper.Keeper
-	membershipKeeper memberships.Keeper
-	mintKeeper       commerciomintkeeper.Keeper
-	priceFeedKeeper  pricefeed.Keeper
-	vbrKeeper        vbr.Keeper
+	docsKeeper       docsKeeper.Keeper
+	governmentKeeper governmentKeeper.Keeper
+	idKeeper         idKeeper.Keeper
+	membershipKeeper membershipsKeeper.Keeper
+	mintKeeper       commerciomintKeeper.Keeper
+	priceFeedKeeper  pricefeedKeeper.Keeper
+	vbrKeeper        vbrKeeper.Keeper
 	creditriskKeeper creditrisk.Keeper
 
 	mm *module.Manager
@@ -217,13 +229,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		custombank.StoreKey,
 
 		// Custom modules
-		docs.StoreKey,
-		government.StoreKey,
-		idtypes.StoreKey,
-		memberships.StoreKey,
+		docsTypes.StoreKey,
+		governmentTypes.StoreKey,
+		idTypes.StoreKey,
+		membershipsTypes.StoreKey,
 		commerciominttypes.StoreKey,
-		pricefeed.StoreKey,
-		vbr.StoreKey,
+		pricefeedTypes.StoreKey,
+		vbrTypes.StoreKey,
 		creditriskTypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -266,13 +278,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.customBankKeeper = custombank.NewKeeper(app.cdc, app.keys[custombank.StoreKey], app.bankKeeper)
 
 	// Custom modules
-	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
-	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.supplyKeeper, app.governmentKeeper, app.accountKeeper)
-	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
-	app.idKeeper = idkeeper.NewKeeper(app.cdc, app.keys[idtypes.StoreKey], app.accountKeeper, app.supplyKeeper)
-	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey], app.governmentKeeper)
-	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper, app.supplyKeeper)
-	app.mintKeeper = commerciomintkeeper.NewKeeper(app.cdc, app.keys[commerciominttypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
+	app.governmentKeeper = governmentKeeper.NewKeeper(app.cdc, app.keys[governmentTypes.StoreKey])
+	app.membershipKeeper = membershipsKeeper.NewKeeper(app.cdc, app.keys[membershipsTypes.StoreKey], app.supplyKeeper, app.governmentKeeper, app.accountKeeper)
+	app.docsKeeper = docsKeeper.NewKeeper(app.keys[docsTypes.StoreKey], app.governmentKeeper, app.cdc)
+	app.idKeeper = idKeeper.NewKeeper(app.cdc, app.keys[idTypes.StoreKey], app.accountKeeper, app.supplyKeeper)
+	app.priceFeedKeeper = pricefeedKeeper.NewKeeper(app.cdc, app.keys[pricefeedTypes.StoreKey], app.governmentKeeper)
+	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper)
+	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciominttypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
 	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
 
 	// register the proposal types
@@ -321,7 +333,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		distr.ModuleName, slashing.ModuleName,
 
 		// Custom modules
-		vbr.ModuleName,
+		vbrTypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -330,8 +342,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		staking.ModuleName,
 
 		// Custom modules
-		pricefeed.ModuleName,
-		memberships.ModuleName,
+		pricefeedTypes.ModuleName,
+		membershipsTypes.ModuleName,
 		commerciominttypes.ModuleName,
 	)
 
@@ -344,13 +356,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		crisis.ModuleName, genutil.ModuleName,
 
 		// Custom modules
-		government.ModuleName,
-		docs.ModuleName,
-		idtypes.ModuleName,
-		memberships.ModuleName,
+		governmentTypes.ModuleName,
+		docsTypes.ModuleName,
+		idTypes.ModuleName,
+		membershipsTypes.ModuleName,
 		commerciominttypes.ModuleName,
-		pricefeed.ModuleName,
-		vbr.ModuleName,
+		pricefeedTypes.ModuleName,
+		vbrTypes.ModuleName,
 		creditriskTypes.ModuleName,
 	)
 
