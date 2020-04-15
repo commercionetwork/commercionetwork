@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-var MinimumDeposit = sdk.NewCoin("ucommercio", sdk.TokensFromConsensusPower(50000))
+var MinimumStake = sdk.NewCoin("ucommercio", sdk.TokensFromConsensusPower(50000))
 
 func NewHandler(k keeper.Keeper, stakingHandler sdk.Handler) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
@@ -26,7 +26,7 @@ func NewHandler(k keeper.Keeper, stakingHandler sdk.Handler) sdk.Handler {
 // now we just perform action and save
 
 func handleMsgCreateValidator(ctx sdk.Context, handler sdk.Handler, msg types.MsgCreateValidator) (*sdk.Result, error) {
-	if msg.Value.IsLT(MinimumDeposit) {
+	if msg.Value.IsLT(MinimumStake) {
 		return nil, ErrMinimumStake
 	}
 

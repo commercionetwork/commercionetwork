@@ -57,7 +57,7 @@ func TestHandler_MinimumStakeToJoin_MinimumDepositEnough(t *testing.T) {
 
 	commission := staking.NewCommissionRates(types.NewDecWithPrec(5, 1), types.NewDecWithPrec(5, 1), types.NewDec(0))
 	msg := staking.NewMsgCreateValidator(
-		valAddrs[0], pks[0], types.NewCoin(app2.DefaultBondDenom, customstaking.MinimumDeposit.Amount), staking.Description{}, commission, types.OneInt(),
+		valAddrs[0], pks[0], types.NewCoin(app2.DefaultBondDenom, customstaking.MinimumStake.Amount), staking.Description{}, commission, types.OneInt(),
 	)
 
 	sh := customstaking.NewHandler(app.StakingKeeper, staking.NewHandler(app.StakingKeeper))
