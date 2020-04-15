@@ -3,6 +3,8 @@ package vbr
 import (
 	"errors"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/vbr/keeper"
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -19,7 +21,7 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets the initial Block Reward Pool amount for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	// Set the reward pool - Should never be nil as its validated inside the ValidateGenesis method
 	keeper.SetTotalRewardPool(ctx, data.PoolAmount)
 
@@ -34,7 +36,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 	moduleAcc := keeper.VbrAccount(ctx)
 	if moduleAcc == nil {
-		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	if moduleAcc.GetCoins().Empty() {
@@ -47,7 +49,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
 		PoolAmount:       keeper.GetTotalRewardPool(ctx),
 		YearlyPoolAmount: keeper.GetYearlyRewardPool(ctx),

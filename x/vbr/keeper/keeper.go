@@ -6,7 +6,7 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/vbr/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
