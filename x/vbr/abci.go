@@ -1,6 +1,7 @@
 package vbr
 
 import (
+	"github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -9,7 +10,7 @@ import (
 
 // BeginBlocker retrieves all the active validators, and based on how many are of them, calculate
 // the reward ONLY for the block proposer on every begin block.
-func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k Keeper, stakeKeeper staking.Keeper) {
+func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, stakeKeeper staking.Keeper) {
 
 	// Get the number of active validators
 	activeValidators := stakeKeeper.GetLastValidators(ctx)
