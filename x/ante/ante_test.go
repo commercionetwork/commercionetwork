@@ -2,14 +2,14 @@ package ante_test
 
 import (
 	"errors"
+	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	"testing"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/docs"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -34,17 +34,17 @@ func checkInvalidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, 
 
 var testSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-var testDocument = docs.Document{
+var testDocument = docsTypes.Document{
 	UUID:       "test-document-uuid",
 	ContentURI: "https://example.com/document",
-	Metadata: docs.DocumentMetadata{
+	Metadata: docsTypes.DocumentMetadata{
 		ContentURI: "https://example.com/document/metadata",
-		Schema: &docs.DocumentMetadataSchema{
+		Schema: &docsTypes.DocumentMetadataSchema{
 			URI:     "https://example.com/document/metadata/schema",
 			Version: "1.0.0",
 		},
 	},
-	Checksum: &docs.DocumentChecksum{
+	Checksum: &docsTypes.DocumentChecksum{
 		Value:     "93dfcaf3d923ec47edb8580667473987",
 		Algorithm: "md5",
 	},
@@ -77,7 +77,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 
 	// Msg and signatures
 
-	msg := docs.NewMsgShareDocument(docs.Document{
+	msg := docsTypes.NewMsgShareDocument(docsTypes.Document{
 		UUID:           testDocument.UUID,
 		Metadata:       testDocument.Metadata,
 		ContentURI:     testDocument.ContentURI,
@@ -109,7 +109,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has not specified enough token frees
-	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewPrice(tokenDenom, sdk.NewDec(5), sdk.NewInt(1000)))
+	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(tokenDenom, sdk.NewDec(5), sdk.NewInt(1000)))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 1))
 	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{3}
@@ -117,7 +117,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough token fees
-	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeed.NewPrice(tokenDenom, sdk.NewDec(2), sdk.NewInt(1000)))
+	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(tokenDenom, sdk.NewDec(2), sdk.NewInt(1000)))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 5000))
 	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{2}
@@ -149,7 +149,7 @@ func TestAnteHandlerFees_MsgShareDocFromTumbler(t *testing.T) {
 
 	// Msg and signatures
 
-	msg := docs.NewMsgShareDocument(docs.Document{
+	msg := docsTypes.NewMsgShareDocument(docsTypes.Document{
 		UUID:           testDocument.UUID,
 		Metadata:       testDocument.Metadata,
 		ContentURI:     testDocument.ContentURI,

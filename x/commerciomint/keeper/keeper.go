@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"fmt"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,19 +13,17 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 )
 
 type Keeper struct {
 	cdc             *codec.Codec
 	storeKey        sdk.StoreKey
-	priceFeedKeeper pricefeed.Keeper
+	priceFeedKeeper pricefeedKeeper.Keeper
 	supplyKeeper    supply.Keeper
-	govKeeper       government.Keeper
+	govKeeper       governmentKeeper.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeed.Keeper, govKeeper government.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeedKeeper.Keeper, govKeeper governmentKeeper.Keeper) Keeper {
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))

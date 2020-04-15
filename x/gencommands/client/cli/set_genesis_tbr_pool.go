@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -42,11 +43,11 @@ func SetGenesisVbrPoolAmount(ctx *server.Context, cdc *codec.Codec,
 
 			// set pool amount into the app state
 			var genState vbr.GenesisState
-			cdc.MustUnmarshalJSON(appState[vbr.ModuleName], &genState)
+			cdc.MustUnmarshalJSON(appState[vbrTypes.ModuleName], &genState)
 			genState.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
 
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[vbr.ModuleName] = genesisStateBz
+			appState[vbrTypes.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {

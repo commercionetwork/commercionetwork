@@ -2,12 +2,12 @@ package keeper
 
 import (
 	"fmt"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"strings"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/docs/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -19,12 +19,12 @@ import (
 type Keeper struct {
 	StoreKey sdk.StoreKey
 
-	GovernmentKeeper government.Keeper
+	GovernmentKeeper governmentKeeper.Keeper
 
 	cdc *codec.Codec
 }
 
-func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, gKeeper governmentKeeper.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
 		StoreKey:         storeKey,
 		GovernmentKeeper: gKeeper,

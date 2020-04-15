@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -30,7 +31,7 @@ func AddGenesisMembershipCmd(ctx *server.Context, cdc *codec.Codec,
 			}
 
 			membershipType := args[0]
-			if !memberships.IsMembershipTypeValid(membershipType) {
+			if !membershipsTypes.IsMembershipTypeValid(membershipType) {
 				return fmt.Errorf("invalid membership type: %s", membershipType)
 			}
 
@@ -43,17 +44,17 @@ func AddGenesisMembershipCmd(ctx *server.Context, cdc *codec.Codec,
 
 			// add a membership to the genesis state
 			var genState memberships.GenesisState
-			err = json.Unmarshal(appState[memberships.ModuleName], &genState)
+			err = json.Unmarshal(appState[membershipsTypes.ModuleName], &genState)
 			if err != nil {
 				return err
 			}
 
-			membership := memberships.NewMembership(membershipType, address)
+			membership := membershipsTypes.NewMembership(membershipType, address)
 			genState.Memberships, _ = genState.Memberships.AppendIfMissing(membership)
 
 			// save the state
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[memberships.ModuleName] = genesisStateBz
+			appState[membershipsTypes.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {
