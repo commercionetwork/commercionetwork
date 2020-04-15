@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 )
 
 const (

@@ -59,23 +59,23 @@ func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeSendDocumentRece
 // ValidateBasic Implements Msg.
 func (msg MsgSendDocumentReceipt) ValidateBasic() error {
 	if !validateUUID(msg.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid uuid: %s", msg.UUID)))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid uuid: %s", msg.UUID))
 	}
 
 	if msg.Sender.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Sender.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Sender.String())
 	}
 
 	if msg.Recipient.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Recipient.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Recipient.String())
 	}
 
 	if len(strings.TrimSpace(msg.TxHash)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Send Document's Transaction Hash can't be empty"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Send Document's Transaction Hash can't be empty")
 	}
 
 	if !validateUUID(msg.DocumentUUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid document UUID"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid document UUID")
 	}
 
 	return nil
@@ -109,10 +109,10 @@ func (msg MsgAddSupportedMetadataSchema) Type() string { return MsgTypeAddSuppor
 // ValidateBasic Implements Msg.
 func (msg MsgAddSupportedMetadataSchema) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
 	}
 	if err := msg.Schema.Validate(); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 	return nil
 }
@@ -147,10 +147,10 @@ func (msg MsgAddTrustedMetadataSchemaProposer) Type() string {
 // ValidateBasic Implements Msg.
 func (msg MsgAddTrustedMetadataSchemaProposer) ValidateBasic() error {
 	if msg.Proposer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Proposer.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Proposer.String())
 	}
 	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
 	}
 	return nil
 }

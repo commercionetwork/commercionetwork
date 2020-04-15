@@ -60,39 +60,39 @@ func validateUUID(uuidStr string) bool {
 // fails.
 func (doc Document) Validate() error {
 	if doc.Sender.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (doc.Sender.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, doc.Sender.String())
 	}
 
 	if doc.Recipients.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, ("Recipients cannot be empty"))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty")
 	}
 
 	for _, recipient := range doc.Recipients {
 		if recipient.Empty() {
-			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (recipient.String()))
+			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, recipient.String())
 		}
 	}
 
 	if !validateUUID(doc.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid document UUID: %s", doc.UUID)))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
 	}
 
 	err := doc.Metadata.Validate()
 	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
 	if doc.Checksum != nil {
 		err = doc.Checksum.Validate()
 		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 		}
 	}
 
 	if doc.EncryptionData != nil {
 		err = doc.EncryptionData.Validate()
 		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
+			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 		}
 	}
 
@@ -105,7 +105,7 @@ func (doc Document) Validate() error {
 					"%s is a recipient inside the document but not in the encryption data",
 					recipient.String(),
 				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (errMsg))
+				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 			}
 		}
 
@@ -117,7 +117,7 @@ func (doc Document) Validate() error {
 					"%s is a recipient inside encryption data but not inside the message",
 					encAdd.Recipient.String(),
 				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (errMsg))
+				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 			}
 		}
 

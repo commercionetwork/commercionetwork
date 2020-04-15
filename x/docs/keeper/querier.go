@@ -5,7 +5,7 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,7 +45,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 	ri := keeper.UserReceivedDocumentsIterator(ctx, address)
 	defer ri.Close()
 
-	receivedResult := []types.Document{}
+	var receivedResult []types.Document
 	for ; ri.Valid(); ri.Next() {
 		documentUUID := ""
 		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &documentUUID)
@@ -78,7 +78,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 	usdi := keeper.UserSentDocumentsIterator(ctx, address)
 	defer usdi.Close()
 
-	receivedResult := []types.Document{}
+	var receivedResult []types.Document
 	for ; usdi.Valid(); usdi.Next() {
 		documentUUID := ""
 		keeper.cdc.MustUnmarshalBinaryBare(usdi.Value(), &documentUUID)
@@ -117,7 +117,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper)
 		uuid = path[1]
 	}
 
-	receipts := []types.DocumentReceipt{}
+	var receipts []types.DocumentReceipt
 
 	ri := keeper.UserReceivedReceiptsIterator(ctx, address)
 	defer ri.Close()
@@ -163,7 +163,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
-	receipts := []types.DocumentReceipt{}
+	var receipts []types.DocumentReceipt
 
 	ri := keeper.UserSentReceiptsIterator(ctx, address)
 	defer ri.Close()
@@ -202,7 +202,7 @@ func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) (
 	si := keeper.SupportedMetadataSchemesIterator(ctx)
 	defer si.Close()
 
-	schemes := []types.MetadataSchema{}
+	var schemes []types.MetadataSchema
 	for ; si.Valid(); si.Next() {
 		var ms types.MetadataSchema
 		keeper.cdc.MustUnmarshalBinaryBare(si.Value(), &ms)
@@ -226,7 +226,7 @@ func queryTrustedMetadataProposers(ctx sdk.Context, _ []string, keeper Keeper) (
 	pi := keeper.TrustedSchemaProposersIterator(ctx)
 	defer pi.Close()
 
-	proposers := []sdk.AccAddress{}
+	var proposers []sdk.AccAddress
 	for ; pi.Valid(); pi.Next() {
 		aa := sdk.AccAddress{}
 		keeper.cdc.MustUnmarshalBinaryBare(pi.Value(), &aa)
