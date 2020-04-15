@@ -2,9 +2,10 @@ package pricefeed_test
 
 import (
 	"encoding/json"
+	"testing"
+
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
-	"testing"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"

@@ -3,6 +3,7 @@ package vbr
 import (
 	"errors"
 	"fmt"
+
 	"github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 

@@ -2,8 +2,9 @@ package keeper
 
 import (
 	"fmt"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	"testing"
+
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 

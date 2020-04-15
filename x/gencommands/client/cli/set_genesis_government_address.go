@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"

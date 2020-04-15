@@ -12,9 +12,10 @@ import (
 	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 	vbrKeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 
-	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"io"
 	"os"
+
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/module"

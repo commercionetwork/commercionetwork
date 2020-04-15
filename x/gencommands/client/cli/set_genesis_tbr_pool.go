@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr"

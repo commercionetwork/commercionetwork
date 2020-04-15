@@ -2,6 +2,7 @@ package government
 
 import (
 	"encoding/json"
+
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/commercionetwork/commercionetwork/x/government/keeper"

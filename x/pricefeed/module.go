@@ -2,6 +2,7 @@ package pricefeed
 
 import (
 	"encoding/json"
+
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"

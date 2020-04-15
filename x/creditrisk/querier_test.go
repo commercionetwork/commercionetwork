@@ -1,8 +1,9 @@
 package creditrisk_test
 
 import (
-	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"testing"
+
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
