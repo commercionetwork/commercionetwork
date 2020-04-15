@@ -46,7 +46,7 @@ var (
 		customstaking.NewAppModuleBasic(app.DefaultBondDenom),
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
-		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
+		//gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
