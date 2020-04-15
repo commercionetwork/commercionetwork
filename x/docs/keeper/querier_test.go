@@ -29,7 +29,7 @@ func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
 	}
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, "[]", string(actualBz))
+	require.Equal(t, "null", string(actualBz))
 	require.Empty(t, actual)
 }
 
@@ -65,7 +65,7 @@ func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, "[]", string(actualBz))
+	require.Equal(t, "null", string(actualBz))
 	require.Empty(t, actual)
 }
 
@@ -102,7 +102,7 @@ func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, "[]", string(actualBz))
+	require.Equal(t, "null", string(actualBz))
 	require.Empty(t, actual)
 }
 
@@ -166,7 +166,7 @@ func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, "[]", string(actualBz))
+	require.Equal(t, "null", string(actualBz))
 	require.Empty(t, actual)
 }
 
@@ -207,7 +207,7 @@ func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, "[]", string(actualBz))
+	require.Equal(t, "null", string(actualBz))
 	require.Empty(t, actual)
 }
 
@@ -249,7 +249,7 @@ func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
 	actualBz, _ := querier(ctx, path, request)
 	cdc.MustUnmarshalJSON(actualBz, &actual)
 
-	require.Equal(t, "[]", string(actualBz))
+	require.Equal(t, "null", string(actualBz))
 	require.Empty(t, actual)
 }
 
