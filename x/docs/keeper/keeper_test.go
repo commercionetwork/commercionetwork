@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +33,7 @@ func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
 	newSchema := types.MetadataSchema{Type: "schema2", SchemaURI: "https://example.com/schema2", Version: "2.0.0"}
 	k.AddSupportedMetadataScheme(ctx, newSchema)
 
-	stored := []types.MetadataSchema{}
+	var stored []types.MetadataSchema
 	msi := k.SupportedMetadataSchemesIterator(ctx)
 	defer msi.Close()
 
@@ -71,7 +71,7 @@ func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
 func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
-	result := []types.MetadataSchema{}
+	var result []types.MetadataSchema
 	smi := k.SupportedMetadataSchemesIterator(ctx)
 	defer smi.Close()
 
@@ -92,7 +92,7 @@ func TestKeeper_SupportedMetadataSchemesIterator_ExistingList(t *testing.T) {
 	existingBz := cdc.MustMarshalBinaryBare(existingSchema)
 	store.Set(metadataSchemaKey(existingSchema), existingBz)
 
-	result := []types.MetadataSchema{}
+	var result []types.MetadataSchema
 	smi := k.SupportedMetadataSchemesIterator(ctx)
 	defer smi.Close()
 
@@ -162,7 +162,7 @@ func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
 func TestKeeper_TrustedSchemaProposersIterator_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
-	result := []sdk.AccAddress{}
+	var result []sdk.AccAddress
 	tspi := k.TrustedSchemaProposersIterator(ctx)
 	defer tspi.Close()
 
@@ -182,7 +182,7 @@ func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
 	proposersBz := cdc.MustMarshalBinaryBare(TestingSender)
 	store.Set(metadataSchemaProposerKey(TestingSender), proposersBz)
 
-	result := []sdk.AccAddress{}
+	var result []sdk.AccAddress
 	tspi := k.TrustedSchemaProposersIterator(ctx)
 	defer tspi.Close()
 
@@ -321,7 +321,7 @@ func TestKeeper_UserReceivedDocumentsIterator_EmptyList(t *testing.T) {
 	rdi := k.UserReceivedDocumentsIterator(ctx, TestingRecipient)
 	defer rdi.Close()
 
-	docs := []types.Document{}
+	var docs []types.Document
 	for ; rdi.Valid(); rdi.Next() {
 		doc, err := k.GetDocumentByID(ctx, string(rdi.Value()))
 		require.NoError(t, err)
@@ -342,7 +342,7 @@ func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
 	rdi := k.UserReceivedDocumentsIterator(ctx, TestingRecipient)
 	defer rdi.Close()
 
-	docs := []types.Document{}
+	var docs []types.Document
 	for ; rdi.Valid(); rdi.Next() {
 		id := ""
 		k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
@@ -359,7 +359,7 @@ func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
 func TestKeeper_UserSentDocumentsIterator_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
-	docs := []types.Document{}
+	var docs []types.Document
 	sdi := k.UserSentDocumentsIterator(ctx, TestingSender)
 	defer sdi.Close()
 
@@ -385,7 +385,7 @@ func TestKeeper_UserSentDocumentsIterator_NonEmptyList(t *testing.T) {
 	rdi := k.UserSentDocumentsIterator(ctx, TestingRecipient)
 	defer rdi.Close()
 
-	docs := []types.Document{}
+	var docs []types.Document
 	for ; rdi.Valid(); rdi.Next() {
 		id := ""
 		k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
@@ -404,7 +404,7 @@ func TestKeeper_DocumentsIterator_EmptyList(t *testing.T) {
 	di := k.DocumentsIterator(ctx)
 	defer di.Close()
 
-	documents := []types.Document{}
+	var documents []types.Document
 	for ; di.Valid(); di.Next() {
 		d := types.Document{}
 		k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
@@ -434,7 +434,7 @@ func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
 	di := k.DocumentsIterator(ctx)
 	defer di.Close()
 
-	docs := []types.Document{}
+	var docs []types.Document
 	for ; di.Valid(); di.Next() {
 		d := types.Document{}
 		k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
@@ -523,7 +523,7 @@ func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
 	urri := k.UserReceivedReceiptsIterator(ctx, TestingDocumentReceipt.Recipient)
 	defer urri.Close()
 
-	receipts := []types.DocumentReceipt{}
+	var receipts []types.DocumentReceipt
 	for ; urri.Valid(); urri.Next() {
 		rid := ""
 		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
@@ -549,7 +549,7 @@ func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
 	urri := k.UserReceivedReceiptsIterator(ctx, TestingDocumentReceipt.Recipient)
 	defer urri.Close()
 
-	receipts := []types.DocumentReceipt{}
+	var receipts []types.DocumentReceipt
 	for ; urri.Valid(); urri.Next() {
 		rid := ""
 		k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
@@ -586,7 +586,7 @@ func TestKeeper_ExtractDocument(t *testing.T) {
 
 			require.NoError(t, k.SaveDocument(ctx, tt.want))
 
-			docKey := []byte{}
+			var docKey []byte
 
 			di := k.DocumentsIterator(ctx)
 			defer di.Close()
@@ -626,7 +626,7 @@ func TestKeeper_ExtractMetadataSchema(t *testing.T) {
 			ki := k.SupportedMetadataSchemesIterator(ctx)
 			defer ki.Close()
 
-			mIterVal := []byte{}
+			var mIterVal []byte
 
 			for ; ki.Valid(); ki.Next() {
 				mIterVal = ki.Value()
@@ -666,7 +666,7 @@ func TestKeeper_ExtractReceipt(t *testing.T) {
 			require.NoError(t, k.SaveDocument(ctx, tt.savedDocument))
 			require.NoError(t, k.SaveReceipt(ctx, tt.want))
 
-			recVal := []byte{}
+			var recVal []byte
 
 			di, _ := k.ReceiptsIterators(ctx)
 			defer di.Close()
@@ -706,7 +706,7 @@ func TestKeeper_ExtractTrustedSchemaProposer(t *testing.T) {
 			ki := k.TrustedSchemaProposersIterator(ctx)
 			defer ki.Close()
 
-			mIterVal := []byte{}
+			var mIterVal []byte
 
 			for ; ki.Valid(); ki.Next() {
 				mIterVal = ki.Value()
