@@ -3,6 +3,7 @@ package memberships
 import (
 	"errors"
 	"fmt"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"

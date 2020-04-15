@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"testing"
+
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

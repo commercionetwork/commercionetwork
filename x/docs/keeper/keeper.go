@@ -2,8 +2,9 @@ package keeper
 
 import (
 	"fmt"
-	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"strings"
+
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 

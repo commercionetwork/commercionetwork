@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"

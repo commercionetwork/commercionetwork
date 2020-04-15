@@ -2,9 +2,10 @@ package ante_test
 
 import (
 	"errors"
+	"testing"
+
 	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
-	"testing"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 

@@ -2,9 +2,10 @@ package keeper
 
 import (
 	"fmt"
+	"testing"
+
 	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
-	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"

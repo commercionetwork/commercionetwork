@@ -1,11 +1,12 @@
 package simapp
 
 import (
+	"io"
+
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
-	"io"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	abci "github.com/tendermint/tendermint/abci/types"

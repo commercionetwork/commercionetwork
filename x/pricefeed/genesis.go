@@ -2,9 +2,10 @@ package pricefeed
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
-	"strings"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 

@@ -6,13 +6,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"net"
+	"os"
+	"path/filepath"
+
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
-	"net"
-	"os"
-	"path/filepath"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 
