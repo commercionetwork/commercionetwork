@@ -53,7 +53,7 @@ func (proof Proof) Validate() error {
 	}
 
 	if proof.Created.IsZero() {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof creation time"))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof creation time")
 	}
 
 	if proof.ProofPurpose != ProofPurposeAuthentication {

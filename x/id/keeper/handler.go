@@ -5,14 +5,14 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/id/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewHandler returns a handler for type messages and is essentially a sub-router that directs
 // messages coming into this module to the proper handler.
-func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
+func NewHandler(keeper Keeper, govKeeper governmentKeeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		case types.MsgSetIdentity:
@@ -62,7 +62,7 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 }
 
 // handleMsgChangePowerUpStatus marks the PowerUp request identified by the activation reference as handled successfully.
-func handleMsgChangePowerUpStatus(ctx sdk.Context, keeper Keeper, govKeeper government.Keeper, msg types.MsgChangePowerUpStatus) (*sdk.Result, error) {
+func handleMsgChangePowerUpStatus(ctx sdk.Context, keeper Keeper, govKeeper governmentKeeper.Keeper, msg types.MsgChangePowerUpStatus) (*sdk.Result, error) {
 	// Check the signer if status is approved or rejected
 	if !govKeeper.GetTumblerAddress(ctx).Equals(msg.Signer) {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Cannot set request as handled without being the tumbler")
