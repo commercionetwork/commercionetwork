@@ -5,4 +5,4 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
-var ErrMinimumDeposit = sdkerrors.Register(staking.ModuleName, 46, "deposit is not enough")
+var ErrMinimumStake = sdkerrors.Register(staking.ModuleName, 46, "deposit is not enough")

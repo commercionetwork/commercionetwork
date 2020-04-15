@@ -60,7 +60,7 @@ func handleMsgCreateValidator(ctx sdk.Context, msg types.MsgCreateValidator, k k
 	}
 
 	if msg.Value.IsLT(MinimumDeposit) {
-		return nil, ErrMinimumDeposit
+		return nil, ErrMinimumStake
 	}
 
 	if _, err := msg.Description.EnsureLength(); err != nil {

@@ -35,7 +35,7 @@ func TestHandler_MinimumStakeToJoin_MinimumDepositNotEnough(t *testing.T) {
 	sh := customstaking.NewHandler(app.StakingKeeper)
 
 	res, err := sh(ctx, msg)
-	require.EqualError(t, err, customstaking.ErrMinimumDeposit.Error())
+	require.EqualError(t, err, customstaking.ErrMinimumStake.Error())
 	require.Nil(t, res)
 
 	// end block to bond validator
