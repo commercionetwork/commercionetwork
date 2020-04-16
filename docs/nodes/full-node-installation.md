@@ -25,7 +25,7 @@ source ~/.profile
 ```
 
 ## 2. Chain selection
-Before installing the node, please select which chain you would like to connect to 
+Before installing the node, please select which chain you would like to connect to (for example **testent7000**)
 
 ```bash
 rm -rf commercio-chains
@@ -71,6 +71,10 @@ EOF
 ```
 
 Init the `.cnd` folder with the basic configuration
+
+:::warning  
+At this point there may be some differences if you are using `KMS` with `HSM`. Specifications will be published shortly.
+:::
 
 ```bash
 cnd unsafe-reset-all
@@ -162,8 +166,8 @@ cncli config chain-id $CHAINID
 cncli rest-server
 ``` 
 
-This will start up the REST server and make it reachable using the port `1317`. 
-From here, if you want you can use services such as [Nginx](https://www.nginx.com/) in order to make it available to other devices. 
+This will start up the REST server and make it reachable using the port `1317`.     
+**From here, if you want you can use services such as [Nginx](https://www.nginx.com/) in order to make it available to other devices.**
 
 ## Next step
 Now that you are a Commercio.network full node, if you want you can become a validator.
