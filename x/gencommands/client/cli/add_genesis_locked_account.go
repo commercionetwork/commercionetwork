@@ -13,7 +13,7 @@ import (
 	bank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 )
 
-// AddGenesisTspCmd returns add-genesis-tsp cobra Command.
+// AddGenesisLockedAccountCmd returns add-genesis-locked-account cobra Command.
 func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
