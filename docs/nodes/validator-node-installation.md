@@ -167,7 +167,7 @@ The overall command to create a validator is the following:
 
 ```bash
 cncli tx staking create-validator \
-  --amount=1100000ucommercio \
+  --amount=1000000ucommercio \
   --pubkey=$(cnd tendermint show-validator) \
   --moniker="$NODENAME" \
   --chain-id="$CHAINID" \
