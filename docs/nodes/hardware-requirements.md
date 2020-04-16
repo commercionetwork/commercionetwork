@@ -1,4 +1,4 @@
-# Validator hardware
+# Validator hardware (**WIP**)
 This page contains three main hardware configurations that can be used in order to create a new Commercio.network 
 validator machine. Please note that higher the effort you will put into creating a stable and robust machine and lower 
 the chances of getting slashed due to downtime. 

@@ -1,6 +1,6 @@
-# Becoming a validator
+# Becoming a validator (**WIP**)
 Once you've properly set up a [full node](full-node-installation.md), if you wish you can become a validator node and
-start earning to validate the chain transactions. 
+start in earning by  validating  the chain transactions. 
 
 ## Requirements
 If you want to become a Commercio.network validator you need to:
@@ -8,19 +8,20 @@ If you want to become a Commercio.network validator you need to:
 1. Be a full node.  
    If you are not, please follow the [full node installation guide](full-node-installation.md).
    
-2. Have enough tokens.  
-   Currently in order to be a validator you are required to have 50.000 commercio tokens. 
-   To get some please read the [*Getting tokens* paragraph](#getting-tokens)
+2. Own enough tokens.  
+   To become a validator you need two wallets: one with at least one token to create the validator and another with 50,000 tokens to delegate to the validator node.
 
 ## 1. Add wallet key
-Inside the testnet we don't use the Ledger. 
-However, if you wish to do so, please add the `--ledger` flat to any command.
+Inside the testnet you can use the ledger, but you can also use the wallet software with the `cncli`.     
+However, if you wish to use Ledger, please add the `--ledger` flat to any command.
 
 :::warning  
 Please remember to copy the 24 words seed phrase in a secure place.  
 They are your mnemonic and if you loose them you lose all your tokens and the whole access to your validator.  
 :::
 
+
+Create the first wallet with the following command
 ```bash
 cncli keys add $NODENAME
 # Enter a password that you can remember
@@ -28,39 +29,126 @@ cncli keys add $NODENAME
 
 Copy your public address. It should have the format `did:com:<data>`.
 
-```bash
-cncli keys show $NODENAME --address
-```
+
+The second wallet must be requested through a message on the telegram group [Telegram group](https://t.me/commercionetworkvipsTelegram). With a private message will be sent the information of the second wallet.
+
     
-From now on we will refer to the value of your public address using the `<your pub addr>` notation.
+From now on we will refer to the value of your public address of the first wallet as `<your pub addr creator val>` notation.
+We will refer to the second wallet as `<your pub addr delegator>` notation.   
 
 ## 2. Get the tokens
 - [Testnet](#testnet)
 - [Mainnet](#mainnet)
 
 ### Testnet
-In order to receive your tokens on our testnet, please send your public inside our 
-[Telegram group](https://t.me/commercionetworkvipsTelegram) requesting them. 
-We will make sure to send them to you as soon as possible.
-
-In order to get `<your pub address>` you can use the following command: 
-```
+In order to get  `<your pub addr creator val>` you can use the following command: 
+```bash
 cncli keys show $NODENAME --address
 ```
 
+From the command line
+```bash
+curl "https://faucet-testnet.commercio.network/invite?addr=<your pub addr creator val>"
+```
+
+Or on a browser copy and paste the following address
+```
+https://faucet-testnet.commercio.network/invite?addr=<your pub addr creator val>
+```
+
+The call should return something like
+
+```json
+{"tx_hash":"4AB05DF5BEB7321059A6724BF18A7B95631AB55773BBD55DFC448351101BE972"}
+```
+
+Now you can request the token from faucet's service
+
+```bash
+cncli keys show $NODENAME --address
+```
+
+From the command line
+```bash
+curl "https://faucet-testnet.commercio.network/give?addr=<your pub addr creator val>&amount=1100000"
+```
+
+Or on a browser copy and paste the following address
+```
+https://faucet-testnet.commercio.network/give?addr=<your pub addr creator val>&amount=1000000
+```
+
+The call should return something like
+
+```json
+{"tx_hash":"BB733FDB2665265D3B3A32576F23B10B10EA8F56EEBAD08C1BF39D5E2FAC601C"}
+```
+
+
+
 Once you've been confirmed the successful transaction, please check using the following command:
 ```bash
-cncli query account <your pub addr> --chain-id $CHAINID
+cncli query account <your pub addr creator val> --chain-id $CHAINID
 ```
 
 The output should look like this:
 ```
 - denom: ucommercio
-  amount: "52000000000"
+  amount: "1100000"
 ```
 
+When you have received the second wallet `<your pub addr delegator>` via telegram message, check if the tokens are actually present
+```bash
+cncli query account <your pub addr delegator> --chain-id $CHAINID
+```
+The output should look like this:
+```
+- denom: ucommercio
+  amount: "5100000000"
+```
+
+
+
 ### Mainnet
-To get your tokens inside our mainnet, you are required to purchase them using an exchange.
+To get your tokens inside our mainnet, you are required to purchase them using an exchange or having received a black card.  
+**The black card is the wallet `<your pub addr delegator>`**
+
+
+Create the first wallet `<your pub addr creator val>` with the command 
+```bash
+cncli keys add $NODENAME
+# Enter a password that you can remember
+```
+
+Use the ledger or another hsm to make a recovery from 24 words for the second wallet with the black card.
+
+Send one token to the first wallet using the following command
+
+:::warning  
+This transaction is expected to be done with an hsm as Ledger
+:::
+
+```bash
+cncli send \
+<your pub addr delegator> \
+<your pub addr creator val> \
+1000000ucommercio \
+--ledger \
+--fees=10000ucommercio  \
+-y
+```
+
+Once you've been confirmed the successful transaction, please check using the following command:
+```bash
+cncli query account <your pub addr creator val> --chain-id $CHAINID
+```
+
+The output should look like this:
+```
+- denom: ucommercio
+  amount: "1000000"
+```
+
 
 ## 3. Create a validator
 Once you have the tokens, you can create a validator. If you want, while doing so you can also specify the following parameters
@@ -68,35 +156,134 @@ Once you have the tokens, you can create a validator. If you want, while doing s
 * `--identity`: your [Keybase](https://keybase.io) identity
 * `--website`: a public website of your node or your company
 
+```bash
+VALNODE=$(cnd tendermint show-validator)
+```
+
+
 The overall command to create a validator is the following:
+
+
 
 ```bash
 cncli tx staking create-validator \
-  --amount=50000000000ucommercio \
+  --amount=1100000ucommercio \
   --pubkey=$(cnd tendermint show-validator) \
   --moniker="$NODENAME" \
   --chain-id="$CHAINID" \
   --identity="" --website="" --details="" \
   --commission-rate="0.10" --commission-max-rate="0.20" \
   --commission-max-change-rate="0.01" --min-self-delegation="1" \
-  --from=<your pub addr> \
+  --from=<your pub addr creator val> \
+  --fees=10000ucommercio \
   -y
+##Twice input password required
 ```
+
 
 The output should look like this:
 ```
-rawlog: '[{"msg_index":0,"success":true,"log":""}]'
+height: 0
+txhash: C41B87615308550F867D42BB404B64343CB62D453A69F11302A68B02FAFB557C
+codespace: ""
+code: 0
+data: ""
+rawlog: '[]'
+logs: []
+info: ""
+gaswanted: 0
+gasused: 0
+tx: null
+timestamp: ""
 ```
+
+## 4. Delegate tokens to the validator
+
 
 ### Confirm your validator is active
 Please confirm that your validator is active by running the following command:
 
 ```bash
-cncli query staking validators --chain-id $CHAINID | fgrep $(cnd tendermint show-validator)
+cncli query staking validators --chain-id $CHAINID | fgrep -B 1 $(cnd tendermint show-validator)
+```
+Something like this
+
+```
+  operatoraddress: did:com:valoper1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  conspubkey: did:com:valconspub1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-You should now see your validator inside the [Commercio.network explorer](https://test.explorer.commercio.network)
+Copy the value of `operatoraddress`. Below we will refer to this value with `<validator-addr>`
+
+### Delegate tokens
+
+Now you can delegate the tokens to the validator node
+
+:::warning  
+This transaction is expected to be done with an hsm as a device ledger
+:::
+
+```bash
+cncli tx staking delegate \
+ <validator-addr> \
+ 50000000000ucommercio \
+ --from <your pub addr delegator> \
+ --fees=10000ucommercio \
+ --ledger \
+ -y
+```
+
+The output should look like this:
+```
+height: 0
+txhash: 027B85834DA5486085BC56FFD2759443EFD3101BD1023FA9A681262E5C85A845
+codespace: ""
+code: 0
+data: ""
+rawlog: '[]'
+logs: []
+info: ""
+gaswanted: 0
+gasused: 0
+tx: null
+timestamp: ""
+```
+
+**Testnet** You should now see your validator inside the [Commercio.network explorer testnet](https://testnet.commercio.network)
+**Mainnet** You should now see your validator inside the [Commercio.network explorer mainnet](https://mainnet.commercio.network)
 
 :::tip
 Congratulations, you are now a Commercio.network validator 🎉
 :::
+
+
+## Note 
+
+If you want to make transactions with the nano ledger from another machine a full node must be created locally or a full node must be configured to accept remote connections.   
+Edit the `.cnd/config/config.toml` file by changing from 
+
+```
+laddr = "tcp://127.0.0.1:26657"
+```
+to
+```
+laddr = "tcp://0.0.0.0:26657"
+```
+
+and restart your node
+```
+systemctl cnd restart
+```
+
+and use the transaction this way
+
+```bash
+cncli tx staking delegate \
+ <validator-addr> \
+ 50000000000ucommercio \
+ --from <your pub addr delegator> \
+ --node tcp://<ip of your fulle node>:26657 \
+ --fees=10000ucommercio \
+ --ledger \
+ -y
+```
