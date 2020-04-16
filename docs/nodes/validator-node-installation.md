@@ -30,7 +30,7 @@ cncli keys add $NODENAME
 Copy your public address. It should have the format `did:com:<data>`.
 
 
-The second wallet must be requested through a message on the telegram group [Telegram group](https://t.me/commercionetworkvipsTelegram). With a private message will be sent the information of the second wallet.
+The second wallet must be requested through a message on the [Telegram group](https://t.me/commercionetworkvipsTelegram). With a private message will be sent the information of the second wallet.
 
     
 From now on we will refer to the value of your public address of the first wallet as `<your pub addr creator val>` notation.
@@ -217,11 +217,22 @@ Copy the value of `operatoraddress`. Below we will refer to this value with `<va
 
 ### Delegate tokens
 
+Once received the second wallet must be loaded on the ledger or keyring through the command
+
+```bash
+cncli add keys <name of second wallet> --recover
+```
+where `<name of second wallet>` is an arbitrary name.   
+When requested, the 24 keywords must be entered
+
+
 Now you can delegate the tokens to the validator node
 
 :::warning  
 This transaction is expected to be done with an hsm as a device ledger
 :::
+
+
 
 ```bash
 cncli tx staking delegate \
