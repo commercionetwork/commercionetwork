@@ -24,9 +24,30 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/tsps", getTrustedServiceProvidersHandler(cliCtx)).Methods("GET")
 
 	r.HandleFunc(
+		fmt.Sprintf("/membership/{%s}", restParamAddress),
+		getMembershipForAddr(cliCtx),
+	).Methods(http.MethodGet)
+
+	r.HandleFunc(
 		"/accreditations-funds",
 		getGetPoolFunds(cliCtx)).
 		Methods("GET")
+}
+
+func getMembershipForAddr(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		address := vars[restParamAddress]
+
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetMembership, address)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
 }
 
 // ----------------------------------
