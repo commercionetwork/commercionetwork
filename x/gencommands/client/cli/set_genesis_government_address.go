@@ -20,7 +20,7 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-genesis-government-address [government_address_or_key]",
-		Short: "Sets the given address as the government address inside genesis.json",
+		Short: "Sets the given address as the government address inside genesis.json, and assings a black membership to it",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			config := ctx.Config
