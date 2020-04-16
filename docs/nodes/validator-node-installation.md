@@ -220,7 +220,7 @@ Copy the value of `operatoraddress`. Below we will refer to this value with `<va
 Once received the second wallet must be loaded on the ledger or keyring through the command
 
 ```bash
-cncli add keys <name of second wallet> --recover
+cncli keys add <name of second wallet> --recover
 ```
 where `<name of second wallet>` is an arbitrary name.   
 When requested, the 24 keywords must be entered
