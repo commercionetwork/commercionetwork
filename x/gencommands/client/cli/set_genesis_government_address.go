@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 
 	"github.com/commercionetwork/commercionetwork/x/government"
 	"github.com/spf13/cobra"
@@ -37,17 +39,31 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 			}
 
 			// add minter to the app state
-			var genState government.GenesisState
-			cdc.MustUnmarshalJSON(appState[government.ModuleName], &genState)
+			var genStateGovernment government.GenesisState
+			cdc.MustUnmarshalJSON(appState[government.ModuleName], &genStateGovernment)
 
-			if !genState.GovernmentAddress.Empty() {
+			if !genStateGovernment.GovernmentAddress.Empty() {
 				return fmt.Errorf("cannot replace existing government address")
 			}
 
-			genState.GovernmentAddress = address
+			genStateGovernment.GovernmentAddress = address
 
-			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[government.ModuleName] = genesisStateBz
+			genesisStateBzGovernment := cdc.MustMarshalJSON(genStateGovernment)
+			appState[government.ModuleName] = genesisStateBzGovernment
+
+			// set a black membership to the government address
+			// add a membership to the genesis state
+			var genStateMemberships memberships.GenesisState
+			err = json.Unmarshal(appState[memberships.ModuleName], &genStateMemberships)
+			if err != nil {
+				return err
+			}
+
+			membership := memberships.NewMembership("black", address)
+			genStateMemberships.Memberships, _ = genStateMemberships.Memberships.AppendIfMissing(membership)
+
+			genesisStateBzMemberships := cdc.MustMarshalJSON(genStateMemberships)
+			appState[memberships.ModuleName] = genesisStateBzMemberships
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {
