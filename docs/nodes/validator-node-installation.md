@@ -1,6 +1,6 @@
 # Becoming a validator (**WIP**)
 Once you've properly set up a [full node](full-node-installation.md), if you wish you can become a validator node and
-start earning to validate the chain transactions. 
+start in earning by  validating  the chain transactions. 
 
 ## Requirements
 If you want to become a Commercio.network validator you need to:
@@ -8,7 +8,7 @@ If you want to become a Commercio.network validator you need to:
 1. Be a full node.  
    If you are not, please follow the [full node installation guide](full-node-installation.md).
    
-2. Have enough tokens.  
+2. Own enough tokens.  
    To become a validator you need two wallets: one with at least one token to create the validator and another with 50,000 tokens to delegate to the validator node.
 
 ## 1. Add wallet key
@@ -30,7 +30,7 @@ cncli keys add $NODENAME
 Copy your public address. It should have the format `did:com:<data>`.
 
 
-The second wallet must be requested and through a message on the telegram group [Telegram group](https://t.me/commercionetworkvipsTelegram). With a private message will be sent the information of the second wallet.
+The second wallet must be requested through a message on the telegram group [Telegram group](https://t.me/commercionetworkvipsTelegram). With a private message will be sent the information of the second wallet.
 
     
 From now on we will refer to the value of your public address of the first wallet as `<your pub addr creator val>` notation.
@@ -54,7 +54,7 @@ curl "https://faucet-testnet.commercio.network/invite?addr=<your pub addr creato
 Or on a browser copy and paste the following address
 ```
 https://faucet-testnet.commercio.network/invite?addr=<your pub addr creator val>
-``` 
+```
 
 The call should return something like
 
@@ -125,7 +125,7 @@ Use the ledger or another hsm to make a recovery from 24 words for the second wa
 Send one token to the first wallet using the following command
 
 :::warning  
-This transaction is expected to be done with an hsm as a device ledger
+This transaction is expected to be done with an hsm as Ledger
 :::
 
 ```bash
@@ -134,7 +134,8 @@ cncli send \
 <your pub addr creator val> \
 1000000ucommercio \
 --ledger \
---fees=10000ucommercio  -y
+--fees=10000ucommercio  \
+-y
 ```
 
 Once you've been confirmed the successful transaction, please check using the following command:
