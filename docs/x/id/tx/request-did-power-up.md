@@ -1,8 +1,9 @@
-# Requesting a Did power up
-A *Did power up* is a term we use when referring to the willingness of a user to move a specified amount of tokens 
+# Requesting a Did Power Up
+A *Did Power Up* is the expression we use when referring to the willingness of a user to move a specified amount of tokens 
 from external centralized entity to one of his
-private pairwise Did, making them able to send documents (which indeed require the user to spend some tokens as fees).  
-User has previously send tokens to public address of centralized entity.
+private pairwise Did, making them able to send documents (which indeed require the user to spend some tokens as fees). 
+
+A user who wants to execute a Did Power Up must have previously sent tokens to the public address of the centralized entity.
   
 This action is the second and final step that must be done when [creating a pairwise Did](../creating-pairwise-did.md).  
 
@@ -12,24 +13,27 @@ If you wish to know more about the overall pairwise Did creation sequence, pleas
 :::    
 
 ## Transaction message
-```json
+```javascript
 {
   "type": "commercio/MsgRequestDidPowerUp",
   "value": {
-    "status": "",
-    "claimant": "<Address that is able to spend the funds (the recipient used during the deposit procedure)>",
-    "amount": "int64",
-    "proof": "string",
-    "id": "string",
-    "proof_key": "string"
+    "claimant": "address that sent funds to the centralized entity before",
+    "amount": [
+      {
+        "denom": "ucommercio",
+        "amount": "amount to transfer to the pairwise did, integer"
+      }
+    ],
+    "proof": "proof string",
+    "id": "randomly-generated UUID v4",
+    "proof_key": "proof encryption key"
   }
 }
 ```
 
-### Fields requirements
+### `value` fields requirements
 | Field | Required |
 | :---: | :------: |
-| `status` | No (Don't use) |
 | `claimant` | Yes |
 | `amount` | Yes |
 | `proof` | Yes | 
@@ -37,48 +41,42 @@ If you wish to know more about the overall pairwise Did creation sequence, pleas
 | `proof_key` | Yes | 
 
 
-### Creating the `proof ` value
-When creating the `proof ` field value, the following steps must be followed. 
+### Creating the `proof` value
 
+To create the `proof` field value, the following steps must be followed:
 
-1. Create the `signature_json` formed as follow.  
-   ```json
+1. create the `signature_json` formed as follow.  
+   ```javascript
    {
-    "sender_did": "<User did>",
-    "pairwise_did": "<Pairwise Did to power up>",
-    "timestamp": <Timestamp>,
+    "sender_did": "user who sends the power-up request",
+    "pairwise_did": "pairwise address to power-up",
+    "timestamp": "UNIX-formatted timestamp",
    }
    ```
 
-2. Retrive the public key of external centralized entity **Tk**
-3. Calculate SHA-256 `HASH` of `sender_did`, `pairwise_did` and `timestamp` concatenation
-4. Sign in format PKCS1v15 the `HASH` with the RSA private key associated to RSA public key inserted in the DDO. Now we have `SIGN(HASH)`
-5. Convert `SIGN(HASH)` in Base64 notation `BASE64(SIGN(HASH))` and use it to add `signature` field 
+2. retrive the public key of external centralized entity **Tk**, by querying the `cncli` REST API
+3. calculate SHA-256 `HASH` of the concatenation of `sender_did`, `pairwise_did` and `timestamp` fields, taken from `signature_json`
+4. do a PKCS1v15 signature of `HASH` with the RSA private key associated to RSA public key inserted in the `sender_did` DDO - this process yields the `SIGN(HASH)` value
+5. convert `SIGN(HASH)` in **base64** `BASE64(SIGN(HASH))`, this is the value to be placed in the `signature` field 
+6. add the `signature` field to the `signature_json` JSON:
 
-6. Create a `payload` JSON made as follow:
-
-   ```json
+   ```javascript
    {
-    "sender_did": "<User did>",
-    "pairwise_did": "<Pairwise Did to power up>",
-    "timestamp": <Timestamp>,
+    "sender_did": "user who sends the power-up request",
+    "pairwise_did": "pairwise address to power-up",
+    "timestamp": "UNIX-formatted timestamp",
     "signature": `BASE64(SIGN(HASH))`,
    }
    ```
-7. Create a random [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key `F`
-
-8. Generate a random 96-bit nonce `N`
-
-8. Using the AES-256 key generated at point (6), encrypt the `payload`.
-   1. Remove all the white spaces and line ending characters. 
-   2. Encrypt the resulting string bytes using `F`, obtaining `CIPHERTEXT`  
-      Note that the AES encryption method must be `AES-GCM`.
-   3. Concatenate bytes of `CIPHERTEXT` and `N` and encode the resulting bytes using the Base64 encoding method, obtaining `proof` 
-
-   
-9. Encrypt the AES-256 key.
-   1. Encrypt the `F`key bytes using the centralized system's RSA public key using PKCS1v15 mode.  
-   2. Encode the resulting bytes using the Base64 encoding method, obtaining `proof_key` 
+7. create a random 256-bit [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key `F`
+8. generate a random 96-bit nonce `N`
+8. using the AES-256 key generated at point (6), encrypt the `payload`:
+   1. remove all the white spaces and line ending characters
+   2. encrypt the resulting string bytes using the `AES-GCM` mode, `F` as key, obtaining `CIPHERTEXT`
+   3. concatenate bytes of `CIPHERTEXT` and `N` and encode the resulting bytes in **base64**, obtaining the `value` `proof` content 
+9. encrypt the AES-256 key:
+   1. encrypt the `F` key bytes using the centralized entity's RSA public key found in its Did Document, in PKCS1v15 mode.  
+   2. encode the resulting bytes in **base64**, obtaining the `value` `proof_key` content 
 
 
 ## Action type
