@@ -65,7 +65,7 @@ To create the `proof` field value, the following steps must be followed:
     "sender_did": "user who sends the power-up request",
     "pairwise_did": "pairwise address to power-up",
     "timestamp": "UNIX-formatted timestamp",
-    "signature": `BASE64(SIGN(HASH))`,
+    "signature": "the value BASE64(SIGN(HASH))",
    }
    ```
 7. create a random 256-bit [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key `F`
