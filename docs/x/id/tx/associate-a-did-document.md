@@ -12,36 +12,29 @@ to create and sign the following message:
 {
   "type": "commercio/MsgSetIdentity",
   "value": {
-    "@context": "https://www.w3.org/2019/did/v1",
-    "id": "<Your Address>",
+    "@context": "https://www.w3.org/ns/did/v1",
+    "id": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc",
     "publicKey": [
       {
-        "id": "<Your Address>#keys-1",
-        "type": "Secp256k1VerificationKey2018",
-        "controller": "<Your Address>",
-        "publicKeyHex": "<Public key value, hex encoded>"
-      },
-      {
-        "id": "<Your Address>#keys-2",
+        "id": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc#keys-1",
         "type": "RsaVerificationKey2018",
-        "controller": "<Your Address>",
-        "publicKeyHex": "<Public key value, hex encoded>"
+        "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc ",
+        "publicKeyPem": "-----BEGIN PUBLIC KEY----MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDMr3V+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCTvO3Ku3PJgZ9PO4qRw7QVvTkCbc91rT93/pD3/Ar8wqd4pNXtgbfbwJGviZ6kQIDAQAB-----END PUBLIC KEY-----\r\n"
       },
       {
-        "id": "<Your Address>#keys-3",
-        "type": "Secp256k1VerificationKey2018",
-        "controller": "<Your Address>",
-        "publicKeyHex": "<Public key value, hex encoded>"
+        "id": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc#keys-2",
+        "type": "RsaSignature2018",
+        "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc ",
+        "publicKeyPem": "-----BEGIN PUBLIC KEY----MIGfM3TvO3Ku3PJgZ9PO4qRw7+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCQVvTkCbc9A0GCSqGSIbqd4pNXtgbfbwJGviZ6kQIDAQAB-----END PUBLIC KEY-----\r\n"
       }
     ],
-    "authentication": [
-      "<Authentication key id>"
-    ],
     "proof": {
-      "type": "LinkedDataSignature2015",
-      "created": "<Creation time, in ISO 8601 format>",
-      "creator": "<Authentication key id>",
-      "signatureValue": "<Signature value, Base64 encoded>"
+      "type": "EcdsaSecp256k1VerificationKey2019",
+      "created": "2019-02-08T16:02:20Z",
+      "proofPurpose":"authentication",
+      "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc",
+      "verificationMethod": "<did bech32 pubkey>",
+      "signatureValue": "QNB13Y7Q91tzjn4w=="
     },
     "service": [
       {
@@ -57,12 +50,43 @@ to create and sign the following message:
 ### Fields requirements
 | Field | Required | 
 | :---: | :------: | 
-| `@context` | Yes (Must be `https://www.w3.org/2019/did/v1`) |
+| `@context` | Yes (Must be `https://www.w3.org/ns/did/v1`) |
 | `id` | Yes |
-| `publicKey` | Yes (Must be of length 3) |
-| `authentication` | Yes |
+| `publicKey` | Yes (Must be of length 2) |
 | `proof` | Yes |
 | `service` | No |
+
+### Proof fields requirements
+| Field | Required | Value | 
+| :---: | :------: | :------: | 
+| `type` | Yes | "EcdsaSecp256k1VerificationKey2019" |
+| `created` | Yes | Creation date in UTC format |
+| `proofPurpose` | Yes | "authentication" |
+| `controller` | Yes | User did |
+| `verificationMethod` | Yes | Public key associated to user did hex encoded |
+| `signatureValue` | Yes | Read the explanation below |
+
+### Creating the `signatureValue` value
+
+In order to create `signatureValue`, the following steps must be followed
+
+1. Create the `did_document_unsigned` json formed as follow.
+```json
+{
+ "@context": "https://www.w3.org/ns/did/v1",
+ "id": "<User Did bech32 format>",
+ "publicKey": "<json contains public kyes>",
+}
+```
+2. Alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
+3. Obtain hash of resulting string bytes using **Sha3-256**. 
+4. Sign the resulting hash using `VerificationMethod` value with **Secp256k1Sign** algorithm.
+5. Encode the result using **Base64** obtaining `signatureValue`.
+
+### Service 
+
+`Service` contains a list of Trusted Service End Point or Service End Point for a specific purposes
+ 
 
 ## Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,

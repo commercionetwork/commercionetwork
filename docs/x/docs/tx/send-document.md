@@ -42,6 +42,18 @@ following message.
       "encrypted_data": [
         "<Encrypted field identifier>"
       ]
+    },
+    "do_sign": {
+        "storage_uri": "uri://storage",
+        "signer_instance": "did S",
+        "sdn_data": [
+                "firstName",                
+                "lastName",                
+                "sin",                
+                "email"
+        ],
+        "vcrId": "<identity VCR Identifier"
+        "certificateProfile": "<one of the profiles supported by S>"
     }
   }
 }
@@ -91,6 +103,21 @@ This means that if the first one exists the second will not be used.
 | :---: | :------: |
 | `key` | Yes |
 | `encrypted_data` | Yes |
+
+##### `do_sign`
+| Field | Required | 
+| :---: | :------: |
+| `storage_uri` | Yes ?? |
+| `signer_instance` | Yes |
+| `sdn_data` | No |
+| `vcrId` | Yes |
+| `certificateProfile` | Yes/No ?? |
+
+
+* storage_uri
+* signer_instance
+* sdn_data: contains an array with a list of required fields for Subject Distinguish Name. The names of fields are x509 standard compliant
+
 
 ## Supported checksum algorithm
 When computing the checksum of a document's contents, you must use one of the following supported checksum algorithms.  
