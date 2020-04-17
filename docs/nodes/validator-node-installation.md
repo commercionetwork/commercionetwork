@@ -2,6 +2,15 @@
 Once you've properly set up a [full node](full-node-installation.md), if you wish you can become a validator node and
 start in earning by  validating  the chain transactions. 
 
+Before you start, we recommend that you run the command 
+
+```bash
+cncli config chain-id $CHAINID
+```
+
+In this way you can omit the flag `--chain-id="$CHAINID"` in every command of the **cncli**
+
+
 ## Requirements
 If you want to become a Commercio.network validator you need to:
 
@@ -120,21 +129,21 @@ cncli keys add $NODENAME
 # Enter a password that you can remember
 ```
 
-Use the ledger or another hsm to make a recovery from 24 words for the second wallet with the black card.
+**Use the ledger or another hsm to make a recovery from 24 words for the second wallet with the black card.**
 
 Send one token to the first wallet using the following command
 
 :::warning  
-This transaction is expected to be done with an hsm as Ledger
+This transaction is expected to be done with an hsm as Ledger. If you are using a Ledger add the `--ledger` flag.
 :::
 
 ```bash
-cncli send \
+cncli tx send \
 <your pub addr delegator> \
 <your pub addr creator val> \
 1000000ucommercio \
---ledger \
 --fees=10000ucommercio  \
+--chain-id="$CHAINID" \
 -y
 ```
 
@@ -156,13 +165,7 @@ Once you have the tokens, you can create a validator. If you want, while doing s
 * `--identity`: your [Keybase](https://keybase.io) identity
 * `--website`: a public website of your node or your company
 
-```bash
-VALNODE=$(cnd tendermint show-validator)
-```
-
-
 The overall command to create a validator is the following:
-
 
 
 ```bash
@@ -229,7 +232,7 @@ When requested, the 24 keywords must be entered
 Now you can delegate the tokens to the validator node
 
 :::warning  
-This transaction is expected to be done with an hsm as a device ledger
+This transaction is expected to be done with an hsm as a Ledger device . If you are using a Ledger add the `--ledger` flag.
 :::
 
 
@@ -239,8 +242,8 @@ cncli tx staking delegate \
  <validator-addr> \
  50000000000ucommercio \
  --from <your pub addr delegator> \
+ --chain-id="$CHAINID" \
  --fees=10000ucommercio \
- --ledger \
  -y
 ```
 
@@ -294,6 +297,7 @@ cncli tx staking delegate \
  50000000000ucommercio \
  --from <your pub addr delegator> \
  --node tcp://<ip of your fulle node>:26657 \
+ --chain-id="$CHAINID" \
  --fees=10000ucommercio \
  --ledger \
  -y
