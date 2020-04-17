@@ -5,10 +5,10 @@ In order to do so you will need to perform a transaction and so your account mus
 know how to get them, please take a look at the [*"Using an identity"* section](create-an-identity.md#using-an-identity). 
 
 ## Transaction message
-In order to properly send a transaction to set a Did Document associating it to your identity, you will need
+In order to properly send a transaction to set a DID Document associating it to your identity, you will need
 to create and sign the following message:
 
-```json
+```javascript
 {
   "type": "commercio/MsgSetIdentity",
   "value": {
@@ -18,13 +18,13 @@ to create and sign the following message:
       {
         "id": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc#keys-1",
         "type": "RsaVerificationKey2018",
-        "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc ",
+        "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc",
         "publicKeyPem": "-----BEGIN PUBLIC KEY----MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDMr3V+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCTvO3Ku3PJgZ9PO4qRw7QVvTkCbc91rT93/pD3/Ar8wqd4pNXtgbfbwJGviZ6kQIDAQAB-----END PUBLIC KEY-----\r\n"
       },
       {
         "id": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc#keys-2",
         "type": "RsaSignature2018",
-        "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc ",
+        "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc",
         "publicKeyPem": "-----BEGIN PUBLIC KEY----MIGfM3TvO3Ku3PJgZ9PO4qRw7+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCQVvTkCbc9A0GCSqGSIbqd4pNXtgbfbwJGviZ6kQIDAQAB-----END PUBLIC KEY-----\r\n"
       }
     ],
@@ -36,57 +36,65 @@ to create and sign the following message:
       "verificationMethod": "<did bech32 pubkey>",
       "signatureValue": "QNB13Y7Q91tzjn4w=="
     },
-    "service": [
-      {
-        "id": "<Service id reference>",
-        "type": "<Service type>",
-        "serviceEndpoint": "<Service endpoint>"
-      }
-    ]
   }
 }
 ```
 
-### Fields requirements
+### `value` fields requirements
+
 | Field | Required | 
 | :---: | :------: | 
 | `@context` | Yes (Must be `https://www.w3.org/ns/did/v1`) |
 | `id` | Yes |
-| `publicKey` | Yes (Must be of length 2) |
+| `publicKey` | Yes |
 | `proof` | Yes |
-| `service` | No |
+
+The `id` field represents the DID you want to associate the provided identity to.
+
+The `publicKey` field represents the public keys users can use to communicate safely with you.
+
+Each key **must** have an `id` field defined by the concatenation of the content of the `id` field, along with a `#keys-NUMBER` suffix, where `NUMBER` must be an integer.
+
+The `controller` key field must be equal to the `id` field content.
+
+The commercio.network blockchain requires at least two keys, defined in the following way:
+
+ - key with suffix `#keys-1` must be of type `RsaVerificationKey2018`, and must be a valid RSA PKIX public key;
+ - key with suffix `#keys-2` must be of type `RsaSignature2018`, and must be a valid RSA PKIX public key.
+ 
+A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirements will be discarded.
 
 ### Proof fields requirements
+
 | Field | Required | Value | 
 | :---: | :------: | :------: | 
-| `type` | Yes | "EcdsaSecp256k1VerificationKey2019" |
-| `created` | Yes | Creation date in UTC format |
-| `proofPurpose` | Yes | "authentication" |
-| `controller` | Yes | User did |
-| `verificationMethod` | Yes | Public key associated to user did hex encoded |
-| `signatureValue` | Yes | Read the explanation below |
+| `type` | Yes | must always be `EcdsaSecp256k1VerificationKey2019` |
+| `created` | Yes | creation date in UTC format |
+| `proofPurpose` | Yes | must always be `authentication` |
+| `controller` | Yes | same value specified in the `id` field |
+| `verificationMethod` | Yes | bech32-encoded public key associated with the address specified in the `id` field |
+| `signatureValue` | Yes | see explaination below |
 
 ### Creating the `signatureValue` value
 
 In order to create `signatureValue`, the following steps must be followed
 
-1. Create the `did_document_unsigned` json formed as follow.
-```json
+1. Create a `value` JSON as specified earlier, including only the `@context`, `id` and `publicKey` fields:
+```javascript
 {
  "@context": "https://www.w3.org/ns/did/v1",
- "id": "<User Did bech32 format>",
- "publicKey": "<json contains public kyes>",
+ "id": "your DID",
+ "publicKey": "your public keys",
 }
 ```
-2. Alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
-3. Obtain hash of resulting string bytes using **Sha3-256**. 
-4. Sign the resulting hash using `VerificationMethod` value with **Secp256k1Sign** algorithm.
-5. Encode the result using **Base64** obtaining `signatureValue`.
+2. alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
+3. obtain hash of resulting string bytes using **SHA-256**. 
+4. sign the result of the hashing process using your DID's public key, which you assigned to the `verificationMethod` `proof` JSON field
+5. encode the result in **base64** obtaining `signatureValue`.
 
-### Service 
+The signature commercio.network accepts is `EcdsaSecp256k1VerificationKey2019`, which is a type of elliptic-curve signature scheme.
 
-`Service` contains a list of Trusted Service End Point or Service End Point for a specific purposes
- 
+The signature format produced in step 4, must be of the `r || s` kind, otherwise the identity creation **will** fail.
 
 ## Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
