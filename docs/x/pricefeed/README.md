@@ -67,7 +67,7 @@ In order to set a raw price for a specific asset, you need to create and sign th
 | `oracle` | Yes |
 | `price` | Yes |
 
-##### `price`
+##### `price` fields requirements
 | Field | Required | 
 | :---: | :------: | 
 | `asset_name` | Yes |
