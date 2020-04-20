@@ -74,6 +74,145 @@ that any user you've accreditated buys.
 Please note that the number of rewards is capped to a maximum of **12.5 millions tokens**.
 After all the tokens have been distributed, any following invite will not be rewarded anymore.
 
+## Transactions
+
+### Buying a membership
+
+#### Transaction message
+To buy a membership, the following message must be used: 
+
+```json
+{
+  "type": "commercio/MsgBuyMembership",
+  "value": {
+    "membership_type": "<membership type identifier>",
+    "buyer": "<your address>"
+  }
+}
+```
+
+#### Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+buyMembership
+```  
+
+### Sending an invite
+
+#### Transaction message
+To invite a user, the following message must be used: 
+
+```json
+{
+  "type": "commercio/MsgInviteUser",
+  "value": {
+    "recipient": "<address of the user to be invited>",
+    "sender": "<your address>"
+  }
+}
+```
+
+#### Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+inviteUser
+```  
+
+### Adding a TSP
+
+:::warning  
+This transaction type is accessible only to the [government](../../government/README.md).  
+Trying to perform this transaction without being the government will result in an error.  
+:::
+
+#### Transaction message
+To recognize an address as a TSP, the following message must be used: 
+
+```json
+{
+  "type": "commercio/MsgAddTsp",
+  "value": {
+    "tsp": "<address of the user to be recognized as a TSP>",
+    "government": "<government address>"
+  }
+}
+```
+
+#### Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+addTsp
+```  
+
+### Deposit into reward pool
+
+#### Transaction message
+To deposit a given amount into the Memberships reward pool, the following message must be used:
+
+```json
+{
+  "type": "commercio/MsgDepositIntoLiquidityPool",
+  "value": {
+    "depositor": "<address that deposits into the pool>",
+    "amount": [
+      "<amount of coins to deposit into the pool>"
+    ]
+  }
+}
+```
+
+where components of `amount` must be objects of the following type:
+
+```json
+{
+    "denom": "<token denom>",
+    "amount": "<integer amount of tokens of denom>"
+}
+```
+
+#### Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+depositIntoLiquidityPool
+```  
+
+### Set user membership
+
+:::warning  
+This transaction type is accessible only to the [government](../../government/README.md).  
+Trying to perform this transaction without being the government will result in an error.  
+:::
+
+#### Transaction message
+To arbitrarily set a user's membership, the following message must be used:
+
+```json
+{
+  "type": "commercio/MsgSetMembership",
+  "value": {
+    "government_address": "<address of the government that sends this message>",
+    "subscriber": "<address which membership will change based on this message>",
+    "new_membership": "<membership type identifier>"
+  }
+}
+```
+
+#### Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+setMembership
+```  
+
 ## Queries
 
 ### Getting current membership invites
