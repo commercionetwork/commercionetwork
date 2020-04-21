@@ -94,5 +94,134 @@ setCdpCollateralRate
 ```  
 
 ## Queries
-- [Read a CDP by its owner's address and timestamp](query/read-cdp.md)
-- [List all CDPs of a user](query/read-cdps.md)
+
+### Reading all CDP opened by a user at a given timestamp
+
+#### CLI
+
+```sh
+$ cncli query commerciomint get-cdp [user-addr] [block-height]
+```
+
+#### REST
+
+Endpoint:  
+
+```
+/commerciomint/cdps/${address}/${timestamp}
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `address` | Address of the user for which to read the CDP |
+| `timestamp`| Timestamp of when the CDP request was made |
+
+##### Example 
+
+Getting CDPs opened by `did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke` at timestamp `1570177686`:
+```
+http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686
+```
+#### Response
+```json
+{
+  "height": "0",
+  "result": {
+    "deposited_amount": {
+      "amount": "10000000",
+      "denom": "ucommercio"
+    },
+    "liquidity_amount": {
+      "amount": "500000",
+      "denom": "uccc"
+    },
+    "owner": "did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686",
+    "timestamp": "1570177686"
+  }
+}
+```
+
+### Reading all CDP opened by a user
+
+#### CLI
+
+```sh
+$ cncli query commerciomint get-cdps [user-addr]
+```
+
+#### REST
+
+Endpoint:
+   
+```
+/commerciomint/cdps/${address}
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `address` | Address of the user for which to read all the CDPs |
+
+##### Example
+
+Getting CDPs opened by `did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke`:
+
+```
+http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
+```
+
+#### Response
+```json
+{
+  "height": "0",
+  "result": [
+    {
+      "deposited_amount": {
+        "denom": "ucommercio",
+        "amount": "10000000"
+      },
+      "liquidity_amount": {
+        "denom": "uccc",
+        "amount": "500000"
+      },
+      "owner": "did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686",
+      "timestamp": "1570177686"
+    }
+  ]
+}
+```
+
+### Reading the current CDP collateral rate
+
+#### CLI
+
+```sh
+$ cncli query commerciomint collateral-rate
+```
+
+#### REST
+
+Endpoint:
+   
+```
+/commerciomint/collateral_rate
+```
+
+##### Example
+
+Getting the current CDP collateral rate:
+
+```
+http://localhost:1317/commerciomint/collateral_rate
+```
+
+#### Response
+```json
+{
+  "height": "0",
+  "result": "2.000000000000000000"
+}
+```
