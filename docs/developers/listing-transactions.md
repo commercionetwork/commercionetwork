@@ -33,9 +33,40 @@ to use for transactions that include that message.
       "raw_log": "[{\"msg_index\":0,\"success\":true,\"log\":\"\"}]",
       "logs": [
         {
-          "msg_index": 0,
-          "success": true,
-          "log": ""
+          "events": [
+            {
+              "attributes": [
+                {
+                  "key": "action", 
+                  "value": "send"
+                }, 
+                {
+                  "key": "sender", 
+                  "value": "did:com:1t5fz439f49zv39pmh73c2lvuhwfzqj0ze3kzj2"
+                }, 
+                {
+                  "key": "module", 
+                  "value": "bank"
+                }
+              ], 
+              "type": "message"
+            }, 
+            {
+              "attributes": [
+                {
+                  "key": "recipient", 
+                  "value": "did:com:1j0ge8wgxcwx4l50lxkam5zkhqv28r7xyxt4zyp"
+                }, 
+                {
+                  "key": "amount", 
+                  "value": "51000000000ucommercio"
+                }
+              ], 
+              "type": "transfer"
+            }
+          ], 
+          "log": "", 
+          "msg_index": 0
         }
       ],
       "gas_wanted": "200000",

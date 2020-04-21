@@ -20,25 +20,16 @@ An example of message object is the following.
 
 ```json
 {
-  "type": "commercio/MsgSendDocument",
+  "type": "cosmos-sdk/MsgSend",
   "value": {
-    "sender": "<Your address>",
-    "recipient": "<Recipient address>",
-    "uuid": "<Document UUID>",
-    "content_uri": "<Document content URI>",
-    "metadata": {
-      "content_uri": "<Metadata content URI>",
-      "schema_type": "<Officially recognized schema type>",
-      "schema": {
-        "uri": "<Metadata schema URI>",
-        "version": "<Metadata schema version>"
-      },
-      "proof": "<Metadata validation proof>"
-    },
-    "checksum": {
-      "value": "<Document content checksum value>",
-      "algorithm": "<Checksum algorithm>"
-    }
+    "from_address": "<Your address>",
+    "to_address": "<Recipient address>",
+    "amount": [
+      {
+        "denom" : 10,
+        "amount" : "ucommercio"
+      }
+    ]
   }
 }
 ```
@@ -127,7 +118,7 @@ This should return a JSON object similar to the following one.
   },
   "id": "233d4e3a9c68bc724f3deb41197e07052e75ab95",
   "listen_addr": "tcp://0.0.0.0:26656",
-  "network": "test-chain-eDSCSs",
+  "network": "commercio-testnet0000",
   "version": "0.30.2",
   "channels": "4020212223303800",
   "moniker": "testchain",
@@ -170,33 +161,29 @@ Using the same example data of the previous sections, a valid signature data wil
 ```json
 {
   "account_number": "0",
-  "chain_id": "test-chain-eDSCSs",
+  "chain_id": "commerci-testnet0000",
   "fee": {
-    "amount": [],
+    "amount": [
+      {
+        "denom" : 10000,
+        "amount" : "ucommercio"
+      }
+    ],
     "gas": "20000"
   },
   "memo": "",
   "msgs": [
     {
-      "type": "commercio/MsgSendDocument",
+      "type": "cosmos-sdk/MsgSend",
       "value": {
-        "sender": "<Your address>",
-        "recipient": "<Recipient address>",
-        "uuid": "<Document UUID>",
-        "content_uri": "<Document content URI>",
-        "metadata": {
-          "content_uri": "<Metadata content URI>",
-          "schema_type": "<Officially recognized schema type>",
-          "schema": {
-            "uri": "<Metadata schema URI>",
-            "version": "<Metadata schema version>"
-          },
-          "proof": "<Metadata validation proof>"
-        },
-        "checksum": {
-          "value": "<Document content checksum value>",
-          "algorithm": "<Checksum algorithm>"
-        }
+        "from_address": "<Your address>",
+        "to_address": "<Recipient address>",
+        "amount": [
+          {
+            "denom" : 10,
+            "amount" : "ucommercio"
+          }
+        ]
       }
     }
   ],
@@ -224,7 +211,7 @@ Once you've create the JSON object containing the data to sign, it is now time t
 1. Convert the JSON object to it's compact and alphabetically ordered representation.  
    This means that the keys of the object should be alphabetically sorted, and any white space should be trimmed. The above JSON should then look like this:  
    ```
-   {"account_number":"0","chain_id":"test-chain-eDSCSs","fee":{"amount":[],"gas":"20000"},"memo":"","msgs":[{"type":"commercioid/SetIdentity","value":{"ddo_reference":"hkbmhbmbmbmnbmb","did":"lkh,mjhmjhmj,hmjh","owner":"did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"}}],"sequence":"1"}
+   {"account_number":"0","chain_id":"commerci-testnet0000","fee":{"amount":[{"denom":10000,"amount":"ucommercio"}],"gas":"20000"},"memo":"","msgs":[{"type":"cosmos-sdk/MsgSend","value":{"amount":[{"denom":10,"amount":"ucommercio"}],"from_address":"<Youraddress>","to_address":"<Recipientaddress>"}}],"sequence":"1"}
    ```
 
 2. Compute the SHA-256 hash of the JSON content's byte array representation.  
@@ -321,7 +308,7 @@ The first thing that needs to be done in order to create a transaction, is to cr
 
 | Field | Type | Required | Description | 
 | :---- | :--- | :------- | :---------- |
-| `msg` | array | yes | Contains all the messages that have been signed, each one as a JSON object. These objects are the same that has been created inside the [message creation section](#1-message-creation) | 
+| `msg` | array | yes | Contains all the messages that have been signed, each one as a JSON object. These objects are the same that has been created inside the [message creation section](#_1-message-creation) | 
 | `fee` | object | yes | Contains the fees that the transaction signer will pay when sending the transaction itself. This is the same object that is put inside the signature data we've seen inside the [signature data creation section](#22-signature-data-creation) |
 | `signatures` | array | yes | Contains all the signatures of the messages that will be sent along with the request. The object definition is the one we've seen in the previous [signature object creation section](#24-signature-object-creation) |
 | `memo` | string | no | This must contain the same value of the `memo` field that is present inside the signature data we've seen on the previous [signature object creation section](#24-signature-object-creation) | 
@@ -331,31 +318,27 @@ The first thing that needs to be done in order to create a transaction, is to cr
 {
   "msg": [
     {
-      "type": "commercio/MsgSendDocument",
+      "type": "cosmos-sdk/MsgSend",
       "value": {
-        "sender": "<Your address>",
-        "recipient": "<Recipient address>",
-        "uuid": "<Document UUID>",
-        "content_uri": "<Document content URI>",
-        "metadata": {
-          "content_uri": "<Metadata content URI>",
-          "schema_type": "<Officially recognized schema type>",
-          "schema": {
-            "uri": "<Metadata schema URI>",
-            "version": "<Metadata schema version>"
-          },
-          "proof": "<Metadata validation proof>"
-        },
-        "checksum": {
-          "value": "<Document content checksum value>",
-          "algorithm": "<Checksum algorithm>"
-        }
+        "from_address": "<Your address>",
+        "to_address": "<Recipient address>",
+        "amount": [
+          {
+            "denom" : 10,
+            "amount" : "ucommercio"
+          }
+        ]
       }
     }
   ],
   "fee": {
-    "amount": [],
-    "gas": "200000"
+    "amount": [
+      {
+        "denom" : 10000,
+        "amount" : "ucommercio"
+      }
+    ],
+    "gas": "20000"
   },
   "signatures": [
     {
@@ -389,7 +372,7 @@ The request body must be a JSON object formed as follows:
 
 | Field | Type | Required | Descrizione | 
 | :---- | :--- | :------- | :---------- | 
-| `tx` | object | yes | Contains the data of the transaction that has been created inside the [section 3.1](#31-creating-the-json-object-representation-of-the-transaction) | 
+| `tx` | object | yes | Contains the data of the transaction that has been created inside the [section 3.1](#_3-1-creating-the-json-object-representation-of-the-transaction) | 
 | `mode` | string | yes | Tells when the node should return the answer. The `async` one tells the node to return immediately, `sync` tells to return after the transaction has been validated, while `block` waits till the transaction has been successfully broadcasted and returns the information of the block containing it. | 
 
 
@@ -416,33 +399,29 @@ curl -X POST http://localhost:1317/txs -d @~/request_body.json
     "msg": [
       {
         "account_number": "0",
-        "chain_id": "test-chain-eDSCSs",
+        "chain_id": "commercio-testnet0000",
         "fee": {
-          "amount": [],
-          "gas": "20000"
+          "gas": "string",
+          "amount": [
+            {
+              "denom": "ucommerio",
+              "amount": "10000"
+            }
+          ]
         },
         "memo": "",
         "msgs": [
           {
-            "type": "commercio/MsgSendDocument",
+            "type": "cosmos-sdk/MsgSend",
             "value": {
-              "sender": "<Your address>",
-              "recipient": "<Recipient address>",
-              "uuid": "<Document UUID>",
-              "content_uri": "<Document content URI>",
-              "metadata": {
-                "content_uri": "<Metadata content URI>",
-                "schema_type": "<Officially recognized schema type>",
-                "schema": {
-                  "uri": "<Metadata schema URI>",
-                  "version": "<Metadata schema version>"
-                },
-                "proof": "<Metadata validation proof>"
-              },
-              "checksum": {
-                "value": "<Document content checksum value>",
-                "algorithm": "<Checksum algorithm>"
-              }
+              "from_address": "<Your address>",
+              "to_address": "<Recipient address>",
+              "amount": [
+                {
+                  "denom" : 10,
+                  "amount" : "ucommercio"
+                }
+              ]
             }
           }
         ],
@@ -450,19 +429,24 @@ curl -X POST http://localhost:1317/txs -d @~/request_body.json
       }
     ],
     "fee": {
-      "amount": [],
-      "gas": "200000"
+      "gas": "string",
+      "amount": [
+        {
+          "denom": "ucommerio",
+          "amount": "10000"
+        }
+      ]
     },
-    "signatures": [
-      {
-        "pub_key": {
-          "type": "tendermint/PubKeySecp256k1",
-          "value": "AnFSuINPl9229iZdH9z2C9vVi7acnM7mM02Z9AEtsvnj"
-        },
-        "signature": "DTcJz2V0JxpcdtAlg/pavyB/k+0RnbgulMjIGHtl3g4LwHrG7vnZ6eYll6FkVRkjSB2VSNrLdYiWbriB1Y8KTQ=="
-      }
-    ],
-    "memo": ""
+    "memo": "string",
+    "signature": {
+      "signature": "MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=",
+      "pub_key": {
+        "type": "tendermint/PubKeySecp256k1",
+        "value": "Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH"
+      },
+      "account_number": "0",
+      "sequence": "1"
+    }
   },
   "mode": "sync"
 }

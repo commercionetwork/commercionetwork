@@ -38,11 +38,12 @@ If you complete The Blockchain QUIZ, your company can join our Consortiunm as CE
 
 As a reference here uou can find all the Open source libraries and SDKs.
 
-|  | Dart/Flutter | Kotlin/Java | C#/Dot.net | GoLang | C++ | Python | Rust |
+
+|  | Dart/Flutter | Kotlin/Java | C#/Dot.net | GoLang | C++ | Phyton | Rust |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 | **Sacco**  | [Repo](https://github.com/commercionetwork/sacco.dart) | [Repo](https://github.com/commercionetwork/sacco.kt) | [Repo](https://github.com/commercionetwork/sacco.cs) |  [Repo](https://github.com/commercionetwork/sacco.go) | Help us | Help us | Help us |
-| (Cosmos Crypto Lib) | [Docs](https://pub.dev/documentation/sacco/latest/) | [Docs](https://github.com/commercionetwork/sacco.dart/blob/master/example/example.dart) | Later | Later | Help us | Help us | Help us |
+| (Cosmos Crypto Lib) | [Docs](https://pub.dev/documentation/sacco/latest/) | [Docs](https://jitpack.io/#commercionetwork/sdk.kt) | Later | Later | Help us | Help us | Help us |
 | **CommercioSDK**  | [Repo](https://github.com/commercionetwork/commercio-sdk.dart) | [Repo](https://github.com/commercionetwork/commercio-sdk.kt) | [Repo](https://github.com/commercionetwork/commercio-sdk.cs) | Later | Help us | Help us | Help us | 
-| (Commercio Application SDK) | [Docs](https://dart.sdk.docs.commercio.network) | [Docs](https://github.com/commercionetwork/commercio-sdk.kt/blob/master/src/test/kotlin/network/commercio/sdk/Examples.kt) | Later | Later | Help us | Help us | Help us |
+| (Commercio Application SDK) | [Docs](https://dart.sdk.docs.commercio.network) | [Docs](https://kt.sdk.docs.commercio.network) | Later | Later | Help us | Help us | Help us |
 
 

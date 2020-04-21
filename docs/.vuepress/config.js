@@ -43,7 +43,7 @@ module.exports = {
                 ]
             },
             {
-                title: "Sdk Developers",
+                title: "SDK Developers",
                 collapsable: false,
                 children: [
                     ["developers/", "Introduction"],
