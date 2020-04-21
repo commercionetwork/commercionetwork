@@ -161,7 +161,7 @@ func setupDidDocument() types.DidDocument {
 			Created:            testTime,
 			ProofPurpose:       types.ProofPurposeAuthentication,
 			Controller:         testOwnerAddress.String(),
-			SignatureValue:     "4T2jhs4C0k7p649tdzQAOLqJ0GJsiFDP/NnsSkFpoXAxcgn6h/EgvOpHxW7FMNQ9RDgQbcE6FWP6I2UsNv1qXQ==",
+			SignatureValue:     "uv9ZM4XusZl2q6Ei2O7aZW32pzwfg6ZQpBsQPb8cxzlFXWEyZLxem29fQBB4Py3W5gaXFEyPGruMXNsNDnr4sQ==",
 			VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
 		},
 		PubKeys: types.PubKeys{
@@ -169,7 +169,7 @@ func setupDidDocument() types.DidDocument {
 				ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
 				Type:       "RsaVerificationKey2018",
 				Controller: testOwnerAddress,
-				PublicKey: `-----BEGIN PUBLIC KEY-----
+				PublicKeyPem: `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
 2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
 Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
@@ -183,7 +183,7 @@ GwIDAQAB
 				ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
 				Type:       "RsaSignatureKey2018",
 				Controller: testOwnerAddress,
-				PublicKey: `-----BEGIN PUBLIC KEY-----
+				PublicKeyPem: `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
 CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
 B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V

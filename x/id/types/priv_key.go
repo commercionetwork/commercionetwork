@@ -48,7 +48,7 @@ func ParseRsaPrivKeyFromPEM(key []byte) (*rsa.PrivateKey, error) {
 	return pkey, nil
 }
 
-// PublicKeyToPemString returns in string format the pem representation of a rsa.PublicKey
+// PublicKeyToPemString returns in string format the pem representation of a rsa.PublicKeyPem
 func PublicKeyToPemString(pub *rsa.PublicKey) (string, error) {
 	key, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {

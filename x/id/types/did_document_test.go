@@ -242,10 +242,10 @@ func getBaseDocumentWithServices(services []Service) DidDocument {
 		ID:      addr,
 		PubKeys: PubKeys{
 			PubKey{
-				ID:         "abcd",
-				Type:       "thePubKeyType",
-				Controller: addr,
-				PublicKey:  "thePublicKey",
+				ID:           "abcd",
+				Type:         "thePubKeyType",
+				Controller:   addr,
+				PublicKeyPem: "thePublicKey",
 			},
 		},
 		Proof: Proof{
