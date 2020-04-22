@@ -15,16 +15,48 @@ This operation can be performed using the following command:
 cnd set-genesis-government-address <ADDRESS-TO-USE>
 ```
 
-Note that you can run this command only once.
+:::danger
+**Note**: you can run this command only once.
 Running it several times after the first value has been set will result in an error been thrown inside the console.
+:::
 
 ## Retrieving the government address
 ### End user
 
 The government address can be retrieved by using either `cncli` or by making a REST request:
 
- - via CLI, `cncli query government address`
- - via REST, by making a GET request to the `/government/address` endpoint 
+ - via **CLI**, `cncli query government gov-address`
+ - via **REST**, by making a GET request to the `/government/address` endpoint 
+
+
+## Setting a tumbler address 
+The address identified as the `tumbler` can be set during the genesis or at active chain.
+This operation can be performed using the following command during the genesis: 
+
+```bash
+cnd set-genesis-tumbler-address <ADDRESS-TO-USE>
+```
+
+When the chain is active you can use the following command
+
+```bash
+cncli tx government set-tumbler-address <ADDRESS-TO-USE> --form <GOV-ADDRESS>
+```
+
+:::warning
+**Note**: only the government can configure the tumbler
+:::
+
+
+## Retrieving the tumbler address
+### End user
+
+The tumbler address can be retrieved by using either `cncli` or by making a REST request:
+
+ - via **CLI**, `cncli query government tumbler-address`
+ - via **REST**, by making a GET request to the `/government/tumbler` endpoint 
+
+
 
 ### From the codebase
 If you're developing a new module or implementing a new feature into an existing one and you need to access the current 

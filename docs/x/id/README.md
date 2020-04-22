@@ -177,14 +177,14 @@ private pairwise Did, making them able to send documents (which indeed require t
 
 A user who wants to execute a Did Power Up must have previously sent tokens to the public address of the centralized entity.
   
-This action is the second and final step that must be done when [creating a pairwise Did](../creating-pairwise-did.md).  
+This action is the second and final step that must be done when [creating a pairwise Did](creating-pairwise-did.md).  
 
 :::tip  
 If you wish to know more about the overall pairwise Did creation sequence, please refer to the
-[pairwise Did creation specification](../creating-pairwise-did.md) page  
+[pairwise Did creation specification](creating-pairwise-did.md) page  
 :::    
 
-### Transaction message
+#### Transaction message
 ```javascript
 {
   "type": "commercio/MsgRequestDidPowerUp",
@@ -265,48 +265,95 @@ requestDidPowerUp
 
 
 ### Did power up
-Once a user has properly [create a Did power up request](./request-did-power-up.md), the external centralized entity can
+Once a user has properly **create a Did power up request**, the external centralized entity can
 accept such request and fund the pairwise Did specified. 
 
 #### Transaction message
 ```json
 {
-  "type": "commercio/MsgPowerUpDid",
+  "type": "commercio/MsgRequestDidPowerUp",
   "value": {
-    "recipient": "<Address of the Did to fund>",
+    "claimant": "<Address of the Did to fund>",
     "amount": [
       {
         "amount": "<Amount of coins to be sent>",
         "denom": "<Denom of the coin to send>"
       }   
     ],
-    "activation_reference": "<Encrypted power up proof used inside the request>",
-    "signer": "<Tumbler address>"
+    "proof": "<proof>",
+    "id": "<uuid>",
+    "proof_key": "<proof_key>"
   }
 }
 ```
 
-##### Fields requirements
+### Fields requirements
 | Field | Required |
 | :---: | :------: |
-| `recipient` | Yes | 
+| `claimant` | Yes |
 | `amount` | Yes |
-| `activation_reference` | Yes |
-| `signer` | Yes |
+| `proof` | Yes | 
+| `id` | Yes | 
+| `proof_key` | Yes | 
 
-###### `amount`
-| Field | Required |
-| :---: | :------: |
-| `amount` | Yes |
-| `denom` | Yes | 
+
+### Creating the `proof ` value
+When creating the `proof ` field value, the following steps must be followed. 
+
+
+1. Create the `signature_json` formed as follow.  
+   ```json
+   {
+    "sender_did": "<User did>",
+    "pairwise_did": "<Pairwise Did to power up>",
+    "timestamp": "<Timestamp>",
+   }
+   ```
+
+2. Retrive the public key of external centralized entity **Tk** resolving its DDO. Retriving Did of **Tk** using public endpoint [/government/tumbler](../government/#retrieving-the-tumbler-address)
+3. Calculate SHA-256 `HASH` of `sender_did`, `pairwise_did` and `timestamp` concatenation
+4. Sign in format PKCS1v15 the `HASH` with the RSA private key associated to RSA public key inserted in the DDO. Now we have `SIGN(HASH)`
+5. Convert `SIGN(HASH)` in Base64 notation `BASE64(SIGN(HASH))` and use it to add `signature` field 
+
+6. Create a `payload` JSON made as follow:
+
+```json
+{
+"sender_did": "<User did>",
+"pairwise_did": "<Pairwise Did to power up>",
+"timestamp": "<Timestamp>",
+"signature": "BASE64(SIGN(HASH))",
+}
+```
+
+7. Create a random [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key `F`
+
+8. Generate a random 96-bit nonce `N`
+
+8. Using the AES-256 key generated at point (6), encrypt the `payload`.
+   1. Remove all the white spaces and line ending characters. 
+   2. Encrypt the resulting string bytes using `F`, obtaining `CIPHERTEXT`  
+      Note that the AES encryption method must be `AES-GCM`.
+   3. Concatenate bytes of `CIPHERTEXT` and `N` and encode the resulting bytes using the Base64 encoding method, obtaining `proof` 
+
+   
+9. Encrypt the AES-256 key.
+   1. Encrypt the `F`key bytes using the centralized system's RSA public key using PKCS1v15 mode.  
+   2. Encode the resulting bytes using the Base64 encoding method, obtaining `proof_key` 
+
+
 
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
-powerUpDid
+requestDidPowerUp
 ```
+
+
+363E160D0BC0D000EFF6082E711FE48DFC8BFE628C93F605C8F20E0660A56730
+
 
 ### Change Did power up status (wip)
 
@@ -323,7 +370,7 @@ powerUpDid
 
 Endpoint:
 ```
-/identities/${did}
+/identities/{did}
 ```
 
 Parameters  
@@ -340,38 +387,37 @@ http://localhost:1317/identities/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
 #### Response
 ```json
 {
-  "height": "0",
-  "result": {
-    "owner": "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h",
+  "height":"0",
+  "result":{
+    "owner": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx",
     "did_document": {
-      "@context": "https://www.w3.org/2019/did/v1",
-      "id": "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h",
-      "publicKey": [
+        "@context": "https://www.w3.org/ns/did/v1",
+        "id": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx",
+        "publicKey": [
         {
-          "id": "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h#keys-1",
-          "type": "Secp256k1VerificationKey2018",
-          "controller": "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h",
-          "publicKeyHex": "028b722575fe90167ccae99ab06a9f155fbb11f2045b35a452e635efc57182624a"
+            "id": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-1",
+            "type": "RsaVerificationKey2018",
+            "controller": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx",
+            "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHg\nkKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScAD\nG9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUc\nzhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7\nZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0\nO2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfK\nHQIDAQAB\n-----END PUBLIC KEY-----\n"
         },
         {
-          "id": "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h#keys-2",
-          "type": "RsaVerificationKey2018",
-          "controller": "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h",
-          "publicKeyHex": "3082010a0282010100a365a9d0ac3bc66e256268ef8126b1c9acbb977ecaa140f0f738f28e6645e038bf84ccce0e53052726c8cad0cd3eeacfd2036959917355765ecf43ebc487889dad4e388787b231c8351cafc5394572046942642f6062566a90dc309f4fe910707ed6bbb310e0fe879ee31d4ed3eb74ffff0eda3b8f0cfcfb70392ce936143c13cdcb6a11bd997d0405e7d1bcd043315e7851c30bacce8985d006f794bcb50b861b90c580fee6958a668983c0ba06bd70d6165b1b73b6666ecc0818cbd69bc09aab6d497fe5c58e46bb1b4a795bb99a40d5793fd23588d8d804e5473569bfd1454d1003c2bc74de8ef9db35a00911446df32e2071a964c7b606ffc665a5d879bd0203010001"
+            "id": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-2",
+            "type": "RsaSignatureKey2018",
+            "controller": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx",
+            "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuk6XjcPA9Zjpo3dgtHOz\n97cbDi6sRmoGZOFqBBaLVvGT1Cgi4Hp00I5z7WP13OCeaV6dkZLCTRyuLeMTxbXn\nRVBOMnfjMek0xjX4X3DkRaDXstk6OOlJJa8BbBkrs3xb4xXInyoTYyS//F+Hkzjg\nleZPdUw7Fa1/NMtMBoUDSb93IrrO1RBtvOE7/I+85q8khkL3zT8MfD9X9li+fidD\n/xpyikMt3ZsmYJs417FeB0v6chrQjlcMrqYyKmfEwze1tgh6fVrxYUAdCDtclL9x\n/HsSzCOSwgIMNPwArV5v6lsoeyRy1ufA8MpwBWPKN4St0a6DoTizQmqaLZ/kgwZb\nqQIDAQAB\n-----END PUBLIC KEY-----\n"
         }
-      ],
-      "authentication": [
-        "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h#keys-1"
-      ],
-      "proof": {
-        "type": "LinkedDataSignature2015",
-        "created": "2019-11-11T13:44:48.829363Z",
-        "creator": "did:com:16ymj373t0rz2r6a57gm8ffzm6xm4euwqecta7h#keys-1",
-        "signatureValue": "3045022100d2070318a640077c202137c0ac4c64ea2a9274baf3b8b20f7d2d526d881b9a2602204ca3d0141fb1ebe4a87d9efdd4f03f89862aeadb192e87183671d1a2ec9dec11"
-      },
-      "service": null
+        ],
+        "proof": {
+            "type": "EcdsaSecp256k1VerificationKey2019",
+            "created": "2020-04-22T04:23:50.73112321Z",
+            "proofPurpose": "authentication",
+            "controller": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx",
+            "verificationMethod": "did:com:pub1addwnpepqt6lnn5v0c3rys49v5v9f4kvcchehnu7kyk8t8vce5lsxfy7e2pxwyvmf6t",
+            "signatureValue": "nIgRvObXlF2OIbktZcQJw0UU7zDEku8cEBq7194YOjhEvD5wBZ+TcNu9GNRZucC6OyuplHfK6uo57+3lVQbpgA=="
+        },
+        "service": null
     }
-  }
+    }
 }
 ```
 
@@ -381,6 +427,45 @@ http://localhost:1317/identities/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
 #### CLI
 
 ```bash
-cncli query docs received-documents [address]
+cncli query id power-up-request [Request-id] [flags]
 ```
 
+
+#### REST
+
+Endpoint:
+```
+/powerUpRequest/{id}
+```
+
+Parameters  
+| Parameter | Description |
+| :-------: | :---------- | 
+| `id` | Request id |
+
+
+##### Example 
+
+```
+http://localhost:1317/powerUpRequest/28b6f9d1-347a-432b-a3a4-e018617a63d8
+```
+
+#### Response
+```json
+{
+  "height":"0",
+  "result":{
+    "status": null,
+    "claimant": "did:com:150jp3tx96frukqg6v870etf02q0cp7em78wu48",
+    "amount": [
+        {
+        "denom": "ucommercio",
+        "amount": "100"
+        }
+    ],
+    "proof": "bgdNnyQrh4vKUl7BeZPaWRdmzXMRvckjYJEll95OSx7Qf6IkS+NXE4zhtuWi6lG/dBkZUbZEbTAxqjb3qTMlOm2J5fQH5LqCg66aSZBISczXfNMPjjMKH0+F+WEZ1GoUWlta6PBMCfWn2UdltsAbm+GJia3QUPwx4UNheIejjOYyd8b0dAlXTwms+NaBZ5K4nLVC9nrDA6u7EL6tHU5KlP50XQ6/1mD9IHR9GdexNMw0OTchk4mEWWdgnfdKNKQt8qOQoSOItqfsu0I6jD5w+sXK2tg1Zgc8XDIvERGT85G3qxapddyK87nfxEKJ975mkA9yGxYJIk5xFwofbJL2S4cPDmJBLiWUDuBiL8XQldEm4bQBtk3HCbV7eDCbziB431cZw3ThHJcgWMGJT6WMFs+Hsv6UVtWULiAq4n517AIoaQvw754VswZi/1nYlkozLZCJdjhFZh9WoEVuC84iB8zBCcsKCC7TcbLJJc9Fev/5nqXNBWxMW2Fm1IrVcXb+MhqgwkdQgh/tDpksjxHixOJ830I1gSgpRYI7ig75qQIGQu2mk4ZGlcSTst4v+ksub8I1DOSz9kXb7cxnf9CRW3I+Vj9J7ll4MO2ayIrnK5OajhkBHFwhVuqXz2QtODW3ruEL4ySMC43ManHHXC9IWmI/w6sp5qzJ3+j4DuKJzf1iFW2yCbOMlMuGsFzoHiPEAnI5ohLstufJd4lnLg==",
+    "id": "28b6f9d1-347a-432b-a3a4-e018617a63d8",
+    "proof_key": "Fti1Z+NVPhZGcTdpTDrQXO1bOlf2FWW5EE61VgzJDJMDn/KwvJ9xrHrEPKtnGRjZX1oRhxDI7BIv7i03hoyG7GDhbymEDQrY3Hia00y52opD8k+9B/WqMa35t0j0lBpEgp2ZeyA8QTxDmQ9kro0uCMsvFv9XBkW34cIfAUJBRFhk/yA37u6wUGve5AG9DUO86yysaPa8Y5c+vohNdynbYgtSc1maDag9E4E2w57YjqiXussyl4bG7l4j7weSKEHYy07Bv3G+VKGJ8T28HKHeVZTO2TWDPPWAJG5+HdQC9D7ME02dPvHzvrApSVIXjT/Sfx0G5YW3flw7T05UOuOmsA=="
+    }
+}
+```

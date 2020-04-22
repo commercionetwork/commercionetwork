@@ -5,21 +5,19 @@ know the `type` and `value` of the message(s) you are including inside the trans
 Inside this page you can find all the types and values for the different messages that are supported by Commercio. 
 
 ## `docs`
-* Share a document: [MsgSendDocument](../x/docs/tx/send-document.md#transaction-message) 
-* Send a document receipt: [MsgSendDocumentReceipt](../x/docs/tx/send-document-receipt.md#transaction-message)
-* Add a metadata schema as officially supported: [MsgAddSupportedMetadataSchema](../x/docs/tx/add-supported-metadata-schema.md)
-* Add a trusted schema proposer: [MsgAddTrustedMetadataSchemaProposer](../x/docs/tx/add-trusted-metadata-schema-proposer.md)
+* Share a document: [MsgSendDocument](../x/docs/#sending-a-document) 
+* Send a document receipt: [MsgSendDocumentReceipt](../x/docs/#sending-a-document-reading-receipt)
 
 ## `id`
-* Associate a Did Document to your Did: [MsgSetIdentity](../x/id/tx/associate-a-did-document.md)
-* Request a Did power up: [MsgRequestDidPowerUp](../x/id/tx/request-did-power-up.md)
-* Change Did power up status: [MsgChangePowerUpStatus](../x/id/tx/invalidate-did-power-up-request.md))
+* Associate a Did Document to your Did: [MsgSetIdentity](../x/id/#associating-a-did-document-to-your-identity)
+* Request a Did power up: [MsgRequestDidPowerUp](../x/id/#did-power-up)
+* Change Did power up status: [MsgChangePowerUpStatus](../x/id/#change-did-power-up-status-wip)
 
 
 ## `commerciomint`
-* Open a CDP: [MsgOpenCdp](../x/commerciomint/tx/open-cdp.md)
-* Close a CDP: [MsgCloseCdp](../x/commerciomint/tx/close-cdp.md)
-* Set collateral rate: [MsgSetCdpCollateralRate](../x/commerciomint/#)
+* Open a CDP: [MsgOpenCdp](../x/commerciomint/#open-a-cdp)
+* Close a CDP: [MsgCloseCdp](../x/commerciomint/#close-a-cdp)
+* Set CDP collateral rate: [MsgSetCdpCollateralRate](../x/commerciomint/#set-cdp-collateral-rate)
 
 ## `memberships`
 * Sending an invite: [MsgInviteUser](../x/memberships/#sending-an-invite)

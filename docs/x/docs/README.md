@@ -79,7 +79,7 @@ following message.
 | `checksum` | No | 
 | `encryption_data` | No | 
 
-###### `metadata`
+##### `metadata`
 | Field | Required | 
 | :---: | :------: |
 | `content_uri` | Yes | 
@@ -92,13 +92,13 @@ This means that if the first one exists the second will not be used.
 - *<sup>2</sup> You can read which `schema_type` values are supported inside 
    the [supported metadata schemes section](../metadata-schemes.md#supported-metadata-schemes)
    
-####### `metadata.schema`
+##### `metadata.schema`
 | Field | Required | 
 | :---: | :------: |
 | `uri` | Yes | 
 | `version` | Yes | 
 
-###### `checksum`
+##### `checksum`
 | Field | Required | 
 | :---: | :------: |
 | `value` | Yes |
@@ -107,13 +107,13 @@ This means that if the first one exists the second will not be used.
 - *<sup>1</sup> You can read which `checksum.algorithm` values are supported inside the
 [supported checksum algorithms section](#supported-checksum-algorithm)  
 
-###### `encryption_data`
+##### `encryption_data`
 | Field | Required | 
 | :---: | :------: |
 | `key` | Yes |
 | `encrypted_data` | Yes |
 
-###### `do_sign`
+##### `do_sign`
 | Field | Required | 
 | :---: | :------: |
 | `storage_uri` | Yes |
@@ -277,13 +277,6 @@ you need to use the following `message.action` value:
 sendDocumentReceipt
 ```
 
-
-**Accessible to trusted metadata scheme proposers**
-- [Add an officially supported metadata scheme](tx/add-supported-metadata-schema.md)
-
-**Accessible to the government**
-- [Add a trusted metadata scheme proposer](tx/add-trusted-metadata-schema-proposer.md)
-
 ## Queries
 
 
@@ -345,14 +338,3 @@ Getting invites for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
 
-
-
-
-
-
-- [List supported metadata schemes](query/list-supported-metadata-schemes.md)
-- [List trusted metadata scheme proposers](query/list-trusted-metadata-scheme-proposers.md)
-
-## Other
-- [Supported metadata schemes](./metadata-schemes.md)
-- [Trusted metadata schemes proposers](./trusted-metadata-schema-proposers.md)
