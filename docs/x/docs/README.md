@@ -116,7 +116,7 @@ This means that if the first one exists the second will not be used.
 ###### `do_sign`
 | Field | Required | 
 | :---: | :------: |
-| `storage_uri` | Yes ?? |
+| `storage_uri` | Yes |
 | `signer_instance` | Yes |
 | `sdn_data` | No |
 | `vcrId` | Yes |
@@ -287,16 +287,38 @@ sendDocumentReceipt
 ## Queries
 
 
-### List sent and received documents
-
+### List sent documents
 
 #### CLI
-
-#### Sent documents
 
 ```bash
 cncli query docs sent-documents [address]
 ```
+
+
+#### REST
+
+```
+/docs/{address}/sent
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `address` | Address of the user for which to read current sent documents |
+
+##### Example 
+
+Getting invites for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+
+```
+http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
+```
+
+### List received documents
+
+#### CLI
 
 ```bash
 cncli query docs sent-documents [address]
@@ -304,20 +326,30 @@ cncli query docs sent-documents [address]
 
 #### REST
 
-
-## Sent documents
-```
-/docs/{address}/sent
-```
-
-## Received documents
 ```
 /docs/{address}/received
 ```
 
+Parameters:
 
-- [List sent/received documents](query/list-sent-received-documents.md)
-- [List sent/received receipts](query/list-sent-received-receipts.md)
+| Parameter | Description |
+| :-------: | :---------- | 
+| `address` | Address of the user for which to read current received documents |
+
+
+##### Example 
+
+Getting invites for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+
+```
+http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
+```
+
+
+
+
+
+
 - [List supported metadata schemes](query/list-supported-metadata-schemes.md)
 - [List trusted metadata scheme proposers](query/list-trusted-metadata-scheme-proposers.md)
 
