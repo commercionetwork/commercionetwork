@@ -52,8 +52,7 @@ scorpion what indoor keen topic cricket uphold inch cactus six suffer coin popul
 
 #### Using an identity
 Once you have created it, in order to start performing a transaction with your identity you firstly have to 
-fund your identity. Each and every transaction on the blockchain has a cost, and to pay for it you have to have some 
-tokens.  
+fund your identity. Each and every transaction on the blockchain has a cost, and to pay for it you must have some tokens.  
 If you want to receive some tokens in **Test-net**, please use faucet service or tell us inside our [official Telegram group](https://t.me/commercionetwork) 
 and we will send you some as soon as possible.
 
@@ -151,7 +150,7 @@ In order to create `signatureValue`, the following steps must be followed
 }
 ```
 and we will call this json `did_document_unsigned`.  
-   
+
 2. alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
 3. obtain hash of resulting string bytes using **SHA-256**. 
 4. sign the result of the hashing process using your DID's public key, which you assigned to the `verificationMethod` `proof` JSON field

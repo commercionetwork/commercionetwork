@@ -12,9 +12,8 @@ with two different entrypoints:
 `cn` is built on top of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) using the following modules:
 
 * `x/auth`: Accounts and signatures.
-* `x/bank`: Token transfers.
+* `x/bank`: Tokens transfers.
 * `x/staking`: Staking logic.
-* `x/mint`: Inflation logic.
 * `x/distribution`: Fee distribution logic.
 * `x/slashing`: Slashing logic.
 * `x/params`: Handles app-level parameters.

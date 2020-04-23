@@ -99,8 +99,8 @@ setCdpCollateralRate
 
 #### CLI
 
-```sh
-$ cncli query commerciomint get-cdp [user-addr] [block-height]
+```bash
+cncli query commerciomint get-cdp [user-addr] [block-height]
 ```
 
 #### REST
@@ -129,10 +129,12 @@ http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygz
 {
   "height": "0",
   "result": {
-    "deposited_amount": {
-      "amount": "10000000",
-      "denom": "ucommercio"
-    },
+    "deposited_amount": [
+      {
+        "amount": "10000000",
+        "denom": "ucommercio"
+      }
+    ],
     "liquidity_amount": {
       "amount": "500000",
       "denom": "uccc"
@@ -179,10 +181,12 @@ http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygz
   "height": "0",
   "result": [
     {
-      "deposited_amount": {
-        "denom": "ucommercio",
-        "amount": "10000000"
-      },
+      "deposited_amount": [
+        {
+          "amount": "10000000",
+          "denom": "ucommercio"
+        }
+      ],
       "liquidity_amount": {
         "denom": "uccc",
         "amount": "500000"
@@ -198,8 +202,8 @@ http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygz
 
 #### CLI
 
-```sh
-$ cncli query commerciomint collateral-rate
+```bash
+cncli query commerciomint collateral-rate
 ```
 
 #### REST

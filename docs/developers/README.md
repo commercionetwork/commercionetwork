@@ -4,7 +4,7 @@ Join our [telegram group](https://t.me/commercionetwork), say hi, and we will ge
 
 
 ## Existing SDKs
-we have developed the tools and the documentation to allow anyone to develop Blockchain Appilcations using the langu  
+we have developed the tools and the documentation to allow anyone to develop Blockchain Appilcations using the language you prefer 
 
 |  | Dart/Flutter | Kotlin/Java | C#/Dot.net | GoLang | C++ | Phyton | Rust |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
@@ -16,8 +16,9 @@ we have developed the tools and the documentation to allow anyone to develop Blo
 
 
 ## Low level documentation
-If you want to create a new SDK or you want to learn the very low level Cosmos SDK and Comemrcio.network stuff 
+If you want to create a new SDK or you want to learn the very low level Cosmos SDK and Commercio.network stuff 
 the following link are a *must read*.  
 
 - [Create, sign and send a transaction offline](./create-sign-broadcast-tx.md)
 - [Commercio.network transaction types and values](message-types.md)
+

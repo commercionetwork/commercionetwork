@@ -96,7 +96,7 @@ This should print a JSON object similar to this:
 }
 ```
 
-Keep track of `account_number` and `sequence`, they'll be user later. 
+Keep track of `account_number` and `sequence`, they'll be used later. 
 
 #### Chain id
 
@@ -145,7 +145,7 @@ This should return a JSON object similar to the following one.
 }
 ```
 
-The value assigned to the `network` value is our chain ID, which will be
+The value assigned to the `network` value is our chain ID, which will be `testnet`.
 
 ### 2.2 Signature data creation
 

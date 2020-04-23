@@ -8,7 +8,7 @@
 * We want to provide a scalable blockchain today, to ship apps tomorrow, not in the next 2 years.
 
 ## The Developers Guide (online)
-The step by step prtactical guide that explains to any developer how to master the technology that will change the world
+The step by step practical guide that explains to any developer how to master the technology that will change the world
 
 * [developers-guide.commercio.network](https://developers-guide.commercio.network)
 
