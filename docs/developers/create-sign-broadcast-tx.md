@@ -89,8 +89,8 @@ This should print a JSON object similar to this:
         }
       ],
       "public_key": "did:com:pub1addwnpepqw6amy77xennkrkh3d32pz8ykr5kvuwx97w5ychn87ett8m2dzhzzxyynp4",
-      "account_number": 3,
-      "sequence": 2
+      "account_number": 0,
+      "sequence": 1
     }
   }
 }
@@ -150,9 +150,9 @@ The value assigned to the `network` value is our chain ID, which will be
 ### 2.2 Signature data creation
 
 In order to create the payload which will be signed later, the following values are needed:
-1. JSON representation of the message, created inside the [message creation section](#1-message-creation)
-2. `account_number` and `sequence` values, obtained inside the [account number and sequence section](#account-number-and-sequence)
-3. chain ID, obtained inside the [chain id section](#chain-id)
+1. JSON representation of the message, created inside the [1. message creation section](#_1-message-creation)
+2. `account_number` and `sequence` values, obtained inside the [2.1 account number and sequence section](#account-number-and-sequence)
+3. chain ID, obtained inside the [2.1 chain id section](#chain-id)
 
 The signature data is a JSON object formed as follows: 
 
@@ -256,7 +256,7 @@ In order to do so, the following steps must be followed:
 3. Sign the hash bytes with the signer's private key.  
    
    ```
-   sign([]byte(has))
+   sign([]byte(hash))
    ```
 
 4. Encode the resulting signature as a Base64 string.  
@@ -264,6 +264,7 @@ In order to do so, the following steps must be followed:
    ```
    base64([]byte(signature))
    ```
+
 
 ### 2.4 Signature object creation
 Once we have the base64 signature representation, we can finally create the signature object that we will later use during the transaction creation. 
@@ -285,8 +286,8 @@ In order to do so, a JSON object with the following fields should be created:
 | Field | Type | Required | Description | 
 | :---- | :--- | :------- | :---------- |
 | `type` | string | yes | Contains the type of the public key associated with the signing key we used before. The supported types are `tendermint/PubKeySecp256k1` and `tendermint/PubKeyEd25519` |
-| `value` | string | yes | See [Public key value retrieving](#public-key-encoding) for more details |
-| `signature` | string | yes | Base64 encoded value of the signature, as obtained inside the [signing the data section](#23-signing-the-data) |
+| `value` | string | yes | See [Public key value encoding](#public-key-encoding) for more details |
+| `signature` | string | yes | Base64 encoded value of the signature, as obtained inside the [2.3 signing the data section](#23-signing-the-data) |
 
 #### Public key encoding
 
@@ -338,10 +339,10 @@ The first thing that needs to be done in order to create a transaction, is to cr
 
 | Field | Type | Required | Description | 
 | :---- | :--- | :------- | :---------- |
-| `msg` | array | yes | Contains all the messages that have been signed, each one as a JSON object. These objects are the same that has been created inside the [message creation section](#_1-message-creation) | 
-| `fee` | object | yes | Contains the fees that the transaction signer will pay when sending the transaction itself. This is the same object that is put inside the signature data we've seen inside the [signature data creation section](#22-signature-data-creation) |
-| `signatures` | array | yes | Contains all the signatures of the messages that will be sent along with the request. The object definition is the one we've seen in the previous [signature object creation section](#24-signature-object-creation) |
-| `memo` | string | no | This must contain the same value of the `memo` field that is present inside the signature data we've seen on the previous [signature object creation section](#24-signature-object-creation) | 
+| `msg` | array | yes | Contains all the messages that have been signed, each one as a JSON object. These objects are the same that has been created inside the [1. message creation section](#_1-message-creation) | 
+| `fee` | object | yes | Contains the fees that the transaction signer will pay when sending the transaction itself. This is the same object that is put inside the signature data we've seen inside the [2.2 signature data creation section](#_2-2-signature-data-creation) |
+| `signatures` | array | yes | Contains all the signatures of the messages that will be sent along with the request. The object definition is the one we've seen in the previous [2.4 signature object creation section](#_2-4-signature-object-creation) |
+| `memo` | string | no | This must contain the same value of the `memo` field that is present inside the signature data we've seen on the previous [2.2 signature data creation section](#_2-2-signature-data-creation) | 
 
 #### Example
 ```json
@@ -438,34 +439,17 @@ curl -X POST http://localhost:1317/txs -d @request_body.json
   "tx": {
     "msg": [
       {
-        "account_number": "0",
-        "chain_id": "testnet",
-        "fee": {
-          "gas": "string",
+        "type": "cosmos-sdk/MsgSend",
+        "value": {
+          "from_address": "<Your address>",
+          "to_address": "<Recipient address>",
           "amount": [
             {
-              "denom": "ucommerio",
-              "amount": "10000"
+              "denom" : 10,
+              "amount" : "ucommercio"
             }
           ]
-        },
-        "memo": "",
-        "msgs": [
-          {
-            "type": "cosmos-sdk/MsgSend",
-            "value": {
-              "from_address": "<Your address>",
-              "to_address": "<Recipient address>",
-              "amount": [
-                {
-                  "denom" : 10,
-                  "amount" : "ucommercio"
-                }
-              ]
-            }
-          }
-        ],
-        "sequence": "1"
+        }
       }
     ],
     "fee": {
@@ -483,9 +467,7 @@ curl -X POST http://localhost:1317/txs -d @request_body.json
       "pub_key": {
         "type": "tendermint/PubKeySecp256k1",
         "value": "Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH"
-      },
-      "account_number": "0",
-      "sequence": "1"
+      }
     }
   },
   "mode": "sync"

@@ -4,14 +4,20 @@ know the `type` and `value` of the message(s) you are including inside the trans
 
 Inside this page you can find all the types and values for the different messages that are supported by Commercio. 
 
-## `docs`
-* Share a document: [MsgSendDocument](../x/docs/#sending-a-document) 
-* Send a document receipt: [MsgSendDocumentReceipt](../x/docs/#sending-a-document-reading-receipt)
 
 ## `id`
 * Associate a Did Document to your Did: [MsgSetIdentity](../x/id/#associating-a-did-document-to-your-identity)
 * Request a Did power up: [MsgRequestDidPowerUp](../x/id/#did-power-up)
 * Change Did power up status: [MsgChangePowerUpStatus](../x/id/#change-did-power-up-status-wip)
+
+## `docs`
+* Share a document: [MsgSendDocument](../x/docs/#sending-a-document) 
+* Send a document receipt: [MsgSendDocumentReceipt](../x/docs/#sending-a-document-reading-receipt)
+
+## `pricefeed`
+
+* Add an oracle: [MsgAddOracle](../x/pricefeed/#adding-an-oracle)
+* Set an asset's price: [MsgSetPrice](../x/pricefeed/#set-a-price-for-an-asset)
 
 
 ## `commerciomint`
@@ -25,9 +31,4 @@ Inside this page you can find all the types and values for the different message
 * Adding a TSP (Trust Service Provider): [MsgAddTsp](../x/memberships/#adding-a-tsp)
 * Deposit into reward pool: [MsgDepositIntoLiquidityPool](../x/memberships/#deposit-into-reward-pool)
 * Set user membership: [MsgSetMembership](../x/memberships/#set-user-membership)
-
-## `pricefeed`
-
-* Add an oracle: [MsgAddOracle](../x/pricefeed/#adding-an-oracle)
-* Set an asset's price: [MsgSetPrice](../x/pricefeed/#set-a-price-for-an-asset)
 

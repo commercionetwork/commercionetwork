@@ -9,8 +9,8 @@ are the results of the CDP autoliquidation feature, which are concentrated on th
 
 #### CLI
 
-```sh
-$ cncli query creditrisk pool
+```bash
+cncli query creditrisk pool
 ```
 
 #### REST

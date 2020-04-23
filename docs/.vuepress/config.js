@@ -60,12 +60,12 @@ module.exports = {
                 collapsable: false,
                 children: [
                     "x/bank/",
-                    "x/docs/",
                     "x/government/",
                     "x/id/",
-                    "x/memberships/",
-                    "x/commerciomint/",
+                    "x/docs/",
                     "x/pricefeed/",
+                    "x/commerciomint/",
+                    "x/memberships/",
                     "x/vbr/",
                     "x/creditrisk/"
                 ]

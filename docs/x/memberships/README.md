@@ -221,14 +221,14 @@ setMembership
 
 Get membership invites for user:
 
-```sh
-$ cncli query accreditations get-invites-for-user [address]
+```bash
+cncli query accreditations get-invites-for-user [address]
 ```
 
 Get all the membership invites:
 
-```sh
-$ cncli query accreditations get-invites
+```bash
+cncli query accreditations get-invites
 ```
 
 #### REST
@@ -296,8 +296,8 @@ http://localhost:1317/invites
 
 #### CLI
 
-```sh
-$ cncli query accreditations trusted-service-providers
+```bash
+cncli query accreditations trusted-service-providers
 ```
 
 #### REST
@@ -330,8 +330,8 @@ http://localhost:1317/tsps
 
 #### CLI
 
-```sh
-$ cncli query accreditations pool-funds
+```bash
+cncli query accreditations pool-funds
 ```
 
 #### REST
@@ -365,8 +365,8 @@ http://localhost:1317/accreditations-funds
 
 #### CLI
 
-```sh
-$ cncli query accreditations user-membership
+```bash
+cncli query accreditations user-membership
 ```
 
 #### REST

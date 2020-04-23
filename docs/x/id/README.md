@@ -150,6 +150,8 @@ In order to create `signatureValue`, the following steps must be followed
  "publicKey": "your public keys",
 }
 ```
+and we will call this json `did_document_unsigned`.  
+   
 2. alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
 3. obtain hash of resulting string bytes using **SHA-256**. 
 4. sign the result of the hashing process using your DID's public key, which you assigned to the `verificationMethod` `proof` JSON field
@@ -352,15 +354,6 @@ requestDidPowerUp
 ```
 
 
-363E160D0BC0D000EFF6082E711FE48DFC8BFE628C93F605C8F20E0660A56730
-
-
-### Change Did power up status (wip)
-
-
-
-
-
 ## Queries
 
 
@@ -469,3 +462,122 @@ http://localhost:1317/powerUpRequest/28b6f9d1-347a-432b-a3a4-e018617a63d8
     }
 }
 ```
+
+
+
+### Reading a user Did power up pending request
+
+#### REST
+
+Endpoint:
+```
+/pendingPowerUpRequests
+```
+
+##### Example 
+
+```
+http://localhost:1317/pendingPowerUpRequests
+```
+
+#### Response
+```json
+{
+  "height":"0",
+  "result": [
+    {
+        "status": {
+        "type": "approved",
+        "message": "request approved"
+        },
+        "claimant": "did:com:150jp3tx96frukqg6v870etf02q0cp7em78wu48",
+        "amount": [
+        {
+            "denom": "ucommercio",
+            "amount": "100"
+        }
+        ],
+        "proof": "qlD0VR/nNf2AHwECFmhXPu/U3lQjLbzcimZ59nuSw5TSBPGewUKzh95l2LkDW/uBAJffyUWuwBYTi+eQ+ZKH+w2XbX8HQ7jo6E16END8+vDGzYmuz8bdbHFavk+8r4Ps9cPkpwAeN97xDN478KlVNHdoL5ZR+B4eMYKcmJRGNV2hD6X/DoTD8Lt9HUU3WTa67O7rwhtTgFdRssjJJpCHGkO6TKMG3qDAp0K8OGiAZ7eE9a3cFYX9umuZVhDo/Yen5SBtAmMXpj7cUEKUpsIlRdoTy5vmsNtmaSQxoXQlJqctH19hqC4GCSxMyyJCwIUD5zMO38Udn7MsTg2wI6BDxgrGfiHgiyAuCTNLjZ6FNL9NtEo2l/JoSbEkydzayJvkzTCl8Sl5nQu10XkapZIp7z1eRAh00W8yxxEOHLWoP6y2H5heT8EPfIrV25Y+osTtCbyTnl7z/2WDuwBpKXJ0muHlzElSocfvh0U8Q5HhTXsa0hGKVWuIUcsuBL/goRI6mf+aO8CZ9KKakR3F0brqkJU5yBh8t3v3qYTyFwj4ZB6FQFrFDZvNwwXv1k47NnNTVwUDc9VCHVAYzlftgEIczH2lanzGlURVnp/IutCb8jUx7P5qIM55wG2TUdjsWTQ8xg7QZQQfZ5SnIfWswF7+vG2eFywMjmCbdBalFrhim2qQ2UNNtg9xhBf6wZrYhUYRPdxBFcZyCexldMy9RQ==",
+        "id": "3ba73f16-9241-4e13-9879-413becb0818a",
+        "proof_key": "WN3zWFva7ZQNUZ5cnO1fumY9SlGhclQzX8lQf9FrsQnrgn39UJx0KApJDyV1nd03C2+ZXuQT6+79D+8RJX7MQw4SXUvQIu8A2Ta3C/KvzvSbUlfVXv2Y5OuBpYHbCZI6GRmXbg0m/bf2CfJLMcKDRPYlgCH86yHPeJ4BR7UQKLwhtNZeuGoYwjgoqmwCs95gbPycmDHCp4nAdrrvehHss6uj8v6JMxny9cQzMk0FDNK+vjOy+ULI/SeVEPex0DOFW3hYJjpvTQv9PpiwfinDyvTAPm1ahtG6A/b9ujYoAINcjAaCAo9e4pY679mWTv70Ii9PTr94U6tQwNOMp64sZQ=="
+    }
+  ]
+}
+```
+
+### Reading a user Did power up approved request
+
+#### REST
+
+Endpoint:
+```
+/pendingPowerUpRequests
+```
+
+##### Example 
+
+```
+http://localhost:1317/approvedPowerUpRequests
+```
+
+#### Response
+```json
+{
+  "height":"0",
+  "result": [
+    {
+        "status": null,
+        "claimant": "did:com:150jp3tx96frukqg6v870etf02q0cp7em78wu48",
+        "amount": [
+        {
+            "denom": "ucommercio",
+            "amount": "100"
+        }
+        ],
+        "proof": "bgdNnyQrh4vKUl7BeZPaWRdmzXMRvckjYJEll95OSx7Qf6IkS+NXE4zhtuWi6lG/dBkZUbZEbTAxqjb3qTMlOm2J5fQH5LqCg66aSZBISczXfNMPjjMKH0+F+WEZ1GoUWlta6PBMCfWn2UdltsAbm+GJia3QUPwx4UNheIejjOYyd8b0dAlXTwms+NaBZ5K4nLVC9nrDA6u7EL6tHU5KlP50XQ6/1mD9IHR9GdexNMw0OTchk4mEWWdgnfdKNKQt8qOQoSOItqfsu0I6jD5w+sXK2tg1Zgc8XDIvERGT85G3qxapddyK87nfxEKJ975mkA9yGxYJIk5xFwofbJL2S4cPDmJBLiWUDuBiL8XQldEm4bQBtk3HCbV7eDCbziB431cZw3ThHJcgWMGJT6WMFs+Hsv6UVtWULiAq4n517AIoaQvw754VswZi/1nYlkozLZCJdjhFZh9WoEVuC84iB8zBCcsKCC7TcbLJJc9Fev/5nqXNBWxMW2Fm1IrVcXb+MhqgwkdQgh/tDpksjxHixOJ830I1gSgpRYI7ig75qQIGQu2mk4ZGlcSTst4v+ksub8I1DOSz9kXb7cxnf9CRW3I+Vj9J7ll4MO2ayIrnK5OajhkBHFwhVuqXz2QtODW3ruEL4ySMC43ManHHXC9IWmI/w6sp5qzJ3+j4DuKJzf1iFW2yCbOMlMuGsFzoHiPEAnI5ohLstufJd4lnLg==",
+        "id": "28b6f9d1-347a-432b-a3a4-e018617a63d8",
+        "proof_key": "Fti1Z+NVPhZGcTdpTDrQXO1bOlf2FWW5EE61VgzJDJMDn/KwvJ9xrHrEPKtnGRjZX1oRhxDI7BIv7i03hoyG7GDhbymEDQrY3Hia00y52opD8k+9B/WqMa35t0j0lBpEgp2ZeyA8QTxDmQ9kro0uCMsvFv9XBkW34cIfAUJBRFhk/yA37u6wUGve5AG9DUO86yysaPa8Y5c+vohNdynbYgtSc1maDag9E4E2w57YjqiXussyl4bG7l4j7weSKEHYy07Bv3G+VKGJ8T28HKHeVZTO2TWDPPWAJG5+HdQC9D7ME02dPvHzvrApSVIXjT/Sfx0G5YW3flw7T05UOuOmsA=="
+    }
+  ]
+}
+```
+
+
+### Reading a user Did power up rejected request
+
+#### REST
+
+Endpoint:
+```
+/rejectedPowerUpRequests
+```
+
+##### Example 
+
+```
+http://localhost:1317/rejectedPowerUpRequests
+```
+
+#### Response
+```json
+{
+  "height":"0",
+  "result": [
+    {
+        "status": "rejected",
+        "claimant": "did:com:150jp3tx96frukqg6v870etf02q0cp7em78wu48",
+        "amount": [
+        {
+            "denom": "ucommercio",
+            "amount": "100000000000000"
+        }
+        ],
+        "proof": "S5hyg4slMxm9fK8PTNDs8tHmQcBfWXG0vqrNHLXY5K1qUz3QwZYjR9nzJoNDJh18aPsXper7rNBbyZPOm5K//x8Bqm2EJkdnHd7woa5eFqpziGaHxqvgPaLGspH47tnVilARTeF23L2NVHWcEWuo9U5cWg52l1lOixOG+DehT3vC9KjLqg0YqBoL2u0LTLqQMON4UUjC8JwzT/RMs30OYGsWuLc9s48RtJCQJZ+yAg3U6jZn3OokGwWWjYxF9tAsMR48KilHsPigsa9WPnaAyCMSJ05hOqjBxWiSHYiH1nAefFqHtNFXhJF3LRUCJ2xnSHxJC5Ndj4HFzUjyK4aiV1mtRlRcsqmXU80HEk7IzI74HYpW74F8LzXNsh8Pbl7HXoIzEiOHB5XStFnrxkIL3sYAJGH/pGbX3SxeyfoZhY4ikEyqX3OB7Pat2yHh/63XSPThRVpD7g0gy5N2aKBz3vrHCPhe3QQTzWmKlJOcg1FE5ZtSUEHdVQbm1GD9zP6KZDfbekh9+xU0EFczW9JF/we61LTvMF1KoxaBpL46O/J6ROEOQsb03hLEMadBKxZ+XaqAHiQWKu6G5YH2opNTGKcvSyNfDInOvAygUOfzLgTCWp7JOU09hWBKW1ya2yJNJMZ6q9giEAlqS/qqYy4gAqZKjt7nF0siOb3Vz6zEaXdhCcqrfnNN6n/kFXWz24yAucW+/EHt+hsygEVUZQ==",
+        "id": "d423c645-fd50-4841-8138-192ee8e23dde",
+        "proof_key": "L0QIWxtHeWeUQhmfWqB2n+MZXFqEYctltilM0j69tBd1drUoUSz/vUkaPadQAdKqtQOD43Py7/JZt5IFyx7iDdphzJEX7bqq+B6nC2DQUeISEiXwtDmJYMp20/N23DY2T7L/Z/dzbxRZDWoUhtr9fRPeJL8NHtPqU9YZw2f1tgMk2t/ZMKtBhYzO5BnF8Crmshjw6b6KA3fK+j7YrmF8fVpVFCdz5jd7cprf5RIqwVjt4w1cYZWeKvGLWeGVX3oiCB67EzXZVUCsD03evr90GDY9qGLfUaWJdBkNjByDotLY0OhrKpcZ+O0IZyZv1+YKx7ZDoPAsEJqpqw4M9bGQRg=="
+    }
+  ]
+}
+```
+
+
