@@ -99,7 +99,7 @@ func getSetIdentityCommand(cdc *codec.Codec) *cobra.Command {
 				Context: unsignedDoc.Context,
 				ID:      unsignedDoc.ID,
 				PubKeys: unsignedDoc.PubKeys,
-				Proof:   proof,
+				Proof:   &proof,
 				Service: nil,
 			})
 

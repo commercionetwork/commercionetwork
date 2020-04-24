@@ -23,7 +23,7 @@ type DidDocument struct {
 
 	// Proof is **NOT** optional, we need it to have omitempty to make the signature procedure more straightforward,
 	// i.e. DidDocument.Validate() will check if proof is empty, and throw an error if true.
-	Proof Proof `json:"proof,omitempty"`
+	Proof *Proof `json:"proof,omitempty"`
 
 	Service Services `json:"service,omitempty"` // Services are optional
 }
@@ -98,7 +98,7 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 	return didDocument.Context == other.Context &&
 		didDocument.ID.Equals(other.ID) &&
 		didDocument.PubKeys.Equals(other.PubKeys) &&
-		didDocument.Proof.Equals(other.Proof) &&
+		didDocument.Proof.Equals(*other.Proof) &&
 		didDocument.Service.Equals(other.Service)
 }
 
@@ -126,6 +126,10 @@ func (didDocument DidDocument) Validate() error {
 
 	if !didDocument.PubKeys.HasVerificationAndSignatureKey() {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "specified public keys are not in the correct format")
+	}
+
+	if didDocument.Proof == nil {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "proof not provided")
 	}
 
 	if err := didDocument.Proof.Validate(); err != nil {
@@ -158,10 +162,9 @@ func (didDocument DidDocument) VerifyProof() error {
 
 	// Explicitly zero out the Proof field.
 	//
-	// Here we leverage on the `omitempty` JSON struct tag on the Proof field.
-	// json.Marshal() does not include any field annotated with `omitempty` in the resulting JSON,
-	// by blanking out the Proof field on u we obtain the Proof payload, DidDocument-(Proof field).
-	u.Proof = Proof{}
+	// Here we leverage the fact that encoding/json do not encode nil pointers,
+	// effectively giving us DidDocument-(Proof field).
+	u.Proof = nil
 
 	oProof := didDocument.Proof
 
