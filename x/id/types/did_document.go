@@ -150,7 +150,7 @@ func (didDocument DidDocument) Validate() error {
 // The Proof is constructed as follows:
 //  - let K be the Bech32 Account public key, embedded in the Proof "Verification Method" field
 //  - let S be K transformed in a raw Secp256k1 public key
-//  - let B be the SHA-512 (as defined in the FIPS 180-4) of the JSON representation of d minus the Proof field
+//  - let B be the SHA-256 (as defined in the FIPS 180-4) of the JSON representation of d minus the Proof field
 //  - let L be the Proof Signature Value, decoded from Base64 encoding
 // The Proof is verified if K.Verify(B, L) is verified.
 func (didDocument DidDocument) VerifyProof() error {
