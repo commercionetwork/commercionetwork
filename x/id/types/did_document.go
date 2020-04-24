@@ -17,25 +17,20 @@ type DidDocument struct {
 	Context string         `json:"@context"`
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
-	Proof   Proof          `json:"proof"`
-	Service Services       `json:"service"`
+
+	// To a future reader: to mark a DidDocument field as optional, add `omitempty` to the
+	// JSON decoding tag.
+
+	// Proof is **NOT** optional, we need it to have omitempty to make the signature procedure more straightforward,
+	// i.e. DidDocument.Validate() will check if proof is empty, and throw an error if true.
+	Proof Proof `json:"proof,omitempty"`
+
+	Service Services `json:"service,omitempty"` // Services are optional
 }
 
-type Services []Service
-
-func (s Services) Equals(other Services) bool {
-	if len(s) != len(other) {
-		return false
-	}
-
-	for key, value := range other {
-		if !s[key].Equals(value) {
-			return false
-		}
-	}
-
-	return true
-}
+// DidDocumentUnsigned is an intermediate type used to check for proof correctness
+// It is identical to a DidDocument, it's kept for logical compartimentization.
+type DidDocumentUnsigned DidDocument
 
 // Service represents a service type needed for DidDocument.
 type Service struct {
@@ -61,17 +56,41 @@ func (s Service) Validate() error {
 	return nil
 }
 
+// Equals returns true if s is equal to otherService.
 func (s Service) Equals(otherService Service) bool {
 	return s.ServiceEndpoint == otherService.ServiceEndpoint &&
 		s.Type == otherService.Type &&
 		s.ID == otherService.ID
 }
 
-// DidDocumentUnsigned is an intermediate type used to check for proof correctness
-type DidDocumentUnsigned struct {
-	Context string         `json:"@context"`
-	ID      sdk.AccAddress `json:"id"`
-	PubKeys PubKeys        `json:"publicKey"`
+// Services is a slice of services.
+type Services []Service
+
+// Equals returns true if s is equal to other.
+func (s Services) Equals(other Services) bool {
+	if len(s) != len(other) {
+		return false
+	}
+
+	for key, value := range other {
+		if !s[key].Equals(value) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Validate checks that all the Service instance inside s are valid.
+func (s Services) Validate() error {
+	for i, service := range s {
+		err := service.Validate()
+		if err != nil {
+			return fmt.Errorf("service %d validation failed: %w", i, err)
+		}
+	}
+
+	return nil
 }
 
 // Equals returns true iff didDocument and other contain the same data
@@ -113,6 +132,13 @@ func (didDocument DidDocument) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("proof validation error: %s", err.Error()))
 	}
 
+	// we have some service, we should validate 'em
+	if didDocument.Service != nil {
+		if err := didDocument.Service.Validate(); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrUnauthorized, err.Error())
+		}
+	}
+
 	if err := didDocument.VerifyProof(); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, err.Error())
 	}
@@ -128,11 +154,14 @@ func (didDocument DidDocument) Validate() error {
 //  - let L be the Proof Signature Value, decoded from Base64 encoding
 // The Proof is verified if K.Verify(B, L) is verified.
 func (didDocument DidDocument) VerifyProof() error {
-	u := DidDocumentUnsigned{
-		Context: didDocument.Context,
-		ID:      didDocument.ID,
-		PubKeys: didDocument.PubKeys,
-	}
+	u := DidDocumentUnsigned(didDocument)
+
+	// Explicitly zero out the Proof field.
+	//
+	// Here we leverage on the `omitempty` JSON struct tag on the Proof field.
+	// json.Marshal() does not include any field annotated with `omitempty` in the resulting JSON,
+	// by blanking out the Proof field on u we obtain the Proof payload, DidDocument-(Proof field).
+	u.Proof = Proof{}
 
 	oProof := didDocument.Proof
 
