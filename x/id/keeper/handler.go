@@ -85,7 +85,7 @@ func handleMsgChangePowerUpStatus(ctx sdk.Context, keeper Keeper, govKeeper gove
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
-	status := types.NewRequestStatus(types.StatusApproved, "request approved")
+	status := types.NewRequestStatus(msg.Status.Type, msg.Status.Message)
 	// Change the status, return any result
 	if err := keeper.ChangePowerUpRequestStatus(ctx, msg.PowerUpID, status); err != nil {
 		return nil, err
