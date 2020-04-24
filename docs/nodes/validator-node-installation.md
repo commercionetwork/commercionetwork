@@ -20,6 +20,11 @@ If you want to become a Commercio.network validator you need to:
 2. Own enough tokens.  
    To become a validator you need two wallets: one with at least one token to create the validator and another with 50,000 tokens to delegate to the validator node.
 
+:::tip  
+If you have any problems with the procedure try to read the section **[Common errors](#_common-errors)**.   
+:::
+
+
 ## 1. Add wallet key
 Inside the testnet you can use the ledger, but you can also use the wallet software with the `cncli`.     
 However, if you wish to use Ledger, please add the `--ledger` flat to any command.
@@ -84,7 +89,7 @@ curl "https://faucet-testnet.commercio.network/give?addr=<your pub addr creator 
 
 Or on a browser copy and paste the following address
 ```
-https://faucet-testnet.commercio.network/give?addr=<your pub addr creator val>&amount=1000000
+https://faucet-testnet.commercio.network/give?addr=<your pub addr creator val>&amount=1100000
 ```
 
 The call should return something like
@@ -302,3 +307,72 @@ cncli tx staking delegate \
  --ledger \
  -y
 ```
+
+## Common errors
+
+### Account does not exists
+
+#### Problem
+If I try to search for my address with the command 
+
+```bash
+cncli query account did:com:1sl4xupdgsgptr2nr7wdtygjp5cw2dr8ncmdsyp --chain-id $CHAINID
+```
+
+returns the message
+```
+ERROR: unknown address: account did:com:1sl4xupdgsgptr2nr7wdtygjp5cw2dr8ncmdsyp does not exist
+```
+#### Solution
+
+Check if your node has completed the sync.
+On https://testnet.commercio.network you can view the height of the chain at the current state
+
+Use the command 
+```
+tail -1f /var/log/syslog | egrep " cnd+.*Committed state"
+```
+to check the height that reach your node
+
+### Failed validator creation
+
+#### Problem
+
+I executed the validator [creation transaction](#_3-create-a-validator) but I don't appear on https://testnet.commercio.network/it/validators.
+
+#### Solution
+
+It may be that by failing one or more transactions the tokens are not sufficient to execute the transaction.
+
+Request more funds from the faucet with the command
+
+```bash
+curl "https://faucet-testnet.commercio.network/give?addr=<your pub addr creator val>&amount=1100000"
+```
+and repeat the validator creation transaction
+
+### DB errors
+
+#### Problem
+
+Trying to start the rest server or query the chain I get this error
+```
+panic: Error initializing DB: resource temporarily unavailable
+```
+
+#### Solution
+
+Maybe `cnd` and/or `cncli` services have been left active.
+Use the following commands 
+
+```bash
+systemctl stop cnd
+systemctl stop cncli
+pkill -9 cnd
+pkill -9 cncli
+```
+
+and repeat the procedure
+
+
+

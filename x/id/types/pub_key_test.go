@@ -25,25 +25,25 @@ func TestPubKey_Equals(t *testing.T) {
 		{
 			"different id",
 			pubKey,
-			types.NewPubKey(pubKey.ID+"2", pubKey.Type, pubKey.Controller, pubKey.PublicKey),
+			types.NewPubKey(pubKey.ID+"2", pubKey.Type, pubKey.Controller, pubKey.PublicKeyPem),
 			false,
 		},
 		{
 			"different type",
 			pubKey,
-			types.NewPubKey(pubKey.ID, pubKey.Type+"other", pubKey.Controller, pubKey.PublicKey),
+			types.NewPubKey(pubKey.ID, pubKey.Type+"other", pubKey.Controller, pubKey.PublicKeyPem),
 			false,
 		},
 		{
 			"different controller",
 			pubKey,
-			types.NewPubKey(pubKey.ID, pubKey.Type, controller2, pubKey.PublicKey),
+			types.NewPubKey(pubKey.ID, pubKey.Type, controller2, pubKey.PublicKeyPem),
 			false,
 		},
 		{
 			"different pubkey",
 			pubKey,
-			types.NewPubKey(pubKey.ID, pubKey.Type, pubKey.Controller, pubKey.PublicKey+"a3"),
+			types.NewPubKey(pubKey.ID, pubKey.Type, pubKey.Controller, pubKey.PublicKeyPem+"a3"),
 			false,
 		},
 		{
@@ -85,7 +85,7 @@ func TestPubKey_Validate(t *testing.T) {
 				ID:         "did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-1",
 				Type:       "RsaVerificationKey2018",
 				Controller: controller,
-				PublicKey: `-----BEGIN PUBLIC KEY-----
+				PublicKeyPem: `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
 2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
 Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
@@ -105,10 +105,10 @@ GwIDAQAB
 		{
 			"empty public key",
 			types.PubKey{
-				ID:         "did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-1",
-				Type:       "RsaVerificationKey2018",
-				Controller: controller,
-				PublicKey:  ``,
+				ID:           "did:com:1sqnp7cmasyv2yathd8ye8xlhhaqaw953sc5lp6#keys-1",
+				Type:         "RsaVerificationKey2018",
+				Controller:   controller,
+				PublicKeyPem: ``,
 			},
 			errors.New("no valid PEM data found"),
 		},

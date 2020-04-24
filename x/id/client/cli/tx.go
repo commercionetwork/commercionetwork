@@ -146,10 +146,10 @@ func getVerificationPublicKey(cliCtx context.CLIContext, path string) (types.Pub
 	}
 
 	verPubKey := types.PubKey{
-		ID:         fmt.Sprintf("%s#keys-1", fromAddress.String()),
-		Type:       types.KeyTypeRsaVerification,
-		Controller: fromAddress,
-		PublicKey:  pemString,
+		ID:           fmt.Sprintf("%s#keys-1", fromAddress.String()),
+		Type:         types.KeyTypeRsaVerification,
+		Controller:   fromAddress,
+		PublicKeyPem: pemString,
 	}
 
 	return verPubKey, nil
@@ -168,10 +168,10 @@ func getSignPublicKey(cliCtx context.CLIContext, path string) (types.PubKey, err
 	}
 
 	verPubKey := types.PubKey{
-		ID:         fmt.Sprintf("%s#keys-2", fromAddress.String()),
-		Type:       types.KeyTypeRsaSignature,
-		Controller: fromAddress,
-		PublicKey:  pemString,
+		ID:           fmt.Sprintf("%s#keys-2", fromAddress.String()),
+		Type:         types.KeyTypeRsaSignature,
+		Controller:   fromAddress,
+		PublicKeyPem: pemString,
 	}
 
 	return verPubKey, nil

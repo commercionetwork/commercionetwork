@@ -41,13 +41,13 @@ func TestKeeper_EditIdentity(t *testing.T) {
 	require.NoError(t, err)
 
 	updatedDocument.PubKeys = append(updatedDocument.PubKeys, types.PubKey{
-		ID:         updatedDocument.ID.String() + "#keys-3",
-		Type:       "Secp256k1VerificationKey2018",
-		Controller: updatedDocument.ID,
-		PublicKey:  hex.EncodeToString([]byte("new key!")),
+		ID:           updatedDocument.ID.String() + "#keys-3",
+		Type:         "Secp256k1VerificationKey2018",
+		Controller:   updatedDocument.ID,
+		PublicKeyPem: hex.EncodeToString([]byte("new key!")),
 	})
 
-	updatedDocument.Proof.SignatureValue = "K0scbXDo0D/vk1CoihZQ3gGn2ZjzQMi4zOZXVTgd7LQ5rZRBHAAYTNjJ/n0F24JiKa0b/bm52nKtzgy4DgP78w=="
+	updatedDocument.Proof.SignatureValue = "li8Z/IwOvlNwUdoxqF5BskFzuFr23xo7b64eD3y7cYt9We+W/GCA60AOZL2O37/VW7a8YH3AUTtlsmVy3zMfPQ=="
 
 	err = k.SaveDidDocument(ctx, updatedDocument)
 	require.NoError(t, err)

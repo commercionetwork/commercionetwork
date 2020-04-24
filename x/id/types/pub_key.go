@@ -18,18 +18,18 @@ import (
 
 // PubKey contains the information of a public key contained inside a Did Document
 type PubKey struct {
-	ID         string         `json:"id"`
-	Type       string         `json:"type"`
-	Controller sdk.AccAddress `json:"controller"`
-	PublicKey  string         `json:"publicKey"`
+	ID           string         `json:"id"`
+	Type         string         `json:"type"`
+	Controller   sdk.AccAddress `json:"controller"`
+	PublicKeyPem string         `json:"publicKeyPem"`
 }
 
 func NewPubKey(pubKeyID string, pubKeyType string, controller sdk.AccAddress, hexValue string) PubKey {
 	return PubKey{
-		ID:         pubKeyID,
-		Type:       pubKeyType,
-		Controller: controller,
-		PublicKey:  hexValue,
+		ID:           pubKeyID,
+		Type:         pubKeyType,
+		Controller:   controller,
+		PublicKeyPem: hexValue,
 	}
 }
 
@@ -38,7 +38,7 @@ func (pubKey PubKey) Equals(other PubKey) bool {
 	return pubKey.ID == other.ID &&
 		pubKey.Type == other.Type &&
 		pubKey.Controller.Equals(other.Controller) &&
-		pubKey.PublicKey == other.PublicKey
+		pubKey.PublicKeyPem == other.PublicKeyPem
 }
 
 // Validate checks the data contained inside pubKey and returns an error if something is wrong
@@ -58,7 +58,7 @@ func (pubKey PubKey) Validate() error {
 	}
 
 	if pubKey.Type == KeyTypeRsaSignature || pubKey.Type == KeyTypeRsaVerification {
-		err := validateRSAPubkey([]byte(pubKey.PublicKey))
+		err := validateRSAPubkey([]byte(pubKey.PublicKeyPem))
 		if err != nil {
 			return err
 		}
