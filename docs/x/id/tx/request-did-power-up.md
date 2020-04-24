@@ -1,7 +1,9 @@
-# Requesting a Did power up
-A *Did power up* is a term we use when referring to the willingness of a user to move a specified amount of tokens 
-from the liquidity pool (in which he has previously [deposited something](./request-did-deposit.md)) to one of his
-private pairwise Did, making them able to send documents (which indeed require the user to spend some tokens as fees).  
+# Requesting a Did Power Up
+A *Did Power Up* is the expression we use when referring to the willingness of a user to move a specified amount of tokens 
+from external centralized entity to one of his
+private pairwise Did, making them able to send documents (which indeed require the user to spend some tokens as fees). 
+
+A user who wants to execute a Did Power Up must have previously sent tokens to the public address of the centralized entity.
   
 This action is the second and final step that must be done when [creating a pairwise Did](../creating-pairwise-did.md).  
 
@@ -11,96 +13,71 @@ If you wish to know more about the overall pairwise Did creation sequence, pleas
 :::    
 
 ## Transaction message
-```json
+```javascript
 {
   "type": "commercio/MsgRequestDidPowerUp",
   "value": {
-    "claimant": "<Address that is able to spend the funds (the recipient used during the deposit procedure)>",
+    "claimant": "address that sent funds to the centralized entity before",
     "amount": [
       {
-        "amount": "<Amount to send to the pairwise Did>",
-        "denom": "<Denom of the coin to send>"
+        "denom": "ucommercio",
+        "amount": "amount to transfer to the pairwise did, integer"
       }
     ],
-    "proof": "<Power up proof>",
-    "encryption_key": "<Encrypted AES-256 key used to symmetrically encrypt the proof, hex encoded>"
+    "proof": "proof string",
+    "id": "randomly-generated UUID v4",
+    "proof_key": "proof encryption key"
   }
 }
 ```
 
-### Fields requirements
+### `value` fields requirements
 | Field | Required |
 | :---: | :------: |
 | `claimant` | Yes |
 | `amount` | Yes |
 | `proof` | Yes | 
-| `encryption_key` | Yes | 
+| `id` | Yes | 
+| `proof_key` | Yes | 
 
 
-### Creating the `proof` and `encryption_key` values
-When creating the `proof` and `encryption_key` fields' values, the following steps must be followed. 
+### Creating the `proof` value
 
-1. Create the `signature_json` formed as follow.  
-   ```json
+To create the `proof` field value, the following steps must be followed:
+
+1. create the `signature_json` formed as follow.  
+   ```javascript
    {
-     "pairwise_did": "<Pairwise Did to power up>",
-     "timestamp": "<Timestamp>"
+    "sender_did": "user who sends the power-up request",
+    "pairwise_did": "pairwise address to power-up",
+    "timestamp": "UNIX-formatted timestamp",
    }
    ```
-   
-2. Sign the `signature_json`. 
-   1. Alphabetically sort the `signature_json`
-   2. Remove all the white spaces and line endings characters. 
-   3. Sign the resulting string bytes using the private signature key. 
-   
-3. Create a `payload` JSON made as follow:
-   ```json
+
+2. retrive the public key of external centralized entity **Tk**, by querying the `cncli` REST API
+3. calculate SHA-256 `HASH` of the concatenation of `sender_did`, `pairwise_did` and `timestamp` fields, taken from `signature_json`
+4. do a PKCS1v15 signature of `HASH` with the RSA private key associated to RSA public key inserted in the `sender_did` DDO - this process yields the `SIGN(HASH)` value
+5. convert `SIGN(HASH)` in **base64** `BASE64(SIGN(HASH))`, this is the value to be placed in the `signature` field 
+6. add the `signature` field to the `signature_json` JSON:
+
+   ```javascript
    {
-     "pairwise_did": "<Pairwise Did to power up>",
-     "timestamp": "<Timestamp>",
-     "signature": "<Previously signed data, hex encoded>"
+    "sender_did": "user who sends the power-up request",
+    "pairwise_did": "pairwise address to power-up",
+    "timestamp": "UNIX-formatted timestamp",
+    "signature": "the value BASE64(SIGN(HASH))",
    }
    ```
-   
-4. Create a random [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key.
+7. create a random 256-bit [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key `F`
+8. generate a random 96-bit nonce `N`
+8. using the AES-256 key generated at point (6), encrypt the `payload`:
+   1. remove all the white spaces and line ending characters
+   2. encrypt the resulting string bytes using the `AES-GCM` mode, `F` as key, obtaining `CIPHERTEXT`
+   3. concatenate bytes of `CIPHERTEXT` and `N` and encode the resulting bytes in **base64**, obtaining the `value` `proof` content 
+9. encrypt the AES-256 key:
+   1. encrypt the `F` key bytes using the centralized entity's RSA public key found in its Did Document, in PKCS1v15 mode.  
+   2. encode the resulting bytes in **base64**, obtaining the `value` `proof_key` content 
 
-5. Using the AES-256 key generated at point (4), encrypt the `payload`.
-   1. Remove all the white spaces and line ending characters. 
-   2. Encrypt the resulting string bytes using the AES-256 key.  
-      Note that the AES encryption method must be `AES`.
-   3. Encode the resulting bytes using the HEX encoding method.  
-   
-   **Doing such, you will obtain the value of the `proof` field.**
-   
-6. Encrypt the AES-256 key.
-   1. Encrypt the key bytes using the centralized system's public key.  
-      Note that the RSA encryption method must be `RSA/ECB/PKCS1Padding`.
-   2. Encode the resulting bytes using the HEX encoding method. 
-
-   **Doing this, you will obtain the value of the `encrypted_key` field.**
-   
-
-#### Pseudo-coding
-```
-let signature_json = {
-  "pairwise_did": "<Pairwise Did to power up>",
-  "timestamp": "<Timestamp>"
-}
-let json_signature = sign(removeWhiteSpaces(sort(signature_json)));
-
-let payload = {
-  "pairwise_did": signature_json.pairwise_did,
-  "timestamp": signature_json.timestamp,
-  "signature": hex.encode(json_signature)
-}
-
-let aes_key = AES256.random()
-let encrypted_payload = aes_key.encrypt(removeWhiteSpaces(payload))
-
-let proof = hex.encode(encrypted_payload)
-
-let encrypted_key = hex.encode(rsa_pub_key.encrypt(aes_key)) 
-```
 
 ## Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,

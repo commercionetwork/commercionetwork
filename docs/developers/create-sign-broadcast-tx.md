@@ -1,4 +1,5 @@
 # Create, sign and send a transaction
+
 This guide has been made due to the lacking documentation about the offline creation, signing and broadcasting of 
 transactions on a Cosmos.network chain.  
 All the references about how to perform the actions described below can also be found across the different 
@@ -9,36 +10,27 @@ Cosmos.network documentation pages, such as (but not limited to):
 - [Cosmos SDK Documentation](https://cosmos.network/docs/)
 
 Please note that the above links **will not** be kept in sync with the frequent updates that the Cosmos developers 
-do to their documentation structure. In order to preserve my mental sanity, I will only update this page when 
-necessary, so please refer to it in order to always know how to create, sign and broadcast transactions. 
+do to their documentation structure.
 
 ## 1. Message creation
-A transaction can contain one or multiple messages. While usually a single message is sent per transaction, 
-none denies of sending multiple messages inside the same transaction. Making it short, a message is a simple JSON 
-object with some specific fields inside it. 
-An example of message object is the following. 
+A transaction can contain one or multiple messages. 
+
+A message is a simple JSON object with some specific fields inside it. 
+
+An example of message object is the following:
 
 ```json
 {
-  "type": "commercio/MsgSendDocument",
+  "type": "cosmos-sdk/MsgSend",
   "value": {
-    "sender": "<Your address>",
-    "recipient": "<Recipient address>",
-    "uuid": "<Document UUID>",
-    "content_uri": "<Document content URI>",
-    "metadata": {
-      "content_uri": "<Metadata content URI>",
-      "schema_type": "<Officially recognized schema type>",
-      "schema": {
-        "uri": "<Metadata schema URI>",
-        "version": "<Metadata schema version>"
-      },
-      "proof": "<Metadata validation proof>"
-    },
-    "checksum": {
-      "value": "<Document content checksum value>",
-      "algorithm": "<Checksum algorithm>"
-    }
+    "from_address": "<Your address>",
+    "to_address": "<Recipient address>",
+    "amount": [
+      {
+        "denom" : 10,
+        "amount" : "ucommercio"
+      }
+    ]
   }
 }
 ```
@@ -61,50 +53,54 @@ Once created, messages must be signed. In order to do so, the following data wil
    This can be retrieved using the [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) specification, setting `did:com` as the human readable part and using the `m/44'/118'/0'/0/0` derivation path.
 
 ### 2.1 Data retrieval
-The first thing that must be done in order to sign a message, is to retrieve all the needed data. 
+Some data needs to be retrieved in order to correctly sign a transaction.
 
 #### Account number and sequence
-To avoid repetition attacks, all the transactions that are sent inside a Cosmos blockchain must contain a given `account_number` and `sequence value`. Those numbers can be retrieved from the blockchain itself with
+To avoid repetition attacks, all the transactions sent inside a Cosmos blockchain must contain a given `account_number` and `sequence value`. 
+
+They can be retrieved from the blockchain itself:
 
 ```bash
 curl https://<NODE_URL>/auth/accounts/<SIGNER_ADDRESS>
 ```
 
-Supposing we want to read those values for the address `did:com:10k2fswy7ce8mvfdlkt2x0mht326svvuwkxqp30` from our local node, we will then use
+Supposing we want to read those values for the address `did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen` from our local node, we will then use
 
 ```bash
-curl http://localhost:1317/auth/accounts/did:com:10k2fswy7ce8mvfdlkt2x0mht326svvuwkxqp30
+curl http://localhost:1317/auth/accounts/did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen
 ```
 
 This should print a JSON object similar to this:
 ```json
 {
-  "height": "1647",
+  "height": "4866",
   "result": {
     "type": "cosmos-sdk/Account",
     "value": {
-      "address": "did:com:10k2fswy7ce8mvfdlkt2x0mht326svvuwkxqp30",
+      "address": "did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen",
       "coins": [
         {
+          "denom": "uccc",
+          "amount": "10000000000000"
+        },
+        {
           "denom": "ucommercio",
-          "amount": "9999900000000"
+          "amount": "9999899990000"
         }
       ],
-      "public_key": {
-        "type": "tendermint/PubKeySecp256k1",
-        "value": "A5nUN8qB2iTgQp29lbiZUb6CUoqaxRUNPP3IA9TOKa9J"
-      },
-      "account_number": "0",
-      "sequence": "1"
+      "public_key": "did:com:pub1addwnpepqw6amy77xennkrkh3d32pz8ykr5kvuwx97w5ychn87ett8m2dzhzzxyynp4",
+      "account_number": 0,
+      "sequence": 1
     }
   }
 }
 ```
 
-Save the `account_number` and `sequence` value in one place, they will be useful later on. 
+Keep track of `account_number` and `sequence`, they'll be used later. 
 
 #### Chain id
-The next thing we need to create a message signature, is the chain id. This value can be retrieved using the following HTTP endpoit. 
+
+Next thing we need is the chain ID, which can be retrieved using the `/node_info` endpoint:
 
 ```bash
 curl https://<NODE_URL>/node_info
@@ -120,33 +116,43 @@ This should return a JSON object similar to the following one.
 
 ```json
 {
-  "protocol_version": {
-    "p2p": "7",
-    "block": "10",
-    "app": "0"
+  "node_info": {
+    "protocol_version": {
+      "p2p": "7",
+      "block": "10",
+      "app": "0"
+    },
+    "id": "f5920c1e69fb917eae04ed270b447f1af3129b8b",
+    "listen_addr": "tcp://0.0.0.0:26656",
+    "network": "testnet",
+    "version": "0.33.3",
+    "channels": "4020212223303800",
+    "moniker": "testchain",
+    "other": {
+      "tx_index": "on",
+      "rpc_address": "tcp://127.0.0.1:26657"
+    }
   },
-  "id": "233d4e3a9c68bc724f3deb41197e07052e75ab95",
-  "listen_addr": "tcp://0.0.0.0:26656",
-  "network": "test-chain-eDSCSs",
-  "version": "0.30.2",
-  "channels": "4020212223303800",
-  "moniker": "testchain",
-  "other": {
-    "tx_index": "on",
-    "rpc_address": "tcp://0.0.0.0:26657"
+  "application_version": {
+    "name": "commercionetwork",
+    "server_name": "cnd",
+    "client_name": "cndcli",
+    "version": "2.1.0-8-gc37c4748",
+    "commit": "c37c474812cb80b13622462a09bf3998c634e875",
+    "build_tags": "netgo,ledger",
+    "go": "go version go1.14 darwin/amd64"
   }
 }
 ```
 
-Save the `network` value for later.
+The value assigned to the `network` value is our chain ID, which will be `testnet`.
 
 ### 2.2 Signature data creation
-In order to create the data that has to be signed, you will need the following values: 
-1. JSON representation of the message, created inside the [message creation section](#1-message-creation)
-2. `account_number` and `sequence` values, obtained inside the [account number and sequence section](#account-number-and-sequence)
-3. Id of the chain, obtained inside the [chain id section](#chain-id)
 
-After you've retrieved (or created) all those values, you are ready to start. 
+In order to create the payload which will be signed later, the following values are needed:
+1. JSON representation of the message, created inside the [1. message creation section](#_1-message-creation)
+2. `account_number` and `sequence` values, obtained inside the [2.1 account number and sequence section](#account-number-and-sequence)
+3. chain ID, obtained inside the [2.1 chain id section](#chain-id)
 
 The signature data is a JSON object formed as follows: 
 
@@ -155,11 +161,11 @@ The signature data is a JSON object formed as follows:
   "account_number": "<ACCOUNT_NUMBER>",
   "chain_id": "<CHAIN_ID>",
   "fee": {
-    FEE_OBJECT
+    "<your fees>"
   },
   "memo": "<TX_MEMO>",
   "msgs": [
-    MESSAGE_OBJECT
+    "<your messages>"
   ],
   "sequence": "<SEQUENCE>"
 }
@@ -170,33 +176,29 @@ Using the same example data of the previous sections, a valid signature data wil
 ```json
 {
   "account_number": "0",
-  "chain_id": "test-chain-eDSCSs",
+  "chain_id": "testnet",
   "fee": {
-    "amount": [],
+    "amount": [
+      {
+        "denom" : 10000,
+        "amount" : "ucommercio"
+      }
+    ],
     "gas": "20000"
   },
   "memo": "",
   "msgs": [
     {
-      "type": "commercio/MsgSendDocument",
+      "type": "cosmos-sdk/MsgSend",
       "value": {
-        "sender": "<Your address>",
-        "recipient": "<Recipient address>",
-        "uuid": "<Document UUID>",
-        "content_uri": "<Document content URI>",
-        "metadata": {
-          "content_uri": "<Metadata content URI>",
-          "schema_type": "<Officially recognized schema type>",
-          "schema": {
-            "uri": "<Metadata schema URI>",
-            "version": "<Metadata schema version>"
-          },
-          "proof": "<Metadata validation proof>"
-        },
-        "checksum": {
-          "value": "<Document content checksum value>",
-          "algorithm": "<Checksum algorithm>"
-        }
+        "from_address": "<Your address>",
+        "to_address": "<Recipient address>",
+        "amount": [
+          {
+            "denom" : 10,
+            "amount" : "ucommercio"
+          }
+        ]
       }
     }
   ],
@@ -209,50 +211,65 @@ Using the same example data of the previous sections, a valid signature data wil
 When serializing them to the JSON format, the fields **must be in alphabetical order**, that means that they should look exactly like the example above.
 
 ##### The fee object
-The `fee` object contains the details of the fee that the transaction creator and signer will pay when broadcasting the transaction to the blockchain. Usually this object's content is set as the default `gas` value and no `amount` content, i.e
+The `fee` object contains the fees that the transaction creator and signer will pay when broadcasting it to the blockchain:
 
 ```json
 {
-  "amount": [],
+  "amount": [
+    "<coin>"
+  ],
   "gas": "20000"
 }
 ```
 
+The `amount` array contains object of type `coin`:
+
+```json
+{
+  "denom": "<token denom>",
+  "amount": "<integer amount of denom tokens>"
+}
+```
+
 ### 2.3 Signing the data
-Once you've create the JSON object containing the data to sign, it is now time to sign them. In order to do so, the following steps should be made:
+
+Once you've create the JSON object containing the data to sign, it's time to sign them.
+
+In order to do so, the following steps must be followed:
 
 1. Convert the JSON object to it's compact and alphabetically ordered representation.  
-   This means that the keys of the object should be alphabetically sorted, and any white space should be trimmed. The above JSON should then look like this:  
-   ```
-   {"account_number":"0","chain_id":"test-chain-eDSCSs","fee":{"amount":[],"gas":"20000"},"memo":"","msgs":[{"type":"commercioid/SetIdentity","value":{"ddo_reference":"hkbmhbmbmbmnbmb","did":"lkh,mjhmjhmj,hmjh","owner":"did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"}}],"sequence":"1"}
+
+   This means that the keys of the object should be alphabetically sorted, and any white space should be removed.
+    
+   The above JSON should then look like this:  
+   
+   ```json
+   {"account_number":"0","chain_id":"testnet","fee":{"amount":[{"denom":10000,"amount":"ucommercio"}],"gas":"20000"},"memo":"","msgs":[{"type":"cosmos-sdk/MsgSend","value":{"amount":[{"denom":10,"amount":"ucommercio"}],"from_address":"<Youraddress>","to_address":"<Recipientaddress>"}}],"sequence":"1"}
    ```
 
 2. Compute the SHA-256 hash of the JSON content's byte array representation.  
+   
    ```
    sha256([]byte(compact_json))
    ```
 
 3. Sign the hash bytes with the signer's private key.  
+   
    ```
-   sign([]byte(has))
+   sign([]byte(hash))
    ```
 
 4. Encode the resulting signature as a Base64 string.  
+   
    ```
    base64([]byte(signature))
    ```
 
-All in one, the operations should be
-
-```
-let compact_json = compact(json)
-let hashed_json = sha256([]byte(compact_json))
-let signature_bytes = sign([]byte(hashed_json))
-let base64_signature = base64([]byte(signature_bytes))
-```
 
 ### 2.4 Signature object creation
-Once we have the Base64 signature representation, we can finally create the signature object that we will later use during the transaction creation. In order to do so, a JSON object with the following fields should be created: 
+Once we have the base64 signature representation, we can finally create the signature object that we will later use during the transaction creation. 
+
+In order to do so, a JSON object with the following fields should be created: 
 
 ```json
 {
@@ -269,27 +286,24 @@ Once we have the Base64 signature representation, we can finally create the sign
 | Field | Type | Required | Description | 
 | :---- | :--- | :------- | :---------- |
 | `type` | string | yes | Contains the type of the public key associated with the signing key we used before. The supported types are `tendermint/PubKeySecp256k1` and `tendermint/PubKeyEd25519` |
-| `value` | string | yes | See [Public key value retrieving](#public-key-encoding) for more details |
-| `signature` | string | yes | Base64 encoded value of the signature, as obtained inside the [signing the data section](#23-signing-the-data) |
+| `value` | string | yes | See [Public key value encoding](#public-key-encoding) for more details |
+| `signature` | string | yes | Base64 encoded value of the signature, as obtained inside the [2.3 signing the data section](#23-signing-the-data) |
 
 #### Public key encoding
+
 In order to properly encode the public key value of the signer, the following steps should be followed. 
 
 1. Obtain the compressed format of the public key point value.  
+
    ```
    let compressed = encode(public_key.point, compressed = true)
    ```
 
 2. Encode the compressed value as a Base64 string.  
+
    ```
    let encoded = Base64(compressed)
    ```
-
-All in one, the operations should be 
-```
-let compressed = encode(public_key.point, compress = true)
-let base64 = Base64(compressed)
-```
 
 More on how compressed keys can be obtained is described on the following StackExchange question:  
 [How are compressed PubKeys generated?](https://bitcoin.stackexchange.com/questions/69315/how-are-compressed-pubkeys-generated/69322)
@@ -297,21 +311,25 @@ More on how compressed keys can be obtained is described on the following StackE
 ---
 
 ## 3. Transaction broadcasting
-The last step to correctly insert a transaction into the blockchain is broadcasting it. In order to do so, we need to create the transaction body and later sending it with an HTTP request to a full node. 
+
+The last step to correctly insert a transaction into the blockchain is broadcasting it. 
+
+In order to do so, we need to create the transaction body and later sending it with an HTTP request to a full node. 
 
 ### 3.1. Creating the JSON object representation of the transaction
-The first thing that needs to be done in order to create a transaction, is to create a JSON object formed as follows.
+
+The first thing that needs to be done in order to create a transaction, is to create a structure like the following JSON object:
 
 ```json
 {
   "msg": [
-    { MESSAGE_OBJECT }
+    { "MESSAGE_OBJECT" }
   ],
   "fee": {
-    FEE_OBJECT
+    "FEE_OBJECT"
   },
   "signatures": [
-    { SIGNATURE_OBJECT }
+    { "SIGNATURE_OBJECT" }
   ],
   "memo": ""
 }
@@ -321,41 +339,37 @@ The first thing that needs to be done in order to create a transaction, is to cr
 
 | Field | Type | Required | Description | 
 | :---- | :--- | :------- | :---------- |
-| `msg` | array | yes | Contains all the messages that have been signed, each one as a JSON object. These objects are the same that has been created inside the [message creation section](#1-message-creation) | 
-| `fee` | object | yes | Contains the fees that the transaction signer will pay when sending the transaction itself. This is the same object that is put inside the signature data we've seen inside the [signature data creation section](#22-signature-data-creation) |
-| `signatures` | array | yes | Contains all the signatures of the messages that will be sent along with the request. The object definition is the one we've seen in the previous [signature object creation section](#24-signature-object-creation) |
-| `memo` | string | no | This must contain the same value of the `memo` field that is present inside the signature data we've seen on the previous [signature object creation section](#24-signature-object-creation) | 
+| `msg` | array | yes | Contains all the messages that have been signed, each one as a JSON object. These objects are the same that has been created inside the [1. message creation section](#_1-message-creation) | 
+| `fee` | object | yes | Contains the fees that the transaction signer will pay when sending the transaction itself. This is the same object that is put inside the signature data we've seen inside the [2.2 signature data creation section](#_2-2-signature-data-creation) |
+| `signatures` | array | yes | Contains all the signatures of the messages that will be sent along with the request. The object definition is the one we've seen in the previous [2.4 signature object creation section](#_2-4-signature-object-creation) |
+| `memo` | string | no | This must contain the same value of the `memo` field that is present inside the signature data we've seen on the previous [2.2 signature data creation section](#_2-2-signature-data-creation) | 
 
 #### Example
 ```json
 {
   "msg": [
     {
-      "type": "commercio/MsgSendDocument",
+      "type": "cosmos-sdk/MsgSend",
       "value": {
-        "sender": "<Your address>",
-        "recipient": "<Recipient address>",
-        "uuid": "<Document UUID>",
-        "content_uri": "<Document content URI>",
-        "metadata": {
-          "content_uri": "<Metadata content URI>",
-          "schema_type": "<Officially recognized schema type>",
-          "schema": {
-            "uri": "<Metadata schema URI>",
-            "version": "<Metadata schema version>"
-          },
-          "proof": "<Metadata validation proof>"
-        },
-        "checksum": {
-          "value": "<Document content checksum value>",
-          "algorithm": "<Checksum algorithm>"
-        }
+        "from_address": "<Your address>",
+        "to_address": "<Recipient address>",
+        "amount": [
+          {
+            "denom" : 10,
+            "amount" : "ucommercio"
+          }
+        ]
       }
     }
   ],
   "fee": {
-    "amount": [],
-    "gas": "200000"
+    "amount": [
+      {
+        "denom" : 10000,
+        "amount" : "ucommercio"
+      }
+    ],
+    "gas": "20000"
   },
   "signatures": [
     {
@@ -371,7 +385,10 @@ The first thing that needs to be done in order to create a transaction, is to cr
 ```
 
 ### 3.2 Broadcasting the transaction
-Once the transaction JSON has been created, we can now broadcast it sending it to a full node. In order to do so, a POST HTTP request should be made. 
+
+Once the transaction JSON has been created, we can now broadcast it sending it to a full node. 
+
+In order to do so, a POST HTTP request should be made. 
 
 #### 3.2.1 Creating the request body
 The request body must be a JSON object formed as follows: 
@@ -379,9 +396,9 @@ The request body must be a JSON object formed as follows:
 ```json
 { 
   "tx": {
-    <TX_BODY>
+    "<TX_BODY>"
   },
-  "mode": "block/sync/async"
+  "mode": "<broadcast mode>"
 }
 ```
 
@@ -389,12 +406,19 @@ The request body must be a JSON object formed as follows:
 
 | Field | Type | Required | Descrizione | 
 | :---- | :--- | :------- | :---------- | 
-| `tx` | object | yes | Contains the data of the transaction that has been created inside the [section 3.1](#31-creating-the-json-object-representation-of-the-transaction) | 
-| `mode` | string | yes | Tells when the node should return the answer. The `async` one tells the node to return immediately, `sync` tells to return after the transaction has been validated, while `block` waits till the transaction has been successfully broadcasted and returns the information of the block containing it. | 
+| `tx` | object | yes | Contains the data of the transaction that has been created inside the [section 3.1](#_3-1-creating-the-json-object-representation-of-the-transaction) | 
+| `mode` | string | yes | Tells when the node should return the answer. | 
+
+The `mode` field must assume one of those values:
+
+ - `async`: the node to returns immediately, without waiting for the validation process
+ - `sync`: the node returns after the transaction has been validated, without waiting for block inclusion
+ - `block`: waits until the transaction has been successfully verified and included in a block, and returns the information of the block containing it 
 
 
 #### 3.2.2 Performing the request
-Once the JSON body has been created, the request can be made. The endpoint is the following:
+
+Once the JSON body has been created, it can be broadcasted to the node. The endpoint is the following:
 
 ```
 curl -X POST https://<NODE_URL>/txs -d @<JSON_BODY_FILE>
@@ -402,10 +426,10 @@ curl -X POST https://<NODE_URL>/txs -d @<JSON_BODY_FILE>
 
 Where `<JSON_BODY_FILE>` represents the path to the file containing the request body.
 
-If we are running a local node, it should then be
-
+For example, to broadcast the `request_body.json` file to our local node:
+ 
 ```
-curl -X POST http://localhost:1317/txs -d @~/request_body.json
+curl -X POST http://localhost:1317/txs -d @request_body.json
 ```
 
 
@@ -415,54 +439,36 @@ curl -X POST http://localhost:1317/txs -d @~/request_body.json
   "tx": {
     "msg": [
       {
-        "account_number": "0",
-        "chain_id": "test-chain-eDSCSs",
-        "fee": {
-          "amount": [],
-          "gas": "20000"
-        },
-        "memo": "",
-        "msgs": [
-          {
-            "type": "commercio/MsgSendDocument",
-            "value": {
-              "sender": "<Your address>",
-              "recipient": "<Recipient address>",
-              "uuid": "<Document UUID>",
-              "content_uri": "<Document content URI>",
-              "metadata": {
-                "content_uri": "<Metadata content URI>",
-                "schema_type": "<Officially recognized schema type>",
-                "schema": {
-                  "uri": "<Metadata schema URI>",
-                  "version": "<Metadata schema version>"
-                },
-                "proof": "<Metadata validation proof>"
-              },
-              "checksum": {
-                "value": "<Document content checksum value>",
-                "algorithm": "<Checksum algorithm>"
-              }
+        "type": "cosmos-sdk/MsgSend",
+        "value": {
+          "from_address": "<Your address>",
+          "to_address": "<Recipient address>",
+          "amount": [
+            {
+              "denom" : 10,
+              "amount" : "ucommercio"
             }
-          }
-        ],
-        "sequence": "1"
+          ]
+        }
       }
     ],
     "fee": {
-      "amount": [],
-      "gas": "200000"
+      "gas": "string",
+      "amount": [
+        {
+          "denom": "ucommerio",
+          "amount": "10000"
+        }
+      ]
     },
-    "signatures": [
-      {
-        "pub_key": {
-          "type": "tendermint/PubKeySecp256k1",
-          "value": "AnFSuINPl9229iZdH9z2C9vVi7acnM7mM02Z9AEtsvnj"
-        },
-        "signature": "DTcJz2V0JxpcdtAlg/pavyB/k+0RnbgulMjIGHtl3g4LwHrG7vnZ6eYll6FkVRkjSB2VSNrLdYiWbriB1Y8KTQ=="
+    "memo": "string",
+    "signature": {
+      "signature": "MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=",
+      "pub_key": {
+        "type": "tendermint/PubKeySecp256k1",
+        "value": "Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH"
       }
-    ],
-    "memo": ""
+    }
   },
   "mode": "sync"
 }

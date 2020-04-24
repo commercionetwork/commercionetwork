@@ -7,6 +7,9 @@ module.exports = {
     ],
     markdown: {
         lineNumbers: true,
+	extendMarkdown: md => {
+		md.use(require("markdown-it-footnote"));
+  	}
     },
     plugins: [
         'latex'
@@ -43,7 +46,7 @@ module.exports = {
                 ]
             },
             {
-                title: "Sdk Developers",
+                title: "SDK Developers",
                 collapsable: false,
                 children: [
                     ["developers/", "Introduction"],
@@ -57,13 +60,14 @@ module.exports = {
                 collapsable: false,
                 children: [
                     "x/bank/",
-                    "x/docs/",
                     "x/government/",
                     "x/id/",
-                    "x/memberships/",
-                    "x/commerciomint/",
+                    "x/docs/",
                     "x/pricefeed/",
-                    "x/vbr/"
+                    "x/commerciomint/",
+                    "x/memberships/",
+                    "x/vbr/",
+                    "x/creditrisk/"
                 ]
             }
         ],

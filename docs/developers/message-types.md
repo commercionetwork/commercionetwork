@@ -4,22 +4,31 @@ know the `type` and `value` of the message(s) you are including inside the trans
 
 Inside this page you can find all the types and values for the different messages that are supported by Commercio. 
 
-## `docs`
-* Share a document: [MsgSendDocument](../x/docs/tx/send-document.md#transaction-message) 
-* Send a document receipt: [MsgSendDocumentReceipt](../x/docs/tx/send-document-receipt.md#transaction-message)
-* Add a metadata schema as officially supported: [MsgAddSupportedMetadataSchema](../x/docs/tx/add-supported-metadata-schema.md)
-* Add a trusted schema proposer: [MsgAddTrustedMetadataSchemaProposer](../x/docs/tx/add-trusted-metadata-schema-proposer.md)
 
 ## `id`
-* Associate a Did Document to your Did: [MsgSetIdentity](../x/id/tx/associate-a-did-document.md)
-* Request a Did deposit: [MsgRequestDidDeposit](../x/id/tx/request-did-deposit.md)
-* Invalidate a Did deposit request: [MsgInvalidateDidDepositRequest](../x/id/tx/invalidate-did-deposit-request.md)
-* Request a Did power up: [MsgRequestDidPowerUp](../x/id/tx/request-did-power-up.md)
-* Invalidate a Did power up request: [MsgInvalidateDidPowerUpRequest](../x/id/tx/invalidate-did-power-up-request.md))
+* Associate a Did Document to your Did: [MsgSetIdentity](../x/id/#associating-a-did-document-to-your-identity)
+* Request a Did power up: [MsgRequestDidPowerUp](../x/id/#did-power-up)
+* Change Did power up status: [MsgChangePowerUpStatus](../x/id/#change-did-power-up-status-wip)
 
-## `mint`
-* Open a CDP: [MsgOpenCdp](../x/commerciomint/tx/open-cdp.md)
-* Close a CDP: [MsgCloseCdp](../x/commerciomint/tx/close-cdp.md)
+## `docs`
+* Share a document: [MsgSendDocument](../x/docs/#sending-a-document) 
+* Send a document receipt: [MsgSendDocumentReceipt](../x/docs/#sending-a-document-reading-receipt)
 
 ## `pricefeed`
-* Set an asset's price: [MsgSetPrice](../x/pricefeed/tx/add-price.md)
+
+* Add an oracle: [MsgAddOracle](../x/pricefeed/#adding-an-oracle)
+* Set an asset's price: [MsgSetPrice](../x/pricefeed/#set-a-price-for-an-asset)
+
+
+## `commerciomint`
+* Open a CDP: [MsgOpenCdp](../x/commerciomint/#open-a-cdp)
+* Close a CDP: [MsgCloseCdp](../x/commerciomint/#close-a-cdp)
+* Set CDP collateral rate: [MsgSetCdpCollateralRate](../x/commerciomint/#set-cdp-collateral-rate)
+
+## `memberships`
+* Sending an invite: [MsgInviteUser](../x/memberships/#sending-an-invite)
+* Buy a membership: [MsgBuyMembership](../x/memberships/#buying-a-membership-2)
+* Adding a TSP (Trust Service Provider): [MsgAddTsp](../x/memberships/#adding-a-tsp)
+* Deposit into reward pool: [MsgDepositIntoLiquidityPool](../x/memberships/#deposit-into-reward-pool)
+* Set user membership: [MsgSetMembership](../x/memberships/#set-user-membership)
+

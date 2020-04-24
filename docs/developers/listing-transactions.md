@@ -16,386 +16,271 @@ to use for transactions that include that message.
 
 ### Examples
 **Endpoint**   
-`https://lcd-testnet.commercio.network/txs?message.action=shareDocument`
+`https://lcd-testnet.commercio.network/txs?message.action=send`
 
 **Output**  
 ```json
 {
-  "total_count": "5",
-  "count": "5",
-  "page_number": "1",
-  "page_total": "1",
-  "limit": "30",
+  "count": "3", 
+  "limit": "3", 
+  "page_number": "1", 
+  "page_total": "26", 
+  "total_count": "78", 
   "txs": [
     {
-      "height": "178021",
-      "txhash": "6D7065766CF473401FC6565DC6B2B7A9ED5D852F19100D2B5744AAB8439DA3B9",
-      "raw_log": "[{\"msg_index\":0,\"success\":true,\"log\":\"\"}]",
+      "gas_used": "71461", 
+      "gas_wanted": "200000", 
+      "height": "28", 
       "logs": [
         {
-          "msg_index": 0,
-          "success": true,
-          "log": ""
-        }
-      ],
-      "gas_wanted": "200000",
-      "gas_used": "52647",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
+          "events": [
             {
-              "key": "action",
-              "value": "shareDocument"
-            }
-          ]
-        }
-      ],
-      "tx": {
-        "type": "cosmos-sdk/StdTx",
-        "value": {
-          "msg": [
-            {
-              "type": "commercio/MsgShareDocument",
-              "value": {
-                "sender": "did:com:1zfhgwfgex8rc9t00pk6jm6xj6vx5cjr4ngy32v",
-                "recipient": "did:com:1g5cxz9p7dqux80sw5tljwg2pwz6x7zlq84km56",
-                "uuid": "6a881ef0-04da-4524-b7ca-6e5e3b7e61dc",
-                "metadata": {
-                  "content_uri": "https://www.vargroup.it/managed-security-services/",
-                  "schema_type": "",
-                  "schema": {
-                    "uri": "https://www.vargroup.it/managed-security-services/metadata/schema",
-                    "version": "1.0.0"
-                  },
-                  "proof": "yes"
-                },
-                "content_uri": "https://www.vargroup.it/managed-security-services/",
-                "checksum": {
-                  "value": "7815696ecbf1c96e6894b779456d330e",
-                  "algorithm": "md5"
+              "attributes": [
+                {
+                  "key": "action", 
+                  "value": "send"
+                }, 
+                {
+                  "key": "sender", 
+                  "value": "did:com:1t5fz439f49zv39pmh73c2lvuhwfzqj0ze3kzj2"
+                }, 
+                {
+                  "key": "module", 
+                  "value": "bank"
                 }
-              }
+              ], 
+              "type": "message"
+            }, 
+            {
+              "attributes": [
+                {
+                  "key": "recipient", 
+                  "value": "did:com:1j0ge8wgxcwx4l50lxkam5zkhqv28r7xyxt4zyp"
+                }, 
+                {
+                  "key": "amount", 
+                  "value": "51000000000ucommercio"
+                }
+              ], 
+              "type": "transfer"
             }
-          ],
+          ], 
+          "log": "", 
+          "msg_index": 0
+        }
+      ], 
+      "raw_log": "[{\"msg_index\":0,\"log\":\"\",\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"send\"},{\"key\":\"sender\",\"value\":\"did:com:1t5fz439f49zv39pmh73c2lvuhwfzqj0ze3kzj2\"},{\"key\":\"module\",\"value\":\"bank\"}]},{\"type\":\"transfer\",\"attributes\":[{\"key\":\"recipient\",\"value\":\"did:com:1j0ge8wgxcwx4l50lxkam5zkhqv28r7xyxt4zyp\"},{\"key\":\"amount\",\"value\":\"51000000000ucommercio\"}]}]}]", 
+      "timestamp": "2020-04-16T14:32:21Z", 
+      "tx": {
+        "type": "cosmos-sdk/StdTx", 
+        "value": {
           "fee": {
             "amount": [
               {
-                "denom": "ucommercio",
-                "amount": "250"
+                "amount": "10000", 
+                "denom": "ucommercio"
               }
-            ],
+            ], 
             "gas": "200000"
-          },
+          }, 
+          "memo": "", 
+          "msg": [
+            {
+              "type": "cosmos-sdk/MsgSend", 
+              "value": {
+                "amount": [
+                  {
+                    "amount": "51000000000", 
+                    "denom": "ucommercio"
+                  }
+                ], 
+                "from_address": "did:com:1t5fz439f49zv39pmh73c2lvuhwfzqj0ze3kzj2", 
+                "to_address": "did:com:1j0ge8wgxcwx4l50lxkam5zkhqv28r7xyxt4zyp"
+              }
+            }
+          ], 
           "signatures": [
             {
               "pub_key": {
-                "type": "tendermint/PubKeySecp256k1",
-                "value": "A2LI01hYyy76qNPCxq7+gYshtefvK30FeVL0TpK6VpDI"
-              },
-              "signature": "ZXQL8XZZKCj0k0N6AXkrs2NFiXYgxa5sciCZgNZ7N3ZJQwYSk4sXKtAACPJqEnXGZrQUeamSom8zGm6Jx5RwbA=="
+                "type": "tendermint/PubKeySecp256k1", 
+                "value": "AmkprhPNn/OGrnyhGSRhDzM4O97/m3LxIOnyHtBfgenr"
+              }, 
+              "signature": "iTSvKGWETSeQZeg4m15rKb7MO148ZMzVxgPOgrpueaUGhQGBgtHfyDGcLKYE9ogmcLk7EMLn6iGIyvd2RRpMlg=="
             }
-          ],
-          "memo": ""
+          ]
         }
-      },
-      "timestamp": "2019-09-25T22:40:41Z"
-    },
+      }, 
+      "txhash": "1188C71EE5185F9FAC4678E113D542BB02CFD604003141ACE4C98F99461B22A4"
+    }, 
     {
-      "height": "178070",
-      "txhash": "EEB043AF4834D5F3396FAAC600A582701C0A78E88F745A5A23F73339AD2519B1",
-      "raw_log": "[{\"msg_index\":0,\"success\":true,\"log\":\"\"}]",
+      "gas_used": "71147", 
+      "gas_wanted": "200000", 
+      "height": "340", 
       "logs": [
         {
-          "msg_index": 0,
-          "success": true,
-          "log": ""
-        }
-      ],
-      "gas_wanted": "200000",
-      "gas_used": "73371",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
+          "events": [
             {
-              "key": "action",
-              "value": "shareDocument"
-            }
-          ]
-        }
-      ],
-      "tx": {
-        "type": "cosmos-sdk/StdTx",
-        "value": {
-          "msg": [
-            {
-              "type": "commercio/MsgShareDocument",
-              "value": {
-                "sender": "did:com:1zfhgwfgex8rc9t00pk6jm6xj6vx5cjr4ngy32v",
-                "recipient": "did:com:1g5cxz9p7dqux80sw5tljwg2pwz6x7zlq84km56",
-                "uuid": "6a881ef0-04da-4524-b7ca-6e5e3b7e61dc",
-                "metadata": {
-                  "content_uri": "https://www.vargroup.it/managed-security-services/",
-                  "schema_type": "",
-                  "schema": {
-                    "uri": "https://www.vargroup.it/managed-security-services/metadata/schema",
-                    "version": "1.1.0"
-                  },
-                  "proof": "yes"
-                },
-                "content_uri": "https://www.vargroup.it/managed-security-services/",
-                "checksum": {
-                  "value": "7815696ecbf1c96e6894b779456d330e",
-                  "algorithm": "md5"
+              "attributes": [
+                {
+                  "key": "action", 
+                  "value": "send"
+                }, 
+                {
+                  "key": "sender", 
+                  "value": "did:com:1ejuvfc2ydcq7ym4ks052lu45kg5xk6us0srwdu"
+                }, 
+                {
+                  "key": "module", 
+                  "value": "bank"
                 }
-              }
+              ], 
+              "type": "message"
+            }, 
+            {
+              "attributes": [
+                {
+                  "key": "recipient", 
+                  "value": "did:com:1u9lml9fnsxz03rlgavy8zkrv9arf8ynjc9r26a"
+                }, 
+                {
+                  "key": "amount", 
+                  "value": "100000000ucommercio"
+                }
+              ], 
+              "type": "transfer"
             }
-          ],
+          ], 
+          "log": "", 
+          "msg_index": 0
+        }
+      ], 
+      "raw_log": "[{\"msg_index\":0,\"log\":\"\",\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"send\"},{\"key\":\"sender\",\"value\":\"did:com:1ejuvfc2ydcq7ym4ks052lu45kg5xk6us0srwdu\"},{\"key\":\"module\",\"value\":\"bank\"}]},{\"type\":\"transfer\",\"attributes\":[{\"key\":\"recipient\",\"value\":\"did:com:1u9lml9fnsxz03rlgavy8zkrv9arf8ynjc9r26a\"},{\"key\":\"amount\",\"value\":\"100000000ucommercio\"}]}]}]", 
+      "timestamp": "2020-04-16T15:00:14Z", 
+      "tx": {
+        "type": "cosmos-sdk/StdTx", 
+        "value": {
           "fee": {
             "amount": [
               {
-                "denom": "ucommercio",
-                "amount": "250"
+                "amount": "10000", 
+                "denom": "ucommercio"
               }
-            ],
+            ], 
             "gas": "200000"
-          },
+          }, 
+          "memo": "", 
+          "msg": [
+            {
+              "type": "cosmos-sdk/MsgSend", 
+              "value": {
+                "amount": [
+                  {
+                    "amount": "100000000", 
+                    "denom": "ucommercio"
+                  }
+                ], 
+                "from_address": "did:com:1ejuvfc2ydcq7ym4ks052lu45kg5xk6us0srwdu", 
+                "to_address": "did:com:1u9lml9fnsxz03rlgavy8zkrv9arf8ynjc9r26a"
+              }
+            }
+          ], 
           "signatures": [
             {
               "pub_key": {
-                "type": "tendermint/PubKeySecp256k1",
-                "value": "A2LI01hYyy76qNPCxq7+gYshtefvK30FeVL0TpK6VpDI"
-              },
-              "signature": "d+8qd5DyevoinYUd3OqCvdhwuiM+423/T7zUeDnzsUVNXhFu6a2NgAzahvjyuXHHItwn5PxwI1yXpWjTOvoz9Q=="
+                "type": "tendermint/PubKeySecp256k1", 
+                "value": "Ay+WFw3pst8XdjgX1VULdnYQNkFmWfigIfHxPScNx4C1"
+              }, 
+              "signature": "uFobPcoyTKjSGt4bfTrbYbV65GaXSUweUnJ6CX4oAHFOfRHe1hF770ccuEPezUhFqrjgfrGp4kzmGEl/xiKK6g=="
             }
-          ],
-          "memo": ""
+          ]
         }
-      },
-      "timestamp": "2019-09-25T22:45:05Z"
-    },
+      }, 
+      "txhash": "46EC499A14A70B6CC8A3E59F4D896801B72A6BA4C0AEE144CB2A81A89606657D"
+    }, 
     {
-      "height": "178094",
-      "txhash": "4A1025518519A2BC6953437DED0D21452C4C11D719639668E3AB80F60DB33690",
-      "raw_log": "[{\"msg_index\":0,\"success\":true,\"log\":\"\"}]",
+      "gas_used": "71067", 
+      "gas_wanted": "200000", 
+      "height": "342", 
       "logs": [
         {
-          "msg_index": 0,
-          "success": true,
-          "log": ""
-        }
-      ],
-      "gas_wanted": "200000",
-      "gas_used": "75255",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
+          "events": [
             {
-              "key": "action",
-              "value": "shareDocument"
-            }
-          ]
-        }
-      ],
-      "tx": {
-        "type": "cosmos-sdk/StdTx",
-        "value": {
-          "msg": [
-            {
-              "type": "commercio/MsgShareDocument",
-              "value": {
-                "sender": "did:com:1zfhgwfgex8rc9t00pk6jm6xj6vx5cjr4ngy32v",
-                "recipient": "did:com:1g5cxz9p7dqux80sw5tljwg2pwz6x7zlq84km56",
-                "uuid": "6a881ef0-04da-4524-b7ca-6e5e3b7e61dc",
-                "metadata": {
-                  "content_uri": "https://www.vargroup.it/managed-security-services/",
-                  "schema_type": "",
-                  "schema": {
-                    "uri": "https://www.vargroup.it/managed-security-services/metadata/schema",
-                    "version": "1.1.0"
-                  },
-                  "proof": "yes"
-                },
-                "content_uri": "https://www.vargroup.it/managed-security-services/",
-                "checksum": {
-                  "value": "7815696ecbf1c96e6894b779456d330e",
-                  "algorithm": "md5"
+              "attributes": [
+                {
+                  "key": "action", 
+                  "value": "send"
+                }, 
+                {
+                  "key": "sender", 
+                  "value": "did:com:1ejuvfc2ydcq7ym4ks052lu45kg5xk6us0srwdu"
+                }, 
+                {
+                  "key": "module", 
+                  "value": "bank"
                 }
-              }
+              ], 
+              "type": "message"
+            }, 
+            {
+              "attributes": [
+                {
+                  "key": "recipient", 
+                  "value": "did:com:1mezjl60v8alvkfw9ax00sq2sjglhdznl67c25j"
+                }, 
+                {
+                  "key": "amount", 
+                  "value": "1000000ucommercio"
+                }
+              ], 
+              "type": "transfer"
             }
-          ],
+          ], 
+          "log": "", 
+          "msg_index": 0
+        }
+      ], 
+      "raw_log": "[{\"msg_index\":0,\"log\":\"\",\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"send\"},{\"key\":\"sender\",\"value\":\"did:com:1ejuvfc2ydcq7ym4ks052lu45kg5xk6us0srwdu\"},{\"key\":\"module\",\"value\":\"bank\"}]},{\"type\":\"transfer\",\"attributes\":[{\"key\":\"recipient\",\"value\":\"did:com:1mezjl60v8alvkfw9ax00sq2sjglhdznl67c25j\"},{\"key\":\"amount\",\"value\":\"1000000ucommercio\"}]}]}]", 
+      "timestamp": "2020-04-16T15:00:24Z", 
+      "tx": {
+        "type": "cosmos-sdk/StdTx", 
+        "value": {
           "fee": {
             "amount": [
               {
-                "denom": "ucommercio",
-                "amount": "250"
+                "amount": "10000", 
+                "denom": "ucommercio"
               }
-            ],
+            ], 
             "gas": "200000"
-          },
+          }, 
+          "memo": "", 
+          "msg": [
+            {
+              "type": "cosmos-sdk/MsgSend", 
+              "value": {
+                "amount": [
+                  {
+                    "amount": "1000000", 
+                    "denom": "ucommercio"
+                  }
+                ], 
+                "from_address": "did:com:1ejuvfc2ydcq7ym4ks052lu45kg5xk6us0srwdu", 
+                "to_address": "did:com:1mezjl60v8alvkfw9ax00sq2sjglhdznl67c25j"
+              }
+            }
+          ], 
           "signatures": [
             {
               "pub_key": {
-                "type": "tendermint/PubKeySecp256k1",
-                "value": "A2LI01hYyy76qNPCxq7+gYshtefvK30FeVL0TpK6VpDI"
-              },
-              "signature": "jhmHY1xLCjAi5X8Mr96QVlf264VJ0FwxjFqCmWxpdgVYcw4ZrmGCBy2EJYk8O6vKjaeyzGjjNqxX9u+L5oKYZw=="
-            }
-          ],
-          "memo": ""
-        }
-      },
-      "timestamp": "2019-09-25T22:47:14Z"
-    },
-    {
-      "height": "178108",
-      "txhash": "A771A321B64CCD7E8FFB6916B60FC90DCD2F87313C9626A7028C23DB30FF14F1",
-      "raw_log": "[{\"msg_index\":0,\"success\":true,\"log\":\"\"}]",
-      "logs": [
-        {
-          "msg_index": 0,
-          "success": true,
-          "log": ""
-        }
-      ],
-      "gas_wanted": "200000",
-      "gas_used": "75255",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "shareDocument"
+                "type": "tendermint/PubKeySecp256k1", 
+                "value": "Ay+WFw3pst8XdjgX1VULdnYQNkFmWfigIfHxPScNx4C1"
+              }, 
+              "signature": "iyXxLwMteZQVpKo5vpzM6oURveJNmq4e9kqCfVai5RA39xPlVv/RbEe8x56u5IptT6QnGf/jAjMW9SPXGrDOQQ=="
             }
           ]
         }
-      ],
-      "tx": {
-        "type": "cosmos-sdk/StdTx",
-        "value": {
-          "msg": [
-            {
-              "type": "commercio/MsgShareDocument",
-              "value": {
-                "sender": "did:com:1zfhgwfgex8rc9t00pk6jm6xj6vx5cjr4ngy32v",
-                "recipient": "did:com:1g5cxz9p7dqux80sw5tljwg2pwz6x7zlq84km56",
-                "uuid": "6a881ef0-04da-4524-b7ca-6e5e3b7e61dc",
-                "metadata": {
-                  "content_uri": "https://www.vargroup.it/managed-security-services/",
-                  "schema_type": "",
-                  "schema": {
-                    "uri": "https://www.vargroup.it/managed-security-services/metadata/schema",
-                    "version": "1.1.0"
-                  },
-                  "proof": "yes"
-                },
-                "content_uri": "https://www.vargroup.it/managed-security-services/",
-                "checksum": {
-                  "value": "7815696ecbf1c96e6894b779456d330e",
-                  "algorithm": "md5"
-                }
-              }
-            }
-          ],
-          "fee": {
-            "amount": [
-              {
-                "denom": "ucommercio",
-                "amount": "250"
-              }
-            ],
-            "gas": "200000"
-          },
-          "signatures": [
-            {
-              "pub_key": {
-                "type": "tendermint/PubKeySecp256k1",
-                "value": "A2LI01hYyy76qNPCxq7+gYshtefvK30FeVL0TpK6VpDI"
-              },
-              "signature": "OAPtfLhv0kVrOPHmzoAdykWExE+BOy2/I0anruh93tUSN4nQXFxZwFzvICcMSCue32HtVEPioF6P/+sHOSiT3w=="
-            }
-          ],
-          "memo": ""
-        }
-      },
-      "timestamp": "2019-09-25T22:48:29Z"
-    },
-    {
-      "height": "183114",
-      "txhash": "955362C3DADF23C852992756D5B10C1A1C526E5A28F6320793B238E3C49C4353",
-      "raw_log": "[{\"msg_index\":0,\"success\":true,\"log\":\"\"}]",
-      "logs": [
-        {
-          "msg_index": 0,
-          "success": true,
-          "log": ""
-        }
-      ],
-      "gas_wanted": "200000",
-      "gas_used": "75255",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "shareDocument"
-            }
-          ]
-        }
-      ],
-      "tx": {
-        "type": "cosmos-sdk/StdTx",
-        "value": {
-          "msg": [
-            {
-              "type": "commercio/MsgShareDocument",
-              "value": {
-                "sender": "did:com:1zfhgwfgex8rc9t00pk6jm6xj6vx5cjr4ngy32v",
-                "recipient": "did:com:1g5cxz9p7dqux80sw5tljwg2pwz6x7zlq84km56",
-                "uuid": "6a881ef0-04da-4524-b7ca-6e5e3b7e61dc",
-                "metadata": {
-                  "content_uri": "https://www.vargroup.it/managed-security-services/",
-                  "schema_type": "",
-                  "schema": {
-                    "uri": "https://www.vargroup.it/managed-security-services/metadata/schema",
-                    "version": "1.1.0"
-                  },
-                  "proof": "yes"
-                },
-                "content_uri": "https://www.vargroup.it/managed-security-services/",
-                "checksum": {
-                  "value": "7815696ecbf1c96e6894b779456d330e",
-                  "algorithm": "md5"
-                }
-              }
-            }
-          ],
-          "fee": {
-            "amount": [
-              {
-                "denom": "ucommercio",
-                "amount": "250"
-              }
-            ],
-            "gas": "200000"
-          },
-          "signatures": [
-            {
-              "pub_key": {
-                "type": "tendermint/PubKeySecp256k1",
-                "value": "A2LI01hYyy76qNPCxq7+gYshtefvK30FeVL0TpK6VpDI"
-              },
-              "signature": "XIZ19jS4krMG4bDAHqJp4uSEtffb7Nnr0SzJ6clRtoJJmFhdeHgCdF1gWei0gllqOiIjs907AMxdGnpnnqhoIw=="
-            }
-          ],
-          "memo": ""
-        }
-      },
-      "timestamp": "2019-09-26T06:17:34Z"
+      }, 
+      "txhash": "8A436FB66BFDE6863213579FE52D978113E0F19DDBEB0BB94D741EF64F3B7CA5"
     }
   ]
 }

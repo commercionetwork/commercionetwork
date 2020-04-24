@@ -12,19 +12,22 @@ with two different entrypoints:
 `cn` is built on top of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) using the following modules:
 
 * `x/auth`: Accounts and signatures.
-* `x/bank`: Token transfers.
+* `x/bank`: Tokens transfers.
 * `x/staking`: Staking logic.
-* `x/mint`: Inflation logic.
 * `x/distribution`: Fee distribution logic.
 * `x/slashing`: Slashing logic.
-* `x/gov`: Governance logic.
 * `x/params`: Handles app-level parameters.
 
-A part from these modules, `cn` comes with the following custom modules: 
+Apart from these modules, `cn` comes with the following custom modules: 
 
 * [`x/docs`](x/docs/README.md): Documents storing and sharing. 
 * [`x/id`](x/id/README.md): Pseudonymous identities creation.
 * [`x/government`](x/government/README.md): On-chain government. 
+* [`x/memberships`](x/memberships/README.md): Allows you to invite new user and buy a membership. 
+* [`x/commerciomint`](x/commerciomint/README.md): Handle Collateralized Debt Positions. 
+* [`x/pricefeed`](x/pricefeed/README.md): Pricefeed to setup prices. 
+* [`x/vbr`](x/vbr/README.md): Validator Block Rewards. 
+
 
 ## Running Nodes
 If you wish to learn about the different node types that are present inside the Commercio.network chain or you 
