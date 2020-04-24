@@ -97,7 +97,7 @@ to create and sign the following message:
       "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc",
       "verificationMethod": "<did bech32 pubkey>",
       "signatureValue": "QNB13Y7Q91tzjn4w=="
-    },
+    }
   }
 }
 ```
@@ -141,7 +141,7 @@ A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirement
 
 In order to create `signatureValue`, the following steps must be followed
 
-1. Create a `value` JSON as specified earlier, including only the `@context`, `id` and `publicKey` fields:
+1. Create a `value` JSON as specified earlier, excluding only `proof` field. In example include `@context`, `id` and `publicKey` fields:
 ```javascript
 {
  "@context": "https://www.w3.org/ns/did/v1",
@@ -149,12 +149,14 @@ In order to create `signatureValue`, the following steps must be followed
  "publicKey": "your public keys",
 }
 ```
-and we will call this json `did_document_unsigned`.  
-
-2. alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
-3. obtain hash of resulting string bytes using **SHA-256**. 
-4. sign the result of the hashing process using your DID's public key, which you assigned to the `verificationMethod` `proof` JSON field
-5. encode the result in **base64** obtaining `signatureValue`.
+and we will call this json `did_document_unsigned`. 
+:::warning
+**Note**: There may be fields other than those used in this example such as `service` and many others, and they should always be included in the `did_document_unsigned`. 
+:::
+1. alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
+2. obtain hash of resulting string bytes using **SHA-256**. 
+3. sign the result of the hashing process using your DID's public key, which you assigned to the `verificationMethod` `proof` JSON field
+4. encode the result in **base64** obtaining `signatureValue`.
 
 The signature commercio.network accepts is `EcdsaSecp256k1VerificationKey2019`, which is a type of elliptic-curve signature scheme.
 
@@ -486,8 +488,8 @@ http://localhost:1317/pendingPowerUpRequests
   "result": [
     {
         "status": {
-        "type": "approved",
-        "message": "request approved"
+          "type": "approved",
+          "message": "request approved"
         },
         "claimant": "did:com:150jp3tx96frukqg6v870etf02q0cp7em78wu48",
         "amount": [
@@ -563,7 +565,10 @@ http://localhost:1317/rejectedPowerUpRequests
   "height":"0",
   "result": [
     {
-        "status": "rejected",
+        "status": {
+          "type": "rejected",
+          "message": "insufficient fund"
+        },
         "claimant": "did:com:150jp3tx96frukqg6v870etf02q0cp7em78wu48",
         "amount": [
         {
