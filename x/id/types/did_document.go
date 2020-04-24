@@ -18,10 +18,11 @@ type DidDocument struct {
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
 
-	// To a future reader: to mark a DidDocument field as optional, add `omitempty` to the
-	// JSON decoding tag.
+	// To a future reader, to mark a DidDocument field as optional:
+	//  - tag it with `omitempty` if it's a simple type (i.e. not a struct)
+	//  - make it a pointer if it's a complex type (i.e. a struct)
 
-	// Proof is **NOT** optional, we need it to have omitempty to make the signature procedure more straightforward,
+	// Proof is **NOT** optional, we need it to have omitempty/pointer to make the signature procedure more straightforward,
 	// i.e. DidDocument.Validate() will check if proof is empty, and throw an error if true.
 	Proof *Proof `json:"proof,omitempty"`
 
