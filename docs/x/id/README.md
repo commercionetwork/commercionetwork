@@ -85,7 +85,7 @@ to create and sign the following message:
       },
       {
         "id": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc#keys-2",
-        "type": "RsaSignature2018",
+        "type": "RsaSignatureKey2018",
         "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc",
         "publicKeyPem": "-----BEGIN PUBLIC KEY----MIGfM3TvO3Ku3PJgZ9PO4qRw7+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCQVvTkCbc9A0GCSqGSIbqd4pNXtgbfbwJGviZ6kQIDAQAB-----END PUBLIC KEY-----\r\n"
       }
@@ -122,7 +122,7 @@ The `controller` key field must be equal to the `id` field content.
 The commercio.network blockchain requires at least two keys, defined in the following way:
 
  - key with suffix `#keys-1` must be of type `RsaVerificationKey2018`, and must be a valid RSA PKIX public key;
- - key with suffix `#keys-2` must be of type `RsaSignature2018`, and must be a valid RSA PKIX public key.
+ - key with suffix `#keys-2` must be of type `RsaSignatureKey2018`, and must be a valid RSA PKIX public key.
  
 A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirements will be discarded.
 
