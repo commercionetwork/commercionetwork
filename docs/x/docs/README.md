@@ -25,7 +25,7 @@ following message.
   "value": {
     "sender": "<Sender Did>",
     "recipients": [
-      "<Recipient address>"
+      "<Recipient did>"
     ],
     "uuid": "<Document UUID>",
     "content_uri": "<Document content URI>",
@@ -56,12 +56,14 @@ following message.
         "storage_uri": "uri://storage",
         "signer_instance": "did S",
         "sdn_data": [
-                "firstName",                
-                "lastName",                
-                "sin",                
-                "email"
+          "common_name",                
+          "surname",                
+          "serial_number",                
+          "given_name",
+          "organization",
+          "country"
         ],
-        "vcrId": "<identity VCR Identifier"
+        "vcrId": "<identity VCR Identifier",
         "certificateProfile": "<one of the profiles supported by S>"
     }
   }
