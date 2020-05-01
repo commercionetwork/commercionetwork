@@ -2,6 +2,8 @@ module github.com/commercionetwork/commercionetwork
 
 go 1.14
 
+replace github.com/tendermint/tendermint => github.com/commercionetwork/tendermint v0.0.0-20200501092942-10ac746e22f3
+
 require (
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/cosmos/cosmos-sdk v0.38.3
