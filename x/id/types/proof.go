@@ -47,6 +47,10 @@ func (proof Proof) Equals(other Proof) bool {
 // Validate checks for the content contained inside the proof and
 // returns an error if something is invalid
 func (proof Proof) Validate() error {
+	// proof is empty
+	if proof == (Proof{}) {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "empty proof")
+	}
 
 	if proof.Type != KeyTypeSecp256k12019 {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid proof type, must be %s", KeyTypeSecp256k12019))

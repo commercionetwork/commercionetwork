@@ -17,25 +17,21 @@ type DidDocument struct {
 	Context string         `json:"@context"`
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
-	Proof   Proof          `json:"proof"`
-	Service Services       `json:"service"`
+
+	// To a future reader, to mark a DidDocument field as optional:
+	//  - tag it with `omitempty` if it's a simple type (i.e. not a struct)
+	//  - make it a pointer if it's a complex type (i.e. a struct)
+
+	// Proof is **NOT** optional, we need it to have omitempty/pointer to make the signature procedure more straightforward,
+	// i.e. DidDocument.Validate() will check if proof is empty, and throw an error if true.
+	Proof *Proof `json:"proof,omitempty"`
+
+	Service Services `json:"service,omitempty"` // Services are optional
 }
 
-type Services []Service
-
-func (s Services) Equals(other Services) bool {
-	if len(s) != len(other) {
-		return false
-	}
-
-	for key, value := range other {
-		if !s[key].Equals(value) {
-			return false
-		}
-	}
-
-	return true
-}
+// DidDocumentUnsigned is an intermediate type used to check for proof correctness
+// It is identical to a DidDocument, it's kept for logical compartimentization.
+type DidDocumentUnsigned DidDocument
 
 // Service represents a service type needed for DidDocument.
 type Service struct {
@@ -61,17 +57,41 @@ func (s Service) Validate() error {
 	return nil
 }
 
+// Equals returns true if s is equal to otherService.
 func (s Service) Equals(otherService Service) bool {
 	return s.ServiceEndpoint == otherService.ServiceEndpoint &&
 		s.Type == otherService.Type &&
 		s.ID == otherService.ID
 }
 
-// DidDocumentUnsigned is an intermediate type used to check for proof correctness
-type DidDocumentUnsigned struct {
-	Context string         `json:"@context"`
-	ID      sdk.AccAddress `json:"id"`
-	PubKeys PubKeys        `json:"publicKey"`
+// Services is a slice of services.
+type Services []Service
+
+// Equals returns true if s is equal to other.
+func (s Services) Equals(other Services) bool {
+	if len(s) != len(other) {
+		return false
+	}
+
+	for key, value := range other {
+		if !s[key].Equals(value) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Validate checks that all the Service instance inside s are valid.
+func (s Services) Validate() error {
+	for i, service := range s {
+		err := service.Validate()
+		if err != nil {
+			return fmt.Errorf("service %d validation failed: %w", i, err)
+		}
+	}
+
+	return nil
 }
 
 // Equals returns true iff didDocument and other contain the same data
@@ -79,7 +99,7 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 	return didDocument.Context == other.Context &&
 		didDocument.ID.Equals(other.ID) &&
 		didDocument.PubKeys.Equals(other.PubKeys) &&
-		didDocument.Proof.Equals(other.Proof) &&
+		didDocument.Proof.Equals(*other.Proof) &&
 		didDocument.Service.Equals(other.Service)
 }
 
@@ -109,8 +129,19 @@ func (didDocument DidDocument) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "specified public keys are not in the correct format")
 	}
 
+	if didDocument.Proof == nil {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "proof not provided")
+	}
+
 	if err := didDocument.Proof.Validate(); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("proof validation error: %s", err.Error()))
+	}
+
+	// we have some service, we should validate 'em
+	if didDocument.Service != nil {
+		if err := didDocument.Service.Validate(); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrUnauthorized, err.Error())
+		}
 	}
 
 	if err := didDocument.VerifyProof(); err != nil {
@@ -124,15 +155,17 @@ func (didDocument DidDocument) Validate() error {
 // The Proof is constructed as follows:
 //  - let K be the Bech32 Account public key, embedded in the Proof "Verification Method" field
 //  - let S be K transformed in a raw Secp256k1 public key
-//  - let B be the SHA-512 (as defined in the FIPS 180-4) of the JSON representation of d minus the Proof field
+//  - let B be the SHA-256 (as defined in the FIPS 180-4) of the JSON representation of d minus the Proof field
 //  - let L be the Proof Signature Value, decoded from Base64 encoding
 // The Proof is verified if K.Verify(B, L) is verified.
 func (didDocument DidDocument) VerifyProof() error {
-	u := DidDocumentUnsigned{
-		Context: didDocument.Context,
-		ID:      didDocument.ID,
-		PubKeys: didDocument.PubKeys,
-	}
+	u := DidDocumentUnsigned(didDocument)
+
+	// Explicitly zero out the Proof field.
+	//
+	// Here we leverage the fact that encoding/json do not encode nil pointers,
+	// effectively giving us DidDocument-(Proof field).
+	u.Proof = nil
 
 	oProof := didDocument.Proof
 

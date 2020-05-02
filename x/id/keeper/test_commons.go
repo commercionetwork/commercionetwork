@@ -156,7 +156,7 @@ func setupDidDocument() types.DidDocument {
 	return types.DidDocument{
 		Context: types.ContextDidV1,
 		ID:      testOwnerAddress,
-		Proof: types.Proof{
+		Proof: &types.Proof{
 			Type:               types.KeyTypeSecp256k12019,
 			Created:            testTime,
 			ProofPurpose:       types.ProofPurposeAuthentication,
