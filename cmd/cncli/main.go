@@ -95,6 +95,9 @@ func queryCmd(cdc *amino.Codec) *cobra.Command {
 	queryCmd.AddCommand(
 		authcmd.GetAccountCmd(cdc),
 		flags.LineBreak,
+		rpc.BlockCommand(),
+		rpc.ValidatorCommand(cdc),
+		flags.LineBreak,
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
 		flags.LineBreak,
