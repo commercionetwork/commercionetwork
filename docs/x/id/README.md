@@ -155,7 +155,7 @@ and we will call this json `did_document_unsigned`.
 :::
 1. alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
 2. obtain hash of resulting string bytes using **SHA-256**. 
-3. sign the result of the hashing process using your DID's public key, which you assigned to the `verificationMethod` `proof` JSON field
+3. sign the result of the hashing process using your DID's private key, which you assigned to the `verificationMethod` `proof` JSON field
 4. encode the result in **base64** obtaining `signatureValue`.
 
 The signature commercio.network accepts is `EcdsaSecp256k1VerificationKey2019`, which is a type of elliptic-curve signature scheme.
@@ -246,7 +246,7 @@ To create the `proof` field value, the following steps must be followed:
    ```
 7. create a random 256-bit [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key `F`
 8. generate a random 96-bit nonce `N`
-9.  using the AES-256 key generated at point (6), encrypt the `payload`:
+9.  using the AES-256 key generated at point (7), encrypt the `payload`:
    1. remove all the white spaces and line ending characters
    2. encrypt the resulting string bytes using the `AES-GCM` mode, `F` as key, obtaining `CIPHERTEXT`
    3. concatenate bytes of `CIPHERTEXT` and `N` and encode the resulting bytes in **base64**, obtaining the `value` `proof` content 
