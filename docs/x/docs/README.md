@@ -63,8 +63,8 @@ following message.
           "organization",
           "country"
         ],
-        "vcrId": "<identity VCR Identifier",
-        "certificateProfile": "<one of the profiles supported by S>"
+        "vcr_id": "<identity VCR Identifier",
+        "certificate_profile": "<one of the profiles supported by S>"
     }
   }
 }
@@ -121,8 +121,8 @@ This means that if the first one exists the second will not be used.
 | `storage_uri` | Yes |
 | `signer_instance` | Yes |
 | `sdn_data` | No |
-| `vcrId` | Yes |
-| `certificateProfile` | Yes/No ?? |
+| `vcr_id` | Yes |
+| `certificate_profile` | Yes |
 
 
 * storage_uri

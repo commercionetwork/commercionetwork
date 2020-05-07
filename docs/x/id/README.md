@@ -264,8 +264,10 @@ requestDidPowerUp
 ```
 
 
+-------------
+## Accessible to the tumbler service
 
-**Accessible to the tumbler service**
+**The following explanations are specific to the tumbler service and should not be taken into account for user transactions**
 
 
 ### Did power up
@@ -354,7 +356,7 @@ you need to use the following `message.action` value:
 ```
 requestDidPowerUp
 ```
-
+------------------
 
 ## Queries
 
