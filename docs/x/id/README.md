@@ -85,7 +85,7 @@ to create and sign the following message:
       },
       {
         "id": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc#keys-2",
-        "type": "RsaSignature2018",
+        "type": "RsaSignatureKey2018",
         "controller": "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc",
         "publicKeyPem": "-----BEGIN PUBLIC KEY----MIGfM3TvO3Ku3PJgZ9PO4qRw7+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCQVvTkCbc9A0GCSqGSIbqd4pNXtgbfbwJGviZ6kQIDAQAB-----END PUBLIC KEY-----\r\n"
       }
@@ -122,7 +122,7 @@ The `controller` key field must be equal to the `id` field content.
 The commercio.network blockchain requires at least two keys, defined in the following way:
 
  - key with suffix `#keys-1` must be of type `RsaVerificationKey2018`, and must be a valid RSA PKIX public key;
- - key with suffix `#keys-2` must be of type `RsaSignature2018`, and must be a valid RSA PKIX public key.
+ - key with suffix `#keys-2` must be of type `RsaSignatureKey2018`, and must be a valid RSA PKIX public key.
  
 A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirements will be discarded.
 
@@ -155,7 +155,7 @@ and we will call this json `did_document_unsigned`.
 :::
 1. alphabetically sort the `did_document_unsigned` and remove all the white spaces and line endings characters.
 2. obtain hash of resulting string bytes using **SHA-256**. 
-3. sign the result of the hashing process using your DID's public key, which you assigned to the `verificationMethod` `proof` JSON field
+3. sign the result of the hashing process using your DID's private key, which you assigned to the `verificationMethod` `proof` JSON field
 4. encode the result in **base64** obtaining `signatureValue`.
 
 The signature commercio.network accepts is `EcdsaSecp256k1VerificationKey2019`, which is a type of elliptic-curve signature scheme.
@@ -178,7 +178,8 @@ A *Did Power Up* is the expression we use when referring to the willingness of a
 from external centralized entity to one of his
 private pairwise Did, making them able to send documents (which indeed require the user to spend some tokens as fees). 
 
-A user who wants to execute a Did Power Up must have previously sent tokens to the public address of the centralized entity.
+A user who wants to execute a Did Power Up must have previously sent tokens to the public address of the centralized entity **Tk**.
+Retriving Did of **Tk** using public endpoint [/government/tumbler](../government/#retrieving-the-tumbler-address) or by command `cncli query government tumbler-address`
   
 This action is the second and final step that must be done when [creating a pairwise Did](creating-pairwise-did.md).  
 
@@ -229,7 +230,7 @@ To create the `proof` field value, the following steps must be followed:
    }
    ```
 
-2. retrive the public key of external centralized entity **Tk**, by querying the `cncli` REST API
+2. Retrive the public key of external centralized entity **Tk** [resolving its DDO](../id/#reading-a-user-did-document). Retriving Did of **Tk** using public endpoint [/government/tumbler](../government/#retrieving-the-tumbler-address) or by command `cncli query government tumbler-address`
 3. calculate SHA-256 `HASH` of the concatenation of `sender_did`, `pairwise_did` and `timestamp` fields, taken from `signature_json`
 4. do a PKCS1v15 signature of `HASH` with the RSA private key associated to RSA public key inserted in the `sender_did` DDO - this process yields the `SIGN(HASH)` value
 5. convert `SIGN(HASH)` in **base64** `BASE64(SIGN(HASH))`, this is the value to be placed in the `signature` field 
@@ -245,13 +246,13 @@ To create the `proof` field value, the following steps must be followed:
    ```
 7. create a random 256-bit [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key `F`
 8. generate a random 96-bit nonce `N`
-8. using the AES-256 key generated at point (6), encrypt the `payload`:
+9.  using the AES-256 key generated at point (7), encrypt the `payload`:
    1. remove all the white spaces and line ending characters
    2. encrypt the resulting string bytes using the `AES-GCM` mode, `F` as key, obtaining `CIPHERTEXT`
    3. concatenate bytes of `CIPHERTEXT` and `N` and encode the resulting bytes in **base64**, obtaining the `value` `proof` content 
-9. encrypt the AES-256 key:
-   1. encrypt the `F` key bytes using the centralized entity's RSA public key found in its Did Document, in PKCS1v15 mode.  
-   2. encode the resulting bytes in **base64**, obtaining the `value` `proof_key` content 
+10. encrypt the AES-256 key:
+   4. encrypt the `F` key bytes using the centralized entity's RSA public key found in its Did Document, in PKCS1v15 mode.  
+   5. encode the resulting bytes in **base64**, obtaining the `value` `proof_key` content 
 
 
 #### Action type
@@ -313,7 +314,7 @@ When creating the `proof ` field value, the following steps must be followed.
    }
    ```
 
-2. Retrive the public key of external centralized entity **Tk** resolving its DDO. Retriving Did of **Tk** using public endpoint [/government/tumbler](../government/#retrieving-the-tumbler-address)
+2. Retrive the public key of external centralized entity **Tk** [resolving its DDO](../id/#reading-a-user-did-document). Retriving Did of **Tk** using public endpoint [/government/tumbler](../government/#retrieving-the-tumbler-address) or by command `cncli query government tumbler-address`
 3. Calculate SHA-256 `HASH` of `sender_did`, `pairwise_did` and `timestamp` concatenation
 4. Sign in format PKCS1v15 the `HASH` with the RSA private key associated to RSA public key inserted in the DDO. Now we have `SIGN(HASH)`
 5. Convert `SIGN(HASH)` in Base64 notation `BASE64(SIGN(HASH))` and use it to add `signature` field 
