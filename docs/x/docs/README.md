@@ -63,8 +63,8 @@ following message.
           "organization",
           "country"
         ],
-        "vcrId": "<identity VCR Identifier",
-        "certificateProfile": "<one of the profiles supported by S>"
+        "vcr_id": "<identity VCR Identifier",
+        "certificate_profile": "<one of the profiles supported by S>"
     }
   }
 }
@@ -80,6 +80,7 @@ following message.
 | `metadata` | Yes |
 | `checksum` | No | 
 | `encryption_data` | No | 
+| `do_sign` | No | 
 
 ##### `metadata`
 | Field | Required | 
@@ -92,7 +93,7 @@ following message.
 This means that if the first one exists the second will not be used.
    
 - *<sup>2</sup> You can read which `schema_type` values are supported inside 
-   the [supported metadata schemes section](../metadata-schemes.md#supported-metadata-schemes)
+   the [supported metadata schemes section](metadata-schemes.md#supported-metadata-schemes)
    
 ##### `metadata.schema`
 | Field | Required | 
@@ -121,8 +122,8 @@ This means that if the first one exists the second will not be used.
 | `storage_uri` | Yes |
 | `signer_instance` | Yes |
 | `sdn_data` | No |
-| `vcrId` | Yes |
-| `certificateProfile` | Yes/No ?? |
+| `vcr_id` | Yes |
+| `certificate_profile` | Yes |
 
 
 * storage_uri
