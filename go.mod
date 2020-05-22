@@ -6,7 +6,7 @@ replace github.com/tendermint/tendermint => github.com/commercionetwork/tendermi
 
 require (
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
-	github.com/cosmos/cosmos-sdk v0.38.3
+	github.com/cosmos/cosmos-sdk v0.38.4
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
