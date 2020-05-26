@@ -80,8 +80,11 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 		return next(ctx, tx, simulate)
 	}
 
+	// calculate required fees for this transaction as (number of messages * fixed required feees)
+	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.Msgs)))
+
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.govk, mfd.stableCreditsDenom); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.govk, mfd.stableCreditsDenom, requiredFees); err != nil {
 		return ctx, err
 	}
 
@@ -94,6 +97,7 @@ func checkMinimumFees(
 	pfk pricefeed.Keeper,
 	govk government.Keeper,
 	stableCreditsDenom string,
+	requiredFees sdk.Dec,
 ) error {
 
 	// ----
@@ -112,7 +116,7 @@ func checkMinimumFees(
 	// ----
 
 	// Token quantity is always set as millionth of units
-	stableRequiredQty := fixedRequiredFee.MulInt64(1000000)
+	stableRequiredQty := requiredFees.MulInt64(1000000)
 	stableFeeAmount := sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(stableFeeAmount) {
 		return nil
@@ -143,8 +147,8 @@ func checkMinimumFees(
 		}
 	}
 
-	if !fiatAmount.GTE(fixedRequiredFee) {
-		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", fixedRequiredFee, fiatAmount)
+	if !fiatAmount.GTE(requiredFees) {
+		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", requiredFees, fiatAmount)
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
 	}
 
