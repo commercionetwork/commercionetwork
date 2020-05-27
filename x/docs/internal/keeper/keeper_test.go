@@ -623,6 +623,60 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) 
 	require.NotContains(t, stored, newReceipt)
 }
 
+//-----------------------------------------------------------------------
+
+func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
+	tests := []struct {
+		name  string
+		empty bool
+		//wantErr bool // inutile?
+	}{
+		{
+			"empty list",
+			true,
+		},
+		{
+			"filled list",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
+
+			if !tt.empty {
+				store := ctx.KVStore(k.StoreKey)
+				store.Set(getReceivedReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Recipient, TestingDocumentReceipt.UUID),
+					cdc.MustMarshalBinaryBare(TestingDocumentReceipt.UUID))
+
+				store.Set(getReceiptStoreKey(TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
+			}
+
+			urri := k.UserReceivedReceiptsIterator(ctx, TestingDocumentReceipt.Recipient)
+			defer urri.Close()
+
+			receipts := []types.DocumentReceipt{}
+			for ; urri.Valid(); urri.Next() {
+				rid := ""
+				k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
+
+				r, err := k.GetReceiptByID(ctx, rid)
+				require.NoError(t, err)
+
+				receipts = append(receipts, r)
+			}
+
+			if tt.empty {
+				require.Empty(t, receipts)
+			} else {
+				expected := []types.DocumentReceipt{TestingDocumentReceipt}
+
+				require.Equal(t, expected, receipts)
+			}
+		})
+	}
+}
+
 func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
 
@@ -670,6 +724,8 @@ func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
 
 	require.Equal(t, expected, receipts)
 }
+
+//-----------------------------------------------------------------------
 
 func TestKeeper_ExtractDocument(t *testing.T) {
 	tests := []struct {
