@@ -14,16 +14,11 @@ import (
 // ----------------------------------
 
 func TestKeeper_AddSupportedMetadataScheme(t *testing.T) {
-	type newSchemaStruct struct {
-		newSchema      []types.MetadataSchema
-		newSchemaType  string
-		newCorrectType bool
-	}
 	tests := []struct {
 		name               string
 		existingSchema     []types.MetadataSchema
 		existingSchemaType string
-		newSchemas         []newSchemaStruct
+		newSchemas         []types.MetadataSchema
 		correctType        bool
 	}{
 		{
@@ -50,14 +45,8 @@ func TestKeeper_AddSupportedMetadataScheme(t *testing.T) {
 				{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"},
 			},
 			"schema",
-			[]newSchemaStruct{
-				{
-					[]types.MetadataSchema{
-						{Type: "schema2", SchemaURI: "https://example.com/schema2", Version: "2.0.0"},
-					},
-					"schema2",
-					true,
-				},
+			[]types.MetadataSchema{
+				{Type: "schema2", SchemaURI: "https://example.com/schema2", Version: "2.0.0"},
 			},
 			true,
 		},
@@ -70,22 +59,17 @@ func TestKeeper_AddSupportedMetadataScheme(t *testing.T) {
 				k.AddSupportedMetadataScheme(ctx, pms)
 			}
 
-			//supported := k.IsMetadataSchemeTypeSupported(ctx, tt.existingSchemaType)
-			//require.Equal(t, tt.correctType, supported)
+			if tt.newSchemas == nil {
+				supported := k.IsMetadataSchemeTypeSupported(ctx, tt.existingSchemaType)
+				require.Equal(t, tt.correctType, supported)
 
-			//check existing list
-			if tt.newSchemas != nil {
+			} else {
+				//Check existing list
 
-				counter := 0
 				for _, nms := range tt.newSchemas {
-					for _, nm := range nms.newSchema {
-						k.AddSupportedMetadataScheme(ctx, nm)
-						counter++
-
-						// TODO Dubbio
-						supported := k.IsMetadataSchemeTypeSupported(ctx, nms.newSchemaType)
-						require.Equal(t, nms.newCorrectType, supported)
-					}
+					k.AddSupportedMetadataScheme(ctx, nms)
+					supported := k.IsMetadataSchemeTypeSupported(ctx, tt.existingSchemaType)
+					require.Equal(t, true, supported)
 				}
 
 				stored := []types.MetadataSchema{}
@@ -99,12 +83,10 @@ func TestKeeper_AddSupportedMetadataScheme(t *testing.T) {
 					stored = append(stored, m)
 				}
 
-				require.Equal(t, counter+len(tt.existingSchema), len(stored))
+				require.Equal(t, len(tt.newSchemas)+len(tt.existingSchema), len(stored))
 
 				for _, nms := range tt.newSchemas {
-					for _, nm := range nms.newSchema {
-						require.Contains(t, stored, nm)
-					}
+					require.Contains(t, stored, nms)
 				}
 			}
 		})
@@ -152,27 +134,6 @@ func TestKeeper_IsMetadataSchemeTypeSupported(t *testing.T) {
 		})
 	}
 }
-
-/*
-func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "non-existent"))
-}
-
-func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
-	k.AddSupportedMetadataScheme(ctx, existingSchema)
-
-	require.True(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "any-schema"))
-}
-*/
 
 func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
 	_, ctx, k := SetupTestInput()
