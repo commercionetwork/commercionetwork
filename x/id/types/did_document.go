@@ -125,6 +125,10 @@ func (didDocument DidDocument) Validate() error {
 		}
 	}
 
+	if err := didDocument.PubKeys.noDuplicates(); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+	}
+
 	if !didDocument.PubKeys.HasVerificationAndSignatureKey() {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "specified public keys are not in the correct format")
 	}

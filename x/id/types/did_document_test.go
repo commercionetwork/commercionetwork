@@ -580,6 +580,112 @@ SQIDAQAB
 			true,
 		},
 		{
+			"duplicate keys (2 keys)",
+			DidDocument{
+				Context: ContextDidV1,
+				ID:      testOwnerAddress,
+				Proof: &Proof{
+					Type:               KeyTypeSecp256k12019,
+					Created:            testTime,
+					ProofPurpose:       ProofPurposeAuthentication,
+					Controller:         testOwnerAddress.String(),
+					SignatureValue:     "uv9ZM4XusZl2q6Ei2O7aZW32pzwfg6ZQpBsQPb8cxzlFXWEyZLxem29fQBB4Py3W5gaXFEyPGruMXNsNDnr4sQ==",
+					VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
+				},
+				PubKeys: PubKeys{
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+						Type:       "RsaVerificationKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+						Type:       "RsaSignatureKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"duplicate keys (more than 2 keys)",
+			DidDocument{
+				Context: ContextDidV1,
+				ID:      testOwnerAddress,
+				Proof: &Proof{
+					Type:               KeyTypeSecp256k12019,
+					Created:            testTime,
+					ProofPurpose:       ProofPurposeAuthentication,
+					Controller:         testOwnerAddress.String(),
+					SignatureValue:     "uv9ZM4XusZl2q6Ei2O7aZW32pzwfg6ZQpBsQPb8cxzlFXWEyZLxem29fQBB4Py3W5gaXFEyPGruMXNsNDnr4sQ==",
+					VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
+				},
+				PubKeys: PubKeys{
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+						Type:       "RsaVerificationKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+						Type:       "RsaSignatureKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-3", testOwnerAddress),
+						Type:       "RsaSignatureKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+				},
+			},
+			true,
+		},
+		{
 			"all ok",
 			DidDocument{
 				Context: ContextDidV1,
