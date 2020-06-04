@@ -32,6 +32,8 @@ To open a new CDP you need to create and sign the following message:
 }
 ```
 
+A maximum of 1 `MsgOpenCdp` messages can be sent in each transaction.
+
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 

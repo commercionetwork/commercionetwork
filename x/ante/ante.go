@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	commerciominttypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -35,6 +36,7 @@ func NewAnteHandler(
 		cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
+		NewCDPCheckerDecorator(),
 		NewMinFeeDecorator(priceKeeper, govKeeper, stableCreditsDemon),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
@@ -44,6 +46,31 @@ func NewAnteHandler(
 		cosmosante.NewSigVerificationDecorator(ak),
 		cosmosante.NewIncrementSequenceDecorator(ak),
 	)
+}
+
+// CDPCheckerDecorator is a ante decorator that performs various CDP-related checks (e.g. no more than 1 openCdp message
+// for transaction).
+type CDPCheckerDecorator struct {
+}
+
+func NewCDPCheckerDecorator() CDPCheckerDecorator {
+	return CDPCheckerDecorator{}
+}
+
+func (mfd CDPCheckerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	// check that there's only one OpenCDP message in tx, if any.
+	foundOpenCDP := false
+	for _, msg := range tx.GetMsgs() {
+		if msg.Type() == commerciominttypes.MsgTypeOpenCdp {
+			if !foundOpenCDP {
+				foundOpenCDP = true
+			} else {
+				return ctx, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "could not process more than one openCdp message for each transaction")
+			}
+		}
+	}
+
+	return next(ctx, tx, simulate)
 }
 
 // MinFeeDecorator checks that each transaction containing a MsgShareDocument
