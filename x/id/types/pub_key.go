@@ -117,6 +117,32 @@ func (pubKeys PubKeys) HasVerificationAndSignatureKey() bool {
 	return hasSignature && hasVerification
 }
 
+func (pubKeys PubKeys) noDuplicates() error {
+	switch len(pubKeys) {
+	case 0, 1:
+		return nil
+	case 2:
+		if pubKeys[0].PublicKeyPem == pubKeys[1].PublicKeyPem {
+			return errors.New("keys 0 and 1 are equal")
+		}
+	default:
+		for i, k := range pubKeys {
+			for l, m := range pubKeys {
+				if i == l {
+					continue
+				}
+
+				if k.PublicKeyPem == m.PublicKeyPem {
+					return fmt.Errorf("keys %d and %d are equal", i, l)
+				}
+
+			}
+		}
+	}
+
+	return nil
+}
+
 func validateRSAPubkey(key []byte) error {
 	block, _ := pem.Decode(key)
 	if block == nil {
