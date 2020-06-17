@@ -173,10 +173,25 @@ Once you have the tokens, you can create a validator. If you want, while doing s
 The overall command to create a validator is the following:
 
 
+
+### Testnet
+```bash
+export VALIDATOR_PUBKEY=$(cnd tendermint show-validator)
+```
+
+### Mainnet
+If you have a **kms** you got the value of the public address in the node from the keys registered in your **hsm**. If you have it put that value in the `pubkey`
+
+```bash
+export VALIDATOR_PUBKEY="did:com:valconspub1zcjduepq592mn5xucyqvfrvjegruhnx15rruffkrfq0rryu809fzkgwg684qmetxxs"
+```
+
+
+
 ```bash
 cncli tx staking create-validator \
   --amount=1000000ucommercio \
-  --pubkey=$(cnd tendermint show-validator) \
+  --pubkey=$VALIDATOR_PUBKEY \
   --moniker="$NODENAME" \
   --chain-id="$CHAINID" \
   --identity="" --website="" --details="" \
@@ -212,13 +227,13 @@ timestamp: ""
 Please confirm that your validator is active by running the following command:
 
 ```bash
-cncli query staking validators --chain-id $CHAINID | fgrep -B 1 $(cnd tendermint show-validator)
+cncli query staking validators --chain-id $CHAINID | fgrep -B 1 $VALIDATOR_PUBKEY
 ```
 Something like this
 
 ```
   operatoraddress: did:com:valoper1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  conspubkey: did:com:valconspub1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  conspubkey: did:com:valconspub1zcjduepq592mn5xucyqvfrvjegruhnx15rruffkrfq0rryu809fzkgwg684qmetxxs
 ```
 
 Copy the value of `operatoraddress`. Below we will refer to this value with `<validator-addr>`
