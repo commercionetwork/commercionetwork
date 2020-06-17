@@ -180,7 +180,7 @@ export VALIDATOR_PUBKEY=$(cnd tendermint show-validator)
 ```
 
 ### Mainnet
-Se hai un **kms** hai ottenuto il valore dell'indirizzo pubblico nel nodo dalle chiavi registrate nel tuo **hsm**. Devi inserire quel valore nella `pubkey`
+If you have a **kms** you got the value of the public address in the node from the keys registered in your **hsm**. If you have it put that value in the `pubkey`
 
 ```bash
 export VALIDATOR_PUBKEY="did:com:valconspub1zcjduepq592mn5xucyqvfrvjegruhnx15rruffkrfq0rryu809fzkgwg684qmetxxs"
