@@ -146,7 +146,7 @@ This transaction is expected to be done with an hsm as Ledger. If you are using 
 cncli tx send \
 <your pub addr delegator> \
 <your pub addr creator val> \
-1000000ucommercio \
+1110000ucommercio \
 --fees=10000ucommercio  \
 --chain-id="$CHAINID" \
 -y
@@ -190,7 +190,7 @@ export VALIDATOR_PUBKEY="did:com:valconspub1zcjduepq592mn5xucyqvfrvjegruhnx15rru
 
 ```bash
 cncli tx staking create-validator \
-  --amount=1000000ucommercio \
+  --amount=1100000ucommercio \
   --pubkey=$VALIDATOR_PUBKEY \
   --moniker="$NODENAME" \
   --chain-id="$CHAINID" \
