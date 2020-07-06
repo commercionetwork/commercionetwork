@@ -3,7 +3,9 @@ package types
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/url"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -54,6 +56,10 @@ func (s Service) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"serviceEndpoint\" is required")
 	}
 
+	if _, err := url.Parse(s.ServiceEndpoint); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"serviceEndpoint\" does not contain a valid URL")
+	}
+
 	return nil
 }
 
@@ -88,6 +94,33 @@ func (s Services) Validate() error {
 		err := service.Validate()
 		if err != nil {
 			return fmt.Errorf("service %d validation failed: %w", i, err)
+		}
+	}
+
+	return nil
+}
+
+// noDuplicates checks that no services in s have the same ID.
+func (s Services) noDuplicates() error {
+	switch len(s) {
+	case 0, 1:
+		return nil
+	case 2:
+		if s[0].ID == s[1].ID {
+			return errors.New("services 0 and 1 have the same ID")
+		}
+	default:
+		for i, k := range s {
+			for l, m := range s {
+				if i == l {
+					continue
+				}
+
+				if k.ID == m.ID {
+					return fmt.Errorf("services %d and %d have the same ID", i, l)
+				}
+
+			}
 		}
 	}
 
@@ -145,6 +178,11 @@ func (didDocument DidDocument) Validate() error {
 	if didDocument.Service != nil {
 		if err := didDocument.Service.Validate(); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrUnauthorized, err.Error())
+		}
+
+		// As per W3C DID spec, "The value of serviceEndpoint MUST NOT contain multiple entries with the same id."
+		if err := didDocument.Service.noDuplicates(); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	}
 

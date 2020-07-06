@@ -54,6 +54,16 @@ func TestService_Validate(t *testing.T) {
 			false,
 			sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "service field \"%s\" is required", "serviceEndpoint"),
 		},
+		{
+			"invalid serviceEndpoint",
+			Service{
+				ID:              "did:example:123456789abcdefghi#vcr",
+				Type:            "CredentialRepositoryService",
+				ServiceEndpoint: "http://l ocalhost",
+			},
+			false,
+			sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"serviceEndpoint\" does not contain a valid URL"),
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -730,6 +740,127 @@ SQIDAQAB
 				},
 			},
 			false,
+		},
+		{
+			"document has more than 2 services with the same id",
+			DidDocument{
+				Context: ContextDidV1,
+				ID:      testOwnerAddress,
+				Proof: &Proof{
+					Type:               KeyTypeSecp256k12019,
+					Created:            testTime,
+					ProofPurpose:       ProofPurposeAuthentication,
+					Controller:         testOwnerAddress.String(),
+					SignatureValue:     "uv9ZM4XusZl2q6Ei2O7aZW32pzwfg6ZQpBsQPb8cxzlFXWEyZLxem29fQBB4Py3W5gaXFEyPGruMXNsNDnr4sQ==",
+					VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
+				},
+				PubKeys: PubKeys{
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+						Type:       "RsaVerificationKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
+2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
+Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
+V1tz8zU9NmdR+DvGkAYYxoIx74YaTAxH+GCArfWMG1tRJPI9MELZbOWd9xkKlPic
+bLp8coZh9NgLajMDWKXpuHQ8cdJSxQ/ekZaTuEy7qbjbGBMVzbjhPjcxffQmGV1W
+gNY1BGplZz9mbBmH7siKnKIVZ5Bp55uLfEw+u2yOVx/0yKUdsmZoe4jhevCSq3aw
+GwIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+						Type:       "RsaSignatureKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+				},
+				Service: Services{
+					Service{
+						ID:              "1",
+						Type:            "1",
+						ServiceEndpoint: "1",
+					},
+					Service{
+						ID:              "1",
+						Type:            "1",
+						ServiceEndpoint: "1",
+					},
+				},
+			},
+			true,
+		},
+		{
+			"document has 2 services with the same id",
+			DidDocument{
+				Context: ContextDidV1,
+				ID:      testOwnerAddress,
+				Proof: &Proof{
+					Type:               KeyTypeSecp256k12019,
+					Created:            testTime,
+					ProofPurpose:       ProofPurposeAuthentication,
+					Controller:         testOwnerAddress.String(),
+					SignatureValue:     "uv9ZM4XusZl2q6Ei2O7aZW32pzwfg6ZQpBsQPb8cxzlFXWEyZLxem29fQBB4Py3W5gaXFEyPGruMXNsNDnr4sQ==",
+					VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
+				},
+				PubKeys: PubKeys{
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+						Type:       "RsaVerificationKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
+2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
+Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
+V1tz8zU9NmdR+DvGkAYYxoIx74YaTAxH+GCArfWMG1tRJPI9MELZbOWd9xkKlPic
+bLp8coZh9NgLajMDWKXpuHQ8cdJSxQ/ekZaTuEy7qbjbGBMVzbjhPjcxffQmGV1W
+gNY1BGplZz9mbBmH7siKnKIVZ5Bp55uLfEw+u2yOVx/0yKUdsmZoe4jhevCSq3aw
+GwIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+						Type:       "RsaSignatureKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+				},
+				Service: Services{
+					Service{
+						ID:              "1",
+						Type:            "1",
+						ServiceEndpoint: "1",
+					},
+					Service{
+						ID:              "1",
+						Type:            "1",
+						ServiceEndpoint: "1",
+					},
+					Service{
+						ID:              "1",
+						Type:            "1",
+						ServiceEndpoint: "1",
+					},
+				},
+			},
+			true,
 		},
 	}
 	for _, tt := range tests {
