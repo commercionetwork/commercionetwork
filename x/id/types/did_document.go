@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -35,11 +36,64 @@ type DidDocument struct {
 // It is identical to a DidDocument, it's kept for logical compartimentization.
 type DidDocumentUnsigned DidDocument
 
+// SignaturePrice represent the price a Signature service asks to sign the associated document.
+// Price can be nil to indicate a free signature service for the profile.
+type SignaturePrice struct {
+	CertificateProfile string    `json:"certificate_profile"`
+	Price              *sdk.Coin `json:"price,omitempty"`
+}
+
+// Equals checks that ss is equal to s.
+func (s SignaturePrice) Equal(ss SignaturePrice) bool {
+	return s.CertificateProfile == ss.CertificateProfile &&
+		s.Price.IsEqual(*ss.Price)
+}
+
+// SignaturePrices is an array of SignaturePrice
+type SignaturePrices []SignaturePrice
+
+func (sp SignaturePrices) Price(cp string) (*sdk.Coin, error) {
+	// a nil price with a nil error represents a free signature certificate profile
+	if len(sp) == 0 {
+		return nil, nil
+	}
+
+	for _, p := range sp {
+		if strings.TrimSpace(cp) == strings.TrimSpace(p.CertificateProfile) {
+			return p.Price, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no price for \"%s\" certificate profile", cp)
+}
+
+// Equal checks that o equals to sp.
+// Both arrays must be equal index-wise.
+func (sp SignaturePrices) Equal(o SignaturePrices) bool {
+	if len(sp) != len(o) {
+		return false
+	}
+
+	for i := 0; i < len(sp); i++ {
+		if !sp[i].Equal(o[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Service represents a service type needed for DidDocument.
 type Service struct {
 	ID              string `json:"id"`
 	Type            string `json:"type"`
 	ServiceEndpoint string `json:"serviceEndpoint"`
+
+	// W3C says: " Each service endpoint MUST have id, type, and serviceEndpoint properties, and MAY include additional properties."
+	// We can add whatever property we deem important here.
+
+	// SignaturePrices holds informations about signature price for each signature type supported by the service provider.
+	SignaturePrices SignaturePrices `json:"signature_prices,omitempty"`
 }
 
 // Validate returns error when Service is not valid.
@@ -60,14 +114,31 @@ func (s Service) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"serviceEndpoint\" does not contain a valid URL")
 	}
 
+	// One can only define signature prices when service type is "service"
+	if len(s.SignaturePrices) != 0 && s.Type != SignatureService {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "signature_prices present but service type not \"signature\"")
+	}
+
 	return nil
+}
+
+// SignatureEnabled returns true if the selected service can sign documents.
+func (s Services) SignatureEnabled() (Service, error) {
+	for _, ss := range s {
+		if ss.Type == SignatureService {
+			return ss, nil
+		}
+	}
+
+	return Service{}, errors.New("no signature-enabled service")
 }
 
 // Equals returns true if s is equal to otherService.
 func (s Service) Equals(otherService Service) bool {
 	return s.ServiceEndpoint == otherService.ServiceEndpoint &&
 		s.Type == otherService.Type &&
-		s.ID == otherService.ID
+		s.ID == otherService.ID &&
+		s.SignaturePrices.Equal(otherService.SignaturePrices)
 }
 
 // Services is a slice of services.
@@ -120,6 +191,32 @@ func (s Services) noDuplicates() error {
 					return fmt.Errorf("services %d and %d have the same ID", i, l)
 				}
 
+			}
+		}
+	}
+
+	return nil
+}
+
+// noMultipleSignature checks that there are no more than 1 service providing signature type
+func (s Services) noMultipleSignature() error {
+	switch len(s) {
+	case 0, 1:
+		return nil
+	case 2:
+		if (s[0].Type == SignatureService) && (s[1].Type == SignatureService) {
+			return errors.New("services 0 and 1 both provide Signature service")
+		}
+	default:
+		foundSignature := false
+		for i, k := range s {
+			if k.Type == SignatureService {
+				if !foundSignature {
+					foundSignature = true
+					continue
+				}
+
+				return fmt.Errorf("service %d duplicates Signature type", i)
 			}
 		}
 	}
@@ -182,6 +279,11 @@ func (didDocument DidDocument) Validate() error {
 
 		// As per W3C DID spec, "The value of serviceEndpoint MUST NOT contain multiple entries with the same id."
 		if err := didDocument.Service.noDuplicates(); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+		}
+
+		// Only one "signature" type service is allowed
+		if err := didDocument.Service.noMultipleSignature(); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	}

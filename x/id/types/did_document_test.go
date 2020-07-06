@@ -64,6 +64,22 @@ func TestService_Validate(t *testing.T) {
 			false,
 			sdkErr.Wrap(sdkErr.ErrInvalidRequest, "service field \"serviceEndpoint\" does not contain a valid URL"),
 		},
+		{
+			"signatureprices defined but type not okay",
+			Service{
+				ID:              "did:example:123456789abcdefghi#vcr",
+				Type:            "CredentialRepositoryService",
+				ServiceEndpoint: "http://theUrl",
+				SignaturePrices: []SignaturePrice{
+					{
+						CertificateProfile: "t",
+						Price:              nil,
+					},
+				},
+			},
+			false,
+			sdkErr.Wrap(sdkErr.ErrInvalidRequest, "signature_prices present but service type not \"signature\""),
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -138,11 +154,13 @@ func TestServices_Equal(t *testing.T) {
 			"service1",
 			"type1",
 			"entrypoint1",
+			[]SignaturePrice{},
 		},
 		{
 			"service2",
 			"type2",
 			"entrypoint2",
+			[]SignaturePrice{},
 		},
 	}
 	tests := []struct {
@@ -173,11 +191,13 @@ func TestServices_Equal(t *testing.T) {
 					"service2",
 					"type2",
 					"entrypoint2",
+					[]SignaturePrice{},
 				},
 				{
 					"service1",
 					"type1",
 					"entrypoint1",
+					[]SignaturePrice{},
 				},
 			},
 			false,
@@ -189,11 +209,13 @@ func TestServices_Equal(t *testing.T) {
 					"service1",
 					"type1",
 					"otherEntrypoint", // The different
+					[]SignaturePrice{},
 				},
 				{
 					"service2",
 					"type2",
 					"entrypoint2",
+					[]SignaturePrice{},
 				},
 			},
 			false,
@@ -231,7 +253,7 @@ func TestDidDocument_Equals_Service(t *testing.T) {
 			"different services",
 			false,
 			getBaseDocumentWithServices(Services{
-				{"otherId", "otherType", "otherEndpoint"},
+				{"otherId", "otherType", "otherEndpoint", []SignaturePrice{}},
 			}),
 		},
 	}
@@ -862,6 +884,64 @@ SQIDAQAB
 			},
 			true,
 		},
+		{
+			"document has 2 services with signature types",
+			DidDocument{
+				Context: ContextDidV1,
+				ID:      testOwnerAddress,
+				Proof: &Proof{
+					Type:               KeyTypeSecp256k12019,
+					Created:            testTime,
+					ProofPurpose:       ProofPurposeAuthentication,
+					Controller:         testOwnerAddress.String(),
+					SignatureValue:     "uv9ZM4XusZl2q6Ei2O7aZW32pzwfg6ZQpBsQPb8cxzlFXWEyZLxem29fQBB4Py3W5gaXFEyPGruMXNsNDnr4sQ==",
+					VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
+				},
+				PubKeys: PubKeys{
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+						Type:       "RsaVerificationKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
+2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
+Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
+V1tz8zU9NmdR+DvGkAYYxoIx74YaTAxH+GCArfWMG1tRJPI9MELZbOWd9xkKlPic
+bLp8coZh9NgLajMDWKXpuHQ8cdJSxQ/ekZaTuEy7qbjbGBMVzbjhPjcxffQmGV1W
+gNY1BGplZz9mbBmH7siKnKIVZ5Bp55uLfEw+u2yOVx/0yKUdsmZoe4jhevCSq3aw
+GwIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+					PubKey{
+						ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+						Type:       "RsaSignatureKey2018",
+						Controller: testOwnerAddress,
+						PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+					},
+				},
+				Service: Services{
+					Service{
+						ID:              "3",
+						Type:            "signature",
+						ServiceEndpoint: "localhost",
+					},
+					Service{
+						ID:              "1",
+						Type:            "signature",
+						ServiceEndpoint: "localhost",
+					},
+				},
+			},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -872,6 +952,254 @@ SQIDAQAB
 			} else {
 				require.NoError(t, err)
 			}
+		})
+	}
+}
+
+func TestSignaturePrice_Equal(t *testing.T) {
+	a := sdk.NewCoin("ucommercio", sdk.NewInt(42))
+	b := sdk.NewCoin("ucommercio", sdk.NewInt(43))
+	tests := []struct {
+		name   string
+		first  SignaturePrice
+		second SignaturePrice
+		want   bool
+	}{
+		{
+			"equal",
+			SignaturePrice{
+				CertificateProfile: "c",
+				Price:              &a,
+			},
+			SignaturePrice{
+				CertificateProfile: "c",
+				Price:              &a,
+			},
+			true,
+		},
+		{
+			"different cert profile",
+			SignaturePrice{
+				CertificateProfile: "c",
+				Price:              &a,
+			},
+			SignaturePrice{
+				CertificateProfile: "cc",
+				Price:              &a,
+			},
+			false,
+		},
+		{
+			"different price",
+			SignaturePrice{
+				CertificateProfile: "c",
+				Price:              &a,
+			},
+			SignaturePrice{
+				CertificateProfile: "c",
+				Price:              &b,
+			},
+			false,
+		},
+		{
+			"everything different",
+			SignaturePrice{
+				CertificateProfile: "c",
+				Price:              &a,
+			},
+			SignaturePrice{
+				CertificateProfile: "cc",
+				Price:              &b,
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, tt.first.Equal(tt.second))
+		})
+	}
+}
+
+func TestSignaturePrices_Equal(t *testing.T) {
+	a := sdk.NewCoin("ucommercio", sdk.NewInt(42))
+
+	tests := []struct {
+		name   string
+		first  SignaturePrices
+		second SignaturePrices
+		want   bool
+	}{
+		{
+			"equal",
+			SignaturePrices{
+				SignaturePrice{
+					CertificateProfile: "c",
+					Price:              &a,
+				},
+				SignaturePrice{
+					CertificateProfile: "c",
+					Price:              &a,
+				},
+			},
+			SignaturePrices{
+				SignaturePrice{
+					CertificateProfile: "c",
+					Price:              &a,
+				},
+				SignaturePrice{
+					CertificateProfile: "c",
+					Price:              &a,
+				},
+			},
+			true,
+		},
+		{
+			"not equal",
+			SignaturePrices{
+				SignaturePrice{
+					CertificateProfile: "c",
+					Price:              &a,
+				},
+				SignaturePrice{
+					CertificateProfile: "c",
+					Price:              &a,
+				},
+			},
+			SignaturePrices{
+				SignaturePrice{
+					CertificateProfile: "cc",
+					Price:              &a,
+				},
+				SignaturePrice{
+					CertificateProfile: "c",
+					Price:              &a,
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, tt.first.Equal(tt.second))
+		})
+	}
+}
+
+func TestSignaturePrices_Price(t *testing.T) {
+	a := sdk.NewCoin("ucommercio", sdk.NewInt(42))
+
+	tests := []struct {
+		name         string
+		sp           SignaturePrices
+		certp        string
+		pricePresent bool
+		wantErr      bool
+	}{
+		{
+			"price present",
+			SignaturePrices{
+				SignaturePrice{
+					CertificateProfile: "profile",
+					Price:              &a,
+				},
+			},
+			"profile",
+			true,
+			false,
+		},
+		{
+			"certp not found",
+			SignaturePrices{
+				SignaturePrice{
+					CertificateProfile: "profile",
+					Price:              &a,
+				},
+			},
+			"profile2",
+			false,
+			true,
+		},
+		{
+			"cert profile found but is free",
+			SignaturePrices{
+				SignaturePrice{
+					CertificateProfile: "profile",
+					Price:              nil,
+				},
+			},
+			"profile",
+			false,
+			false,
+		},
+		{
+			"no signature prices",
+			SignaturePrices{},
+			"profile",
+			false,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, e := tt.sp.Price(tt.certp)
+			if tt.wantErr {
+				require.Nil(t, p)
+				require.Error(t, e)
+				return
+			}
+
+			if tt.pricePresent {
+				require.NotNil(t, p)
+			} else {
+				require.Nil(t, p)
+			}
+
+			require.NoError(t, e)
+		})
+	}
+}
+
+func TestServices_SignatureEnabled(t *testing.T) {
+	tests := []struct {
+		name        string
+		sp          Services
+		signEnabled bool
+	}{
+		{
+			"signature enabled",
+			Services{
+				Service{
+					ID:              "id",
+					Type:            SignatureService,
+					ServiceEndpoint: "localhost",
+				},
+			},
+			true,
+		},
+		{
+			"signature not enabled",
+			Services{
+				Service{
+					ID:              "id",
+					Type:            "nosig",
+					ServiceEndpoint: "localhost",
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, e := tt.sp.SignatureEnabled()
+			if tt.signEnabled {
+				require.NotEqual(t, Service{}, s)
+				require.NoError(t, e)
+				return
+			}
+
+			require.Equal(t, Service{}, s)
+			require.Error(t, e)
 		})
 	}
 }

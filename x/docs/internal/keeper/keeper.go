@@ -5,9 +5,12 @@ import (
 	"strings"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
+	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -20,14 +23,18 @@ type Keeper struct {
 	StoreKey sdk.StoreKey
 
 	GovernmentKeeper government.Keeper
+	bankKeeper       bank.Keeper
+	idKeeper         idkeeper.Keeper
 
 	cdc *codec.Codec
 }
 
-func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, bankKeeper bank.Keeper, idKeeper idkeeper.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
 		StoreKey:         storeKey,
 		GovernmentKeeper: gKeeper,
+		bankKeeper:       bankKeeper,
+		idKeeper:         idKeeper,
 		cdc:              cdc,
 	}
 }
@@ -116,6 +123,46 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 		receivedDocumentsStoreKey := getReceivedDocumentsIdsUUIDStoreKey(recipient, document.UUID)
 
 		store.Set(receivedDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(document.UUID))
+	}
+
+	// If there's a DoSign entry, handle token payment
+	if document.DoSign != nil {
+		return keeper.signatureTokenPayment(ctx, document)
+	}
+
+	return nil
+}
+
+func (keeper Keeper) signatureTokenPayment(ctx sdk.Context, document types.Document) error {
+	certProfile := document.DoSign.CertificateProfile
+	signatureProviderStr := document.DoSign.SignerInstance
+
+	spAcc, err := sdk.AccAddressFromBech32(signatureProviderStr)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "signer instance address invalid")
+	}
+
+	spDDO, err := keeper.idKeeper.GetDidDocumentByOwner(ctx, spAcc)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "selected signer instance doesn't have a DDO")
+	}
+
+	service, err := spDDO.Service.SignatureEnabled()
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+	}
+
+	price, err := service.SignaturePrices.Price(certProfile)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+	}
+
+	if price != nil {
+		// send the "price" amount of coins from the document sender account to the signature provider one
+		err := keeper.bankKeeper.SendCoins(ctx, document.Sender, spAcc, sdk.NewCoins(*price))
+		if err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, err.Error())
+		}
 	}
 
 	return nil

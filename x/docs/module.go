@@ -3,6 +3,8 @@ package docs
 import (
 	"encoding/json"
 
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -15,6 +17,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/docs/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/docs/client/rest"
+	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
 )
 
 var (
@@ -81,15 +84,20 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper Keeper
+	keeper     Keeper
+	authKeeper auth.AccountKeeper
+	bankKeeper bank.Keeper
+	idKeeper   idkeeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper) AppModule {
+func NewAppModule(keeper Keeper, bankKeeper bank.Keeper, idKeeper idkeeper.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
+		bankKeeper:          bankKeeper,
+		idKeeper:            idKeeper,
 	}
 }
 

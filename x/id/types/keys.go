@@ -46,7 +46,8 @@ const (
 	MsgTypeChangePowerUpStatus = "changePowerUpStatus"
 
 	// --------------
-	// --- Context
+	// --- Constants
 	// --------------
-	ContextDidV1 = "https://www.w3.org/ns/did/v1"
+	ContextDidV1     = "https://www.w3.org/ns/did/v1"
+	SignatureService = "signature"
 )
