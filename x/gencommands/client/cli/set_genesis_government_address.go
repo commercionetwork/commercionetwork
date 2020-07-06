@@ -3,16 +3,16 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/commercionetwork/commercionetwork/x/memberships"
-
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/commercionetwork/commercionetwork/x/government"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 )
 
 // SetGenesisGovernmentAddressCmd returns set-genesis-government-address cobra Command.
