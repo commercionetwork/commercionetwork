@@ -61,7 +61,7 @@ attached to the internet. It also guarantees a fair availability due to the doub
 * 1 internet connection with 30/30Mbit bidirectional capability
 * 1 firewall with an on-site VPN capability
 * 1 sentry node configured on a major service provider (AWS, Azure, Google)
-* 1 Ledger Nano S
+* 1 [Yubi HSM2](https://www.yubico.com/product/yubihsm-2/)
 * 1 UPS with 1000VA capacity for minimum resistance to power surges and out of power services
 * 50,000 Commercio Tokens
  
@@ -108,5 +108,5 @@ the first is properly fixed.
 * 2 firewalls with an on-site VPN capability
 * 1 AWS Load Balancer
 * 2 sentry node configured on major service providers (AWS, Azure, Google)
-* 2 Ledger Nano S (one per server)
+* 2 [Yubi HSM2](https://www.yubico.com/product/yubihsm-2/) (one per server)
 * 50,000 Commercio Tokens
