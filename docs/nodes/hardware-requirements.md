@@ -44,7 +44,7 @@ It is prone to intrusion and out of service in any moment due to hardware failur
   * **Power supply**: 1 power supply
   * **Network**: 1 ethernet port with 100 Mbit speed capability
 * 1 internet connection with 30/30Mbit bidirectional capability
-* 1 Ledger Nano S
+* 1 [Yubi HSM2](https://www.yubico.com/product/yubihsm-2/)
 * 50,000 Commercio Tokens
 
 
