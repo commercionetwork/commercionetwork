@@ -3,6 +3,14 @@ Commercio.network blockchain has two different nodes types: *full* nodes and *va
 Inside this page you will learn the difference between them, which role they play inside the whole blockchain, 
 and how you can create either one of them. 
 
+:::tip Contribute
+
+If you have questions or comments, please create an [issue](https://github.com/commercionetwork/commercionetwork/issues).
+This is a community guide  any contribute is important! Please help us to improve by opening an [issue](https://github.com/commercionetwork/commercionetwork/issues).
+
+:::
+
+
 ## Full nodes
 **Full** nodes are nodes that simply store the whole transactions history. To do so, they connect to the blockchain and
 each time a new transaction is made, they write it on the hard disk. This means that being a full node you will be able 
