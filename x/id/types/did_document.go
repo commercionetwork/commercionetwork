@@ -86,7 +86,7 @@ func (sp SignaturePrices) Price(cp string, m string) (*sdk.Coin, error) {
 	memMul, memMulFound := selPrice.MembershipMultiplier[m]
 	// if there aren't any membership multiplier or m is not included in selPrice's multipliers,
 	// just return the price
-	if len(selPrice.MembershipMultiplier) == 0 || !memMulFound {
+	if len(selPrice.MembershipMultiplier) == 0 || !memMulFound || len(strings.TrimSpace(m)) == 0 {
 		return selPrice.Price, nil
 	}
 

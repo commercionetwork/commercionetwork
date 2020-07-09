@@ -1119,6 +1119,22 @@ func TestSignaturePrices_Price(t *testing.T) {
 			false,
 		},
 		{
+			"price for membership available with a 2x multiplier, but user has none",
+			SignaturePrices{
+				{
+					CertificateProfile: "profile",
+					Price:              a,
+					MembershipMultiplier: map[string]sdk.Dec{
+						"membership": sdk.NewDec(2),
+					},
+				},
+			},
+			"profile",
+			"",
+			sdk.NewCoin("ucommercio", sdk.NewInt(42)),
+			false,
+		},
+		{
 			"price for membership available with a 2x multiplier",
 			SignaturePrices{
 				{
