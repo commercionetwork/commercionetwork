@@ -1036,6 +1036,9 @@ func TestSignaturePrices_Equal(t *testing.T) {
 				SignaturePrice{
 					CertificateProfile: "c",
 					Price:              &a,
+					MembershipMultiplier: map[string]sdk.Dec{
+						"price": sdk.NewDec(42),
+					},
 				},
 				SignaturePrice{
 					CertificateProfile: "c",
@@ -1046,6 +1049,9 @@ func TestSignaturePrices_Equal(t *testing.T) {
 				SignaturePrice{
 					CertificateProfile: "c",
 					Price:              &a,
+					MembershipMultiplier: map[string]sdk.Dec{
+						"price": sdk.NewDec(42),
+					},
 				},
 				SignaturePrice{
 					CertificateProfile: "c",
@@ -1060,6 +1066,9 @@ func TestSignaturePrices_Equal(t *testing.T) {
 				SignaturePrice{
 					CertificateProfile: "c",
 					Price:              &a,
+					MembershipMultiplier: map[string]sdk.Dec{
+						"price": sdk.NewDec(42),
+					},
 				},
 				SignaturePrice{
 					CertificateProfile: "c",
@@ -1087,75 +1096,90 @@ func TestSignaturePrices_Equal(t *testing.T) {
 }
 
 func TestSignaturePrices_Price(t *testing.T) {
-	a := sdk.NewCoin("ucommercio", sdk.NewInt(42))
+	p := sdk.NewCoin("ucommercio", sdk.NewInt(42))
+	a := &p
+
+	halfOff, err := sdk.NewDecFromStr("0.5")
+	require.NoError(t, err)
 
 	tests := []struct {
-		name         string
-		sp           SignaturePrices
-		certp        string
-		pricePresent bool
-		wantErr      bool
+		name          string
+		sp            SignaturePrices
+		certp         string
+		membership    string
+		expectedPrice sdk.Coin
+		wantErr       bool
 	}{
 		{
-			"price present",
-			SignaturePrices{
-				SignaturePrice{
-					CertificateProfile: "profile",
-					Price:              &a,
-				},
-			},
-			"profile",
-			true,
-			false,
-		},
-		{
-			"certp not found",
-			SignaturePrices{
-				SignaturePrice{
-					CertificateProfile: "profile",
-					Price:              &a,
-				},
-			},
-			"profile2",
-			false,
-			true,
-		},
-		{
-			"cert profile found but is free",
-			SignaturePrices{
-				SignaturePrice{
-					CertificateProfile: "profile",
-					Price:              nil,
-				},
-			},
-			"profile",
-			false,
-			false,
-		},
-		{
-			"no signature prices",
+			"no prices defined",
 			SignaturePrices{},
 			"profile",
+			"membership",
+			sdk.NewCoin("ucommercio", sdk.NewInt(0)),
 			false,
+		},
+		{
+			"price for membership available with a 2x multiplier",
+			SignaturePrices{
+				{
+					CertificateProfile: "profile",
+					Price:              a,
+					MembershipMultiplier: map[string]sdk.Dec{
+						"membership": sdk.NewDec(2),
+					},
+				},
+			},
+			"profile",
+			"membership",
+			sdk.NewCoin("ucommercio", sdk.NewInt(84)),
+			false,
+		},
+		{
+			"price for membership available with a 50% multiplier",
+			SignaturePrices{
+				{
+					CertificateProfile: "profile",
+					Price:              a,
+					MembershipMultiplier: map[string]sdk.Dec{
+						"membership": halfOff,
+					},
+				},
+			},
+			"profile",
+			"membership",
+			sdk.NewCoin("ucommercio", sdk.NewInt(21)),
+			false,
+		},
+		{
+			"price available",
+			SignaturePrices{
+				{
+					CertificateProfile: "profile",
+					Price:              a,
+				},
+			},
+			"profile",
+			"membership",
+			p,
 			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p, e := tt.sp.Price(tt.certp)
+			p, e := tt.sp.Price(tt.certp, tt.membership)
 			if tt.wantErr {
 				require.Nil(t, p)
 				require.Error(t, e)
 				return
 			}
 
-			if tt.pricePresent {
-				require.NotNil(t, p)
-			} else {
-				require.Nil(t, p)
-			}
-
 			require.NoError(t, e)
+
+			if tt.expectedPrice.Amount.IsZero() {
+				require.Nil(t, p)
+			} else {
+				require.True(t, tt.expectedPrice.IsEqual(*p))
+			}
 		})
 	}
 }

@@ -39,12 +39,23 @@ type DidDocumentUnsigned DidDocument
 // SignaturePrice represent the price a Signature service asks to sign the associated document.
 // Price can be nil to indicate a free signature service for the profile.
 type SignaturePrice struct {
-	CertificateProfile string    `json:"certificate_profile"`
-	Price              *sdk.Coin `json:"price,omitempty"`
+	CertificateProfile   string             `json:"certificate_profile"`
+	Price                *sdk.Coin          `json:"price,omitempty"`
+	MembershipMultiplier map[string]sdk.Dec `json:"membership_multiplier"`
 }
 
 // Equals checks that ss is equal to s.
 func (s SignaturePrice) Equal(ss SignaturePrice) bool {
+	if len(s.MembershipMultiplier) != len(ss.MembershipMultiplier) {
+		return false
+	}
+
+	for k, v := range s.MembershipMultiplier {
+		if !ss.MembershipMultiplier[k].Equal(v) {
+			return false
+		}
+	}
+
 	return s.CertificateProfile == ss.CertificateProfile &&
 		s.Price.IsEqual(*ss.Price)
 }
@@ -52,19 +63,38 @@ func (s SignaturePrice) Equal(ss SignaturePrice) bool {
 // SignaturePrices is an array of SignaturePrice
 type SignaturePrices []SignaturePrice
 
-func (sp SignaturePrices) Price(cp string) (*sdk.Coin, error) {
+// Price returns the SignaturePrice for a given CertificateProfile, given a Membership.
+func (sp SignaturePrices) Price(cp string, m string) (*sdk.Coin, error) {
 	// a nil price with a nil error represents a free signature certificate profile
 	if len(sp) == 0 {
 		return nil, nil
 	}
 
+	var selPrice *SignaturePrice
+
 	for _, p := range sp {
 		if strings.TrimSpace(cp) == strings.TrimSpace(p.CertificateProfile) {
-			return p.Price, nil
+			selPrice = &p
+			break
 		}
 	}
 
-	return nil, fmt.Errorf("no price for \"%s\" certificate profile", cp)
+	if selPrice == nil {
+		return nil, fmt.Errorf("no price for \"%s\" certificate profile", cp)
+	}
+
+	memMul, memMulFound := selPrice.MembershipMultiplier[m]
+	// if there aren't any membership multiplier or m is not included in selPrice's multipliers,
+	// just return the price
+	if len(selPrice.MembershipMultiplier) == 0 || !memMulFound {
+		return selPrice.Price, nil
+	}
+
+	newPriceInt := memMul.MulInt(selPrice.Price.Amount).TruncateInt()
+
+	newPrice := sdk.NewCoin(selPrice.Price.Denom, newPriceInt)
+
+	return &newPrice, nil
 }
 
 // Equal checks that o equals to sp.
