@@ -36,22 +36,34 @@ type DidDocument struct {
 // It is identical to a DidDocument, it's kept for logical compartimentization.
 type DidDocumentUnsigned DidDocument
 
+// MembershipMultiplier represents a price multiplier assigned to a membership.
+type MembershipMultiplier struct {
+	Membership string
+	Multiplier sdk.Dec
+}
+
+// Equals returns true when m equals mm.
+func (mm MembershipMultiplier) Equals(m MembershipMultiplier) bool {
+	return m.Membership == mm.Membership &&
+		m.Multiplier.Equal(mm.Multiplier)
+}
+
 // SignaturePrice represent the price a Signature service asks to sign the associated document.
 // Price can be nil to indicate a free signature service for the profile.
 type SignaturePrice struct {
-	CertificateProfile   string             `json:"certificate_profile"`
-	Price                *sdk.Coin          `json:"price,omitempty"`
-	MembershipMultiplier map[string]sdk.Dec `json:"membership_multiplier"`
+	CertificateProfile    string                 `json:"certificate_profile"`
+	Price                 *sdk.Coin              `json:"price,omitempty"`
+	MembershipMultipliers []MembershipMultiplier `json:"membership_multiplier"`
 }
 
 // Equals checks that ss is equal to s.
 func (s SignaturePrice) Equal(ss SignaturePrice) bool {
-	if len(s.MembershipMultiplier) != len(ss.MembershipMultiplier) {
+	if len(s.MembershipMultipliers) != len(ss.MembershipMultipliers) {
 		return false
 	}
 
-	for k, v := range s.MembershipMultiplier {
-		if !ss.MembershipMultiplier[k].Equal(v) {
+	for i := 0; i < len(s.MembershipMultipliers); i++ {
+		if !s.MembershipMultipliers[i].Equals(ss.MembershipMultipliers[i]) {
 			return false
 		}
 	}
@@ -83,14 +95,21 @@ func (sp SignaturePrices) Price(cp string, m string) (*sdk.Coin, error) {
 		return nil, fmt.Errorf("no price for \"%s\" certificate profile", cp)
 	}
 
-	memMul, memMulFound := selPrice.MembershipMultiplier[m]
+	var mult *MembershipMultiplier
+
+	for _, mm := range selPrice.MembershipMultipliers {
+		if mm.Membership == m {
+			mult = &mm
+		}
+	}
+
 	// if there aren't any membership multiplier or m is not included in selPrice's multipliers,
 	// just return the price
-	if len(selPrice.MembershipMultiplier) == 0 || !memMulFound || len(strings.TrimSpace(m)) == 0 {
+	if len(selPrice.MembershipMultipliers) == 0 || mult == nil || len(strings.TrimSpace(m)) == 0 {
 		return selPrice.Price, nil
 	}
 
-	newPriceInt := memMul.MulInt(selPrice.Price.Amount).TruncateInt()
+	newPriceInt := mult.Multiplier.MulInt(selPrice.Price.Amount).TruncateInt()
 
 	newPrice := sdk.NewCoin(selPrice.Price.Denom, newPriceInt)
 
@@ -149,6 +168,16 @@ func (s Service) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "signature_prices present but service type not \"signature\"")
 	}
 
+	for _, price := range s.SignaturePrices {
+		unique := make(map[string]struct{})
+		for _, p := range price.MembershipMultipliers {
+			if _, ok := unique[p.Membership]; !ok {
+				return sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "found two prices with same %s membership", p.Membership)
+			}
+
+			unique[p.Membership] = struct{}{}
+		}
+	}
 	return nil
 }
 

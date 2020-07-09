@@ -1036,8 +1036,11 @@ func TestSignaturePrices_Equal(t *testing.T) {
 				SignaturePrice{
 					CertificateProfile: "c",
 					Price:              &a,
-					MembershipMultiplier: map[string]sdk.Dec{
-						"price": sdk.NewDec(42),
+					MembershipMultipliers: []MembershipMultiplier{
+						{
+							Membership: "price",
+							Multiplier: sdk.NewDec(42),
+						},
 					},
 				},
 				SignaturePrice{
@@ -1049,8 +1052,11 @@ func TestSignaturePrices_Equal(t *testing.T) {
 				SignaturePrice{
 					CertificateProfile: "c",
 					Price:              &a,
-					MembershipMultiplier: map[string]sdk.Dec{
-						"price": sdk.NewDec(42),
+					MembershipMultipliers: []MembershipMultiplier{
+						{
+							Membership: "price",
+							Multiplier: sdk.NewDec(42),
+						},
 					},
 				},
 				SignaturePrice{
@@ -1066,8 +1072,11 @@ func TestSignaturePrices_Equal(t *testing.T) {
 				SignaturePrice{
 					CertificateProfile: "c",
 					Price:              &a,
-					MembershipMultiplier: map[string]sdk.Dec{
-						"price": sdk.NewDec(42),
+					MembershipMultipliers: []MembershipMultiplier{
+						{
+							Membership: "price",
+							Multiplier: sdk.NewDec(42),
+						},
 					},
 				},
 				SignaturePrice{
@@ -1124,8 +1133,11 @@ func TestSignaturePrices_Price(t *testing.T) {
 				{
 					CertificateProfile: "profile",
 					Price:              a,
-					MembershipMultiplier: map[string]sdk.Dec{
-						"membership": sdk.NewDec(2),
+					MembershipMultipliers: []MembershipMultiplier{
+						{
+							Membership: "membership",
+							Multiplier: sdk.NewDec(2),
+						},
 					},
 				},
 			},
@@ -1140,8 +1152,11 @@ func TestSignaturePrices_Price(t *testing.T) {
 				{
 					CertificateProfile: "profile",
 					Price:              a,
-					MembershipMultiplier: map[string]sdk.Dec{
-						"membership": sdk.NewDec(2),
+					MembershipMultipliers: []MembershipMultiplier{
+						{
+							Membership: "membership",
+							Multiplier: sdk.NewDec(2),
+						},
 					},
 				},
 			},
@@ -1156,8 +1171,11 @@ func TestSignaturePrices_Price(t *testing.T) {
 				{
 					CertificateProfile: "profile",
 					Price:              a,
-					MembershipMultiplier: map[string]sdk.Dec{
-						"membership": halfOff,
+					MembershipMultipliers: []MembershipMultiplier{
+						{
+							Membership: "membership",
+							Multiplier: halfOff,
+						},
 					},
 				},
 			},
