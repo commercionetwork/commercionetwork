@@ -20,7 +20,7 @@ import (
 // -----------------------------
 
 func Test_handleMsgShareDocument_CustomMetadataSpecs(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 
 	msgShareDocument := types.NewMsgShareDocument(TestingDocument)
@@ -30,7 +30,7 @@ func Test_handleMsgShareDocument_CustomMetadataSpecs(t *testing.T) {
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 
 	msgShareDocument := types.MsgShareDocument(types.Document{
@@ -56,7 +56,7 @@ func Test_handleMsgShareDocument_MetadataSchemeType_Supported(t *testing.T) {
 }
 
 func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 	msgShareDocument := types.MsgShareDocument(types.Document{
 		Sender:     TestingSender,
@@ -80,7 +80,7 @@ func Test_handleMsgShareDocument_MetadataSchemeType_NotSupported(t *testing.T) {
 // -----------------------------------
 
 func Test_handleMsgSendDocumentReceipt(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
@@ -98,7 +98,7 @@ func Test_handleMsgSendDocumentReceipt(t *testing.T) {
 // -------------------------------------------
 
 func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 
 	msgAddSupportedMetadataSchema := types.MsgAddSupportedMetadataSchema{
@@ -115,7 +115,7 @@ func Test_handleMsgAddSupportedMetadataSchema_NotTrustedSigner(t *testing.T) {
 }
 
 func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)
@@ -137,7 +137,7 @@ func Test_handleMsgAddSupportedMetadataSchema_TrustedSigner(t *testing.T) {
 // ------------------------------------------------
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_MissingGovernment(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 
 	msgAddTrustedMetadataSchemaProposer := types.MsgAddTrustedMetadataSchemaProposer{
@@ -150,7 +150,7 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_MissingGovernment(t *testing
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 	_ = k.GovernmentKeeper.SetGovernmentAddress(ctx, TestingRecipient)
 
@@ -164,7 +164,7 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_IncorrectSigner(t *testing.T
 }
 
 func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 	_ = k.GovernmentKeeper.SetGovernmentAddress(ctx, TestingRecipient)
 
@@ -181,7 +181,7 @@ func Test_handleMsgAddTrustedMetadataSchemaProposer_CorrectSigner(t *testing.T) 
 // -------------------
 
 func Test_invalidMsg(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	var handler = NewHandler(k)
 	_, err := handler(ctx, sdk.NewTestMsg())
 	require.Error(t, err)

@@ -1,7 +1,9 @@
 package keeper
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
@@ -53,7 +55,7 @@ var (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, idKeeper idkeeper.Keeper, membershipsKeeper memberships.Keeper) {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, idKeeper idkeeper.Keeper, membershipsKeeper memberships.Keeper, bankKeeper bank.Keeper, idStoreKey *sdk.KVStoreKey) {
 
 	memDB := db.NewMemDB()
 	cdc = testCodec()
@@ -63,6 +65,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, idKeepe
 	ibcKey := sdk.NewKVStoreKey("ibcCapKey")
 	fckCapKey := sdk.NewKVStoreKey("fckCapKey")
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
+	memk := sdk.NewKVStoreKey(memberships.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(params.TStoreKey)
 
 	configSealOnce.Do(func() {
@@ -85,7 +88,9 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, idKeepe
 	ms.MountStoreWithDB(keyParams, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(tkeyParams, sdk.StoreTypeTransient, memDB)
 	ms.MountStoreWithDB(keyDocs, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(idsk, sdk.StoreTypeIAVL, memDB)
 	ms.MountStoreWithDB(keyGovernment, sdk.StoreTypeIAVL, memDB)
+	ms.MountStoreWithDB(memk, sdk.StoreTypeIAVL, memDB)
 	_ = ms.LoadLatestVersion()
 
 	ctx = sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
@@ -117,12 +122,11 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, idKeepe
 	// Set initial supply
 	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 1))))
 
-	memk := sdk.NewKVStoreKey(memberships.StoreKey)
 	memkeeper := memberships.NewKeeper(cdc, memk, sk, govk, ak)
 
 	dck := NewKeeper(keyDocs, govk, bk, idk, memkeeper, cdc)
 
-	return cdc, ctx, dck, idk, memkeeper
+	return cdc, ctx, dck, idk, memkeeper, bk, idsk
 }
 
 func testCodec() *codec.Codec {
@@ -134,6 +138,55 @@ func testCodec() *codec.Codec {
 	cdc.Seal()
 
 	return cdc
+}
+
+func setupDidDocument() idtypes.DidDocument {
+	var testZone, _ = time.LoadLocation("UTC")
+	var testTime = time.Date(2016, 2, 8, 16, 2, 20, 0, testZone)
+	var testOwnerAddress, _ = sdk.AccAddressFromBech32("did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf")
+
+	return idtypes.DidDocument{
+		Context: idtypes.ContextDidV1,
+		ID:      testOwnerAddress,
+		Proof: &idtypes.Proof{
+			Type:               idtypes.KeyTypeSecp256k12019,
+			Created:            testTime,
+			ProofPurpose:       idtypes.ProofPurposeAuthentication,
+			Controller:         testOwnerAddress.String(),
+			SignatureValue:     "uv9ZM4XusZl2q6Ei2O7aZW32pzwfg6ZQpBsQPb8cxzlFXWEyZLxem29fQBB4Py3W5gaXFEyPGruMXNsNDnr4sQ==",
+			VerificationMethod: "did:com:pub1addwnpepqwzc44ggn40xpwkfhcje9y7wdz6sunuv2uydxmqjrvcwff6npp2exy5dn6c",
+		},
+		PubKeys: idtypes.PubKeys{
+			idtypes.PubKey{
+				ID:         fmt.Sprintf("%s#keys-1", testOwnerAddress),
+				Type:       "RsaVerificationKey2018",
+				Controller: testOwnerAddress,
+				PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOoLR843vgkFGudQsjch
+2K85QJ4Hh7l2jjrMesQFDWVcW1xr//eieGzxDogWx7tMOtQ0hw77NAURhldek1Bh
+Co06790YHAE97JqgRQ+IR9Dl3GaGVQ2WcnknO4B1cvTRJmdsqrN1Bs4Qfd+jjKIM
+V1tz8zU9NmdR+DvGkAYYxoIx74YaTAxH+GCArfWMG1tRJPI9MELZbOWd9xkKlPic
+bLp8coZh9NgLajMDWKXpuHQ8cdJSxQ/ekZaTuEy7qbjbGBMVzbjhPjcxffQmGV1W
+gNY1BGplZz9mbBmH7siKnKIVZ5Bp55uLfEw+u2yOVx/0yKUdsmZoe4jhevCSq3aw
+GwIDAQAB
+-----END PUBLIC KEY-----`,
+			},
+			idtypes.PubKey{
+				ID:         fmt.Sprintf("%s#keys-2", testOwnerAddress),
+				Type:       "RsaSignatureKey2018",
+				Controller: testOwnerAddress,
+				PublicKeyPem: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Juw6xqYchTNFYUznmoB
+CzKfQG75v2Pv1Db1Z5EJgP6i0yRsBG1VqIOY4icRnyhDDVFi1omQjjUuCRxWGjsc
+B1UkSnybm0WC+g82HL3mUzbZja27NFJPuNaMaUlNbe0daOG88FS67jq5J2LsZH/V
+cGZBX5bbtCe0Niq39mQdJxdHq3D5ROMA73qeYvLkmXS6Dvs0w0fHsy+DwJtdOnOj
+xt4F5hIEXGP53qz2tBjCRL6HiMP/cLSwAd7oc67abgQxfnf9qldyd3X0IABpti1L
+irJNugfN6HuxHDm6dlXVReOhHRbkEcWedv82Ji5d/sDZ+WT+yWILOq03EJo/LXJ1
+SQIDAQAB
+-----END PUBLIC KEY-----`,
+			},
+		},
+	}
 }
 
 // Testing variables

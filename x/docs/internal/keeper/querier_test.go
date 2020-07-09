@@ -17,7 +17,7 @@ var documents = []types.Document{TestingDocument}
 // ----------------------------------
 
 func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
@@ -34,7 +34,7 @@ func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
 }
 
 func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	// Setup the store
@@ -56,7 +56,7 @@ func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
 }
 
 func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	path := []string{types.QuerySentDocuments, TestingSender.String()}
@@ -70,7 +70,7 @@ func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
 }
 
 func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 	//Setup the store
 	err := k.SaveDocument(ctx, TestingDocument)
@@ -92,7 +92,7 @@ func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
 // ---------------------------------
 
 func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
@@ -107,7 +107,7 @@ func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
 }
 
 func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
@@ -132,7 +132,7 @@ func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
 }
 
 func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
@@ -157,7 +157,7 @@ func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
 }
 
 func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
@@ -171,7 +171,7 @@ func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
 }
 
 func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
@@ -198,7 +198,7 @@ func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
 // ----------------------------------
 
 func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	path := []string{types.QuerySupportedMetadataSchemes}
@@ -212,7 +212,7 @@ func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
 }
 
 func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	schemes := []types.MetadataSchema{
@@ -240,7 +240,7 @@ func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
 // -----------------------------------------
 
 func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	path := []string{types.QueryTrustedMetadataProposers}
@@ -254,7 +254,7 @@ func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
 }
 
 func Test_queryTrustedMetadataProposers_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	var querier = NewQuerier(k)
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)

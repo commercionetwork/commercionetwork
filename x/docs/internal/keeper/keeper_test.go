@@ -3,8 +3,12 @@ package keeper
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
+	idtypes "github.com/commercionetwork/commercionetwork/x/id/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +18,7 @@ import (
 // ----------------------------------
 
 func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	schema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"}
 	k.AddSupportedMetadataScheme(ctx, schema)
@@ -24,7 +28,7 @@ func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	//Setup the store
 
 	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
@@ -50,7 +54,7 @@ func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
 }
 
 func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
 	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
@@ -58,7 +62,7 @@ func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
 	k.AddSupportedMetadataScheme(ctx, existingSchema)
@@ -69,7 +73,7 @@ func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
 }
 
 func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	result := []types.MetadataSchema{}
 	smi := k.SupportedMetadataSchemesIterator(ctx)
@@ -85,7 +89,7 @@ func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_SupportedMetadataSchemesIterator_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
@@ -110,7 +114,7 @@ func TestKeeper_SupportedMetadataSchemesIterator_ExistingList(t *testing.T) {
 // ----------------------------------
 
 func TestKeeper_AddTrustedSchemaProposer_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)
 	ret := k.IsTrustedSchemaProposer(ctx, TestingSender)
@@ -118,7 +122,7 @@ func TestKeeper_AddTrustedSchemaProposer_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	proposersBz := cdc.MustMarshalBinaryBare(&TestingSender)
@@ -144,14 +148,14 @@ func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
 }
 
 func TestKeeper_IsTrustedSchemaProposer_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
 	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
 }
 
 func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	k.AddTrustedSchemaProposer(ctx, TestingSender)
 
@@ -160,7 +164,7 @@ func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
 }
 
 func TestKeeper_TrustedSchemaProposersIterator_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	result := []sdk.AccAddress{}
 	tspi := k.TrustedSchemaProposersIterator(ctx)
@@ -176,7 +180,7 @@ func TestKeeper_TrustedSchemaProposersIterator_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	proposersBz := cdc.MustMarshalBinaryBare(TestingSender)
@@ -200,7 +204,7 @@ func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
 // ----------------------------------
 
 func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	err := k.SaveDocument(ctx, TestingDocument)
@@ -223,8 +227,201 @@ func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
 	require.Equal(t, TestingDocument.UUID, receivedDocs)
 }
 
+func writeToIDStore(ctx sdk.Context, ddo idtypes.DidDocument, idk *sdk.KVStoreKey, cdc *codec.Codec) {
+	key := func(owner sdk.AccAddress) []byte {
+		return append([]byte(idtypes.IdentitiesStorePrefix), owner...)
+	}
+
+	identitiesStore := ctx.KVStore(idk)
+	identitiesStore.Set(key(ddo.ID), cdc.MustMarshalBinaryBare(ddo))
+}
+
+func TestKeeper_ShareDocument_FreeSignature(t *testing.T) {
+	cdc, ctx, k, _, _, bk, idkey := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
+
+	initialCoins := sdk.NewCoins(
+		sdk.NewCoin("ucommercio", sdk.NewInt(1000000)),
+	)
+
+	// give some tokens to the user
+	require.NoError(t, bk.SetCoins(ctx, TestingDocument.Sender, initialCoins))
+
+	ddo := setupDidDocument()
+	ddo.Service = append(ddo.Service, idtypes.Service{
+		ID:              ddo.ID.String(),
+		Type:            idtypes.SignatureService,
+		ServiceEndpoint: "/signature",
+	})
+
+	// Set the Did Document into the store
+	writeToIDStore(ctx, ddo, idkey, cdc)
+
+	doc := TestingDocument
+	doc.DoSign = &types.DocumentDoSign{
+		StorageURI:         "/url",
+		SignerInstance:     ddo.ID.String(),
+		CertificateProfile: "",
+	}
+
+	err := k.SaveDocument(ctx, doc)
+	require.NoError(t, err)
+
+	require.True(t, bk.GetCoins(ctx, doc.Sender).IsEqual(initialCoins))
+
+	docsBz := store.Get(getDocumentStoreKey(TestingDocument.UUID))
+	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
+	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
+
+	var stored types.Document
+	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
+	require.Equal(t, stored, doc)
+
+	var sentDocs, receivedDocs string
+	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
+	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
+
+	require.Equal(t, TestingDocument.UUID, sentDocs)
+
+	require.Equal(t, TestingDocument.UUID, receivedDocs)
+}
+
+func TestKeeper_ShareDocument_SignatureWithPriceNoMembership(t *testing.T) {
+	cdc, ctx, k, _, _, bk, idkey := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
+
+	initialCoins := sdk.NewCoins(
+		sdk.NewCoin("ucommercio", sdk.NewInt(1000000)),
+	)
+
+	sigPrice := sdk.NewCoin("ucommercio", sdk.NewInt(1000))
+	remaining := initialCoins.Sub(sdk.NewCoins(sigPrice))
+
+	// give some tokens to the user
+	require.NoError(t, bk.SetCoins(ctx, TestingDocument.Sender, initialCoins))
+
+	ddo := setupDidDocument()
+	ddo.Service = append(ddo.Service, idtypes.Service{
+		ID:              ddo.ID.String(),
+		Type:            idtypes.SignatureService,
+		ServiceEndpoint: "/signature",
+		SignaturePrices: []idtypes.SignaturePrice{
+			{
+				CertificateProfile: "sigWithPrice",
+				Price:              &sigPrice,
+			},
+		},
+	})
+
+	// Set the Did Document into the store
+	writeToIDStore(ctx, ddo, idkey, cdc)
+
+	doc := TestingDocument
+	doc.DoSign = &types.DocumentDoSign{
+		StorageURI:         "/url",
+		SignerInstance:     ddo.ID.String(),
+		CertificateProfile: "sigWithPrice",
+	}
+
+	err := k.SaveDocument(ctx, doc)
+	require.NoError(t, err)
+
+	require.True(t, bk.GetCoins(ctx, doc.Sender).IsEqual(remaining))
+
+	docsBz := store.Get(getDocumentStoreKey(TestingDocument.UUID))
+	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
+	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
+
+	var stored types.Document
+	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
+	require.Equal(t, stored, doc)
+
+	var sentDocs, receivedDocs string
+	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
+	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
+
+	require.Equal(t, TestingDocument.UUID, sentDocs)
+
+	require.Equal(t, TestingDocument.UUID, receivedDocs)
+}
+
+func TestKeeper_ShareDocument_SignatureWithPriceWithMembership(t *testing.T) {
+	cdc, ctx, k, _, memb, bk, idkey := SetupTestInput()
+	store := ctx.KVStore(k.StoreKey)
+
+	require.NoError(t, memb.AssignMembership(ctx, TestingDocument.Sender, "bronze"))
+
+	initialCoins := sdk.NewCoins(
+		sdk.NewCoin("ucommercio", sdk.NewInt(1000000)),
+	)
+
+	sigPrice := sdk.NewCoin("ucommercio", sdk.NewInt(1000))
+
+	priceWithMult := sdk.NewCoins(
+		sdk.NewCoin(
+			"ucommercio",
+			sdk.NewDec(2).MulInt(sigPrice.Amount).TruncateInt(),
+		),
+	)
+
+	remaining := initialCoins.Sub(priceWithMult)
+
+	// give some tokens to the user
+	require.NoError(t, bk.SetCoins(ctx, TestingDocument.Sender, initialCoins))
+
+	ddo := setupDidDocument()
+	ddo.Service = append(ddo.Service, idtypes.Service{
+		ID:              ddo.ID.String(),
+		Type:            idtypes.SignatureService,
+		ServiceEndpoint: "/signature",
+		SignaturePrices: []idtypes.SignaturePrice{
+			{
+				CertificateProfile: "sigWithPrice",
+				Price:              &sigPrice,
+				MembershipMultipliers: []idtypes.MembershipMultiplier{
+					{
+						Membership: "bronze",
+						Multiplier: sdk.NewDec(2),
+					},
+				},
+			},
+		},
+	})
+
+	// Set the Did Document into the store
+	writeToIDStore(ctx, ddo, idkey, cdc)
+
+	doc := TestingDocument
+	doc.DoSign = &types.DocumentDoSign{
+		StorageURI:         "/url",
+		SignerInstance:     ddo.ID.String(),
+		CertificateProfile: "sigWithPrice",
+	}
+
+	err := k.SaveDocument(ctx, doc)
+	require.NoError(t, err)
+
+	require.True(t, bk.GetCoins(ctx, doc.Sender).IsEqual(remaining))
+
+	docsBz := store.Get(getDocumentStoreKey(TestingDocument.UUID))
+	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
+	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
+
+	var stored types.Document
+	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
+	require.Equal(t, stored, doc)
+
+	var sentDocs, receivedDocs string
+	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
+	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
+
+	require.Equal(t, TestingDocument.UUID, sentDocs)
+
+	require.Equal(t, TestingDocument.UUID, receivedDocs)
+}
+
 func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
@@ -234,7 +431,7 @@ func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
 }
 
 func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
@@ -269,7 +466,7 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) 
 }
 
 func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
@@ -299,13 +496,13 @@ func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
 }
 
 func TestKeeper_GetDocumentById_NonExisting(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	_, err := k.GetDocumentByID(ctx, "non-existing")
 	require.Error(t, err)
 }
 
 func TestKeeper_GetDocumentById_Existing(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(&TestingDocument))
@@ -316,7 +513,7 @@ func TestKeeper_GetDocumentById_Existing(t *testing.T) {
 }
 
 func TestKeeper_UserReceivedDocumentsIterator_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	rdi := k.UserReceivedDocumentsIterator(ctx, TestingRecipient)
 	defer rdi.Close()
@@ -333,7 +530,7 @@ func TestKeeper_UserReceivedDocumentsIterator_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
@@ -357,7 +554,7 @@ func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
 }
 
 func TestKeeper_UserSentDocumentsIterator_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	docs := []types.Document{}
 	sdi := k.UserSentDocumentsIterator(ctx, TestingSender)
@@ -376,7 +573,7 @@ func TestKeeper_UserSentDocumentsIterator_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_UserSentDocumentsIterator_NonEmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
@@ -400,7 +597,7 @@ func TestKeeper_UserSentDocumentsIterator_NonEmptyList(t *testing.T) {
 }
 
 func TestKeeper_DocumentsIterator_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 	di := k.DocumentsIterator(ctx)
 	defer di.Close()
 
@@ -416,7 +613,7 @@ func TestKeeper_DocumentsIterator_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	doc1 := TestingDocument
 	doc2 := types.Document{
@@ -452,7 +649,7 @@ func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
 // ----------------------------------
 
 func TestKeeper_SaveDocumentReceipt_EmptyList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 	store := ctx.KVStore(k.StoreKey)
 
 	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
@@ -472,7 +669,7 @@ func TestKeeper_SaveDocumentReceipt_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
@@ -481,7 +678,7 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
 }
 
 func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
 
@@ -518,7 +715,7 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) 
 }
 
 func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput()
+	_, ctx, k, _, _, _, _ := SetupTestInput()
 
 	urri := k.UserReceivedReceiptsIterator(ctx, TestingDocumentReceipt.Recipient)
 	defer urri.Close()
@@ -538,7 +735,7 @@ func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
 }
 
 func TestKeeper_UserReceivedReceiptsIterator_FilledList(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput()
+	cdc, ctx, k, _, _, _, _ := SetupTestInput()
 
 	store := ctx.KVStore(k.StoreKey)
 	store.Set(getReceivedReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Recipient, TestingDocumentReceipt.UUID),
@@ -582,7 +779,7 @@ func TestKeeper_ExtractDocument(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _ := SetupTestInput()
+			_, ctx, k, _, _, _, _ := SetupTestInput()
 
 			require.NoError(t, k.SaveDocument(ctx, tt.want))
 
@@ -620,7 +817,7 @@ func TestKeeper_ExtractMetadataSchema(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _ := SetupTestInput()
+			_, ctx, k, _, _, _, _ := SetupTestInput()
 			k.AddSupportedMetadataScheme(ctx, tt.want)
 
 			ki := k.SupportedMetadataSchemesIterator(ctx)
@@ -661,7 +858,7 @@ func TestKeeper_ExtractReceipt(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _ := SetupTestInput()
+			_, ctx, k, _, _, _, _ := SetupTestInput()
 
 			require.NoError(t, k.SaveDocument(ctx, tt.savedDocument))
 			require.NoError(t, k.SaveReceipt(ctx, tt.want))
@@ -700,7 +897,7 @@ func TestKeeper_ExtractTrustedSchemaProposer(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _ := SetupTestInput()
+			_, ctx, k, _, _, _, _ := SetupTestInput()
 			k.AddTrustedSchemaProposer(ctx, tt.want)
 
 			ki := k.TrustedSchemaProposersIterator(ctx)
@@ -745,7 +942,7 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _ := SetupTestInput()
+			_, ctx, k, _, _, _, _ := SetupTestInput()
 
 			if !tt.storedDocument.Equals(types.Document{}) {
 				require.NoError(t, k.SaveDocument(ctx, tt.storedDocument))
