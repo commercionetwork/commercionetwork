@@ -10,6 +10,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,20 +23,22 @@ import (
 type Keeper struct {
 	StoreKey sdk.StoreKey
 
-	GovernmentKeeper government.Keeper
-	bankKeeper       bank.Keeper
-	idKeeper         idkeeper.Keeper
+	GovernmentKeeper  government.Keeper
+	bankKeeper        bank.Keeper
+	idKeeper          idkeeper.Keeper
+	membershipsKeeper memberships.Keeper
 
 	cdc *codec.Codec
 }
 
-func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, bankKeeper bank.Keeper, idKeeper idkeeper.Keeper, cdc *codec.Codec) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, bankKeeper bank.Keeper, idKeeper idkeeper.Keeper, membershipsKeeper memberships.Keeper, cdc *codec.Codec) Keeper {
 	return Keeper{
-		StoreKey:         storeKey,
-		GovernmentKeeper: gKeeper,
-		bankKeeper:       bankKeeper,
-		idKeeper:         idKeeper,
-		cdc:              cdc,
+		StoreKey:          storeKey,
+		GovernmentKeeper:  gKeeper,
+		bankKeeper:        bankKeeper,
+		idKeeper:          idKeeper,
+		membershipsKeeper: membershipsKeeper,
+		cdc:               cdc,
 	}
 }
 
@@ -152,7 +155,10 @@ func (keeper Keeper) signatureTokenPayment(ctx sdk.Context, document types.Docum
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 
-	price, err := service.SignaturePrices.Price(certProfile)
+	// we can safely ignore the error here, since it would get returned only if the user has no membership
+	userMembership, _ := keeper.membershipsKeeper.GetMembership(ctx, document.Sender)
+
+	price, err := service.SignaturePrices.Price(certProfile, userMembership.MembershipType)
 	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}

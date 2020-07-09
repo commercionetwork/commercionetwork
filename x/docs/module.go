@@ -18,6 +18,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/docs/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/docs/client/rest"
 	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships"
 )
 
 var (
@@ -84,20 +85,22 @@ func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper     Keeper
-	authKeeper auth.AccountKeeper
-	bankKeeper bank.Keeper
-	idKeeper   idkeeper.Keeper
+	keeper           Keeper
+	authKeeper       auth.AccountKeeper
+	bankKeeper       bank.Keeper
+	idKeeper         idkeeper.Keeper
+	membershipKeeper memberships.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper Keeper, bankKeeper bank.Keeper, idKeeper idkeeper.Keeper) AppModule {
+func NewAppModule(keeper Keeper, bankKeeper bank.Keeper, idKeeper idkeeper.Keeper, membershipsKeeper memberships.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
 		bankKeeper:          bankKeeper,
 		idKeeper:            idKeeper,
+		membershipKeeper:    membershipsKeeper,
 	}
 }
 

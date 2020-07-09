@@ -268,8 +268,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// Custom modules
 	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
 	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.supplyKeeper, app.governmentKeeper, app.accountKeeper)
-	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = idkeeper.NewKeeper(app.cdc, app.keys[idtypes.StoreKey], app.accountKeeper, app.supplyKeeper)
+	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.bankKeeper, app.idKeeper, app.membershipKeeper, app.cdc)
 	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey], app.governmentKeeper)
 	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper, app.supplyKeeper)
 	app.mintKeeper = commerciomintkeeper.NewKeeper(app.cdc, app.keys[commerciominttypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
@@ -304,10 +304,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		custombank.NewAppModule(bank.NewAppModule(app.bankKeeper, app.accountKeeper), app.customBankKeeper, app.governmentKeeper),
 
 		// Custom modules
-		docs.NewAppModule(app.docsKeeper),
 		government.NewAppModule(app.governmentKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper, app.supplyKeeper),
 		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper, app.accountKeeper),
+		docs.NewAppModule(app.docsKeeper, app.bankKeeper, app.idKeeper, app.membershipKeeper),
 		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
 		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper),
