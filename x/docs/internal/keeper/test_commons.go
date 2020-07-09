@@ -53,7 +53,7 @@ var (
 )
 
 //This function create an environment to test modules
-func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
+func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, idKeeper idkeeper.Keeper, membershipsKeeper memberships.Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc = testCodec()
@@ -122,7 +122,7 @@ func SetupTestInput() (cdc *codec.Codec, ctx sdk.Context, keeper Keeper) {
 
 	dck := NewKeeper(keyDocs, govk, bk, idk, memkeeper, cdc)
 
-	return cdc, ctx, dck
+	return cdc, ctx, dck, idk, memkeeper
 }
 
 func testCodec() *codec.Codec {
