@@ -11,6 +11,8 @@ import (
 )
 
 func TestService_Validate(t *testing.T) {
+	a := sdk.NewCoin("ucommercio", sdk.NewInt(42))
+	p := &a
 	tests := []struct {
 		name        string
 		theService  Service
@@ -79,6 +81,32 @@ func TestService_Validate(t *testing.T) {
 			},
 			false,
 			sdkErr.Wrap(sdkErr.ErrInvalidRequest, "signature_prices present but service type not \"signature\""),
+		},
+		{
+			"signatureprices membership prices with duplicates",
+			Service{
+				ID:              "did:example:123456789abcdefghi#vcr",
+				Type:            "signature",
+				ServiceEndpoint: "http://theUrl",
+				SignaturePrices: []SignaturePrice{
+					{
+						CertificateProfile: "signature",
+						Price:              p,
+						MembershipMultipliers: []MembershipMultiplier{
+							{
+								Membership: "bronze",
+								Multiplier: sdk.Dec{},
+							},
+							{
+								Membership: "bronze",
+								Multiplier: sdk.Dec{},
+							},
+						},
+					},
+				},
+			},
+			false,
+			sdkErr.Wrap(sdkErr.ErrInvalidRequest, "found two prices with same bronze membership"),
 		},
 	}
 	for _, tt := range tests {
