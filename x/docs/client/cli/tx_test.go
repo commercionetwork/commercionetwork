@@ -33,7 +33,7 @@ func TestCliTx(t *testing.T) {
 	}{
 		{
 			"happy path",
-			fmt.Errorf("no RPC client defined"), // It means it tries to broadcast, so it works.
+			fmt.Errorf("no RPC client defined in offline mode"), // It means it tries to broadcast, so it works.
 			[]string{
 				recipient,
 				uuid,
@@ -45,7 +45,7 @@ func TestCliTx(t *testing.T) {
 		},
 		{
 			"happy path with do_sign",
-			fmt.Errorf("no RPC client defined"), // It means it tries to broadcast, so it works.
+			fmt.Errorf("no RPC client defined in offline mode"), // It means it tries to broadcast, so it works.
 			[]string{
 				recipient,
 				uuid,
