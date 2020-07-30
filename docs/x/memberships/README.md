@@ -24,7 +24,7 @@ The system will **prevent** sending an invite to an account with a balance great
 ### Buying process
 
 Once you've met all the [requirements](#requirements), you can buy a membership by 
-performing a [buying transaction](./tx/buy-membership.md).  
+performing a [buying transaction](#buying-a-membership).  
 After doing so, you will be able to verify your membership status 
 using the [membership query feature](#queries).
 
@@ -37,12 +37,12 @@ buys a membership.
 Suppose that you want to invite another user and later receive a reward once he buys a membership. 
 Then, the following requirements must be met:
 
-* You must already have [bought](tx/buy-membership.md) a membership. 
+* You must already have [bought](#buying-a-membership) a membership. 
 * You must know the user's identity that he has created by following the [specific guide](../id/tx/create-an-identity.md).
 
 ## Inviting a user
 Once all the [above requirements](#requirements) have been met, you can invite the user by performing an
-[invitation transaction](tx/inviting-user.md). 
+[invitation transaction](#inviting-a-user) 
 
 Once done, you will be automatically rewarded when the user buys a new membership.  
 

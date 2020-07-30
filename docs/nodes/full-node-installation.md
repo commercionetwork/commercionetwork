@@ -142,10 +142,10 @@ systemctl enable cnd
 systemctl start cnd
 ```
 
-Control if the sync was started. Use `Ctrl + C` to interrupt the `tail` command
+Control if the sync was started. Use `Ctrl + C` to interrupt the `journalctl` command
 
 ```bash
-tail -100f /var/log/syslog
+journalctl -u cnd -f
 # OUTPUT SHOULD BE LIKE BELOW
 #
 # Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.722] Executed block                               module=state height=1 validTxs=0 invalidTxs=0
