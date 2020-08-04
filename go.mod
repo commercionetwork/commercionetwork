@@ -3,7 +3,7 @@ module github.com/commercionetwork/commercionetwork
 go 1.14
 
 require (
-	github.com/cosmos/cosmos-sdk v0.39.1-rc1
+	github.com/cosmos/cosmos-sdk v0.39.1-rc2
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
