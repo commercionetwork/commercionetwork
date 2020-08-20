@@ -68,41 +68,48 @@ func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
 	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "any-schema"))
 }
 
-func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	result := []types.MetadataSchema{}
-	smi := k.SupportedMetadataSchemesIterator(ctx)
-	defer smi.Close()
-
-	for ; smi.Valid(); smi.Next() {
-		ms := types.MetadataSchema{}
-		k.cdc.MustUnmarshalBinaryBare(smi.Value(), &ms)
-		result = append(result, ms)
+func TestKeeper_SupportedMetadataSchemesIterator(t *testing.T) {
+	tests := []struct {
+		name   string
+		schema types.MetadataSchema
+	}{
+		{
+			"Empty list",
+			types.MetadataSchema{},
+		},
+		{
+			"Existing list",
+			types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.Empty(t, result)
-}
+			if !tt.schema.Equals(types.MetadataSchema{}) {
+				store := ctx.KVStore(k.StoreKey)
 
-func TestKeeper_SupportedMetadataSchemesIterator_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+				existingBz := cdc.MustMarshalBinaryBare(tt.schema)
+				store.Set(metadataSchemaKey(tt.schema), existingBz)
+			}
 
-	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
-	existingBz := cdc.MustMarshalBinaryBare(existingSchema)
-	store.Set(metadataSchemaKey(existingSchema), existingBz)
+			result := []types.MetadataSchema{}
+			smi := k.SupportedMetadataSchemesIterator(ctx)
+			defer smi.Close()
 
-	result := []types.MetadataSchema{}
-	smi := k.SupportedMetadataSchemesIterator(ctx)
-	defer smi.Close()
+			for ; smi.Valid(); smi.Next() {
+				ms := types.MetadataSchema{}
+				k.cdc.MustUnmarshalBinaryBare(smi.Value(), &ms)
+				result = append(result, ms)
+			}
 
-	for ; smi.Valid(); smi.Next() {
-		ms := types.MetadataSchema{}
-		k.cdc.MustUnmarshalBinaryBare(smi.Value(), &ms)
-		result = append(result, ms)
+			if !tt.schema.Equals(types.MetadataSchema{}) {
+				require.Equal(t, []types.MetadataSchema{tt.schema}, result)
+			} else {
+				require.Empty(t, result)
+			}
+		})
 	}
-
-	require.Equal(t, []types.MetadataSchema{existingSchema}, result)
 }
 
 // ----------------------------------
