@@ -12,7 +12,7 @@ In order to send a document you are required to have an identity with some token
 
 ::: tip  
 To know what an identity is, how to create it and how to get tokens, please refer to the 
-[*"Creating an identity"* section](../../id/tx/create-an-identity.md).  
+[*"Creating an identity"* section](../id/tx/create-an-identity.md).  
 :::  
 
 #### Transaction message
