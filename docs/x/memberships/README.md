@@ -42,7 +42,7 @@ Then, the following requirements must be met:
 
 ## Inviting a user
 Once all the [above requirements](#requirements) have been met, you can invite the user by performing an
-[invitation transaction](#inviting-a-user) 
+[invitation transaction](#sending-an-invite) 
 
 Once done, you will be automatically rewarded when the user buys a new membership.  
 
