@@ -356,47 +356,57 @@ func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
 	require.Equal(t, []types.Document{TestingDocument}, docs)
 }
 
-func TestKeeper_UserSentDocumentsIterator_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	docs := []types.Document{}
-	sdi := k.UserSentDocumentsIterator(ctx, TestingSender)
-	defer sdi.Close()
-
-	for ; sdi.Valid(); sdi.Next() {
-		id := ""
-		k.cdc.MustUnmarshalBinaryBare(sdi.Value(), &id)
-		doc, err := k.GetDocumentByID(ctx, id)
-		require.NoError(t, err)
-
-		docs = append(docs, doc)
+func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
+	tests := []struct {
+		name     string
+		address  []byte
+		document types.Document
+		isEmpty  bool
+	}{
+		{
+			"empty list",
+			TestingSender,
+			types.Document{},
+			true,
+		},
+		{
+			"non empty list",
+			TestingRecipient,
+			TestingDocument,
+			false,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.Empty(t, docs)
-}
+			if !tt.document.Equals(types.Document{}) {
+				store := ctx.KVStore(k.StoreKey)
+				store.Set(getDocumentStoreKey(tt.document.UUID), cdc.MustMarshalBinaryBare(tt.document))
+				store.Set(getSentDocumentsIdsUUIDStoreKey(tt.address, tt.document.UUID), cdc.MustMarshalBinaryBare(tt.document.UUID))
+			}
 
-func TestKeeper_UserSentDocumentsIterator_NonEmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+			docs := []types.Document{}
+			di := k.UserSentDocumentsIterator(ctx, tt.address)
+			defer di.Close()
 
-	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
-	store.Set(getSentDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
+			for ; di.Valid(); di.Next() {
+				id := ""
+				k.cdc.MustUnmarshalBinaryBare(di.Value(), &id)
+				doc, err := k.GetDocumentByID(ctx, id)
+				require.NoError(t, err)
 
-	rdi := k.UserSentDocumentsIterator(ctx, TestingRecipient)
-	defer rdi.Close()
+				docs = append(docs, doc)
+			}
 
-	docs := []types.Document{}
-	for ; rdi.Valid(); rdi.Next() {
-		id := ""
-		k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
-		doc, err := k.GetDocumentByID(ctx, id)
-		require.NoError(t, err)
-
-		docs = append(docs, doc)
+			if tt.document.Equals(types.Document{}) {
+				require.Empty(t, docs)
+			} else {
+				require.Equal(t, 1, len(docs))
+				require.Equal(t, []types.Document{tt.document}, docs)
+			}
+		})
 	}
-
-	require.Equal(t, 1, len(docs))
-	require.Equal(t, []types.Document{TestingDocument}, docs)
 }
 
 func TestKeeper_DocumentsIterator_EmptyList(t *testing.T) {
