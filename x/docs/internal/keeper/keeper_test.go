@@ -200,27 +200,39 @@ func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
 // ----------------------------------
 
 func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+	tests := []struct {
+		name           string
+		storedDocument types.Document
+	}{
+		{
+			"Empty list",
+			TestingDocument,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
+			store := ctx.KVStore(k.StoreKey)
 
-	err := k.SaveDocument(ctx, TestingDocument)
-	require.NoError(t, err)
+			err := k.SaveDocument(ctx, tt.storedDocument)
+			require.NoError(t, err)
 
-	docsBz := store.Get(getDocumentStoreKey(TestingDocument.UUID))
-	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
-	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
+			docsBz := store.Get(getDocumentStoreKey(TestingDocument.UUID))
+			sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, tt.storedDocument.UUID))
+			receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, tt.storedDocument.UUID))
 
-	var stored types.Document
-	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
-	require.Equal(t, stored, TestingDocument)
+			var stored types.Document
+			cdc.MustUnmarshalBinaryBare(docsBz, &stored)
+			require.Equal(t, stored, tt.storedDocument)
 
-	var sentDocs, receivedDocs string
-	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
-	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
+			var sentDocs, receivedDocs string
+			cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
+			cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 
-	require.Equal(t, TestingDocument.UUID, sentDocs)
-
-	require.Equal(t, TestingDocument.UUID, receivedDocs)
+			require.Equal(t, tt.storedDocument.UUID, sentDocs)
+			require.Equal(t, tt.storedDocument.UUID, receivedDocs)
+		})
+	}
 }
 
 func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
