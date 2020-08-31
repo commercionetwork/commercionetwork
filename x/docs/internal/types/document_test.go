@@ -435,7 +435,7 @@ func TestCreateDoc_DoSign(t *testing.T) {
 		{
 			"no do sign (null)",
 			nil,
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":null}",
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\"}}",
 		},
 		{
 			"some data but empty sdn data",
@@ -446,7 +446,7 @@ func TestCreateDoc_DoSign(t *testing.T) {
 				VcrID:              "abc",
 				CertificateProfile: "abc",
 			},
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\"},\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
 		},
 		{
 			"all data",
@@ -464,7 +464,7 @@ func TestCreateDoc_DoSign(t *testing.T) {
 				VcrID:              "abc",
 				CertificateProfile: "abc",
 			},
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\",\"schema\":null},\"content_uri\":\"\",\"checksum\":null,\"encryption_data\":null,\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[\"common_name\",\"surname\",\"serial_number\",\"given_name\",\"organization\",\"country\"],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
+			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\"},\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[\"common_name\",\"surname\",\"serial_number\",\"given_name\",\"organization\",\"country\"],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
 		},
 	}
 
