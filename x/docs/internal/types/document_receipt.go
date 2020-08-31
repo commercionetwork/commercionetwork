@@ -18,7 +18,7 @@ type DocumentReceipt struct {
 	Recipient    sdk.AccAddress `json:"recipient"`
 	TxHash       string         `json:"tx_hash"`
 	DocumentUUID string         `json:"document_uuid"`
-	Proof        string         `json:"proof"` // Optional
+	Proof        string         `json:"proof,omitempty"` // Optional
 }
 
 // Equals implements equatable
