@@ -161,27 +161,36 @@ func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
 
 func TestKeeper_TrustedSchemaProposersIterator(t *testing.T) {
 	tests := []struct {
-		name          string
-		senderAddress sdk.AccAddress
+		name            string
+		senderAddresses []sdk.AccAddress
 	}{
 		{
 			"Empty list",
-			nil,
+			[]sdk.AccAddress{},
 		},
 		{
-			"Existing list",
-			TestingSender,
+			"1 element in list",
+			[]sdk.AccAddress{
+				TestingSender,
+			},
+		},
+		{
+			"2 element in list",
+			[]sdk.AccAddress{
+				TestingSender,
+				TestingSender2,
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cdc, ctx, k := SetupTestInput()
 
-			if tt.senderAddress != nil {
+			for _, sa := range tt.senderAddresses {
 				store := ctx.KVStore(k.StoreKey)
 
-				proposersBz := cdc.MustMarshalBinaryBare(tt.senderAddress)
-				store.Set(metadataSchemaProposerKey(tt.senderAddress), proposersBz)
+				proposersBz := cdc.MustMarshalBinaryBare(sa)
+				store.Set(metadataSchemaProposerKey(sa), proposersBz)
 			}
 
 			result := []sdk.AccAddress{}
@@ -193,12 +202,15 @@ func TestKeeper_TrustedSchemaProposersIterator(t *testing.T) {
 				result = append(result, ms)
 			}
 
-			if tt.senderAddress == nil {
+			if tt.senderAddresses == nil {
 				require.Empty(t, result)
-			} else {
-				require.Equal(t, []sdk.AccAddress{tt.senderAddress}, result)
 			}
 
+			require.Equal(t, len(tt.senderAddresses), len(result))
+
+			for _, sa := range tt.senderAddresses {
+				require.Contains(t, result, sa)
+			}
 		})
 	}
 }
