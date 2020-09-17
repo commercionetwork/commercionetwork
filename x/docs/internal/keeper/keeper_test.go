@@ -116,12 +116,12 @@ func TestKeeper_AddTrustedSchemaProposer(t *testing.T) {
 		senderAddress sdk.AccAddress
 	}{
 		{
-			"Empty list",
+			"No stored address",
 			nil,
 			TestingSender,
 		},
 		{
-			"Existing list",
+			"1 element in stored address",
 			TestingSender,
 			TestingSender2,
 		},
@@ -142,23 +142,23 @@ func TestKeeper_AddTrustedSchemaProposer(t *testing.T) {
 			if tt.storedAddress == nil {
 				ret := k.IsTrustedSchemaProposer(ctx, tt.senderAddress)
 				require.True(t, ret)
-			} else {
-				var stored []sdk.AccAddress
-
-				tspi := k.TrustedSchemaProposersIterator(ctx)
-				defer tspi.Close()
-
-				for ; tspi.Valid(); tspi.Next() {
-					p := sdk.AccAddress{}
-					cdc.MustUnmarshalBinaryBare(tspi.Value(), &p)
-
-					stored = append(stored, p)
-				}
-
-				require.Equal(t, 2, len(stored))
-				require.Contains(t, stored, tt.storedAddress)
-				require.Contains(t, stored, tt.senderAddress)
+				return
 			}
+			var stored []sdk.AccAddress
+
+			tspi := k.TrustedSchemaProposersIterator(ctx)
+			defer tspi.Close()
+
+			for ; tspi.Valid(); tspi.Next() {
+				p := sdk.AccAddress{}
+				cdc.MustUnmarshalBinaryBare(tspi.Value(), &p)
+
+				stored = append(stored, p)
+			}
+
+			require.Equal(t, 2, len(stored))
+			require.Contains(t, stored, tt.storedAddress)
+			require.Contains(t, stored, tt.senderAddress)
 
 		})
 	}
