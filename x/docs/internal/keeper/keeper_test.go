@@ -71,26 +71,47 @@ func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
 func TestKeeper_SupportedMetadataSchemesIterator(t *testing.T) {
 	tests := []struct {
 		name   string
-		schema types.MetadataSchema
+		schema []types.MetadataSchema
 	}{
 		{
 			"Empty list",
-			types.MetadataSchema{},
+			[]types.MetadataSchema{},
 		},
 		{
-			"Existing list",
-			types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"},
+			"1 element in list",
+			[]types.MetadataSchema{
+				{
+					Type:      "schema",
+					SchemaURI: "https://example.com/newSchema",
+					Version:   "1.0.0",
+				},
+			},
+		},
+		{
+			"2 elements in list",
+			[]types.MetadataSchema{
+				{
+					Type:      "schema",
+					SchemaURI: "https://example.com/newSchema",
+					Version:   "1.0.0",
+				},
+				{
+					Type:      "schema2",
+					SchemaURI: "https://example.com/schema2",
+					Version:   "2.0.0",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cdc, ctx, k := SetupTestInput()
 
-			if !tt.schema.Equals(types.MetadataSchema{}) {
+			for _, ms := range tt.schema {
 				store := ctx.KVStore(k.StoreKey)
 
-				existingBz := cdc.MustMarshalBinaryBare(tt.schema)
-				store.Set(metadataSchemaKey(tt.schema), existingBz)
+				existingBz := cdc.MustMarshalBinaryBare(ms)
+				store.Set(metadataSchemaKey(ms), existingBz)
 			}
 
 			result := []types.MetadataSchema{}
@@ -103,11 +124,11 @@ func TestKeeper_SupportedMetadataSchemesIterator(t *testing.T) {
 				result = append(result, ms)
 			}
 
-			if !tt.schema.Equals(types.MetadataSchema{}) {
-				require.Equal(t, []types.MetadataSchema{tt.schema}, result)
-			} else {
+			if tt.schema == nil {
 				require.Empty(t, result)
 			}
+			require.Equal(t, len(tt.schema), len(result))
+			require.Equal(t, tt.schema, result)
 		})
 	}
 }
