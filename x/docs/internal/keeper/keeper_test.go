@@ -127,8 +127,12 @@ func TestKeeper_SupportedMetadataSchemesIterator(t *testing.T) {
 			if tt.schema == nil {
 				require.Empty(t, result)
 			}
+
 			require.Equal(t, len(tt.schema), len(result))
-			require.Equal(t, tt.schema, result)
+
+			for _, ms := range tt.schema {
+				require.Contains(t, result, ms)
+			}
 		})
 	}
 }
