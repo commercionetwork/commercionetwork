@@ -520,33 +520,30 @@ func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) 
 func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 	tests := []struct {
 		name            string
-		isEmpty         bool
-		documentReceipt types.DocumentReceipt
+		documentReceipt []types.DocumentReceipt
 	}{
 		{
 			"Empty list",
-			true,
-			TestingDocumentReceipt,
+			[]types.DocumentReceipt{},
 		},
 		{
 			"Filled list",
-			false,
-			TestingDocumentReceipt,
+			[]types.DocumentReceipt{TestingDocumentReceipt},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cdc, ctx, k := SetupTestInput()
 
-			if !tt.isEmpty {
+			for _, tdr := range tt.documentReceipt {
 				store := ctx.KVStore(k.StoreKey)
-				store.Set(getReceivedReceiptsIdsUUIDStoreKey(tt.documentReceipt.Recipient, tt.documentReceipt.UUID),
-					cdc.MustMarshalBinaryBare(tt.documentReceipt.UUID))
+				store.Set(getReceivedReceiptsIdsUUIDStoreKey(tdr.Recipient, tdr.UUID),
+					cdc.MustMarshalBinaryBare(tdr.UUID))
 
-				store.Set(getReceiptStoreKey(tt.documentReceipt.UUID), cdc.MustMarshalBinaryBare(tt.documentReceipt))
+				store.Set(getReceiptStoreKey(tdr.UUID), cdc.MustMarshalBinaryBare(tdr))
 			}
 
-			urri := k.UserReceivedReceiptsIterator(ctx, tt.documentReceipt.Recipient)
+			urri := k.UserReceivedReceiptsIterator(ctx, TestingDocumentReceipt.Recipient)
 			defer urri.Close()
 
 			receipts := []types.DocumentReceipt{}
@@ -560,12 +557,8 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 				receipts = append(receipts, r)
 			}
 
-			if tt.isEmpty {
-				require.Empty(t, receipts)
-			} else {
-				expected := []types.DocumentReceipt{tt.documentReceipt}
-				require.Equal(t, expected, receipts)
-			}
+			require.Equal(t, tt.documentReceipt, receipts)
+
 		})
 	}
 }
