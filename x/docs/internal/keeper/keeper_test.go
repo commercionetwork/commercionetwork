@@ -314,7 +314,7 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 		{
 			"lookup on non existing document, not empty store",
 			TestingDocument,
-			"nil",
+			"",
 			true,
 		},
 		{
