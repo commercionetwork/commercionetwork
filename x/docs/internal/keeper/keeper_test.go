@@ -405,17 +405,17 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 		docs []types.Document
 	}{
 		{
-			"empty list",
+			"no document in store",
 			[]types.Document{},
 		},
 		{
-			"one document list",
+			"one document in store",
 			[]types.Document{
 				TestingDocument,
 			},
 		},
 		{
-			"existing list",
+			"multiple documents in store",
 			[]types.Document{
 				TestingDocument,
 				{ // TestingDocument with different uuid
@@ -434,7 +434,6 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, ctx, k := SetupTestInput()
 
-			// in case of emptylist the for doesn't enter in the cycle
 			for _, document := range tt.docs {
 				require.NoError(t, k.SaveDocument(ctx, document))
 			}
@@ -450,13 +449,9 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 				documents = append(documents, d)
 			}
 
-			if len(tt.docs) == 0 {
-				require.Empty(t, documents)
-			} else {
-				require.Len(t, documents, len(tt.docs))
-				for _, document := range tt.docs {
-					require.Contains(t, documents, document)
-				}
+			require.Len(t, documents, len(tt.docs))
+			for _, document := range tt.docs {
+				require.Contains(t, documents, document)
 			}
 
 		})
