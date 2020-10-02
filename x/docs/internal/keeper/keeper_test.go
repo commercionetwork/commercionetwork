@@ -316,54 +316,67 @@ func TestKeeper_GetDocumentById_Existing(t *testing.T) {
 }
 
 func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
-
 	tests := []struct {
 		name      string
 		recipient []byte
-		document  types.Document
+		docs      []types.Document
 	}{
 		{
-			"empty list",
+			"no document in store",
 			nil,
-			types.Document{},
+			[]types.Document{},
 		},
 		{
-			"non empty list",
+			"one document in store",
 			TestingRecipient,
-			TestingDocument,
+			[]types.Document{
+				TestingDocument,
+			},
+		},
+		{
+			"multiple documents in store",
+			TestingRecipient,
+			[]types.Document{
+				TestingDocument,
+				{ // TestingDocument with different uuid
+					UUID:           "uuid-2",
+					Sender:         TestingDocument.Sender,
+					Recipients:     TestingDocument.Recipients,
+					Metadata:       TestingDocument.Metadata,
+					ContentURI:     TestingDocument.ContentURI,
+					Checksum:       TestingDocument.Checksum,
+					EncryptionData: TestingDocument.EncryptionData,
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cdc, ctx, k := SetupTestInput()
 
-			if tt.recipient != nil {
-				store := ctx.KVStore(k.StoreKey)
-
-				store.Set(getDocumentStoreKey(tt.document.UUID), cdc.MustMarshalBinaryBare(tt.document))
-				store.Set(getReceivedDocumentsIdsUUIDStoreKey(tt.recipient, tt.document.UUID), cdc.MustMarshalBinaryBare(tt.document.UUID))
+			store := ctx.KVStore(k.StoreKey)
+			for _, document := range tt.docs {
+				store.Set(getDocumentStoreKey(document.UUID), cdc.MustMarshalBinaryBare(document))
+				store.Set(getReceivedDocumentsIdsUUIDStoreKey(tt.recipient, document.UUID), cdc.MustMarshalBinaryBare(document.UUID))
 			}
 
 			rdi := k.UserReceivedDocumentsIterator(ctx, tt.recipient)
 			defer rdi.Close()
 
-			docs := []types.Document{}
+			documents := []types.Document{}
 			for ; rdi.Valid(); rdi.Next() {
 				id := ""
 				k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
 				doc, err := k.GetDocumentByID(ctx, id)
 				require.NoError(t, err)
 
-				docs = append(docs, doc)
+				documents = append(documents, doc)
 			}
 
-			if tt.recipient == nil {
-				require.Empty(t, docs)
-			} else {
-				require.Equal(t, 1, len(docs))
-				require.Equal(t, []types.Document{tt.document}, docs)
+			require.Len(t, documents, len(tt.docs))
+			for _, document := range tt.docs {
+				require.Contains(t, documents, document)
 			}
-
 		})
 	}
 }
