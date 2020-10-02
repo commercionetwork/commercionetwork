@@ -358,36 +358,51 @@ func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
 
 func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 	tests := []struct {
-		name     string
-		address  []byte
-		document types.Document
-		isEmpty  bool
+		name   string
+		sender []byte
+		docs   []types.Document
 	}{
 		{
-			"empty list",
+			"no document in store",
 			TestingSender,
-			types.Document{},
-			true,
+			[]types.Document{},
 		},
 		{
-			"non empty list",
-			TestingRecipient,
-			TestingDocument,
-			false,
+			"one document in store",
+			TestingSender,
+			[]types.Document{
+				TestingDocument,
+			},
+		},
+		{
+			"multiple documents in store",
+			TestingSender,
+			[]types.Document{
+				TestingDocument,
+				{ // TestingDocument with different uuid
+					UUID:           "uuid-2",
+					Sender:         TestingDocument.Sender,
+					Recipients:     TestingDocument.Recipients,
+					Metadata:       TestingDocument.Metadata,
+					ContentURI:     TestingDocument.ContentURI,
+					Checksum:       TestingDocument.Checksum,
+					EncryptionData: TestingDocument.EncryptionData,
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cdc, ctx, k := SetupTestInput()
 
-			if !tt.document.Equals(types.Document{}) {
-				store := ctx.KVStore(k.StoreKey)
-				store.Set(getDocumentStoreKey(tt.document.UUID), cdc.MustMarshalBinaryBare(tt.document))
-				store.Set(getSentDocumentsIdsUUIDStoreKey(tt.address, tt.document.UUID), cdc.MustMarshalBinaryBare(tt.document.UUID))
+			store := ctx.KVStore(k.StoreKey)
+			for _, document := range tt.docs {
+				store.Set(getDocumentStoreKey(document.UUID), cdc.MustMarshalBinaryBare(document))
+				store.Set(getSentDocumentsIdsUUIDStoreKey(tt.sender, document.UUID), cdc.MustMarshalBinaryBare(document.UUID))
 			}
 
-			docs := []types.Document{}
-			di := k.UserSentDocumentsIterator(ctx, tt.address)
+			documents := []types.Document{}
+			di := k.UserSentDocumentsIterator(ctx, tt.sender)
 			defer di.Close()
 
 			for ; di.Valid(); di.Next() {
@@ -396,14 +411,12 @@ func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 				doc, err := k.GetDocumentByID(ctx, id)
 				require.NoError(t, err)
 
-				docs = append(docs, doc)
+				documents = append(documents, doc)
 			}
 
-			if tt.document.Equals(types.Document{}) {
-				require.Empty(t, docs)
-			} else {
-				require.Equal(t, 1, len(docs))
-				require.Equal(t, []types.Document{tt.document}, docs)
+			require.Len(t, documents, len(tt.docs))
+			for _, document := range tt.docs {
+				require.Contains(t, documents, document)
 			}
 		})
 	}
