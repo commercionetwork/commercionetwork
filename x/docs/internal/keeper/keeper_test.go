@@ -210,38 +210,59 @@ func TestKeeper_SupportedMetadataSchemesIterator(t *testing.T) {
 // --- Metadata schema proposers
 // ----------------------------------
 
-func TestKeeper_AddTrustedSchemaProposer_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	k.AddTrustedSchemaProposer(ctx, TestingSender)
-	ret := k.IsTrustedSchemaProposer(ctx, TestingSender)
-	require.True(t, ret)
-}
-
-func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-
-	proposersBz := cdc.MustMarshalBinaryBare(&TestingSender)
-	store.Set(metadataSchemaProposerKey(TestingSender), proposersBz)
-
-	k.AddTrustedSchemaProposer(ctx, TestingSender2)
-
-	var stored []sdk.AccAddress
-
-	tspi := k.TrustedSchemaProposersIterator(ctx)
-	defer tspi.Close()
-
-	for ; tspi.Valid(); tspi.Next() {
-		p := sdk.AccAddress{}
-		cdc.MustUnmarshalBinaryBare(tspi.Value(), &p)
-
-		stored = append(stored, p)
+func TestKeeper_AddTrustedSchemaProposer(t *testing.T) {
+	tests := []struct {
+		name          string
+		storedAddress sdk.AccAddress
+		senderAddress sdk.AccAddress
+	}{
+		{
+			"No stored address",
+			nil,
+			TestingSender,
+		},
+		{
+			"1 element in stored address",
+			TestingSender,
+			TestingSender2,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.Equal(t, 2, len(stored))
-	require.Contains(t, stored, TestingSender)
-	require.Contains(t, stored, TestingSender2)
+			if tt.storedAddress != nil {
+				store := ctx.KVStore(k.StoreKey)
+
+				proposersBz := cdc.MustMarshalBinaryBare(&tt.storedAddress)
+				store.Set(metadataSchemaProposerKey(tt.storedAddress), proposersBz)
+			}
+
+			k.AddTrustedSchemaProposer(ctx, tt.senderAddress)
+
+			if tt.storedAddress == nil {
+				ret := k.IsTrustedSchemaProposer(ctx, tt.senderAddress)
+				require.True(t, ret)
+				return
+			}
+			var stored []sdk.AccAddress
+
+			tspi := k.TrustedSchemaProposersIterator(ctx)
+			defer tspi.Close()
+
+			for ; tspi.Valid(); tspi.Next() {
+				p := sdk.AccAddress{}
+				cdc.MustUnmarshalBinaryBare(tspi.Value(), &p)
+
+				stored = append(stored, p)
+			}
+
+			require.Equal(t, 2, len(stored))
+			require.Contains(t, stored, tt.storedAddress)
+			require.Contains(t, stored, tt.senderAddress)
+
+		})
+	}
 }
 
 func TestKeeper_IsTrustedSchemaProposer(t *testing.T) {
