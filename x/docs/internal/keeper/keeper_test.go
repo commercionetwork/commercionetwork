@@ -488,45 +488,70 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 	}
 }
 
-func TestKeeper_UserReceivedDocumentsIterator_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	rdi := k.UserReceivedDocumentsIterator(ctx, TestingRecipient)
-	defer rdi.Close()
-
-	docs := []types.Document{}
-	for ; rdi.Valid(); rdi.Next() {
-		doc, err := k.GetDocumentByID(ctx, string(rdi.Value()))
-		require.NoError(t, err)
-
-		docs = append(docs, doc)
+func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
+	tests := []struct {
+		name      string
+		recipient []byte
+		docs      []types.Document
+	}{
+		{
+			"no document in store",
+			nil,
+			[]types.Document{},
+		},
+		{
+			"one document in store",
+			TestingRecipient,
+			[]types.Document{
+				TestingDocument,
+			},
+		},
+		{
+			"multiple documents in store",
+			TestingRecipient,
+			[]types.Document{
+				TestingDocument,
+				{ // TestingDocument with different uuid
+					UUID:           "uuid-2",
+					Sender:         TestingDocument.Sender,
+					Recipients:     TestingDocument.Recipients,
+					Metadata:       TestingDocument.Metadata,
+					ContentURI:     TestingDocument.ContentURI,
+					Checksum:       TestingDocument.Checksum,
+					EncryptionData: TestingDocument.EncryptionData,
+				},
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.Empty(t, docs)
-}
+			store := ctx.KVStore(k.StoreKey)
+			for _, document := range tt.docs {
+				store.Set(getDocumentStoreKey(document.UUID), cdc.MustMarshalBinaryBare(document))
+				store.Set(getReceivedDocumentsIdsUUIDStoreKey(tt.recipient, document.UUID), cdc.MustMarshalBinaryBare(document.UUID))
+			}
 
-func TestKeeper_UserReceivedDocumentsIterator_NonEmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+			rdi := k.UserReceivedDocumentsIterator(ctx, tt.recipient)
+			defer rdi.Close()
 
-	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
-	store.Set(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
+			documents := []types.Document{}
+			for ; rdi.Valid(); rdi.Next() {
+				id := ""
+				k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
+				doc, err := k.GetDocumentByID(ctx, id)
+				require.NoError(t, err)
 
-	rdi := k.UserReceivedDocumentsIterator(ctx, TestingRecipient)
-	defer rdi.Close()
+				documents = append(documents, doc)
+			}
 
-	docs := []types.Document{}
-	for ; rdi.Valid(); rdi.Next() {
-		id := ""
-		k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
-		doc, err := k.GetDocumentByID(ctx, id)
-		require.NoError(t, err)
-
-		docs = append(docs, doc)
+			require.Len(t, documents, len(tt.docs))
+			for _, document := range tt.docs {
+				require.Contains(t, documents, document)
+			}
+		})
 	}
-
-	require.Equal(t, 1, len(docs))
-	require.Equal(t, []types.Document{TestingDocument}, docs)
 }
 
 func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
