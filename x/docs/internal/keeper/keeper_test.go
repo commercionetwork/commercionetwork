@@ -433,70 +433,219 @@ func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
 // --- Document receipts
 // ----------------------------------
 
-func TestKeeper_SaveDocumentReceipt_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+func TestKeeper_SaveDocumentReceipt(t *testing.T) {
+	tests := []struct {
+		name       string
+		document   types.Document
+		receipt    types.DocumentReceipt
+		newReceipt types.DocumentReceipt
+	}{
+		{
+			"empty list",
+			TestingDocument,
+			TestingDocumentReceipt,
+			types.DocumentReceipt{},
+		},
+		{
+			"sent receipt already present",
+			TestingDocument,
+			TestingDocumentReceipt,
+			types.DocumentReceipt{
+				UUID:         TestingDocumentReceipt.UUID + "-new",
+				Sender:       TestingSender,
+				Recipient:    TestingDocumentReceipt.Recipient,
+				TxHash:       TestingDocumentReceipt.TxHash,
+				DocumentUUID: TestingDocument.UUID,
+				Proof:        TestingDocumentReceipt.Proof,
+			},
+		},
+		{
+			"received receipt already present",
+			TestingDocument,
+			TestingDocumentReceipt,
+			types.DocumentReceipt{
+				UUID:         TestingDocumentReceipt.UUID + "-new",
+				Sender:       TestingSender2,
+				Recipient:    TestingDocumentReceipt.Recipient,
+				TxHash:       TestingDocumentReceipt.TxHash,
+				DocumentUUID: TestingDocument.UUID,
+				Proof:        TestingDocumentReceipt.Proof,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
+			require.NoError(t, k.SaveDocument(ctx, tt.document))
 
-	tdr := TestingDocumentReceipt
-	tdr.DocumentUUID = TestingDocument.UUID
-	require.NoError(t, k.SaveReceipt(ctx, tdr))
+			tdr := tt.receipt
+			tdr.DocumentUUID = tt.document.UUID
+			require.NoError(t, k.SaveReceipt(ctx, tdr))
 
-	storedID := ""
-	docReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, tdr.DocumentUUID))
-	cdc.MustUnmarshalBinaryBare(docReceiptBz, &storedID)
+			store := ctx.KVStore(k.StoreKey)
 
-	stored, err := k.GetReceiptByID(ctx, storedID)
-	require.NoError(t, err)
+			storedID := ""
+			docReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(tt.receipt.Sender, tdr.DocumentUUID))
+			cdc.MustUnmarshalBinaryBare(docReceiptBz, &storedID)
 
-	require.Equal(t, stored, tdr)
+			stored, err := k.GetReceiptByID(ctx, storedID)
+			require.NoError(t, err)
+
+			require.Equal(t, stored, tdr)
+
+			require.Error(t, k.SaveReceipt(ctx, tt.newReceipt))
+
+			var storedSlice []types.DocumentReceipt
+			si := k.UserSentReceiptsIterator(ctx, tt.receipt.Sender)
+
+			defer si.Close()
+			for ; si.Valid(); si.Next() {
+				rid := ""
+				k.cdc.MustUnmarshalBinaryBare(si.Value(), &rid)
+
+				newReceipt, err := k.GetReceiptByID(ctx, rid)
+				require.NoError(t, err)
+				storedSlice = append(storedSlice, newReceipt)
+			}
+
+			require.Equal(t, 1, len(storedSlice))
+			require.Contains(t, storedSlice, tdr)
+			require.NotContains(t, storedSlice, tt.newReceipt)
+		})
+	}
 }
 
-func TestKeeper_SaveDocumentReceipt_ExistingReceipt(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+func TestKeeper_SaveDocument(t *testing.T) {
 
-	store := ctx.KVStore(k.StoreKey)
-	store.Set(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
+	tests := []struct {
+		name     string
+		document types.Document
+		wantErr  bool
+	}{
+		{
+			"document UUID not specified",
+			types.Document{},
+			true,
+		},
+		{
+			"document UUID empty",
+			types.Document{
+				UUID: "",
+			},
+			true,
+		},
+		{
+			"duplicated document",
+			TestingDocument,
+			true,
+		},
+		{
+			"UUID already in store",
+			types.Document{
+				UUID: "test-document-uuid",
+			},
+			true,
+		},
+		{
+			"document's UUID not in store",
+			types.Document{
+				UUID:       "test-document-uuid_2",
+				ContentURI: "https://example.com/document",
+				Metadata: types.DocumentMetadata{
+					ContentURI: "https://example.com/document/metadata",
+					Schema: &types.DocumentMetadataSchema{
+						URI:     "https://example.com/document/metadata/schema",
+						Version: "1.0.0",
+					},
+				},
+				Checksum: &types.DocumentChecksum{
+					Value:     "93dfcaf3d923ec47edb8580667473987",
+					Algorithm: "md5",
+				},
+				Sender:     TestingSender,
+				Recipients: ctypes.Addresses{TestingRecipient},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
 
-	require.Error(t, k.SaveReceipt(ctx, TestingDocumentReceipt))
+			store := ctx.KVStore(k.StoreKey)
+			store.Set(getDocumentStoreKey(TestingDocument.UUID), k.cdc.MustMarshalBinaryBare(&TestingDocument))
+
+			if tt.wantErr {
+				require.Error(t, k.SaveDocument(ctx, tt.document))
+			} else {
+				require.NoError(t, k.SaveDocument(ctx, tt.document))
+			}
+		})
+	}
 }
 
-func TestKeeper_SaveDocumentReceipt_ExistingReceipt_DifferentUuid(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
-
-	oldReceipt := TestingDocumentReceipt
-	oldReceipt.DocumentUUID = TestingDocument.UUID
-
-	newReceipt := types.DocumentReceipt{
-		UUID:         TestingDocumentReceipt.UUID + "-new",
-		Sender:       TestingDocumentReceipt.Sender,
-		Recipient:    TestingDocumentReceipt.Recipient,
-		TxHash:       TestingDocumentReceipt.TxHash,
-		DocumentUUID: TestingDocument.UUID,
-		Proof:        TestingDocumentReceipt.Proof,
+func TestKeeper_SaveReceipt(t *testing.T) {
+	tests := []struct {
+		name            string
+		documentReceipt types.DocumentReceipt
+		wantErr         bool
+	}{
+		{
+			"receipt UUID not specified",
+			types.DocumentReceipt{
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+			},
+			true,
+		},
+		{
+			"receipt UUID empty",
+			types.DocumentReceipt{
+				UUID:         "",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+			},
+			true,
+		},
+		{
+			"duplicated receipt",
+			TestingDocumentReceipt,
+			true,
+		},
+		{
+			"UUID already in store",
+			types.DocumentReceipt{
+				UUID: "testing-document-receipt-uuid",
+			},
+			true,
+		},
+		{
+			"receipt UUID not in store",
+			types.DocumentReceipt{
+				UUID:         TestingDocumentReceipt.UUID + "-new",
+				Sender:       TestingDocumentReceipt.Sender,
+				Recipient:    TestingDocumentReceipt.Recipient,
+				TxHash:       TestingDocumentReceipt.TxHash,
+				DocumentUUID: TestingDocument.UUID,
+				Proof:        TestingDocumentReceipt.Proof,
+			},
+			false,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.NoError(t, k.SaveReceipt(ctx, oldReceipt))
-	require.Error(t, k.SaveReceipt(ctx, newReceipt))
+			store := ctx.KVStore(k.StoreKey)
+			store.Set(getDocumentStoreKey(TestingDocument.UUID), k.cdc.MustMarshalBinaryBare(&TestingDocument))
+			store.Set(getSentReceiptsIdsUUIDStoreKey(TestingDocumentReceipt.Sender, TestingDocumentReceipt.UUID), cdc.MustMarshalBinaryBare(TestingDocumentReceipt))
 
-	var stored []types.DocumentReceipt
-	si := k.UserSentReceiptsIterator(ctx, TestingDocumentReceipt.Sender)
-	defer si.Close()
-	for ; si.Valid(); si.Next() {
-		rid := ""
-		k.cdc.MustUnmarshalBinaryBare(si.Value(), &rid)
-
-		newReceipt, err := k.GetReceiptByID(ctx, rid)
-		require.NoError(t, err)
-		stored = append(stored, newReceipt)
+			if tt.wantErr {
+				require.Error(t, k.SaveReceipt(ctx, tt.documentReceipt))
+			} else {
+				require.NoError(t, k.SaveReceipt(ctx, tt.documentReceipt))
+			}
+		})
 	}
-
-	require.Equal(t, 1, len(stored))
-	require.Contains(t, stored, oldReceipt)
-	require.NotContains(t, stored, newReceipt)
 }
 
 func TestKeeper_UserReceivedReceiptsIterator_EmptyList(t *testing.T) {
