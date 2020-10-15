@@ -20,8 +20,8 @@ func (metaSchema DocumentMetadataSchema) Equals(metSchema2 DocumentMetadataSchem
 // DocumentMetadata represents the information about the metadata associated to a document
 type DocumentMetadata struct {
 	ContentURI string                  `json:"content_uri"`
-	SchemaType string                  `json:"schema_type"` // Optional - Either this or schema must be defined
-	Schema     *DocumentMetadataSchema `json:"schema"`      // Optional - Either this or schema_type must be defined
+	SchemaType string                  `json:"schema_type,omitempty"` // Optional - Either this or schema must be defined
+	Schema     *DocumentMetadataSchema `json:"schema,omitempty"`      // Optional - Either this or schema_type must be defined
 }
 
 // Equals returns true iff this metadata and other contain the same data

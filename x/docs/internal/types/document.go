@@ -18,10 +18,10 @@ type Document struct {
 	Recipients     types.Addresses         `json:"recipients"`
 	UUID           string                  `json:"uuid"`
 	Metadata       DocumentMetadata        `json:"metadata"`
-	ContentURI     string                  `json:"content_uri"`     // Optional
-	Checksum       *DocumentChecksum       `json:"checksum"`        // Optional
-	EncryptionData *DocumentEncryptionData `json:"encryption_data"` // Optional
-	DoSign         *DocumentDoSign         `json:"do_sign"`         // Optional
+	ContentURI     string                  `json:"content_uri,omitempty"`     // Optional
+	Checksum       *DocumentChecksum       `json:"checksum,omitempty"`        // Optional
+	EncryptionData *DocumentEncryptionData `json:"encryption_data,omitempty"` // Optional
+	DoSign         *DocumentDoSign         `json:"do_sign,omitempty"`         // Optional
 }
 
 // Equals returns true when doc equals other, false otherwise.
