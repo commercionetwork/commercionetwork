@@ -137,41 +137,73 @@ func TestKeeper_IsMetadataSchemeTypeSupported(t *testing.T) {
 	}
 }
 
-func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	result := []types.MetadataSchema{}
-	smi := k.SupportedMetadataSchemesIterator(ctx)
-	defer smi.Close()
-
-	for ; smi.Valid(); smi.Next() {
-		ms := types.MetadataSchema{}
-		k.cdc.MustUnmarshalBinaryBare(smi.Value(), &ms)
-		result = append(result, ms)
+func TestKeeper_SupportedMetadataSchemesIterator(t *testing.T) {
+	tests := []struct {
+		name   string
+		schema []types.MetadataSchema
+	}{
+		{
+			"Empty list",
+			[]types.MetadataSchema{},
+		},
+		{
+			"1 element in list",
+			[]types.MetadataSchema{
+				{
+					Type:      "schema",
+					SchemaURI: "https://example.com/newSchema",
+					Version:   "1.0.0",
+				},
+			},
+		},
+		{
+			"2 elements in list",
+			[]types.MetadataSchema{
+				{
+					Type:      "schema",
+					SchemaURI: "https://example.com/newSchema",
+					Version:   "1.0.0",
+				},
+				{
+					Type:      "schema2",
+					SchemaURI: "https://example.com/schema2",
+					Version:   "2.0.0",
+				},
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.Empty(t, result)
-}
+			for _, ms := range tt.schema {
+				store := ctx.KVStore(k.StoreKey)
 
-func TestKeeper_SupportedMetadataSchemesIterator_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+				existingBz := cdc.MustMarshalBinaryBare(ms)
+				store.Set(metadataSchemaKey(ms), existingBz)
+			}
 
-	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
-	existingBz := cdc.MustMarshalBinaryBare(existingSchema)
-	store.Set(metadataSchemaKey(existingSchema), existingBz)
+			result := []types.MetadataSchema{}
+			smi := k.SupportedMetadataSchemesIterator(ctx)
+			defer smi.Close()
 
-	result := []types.MetadataSchema{}
-	smi := k.SupportedMetadataSchemesIterator(ctx)
-	defer smi.Close()
+			for ; smi.Valid(); smi.Next() {
+				ms := types.MetadataSchema{}
+				k.cdc.MustUnmarshalBinaryBare(smi.Value(), &ms)
+				result = append(result, ms)
+			}
 
-	for ; smi.Valid(); smi.Next() {
-		ms := types.MetadataSchema{}
-		k.cdc.MustUnmarshalBinaryBare(smi.Value(), &ms)
-		result = append(result, ms)
+			if tt.schema == nil {
+				require.Empty(t, result)
+			}
+
+			require.Equal(t, len(tt.schema), len(result))
+
+			for _, ms := range tt.schema {
+				require.Contains(t, result, ms)
+			}
+		})
 	}
-
-	require.Equal(t, []types.MetadataSchema{existingSchema}, result)
 }
 
 // ----------------------------------
