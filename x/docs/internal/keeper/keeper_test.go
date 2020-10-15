@@ -554,52 +554,63 @@ func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 	}
 }
 
-func TestKeeper_DocumentsIterator_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	di := k.DocumentsIterator(ctx)
-	defer di.Close()
-
-	documents := []types.Document{}
-	for ; di.Valid(); di.Next() {
-		d := types.Document{}
-		k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
-
-		documents = append(documents, d)
+func TestKeeper_DocumentsIterator(t *testing.T) {
+	tests := []struct {
+		name string
+		docs []types.Document
+	}{
+		{
+			"no document in store",
+			[]types.Document{},
+		},
+		{
+			"one document in store",
+			[]types.Document{
+				TestingDocument,
+			},
+		},
+		{
+			"multiple documents in store",
+			[]types.Document{
+				TestingDocument,
+				{ // TestingDocument with different uuid
+					UUID:           "uuid-2",
+					Sender:         TestingDocument.Sender,
+					Recipients:     TestingDocument.Recipients,
+					Metadata:       TestingDocument.Metadata,
+					ContentURI:     TestingDocument.ContentURI,
+					Checksum:       TestingDocument.Checksum,
+					EncryptionData: TestingDocument.EncryptionData,
+				},
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
 
-	require.Empty(t, documents)
-}
+			for _, document := range tt.docs {
+				require.NoError(t, k.SaveDocument(ctx, document))
+			}
 
-func TestKeeper_DocumentsIterator_ExistingList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+			di := k.DocumentsIterator(ctx)
+			defer di.Close()
 
-	doc1 := TestingDocument
-	doc2 := types.Document{
-		UUID:           "uuid-2",
-		Sender:         TestingDocument.Sender,
-		Recipients:     TestingDocument.Recipients,
-		Metadata:       TestingDocument.Metadata,
-		ContentURI:     TestingDocument.ContentURI,
-		Checksum:       TestingDocument.Checksum,
-		EncryptionData: TestingDocument.EncryptionData,
+			documents := []types.Document{}
+			for ; di.Valid(); di.Next() {
+				d := types.Document{}
+				k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
+
+				documents = append(documents, d)
+			}
+
+			require.Len(t, documents, len(tt.docs))
+			for _, document := range tt.docs {
+				require.Contains(t, documents, document)
+			}
+
+		})
 	}
-	require.NoError(t, k.SaveDocument(ctx, doc1))
-	require.NoError(t, k.SaveDocument(ctx, doc2))
-
-	di := k.DocumentsIterator(ctx)
-	defer di.Close()
-
-	docs := []types.Document{}
-	for ; di.Valid(); di.Next() {
-		d := types.Document{}
-		k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
-
-		docs = append(docs, d)
-	}
-
-	require.Len(t, docs, 2)
-	require.Contains(t, docs, doc1)
-	require.Contains(t, docs, doc2)
 }
 
 // ----------------------------------
