@@ -95,23 +95,46 @@ func TestKeeper_AddSupportedMetadataScheme(t *testing.T) {
 	}
 }
 
-func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "non-existent"))
-}
-
-func TestKeeper_IsMetadataSchemeTypeSupported_ExistingList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
-	k.AddSupportedMetadataScheme(ctx, existingSchema)
-
-	require.True(t, k.IsMetadataSchemeTypeSupported(ctx, "schema"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "schema2"))
-	require.False(t, k.IsMetadataSchemeTypeSupported(ctx, "any-schema"))
+func TestKeeper_IsMetadataSchemeTypeSupported(t *testing.T) {
+	tests := []struct {
+		name                       string
+		preexistantMetadataSchemes []types.MetadataSchema
+		metadataSchemaPresent      bool
+		metadataSchema             string
+	}{
+		{
+			"schema not supported, no preexistant schemas",
+			nil,
+			false,
+			"aSchema",
+		},
+		{
+			"schema not supported, preexistant schemas",
+			[]types.MetadataSchema{
+				{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"},
+			},
+			false,
+			"aSchema",
+		},
+		{
+			"schema supported, preexistant schemas",
+			[]types.MetadataSchema{
+				{Type: "aSchema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"},
+			},
+			true,
+			"aSchema",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
+			for _, pms := range tt.preexistantMetadataSchemes {
+				k.AddSupportedMetadataScheme(ctx, pms)
+			}
+			supported := k.IsMetadataSchemeTypeSupported(ctx, tt.metadataSchema)
+			require.Equal(t, tt.metadataSchemaPresent, supported)
+		})
+	}
 }
 
 func TestKeeper_SupportedMetadataSchemesIterator_EmptyList(t *testing.T) {
