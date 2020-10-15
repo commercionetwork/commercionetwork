@@ -228,40 +228,60 @@ func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
 	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
 }
 
-func TestKeeper_TrustedSchemaProposersIterator_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	result := []sdk.AccAddress{}
-	tspi := k.TrustedSchemaProposersIterator(ctx)
-	defer tspi.Close()
-
-	for ; tspi.Valid(); tspi.Next() {
-		ms := sdk.AccAddress{}
-		k.cdc.MustUnmarshalBinaryBare(tspi.Value(), &ms)
-		result = append(result, ms)
+func TestKeeper_TrustedSchemaProposersIterator(t *testing.T) {
+	tests := []struct {
+		name            string
+		senderAddresses []sdk.AccAddress
+	}{
+		{
+			"Empty list",
+			[]sdk.AccAddress{},
+		},
+		{
+			"1 element in list",
+			[]sdk.AccAddress{
+				TestingSender,
+			},
+		},
+		{
+			"2 element in list",
+			[]sdk.AccAddress{
+				TestingSender,
+				TestingSender2,
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	require.Empty(t, result)
-}
+			for _, sa := range tt.senderAddresses {
+				store := ctx.KVStore(k.StoreKey)
 
-func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+				proposersBz := cdc.MustMarshalBinaryBare(sa)
+				store.Set(metadataSchemaProposerKey(sa), proposersBz)
+			}
 
-	proposersBz := cdc.MustMarshalBinaryBare(TestingSender)
-	store.Set(metadataSchemaProposerKey(TestingSender), proposersBz)
+			result := []sdk.AccAddress{}
+			tspi := k.TrustedSchemaProposersIterator(ctx)
+			defer tspi.Close()
+			for ; tspi.Valid(); tspi.Next() {
+				ms := sdk.AccAddress{}
+				k.cdc.MustUnmarshalBinaryBare(tspi.Value(), &ms)
+				result = append(result, ms)
+			}
 
-	result := []sdk.AccAddress{}
-	tspi := k.TrustedSchemaProposersIterator(ctx)
-	defer tspi.Close()
+			if tt.senderAddresses == nil {
+				require.Empty(t, result)
+			}
 
-	for ; tspi.Valid(); tspi.Next() {
-		ms := sdk.AccAddress{}
-		k.cdc.MustUnmarshalBinaryBare(tspi.Value(), &ms)
-		result = append(result, ms)
+			require.Equal(t, len(tt.senderAddresses), len(result))
+
+			for _, sa := range tt.senderAddresses {
+				require.Contains(t, result, sa)
+			}
+		})
 	}
-
-	require.Equal(t, []sdk.AccAddress{TestingSender}, result)
 }
 
 // ----------------------------------
