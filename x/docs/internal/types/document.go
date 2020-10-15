@@ -84,7 +84,7 @@ func (doc Document) lengthLimits() error {
 	if doc.EncryptionData != nil {
 		for i, key := range doc.EncryptionData.Keys {
 			if len(key.Value) > 512 {
-				return e(fmt.Sprintf("encryption key #1", i), 512)
+				return e(fmt.Sprintf("encryption key #%d", i), 512)
 			}
 		}
 	}
