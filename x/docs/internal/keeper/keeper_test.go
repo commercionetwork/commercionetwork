@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+
 	"github.com/commercionetwork/commercionetwork/x/docs/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -199,103 +200,84 @@ func TestKeeper_TrustedSchemaProposersIterator_ExistingList(t *testing.T) {
 // --- Documents
 // ----------------------------------
 
-func TestKeeper_ShareDocument_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
+func TestKeeper_ShareDocument(t *testing.T) {
+	var recipient sdk.AccAddress
+	recipient, _ = sdk.AccAddressFromBech32("cosmos1h2z8u9294gtqmxlrnlyfueqysng3krh009fum7")
 
-	err := k.SaveDocument(ctx, TestingDocument)
-	require.NoError(t, err)
-
-	docsBz := store.Get(getDocumentStoreKey(TestingDocument.UUID))
-	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
-	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
-
-	var stored types.Document
-	cdc.MustUnmarshalBinaryBare(docsBz, &stored)
-	require.Equal(t, stored, TestingDocument)
-
-	var sentDocs, receivedDocs string
-	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
-	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
-
-	require.Equal(t, TestingDocument.UUID, sentDocs)
-
-	require.Equal(t, TestingDocument.UUID, receivedDocs)
-}
-
-func TestKeeper_ShareDocument_ExistingDocument(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	store := ctx.KVStore(k.StoreKey)
-
-	store.Set(getDocumentStoreKey(TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument))
-
-	err := k.SaveDocument(ctx, TestingDocument)
-	require.NotNil(t, err)
-}
-
-func TestKeeper_ShareDocument_ExistingDocument_DifferentRecipient(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-
-	store := ctx.KVStore(k.StoreKey)
-	store.Set(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
-	store.Set(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
-
-	newRecipient, _ := sdk.AccAddressFromBech32("cosmos1h2z8u9294gtqmxlrnlyfueqysng3krh009fum7")
-	newDocument := types.Document{
-		UUID:       TestingDocument.UUID,
-		ContentURI: TestingDocument.ContentURI,
-		Metadata:   TestingDocument.Metadata,
-		Checksum:   TestingDocument.Checksum,
-		Sender:     TestingDocument.Sender,
-		Recipients: ctypes.Addresses{newRecipient},
+	tests := []struct {
+		name           string
+		storedDocument types.Document
+		document       types.Document
+		newRecipient   sdk.AccAddress
+	}{
+		{
+			"No document in store",
+			types.Document{},
+			TestingDocument,
+			nil,
+		},
+		{
+			"One document in store, different recipient",
+			TestingDocument,
+			TestingDocument,
+			recipient,
+		},
+		{
+			"One document in store, different uuid",
+			TestingDocument,
+			types.Document{
+				UUID:       TestingDocument.UUID + "new",
+				ContentURI: TestingDocument.ContentURI,
+				Metadata:   TestingDocument.Metadata,
+				Checksum:   TestingDocument.Checksum,
+				Sender:     TestingDocument.Sender,
+				Recipients: TestingDocument.Recipients,
+			},
+			nil,
+		},
 	}
-	err := k.SaveDocument(ctx, newDocument)
-	require.Nil(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cdc, ctx, k := SetupTestInput()
 
-	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
-	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
-	newReceivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(newRecipient, TestingDocument.UUID))
+			store := ctx.KVStore(k.StoreKey)
 
-	var sentDocs, receivedDocs, newReceivedDocs string
-	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
-	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
-	cdc.MustUnmarshalBinaryBare(newReceivedDocsBz, &newReceivedDocs)
+			if !tt.storedDocument.Equals(types.Document{}) {
+				store.Set(getSentDocumentsIdsUUIDStoreKey(TestingSender, tt.storedDocument.UUID), cdc.MustMarshalBinaryBare(tt.storedDocument.UUID))
+				store.Set(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, tt.storedDocument.UUID), cdc.MustMarshalBinaryBare(tt.storedDocument.UUID))
+			}
 
-	require.Equal(t, TestingDocument.UUID, sentDocs)
+			if tt.newRecipient != nil {
+				tt.document.Recipients = ctypes.Addresses{tt.newRecipient}
+			}
 
-	require.Equal(t, TestingDocument.UUID, receivedDocs)
+			err := k.SaveDocument(ctx, tt.document)
+			require.NoError(t, err)
 
-	require.Equal(t, newDocument.UUID, newReceivedDocs)
-}
+			docsBz := store.Get(getDocumentStoreKey(tt.document.UUID))
+			sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, tt.document.UUID))
+			receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, tt.document.UUID))
 
-func TestKeeper_ShareDocument_ExistingDocument_DifferentUuid(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
+			if tt.newRecipient != nil {
+				newReceivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(tt.newRecipient, tt.document.UUID))
 
-	store := ctx.KVStore(k.StoreKey)
-	store.Set(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
-	store.Set(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID), cdc.MustMarshalBinaryBare(TestingDocument.UUID))
+				var newReceivedDocs string
+				cdc.MustUnmarshalBinaryBare(newReceivedDocsBz, &newReceivedDocs)
+				require.Equal(t, tt.document.UUID, newReceivedDocs)
+			}
 
-	newDocument := types.Document{
-		UUID:       TestingDocument.UUID + "new",
-		ContentURI: TestingDocument.ContentURI,
-		Metadata:   TestingDocument.Metadata,
-		Checksum:   TestingDocument.Checksum,
-		Recipients: TestingDocument.Recipients,
-		Sender:     TestingDocument.Sender,
+			var stored types.Document
+			cdc.MustUnmarshalBinaryBare(docsBz, &stored)
+			require.Equal(t, stored, tt.document)
+
+			var sentDocs, receivedDocs string
+			cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
+			cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
+			require.Equal(t, tt.document.UUID, sentDocs)
+			require.Equal(t, tt.document.UUID, receivedDocs)
+
+		})
 	}
-	err := k.SaveDocument(ctx, newDocument)
-	require.Nil(t, err)
-
-	sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, TestingDocument.UUID))
-	receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, TestingDocument.UUID))
-
-	var sentDocs, receivedDocs string
-	cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
-	cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
-
-	require.Equal(t, TestingDocument.UUID, sentDocs)
-
-	require.Equal(t, TestingDocument.UUID, receivedDocs)
 }
 
 func TestKeeper_GetDocumentById_NonExisting(t *testing.T) {
