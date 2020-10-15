@@ -55,6 +55,53 @@ func validateUUID(uuidStr string) bool {
 	return err == nil
 }
 
+func (doc Document) lengthLimits() error {
+	e := func(fieldName string, maxLen int) error {
+		return fmt.Errorf("%s content can't be longer than %d bytes", fieldName, maxLen)
+	}
+
+	if len(doc.ContentURI) > 512 {
+		return e("content_uri", 512)
+	}
+
+	if len(doc.Metadata.ContentURI) > 512 {
+		return e("metadata.content_uri", 512)
+	}
+
+	if s := doc.Metadata.Schema; s != nil {
+		if len(s.URI) > 512 {
+			return e("metadata.schema.uri", 512)
+		}
+		if len(s.Version) > 32 {
+			return e("metadata.schema.version", 32)
+		}
+	}
+
+	if len(doc.Metadata.SchemaType) > 512 {
+		return e("metadata.schema_type", 512)
+	}
+
+	if doc.EncryptionData != nil {
+		for i, key := range doc.EncryptionData.Keys {
+			if len(key.Value) > 512 {
+				return e(fmt.Sprintf("encryption key #%d", i), 512)
+			}
+		}
+	}
+
+	if ds := doc.DoSign; ds != nil {
+		if len(ds.VcrID) > 64 {
+			return e("do_sign.vcr_id", 64)
+		}
+
+		if len(ds.CertificateProfile) > 32 {
+			return e("do_sign.certificate_profile", 32)
+		}
+	}
+
+	return nil
+}
+
 // Validate certify whether doc is a valid Document instance or not.
 // It returns an error with the validation failure motivation when the validation process
 // fails.
@@ -165,6 +212,12 @@ func (doc Document) Validate() error {
 				err.Error(),
 			)
 		}
+	}
+
+	if err := doc.lengthLimits(); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
+			err.Error(),
+		)
 	}
 
 	return nil

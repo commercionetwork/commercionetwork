@@ -103,6 +103,28 @@ func (didDocument DidDocument) Equals(other DidDocument) bool {
 		didDocument.Service.Equals(other.Service)
 }
 
+func (didDocument DidDocument) lengthLimits() error {
+	e := func(fieldName string, maxLen int) error {
+		return fmt.Errorf("%s content can't be longer than %d bytes", fieldName, maxLen)
+	}
+
+	for i, s := range didDocument.Service {
+		if len(s.ID) > 64 {
+			return e(fmt.Sprintf("service.%d.id", i), 64)
+		}
+
+		if len(s.Type) > 64 {
+			return e(fmt.Sprintf("service.%d.type", i), 64)
+		}
+
+		if len(s.ServiceEndpoint) > 512 {
+			return e(fmt.Sprintf("service.%d.serviceEndpoint", i), 512)
+		}
+	}
+
+	return nil
+}
+
 // Validate checks the data present inside this Did Document and returns an
 // error if something is wrong
 func (didDocument DidDocument) Validate() error {
@@ -150,6 +172,10 @@ func (didDocument DidDocument) Validate() error {
 
 	if err := didDocument.VerifyProof(); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, err.Error())
+	}
+
+	if err := didDocument.lengthLimits(); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 
 	return nil

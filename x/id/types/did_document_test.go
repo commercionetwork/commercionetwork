@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -741,6 +742,73 @@ SQIDAQAB
 			} else {
 				require.NoError(t, err)
 			}
+		})
+	}
+}
+
+func TestDidDocument_lengthLimits(t *testing.T) {
+	bigString := strings.Repeat("c", 513)
+
+	tests := []struct {
+		name    string
+		doc     DidDocument
+		wantErr bool
+	}{
+		{
+			"service id longer than 64 byte",
+			DidDocument{
+				Service: []Service{
+					{
+						ID: bigString,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"service type longer than 64 byte",
+			DidDocument{
+				Service: []Service{
+					{
+						Type: bigString,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"service endpoint longer than 512 byte",
+			DidDocument{
+				Service: []Service{
+					{
+						ServiceEndpoint: bigString,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"all fine",
+			DidDocument{
+				Service: []Service{
+					{
+						Type:            strings.Repeat("c", 64),
+						ServiceEndpoint: strings.Repeat("c", 512),
+						ID:              strings.Repeat("c", 64),
+					},
+				},
+			},
+			false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr {
+				require.Error(t, tt.doc.lengthLimits())
+				return
+			}
+			require.NoError(t, tt.doc.lengthLimits())
 		})
 	}
 }

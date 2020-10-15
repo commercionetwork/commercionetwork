@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -479,6 +480,131 @@ func TestCreateDoc_DoSign(t *testing.T) {
 			json, err := cdc.MarshalJSON(baseDoc)
 			require.NoError(t, err)
 			require.Equal(t, tt.expectedResult, string(json))
+		})
+	}
+}
+
+func TestDocument_lengthLimits(t *testing.T) {
+	bigString := strings.Repeat("c", 513)
+
+	tests := []struct {
+		name    string
+		doc     Document
+		wantErr bool
+	}{
+		{
+			"content_uri longer than 512 bytes",
+			Document{
+				ContentURI: bigString,
+			},
+			true,
+		},
+		{
+			"metadata.content_uri longer than 512 bytes",
+			Document{
+				Metadata: DocumentMetadata{
+					ContentURI: bigString,
+				},
+			},
+			true,
+		},
+		{
+			"metadata.schema.uri longer than 512 bytes",
+			Document{
+				Metadata: DocumentMetadata{
+					Schema: &DocumentMetadataSchema{
+						URI: bigString,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"metadata.schema.version longer than 32 bytes",
+			Document{
+				Metadata: DocumentMetadata{
+					Schema: &DocumentMetadataSchema{
+						Version: bigString,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"metadata.schema_type longer than 512 bytes",
+			Document{
+				Metadata: DocumentMetadata{
+					SchemaType: bigString,
+				},
+			},
+			true,
+		},
+		{
+			"encryption_data keys value longer than 512 bytes",
+			Document{
+				EncryptionData: &DocumentEncryptionData{
+					Keys: []DocumentEncryptionKey{
+						{
+							Value: bigString,
+						},
+					},
+				},
+			},
+			true,
+		},
+		{
+			"do_sign.vcr_id value longer than 64 bytes",
+			Document{
+				DoSign: &DocumentDoSign{
+					VcrID: bigString,
+				},
+			},
+			true,
+		},
+		{
+			"do_sign.certificateProfile value longer than 32 bytes",
+			Document{
+				DoSign: &DocumentDoSign{
+					CertificateProfile: bigString,
+				},
+			},
+			true,
+		},
+		{
+			"all fine",
+			Document{
+				ContentURI: strings.Repeat("c", 512),
+				Metadata: DocumentMetadata{
+					ContentURI: strings.Repeat("c", 512),
+					Schema: &DocumentMetadataSchema{
+						URI:     strings.Repeat("c", 512),
+						Version: strings.Repeat("c", 32),
+					},
+					SchemaType: strings.Repeat("c", 512),
+				},
+				EncryptionData: &DocumentEncryptionData{
+					Keys: []DocumentEncryptionKey{
+						{
+							Value: strings.Repeat("c", 512),
+						},
+					},
+				},
+				DoSign: &DocumentDoSign{
+					VcrID:              strings.Repeat("c", 64),
+					CertificateProfile: strings.Repeat("c", 32),
+				},
+			},
+			false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr {
+				require.Error(t, tt.doc.lengthLimits())
+				return
+			}
+			require.NoError(t, tt.doc.lengthLimits())
 		})
 	}
 }
