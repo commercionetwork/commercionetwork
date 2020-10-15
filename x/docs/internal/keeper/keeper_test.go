@@ -14,40 +14,85 @@ import (
 // --- Metadata schemes
 // ----------------------------------
 
-func TestKeeper_AddSupportedMetadataScheme_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	schema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"}
-	k.AddSupportedMetadataScheme(ctx, schema)
-
-	ret := k.IsMetadataSchemeTypeSupported(ctx, schema.Type)
-	require.True(t, ret)
-}
-
-func TestKeeper_AddSupportedMetadataScheme_ExistingList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-	//Setup the store
-
-	existingSchema := types.MetadataSchema{Type: "schema", SchemaURI: "https://example.com/newSchema", Version: "1.0.0"}
-	k.AddSupportedMetadataScheme(ctx, existingSchema)
-
-	newSchema := types.MetadataSchema{Type: "schema2", SchemaURI: "https://example.com/schema2", Version: "2.0.0"}
-	k.AddSupportedMetadataScheme(ctx, newSchema)
-
-	stored := []types.MetadataSchema{}
-	msi := k.SupportedMetadataSchemesIterator(ctx)
-	defer msi.Close()
-
-	for ; msi.Valid(); msi.Next() {
-		m := types.MetadataSchema{}
-		k.cdc.MustUnmarshalBinaryBare(msi.Value(), &m)
-
-		stored = append(stored, m)
+func TestKeeper_AddSupportedMetadataScheme(t *testing.T) {
+	tests := []struct {
+		name           string
+		existingSchema []types.MetadataSchema
+		newSchemas     []types.MetadataSchema
+		correctType    bool
+	}{
+		{
+			"no new schemas",
+			[]types.MetadataSchema{
+				{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"},
+			},
+			nil,
+			true,
+		},
+		{
+			"1 new schema",
+			[]types.MetadataSchema{
+				{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"},
+			},
+			[]types.MetadataSchema{
+				{Type: "schema2", SchemaURI: "https://example.com/schema2", Version: "2.0.0"},
+			},
+			true,
+		},
+		{
+			"2 new schemas",
+			[]types.MetadataSchema{
+				{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"},
+			},
+			[]types.MetadataSchema{
+				{Type: "schema2", SchemaURI: "https://example.com/schema2", Version: "2.0.0"},
+				{Type: "schema3", SchemaURI: "https://example.com/schema3", Version: "3.0.0"},
+			},
+			true,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
 
-	require.Equal(t, 2, len(stored))
-	require.Contains(t, stored, existingSchema)
-	require.Contains(t, stored, newSchema)
+			for _, pms := range tt.existingSchema {
+				store := ctx.KVStore(k.StoreKey)
+				msk := metadataSchemaKey(pms)
+				store.Set(msk, k.cdc.MustMarshalBinaryBare(pms))
+			}
+
+			if tt.newSchemas == nil {
+				for _, pms := range tt.existingSchema {
+					supported := k.IsMetadataSchemeTypeSupported(ctx, pms.Type)
+					require.Equal(t, tt.correctType, supported)
+				}
+				return
+			}
+
+			for _, nms := range tt.newSchemas {
+				k.AddSupportedMetadataScheme(ctx, nms)
+				supported := k.IsMetadataSchemeTypeSupported(ctx, nms.Type)
+				require.Equal(t, true, supported)
+			}
+
+			stored := []types.MetadataSchema{}
+			msi := k.SupportedMetadataSchemesIterator(ctx)
+			defer msi.Close()
+
+			for ; msi.Valid(); msi.Next() {
+				m := types.MetadataSchema{}
+				k.cdc.MustUnmarshalBinaryBare(msi.Value(), &m)
+
+				stored = append(stored, m)
+			}
+
+			require.Equal(t, len(tt.newSchemas)+len(tt.existingSchema), len(stored))
+
+			for _, nms := range tt.newSchemas {
+				require.Contains(t, stored, nms)
+			}
+		})
+	}
 }
 
 func TestKeeper_IsMetadataSchemeTypeSupported_EmptyList(t *testing.T) {
