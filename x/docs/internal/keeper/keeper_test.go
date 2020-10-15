@@ -244,20 +244,40 @@ func TestKeeper_AddTrustedSchemaProposer_ExistingList(t *testing.T) {
 	require.Contains(t, stored, TestingSender2)
 }
 
-func TestKeeper_IsTrustedSchemaProposer_EmptyList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
+func TestKeeper_IsTrustedSchemaProposer(t *testing.T) {
+	tests := []struct {
+		name           string
+		isEmpty        bool
+		senderAddress  sdk.AccAddress
+		senderAddress2 sdk.AccAddress
+	}{
+		{
+			"Empty list",
+			true,
+			TestingSender,
+			TestingSender2,
+		},
+		{
+			"Existing list",
+			false,
+			TestingSender,
+			TestingSender2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput()
 
-	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
-	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
-}
+			if tt.isEmpty {
+				require.False(t, k.IsTrustedSchemaProposer(ctx, tt.senderAddress))
+			} else {
+				k.AddTrustedSchemaProposer(ctx, tt.senderAddress)
+				require.True(t, k.IsTrustedSchemaProposer(ctx, tt.senderAddress))
+			}
 
-func TestKeeper_IsTrustedSchemaProposerExistingList(t *testing.T) {
-	_, ctx, k := SetupTestInput()
-
-	k.AddTrustedSchemaProposer(ctx, TestingSender)
-
-	require.True(t, k.IsTrustedSchemaProposer(ctx, TestingSender))
-	require.False(t, k.IsTrustedSchemaProposer(ctx, TestingSender2))
+			require.False(t, k.IsTrustedSchemaProposer(ctx, tt.senderAddress2))
+		})
+	}
 }
 
 func TestKeeper_TrustedSchemaProposersIterator(t *testing.T) {
