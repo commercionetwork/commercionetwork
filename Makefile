@@ -3,6 +3,8 @@ BINDIR ?= $(GOPATH)/bin
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 
+REPO_ROOT := $(shell git rev-parse --show-toplevel)
+
 export GO111MODULE = on
 
 LEDGER_ENABLED ?= true
@@ -65,7 +67,7 @@ include contrib/devtools/Makefile
 ########################################
 ### Install
 
-install: go.sum
+install: git-hooks go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cnd
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cncli
 
@@ -110,11 +112,14 @@ prepare-release: go.sum build-all
 ########################################
 ### Tools & dependencies
 
+git-hooks:
+	@git config --local core.hooksPath $(REPO_ROOT)/.githooks/
+
 go-mod-cache: go.sum
 	@echo "--> Download go modules to local cache"
 	@go mod download
 
-go.sum: go.mod
+go.sum: git-hooks go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	go mod verify
 
@@ -122,6 +127,8 @@ lint:
 	golangci-lint run
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
+
+.PHONY: git-hooks
 
 ########################################
 ### Testing
