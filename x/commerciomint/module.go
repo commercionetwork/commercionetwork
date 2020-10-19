@@ -3,13 +3,14 @@ package commerciomint
 import (
 	"encoding/json"
 
+	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/gorilla/mux"
+	"github.com/spf13/cobra"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/gorilla/mux"
-	"github.com/spf13/cobra"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -63,15 +64,15 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetQueryCmd(cdc)
 }
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
 // AppModuleSimulation defines the module simulation functions used by the auth module.
 type AppModuleSimulation struct{}
 
 // RegisterStoreDecoder registers a decoder for auth module's types
-func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
+func (AppModuleSimulation) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
 // AppModule implements an application module for the id module.
 type AppModule struct {
@@ -121,7 +122,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // module begin-block
-func (am AppModule) BeginBlock(ctx sdk.Context, rbb abci.RequestBeginBlock) {}
+func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 
 // module end-block
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {

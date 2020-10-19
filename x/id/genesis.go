@@ -1,9 +1,10 @@
 package id
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/commercionetwork/commercionetwork/x/id/keeper"
 	"github.com/commercionetwork/commercionetwork/x/id/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GenesisState - id genesis state

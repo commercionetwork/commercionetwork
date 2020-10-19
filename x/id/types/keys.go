@@ -17,7 +17,6 @@ const (
 	KeyTypeSecp256k12019   = "EcdsaSecp256k1VerificationKey2019"
 	KeyTypeEd25519         = "Ed25519VerificationKey2018"
 
-	DidDepositRequestStorePrefix               = StoreKey + "depositRequest"
 	DidPowerUpRequestStorePrefix               = StoreKey + "powerUpRequest"
 	HandledPowerUpRequestsReferenceStorePrefix = StoreKey + "handledPowerUpRequestsReference"
 
@@ -31,7 +30,6 @@ const (
 
 	QueryResolveDid = "identities"
 
-	QueryResolveDepositRequest     = "depositRequest"
 	QueryResolvePowerUpRequest     = "powerUpRequest"
 	QueryGetApprovedPowerUpRequest = "approvedPowerUpRequest"
 	QueryGetRejectedPowerUpRequest = "rejectedPowerUpRequest"

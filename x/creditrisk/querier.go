@@ -7,7 +7,7 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	types "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
+	"github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 )
 
 func NewQuerier(keeper Keeper) sdk.Querier {

@@ -50,7 +50,7 @@ func (pubKey PubKey) Validate() error {
 
 	regex, _ := regexp.Compile(fmt.Sprintf("^%s#keys-[0-9]+$", pubKey.Controller))
 	if !regex.MatchString(pubKey.ID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid key id, must satisfy %s", regex)))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid key id, must satisfy %s", regex))
 	}
 
 	if err := keyTypeApproved(pubKey.Type); err != nil {
