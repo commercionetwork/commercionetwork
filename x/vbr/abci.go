@@ -5,17 +5,19 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 )
 
 // BeginBlocker retrieves all the active validators, and based on how many are of them, calculate
 // the reward ONLY for the block proposer on every begin block.
-func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k Keeper, stakeKeeper staking.Keeper) {
+func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, stakeKeeper staking.Keeper) {
 
 	// Get the number of active validators
 	activeValidators := stakeKeeper.GetLastValidators(ctx)
 	valNumber := int64(len(activeValidators))
 
-	//Get the block height
+	// Get the block height
 	if ctx.BlockHeight() > 1 {
 		// Get the validator who proposed the block
 		previousProposer := k.GetPreviousProposerConsAddr(ctx)

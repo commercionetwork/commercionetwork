@@ -3,8 +3,12 @@ package simapp
 import (
 	"io"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -94,8 +98,8 @@ type SimApp struct {
 	CrisisKeeper   crisis.Keeper
 	ParamsKeeper   params.Keeper
 
-	GovernmentKeeper government.Keeper
-	PriceFeedKeeper  pricefeed.Keeper
+	GovernmentKeeper governmentKeeper.Keeper
+	PriceFeedKeeper  pricefeedKeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -118,7 +122,7 @@ func NewSimApp(
 
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, pricefeed.StoreKey, government.StoreKey)
+		gov.StoreKey, params.StoreKey, pricefeedTypes.StoreKey, governmentTypes.StoreKey)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	app := &SimApp{
@@ -152,8 +156,8 @@ func NewSimApp(
 	app.SlashingKeeper = slashing.NewKeeper(app.cdc, keys[slashing.StoreKey], &stakingKeeper,
 		slashingSubspace)
 	app.CrisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.SupplyKeeper, auth.FeeCollectorName)
-	app.GovernmentKeeper = government.NewKeeper(app.cdc, keys[government.StoreKey])
-	app.PriceFeedKeeper = pricefeed.NewKeeper(app.cdc, keys[pricefeed.StoreKey], app.GovernmentKeeper)
+	app.GovernmentKeeper = governmentKeeper.NewKeeper(app.cdc, keys[governmentTypes.StoreKey])
+	app.PriceFeedKeeper = pricefeedKeeper.NewKeeper(app.cdc, keys[pricefeedTypes.StoreKey], app.GovernmentKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()

@@ -5,9 +5,10 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
 // NewHandler returns a handler for "bank" type messages.

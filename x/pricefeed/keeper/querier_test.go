@@ -22,7 +22,7 @@ var TestPriceInfo2 = types.Price{
 func TestQuerier_getCurrentPrices(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
-	//setup the keystore with two current prices
+	// setup the keystore with two current prices
 	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.CurrentPricesPrefix+testPrice.AssetName), k.cdc.MustMarshalBinaryBare(testPrice))
 	store.Set([]byte(types.CurrentPricesPrefix+TestPriceInfo2.AssetName), k.cdc.MustMarshalBinaryBare(TestPriceInfo2))
@@ -40,7 +40,7 @@ func TestQuerier_getCurrentPrices(t *testing.T) {
 func TestQuerier_getCurrentPrice(t *testing.T) {
 	cdc, ctx, _, k := SetupTestInput()
 
-	//setup the keystore with two current prices
+	// setup the keystore with two current prices
 	store := ctx.KVStore(k.StoreKey)
 	store.Set([]byte(types.CurrentPricesPrefix+testPrice.AssetName), k.cdc.MustMarshalBinaryBare(testPrice))
 	store.Set([]byte(types.CurrentPricesPrefix+TestPriceInfo2.AssetName), k.cdc.MustMarshalBinaryBare(TestPriceInfo2))

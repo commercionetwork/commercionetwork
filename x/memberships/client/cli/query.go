@@ -5,10 +5,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
+
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
 func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
@@ -37,12 +38,12 @@ func getCmdGetInvites(cdc *codec.Codec) *cobra.Command {
 		Short: "Get all membership invitations",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getInvitesFunc(cmd, args, cdc)
+			return getInvitesFunc(cmd, cdc)
 		},
 	}
 }
 
-func getInvitesFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func getInvitesFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetInvites)
@@ -87,12 +88,12 @@ func getCmdGetTrustedServiceProviders(cdc *codec.Codec) *cobra.Command {
 		Short: "Get all membership invitations for a user",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getTrustedServiceProvidersFunc(cmd, args, cdc)
+			return getTrustedServiceProvidersFunc(cmd, cdc)
 		},
 	}
 }
 
-func getTrustedServiceProvidersFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func getTrustedServiceProvidersFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetTrustedServiceProviders)

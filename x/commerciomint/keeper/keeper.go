@@ -11,8 +11,8 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 )
 
 type Keeper struct {

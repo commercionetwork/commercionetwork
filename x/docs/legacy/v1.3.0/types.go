@@ -3,8 +3,9 @@
 package v1_3_0
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 const (

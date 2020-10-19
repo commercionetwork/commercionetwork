@@ -9,14 +9,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestKeeper_StoreCdp(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
-	//handler := NewHandler(k)
+	// handler := NewHandler(k)
 
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Deposit)
 	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
@@ -104,7 +104,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 		name            string
 		owner           sdk.AccAddress
 		amount          sdk.Coins
-		tokenPrice      pricefeed.Price
+		tokenPrice      pricefeedTypes.Price
 		userFunds       sdk.Coins
 		error           error
 		returnedCredits sdk.Coins
@@ -113,21 +113,21 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			name:       "invalid deposited amount",
 			owner:      testCdp.Owner,
 			amount:     sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 0)),
-			tokenPrice: pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
+			tokenPrice: pricefeedTypes.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
 			error:      fmt.Errorf("invalid position: invalid deposit amount: "),
 		},
 		{
 			name:       "Token price not found",
 			owner:      testCdp.Owner,
 			amount:     testCdp.Deposit,
-			tokenPrice: pricefeed.EmptyPrice(),
+			tokenPrice: pricefeedTypes.EmptyPrice(),
 			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", testCdp.Deposit[0].Denom)),
 		},
 		{
 			name:       "Not enough funds inside user wallet",
 			amount:     testCdp.Deposit,
 			owner:      testCdp.Owner,
-			tokenPrice: pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
+			tokenPrice: pricefeedTypes.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
 			error: sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf(
 				"insufficient account funds; %s < %s",
 				sdk.NewCoins(sdk.NewInt64Coin("stake", 500)),
@@ -138,7 +138,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			name:            "Successful opening",
 			amount:          testCdp.Deposit,
 			owner:           testCdp.Owner,
-			tokenPrice:      pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)),
+			tokenPrice:      pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)),
 			userFunds:       testCdp.Deposit,
 			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin(testCreditsDenom, 10*50)),
 		},
@@ -154,7 +154,7 @@ func TestKeeper_OpenCdp(t *testing.T) {
 			if !test.userFunds.Empty() {
 				_ = bk.SetCoins(ctx, test.owner, test.userFunds)
 			}
-			if !test.tokenPrice.Equals(pricefeed.EmptyPrice()) {
+			if !test.tokenPrice.Equals(pricefeedTypes.EmptyPrice()) {
 				pfk.SetCurrentPrice(ctx, test.tokenPrice)
 			}
 
@@ -267,8 +267,8 @@ func TestKeeper_AutoLiquidateCdp(t *testing.T) {
 	if !testCdp.Deposit.IsZero() {
 		_ = bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
 	}
-	tokenPrice := pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000))
-	if !tokenPrice.Equals(pricefeed.EmptyPrice()) {
+	tokenPrice := pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000))
+	if !tokenPrice.Equals(pricefeedTypes.EmptyPrice()) {
 		pfk.SetCurrentPrice(ctx, tokenPrice)
 	}
 	require.NoError(t, k.NewPosition(ctx, testCdp.Owner, testCdp.Deposit))
@@ -279,7 +279,7 @@ func TestKeeper_AutoLiquidateCdp(t *testing.T) {
 	require.False(t, yes)
 
 	// price dropped, position should  be liquidated
-	tokenPrice = pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(1), sdk.NewInt(1000))
+	tokenPrice = pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(1), sdk.NewInt(1000))
 	pfk.SetCurrentPrice(ctx, tokenPrice)
 	yes, err = k.ShouldLiquidatePosition(ctx, cdps[0])
 	require.NoError(t, err)

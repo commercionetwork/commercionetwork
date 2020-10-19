@@ -3,8 +3,10 @@ package docs
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/docs/internal/keeper"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/docs/keeper"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -12,15 +14,15 @@ import (
 func Test_exportDocuments(t *testing.T) {
 	tests := []struct {
 		name      string
-		documents []Document
+		documents []types.Document
 	}{
 		{
 			"no documents",
-			[]Document{},
+			[]types.Document{},
 		},
 		{
 			"some documents",
-			[]Document{{UUID: "first"}, {UUID: "second"}},
+			[]types.Document{{UUID: "first"}, {UUID: "second"}},
 		},
 	}
 	for _, tt := range tests {
@@ -43,15 +45,15 @@ func Test_exportDocuments(t *testing.T) {
 func Test_exportMetadataSchemes(t *testing.T) {
 	tests := []struct {
 		name    string
-		schemes []MetadataSchema
+		schemes []types.MetadataSchema
 	}{
 		{
 			"no metadata schemes",
-			[]MetadataSchema{},
+			[]types.MetadataSchema{},
 		},
 		{
 			"some metadata schemase",
-			[]MetadataSchema{{Type: "first"}, {Type: "second"}},
+			[]types.MetadataSchema{{Type: "first"}, {Type: "second"}},
 		},
 	}
 	for _, tt := range tests {
@@ -78,18 +80,18 @@ func Test_exportReceipts(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		receipts       []DocumentReceipt
-		associatedDocs []Document
+		receipts       []types.DocumentReceipt
+		associatedDocs []types.Document
 	}{
 		{
 			"no receipts",
-			[]DocumentReceipt{},
-			[]Document{},
+			[]types.DocumentReceipt{},
+			[]types.Document{},
 		},
 		{
 			"some receipts",
-			[]DocumentReceipt{{DocumentUUID: doc1.UUID, UUID: "doc1"}, {DocumentUUID: doc2.UUID, UUID: "doc2"}},
-			[]Document{doc1, doc2},
+			[]types.DocumentReceipt{{DocumentUUID: doc1.UUID, UUID: "doc1"}, {DocumentUUID: doc2.UUID, UUID: "doc2"}},
+			[]types.Document{doc1, doc2},
 		},
 	}
 	for _, tt := range tests {

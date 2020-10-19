@@ -3,16 +3,17 @@ package cli
 import (
 	"encoding/json"
 
-	bank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	bank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 )
 
-// AddGenesisTspCmd returns add-genesis-tsp cobra Command.
+// AddGenesisLockedAccountCmd returns add-genesis-locked-account cobra Command.
 func AddGenesisLockedAccountCmd(ctx *server.Context, cdc *codec.Codec,
 	defaultNodeHome, defaultClientHome string) *cobra.Command {
 	cmd := &cobra.Command{

@@ -2,14 +2,17 @@ package docs
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/docs/keeper"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
 )
 
 // GenesisState - docs genesis state
 type GenesisState struct {
-	Documents                      []Document        `json:"documents"`
-	Receipts                       []DocumentReceipt `json:"receipts"`
-	SupportedMetadataSchemes       []MetadataSchema  `json:"supported_metadata_schemes"`
-	TrustedMetadataSchemaProposers []sdk.AccAddress  `json:"trusted_metadata_schema_proposers"`
+	Documents                      []types.Document        `json:"documents"`
+	Receipts                       []types.DocumentReceipt `json:"receipts"`
+	SupportedMetadataSchemes       []types.MetadataSchema  `json:"supported_metadata_schemes"`
+	TrustedMetadataSchemaProposers []sdk.AccAddress        `json:"trusted_metadata_schema_proposers"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -18,7 +21,7 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets docs information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	for _, doc := range data.Documents {
 		if err := keeper.SaveDocument(ctx, doc); err != nil {
 			panic(err)
@@ -41,7 +44,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
 		Documents:                      exportDocuments(ctx, keeper),
 		Receipts:                       exportReceipts(ctx, keeper),

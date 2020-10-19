@@ -15,8 +15,11 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, supply.Keeper, Keeper) {
@@ -27,8 +30,8 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		pricefeed.StoreKey,
-		government.StoreKey,
+		pricefeedTypes.StoreKey,
+		governmentTypes.StoreKey,
 		creditrisk.StoreKey,
 		types.StoreKey,
 	)
@@ -54,8 +57,8 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 
-	govkeeper := government.NewKeeper(cdc, keys[government.StoreKey])
-	pfk := pricefeed.NewKeeper(cdc, keys[pricefeed.StoreKey], govkeeper)
+	govkeeper := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
+	pfk := pricefeed.NewKeeper(cdc, keys[pricefeedTypes.StoreKey], govkeeper)
 
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk, govkeeper)
 
@@ -81,8 +84,8 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
-	pricefeed.RegisterCodec(cdc)
-	government.RegisterCodec(cdc)
+	pricefeedTypes.RegisterCodec(cdc)
+	governmentTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	types.RegisterCodec(cdc)

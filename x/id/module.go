@@ -9,12 +9,13 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/id/client/cli"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
+
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	"github.com/commercionetwork/commercionetwork/x/id/client/rest"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -73,7 +74,7 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetQueryCmd(cdc)
 }
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
 // AppModuleSimulation defines the module simulation functions used by the auth module.
 type AppModuleSimulation struct{}
@@ -81,7 +82,7 @@ type AppModuleSimulation struct{}
 // RegisterStoreDecoder registers a decoder for auth module's types
 func (AppModuleSimulation) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
 
-//___________________________
+// ___________________________
 // app module
 type AppModule struct {
 	AppModuleBasic

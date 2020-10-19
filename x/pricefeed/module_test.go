@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 )
 
 func TestAppModuleBasic(t *testing.T) {
@@ -31,7 +31,7 @@ func TestAppModuleBasic(t *testing.T) {
 }
 
 func TestNewAppModule(t *testing.T) {
-	am := pricefeed.NewAppModule(pricefeed.Keeper{}, government.Keeper{})
+	am := pricefeed.NewAppModule(pricefeedKeeper.Keeper{}, government.Keeper{})
 
 	require.Equal(t, "pricefeed", am.QuerierRoute())
 	require.Equal(t, "pricefeed", am.Route())
@@ -48,14 +48,14 @@ func TestNewAppModule(t *testing.T) {
 }
 
 func TestAppModule_InitGenesis(t *testing.T) {
-	_, ctx, govk, k := keeper.SetupTestInput()
+	_, ctx, govk, k := pricefeedKeeper.SetupTestInput()
 	am := pricefeed.NewAppModule(k, govk)
 	require.Equal(t, 0, len(am.InitGenesis(ctx, json.RawMessage(`{}`))))
 	require.Panics(t, func() { am.InitGenesis(sdk.Context{}, json.RawMessage(`{}`)) })
 }
 
 func TestAppModule_ExportGenesis(t *testing.T) {
-	_, ctx, govk, k := keeper.SetupTestInput()
+	_, ctx, govk, k := pricefeedKeeper.SetupTestInput()
 	require.Equal(t, `{"oracles":null,"assets":null,"raw_prices":[],"denom_blacklist":null}`,
 		string(pricefeed.NewAppModule(k, govk).ExportGenesis(ctx)))
 }

@@ -45,7 +45,7 @@ const (
 	flagChainID     = "chain-id"
 )
 
-func MigrationsListCmd(_ *server.Context, cdc *codec.Codec) *cobra.Command {
+func MigrationsListCmd(_ *server.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrations-list",
 		Short: "Lists all the available migrations",

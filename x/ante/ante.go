@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	commerciominttypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/commercionetwork/commercionetwork/x/government"
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -18,7 +18,7 @@ import (
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
-var fixedRequiredFee sdk.Dec = sdk.NewDecWithPrec(1, 2)
+var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
