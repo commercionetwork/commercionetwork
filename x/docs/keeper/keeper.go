@@ -13,6 +13,13 @@ import (
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
+const (
+	eventNewMetadataScheme = "new_metadata_scheme"
+	eventNewTSP            = "new_tsp"
+	eventSavedDocument     = "new_saved_document"
+	eventSavedReceipt      = "new_saved_receipt"
+)
+
 // ----------------------------------
 // --- Keeper definition
 // ----------------------------------
@@ -45,6 +52,13 @@ func (keeper Keeper) AddSupportedMetadataScheme(ctx sdk.Context, metadataSchema 
 	msk := metadataSchemaKey(metadataSchema)
 
 	store.Set(msk, keeper.cdc.MustMarshalBinaryBare(metadataSchema))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventNewMetadataScheme,
+		sdk.NewAttribute("version", metadataSchema.Version),
+		sdk.NewAttribute("type", metadataSchema.Type),
+		sdk.NewAttribute("uri", metadataSchema.SchemaURI),
+	))
 }
 
 // IsMetadataSchemeTypeSupported returns true iff the given metadata scheme type is supported
@@ -75,6 +89,11 @@ func (keeper Keeper) AddTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccA
 	store := ctx.KVStore(keeper.StoreKey)
 
 	store.Set(metadataSchemaProposerKey(proposer), keeper.cdc.MustMarshalBinaryBare(proposer))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventNewTSP,
+		sdk.NewAttribute("address", proposer.String()),
+	))
 }
 
 // IsTrustedSchemaProposer returns true iff the given proposer is a trusted one
@@ -118,6 +137,25 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 
 		store.Set(receivedDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(document.UUID))
 	}
+
+	attributes := make([]sdk.Attribute, 0, len(document.Recipients)+2)
+
+	attributes = append(attributes,
+		sdk.NewAttribute("sender", document.Sender.String()),
+		sdk.NewAttribute("doc_id", document.UUID),
+	)
+
+	for i, r := range document.Recipients {
+		attributes = append(attributes, sdk.NewAttribute(
+			fmt.Sprintf("receiver_%d", i),
+			r.String(),
+		))
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSavedDocument,
+		attributes...,
+	))
 
 	return nil
 }
@@ -172,6 +210,15 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	// Store the receipt
 	store.Set(getReceiptStoreKey(receipt.UUID), marshaledRecepit)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSavedReceipt,
+		sdk.NewAttribute("receipt_id", receipt.UUID),
+		sdk.NewAttribute("document_id", receipt.DocumentUUID),
+		sdk.NewAttribute("sender", receipt.Sender.String()),
+		sdk.NewAttribute("recipient", receipt.Recipient.String()),
+	))
+
 	return nil
 }
 
