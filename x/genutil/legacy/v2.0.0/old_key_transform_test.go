@@ -38,7 +38,7 @@ func Test_getPk(t *testing.T) {
 			if tt.mustFail {
 				require.Panics(t, func() { getPk(tt.pubKey) })
 			} else {
-				//get pk
+				// get pk
 				pk := getPk(tt.pubKey)
 
 				// transform it to bech32

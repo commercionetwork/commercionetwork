@@ -9,7 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 func TestValidatePositions(t *testing.T) {
@@ -47,18 +48,18 @@ func TestValidatePositions(t *testing.T) {
 func TestPositionsForExistingPrice(t *testing.T) {
 	tests := []struct {
 		name      string
-		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, sdk.Context) error
+		setupFunc func(Keeper, bank.Keeper, pricefeedKeeper.Keeper, sdk.Context) error
 		wantFail  bool
 	}{
 		{
 			"Each Position opened refers to an existing price",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
 
-				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
+				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
 				return k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 			},
@@ -66,20 +67,20 @@ func TestPositionsForExistingPrice(t *testing.T) {
 		},
 		{
 			"Position opened with corresponding price set to zero values (no value, no expiry)",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
 
-				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
+				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
 				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
 
-				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(0), sdk.NewInt(0)))
+				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(0), sdk.NewInt(0)))
 
 				return nil
 			},
@@ -87,14 +88,14 @@ func TestPositionsForExistingPrice(t *testing.T) {
 		},
 		{
 			"Position opened with corresponding price nonexistant",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
 				ctx = ctx.WithBlockHeight(2)
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
 
-				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
+				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
 				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
@@ -111,7 +112,7 @@ func TestPositionsForExistingPrice(t *testing.T) {
 		},
 		{
 			"No cdps and no prices",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
 				return nil
 			},
 			false,
@@ -135,18 +136,18 @@ func TestPositionsForExistingPrice(t *testing.T) {
 func TestLiquidityPoolAmountEqualsPositions(t *testing.T) {
 	tests := []struct {
 		name      string
-		setupFunc func(Keeper, bank.Keeper, pricefeed.Keeper, sdk.Context) error
+		setupFunc func(Keeper, bank.Keeper, pricefeedKeeper.Keeper, sdk.Context) error
 		wantFail  bool
 	}{
 		{
 			"One cdp opened equals the value of the liquidity pool",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
 
-				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
+				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
 				return k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 			},
@@ -154,13 +155,13 @@ func TestLiquidityPoolAmountEqualsPositions(t *testing.T) {
 		},
 		{
 			"One cdp opened and the liquidity pool is zero",
-			func(k Keeper, bk bank.Keeper, pfk pricefeed.Keeper, ctx sdk.Context) error {
+			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
 				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {
 					return err
 				}
 
-				pfk.SetCurrentPrice(ctx, pricefeed.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
+				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
 				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
 				if err != nil {

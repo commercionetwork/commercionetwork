@@ -29,7 +29,7 @@ func (status RequestStatus) Validate() error {
 	case StatusRejected, StatusApproved, StatusCanceled:
 		return nil
 	default:
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, (fmt.Sprintf("Invalid status type: %s", status.Type)))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid status type: %s", status.Type))
 
 	}
 }

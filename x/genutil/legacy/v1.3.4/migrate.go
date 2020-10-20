@@ -21,7 +21,7 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 		var genTbr v133tbr.GenesisState
 		v133Codec.MustUnmarshalJSON(appState[v133tbr.ModuleName], &genTbr)
 
-		delete(appState, v133tbr.ModuleName) //delete old key in case the name changed
+		delete(appState, v133tbr.ModuleName) // delete old key in case the name changed
 		appState[v134vbr.ModuleName] = v134Codec.MustMarshalJSON(
 			v134vbr.Migrate(genTbr),
 		)

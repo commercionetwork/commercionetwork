@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/vbr/keeper"
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 
-	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,6 +15,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
 )
 
 var (
@@ -25,25 +28,25 @@ type AppModuleBasic struct{}
 
 var _ module.AppModuleBasic = AppModuleBasic{}
 
-//module name
+// module name
 func (AppModuleBasic) Name() string {
-	return ModuleName
+	return types.ModuleName
 }
 
-//module codecs
+// module codecs
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
-	RegisterCodec(cdc)
+	types.RegisterCodec(cdc)
 }
 
-//genesis default state
+// genesis default state
 func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 
-//genesis validation
+// genesis validation
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	var data GenesisState
-	err := ModuleCdc.UnmarshalJSON(bz, &data)
+	err := types.ModuleCdc.UnmarshalJSON(bz, &data)
 	if err != nil {
 		return err
 	}
@@ -59,30 +62,30 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc, ModuleName, QuerierRoute)
+	return cli.GetQueryCmd(cdc, types.ModuleName, types.QuerierRoute)
 }
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
 // AppModuleSimulation defines the module simulation functions used by the auth module.
 type AppModuleSimulation struct{}
 
 // RegisterStoreDecoder registers a decoder for auth module's types
-func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {}
+func (AppModuleSimulation) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
-//___________________________
+// ___________________________
 // app module
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper        Keeper
+	keeper        keeper.Keeper
 	stakingKeeper staking.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(k Keeper, sk staking.Keeper) AppModule {
+func NewAppModule(k keeper.Keeper, sk staking.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
@@ -92,32 +95,32 @@ func NewAppModule(k Keeper, sk staking.Keeper) AppModule {
 }
 
 func (AppModule) Name() string {
-	return ModuleName
+	return types.ModuleName
 }
 
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 func (AppModule) Route() string {
-	return ModuleName
+	return types.ModuleName
 }
 
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return keeper.NewHandler(am.keeper)
 }
 
 func (AppModule) QuerierRoute() string {
-	return QuerierRoute
+	return types.QuerierRoute
 }
 
 // module querier
 func (am AppModule) NewQuerierHandler() sdk.Querier {
-	return NewQuerier(am.keeper)
+	return keeper.NewQuerier(am.keeper)
 }
 
 // module init-genesis
 func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
-	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
@@ -125,7 +128,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.Va
 // module export genesis
 func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
-	return ModuleCdc.MustMarshalJSON(gs)
+	return types.ModuleCdc.MustMarshalJSON(gs)
 }
 
 // module begin-block

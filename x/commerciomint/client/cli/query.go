@@ -38,12 +38,12 @@ func getCdp(cdc *codec.Codec) *cobra.Command {
 		Short: "Get a CDP opened by a user at a given block height",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCdpFunc(cmd, args, cdc)
+			return getCdpFunc(args, cdc)
 		},
 	}
 }
 
-func getCdpFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func getCdpFunc(args []string, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 	sender, err := sdk.AccAddressFromBech32(args[0])
 	if err != nil {
@@ -73,12 +73,12 @@ func getCdps(cdc *codec.Codec) *cobra.Command {
 		Short: "Get all opened CDPs for an user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCdpsFunc(cmd, args, cdc)
+			return getCdpsFunc(args, cdc)
 		},
 	}
 }
 
-func getCdpsFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func getCdpsFunc(args []string, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 	sender, err := sdk.AccAddressFromBech32(args[0])
 	if err != nil {

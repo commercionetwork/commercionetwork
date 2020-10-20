@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.Deposit)
@@ -30,7 +30,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 
 	// Set credits denom and push a price to pricefeed
 	k.SetCreditsDenom(ctx, "uccc")
-	pfk.SetCurrentPrice(ctx, pricefeed.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
+	pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
 
 	actual, err := handler(ctx, testMsgOpenCdp)
 	require.NoError(t, err)

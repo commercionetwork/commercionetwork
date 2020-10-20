@@ -9,26 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func TestKeeper_getDepositRequestStoreKey(t *testing.T) {
-	tests := []struct {
-		name    string
-		proof   string
-		wantB64 string
-	}{
-		{
-			"get deposit request key from a proof",
-			"proof",
-			"aWRkZXBvc2l0UmVxdWVzdHByb29m",
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.wantB64, base64.StdEncoding.EncodeToString(getDepositRequestStoreKey(tt.proof)))
-		})
-	}
-}
-
 func TestKeeper_getDidPowerUpRequestStoreKey(t *testing.T) {
 	tests := []struct {
 		name    string

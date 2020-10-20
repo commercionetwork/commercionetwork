@@ -11,11 +11,13 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
-//This function create an environment to test modules
+// This function create an environment to test modules
 func SetupTestInput() (*codec.Codec, sdk.Context, government.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
@@ -49,7 +51,7 @@ func SetupTestInput() (*codec.Codec, sdk.Context, government.Keeper, Keeper) {
 
 func testCodec() *codec.Codec {
 	var cdc = codec.New()
-	government.RegisterCodec(cdc)
+	governmentTypes.RegisterCodec(cdc)
 
 	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
 	auth.RegisterCodec(cdc)

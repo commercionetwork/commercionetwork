@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
@@ -22,7 +22,7 @@ func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 			return handleMsgBlacklistDenom(ctx, keeper, govKeeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, (errMsg))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 		}
 	}
 }
@@ -41,7 +41,7 @@ func handleMsgSetPrice(ctx sdk.Context, keeper Keeper, msg types.MsgSetPrice) (*
 
 	// Set the raw price
 	if err := keeper.AddRawPrice(ctx, msg.Oracle, msg.Price); err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, (err.Error()))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 	return &sdk.Result{}, nil
 }

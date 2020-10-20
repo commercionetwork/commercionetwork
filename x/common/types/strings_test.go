@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 func TestStrings_AppendIfMissing(t *testing.T) {

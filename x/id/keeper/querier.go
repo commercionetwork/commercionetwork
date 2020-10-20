@@ -7,9 +7,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/commercionetwork/commercionetwork/x/id/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
 
 // NewQuerier is the module level router for state queries
@@ -67,7 +68,7 @@ type ResolveIdentityResponse struct {
 
 // -------------------
 // --- Pairwise Did
-//--------------------
+// --------------------
 func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper) (res []byte, err error) {
 
 	// Get the request

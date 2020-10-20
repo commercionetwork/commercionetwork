@@ -26,7 +26,7 @@ type AppModuleBasic struct{}
 
 func (AppModuleBasic) Name() string                                { return types.ModuleName }
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec)              { RegisterCodec(cdc) }
-func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command    { return nil }
+func (AppModuleBasic) GetTxCmd(_ *codec.Codec) *cobra.Command      { return nil }
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command { return cli.GetQueryCmd(cdc) }
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 	return ModuleCdc.MustMarshalJSON(types.GenesisState{Pool: sdk.NewCoins()})
@@ -58,11 +58,11 @@ func NewAppModule(keeper Keeper) AppModule {
 	}
 }
 
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {}
-func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry)            {}
-func (AppModule) Route() string                                             { return types.RouterKey }
-func (AppModule) QuerierRoute() string                                      { return types.QuerierRoute }
-func (am AppModule) NewQuerierHandler() sdk.Querier                         { return NewQuerier(am.keeper) }
+func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry)         {}
+func (AppModule) Route() string                                         { return types.RouterKey }
+func (AppModule) QuerierRoute() string                                  { return types.QuerierRoute }
+func (am AppModule) NewQuerierHandler() sdk.Querier                     { return NewQuerier(am.keeper) }
 
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}

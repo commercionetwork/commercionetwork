@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/commercionetwork/commercionetwork/x/government/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -35,12 +35,12 @@ func getCmdGetGovernmentAddr(cdc *codec.Codec) *cobra.Command {
 		Short: "Get the government address",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdGetGovernmentAddrFunc(cmd, args, cdc)
+			return getCmdGetGovernmentAddrFunc(cmd, cdc)
 		},
 	}
 }
 
-func getCmdGetGovernmentAddrFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func getCmdGetGovernmentAddrFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGovernmentAddress)
@@ -60,12 +60,12 @@ func getCmdGetTumblerAddr(cdc *codec.Codec) *cobra.Command {
 		Short: "Get the Tumbler address",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdGetTumblerAddrFunc(cmd, args, cdc)
+			return getCmdGetTumblerAddrFunc(cmd, cdc)
 		},
 	}
 }
 
-func getCmdGetTumblerAddrFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func getCmdGetTumblerAddrFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTumblerAddress)

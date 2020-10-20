@@ -5,9 +5,10 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/commercionetwork/commercionetwork/x/government"
-	"github.com/commercionetwork/commercionetwork/x/id/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
 
 // NewHandler returns a handler for type messages and is essentially a sub-router that directs

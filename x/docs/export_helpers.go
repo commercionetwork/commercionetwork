@@ -3,12 +3,15 @@ package docs
 import (
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/docs/keeper"
+	"github.com/commercionetwork/commercionetwork/x/docs/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // exportDocuments exports all the Documents in the store to a slice.
-func exportDocuments(ctx sdk.Context, keeper Keeper) []Document {
-	documents := []Document{}
+func exportDocuments(ctx sdk.Context, keeper keeper.Keeper) []types.Document {
+	documents := []types.Document{}
 	di := keeper.DocumentsIterator(ctx)
 	defer di.Close()
 	for ; di.Valid(); di.Next() {
@@ -29,8 +32,8 @@ func exportDocuments(ctx sdk.Context, keeper Keeper) []Document {
 }
 
 // exportReceipts exports all the Receipts in the store to a slice.
-func exportReceipts(ctx sdk.Context, keeper Keeper) []DocumentReceipt {
-	receipts := []DocumentReceipt{}
+func exportReceipts(ctx sdk.Context, keeper keeper.Keeper) []types.DocumentReceipt {
+	receipts := []types.DocumentReceipt{}
 	sentDri, _ := keeper.ReceiptsIterators(ctx)
 	defer sentDri.Close()
 
@@ -54,8 +57,8 @@ func exportReceipts(ctx sdk.Context, keeper Keeper) []DocumentReceipt {
 }
 
 // exportMetadataSchema exports all the MetadataSchema in the store to a slice.
-func exportMetadataSchemes(ctx sdk.Context, keeper Keeper) []MetadataSchema {
-	sms := []MetadataSchema{}
+func exportMetadataSchemes(ctx sdk.Context, keeper keeper.Keeper) []types.MetadataSchema {
+	sms := []types.MetadataSchema{}
 	smsi := keeper.SupportedMetadataSchemesIterator(ctx)
 	defer smsi.Close()
 
@@ -67,7 +70,7 @@ func exportMetadataSchemes(ctx sdk.Context, keeper Keeper) []MetadataSchema {
 }
 
 // exportTrustedSchemaProviders exports all the TrustedSchemaProviders in the store to a slice.
-func exportTrustedSchemaProviders(ctx sdk.Context, keeper Keeper) []sdk.AccAddress {
+func exportTrustedSchemaProviders(ctx sdk.Context, keeper keeper.Keeper) []sdk.AccAddress {
 	tsps := []sdk.AccAddress{}
 	tspi := keeper.TrustedSchemaProposersIterator(ctx)
 	defer tspi.Close()

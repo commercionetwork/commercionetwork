@@ -3,10 +3,11 @@ package keeper
 import (
 	"testing"
 
-	cmtypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	cmtypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/commercionetwork/commercionetwork/x/encapsulated/bank/internal/types"
 )
 
 var TestAddress, _ = sdk.AccAddressFromBech32("cosmos1mlrqrdrxs50z972h32x9w8x3lta7hkms0hxraq")

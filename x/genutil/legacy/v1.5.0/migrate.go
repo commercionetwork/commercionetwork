@@ -3,9 +3,11 @@ package v1_5_0
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	v134memberships "github.com/commercionetwork/commercionetwork/x/memberships/legacy/v1.3.4"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -24,7 +26,7 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 		var genMemberships v134memberships.GenesisState
 		v134Codec.MustUnmarshalJSON(appState[v134memberships.ModuleName], &genMemberships)
 
-		delete(appState, v134memberships.ModuleName) //delete old key in case the name changed
+		delete(appState, v134memberships.ModuleName) // delete old key in case the name changed
 		appState[v134memberships.ModuleName] = v150Codec.MustMarshalJSON(
 			migrateMemberships(genMemberships),
 		)
@@ -41,12 +43,12 @@ func migrateMemberships(oldState v134memberships.GenesisState) memberships.Genes
 		Memberships:             oldState.Memberships,
 	}
 
-	mutateStatus := func(status bool) memberships.InviteStatus {
+	mutateStatus := func(status bool) membershipsTypes.InviteStatus {
 		if status {
-			return memberships.InviteStatusRewarded
+			return membershipsTypes.InviteStatusRewarded
 		}
 
-		return memberships.InviteStatusPending
+		return membershipsTypes.InviteStatusPending
 	}
 
 	for _, invite := range oldState.Invites {
@@ -55,7 +57,7 @@ func migrateMemberships(oldState v134memberships.GenesisState) memberships.Genes
 			panic(err)
 		}
 
-		ng.Invites = append(ng.Invites, memberships.Invite{
+		ng.Invites = append(ng.Invites, membershipsTypes.Invite{
 			Sender:           invite.Sender,
 			User:             invite.User,
 			Status:           mutateStatus(invite.Rewarded),
@@ -66,7 +68,7 @@ func migrateMemberships(oldState v134memberships.GenesisState) memberships.Genes
 	return ng
 }
 
-func lookupMembership(memberships memberships.Memberships, owner sdk.AccAddress) (string, error) {
+func lookupMembership(memberships membershipsTypes.Memberships, owner sdk.AccAddress) (string, error) {
 	for _, m := range memberships {
 		if m.Owner.Equals(owner) {
 			return m.MembershipType, nil

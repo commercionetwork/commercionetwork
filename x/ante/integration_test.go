@@ -3,9 +3,10 @@ package ante_test
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commercionetwork/commercionetwork/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/commercionetwork/commercionetwork/simapp"
 )
 
 // returns context and app with params set on account keeper

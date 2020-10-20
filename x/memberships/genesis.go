@@ -4,20 +4,22 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/internal/types"
+	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
+	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // GenesisState - accreditations genesis state
 type GenesisState struct {
-	LiquidityPoolAmount     sdk.Coins        `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
-	Invites                 Invites          `json:"invites"`                   // List of invites
-	TrustedServiceProviders ctypes.Addresses `json:"trusted_service_providers"` // List of trusted service providers
-	StableCreditsDenom      string           `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
-	Memberships             Memberships      `json:"memberships"`               // List of all the existing memberships
+	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
+	Invites                 types.Invites     `json:"invites"`                   // List of invites
+	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"` // List of trusted service providers
+	StableCreditsDenom      string            `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
+	Memberships             types.Memberships `json:"memberships"`               // List of all the existing memberships
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -28,10 +30,10 @@ func DefaultGenesisState(stableCreditsDenom string) GenesisState {
 }
 
 // InitGenesis sets docs information for genesis.
-func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keeper, data GenesisState) {
 	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
 	if moduleAcc == nil {
-		panic(fmt.Sprintf("%s module account has not been set", ModuleName))
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	if moduleAcc.GetCoins().IsZero() {
@@ -64,7 +66,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, supplyKeeper supply.Keeper, dat
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	// create the Memberships set
 	var ms types.Memberships
 	i := keeper.MembershipIterator(ctx)

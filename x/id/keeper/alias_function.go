@@ -1,9 +1,10 @@
 package keeper
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/id/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply/exported"
+
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
 
 // GetIdentitiesModuleAccount returns the id ModuleAccount

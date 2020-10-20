@@ -13,8 +13,16 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint"
-	commerciomintkeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
-	commerciominttypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+
+	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
+
+	docsKeeper "github.com/commercionetwork/commercionetwork/x/docs/keeper"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	membershipsKeeper "github.com/commercionetwork/commercionetwork/x/memberships/keeper"
+	vbrKeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
+
+	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/creditrisk"
 	creditriskTypes "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
@@ -23,9 +31,14 @@ import (
 	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
 	customstaking "github.com/commercionetwork/commercionetwork/x/encapsulated/staking"
 	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/id"
-	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
-	idtypes "github.com/commercionetwork/commercionetwork/x/id/types"
+	idKeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
+	idTypes "github.com/commercionetwork/commercionetwork/x/id/types"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
+	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
@@ -91,7 +104,6 @@ var (
 		auth.AppModuleBasic{},
 		staking.AppModuleBasic{},
 		distr.AppModuleBasic{},
-		//gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
@@ -118,20 +130,19 @@ var (
 		distr.ModuleName:          nil,
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-		//gov.ModuleName:            {supply.Burner},
 
 		// Custom modules
-		commerciominttypes.ModuleName: {supply.Minter, supply.Burner},
-		memberships.ModuleName:        {supply.Burner},
-		idtypes.ModuleName:            nil,
-		vbr.ModuleName:                {supply.Minter},
+		commerciomintTypes.ModuleName: {supply.Minter, supply.Burner},
+		membershipsTypes.ModuleName:   {supply.Burner},
+		idTypes.ModuleName:            nil,
+		vbrTypes.ModuleName:           {supply.Minter},
 		creditriskTypes.ModuleName:    nil,
 	}
 
 	allowedModuleReceivers = types.Strings{
-		commerciominttypes.ModuleName,
-		memberships.ModuleName,
-		vbr.ModuleName,
+		commerciomintTypes.ModuleName,
+		membershipsTypes.ModuleName,
+		vbrTypes.ModuleName,
 		creditriskTypes.ModuleName,
 	}
 )
@@ -174,21 +185,20 @@ type CommercioNetworkApp struct {
 	stakingKeeper  staking.Keeper
 	slashingKeeper slashing.Keeper
 	distrKeeper    distr.Keeper
-	//govKeeper      gov.Keeper
-	crisisKeeper crisis.Keeper
-	paramsKeeper params.Keeper
+	crisisKeeper   crisis.Keeper
+	paramsKeeper   params.Keeper
 
 	// Encapsulated modules
 	customBankKeeper custombank.Keeper
 
 	// Custom modules
-	docsKeeper       docs.Keeper
-	governmentKeeper government.Keeper
-	idKeeper         idkeeper.Keeper
-	membershipKeeper memberships.Keeper
-	mintKeeper       commerciomintkeeper.Keeper
-	priceFeedKeeper  pricefeed.Keeper
-	vbrKeeper        vbr.Keeper
+	docsKeeper       docsKeeper.Keeper
+	governmentKeeper governmentKeeper.Keeper
+	idKeeper         idKeeper.Keeper
+	membershipKeeper membershipsKeeper.Keeper
+	mintKeeper       commerciomintKeeper.Keeper
+	priceFeedKeeper  pricefeedKeeper.Keeper
+	vbrKeeper        vbrKeeper.Keeper
 	creditriskKeeper creditrisk.Keeper
 
 	mm *module.Manager
@@ -210,20 +220,19 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		// Basics
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, distr.StoreKey, slashing.StoreKey,
-		//gov.StoreKey,
 		params.StoreKey,
 
 		// Encapsulated modules
 		custombank.StoreKey,
 
 		// Custom modules
-		docs.StoreKey,
-		government.StoreKey,
-		idtypes.StoreKey,
-		memberships.StoreKey,
-		commerciominttypes.StoreKey,
-		pricefeed.StoreKey,
-		vbr.StoreKey,
+		docsTypes.StoreKey,
+		governmentTypes.StoreKey,
+		idTypes.StoreKey,
+		membershipsTypes.StoreKey,
+		commerciomintTypes.StoreKey,
+		pricefeedTypes.StoreKey,
+		vbrTypes.StoreKey,
 		creditriskTypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -244,7 +253,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	stakingSubspace := app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	distrSubspace := app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	slashingSubspace := app.paramsKeeper.Subspace(slashing.DefaultParamspace)
-	//govSubspace := app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	crisisSubspace := app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 
 	// add keepers
@@ -266,13 +274,13 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.customBankKeeper = custombank.NewKeeper(app.cdc, app.keys[custombank.StoreKey], app.bankKeeper)
 
 	// Custom modules
-	app.governmentKeeper = government.NewKeeper(app.cdc, app.keys[government.StoreKey])
-	app.membershipKeeper = memberships.NewKeeper(app.cdc, app.keys[memberships.StoreKey], app.supplyKeeper, app.governmentKeeper, app.accountKeeper)
-	app.docsKeeper = docs.NewKeeper(app.keys[docs.StoreKey], app.governmentKeeper, app.cdc)
-	app.idKeeper = idkeeper.NewKeeper(app.cdc, app.keys[idtypes.StoreKey], app.accountKeeper, app.supplyKeeper)
-	app.priceFeedKeeper = pricefeed.NewKeeper(app.cdc, app.keys[pricefeed.StoreKey], app.governmentKeeper)
-	app.vbrKeeper = vbr.NewKeeper(app.cdc, app.keys[vbr.StoreKey], app.distrKeeper, app.supplyKeeper)
-	app.mintKeeper = commerciomintkeeper.NewKeeper(app.cdc, app.keys[commerciominttypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
+	app.governmentKeeper = governmentKeeper.NewKeeper(app.cdc, app.keys[governmentTypes.StoreKey])
+	app.membershipKeeper = membershipsKeeper.NewKeeper(app.cdc, app.keys[membershipsTypes.StoreKey], app.supplyKeeper, app.governmentKeeper, app.accountKeeper)
+	app.docsKeeper = docsKeeper.NewKeeper(app.keys[docsTypes.StoreKey], app.governmentKeeper, app.cdc)
+	app.idKeeper = idKeeper.NewKeeper(app.cdc, app.keys[idTypes.StoreKey], app.accountKeeper, app.supplyKeeper)
+	app.priceFeedKeeper = pricefeedKeeper.NewKeeper(app.cdc, app.keys[pricefeedTypes.StoreKey], app.governmentKeeper)
+	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper)
+	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciomintTypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
 	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
 
 	// register the proposal types
@@ -297,7 +305,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		//gov.NewAppModule(app.govKeeper, app.accountKeeper, app.supplyKeeper),
 		crisis.NewAppModule(&app.crisisKeeper),
 
 		// Encapsulating modules
@@ -321,18 +328,17 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		distr.ModuleName, slashing.ModuleName,
 
 		// Custom modules
-		vbr.ModuleName,
+		vbrTypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
 		crisis.ModuleName,
-		//gov.ModuleName,
 		staking.ModuleName,
 
 		// Custom modules
-		pricefeed.ModuleName,
-		memberships.ModuleName,
-		commerciominttypes.ModuleName,
+		pricefeedTypes.ModuleName,
+		membershipsTypes.ModuleName,
+		commerciomintTypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -340,17 +346,17 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.mm.SetOrderInitGenesis(
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		slashing.ModuleName, supply.ModuleName,
-		//gov.ModuleName,
+		crisis.ModuleName, genutil.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
 
 		// Custom modules
-		government.ModuleName,
-		docs.ModuleName,
-		idtypes.ModuleName,
-		memberships.ModuleName,
-		commerciominttypes.ModuleName,
-		pricefeed.ModuleName,
-		vbr.ModuleName,
+		governmentTypes.ModuleName,
+		docsTypes.ModuleName,
+		idTypes.ModuleName,
+		membershipsTypes.ModuleName,
+		commerciomintTypes.ModuleName,
+		pricefeedTypes.ModuleName,
+		vbrTypes.ModuleName,
 		creditriskTypes.ModuleName,
 	)
 

@@ -23,10 +23,10 @@ func (msg MsgBlockAccountSend) Type() string { return MsgTypeBlockAccountSend }
 // ValidateBasic Implements Msg.
 func (msg MsgBlockAccountSend) ValidateBasic() error {
 	if msg.Address.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Address.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Address.String())
 	}
 	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
 	}
 
 	return nil
@@ -60,10 +60,10 @@ func (msg MsgUnlockAccountSend) Type() string { return MsgTypeUnlockAccountSend 
 // ValidateBasic Implements Msg.
 func (msg MsgUnlockAccountSend) ValidateBasic() error {
 	if msg.Address.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Address.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Address.String())
 	}
 	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, (msg.Signer.String()))
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
 	}
 
 	return nil

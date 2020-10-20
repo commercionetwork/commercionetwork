@@ -10,7 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
+	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
+	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
@@ -284,39 +288,39 @@ func initGenFiles(
 	// cnd set-genesis-government-address
 	// cnd set-genesis-tumbler-address
 	var governmentState government.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[government.ModuleName], &authGenState)
+	cdc.MustUnmarshalJSON(appGenState[governmentTypes.ModuleName], &authGenState)
 	governmentState.GovernmentAddress = genAccounts[0].GetAddress()
 	governmentState.TumblerAddress = genAccounts[0].GetAddress()
-	appGenState[government.ModuleName] = cdc.MustMarshalJSON(governmentState)
+	appGenState[governmentTypes.ModuleName] = cdc.MustMarshalJSON(governmentState)
 
 	// set-genesis-vbr-pool-amount 1000000000ucommercio
 	var vbrState vbr.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[vbr.ModuleName], &vbrState)
+	cdc.MustUnmarshalJSON(appGenState[vbrTypes.ModuleName], &vbrState)
 	tokens := sdk.TokensFromConsensusPower(1000)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
-	appGenState[vbr.ModuleName] = cdc.MustMarshalJSON(vbrState)
+	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(vbrState)
 
 	// cnd set-genesis-price ucommercio 1 100000000
 	var priceState pricefeed.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[pricefeed.ModuleName], &priceState)
-	price := pricefeed.Price{AssetName: app.DefaultBondDenom, Value: sdk.NewDec(1), Expiry: sdk.NewInt(100000000)}
-	rawPrice := pricefeed.OraclePrice{Oracle: genAccounts[0].GetAddress(), Price: price, Created: sdk.ZeroInt()}
+	cdc.MustUnmarshalJSON(appGenState[pricefeedTypes.ModuleName], &priceState)
+	price := pricefeedTypes.Price{AssetName: app.DefaultBondDenom, Value: sdk.NewDec(1), Expiry: sdk.NewInt(100000000)}
+	rawPrice := pricefeedTypes.OraclePrice{Oracle: genAccounts[0].GetAddress(), Price: price, Created: sdk.ZeroInt()}
 	priceState.RawPrices, _ = priceState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
 	priceState.Assets, _ = priceState.Assets.AppendIfMissing(price.AssetName)
 	priceState.Oracles, _ = priceState.Oracles.AppendIfMissing(genAccounts[0].GetAddress())
 	genesisStateBz := cdc.MustMarshalJSON(priceState)
-	appGenState[pricefeed.ModuleName] = genesisStateBz
+	appGenState[pricefeedTypes.ModuleName] = genesisStateBz
 
 	// cnd add-genesis-tsp
 	var memberState memberships.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[memberships.ModuleName], &memberState)
+	cdc.MustUnmarshalJSON(appGenState[membershipsTypes.ModuleName], &memberState)
 	memberState.TrustedServiceProviders, _ = memberState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
 	// cnd add-genesis-membership black
-	membership := memberships.NewMembership("black", genAccounts[0].GetAddress())
+	membership := membershipsTypes.NewMembership("black", genAccounts[0].GetAddress())
 	memberState.Memberships, _ = memberState.Memberships.AppendIfMissing(membership)
 
 	genesisStateBz = cdc.MustMarshalJSON(memberState)
-	appGenState[memberships.ModuleName] = genesisStateBz
+	appGenState[membershipsTypes.ModuleName] = genesisStateBz
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	if err != nil {

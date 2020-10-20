@@ -106,7 +106,7 @@ func TestProof_Validate(t *testing.T) {
 				Type:    validProof.Type,
 				Created: time.Time{},
 			},
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, ("Invalid proof creation time")),
+			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid proof creation time"),
 		},
 		{
 			"invalid proof purpose",
