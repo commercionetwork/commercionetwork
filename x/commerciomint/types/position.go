@@ -9,7 +9,7 @@ import (
 )
 
 // denom used by the minted tokens
-const creditsDenom = "uccc"
+const CreditsDenom = "uccc"
 
 // Position represents a exchange trade position that is open from a user in order to convert
 // any currently priced token into Commercio Cash Credits.
@@ -80,7 +80,7 @@ func ValidateCredits(credits sdk.Coin) bool {
 
 func ValidateDeposit(deposit sdk.Coins) bool {
 	for _, coin := range deposit {
-		if coin.Denom != creditsDenom {
+		if coin.Denom != CreditsDenom {
 			return false
 		}
 	}

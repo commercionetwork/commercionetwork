@@ -7,7 +7,7 @@ const (
 	QuerierRoute = ModuleName
 
 	CdpStorePrefix       = ":cdp:"
-	CreditsDenomStoreKey = "creditsDenom"
+	CreditsDenomStoreKey = "CreditsDenom"
 	CollateralRateKey    = StoreKey + ":collateralRate"
 
 	QueryGetCdp         = "cdp"

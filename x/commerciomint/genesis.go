@@ -14,16 +14,14 @@ import (
 type GenesisState struct {
 	Positions           []types.Position `json:"positions"`
 	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
-	CreditsDenom        string           `json:"credits_denom"`
 	CollateralRate      sdk.Int          `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
-func DefaultGenesisState(creditsDenom string) GenesisState {
+func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Positions:           []types.Position{},
 		LiquidityPoolAmount: sdk.Coins{},
-		CreditsDenom:        creditsDenom,
 		CollateralRate:      sdk.NewInt(2),
 	}
 }
@@ -49,10 +47,6 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 	for _, position := range data.Positions {
 		keeper.SetPosition(ctx, position)
 	}
-
-	// Set the stable credits denom
-	keeper.SetCreditsDenom(ctx, data.CreditsDenom)
-	keeper.SetCollateralRate(ctx, data.CollateralRate)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -60,8 +54,7 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
 		Positions:           keeper.GetAllPositions(ctx),
 		LiquidityPoolAmount: keeper.GetLiquidityPoolAmount(ctx),
-		CreditsDenom:        keeper.GetCreditsDenom(ctx),
-		CollateralRate:      keeper.GetCollateralRate(ctx),
+		CollateralRate:      keeper.GetConversionRate(ctx),
 	}
 }
 

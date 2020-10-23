@@ -1,13 +1,15 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
@@ -39,35 +41,21 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, p
 }
 
 // --------------
-// --- Credits
-// --------------
-
-func (k Keeper) SetCreditsDenom(ctx sdk.Context, den string) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.CreditsDenomStoreKey), []byte(den))
-}
-
-func (k Keeper) GetCreditsDenom(ctx sdk.Context) string {
-	store := ctx.KVStore(k.storeKey)
-	return string(store.Get([]byte(types.CreditsDenomStoreKey)))
-}
-
-// --------------
 // --- Positions
 // --------------
 
 func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) {
 	store := ctx.KVStore(k.storeKey)
-	key := makePositionKey(position.Owner, position.CreatedAt)
+	key := makePositionKey(position.Owner, position.ID)
 	if bs := store.Get(key); bs != nil {
 		panic(fmt.Errorf("cannot overwrite position at key %s", key))
 	}
 	store.Set(key, k.cdc.MustMarshalBinaryBare(position))
 }
 
-func (k Keeper) GetPosition(ctx sdk.Context, owner sdk.AccAddress, createdAt int64) (types.Position, bool) {
+func (k Keeper) GetPosition(ctx sdk.Context, owner sdk.AccAddress, id string) (types.Position, bool) {
 	position := types.Position{}
-	key := makePositionKey(owner, createdAt)
+	key := makePositionKey(owner, id)
 	store := ctx.KVStore(k.storeKey)
 	bs := store.Get(key)
 	if bs == nil {
@@ -78,7 +66,7 @@ func (k Keeper) GetPosition(ctx sdk.Context, owner sdk.AccAddress, createdAt int
 }
 
 func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []types.Position {
-	positions := []types.Position{}
+	var positions []types.Position
 	i := k.newPositionsByOwnerIterator(ctx, owner)
 	defer i.Close()
 	for ; i.Valid(); i.Next() {
@@ -96,36 +84,45 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 // 1) deposited tokens haven't been priced yet, or are negatives or invalid;
 // 2) signer's funds are not enough
 func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins) error {
-	fiatValue, err := k.calculateFiatValue(ctx, deposit)
-	if err != nil {
-		return err
+	ucomDeposit := deposit.AmountOf("ucommercio")
+	if ucomDeposit.IsZero() {
+		return errors.New("no ucommercio deposited")
 	}
 
-	// Get the credits amount
-	// creditsAmount = (DepositAmount value / credits price) / collateral_rate
-	// Our credit price is always 1, so we simply divide the fiat value by collateral_rate
-	creditsAmount := fiatValue.Quo(k.GetCollateralRate(ctx)).TruncateInt()
+	conversionRate := k.GetConversionRate(ctx)
+	creditsAmount := ucomDeposit.Quo(conversionRate)
 
 	// Create credits token
-	credits := sdk.NewCoin(k.GetCreditsDenom(ctx), creditsAmount)
+	credits := sdk.NewCoin(types.CreditsDenom, creditsAmount)
+
+	id := uuid.NewV4()
+
 	// Create the CDP and validate it
-	position := types.NewPosition(depositor, deposit, credits, ctx.BlockHeight())
+	position := types.NewPosition(
+		depositor,
+		deposit,
+		credits,
+		id.String(),
+		time.Now(),
+		conversionRate,
+	)
 	if err := position.Validate(); err != nil {
-		return errors.Wrap(err, "invalid position")
+		return fmt.Errorf("could not validate position message, %w", err)
+	}
+
+	// Send the deposit from the user to the commerciomint account
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, deposit); err != nil {
+		return fmt.Errorf("could not move collateral amount to module account, %w", err)
 	}
 
 	// Mint the tokens and send them to the user
 	creditsCoins := sdk.NewCoins(credits)
 	if err := k.supplyKeeper.MintCoins(ctx, types.ModuleName, creditsCoins); err != nil {
-		return errors.Wrap(err, "couldn't mint credits")
-	}
-	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, creditsCoins); err != nil {
-		return err
+		return fmt.Errorf("could not mint coins, %w", err)
 	}
 
-	// Send the deposit from the user to the commerciomint account
-	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, deposit); err != nil {
-		return err
+	if err := k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, creditsCoins); err != nil {
+		return fmt.Errorf("could not send minted coins to account, %w", err)
 	}
 
 	// Create position
@@ -135,7 +132,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 }
 
 func (k Keeper) GetAllPositions(ctx sdk.Context) []types.Position {
-	positions := []types.Position{}
+	var positions []types.Position
 	iterator := k.newPositionsIterator(ctx)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -152,10 +149,11 @@ func (k Keeper) GetAllPositions(ctx sdk.Context) []types.Position {
 // Errors occurs if:k.GetCdpsByOwner(ctx, testCdpOwner)
 // - cdp doesnt exist
 // - subtracting or adding fund to account don't end well
-func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) error {
-	pos, found := k.GetPosition(ctx, user, timestamp)
+// TODO: this thing should burn tokens, too.
+func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, id string) error {
+	pos, found := k.GetPosition(ctx, user, id)
 	if !found {
-		msg := fmt.Sprintf("position for user with address %s and timestamp %d does not exist", user, timestamp)
+		msg := fmt.Sprintf("position for user with address %s and id %s does not exist", user, id)
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
@@ -179,16 +177,16 @@ func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) 
 	return nil
 }
 
-// GetCollateralRate retrieve the cdp collateral rate.
-func (k Keeper) GetCollateralRate(ctx sdk.Context) sdk.Int {
+// GetConversionRate retrieve the conversion rate.
+func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Int {
 	store := ctx.KVStore(k.storeKey)
 	var rate sdk.Int
 	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.CollateralRateKey)), &rate)
 	return rate
 }
 
-// SetCollateralRate store the cdp collateral rate.
-func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Int) error {
+// SetConversionRate store the conversion rate.
+func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Int) error {
 	if err := types.ValidateConversionRate(rate); err != nil {
 		return err
 	}
@@ -228,13 +226,13 @@ func (k Keeper) liquidate(ctx sdk.Context, pos types.Position) error {
 	return nil
 }
 
-func makePositionKey(address sdk.AccAddress, height int64) []byte {
-	return []byte(fmt.Sprintf("%s%s:%d", types.CdpStorePrefix, address.String(), height))
+func makePositionKey(address sdk.AccAddress, id string) []byte {
+	return []byte(fmt.Sprintf("%s:%s:%s", types.CdpStorePrefix, id, address.String()))
 }
 
 func (k Keeper) deletePosition(ctx sdk.Context, pos types.Position) {
 	store := ctx.KVStore(k.storeKey)
-	key := makePositionKey(pos.Owner, pos.CreatedAt)
+	key := makePositionKey(pos.Owner, pos.ID)
 	if bs := store.Get(key); bs == nil {
 		panic(fmt.Sprintf("no pos stored at key %s", key))
 	}

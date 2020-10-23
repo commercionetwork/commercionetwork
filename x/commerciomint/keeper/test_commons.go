@@ -72,7 +72,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	// Set the credits denom
 	mintK.SetCreditsDenom(ctx, testCreditsDenom)
 	// Set cdp collateral rate
-	mintK.SetCollateralRate(ctx, sdk.NewDec(2))
+	mintK.SetConversionRate(ctx, sdk.NewDec(2))
 
 	return ctx, bk, pfk, govkeeper, sk, mintK
 }
