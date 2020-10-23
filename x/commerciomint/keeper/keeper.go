@@ -182,7 +182,7 @@ func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) 
 // GetCollateralRate retrieve the cdp collateral rate.
 func (k Keeper) GetCollateralRate(ctx sdk.Context) sdk.Int {
 	store := ctx.KVStore(k.storeKey)
-	var rate sdk.Dec
+	var rate sdk.Int
 	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.CollateralRateKey)), &rate)
 	return rate
 }
