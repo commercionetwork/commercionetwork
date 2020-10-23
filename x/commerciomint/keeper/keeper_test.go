@@ -260,34 +260,6 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 	}
 }
 
-func TestKeeper_AutoLiquidateCdp(t *testing.T) {
-	ctx, bk, pfk, _, _, k := SetupTestInput()
-	ctx = ctx.WithBlockHeight(10)
-	// Setup
-	if !testCdp.Deposit.IsZero() {
-		_ = bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
-	}
-	tokenPrice := pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000))
-	if !tokenPrice.Equals(pricefeedTypes.EmptyPrice()) {
-		pfk.SetCurrentPrice(ctx, tokenPrice)
-	}
-	require.NoError(t, k.NewPosition(ctx, testCdp.Owner, testCdp.Deposit))
-	cdps := k.GetAllPositionsOwnedBy(ctx, testCdp.Owner)
-	require.Equal(t, 1, len(cdps))
-	yes, err := k.ShouldLiquidatePosition(ctx, cdps[0])
-	require.NoError(t, err)
-	require.False(t, yes)
-
-	// price dropped, position should  be liquidated
-	tokenPrice = pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(1), sdk.NewInt(1000))
-	pfk.SetCurrentPrice(ctx, tokenPrice)
-	yes, err = k.ShouldLiquidatePosition(ctx, cdps[0])
-	require.NoError(t, err)
-	require.True(t, yes)
-	require.NotPanics(t, func() { k.AutoLiquidatePositions(ctx) })
-	require.Equal(t, 0, len(k.GetAllPositionsOwnedBy(ctx, testCdp.Owner)))
-}
-
 // --------------
 // --- CdpCollateralRate
 // --------------
