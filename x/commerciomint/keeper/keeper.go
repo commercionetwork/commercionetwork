@@ -197,33 +197,6 @@ func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Dec) error {
 	return nil
 }
 
-// ShouldLiquidatePosition returns true if the position should be liquidated.
-func (k Keeper) ShouldLiquidatePosition(ctx sdk.Context, position types.Position) (bool, error) {
-	fiatValue, err := k.calculateFiatValue(ctx, position.Deposit)
-	if err != nil {
-		return false, err
-	}
-
-	creditsAmount := position.Credits.Amount.ToDec()
-	if creditsAmount.GTE(fiatValue) {
-		return true, nil
-	}
-	return false, nil
-}
-
-func (k Keeper) AutoLiquidatePositions(ctx sdk.Context) {
-	for _, pos := range k.GetAllPositions(ctx) {
-		if yes, err := k.ShouldLiquidatePosition(ctx, pos); err != nil {
-			panic(err)
-		} else if !yes {
-			continue
-		}
-		if err := k.liquidate(ctx, pos); err != nil {
-			panic(err)
-		}
-	}
-}
-
 func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
 	prefix := []byte(fmt.Sprintf("%s%s:", types.CdpStorePrefix, owner.String()))
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
