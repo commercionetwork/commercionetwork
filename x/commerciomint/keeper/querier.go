@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"strconv"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -31,11 +30,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 
 func queryGetCdp(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
-	timestamp, err := strconv.ParseInt(path[1], 10, 64)
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("timestamp not valid: %s", path[1]))
-	}
-	cdp, found := keeper.GetPosition(ctx, ownerAddr, timestamp)
+	id := path[1]
+	cdp, found := keeper.GetPosition(ctx, ownerAddr, id)
 	if !found {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "couldn't find any cdp associated with the given address and timestamp")
 	}
@@ -60,5 +56,5 @@ func queryGetCdps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error)
 }
 
 func queryCollateralRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {
-	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetCollateralRate(ctx))
+	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetConversionRate(ctx))
 }

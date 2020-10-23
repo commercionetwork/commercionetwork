@@ -66,7 +66,7 @@ func (msg MsgBurnCCC) ValidateBasic() error {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
 	}
 
-	if msg.Amount.IsZero() || msg.Amount.IsNegative() || msg.Amount.Denom != creditsDenom {
+	if msg.Amount.IsZero() || msg.Amount.IsNegative() || msg.Amount.Denom != CreditsDenom {
 		return errors.Wrap(errors.ErrInvalidRequest, "invalid amount")
 	}
 
