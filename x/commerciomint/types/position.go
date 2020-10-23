@@ -2,25 +2,31 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	uuid "github.com/satori/go.uuid"
 )
 
-// Position represents a collateralized debt position that is open from a user in order to convert
-// any currently priced token into stable Commercio Cash Credits.
+// Position represents a exchange trade position that is open from a user in order to convert
+// any currently priced token into Commercio Cash Credits.
 type Position struct {
-	Owner     sdk.AccAddress `json:"owner"`
-	Deposit   sdk.Coins      `json:"deposit"`
-	Credits   sdk.Coin       `json:"credits"`
-	CreatedAt int64          `json:"timestamp"` // Block height at which the CDP has been created
+	Owner        sdk.AccAddress `json:"owner"`
+	Deposit      sdk.Coins      `json:"deposit"`
+	Credits      sdk.Coin       `json:"credits"`
+	CreatedAt    time.Time      `json:"created_at"`
+	ID           string         `json:"id"`
+	ExchangeRate sdk.Int        `json:"exchange_rate"`
 }
 
-func NewPosition(owner sdk.AccAddress, deposit sdk.Coins, liquidity sdk.Coin, timeStamp int64) Position {
+func NewPosition(owner sdk.AccAddress, deposit sdk.Coins, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Int) Position {
 	return Position{
-		Owner:     owner,
-		Deposit:   deposit,
-		Credits:   liquidity,
-		CreatedAt: timeStamp,
+		Owner:        owner,
+		Deposit:      deposit,
+		Credits:      liquidity,
+		ID:           id,
+		CreatedAt:    createdAt,
+		ExchangeRate: exchangeRate,
 	}
 }
 
@@ -36,18 +42,30 @@ func (pos Position) Validate() error {
 	if !ValidateCredits(pos.Credits) {
 		return fmt.Errorf("invalid liquidity amount: %s", pos.Credits)
 	}
-	if pos.CreatedAt < 1 {
-		return fmt.Errorf("invalid timestamp: %d", pos.CreatedAt)
+
+	if pos.ExchangeRate.IsNegative() {
+		return fmt.Errorf("exchange rate cannot be zero")
 	}
+
+	if pos.CreatedAt == (time.Time{}) {
+		return fmt.Errorf("cannot have empty creation time")
+	}
+
+	if _, err := uuid.FromString(pos.ID); err != nil {
+		return fmt.Errorf("id string must be a well-defined UUID")
+	}
+
 	return nil
 }
 
 // Equals returns true if and only if the two Position instances are equal.
-func (pos Position) Equals(cdp Position) bool {
-	return pos.Owner.Equals(cdp.Owner) &&
-		pos.Deposit.IsEqual(cdp.Deposit) &&
-		pos.Credits.IsEqual(cdp.Credits) &&
-		pos.CreatedAt == cdp.CreatedAt
+func (pos Position) Equals(etp Position) bool {
+	return pos.Owner.Equals(etp.Owner) &&
+		pos.Deposit.IsEqual(etp.Deposit) &&
+		pos.Credits.IsEqual(etp.Credits) &&
+		pos.ID == etp.ID &&
+		pos.ExchangeRate.Equal(etp.ExchangeRate) &&
+		pos.CreatedAt.Equal(etp.CreatedAt)
 }
 
 func ValidateCredits(credits sdk.Coin) bool {
