@@ -13,8 +13,8 @@ import (
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
-var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.Deposit)
-var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.CreatedAt)
+var testMsgOpenCdp = types.NewMsgMintCCC(testCdp.Owner, testCdp.Deposit)
+var testMsgCloseCdp = types.NewMsgBurnCCC(testCdp.Owner, testCdp.CreatedAt)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
 	ctx, bk, pfk, _, _, k := SetupTestInput()
@@ -65,19 +65,19 @@ func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
-	msg := types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(3))
+	msg := types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(3))
 
 	expected := &sdk.Result{Log: "Position collateral rate changed successfully to 3.000000000000000000"}
 	actual, err := handler(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 
-	msg = types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(0))
+	msg = types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(0))
 	_, err = handler(ctx, msg)
 	require.Error(t, err)
 	require.Equal(t, "invalid request: cdp collateral rate must be positive: 0.000000000000000000", err.Error())
 
-	msg = types.NewMsgSetCdpCollateralRate([]byte("invalidAddr"), sdk.NewDec(3))
+	msg = types.NewMsgSetCCCConversionRate([]byte("invalidAddr"), sdk.NewDec(3))
 	_, err = handler(ctx, msg)
 	require.Error(t, err)
 	require.Equal(t, "unauthorized: cosmos1d9h8vctvd9jyzerywgt84wdv cannot set collateral rate", err.Error())

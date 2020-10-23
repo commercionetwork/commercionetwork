@@ -17,7 +17,7 @@ type MsgMintCCC struct {
 	Credits sdk.Coins      `json:"deposit_amount"`
 }
 
-func NewMsgOpenCdp(owner sdk.AccAddress, deposit sdk.Coins) MsgMintCCC {
+func NewMsgMintCCC(owner sdk.AccAddress, deposit sdk.Coins) MsgMintCCC {
 	return MsgMintCCC{
 		Credits: deposit,
 		Owner:   owner,
@@ -47,7 +47,7 @@ type MsgBurnCCC struct {
 	ID     string         `json:"id"` // Block height at which the CDP has been created
 }
 
-func NewMsgCloseCdp(signer sdk.AccAddress, id string, amount sdk.Coin) MsgBurnCCC {
+func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) MsgBurnCCC {
 	return MsgBurnCCC{
 		Signer: signer,
 		ID:     id,
@@ -96,7 +96,7 @@ type MsgSetCCCConversionRate struct {
 	Rate   sdk.Int        `json:"rate"`
 }
 
-func NewMsgSetCdpCollateralRate(signer sdk.AccAddress, rate sdk.Int) MsgSetCCCConversionRate {
+func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Int) MsgSetCCCConversionRate {
 	return MsgSetCCCConversionRate{Signer: signer, Rate: rate}
 }
 

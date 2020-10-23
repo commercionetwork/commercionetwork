@@ -13,7 +13,7 @@ func TestMsgBasics(t *testing.T) {
 	require.Equal(t, 1, len(MsgMintCCC{}.GetSigners()))
 	require.NotNil(t, MsgMintCCC{}.GetSignBytes())
 
-	msg := NewMsgCloseCdp(nil, 0)
+	msg := NewMsgBurnCCC(nil, 0)
 	require.Equal(t, "commerciomint", msg.Route())
 	require.Equal(t, "closeCdp", msg.Type())
 	require.Equal(t, 1, len(msg.GetSigners()))
@@ -21,9 +21,9 @@ func TestMsgBasics(t *testing.T) {
 }
 
 func TestMsgOpenCdp_ValidateBasic(t *testing.T) {
-	require.Error(t, NewMsgOpenCdp(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
-	require.Error(t, NewMsgOpenCdp(testOwner, sdk.NewCoins()).ValidateBasic())
-	require.NoError(t, NewMsgOpenCdp(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
+	require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
+	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins()).ValidateBasic())
+	require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
 }
 
 func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {
@@ -44,7 +44,7 @@ func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			msg := NewMsgSetCdpCollateralRate(tt.fields.Signer, tt.fields.CdpCollateralRate)
+			msg := NewMsgSetCCCConversionRate(tt.fields.Signer, tt.fields.CdpCollateralRate)
 			require.Equal(t, "commerciomint", msg.Route())
 			require.Equal(t, "setCdpCollateralRate", msg.Type())
 			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)

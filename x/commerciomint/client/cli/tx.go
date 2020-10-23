@@ -63,7 +63,7 @@ func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 		return err
 	}
 
-	msg := types.NewMsgOpenCdp(sender, deposit)
+	msg := types.NewMsgMintCCC(sender, deposit)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error 
 		return fmt.Errorf("timestamp must be a number")
 	}
 
-	msg := types.NewMsgCloseCdp(sender, timestamp)
+	msg := types.NewMsgBurnCCC(sender, timestamp)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func setCollateralRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Code
 	if err != nil {
 		return err
 	}
-	msg := types.NewMsgSetCdpCollateralRate(signer, rate)
+	msg := types.NewMsgSetCCCConversionRate(signer, rate)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
