@@ -8,10 +8,10 @@ import (
 )
 
 func TestMsgBasics(t *testing.T) {
-	require.Equal(t, "commerciomint", MsgOpenCdp{}.Route())
-	require.Equal(t, "openCdp", MsgOpenCdp{}.Type())
-	require.Equal(t, 1, len(MsgOpenCdp{}.GetSigners()))
-	require.NotNil(t, MsgOpenCdp{}.GetSignBytes())
+	require.Equal(t, "commerciomint", MsgMintCCC{}.Route())
+	require.Equal(t, "openCdp", MsgMintCCC{}.Type())
+	require.Equal(t, 1, len(MsgMintCCC{}.GetSigners()))
+	require.NotNil(t, MsgMintCCC{}.GetSignBytes())
 
 	msg := NewMsgCloseCdp(nil, 0)
 	require.Equal(t, "commerciomint", msg.Route())

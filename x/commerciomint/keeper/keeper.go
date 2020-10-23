@@ -180,7 +180,7 @@ func (k Keeper) CloseCdp(ctx sdk.Context, user sdk.AccAddress, timestamp int64) 
 }
 
 // GetCollateralRate retrieve the cdp collateral rate.
-func (k Keeper) GetCollateralRate(ctx sdk.Context) sdk.Dec {
+func (k Keeper) GetCollateralRate(ctx sdk.Context) sdk.Int {
 	store := ctx.KVStore(k.storeKey)
 	var rate sdk.Dec
 	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.CollateralRateKey)), &rate)
@@ -188,8 +188,8 @@ func (k Keeper) GetCollateralRate(ctx sdk.Context) sdk.Dec {
 }
 
 // SetCollateralRate store the cdp collateral rate.
-func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Dec) error {
-	if err := types.ValidateCollateralRate(rate); err != nil {
+func (k Keeper) SetCollateralRate(ctx sdk.Context, rate sdk.Int) error {
+	if err := types.ValidateConversionRate(rate); err != nil {
 		return err
 	}
 	store := ctx.KVStore(k.storeKey)

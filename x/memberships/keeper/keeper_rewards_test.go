@@ -44,7 +44,7 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			expectedUser: sdk.Coins{},
 		},
 		{
-			name:         "Deposit fails if user has not enough money",
+			name:         "Credits fails if user has not enough money",
 			user:         testUser,
 			userAmt:      sdk.NewCoins(),
 			existingPool: sdk.NewCoins(),
