@@ -13,11 +13,11 @@ import (
 func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
-		case types.MsgOpenCdp:
+		case types.MsgMintCCC:
 			return handleMsgOpenCdp(ctx, keeper, msg)
-		case types.MsgCloseCdp:
+		case types.MsgBurnCCC:
 			return handleMsgCloseCdp(ctx, keeper, msg)
-		case types.MsgSetCdpCollateralRate:
+		case types.MsgSetCCCConversionRate:
 			return handleMsgSetCdpCollateralRate(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
@@ -26,8 +26,8 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) (*sdk.Result, error) {
-	err := keeper.NewPosition(ctx, msg.Owner, msg.Deposit)
+func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgMintCCC) (*sdk.Result, error) {
+	err := keeper.NewPosition(ctx, msg.Owner, msg.Credits)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func handleMsgOpenCdp(ctx sdk.Context, keeper Keeper, msg types.MsgOpenCdp) (*sd
 	return &sdk.Result{Log: "Position opened successfully"}, nil
 }
 
-func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) (*sdk.Result, error) {
+func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgBurnCCC) (*sdk.Result, error) {
 	err := keeper.CloseCdp(ctx, msg.Signer, msg.Created)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func handleMsgCloseCdp(ctx sdk.Context, keeper Keeper, msg types.MsgCloseCdp) (*
 	return &sdk.Result{Log: "Position closed successfully"}, nil
 }
 
-func handleMsgSetCdpCollateralRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetCdpCollateralRate) (*sdk.Result, error) {
+func handleMsgSetCdpCollateralRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetCCCConversionRate) (*sdk.Result, error) {
 	gov := keeper.govKeeper.GetGovernmentAddress(ctx)
 	if !(gov.Equals(msg.Signer)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set collateral rate", msg.Signer))

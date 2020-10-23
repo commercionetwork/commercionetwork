@@ -8,6 +8,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// denom used by the minted tokens
+const creditsDenom = "uccc"
+
 // Position represents a exchange trade position that is open from a user in order to convert
 // any currently priced token into Commercio Cash Credits.
 type Position struct {
@@ -76,8 +79,15 @@ func ValidateCredits(credits sdk.Coin) bool {
 }
 
 func ValidateDeposit(deposit sdk.Coins) bool {
+	for _, coin := range deposit {
+		if coin.Denom != creditsDenom {
+			return false
+		}
+	}
+
 	if !deposit.IsValid() || deposit.Empty() || !deposit.IsAllPositive() {
 		return false
 	}
+
 	return true
 }

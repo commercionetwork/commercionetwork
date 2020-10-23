@@ -15,7 +15,7 @@ type GenesisState struct {
 	Positions           []types.Position `json:"positions"`
 	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
 	CreditsDenom        string           `json:"credits_denom"`
-	CollateralRate      sdk.Dec          `json:"collateral_rate"`
+	CollateralRate      sdk.Int          `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -24,7 +24,7 @@ func DefaultGenesisState(creditsDenom string) GenesisState {
 		Positions:           []types.Position{},
 		LiquidityPoolAmount: sdk.Coins{},
 		CreditsDenom:        creditsDenom,
-		CollateralRate:      sdk.NewDec(2),
+		CollateralRate:      sdk.NewInt(2),
 	}
 }
 
@@ -74,5 +74,5 @@ func ValidateGenesis(state GenesisState) error {
 			return err
 		}
 	}
-	return types.ValidateCollateralRate(state.CollateralRate)
+	return types.ValidateConversionRate(state.CollateralRate)
 }

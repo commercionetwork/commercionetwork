@@ -8,7 +8,7 @@ import (
 )
 
 // RequestStatus represents the status that can be associated to a
-// Did Deposit request or a Did Power Up request
+// Did Credits request or a Did Power Up request
 type RequestStatus struct {
 	Type    string `json:"type"`
 	Message string `json:"message"`
