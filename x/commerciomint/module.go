@@ -36,7 +36,7 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { types.RegisterCodec(cdc)
 
 // default genesis state
 func (amb AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState(DefaultCreditsDenom))
+	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 
 // module genesis validation

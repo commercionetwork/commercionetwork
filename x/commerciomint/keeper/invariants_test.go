@@ -22,12 +22,12 @@ func TestValidatePositions(t *testing.T) {
 		{"nil", nil, false},
 		{"no owner", []types.Position{{}}, true},
 		{"no deposit", []types.Position{{Owner: []byte("ciao")}}, true},
-		{"invalid liquidity", []types.Position{{Owner: []byte("ciao"), Deposit: sdk.NewCoins(sdk.NewInt64Coin("test", 10))}}, true},
+		{"invalid liquidity", []types.Position{{Owner: []byte("ciao"), Collateral: sdk.NewCoins(sdk.NewInt64Coin("test", 10))}}, true},
 		{"invalid block height", []types.Position{{Owner: []byte("ciao"),
-			Deposit: sdk.NewCoins(sdk.NewInt64Coin("test", 10)), Credits: sdk.NewInt64Coin("credit", 100),
+			Collateral: sdk.NewCoins(sdk.NewInt64Coin("test", 10)), Credits: sdk.NewInt64Coin("credit", 100),
 		}}, true},
 		{"ok", []types.Position{{Owner: []byte("ciao"), CreatedAt: 10,
-			Deposit: sdk.NewCoins(sdk.NewInt64Coin("test", 10)), Credits: sdk.NewInt64Coin("credit", 100),
+			Collateral: sdk.NewCoins(sdk.NewInt64Coin("test", 10)), Credits: sdk.NewInt64Coin("credit", 100),
 		}}, false},
 	}
 	for _, tt := range tests {
@@ -54,28 +54,28 @@ func TestPositionsForExistingPrice(t *testing.T) {
 		{
 			"Each Position opened refers to an existing price",
 			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
-				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
+				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}
 
 				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				return k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
+				return k.NewPosition(ctx, testCdpOwner, testCdp.Collateral)
 			},
 			false,
 		},
 		{
 			"Position opened with corresponding price set to zero values (no value, no expiry)",
 			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
-				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
+				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}
 
 				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
+				err = k.NewPosition(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}
@@ -90,14 +90,14 @@ func TestPositionsForExistingPrice(t *testing.T) {
 			"Position opened with corresponding price nonexistant",
 			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
 				ctx = ctx.WithBlockHeight(2)
-				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
+				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}
 
 				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
+				err = k.NewPosition(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}
@@ -142,28 +142,28 @@ func TestLiquidityPoolAmountEqualsPositions(t *testing.T) {
 		{
 			"One cdp opened equals the value of the liquidity pool",
 			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
-				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
+				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}
 
 				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				return k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
+				return k.NewPosition(ctx, testCdpOwner, testCdp.Collateral)
 			},
 			false,
 		},
 		{
 			"One cdp opened and the liquidity pool is zero",
 			func(k Keeper, bk bank.Keeper, pfk pricefeedKeeper.Keeper, ctx sdk.Context) error {
-				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Deposit)
+				err := bk.SetCoins(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}
 
 				pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)))
 
-				err = k.NewPosition(ctx, testCdpOwner, testCdp.Deposit)
+				err = k.NewPosition(ctx, testCdpOwner, testCdp.Collateral)
 				if err != nil {
 					return err
 				}

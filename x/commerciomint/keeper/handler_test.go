@@ -13,7 +13,7 @@ import (
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
-var testMsgOpenCdp = types.NewMsgMintCCC(testCdp.Owner, testCdp.Deposit)
+var testMsgOpenCdp = types.NewMsgMintCCC(testCdp.Owner, testCdp.Collateral)
 var testMsgCloseCdp = types.NewMsgBurnCCC(testCdp.Owner, testCdp.CreatedAt)
 
 func TestHandler_handleMsgOpenCdp(t *testing.T) {
@@ -22,7 +22,7 @@ func TestHandler_handleMsgOpenCdp(t *testing.T) {
 	ctx = ctx.WithBlockHeight(5)
 
 	// Test setup
-	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.Deposit)
+	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.Collateral)
 	balance := bk.GetCoins(ctx, testCdpOwner)
 
 	// Check balance
@@ -46,7 +46,7 @@ func TestHandler_handleMsgCloseCdp(t *testing.T) {
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Deposit)
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Collateral)
 	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
 	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
 	k.SetPosition(ctx, testCdp)

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -15,17 +16,17 @@ const CreditsDenom = "uccc"
 // any currently priced token into Commercio Cash Credits.
 type Position struct {
 	Owner        sdk.AccAddress `json:"owner"`
-	Deposit      sdk.Coins      `json:"deposit"`
+	Collateral   sdk.Int        `json:"collateral"`
 	Credits      sdk.Coin       `json:"credits"`
 	CreatedAt    time.Time      `json:"created_at"`
 	ID           string         `json:"id"`
 	ExchangeRate sdk.Int        `json:"exchange_rate"`
 }
 
-func NewPosition(owner sdk.AccAddress, deposit sdk.Coins, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Int) Position {
+func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Int) Position {
 	return Position{
 		Owner:        owner,
-		Deposit:      deposit,
+		Collateral:   deposit,
 		Credits:      liquidity,
 		ID:           id,
 		CreatedAt:    createdAt,
@@ -39,8 +40,8 @@ func (pos Position) Validate() error {
 	if pos.Owner.Empty() {
 		return fmt.Errorf("invalid owner address: %s", pos.Owner)
 	}
-	if !ValidateDeposit(pos.Deposit) {
-		return fmt.Errorf("invalid deposit amount: %s", pos.Deposit)
+	if pos.Collateral.IsZero() || pos.Collateral.IsNegative() {
+		return errors.New("invalid collateral amount")
 	}
 	if !ValidateCredits(pos.Credits) {
 		return fmt.Errorf("invalid liquidity amount: %s", pos.Credits)
@@ -64,7 +65,7 @@ func (pos Position) Validate() error {
 // Equals returns true if and only if the two Position instances are equal.
 func (pos Position) Equals(etp Position) bool {
 	return pos.Owner.Equals(etp.Owner) &&
-		pos.Deposit.IsEqual(etp.Deposit) &&
+		pos.Collateral.Equal(etp.Collateral) &&
 		pos.Credits.IsEqual(etp.Credits) &&
 		pos.ID == etp.ID &&
 		pos.ExchangeRate.Equal(etp.ExchangeRate) &&

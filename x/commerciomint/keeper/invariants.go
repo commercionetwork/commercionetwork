@@ -16,10 +16,10 @@ const (
 
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 	ir.RegisterRoute(types.ModuleName, validatePositions, ValidateAllPositions(k))
-	ir.RegisterRoute(types.ModuleName, positionsForExistingPrice,
-		PositionsForExistingPrice(k))
-	ir.RegisterRoute(types.ModuleName, liquidityPoolSumEqualsPositions,
-		LiquidityPoolAmountEqualsPositions(k))
+	//ir.RegisterRoute(types.ModuleName, positionsForExistingPrice,
+	//	PositionsForExistingPrice(k))
+	//ir.RegisterRoute(types.ModuleName, liquidityPoolSumEqualsPositions,
+	//	LiquidityPoolAmountEqualsPositions(k))
 }
 
 // ValidateAllPositions ensures that all Positions are correct.
@@ -40,12 +40,12 @@ func ValidateAllPositions(k Keeper) sdk.Invariant {
 }
 
 // PositionsForExistingPrice checks that each Position currently opened refers to an existing token priced by x/pricefeed.
-func PositionsForExistingPrice(k Keeper) sdk.Invariant {
+/*func PositionsForExistingPrice(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		positions := k.GetAllPositions(ctx)
 
 		for _, position := range positions {
-			for _, deposit := range position.Deposit {
+			for _, deposit := range position.Collateral {
 				price, ok := k.priceFeedKeeper.GetCurrentPrice(ctx, deposit.Denom)
 				if !ok || price.Value.IsZero() {
 					return sdk.FormatInvariant(
@@ -64,16 +64,16 @@ func PositionsForExistingPrice(k Keeper) sdk.Invariant {
 		}
 		return "", false
 	}
-}
+}*/
 
 // LiquidityPoolAmountEqualsPositions checks that the value of all the opened cdps equals the liquidity pool amount.
-func LiquidityPoolAmountEqualsPositions(k Keeper) sdk.Invariant {
+/*func LiquidityPoolAmountEqualsPositions(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		positions := k.GetAllPositions(ctx)
 
 		var sums sdk.Coins
 		for _, position := range positions {
-			sums.Add(position.Deposit...)
+			sums.Add(position.Collateral...)
 		}
 
 		pool := k.GetLiquidityPoolAmount(ctx)
@@ -98,4 +98,4 @@ func LiquidityPoolAmountEqualsPositions(k Keeper) sdk.Invariant {
 
 		return "", false
 	}
-}
+}*/

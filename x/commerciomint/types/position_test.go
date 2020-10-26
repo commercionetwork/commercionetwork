@@ -29,7 +29,7 @@ func TestCdp_Validate(t *testing.T) {
 	}{
 		{
 			name:          "Invalid CDP owner",
-			cdp:           NewPosition(sdk.AccAddress{}, testCdp.Deposit, testCdp.Credits, testCdp.CreatedAt),
+			cdp:           NewPosition(sdk.AccAddress{}, testCdp.Collateral, testCdp.Credits, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid owner address: %s", sdk.AccAddress{}),
 		},
@@ -41,13 +41,13 @@ func TestCdp_Validate(t *testing.T) {
 		},
 		{
 			name:          "Invalid liquidity amount",
-			cdp:           NewPosition(testCdp.Owner, testCdp.Deposit, sdk.Coin{}, testCdp.CreatedAt),
+			cdp:           NewPosition(testCdp.Owner, testCdp.Collateral, sdk.Coin{}, testCdp.CreatedAt),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid liquidity amount: %s", sdk.Coin{}),
 		},
 		{
 			name:          "Invalid timestamp",
-			cdp:           NewPosition(testCdp.Owner, testCdp.Deposit, testCdp.Credits, 0),
+			cdp:           NewPosition(testCdp.Owner, testCdp.Collateral, testCdp.Credits, 0),
 			shouldBeValid: false,
 			error:         fmt.Errorf("invalid timestamp: %d", 0),
 		},
@@ -84,10 +84,10 @@ func TestCdp_Equals(t *testing.T) {
 			name:  "CDPs are different",
 			first: testCdp,
 			second: Position{
-				Owner:     testCdp.Owner,
-				Deposit:   testCdp.Deposit,
-				Credits:   testCdp.Credits,
-				CreatedAt: testCdp.CreatedAt + 1,
+				Owner:      testCdp.Owner,
+				Collateral: testCdp.Collateral,
+				Credits:    testCdp.Credits,
+				CreatedAt:  testCdp.CreatedAt + 1,
 			},
 			shouldBeEqual: false,
 		},

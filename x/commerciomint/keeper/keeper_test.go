@@ -18,7 +18,7 @@ func TestKeeper_StoreCdp(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	// handler := NewHandler(k)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Deposit)
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Collateral)
 	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
 	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
 	k.SetPosition(ctx, testCdp)
@@ -119,13 +119,13 @@ func TestKeeper_OpenCdp(t *testing.T) {
 		{
 			name:       "Token price not found",
 			owner:      testCdp.Owner,
-			amount:     testCdp.Deposit,
+			amount:     testCdp.Collateral,
 			tokenPrice: pricefeedTypes.EmptyPrice(),
-			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", testCdp.Deposit[0].Denom)),
+			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", testCdp.Collateral[0].Denom)),
 		},
 		{
 			name:       "Not enough funds inside user wallet",
-			amount:     testCdp.Deposit,
+			amount:     testCdp.Collateral,
 			owner:      testCdp.Owner,
 			tokenPrice: pricefeedTypes.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
 			error: sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf(
@@ -136,10 +136,10 @@ func TestKeeper_OpenCdp(t *testing.T) {
 		},
 		{
 			name:            "Successful opening",
-			amount:          testCdp.Deposit,
+			amount:          testCdp.Collateral,
 			owner:           testCdp.Owner,
 			tokenPrice:      pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)),
-			userFunds:       testCdp.Deposit,
+			userFunds:       testCdp.Collateral,
 			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin(testCreditsDenom, 10*50)),
 		},
 	}
@@ -191,7 +191,7 @@ func TestKeeper_CloseCdp(t *testing.T) {
 	t.Run("Non existing CDP returns error", func(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
 
-		err := k.CloseCdp(ctx, testCdp.Owner, testCdp.CreatedAt)
+		err := k.BurnCCC(ctx, testCdp.Owner, testCdp.CreatedAt)
 		errMsg := fmt.Sprintf("position for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.CreatedAt)
 		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
 	})
@@ -203,8 +203,8 @@ func TestKeeper_CloseCdp(t *testing.T) {
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_, _ = bk.AddCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Credits))
 
-		require.NoError(t, k.CloseCdp(ctx, testCdpOwner, testCdp.CreatedAt))
-		require.Equal(t, testCdp.Deposit, bk.GetCoins(ctx, testCdpOwner))
+		require.NoError(t, k.BurnCCC(ctx, testCdpOwner, testCdp.CreatedAt))
+		require.Equal(t, testCdp.Collateral, bk.GetCoins(ctx, testCdpOwner))
 	})
 
 }
@@ -226,10 +226,10 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 			name:         "Non existent CDP is not deleted",
 			existingCdps: []types.Position{testCdp},
 			deletedCdp: types.Position{
-				Owner:     testCdp.Owner,
-				Deposit:   testCdp.Deposit,
-				Credits:   testCdp.Credits,
-				CreatedAt: testCdp.CreatedAt + 1,
+				Owner:      testCdp.Owner,
+				Collateral: testCdp.Collateral,
+				Credits:    testCdp.Credits,
+				CreatedAt:  testCdp.CreatedAt + 1,
 			},
 			shouldBeDeleted: false,
 		},

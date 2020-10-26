@@ -36,7 +36,7 @@ func handleMsgMintCCC(ctx sdk.Context, keeper Keeper, msg types.MsgMintCCC) (*sd
 }
 
 func handleMsgBurnCCC(ctx sdk.Context, keeper Keeper, msg types.MsgBurnCCC) (*sdk.Result, error) {
-	err := keeper.CloseCdp(ctx, msg.Signer, msg.ID)
+	err := keeper.BurnCCC(ctx, msg.Signer, msg.ID, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
