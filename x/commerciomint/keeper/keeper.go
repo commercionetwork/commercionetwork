@@ -3,6 +3,7 @@ package keeper
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -14,6 +15,12 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
+)
+
+const (
+	eventNewPosition       = "new_position"
+	eventBurnCCC           = "burned_ccc"
+	eventSetConversionRate = "new_conversion_rate"
 )
 
 type Keeper struct {
@@ -46,9 +53,6 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, p
 func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) {
 	store := ctx.KVStore(k.storeKey)
 	key := makePositionKey(position.Owner, position.ID)
-	if bs := store.Get(key); bs != nil {
-		panic(fmt.Errorf("cannot overwrite position at key %s", key))
-	}
 	store.Set(key, k.cdc.MustMarshalBinaryBare(position))
 }
 
@@ -76,31 +80,28 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 	return positions
 }
 
-// NewPosition subtract the given token's amount from user's wallet and deposit it into the liquidity pool then,
-// sending him the corresponding credits amount.
-// If all these operations are done correctly, a Collateralized Debt Position is opened.
-// Errors occurs if:
-// 1) deposited tokens haven't been priced yet, or are negatives or invalid;
-// 2) signer's funds are not enough
+// NewPosition creates a new minting position for the amount deposited, credited to depositor.
 func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins) error {
-	ucomDeposit := deposit.AmountOf("ucommercio")
-	if ucomDeposit.IsZero() {
-		return errors.New("no ucommercio deposited")
+	ucccRequested := deposit.AmountOf("uccc")
+	if ucccRequested.IsZero() {
+		return errors.New("no uccc requested")
 	}
 
 	conversionRate := k.GetConversionRate(ctx)
-	creditsAmount := ucomDeposit.Quo(conversionRate)
+	ucommercioAmount := ucccRequested.Mul(conversionRate)
 
-	// Create credits token
-	credits := sdk.NewCoin(types.CreditsDenom, creditsAmount)
+	// Create ucccEmitted token
+	ucccEmitted := sdk.NewCoin(types.CreditsDenom, ucccRequested)
+
+	ucomAmount := sdk.NewCoin("ucommercio", ucommercioAmount)
 
 	id := uuid.NewV4()
 
 	// Create the CDP and validate it
 	position := types.NewPosition(
 		depositor,
-		ucomDeposit,
-		credits,
+		ucomAmount.Amount,
+		ucccEmitted,
 		id.String(),
 		time.Now(),
 		conversionRate,
@@ -110,12 +111,12 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 	}
 
 	// Send the deposit from the user to the commerciomint account
-	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, deposit); err != nil {
+	if err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, sdk.NewCoins(ucomAmount)); err != nil {
 		return fmt.Errorf("could not move collateral amount to module account, %w", err)
 	}
 
 	// Mint the tokens and send them to the user
-	creditsCoins := sdk.NewCoins(credits)
+	creditsCoins := sdk.NewCoins(ucccEmitted)
 	if err := k.supplyKeeper.MintCoins(ctx, types.ModuleName, creditsCoins); err != nil {
 		return fmt.Errorf("could not mint coins, %w", err)
 	}
@@ -126,6 +127,15 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 
 	// Create position
 	k.SetPosition(ctx, position)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventNewPosition,
+		sdk.NewAttribute("depositor", depositor.String()),
+		sdk.NewAttribute("amount_deposited", deposit.String()),
+		sdk.NewAttribute("minted_coins", creditsCoins.String()),
+		sdk.NewAttribute("position_id", position.ID),
+		sdk.NewAttribute("timestamp", position.CreatedAt.String()),
+	))
 
 	return nil
 }
@@ -143,12 +153,8 @@ func (k Keeper) GetAllPositions(ctx sdk.Context) []types.Position {
 	return positions
 }
 
-// BurnCCC subtract the Position's liquidity amount (commercio cash credits) from user's wallet, after that sends the
-// deposited amount back to it. If these two operations ends without errors, the Position get closed.
-// Errors occurs if:k.GetCdpsByOwner(ctx, testCdpOwner)
-// - cdp doesnt exist
-// - subtracting or adding fund to account don't end well
-// TODO: this thing should burn tokens, too.
+// BurnCCC burns burnAmount to the conversion rate stored in the Position identified by id, and returns the
+// resulting collateral amount to user.
 func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmount sdk.Coin) error {
 	pos, found := k.GetPosition(ctx, user, id)
 	if !found {
@@ -186,7 +192,7 @@ func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmo
 	)
 
 	// 3.
-	collateralAmount := pos.Credits.Amount.Mul(pos.ExchangeRate)
+	collateralAmount := burnAmount.Amount.Mul(pos.ExchangeRate)
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, user, sdk.NewCoins(sdk.NewCoin(
 		"ucommercio",
 		collateralAmount,
@@ -197,6 +203,15 @@ func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmo
 
 	// 4.
 	pos.Collateral = pos.Collateral.Sub(collateralAmount)
+
+	defer func(deleted bool, ctx sdk.Context) {
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			eventBurnCCC,
+			sdk.NewAttribute("position_id", pos.ID),
+			sdk.NewAttribute("sender", user.String()),
+			sdk.NewAttribute("amount", burnAmount.String()),
+			sdk.NewAttribute("position_deleted", strconv.FormatBool(shouldDeletePos))))
+	}(shouldDeletePos, ctx)
 
 	// 5.
 	if shouldDeletePos {
@@ -224,11 +239,17 @@ func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Int) error {
 	}
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.CollateralRateKey), k.cdc.MustMarshalBinaryBare(rate))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetConversionRate,
+		sdk.NewAttribute("rate", rate.String()),
+	))
+
 	return nil
 }
 
 func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
-	prefix := []byte(fmt.Sprintf("%s%s:", types.CdpStorePrefix, owner.String()))
+	prefix := []byte(fmt.Sprintf("%s:%s:", types.CdpStorePrefix, owner.String()))
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
 
@@ -237,7 +258,7 @@ func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
 }
 
 func makePositionKey(address sdk.AccAddress, id string) []byte {
-	return []byte(fmt.Sprintf("%s:%s:%s", types.CdpStorePrefix, id, address.String()))
+	return []byte(fmt.Sprintf("%s:%s:%s", types.CdpStorePrefix, address.String(), id))
 }
 
 func (k Keeper) deletePosition(ctx sdk.Context, pos types.Position) {

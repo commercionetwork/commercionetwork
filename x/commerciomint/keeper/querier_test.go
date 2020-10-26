@@ -48,7 +48,7 @@ func TestQuerier_queryGetCdps_found(t *testing.T) {
 
 	k.SetPosition(ctx, testCdp)
 
-	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
+	path := []string{types.QueryGetEtps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 
@@ -61,7 +61,7 @@ func TestQuerier_queryGetCdps_notFound(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
 	querier := NewQuerier(k)
 
-	path := []string{types.QueryGetCdps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
+	path := []string{types.QueryGetEtps, testCdpOwner.String(), strconv.FormatInt(testCdp.CreatedAt, 10)}
 	actualBz, err := querier(ctx, path, req)
 	require.Nil(t, err)
 

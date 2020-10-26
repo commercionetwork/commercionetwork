@@ -28,21 +28,21 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		openCDPCmd(cdc),
-		closeCDPCmd(cdc),
-		setCollateralRateCmd(cdc),
+		mintCCCCmd(cdc),
+		burnCCCCmd(cdc),
+		setConversionRateCmd(cdc),
 	)
 
 	return txCmd
 }
 
-func openCDPCmd(cdc *codec.Codec) *cobra.Command {
+func mintCCCCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "open-cdp [amount]",
-		Short: "Opens a CDP for the given amount of ucommercio coins",
+		Use:   "mint-ccc [amount]",
+		Short: "Mints a given amount of CCC",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return openCDPCmdFunc(cmd, args, cdc)
+			return mintCCCCmdFunc(cmd, args, cdc)
 		},
 	}
 
@@ -51,7 +51,7 @@ func openCDPCmd(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func mintCCCCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -70,13 +70,13 @@ func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
 
-func closeCDPCmd(cdc *codec.Codec) *cobra.Command {
+func burnCCCCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "burn [id] [amount]",
 		Short: "Burns a given amount of tokens, associated with id.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return closeCDPCmdFunc(cmd, args, cdc)
+			return burnCCCCmdFunc(cmd, args, cdc)
 		},
 	}
 
@@ -85,7 +85,7 @@ func closeCDPCmd(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func burnCCCCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -106,13 +106,13 @@ func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error 
 	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
 
-func setCollateralRateCmd(cdc *codec.Codec) *cobra.Command {
+func setConversionRateCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-collateral-rate [rate]",
-		Short: "Set CDP collateral rate",
+		Use:   "set-conversion-rate [rate]",
+		Short: "Sets conversion rate",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return setCollateralRateCmdFunc(cmd, args, cdc)
+			return setConversionRateCmdFunc(cmd, args, cdc)
 		},
 	}
 
@@ -121,7 +121,7 @@ func setCollateralRateCmd(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func setCollateralRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func setConversionRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))

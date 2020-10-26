@@ -43,6 +43,11 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
+	err := keeper.SetConversionRate(ctx, data.CollateralRate)
+	if err != nil {
+		panic(err)
+	}
+
 	// Add the existing CDPs
 	for _, position := range data.Positions {
 		keeper.SetPosition(ctx, position)

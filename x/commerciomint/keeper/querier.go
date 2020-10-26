@@ -16,45 +16,27 @@ import (
 func NewQuerier(keeper Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
-		case types.QueryGetCdp:
-			return queryGetCdp(ctx, path[1:], keeper)
-		case types.QueryGetCdps:
-			return queryGetCdps(ctx, path[1:], keeper)
-		case types.QueryCollateralRate:
-			return queryCollateralRate(ctx, keeper)
+		case types.QueryGetEtps:
+			return queryGetEtps(ctx, path[1:], keeper)
+		case types.QueryConversionRate:
+			return queryConversionRate(ctx, keeper)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
 
-func queryGetCdp(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
-	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
-	id := path[1]
-	cdp, found := keeper.GetPosition(ctx, ownerAddr, id)
-	if !found {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "couldn't find any cdp associated with the given address and timestamp")
-	}
-
-	cdpBz, err := codec.MarshalJSONIndent(keeper.cdc, &cdp)
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
-	}
-
-	return cdpBz, nil
-}
-
-func queryGetCdps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
+func queryGetEtps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
 	cdps := keeper.GetAllPositionsOwnedBy(ctx, ownerAddr)
 	cdpsBz, err := codec.MarshalJSONIndent(keeper.cdc, cdps)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return cdpsBz, nil
 }
 
-func queryCollateralRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {
+func queryConversionRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {
 	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetConversionRate(ctx))
 }

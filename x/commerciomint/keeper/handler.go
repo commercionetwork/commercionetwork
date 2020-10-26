@@ -29,10 +29,10 @@ func NewHandler(keeper Keeper) sdk.Handler {
 func handleMsgMintCCC(ctx sdk.Context, keeper Keeper, msg types.MsgMintCCC) (*sdk.Result, error) {
 	err := keeper.NewPosition(ctx, msg.Owner, msg.Credits)
 	if err != nil {
-		return nil, err
+		return nil, sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "cannot mint ccc, %s", err.Error())
 	}
 
-	return &sdk.Result{Log: "position opened successfully"}, nil
+	return &sdk.Result{Log: "mint successful"}, nil
 }
 
 func handleMsgBurnCCC(ctx sdk.Context, keeper Keeper, msg types.MsgBurnCCC) (*sdk.Result, error) {
@@ -41,16 +41,16 @@ func handleMsgBurnCCC(ctx sdk.Context, keeper Keeper, msg types.MsgBurnCCC) (*sd
 		return nil, err
 	}
 
-	return &sdk.Result{Log: "position closed successfully"}, nil
+	return &sdk.Result{Log: "burn successful"}, nil
 }
 
 func handleMsgSetCCCConversionRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetCCCConversionRate) (*sdk.Result, error) {
 	gov := keeper.govKeeper.GetGovernmentAddress(ctx)
 	if !(gov.Equals(msg.Signer)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set collateral rate", msg.Signer))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set conversion rate", msg.Signer))
 	}
 	if err := keeper.SetConversionRate(ctx, msg.Rate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	return &sdk.Result{Log: fmt.Sprintf("collateral rate changed successfully to %s", msg.Rate)}, nil
+	return &sdk.Result{Log: fmt.Sprintf("conversion rate changed successfully to %s", msg.Rate)}, nil
 }

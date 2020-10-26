@@ -26,7 +26,7 @@ func NewMsgMintCCC(owner sdk.AccAddress, deposit sdk.Coins) MsgMintCCC {
 
 // Route Implements Msg.
 func (msg MsgMintCCC) Route() string                { return RouterKey }
-func (msg MsgMintCCC) Type() string                 { return MsgTypeOpenCdp }
+func (msg MsgMintCCC) Type() string                 { return MsgTypeMintCCC }
 func (msg MsgMintCCC) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Owner} }
 func (msg MsgMintCCC) GetSignBytes() []byte         { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) }
 func (msg MsgMintCCC) ValidateBasic() error {
@@ -59,7 +59,7 @@ func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) MsgBurnCCC
 func (msg MsgBurnCCC) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgBurnCCC) Type() string { return MsgTypeCloseCdp }
+func (msg MsgBurnCCC) Type() string { return MsgTypeBurnCCC }
 
 func (msg MsgBurnCCC) ValidateBasic() error {
 	if msg.Signer.Empty() {
@@ -101,7 +101,7 @@ func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Int) MsgSetCCCCo
 }
 
 func (MsgSetCCCConversionRate) Route() string                    { return RouterKey }
-func (MsgSetCCCConversionRate) Type() string                     { return MsgTypeSetCdpCollateralRate }
+func (MsgSetCCCConversionRate) Type() string                     { return MsgTypeSetCCCConversionRate }
 func (msg MsgSetCCCConversionRate) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Signer} }
 func (msg MsgSetCCCConversionRate) ValidateBasic() error {
 	if msg.Signer.Empty() {
