@@ -39,7 +39,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func mintCCCCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mint [amount]",
-		Short: "Mints a given amount of CCC",
+		Short: "Mints a given amount of CCC\nAmount must be an integer number.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return mintCCCCmdFunc(cmd, args, cdc)
@@ -52,18 +52,17 @@ func mintCCCCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func mintCCCCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
-	// TODO: implicit uccc instead of a coin
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
-	deposit, err := sdk.ParseCoins(args[0])
-	if err != nil {
-		return err
+	deposit, ok := sdk.NewIntFromString(args[0])
+	if !ok {
+		return fmt.Errorf("amount must be an integer.")
 	}
 
-	msg := types.NewMsgMintCCC(sender, deposit)
+	msg := types.NewMsgMintCCC(sender, sdk.NewCoins(sdk.NewCoin(types.CreditsDenom, deposit)))
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
