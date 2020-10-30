@@ -14,7 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func TestKeeper_StoreCdp(t *testing.T) {
+func TestKeeper_SetPosition(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	// handler := NewHandler(k)
 
@@ -25,27 +25,27 @@ func TestKeeper_StoreCdp(t *testing.T) {
 	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
 	k.SetPosition(ctx, testEtp)
 	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
-	cdp, found := k.GetPosition(ctx, testEtp.Owner, testEtp.ID)
+	position, found := k.GetPosition(ctx, testEtp.Owner, testEtp.ID)
 	require.True(t, found)
-	require.Equal(t, testEtp.Owner, cdp.Owner)
-	require.True(t, testEtp.CreatedAt.Equal(cdp.CreatedAt))
+	require.Equal(t, testEtp.Owner, position.Owner)
+	require.True(t, testEtp.CreatedAt.Equal(position.CreatedAt))
 }
 
 // --------------
-// --- CDPs
+// --- etps
 // --------------
 
-func TestKeeper_StoreCdpBasic(t *testing.T) {
+func TestKeeper_SetPositionBasic(t *testing.T) {
 	testData := []struct {
 		name             string
-		cdps             []types.Position
-		newCdp           types.Position
+		positions        []types.Position
+		newPosition      types.Position
 		shouldBeInserted bool
 	}{
 		{
-			name:             "New CDP is inserted properly",
-			cdps:             nil,
-			newCdp:           testEtp,
+			name:             "New etp is inserted properly",
+			positions:        nil,
+			newPosition:      testEtp,
 			shouldBeInserted: true,
 		},
 	}
@@ -54,26 +54,26 @@ func TestKeeper_StoreCdpBasic(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, _, _, k := SetupTestInput()
-			for _, cdp := range test.cdps {
-				k.SetPosition(ctx, cdp)
+			for _, etp := range test.positions {
+				k.SetPosition(ctx, etp)
 			}
 
 			if test.shouldBeInserted {
-				require.NotPanics(t, func() { k.SetPosition(ctx, test.newCdp) })
-				require.Len(t, k.GetAllPositions(ctx), len(test.cdps)+1)
+				require.NotPanics(t, func() { k.SetPosition(ctx, test.newPosition) })
+				require.Len(t, k.GetAllPositions(ctx), len(test.positions)+1)
 				return
 			}
 
 			if !test.shouldBeInserted {
-				require.Panics(t, func() { k.SetPosition(ctx, test.newCdp) })
-				require.Len(t, k.GetAllPositions(ctx), len(test.cdps))
+				require.Panics(t, func() { k.SetPosition(ctx, test.newPosition) })
+				require.Len(t, k.GetAllPositions(ctx), len(test.positions))
 				return
 			}
 		})
 	}
 }
 
-func TestKeeper_OpenCdp(t *testing.T) {
+func TestKeeper_NewPosition(t *testing.T) {
 	testData := []struct {
 		name            string
 		owner           sdk.AccAddress
@@ -141,57 +141,57 @@ func TestKeeper_OpenCdp(t *testing.T) {
 func TestKeeper_GetAllPositionsOwnedBy(t *testing.T) {
 	t.Run("Empty list is returned properly", func(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
-		require.Empty(t, k.GetAllPositionsOwnedBy(ctx, testCdpOwner))
+		require.Empty(t, k.GetAllPositionsOwnedBy(ctx, testEtpOwner))
 	})
 
 	t.Run("Existing list is returned properly", func(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
 		k.SetPosition(ctx, testEtp)
-		for _, pos := range k.GetAllPositionsOwnedBy(ctx, testCdpOwner) {
+		for _, pos := range k.GetAllPositionsOwnedBy(ctx, testEtpOwner) {
 			pos.Equals(testEtp)
 		}
 	})
 }
 
-func TestKeeper_CloseCdp(t *testing.T) {
-	t.Run("Non existing CDP returns error", func(t *testing.T) {
+func TestKeeper_BurnCCC(t *testing.T) {
+	t.Run("Non existing ETP returns error", func(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
 
 		err := k.BurnCCC(ctx, testEtp.Owner, "notExists", testEtp.Credits)
-		errMsg := fmt.Sprintf("position for user with address %s and id %s does not exist", testCdpOwner, "notExists")
+		errMsg := fmt.Sprintf("position for user with address %s and id %s does not exist", testEtpOwner, "notExists")
 		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
 	})
 
-	t.Run("Existing CDP is closed properly", func(t *testing.T) {
+	t.Run("Existing ETP is closed properly", func(t *testing.T) {
 		ctx, bk, _, _, _, k := SetupTestInput()
 
 		k.SetPosition(ctx, testEtp)
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
-		_, _ = bk.AddCoins(ctx, testCdpOwner, sdk.NewCoins(testEtp.Credits))
+		_, _ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(testEtp.Credits))
 
-		require.NoError(t, k.BurnCCC(ctx, testCdpOwner, testEtp.ID, testEtp.Credits))
-		require.Equal(t, testEtp.Collateral, bk.GetCoins(ctx, testCdpOwner).AmountOf("ucommercio"))
+		require.NoError(t, k.BurnCCC(ctx, testEtpOwner, testEtp.ID, testEtp.Credits))
+		require.Equal(t, testEtp.Collateral, bk.GetCoins(ctx, testEtpOwner).AmountOf("ucommercio"))
 	})
 
 }
 
-func TestKeeper_DeleteCdp(t *testing.T) {
+func TestKeeper_deletePosition(t *testing.T) {
 	testData := []struct {
-		name            string
-		existingCdps    []types.Position
-		deletedCdp      types.Position
-		shouldBeDeleted bool
+		name              string
+		existingPositions []types.Position
+		deletedPosition   types.Position
+		shouldBeDeleted   bool
 	}{
 		{
-			name:            "Existing CDP is deleted",
-			existingCdps:    []types.Position{testEtp},
-			deletedCdp:      testEtp,
-			shouldBeDeleted: true,
+			name:              "Existing etp is deleted",
+			existingPositions: []types.Position{testEtp},
+			deletedPosition:   testEtp,
+			shouldBeDeleted:   true,
 		},
 		{
-			name:         "Non existent CDP is not deleted",
-			existingCdps: []types.Position{testEtp},
-			deletedCdp: types.Position{
+			name:              "Non existent etp is not deleted",
+			existingPositions: []types.Position{testEtp},
+			deletedPosition: types.Position{
 				Owner:      testEtp.Owner,
 				Collateral: testEtp.Collateral,
 				Credits:    testEtp.Credits,
@@ -206,31 +206,31 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, _, _, k := SetupTestInput()
 
-			for _, cdp := range test.existingCdps {
-				k.SetPosition(ctx, cdp)
+			for _, etp := range test.existingPositions {
+				k.SetPosition(ctx, etp)
 			}
 
 			if test.shouldBeDeleted {
-				require.NotPanics(t, func() { k.deletePosition(ctx, test.deletedCdp) })
+				require.NotPanics(t, func() { k.deletePosition(ctx, test.deletedPosition) })
 			} else {
-				require.Panics(t, func() { k.deletePosition(ctx, test.deletedCdp) })
+				require.Panics(t, func() { k.deletePosition(ctx, test.deletedPosition) })
 			}
 
 			result := k.GetAllPositions(ctx)
 			if test.shouldBeDeleted {
-				require.Len(t, result, len(test.existingCdps)-1)
+				require.Len(t, result, len(test.existingPositions)-1)
 			} else {
-				require.Len(t, result, len(test.existingCdps))
+				require.Len(t, result, len(test.existingPositions))
 			}
 		})
 	}
 }
 
 // --------------
-// --- CdpCollateralRate
+// --- ConversionRate
 // --------------
 
-func TestKeeper_SetCdpCollateralRate(t *testing.T) {
+func TestKeeper_SetConversionRate(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
 	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(0)))
 	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(-1)))
@@ -243,7 +243,7 @@ func TestKeeper_SetCdpCollateralRate(t *testing.T) {
 	require.True(t, rate.Equal(got), got.String())
 }
 
-func TestKeeper_GetCdpCollateralRate(t *testing.T) {
+func TestKeeper_GetConversionRate(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
 	rate := sdk.NewInt(3)
 	require.NoError(t, k.SetConversionRate(ctx, rate))

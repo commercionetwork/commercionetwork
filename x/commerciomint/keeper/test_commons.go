@@ -71,7 +71,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
 	mintK.supplyKeeper.SetModuleAccount(ctx, mintAcc)
 
-	// Set cdp collateral rate
+	// Set etp collateral rate
 	err := mintK.SetConversionRate(ctx, sdk.NewInt(2))
 	if err != nil {
 		panic(err)
@@ -102,11 +102,11 @@ func testCodec() *codec.Codec {
 
 var testCreditsDenom = "stake"
 var testLiquidityDenom = "ucommercio"
-var testCdpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
 
 var testEtp = types.NewPosition(
-	testCdpOwner,
+	testEtpOwner,
 	sdk.NewInt(100),
 	sdk.NewCoin("ucommercio", sdk.NewInt(50)),
 	testID,

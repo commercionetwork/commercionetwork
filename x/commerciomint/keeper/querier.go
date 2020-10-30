@@ -28,13 +28,13 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 
 func queryGetEtps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
-	cdps := keeper.GetAllPositionsOwnedBy(ctx, ownerAddr)
-	cdpsBz, err := codec.MarshalJSONIndent(keeper.cdc, cdps)
+	etps := keeper.GetAllPositionsOwnedBy(ctx, ownerAddr)
+	etpsBz, err := codec.MarshalJSONIndent(keeper.cdc, etps)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
-	return cdpsBz, nil
+	return etpsBz, nil
 }
 
 func queryConversionRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {

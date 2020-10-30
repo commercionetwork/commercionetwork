@@ -20,13 +20,13 @@ func TestMsgBasics(t *testing.T) {
 	require.NotNil(t, msg.GetSignBytes())
 }
 
-func TestMsgOpenCdp_ValidateBasic(t *testing.T) {
+func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 	require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
 	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins()).ValidateBasic())
 	require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100))).ValidateBasic())
 }
 
-func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {
+func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 	type fields struct {
 	}
 	tests := []struct {

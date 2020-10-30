@@ -44,7 +44,7 @@ func (msg MsgMintCCC) ValidateBasic() error {
 type MsgBurnCCC struct {
 	Signer sdk.AccAddress `json:"signer"`
 	Amount sdk.Coin       `json:"amount"`
-	ID     string         `json:"id"` // Block height at which the CDP has been created
+	ID     string         `json:"id"`
 }
 
 func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) MsgBurnCCC {

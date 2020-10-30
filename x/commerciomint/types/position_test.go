@@ -22,14 +22,14 @@ var testEtp = NewPosition(
 	sdk.NewInt(2),
 )
 
-func TestCdp_Validate(t *testing.T) {
+func TestPosition_Validate(t *testing.T) {
 	testData := []struct {
 		name          string
 		etp           Position
 		shouldBeValid bool
 	}{
 		{
-			name:          "Invalid CDP owner",
+			name:          "Invalid etp owner",
 			etp:           NewPosition(sdk.AccAddress{}, testEtp.Collateral, testEtp.Credits, testEtp.ID, testEtp.CreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
@@ -63,7 +63,7 @@ func TestCdp_Validate(t *testing.T) {
 	}
 }
 
-func TestCdp_Equals(t *testing.T) {
+func TestPosition_Equals(t *testing.T) {
 	testData := []struct {
 		name          string
 		first         Position
@@ -71,13 +71,13 @@ func TestCdp_Equals(t *testing.T) {
 		shouldBeEqual bool
 	}{
 		{
-			name:          "CDPs are identical",
+			name:          "etps are identical",
 			first:         testEtp,
 			second:        testEtp,
 			shouldBeEqual: true,
 		},
 		{
-			name:  "CDPs are different",
+			name:  "etps are different",
 			first: testEtp,
 			second: Position{
 				Owner:      testEtp.Owner,

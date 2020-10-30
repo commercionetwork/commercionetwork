@@ -19,7 +19,7 @@ func TestQuerier_queryGetEtps(t *testing.T) {
 	k.SetPosition(ctx, testEtp)
 
 	querier := NewQuerier(k)
-	path := []string{types.QueryGetEtps, testCdpOwner.String()}
+	path := []string{types.QueryGetEtps, testEtpOwner.String()}
 	actualBz, err := querier(ctx, path, req)
 
 	var etps []types.Position

@@ -97,7 +97,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 
 	id := uuid.NewV4()
 
-	// Create the CDP and validate it
+	// Create the ETP and validate it
 	position := types.NewPosition(
 		depositor,
 		ucomAmount.Amount,
@@ -249,16 +249,16 @@ func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Int) error {
 }
 
 func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
-	prefix := []byte(fmt.Sprintf("%s:%s:", types.CdpStorePrefix, owner.String()))
+	prefix := []byte(fmt.Sprintf("%s:%s:", types.EtpStorePrefix, owner.String()))
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
 
 func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte(types.CdpStorePrefix))
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte(types.EtpStorePrefix))
 }
 
 func makePositionKey(address sdk.AccAddress, id string) []byte {
-	return []byte(fmt.Sprintf("%s:%s:%s", types.CdpStorePrefix, address.String(), id))
+	return []byte(fmt.Sprintf("%s:%s:%s", types.EtpStorePrefix, address.String(), id))
 }
 
 func (k Keeper) deletePosition(ctx sdk.Context, pos types.Position) {

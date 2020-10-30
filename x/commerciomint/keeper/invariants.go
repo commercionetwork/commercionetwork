@@ -66,7 +66,7 @@ func ValidateAllPositions(k Keeper) sdk.Invariant {
 	}
 }*/
 
-// LiquidityPoolAmountEqualsPositions checks that the value of all the opened cdps equals the liquidity pool amount.
+// LiquidityPoolAmountEqualsPositions checks that the value of all the opened positions equals the liquidity pool amount.
 /*func LiquidityPoolAmountEqualsPositions(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		positions := k.GetAllPositions(ctx)
@@ -79,7 +79,7 @@ func ValidateAllPositions(k Keeper) sdk.Invariant {
 		pool := k.GetLiquidityPoolAmount(ctx)
 		if pool.IsZero() && len(positions) > 0 {
 			return sdk.FormatInvariant(
-				types.ModuleName, positionsForExistingPrice, "cdps opened and liquidity pool is empty",
+				types.ModuleName, positionsForExistingPrice, "positions opened and liquidity pool is empty",
 			), true
 		}
 

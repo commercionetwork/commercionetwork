@@ -48,7 +48,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 		panic(err)
 	}
 
-	// Add the existing CDPs
+	// Add the existing ETPs
 	for _, position := range data.Positions {
 		keeper.SetPosition(ctx, position)
 	}

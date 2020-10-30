@@ -23,11 +23,11 @@ func TestInitGenesis(t *testing.T) {
 
 	credits, err := sdk.ParseCoin("5test")
 	require.NoError(t, err)
-	testCdp := types.Position{Owner: []byte("test"), CreatedAt: time.Now(), Collateral: sdk.NewInt(10), Credits: credits, ExchangeRate: sdk.NewInt(2)}
-	k.SetPosition(ctx, testCdp)
+	testEtp := types.Position{Owner: []byte("test"), CreatedAt: time.Now(), Collateral: sdk.NewInt(10), Credits: credits, ExchangeRate: sdk.NewInt(2)}
+	k.SetPosition(ctx, testEtp)
 	export = commerciomint.ExportGenesis(ctx, k)
 
-	require.True(t, export.Positions[0].Equals(testCdp))
+	require.True(t, export.Positions[0].Equals(testEtp))
 	require.Equal(t, export.LiquidityPoolAmount, sdk.Coins(nil))
 	require.Equal(t, export.CollateralRate, sdk.NewInt(2))
 }

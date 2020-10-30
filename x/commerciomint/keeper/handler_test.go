@@ -22,7 +22,7 @@ func TestHandler_handleMsgMintCCC(t *testing.T) {
 
 	// Test setup
 	_, _ = bk.AddCoins(ctx, testEtp.Owner, sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(200))))
-	balance := bk.GetCoins(ctx, testCdpOwner)
+	balance := bk.GetCoins(ctx, testEtpOwner)
 
 	// Check balance
 	require.Equal(t, "200ucommercio", balance.String())
@@ -32,7 +32,7 @@ func TestHandler_handleMsgMintCCC(t *testing.T) {
 	require.Equal(t, &sdk.Result{Log: "mint successful"}, actual)
 
 	// Check final balance
-	balance = bk.GetCoins(ctx, testCdpOwner)
+	balance = bk.GetCoins(ctx, testEtpOwner)
 	require.Equal(t, "100uccc", balance.String())
 }
 
@@ -53,7 +53,7 @@ func TestHandler_handleMsgBurnCCC(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
+func TestHandler_handleMsgSetCCCConversionRate(t *testing.T) {
 	ctx, _, _, gk, _, k := SetupTestInput()
 	govAddr := []byte("governance")
 	gk.SetGovernmentAddress(ctx, govAddr)
