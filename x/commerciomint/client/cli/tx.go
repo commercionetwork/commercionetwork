@@ -38,7 +38,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 func mintCCCCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mint-ccc [amount]",
+		Use:   "mint [amount]",
 		Short: "Mints a given amount of CCC",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -52,6 +52,7 @@ func mintCCCCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func mintCCCCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	// TODO: implicit uccc instead of a coin
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))

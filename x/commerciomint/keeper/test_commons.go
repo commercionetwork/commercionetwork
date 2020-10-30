@@ -65,7 +65,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk, govkeeper)
 
 	// Set initial supply
-	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testCdp.Credits)))
+	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testEtp.Credits)))
 
 	// Set module accounts
 	mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
@@ -105,7 +105,7 @@ var testLiquidityDenom = "ucommercio"
 var testCdpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
 
-var testCdp = types.NewPosition(
+var testEtp = types.NewPosition(
 	testCdpOwner,
 	sdk.NewInt(100),
 	sdk.NewCoin("ucommercio", sdk.NewInt(50)),

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -18,37 +18,17 @@ func TestKeeper_StoreCdp(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	// handler := NewHandler(k)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Collateral)
-	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName),
+		sdk.NewCoins(sdk.NewCoin("ucommercio", testEtp.Collateral)),
+	)
+	_ = bk.SetCoins(ctx, testEtp.Owner, sdk.NewCoins(testEtp.Credits))
 	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
-	k.SetPosition(ctx, testCdp)
+	k.SetPosition(ctx, testEtp)
 	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
-	cdp, found := k.GetPosition(ctx, testCdp.Owner, testCdp.CreatedAt)
+	cdp, found := k.GetPosition(ctx, testEtp.Owner, testEtp.ID)
 	require.True(t, found)
-	require.Equal(t, testCdp.Owner, cdp.Owner)
-	require.Equal(t, testCdp.CreatedAt, cdp.CreatedAt)
-}
-
-// --------------
-// --- Credits
-// --------------
-
-func TestKeeper_SetCreditsDenom(t *testing.T) {
-	ctx, _, _, _, _, k := SetupTestInput()
-	denom := "test"
-	k.SetCreditsDenom(ctx, denom)
-
-	store := ctx.KVStore(k.storeKey)
-	denomBz := store.Get([]byte(types.CreditsDenomStoreKey))
-	require.Equal(t, denom, string(denomBz))
-}
-
-func TestKeeper_GetCreditsDenom(t *testing.T) {
-	ctx, _, _, _, _, k := SetupTestInput()
-	denom := "test"
-	k.SetCreditsDenom(ctx, denom)
-	actual := k.GetCreditsDenom(ctx)
-	require.Equal(t, denom, actual)
+	require.Equal(t, testEtp.Owner, cdp.Owner)
+	require.True(t, testEtp.CreatedAt.Equal(cdp.CreatedAt))
 }
 
 // --------------
@@ -63,15 +43,9 @@ func TestKeeper_StoreCdpBasic(t *testing.T) {
 		shouldBeInserted bool
 	}{
 		{
-			name:             "Existing CDP is not inserted",
-			cdps:             []types.Position{testCdp},
-			newCdp:           testCdp,
-			shouldBeInserted: false,
-		},
-		{
 			name:             "New CDP is inserted properly",
 			cdps:             nil,
-			newCdp:           testCdp,
+			newCdp:           testEtp,
 			shouldBeInserted: true,
 		},
 	}
@@ -103,64 +77,53 @@ func TestKeeper_OpenCdp(t *testing.T) {
 	testData := []struct {
 		name            string
 		owner           sdk.AccAddress
-		amount          sdk.Coins
-		tokenPrice      pricefeedTypes.Price
+		amount          sdk.Int
 		userFunds       sdk.Coins
 		error           error
 		returnedCredits sdk.Coins
 	}{
 		{
-			name:       "invalid deposited amount",
-			owner:      testCdp.Owner,
-			amount:     sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 0)),
-			tokenPrice: pricefeedTypes.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
-			error:      fmt.Errorf("invalid position: invalid deposit amount: "),
+			name:   "invalid deposited amount",
+			owner:  testEtp.Owner,
+			amount: sdk.NewInt(0),
+			error:  fmt.Errorf("no uccc requested"),
 		},
 		{
-			name:       "Token price not found",
-			owner:      testCdp.Owner,
-			amount:     testCdp.Collateral,
-			tokenPrice: pricefeedTypes.EmptyPrice(),
-			error:      sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("no current price for given denom: %s", testCdp.Collateral[0].Denom)),
-		},
-		{
-			name:       "Not enough funds inside user wallet",
-			amount:     testCdp.Collateral,
-			owner:      testCdp.Owner,
-			tokenPrice: pricefeedTypes.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)),
-			error: sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf(
-				"insufficient account funds; %s < %s",
-				sdk.NewCoins(sdk.NewInt64Coin("stake", 500)),
-				sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 100)),
-			)),
+			name:   "Not enough funds inside user wallet",
+			amount: testEtp.Collateral,
+			owner:  testEtp.Owner,
+			error: fmt.Errorf("insufficient funds: insufficient account funds;  < %s",
+				sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)),
+			),
 		},
 		{
 			name:            "Successful opening",
-			amount:          testCdp.Collateral,
-			owner:           testCdp.Owner,
-			tokenPrice:      pricefeedTypes.NewPrice(testLiquidityDenom, sdk.NewDec(10), sdk.NewInt(1000)),
-			userFunds:       testCdp.Collateral,
-			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin(testCreditsDenom, 10*50)),
+			amount:          testEtp.Collateral,
+			owner:           testEtp.Owner,
+			userFunds:       sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(200))),
+			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)),
 		},
 	}
 
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, bk, pfk, _, _, k := SetupTestInput()
+			ctx, bk, _, _, _, k := SetupTestInput()
 			ctx = ctx.WithBlockHeight(10)
 
 			// Setup
 			if !test.userFunds.Empty() {
 				_ = bk.SetCoins(ctx, test.owner, test.userFunds)
 			}
-			if !test.tokenPrice.Equals(pricefeedTypes.EmptyPrice()) {
-				pfk.SetCurrentPrice(ctx, test.tokenPrice)
-			}
 
-			err := k.NewPosition(ctx, test.owner, test.amount)
+			err := k.NewPosition(ctx, test.owner, sdk.NewCoins(sdk.NewCoin("uccc", test.amount)))
 			if test.error != nil {
 				require.Error(t, err)
+				e := errors.Unwrap(err)
+				if e != nil {
+					// error should be unwrapped to match against the exact error string
+					err = e
+				}
 				require.Equal(t, test.error.Error(), err.Error())
 			} else {
 				require.NoError(t, err)
@@ -180,10 +143,13 @@ func TestKeeper_GetAllPositionsOwnedBy(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
 		require.Empty(t, k.GetAllPositionsOwnedBy(ctx, testCdpOwner))
 	})
+
 	t.Run("Existing list is returned properly", func(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
-		k.SetPosition(ctx, testCdp)
-		require.Equal(t, []types.Position{testCdp}, k.GetAllPositionsOwnedBy(ctx, testCdpOwner))
+		k.SetPosition(ctx, testEtp)
+		for _, pos := range k.GetAllPositionsOwnedBy(ctx, testCdpOwner) {
+			pos.Equals(testEtp)
+		}
 	})
 }
 
@@ -191,20 +157,20 @@ func TestKeeper_CloseCdp(t *testing.T) {
 	t.Run("Non existing CDP returns error", func(t *testing.T) {
 		ctx, _, _, _, _, k := SetupTestInput()
 
-		err := k.BurnCCC(ctx, testCdp.Owner, testCdp.CreatedAt)
-		errMsg := fmt.Sprintf("position for user with address %s and timestamp %d does not exist", testCdpOwner, testCdp.CreatedAt)
+		err := k.BurnCCC(ctx, testEtp.Owner, "notExists", testEtp.Credits)
+		errMsg := fmt.Sprintf("position for user with address %s and id %s does not exist", testCdpOwner, "notExists")
 		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
 	})
 
 	t.Run("Existing CDP is closed properly", func(t *testing.T) {
 		ctx, bk, _, _, _, k := SetupTestInput()
 
-		k.SetPosition(ctx, testCdp)
+		k.SetPosition(ctx, testEtp)
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
-		_, _ = bk.AddCoins(ctx, testCdpOwner, sdk.NewCoins(testCdp.Credits))
+		_, _ = bk.AddCoins(ctx, testCdpOwner, sdk.NewCoins(testEtp.Credits))
 
-		require.NoError(t, k.BurnCCC(ctx, testCdpOwner, testCdp.CreatedAt))
-		require.Equal(t, testCdp.Collateral, bk.GetCoins(ctx, testCdpOwner))
+		require.NoError(t, k.BurnCCC(ctx, testCdpOwner, testEtp.ID, testEtp.Credits))
+		require.Equal(t, testEtp.Collateral, bk.GetCoins(ctx, testCdpOwner).AmountOf("ucommercio"))
 	})
 
 }
@@ -218,18 +184,18 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 	}{
 		{
 			name:            "Existing CDP is deleted",
-			existingCdps:    []types.Position{testCdp},
-			deletedCdp:      testCdp,
+			existingCdps:    []types.Position{testEtp},
+			deletedCdp:      testEtp,
 			shouldBeDeleted: true,
 		},
 		{
 			name:         "Non existent CDP is not deleted",
-			existingCdps: []types.Position{testCdp},
+			existingCdps: []types.Position{testEtp},
 			deletedCdp: types.Position{
-				Owner:      testCdp.Owner,
-				Collateral: testCdp.Collateral,
-				Credits:    testCdp.Credits,
-				CreatedAt:  testCdp.CreatedAt + 1,
+				Owner:      testEtp.Owner,
+				Collateral: testEtp.Collateral,
+				Credits:    testEtp.Credits,
+				CreatedAt:  testEtp.CreatedAt.AddDate(0, 0, 1),
 			},
 			shouldBeDeleted: false,
 		},
@@ -266,20 +232,20 @@ func TestKeeper_DeleteCdp(t *testing.T) {
 
 func TestKeeper_SetCdpCollateralRate(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(0).ToDec()))
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(-1).ToDec()))
-	require.NoError(t, k.SetConversionRate(ctx, sdk.NewInt(2).ToDec()))
-	rate := sdk.NewDec(3)
+	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(0)))
+	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(-1)))
+	require.NoError(t, k.SetConversionRate(ctx, sdk.NewInt(2)))
+	rate := sdk.NewInt(3)
 	require.NoError(t, k.SetConversionRate(ctx, rate))
 
-	var got sdk.Dec
+	var got sdk.Int
 	k.cdc.MustUnmarshalBinaryBare(ctx.KVStore(k.storeKey).Get([]byte(types.CollateralRateKey)), &got)
 	require.True(t, rate.Equal(got), got.String())
 }
 
 func TestKeeper_GetCdpCollateralRate(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
-	rate := sdk.NewDec(3)
+	rate := sdk.NewInt(3)
 	require.NoError(t, k.SetConversionRate(ctx, rate))
 	require.Equal(t, rate, k.GetConversionRate(ctx))
 }

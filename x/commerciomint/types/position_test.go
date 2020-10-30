@@ -1,8 +1,8 @@
 package types
 
 import (
-	"fmt"
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -11,45 +11,42 @@ import (
 // -----------
 // --- Position
 // -----------
-
+var testCreatedAt, _ = time.Parse("2006", "2006")
 var testOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var testCdp = NewPosition(
+var testEtp = NewPosition(
 	testOwner,
-	sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
-	sdk.NewCoin("ucc", sdk.NewInt(50)),
-	10,
+	sdk.NewInt(100),
+	sdk.NewCoin("uccc", sdk.NewInt(50)),
+	"E95613F1-8407-4B28-9B66-25AB5F4A5FD9",
+	testCreatedAt,
+	sdk.NewInt(2),
 )
 
 func TestCdp_Validate(t *testing.T) {
 	testData := []struct {
 		name          string
-		cdp           Position
+		etp           Position
 		shouldBeValid bool
-		error         error
 	}{
 		{
 			name:          "Invalid CDP owner",
-			cdp:           NewPosition(sdk.AccAddress{}, testCdp.Collateral, testCdp.Credits, testCdp.CreatedAt),
+			etp:           NewPosition(sdk.AccAddress{}, testEtp.Collateral, testEtp.Credits, testEtp.ID, testEtp.CreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
-			error:         fmt.Errorf("invalid owner address: %s", sdk.AccAddress{}),
 		},
 		{
-			name:          "Invalid deposited amount",
-			cdp:           NewPosition(testCdp.Owner, sdk.NewCoins(), testCdp.Credits, testCdp.CreatedAt),
+			name:          "Invalid collateral amount",
+			etp:           NewPosition(testEtp.Owner, sdk.ZeroInt(), testEtp.Credits, testEtp.ID, testEtp.CreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
-			error:         fmt.Errorf("invalid deposit amount: "),
 		},
 		{
 			name:          "Invalid liquidity amount",
-			cdp:           NewPosition(testCdp.Owner, testCdp.Collateral, sdk.Coin{}, testCdp.CreatedAt),
+			etp:           NewPosition(testEtp.Owner, testEtp.Collateral, sdk.Coin{}, testEtp.ID, testEtp.CreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
-			error:         fmt.Errorf("invalid liquidity amount: %s", sdk.Coin{}),
 		},
 		{
 			name:          "Invalid timestamp",
-			cdp:           NewPosition(testCdp.Owner, testCdp.Collateral, testCdp.Credits, 0),
+			etp:           NewPosition(testEtp.Owner, testEtp.Collateral, testEtp.Credits, testEtp.ID, time.Time{}, testEtp.ExchangeRate),
 			shouldBeValid: false,
-			error:         fmt.Errorf("invalid timestamp: %d", 0),
 		},
 	}
 
@@ -57,11 +54,10 @@ func TestCdp_Validate(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			if test.shouldBeValid {
-				require.NoError(t, test.cdp.Validate())
+				require.NoError(t, test.etp.Validate())
 			} else {
-				res := test.cdp.Validate()
-				require.NotNil(t, res)
-				require.Equal(t, test.error, res)
+				res := test.etp.Validate()
+				require.Error(t, res)
 			}
 		})
 	}
@@ -76,18 +72,18 @@ func TestCdp_Equals(t *testing.T) {
 	}{
 		{
 			name:          "CDPs are identical",
-			first:         testCdp,
-			second:        testCdp,
+			first:         testEtp,
+			second:        testEtp,
 			shouldBeEqual: true,
 		},
 		{
 			name:  "CDPs are different",
-			first: testCdp,
+			first: testEtp,
 			second: Position{
-				Owner:      testCdp.Owner,
-				Collateral: testCdp.Collateral,
-				Credits:    testCdp.Credits,
-				CreatedAt:  testCdp.CreatedAt + 1,
+				Owner:      testEtp.Owner,
+				Collateral: testEtp.Collateral,
+				Credits:    testEtp.Credits,
+				CreatedAt:  testEtp.CreatedAt.AddDate(0, 0, 1),
 			},
 			shouldBeEqual: false,
 		},
