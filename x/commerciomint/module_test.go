@@ -16,10 +16,10 @@ import (
 func TestAppModuleBasic(t *testing.T) {
 	amb := commerciomint.AppModuleBasic{}
 	require.Equal(t, "commerciomint", amb.Name())
-	require.Equal(t, `{"positions":[],"pool_amount":[],"collateral_rate":"2"}`, string(amb.DefaultGenesis()))
+	require.Equal(t, `{"positions":[],"pool_amount":[],"collateral_rate":"2.000000000000000000"}`, string(amb.DefaultGenesis()))
 
 	require.Panics(t, func() { amb.ValidateGenesis(json.RawMessage(`{}`)) })
-	require.NoError(t, amb.ValidateGenesis(json.RawMessage(`{"positions":[],"pool_amount":[],"collateral_rate":"2"}`)))
+	require.NoError(t, amb.ValidateGenesis(json.RawMessage(`{"positions":[],"pool_amount":[],"collateral_rate":"2.000000000000000000"}`)))
 	require.Error(t, amb.ValidateGenesis(json.RawMessage(``)))
 
 	require.NotNil(t, amb.GetTxCmd(codec.New()))

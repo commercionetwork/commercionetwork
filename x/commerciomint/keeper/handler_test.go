@@ -60,19 +60,19 @@ func TestHandler_handleMsgSetCCCConversionRate(t *testing.T) {
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
-	msg := types.NewMsgSetCCCConversionRate(govAddr, sdk.NewIntFromUint64(3))
+	msg := types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(3))
 
-	expected := &sdk.Result{Log: "conversion rate changed successfully to 3"}
+	expected := &sdk.Result{Log: "conversion rate changed successfully to 3.000000000000000000"}
 	actual, err := handler(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 
-	msg = types.NewMsgSetCCCConversionRate(govAddr, sdk.NewIntFromUint64(0))
+	msg = types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(0))
 	_, err = handler(ctx, msg)
 	require.Error(t, err)
 	require.Equal(t, "invalid request: conversion rate cannot be zero", err.Error())
 
-	msg = types.NewMsgSetCCCConversionRate([]byte("invalidAddr"), sdk.NewIntFromUint64(3))
+	msg = types.NewMsgSetCCCConversionRate([]byte("invalidAddr"), sdk.NewDec(3))
 	_, err = handler(ctx, msg)
 	require.Error(t, err)
 	require.Equal(t, "unauthorized: cosmos1d9h8vctvd9jyzerywgt84wdv cannot set conversion rate", err.Error())

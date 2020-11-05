@@ -100,7 +100,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 			name:            "Successful opening",
 			amount:          testEtp.Collateral,
 			owner:           testEtp.Owner,
-			userFunds:       sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(200))),
+			userFunds:       sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)),
 			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)),
 		},
 	}
@@ -232,20 +232,20 @@ func TestKeeper_deletePosition(t *testing.T) {
 
 func TestKeeper_SetConversionRate(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(0)))
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewInt(-1)))
-	require.NoError(t, k.SetConversionRate(ctx, sdk.NewInt(2)))
-	rate := sdk.NewInt(3)
+	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(0)))
+	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(-1)))
+	require.NoError(t, k.SetConversionRate(ctx, sdk.NewDec(2)))
+	rate := sdk.NewDec(3)
 	require.NoError(t, k.SetConversionRate(ctx, rate))
 
-	var got sdk.Int
+	var got sdk.Dec
 	k.cdc.MustUnmarshalBinaryBare(ctx.KVStore(k.storeKey).Get([]byte(types.CollateralRateKey)), &got)
 	require.True(t, rate.Equal(got), got.String())
 }
 
 func TestKeeper_GetConversionRate(t *testing.T) {
 	ctx, _, _, _, _, k := SetupTestInput()
-	rate := sdk.NewInt(3)
+	rate := sdk.NewDec(3)
 	require.NoError(t, k.SetConversionRate(ctx, rate))
 	require.Equal(t, rate, k.GetConversionRate(ctx))
 }

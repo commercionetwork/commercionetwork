@@ -32,13 +32,13 @@ func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name           string
 		signer         sdk.AccAddress
-		collateralRate sdk.Int
+		collateralRate sdk.Dec
 		wantErr        bool
 	}{
-		{"empty signer", nil, sdk.NewInt(2), true},
-		{"ok", []byte("test"), sdk.NewInt(2), false},
-		{"zero collateral rate", []byte("test"), sdk.NewInt(0), true},
-		{"negative collateral rate", []byte("test"), sdk.NewInt(-1), true},
+		{"empty signer", nil, sdk.NewDec(2), true},
+		{"ok", []byte("test"), sdk.NewDec(2), false},
+		{"zero collateral rate", []byte("test"), sdk.NewDec(0), true},
+		{"negative collateral rate", []byte("test"), sdk.NewDec(-1), true},
 	}
 	for _, tt := range tests {
 		tt := tt

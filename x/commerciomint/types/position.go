@@ -20,10 +20,10 @@ type Position struct {
 	Credits      sdk.Coin       `json:"credits"`
 	CreatedAt    time.Time      `json:"created_at"`
 	ID           string         `json:"id"`
-	ExchangeRate sdk.Int        `json:"exchange_rate"`
+	ExchangeRate sdk.Dec        `json:"exchange_rate"`
 }
 
-func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Int) Position {
+func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Dec) Position {
 	return Position{
 		Owner:        owner,
 		Collateral:   deposit,

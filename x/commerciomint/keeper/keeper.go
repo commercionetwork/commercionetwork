@@ -88,7 +88,9 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 	}
 
 	conversionRate := k.GetConversionRate(ctx)
-	ucommercioAmount := ucccRequested.Mul(conversionRate)
+
+	uccDec := sdk.NewDecFromInt(ucccRequested)
+	ucommercioAmount := uccDec.Mul(conversionRate).Ceil().TruncateInt()
 
 	// Create ucccEmitted token
 	ucccEmitted := sdk.NewCoin(types.CreditsDenom, ucccRequested)
@@ -192,7 +194,8 @@ func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmo
 	)
 
 	// 3.
-	collateralAmount := burnAmount.Amount.Mul(pos.ExchangeRate)
+	burnAmountDec := sdk.NewDecFromInt(burnAmount.Amount)
+	collateralAmount := burnAmountDec.Mul(pos.ExchangeRate).Ceil().TruncateInt()
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, user, sdk.NewCoins(sdk.NewCoin(
 		"ucommercio",
 		collateralAmount,
@@ -225,15 +228,15 @@ func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmo
 }
 
 // GetConversionRate retrieve the conversion rate.
-func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Int {
+func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Dec {
 	store := ctx.KVStore(k.storeKey)
-	var rate sdk.Int
+	var rate sdk.Dec
 	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.CollateralRateKey)), &rate)
 	return rate
 }
 
 // SetConversionRate store the conversion rate.
-func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Int) error {
+func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 	if err := types.ValidateConversionRate(rate); err != nil {
 		return err
 	}

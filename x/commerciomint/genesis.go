@@ -14,7 +14,7 @@ import (
 type GenesisState struct {
 	Positions           []types.Position `json:"positions"`
 	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
-	CollateralRate      sdk.Int          `json:"collateral_rate"`
+	CollateralRate      sdk.Dec          `json:"collateral_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -22,7 +22,7 @@ func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Positions:           []types.Position{},
 		LiquidityPoolAmount: sdk.Coins{},
-		CollateralRate:      sdk.NewInt(2),
+		CollateralRate:      sdk.NewDec(2),
 	}
 }
 

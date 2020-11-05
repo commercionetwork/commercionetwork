@@ -93,10 +93,10 @@ func (msg MsgBurnCCC) GetSigners() []sdk.AccAddress {
 
 type MsgSetCCCConversionRate struct {
 	Signer sdk.AccAddress `json:"signer"`
-	Rate   sdk.Int        `json:"rate"`
+	Rate   sdk.Dec        `json:"rate"`
 }
 
-func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Int) MsgSetCCCConversionRate {
+func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Dec) MsgSetCCCConversionRate {
 	return MsgSetCCCConversionRate{Signer: signer, Rate: rate}
 }
 
@@ -115,7 +115,7 @@ func (msg MsgSetCCCConversionRate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func ValidateConversionRate(rate sdk.Int) error {
+func ValidateConversionRate(rate sdk.Dec) error {
 	if rate.IsZero() {
 		return fmt.Errorf("conversion rate cannot be zero")
 	}

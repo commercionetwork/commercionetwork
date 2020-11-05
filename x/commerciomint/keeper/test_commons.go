@@ -72,7 +72,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	mintK.supplyKeeper.SetModuleAccount(ctx, mintAcc)
 
 	// Set etp collateral rate
-	err := mintK.SetConversionRate(ctx, sdk.NewInt(2))
+	err := mintK.SetConversionRate(ctx, sdk.NewDec(2))
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +111,7 @@ var testEtp = types.NewPosition(
 	sdk.NewCoin("ucommercio", sdk.NewInt(50)),
 	testID,
 	time.Now(),
-	sdk.NewInt(2),
+	sdk.NewDec(2),
 )
 
 var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))

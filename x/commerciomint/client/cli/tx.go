@@ -127,8 +127,8 @@ func setConversionRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Code
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	signer := cliCtx.GetFromAddress()
-	rate, ok := sdk.NewIntFromString(args[0])
-	if !ok {
+	rate, err := sdk.NewDecFromStr(args[0])
+	if err != nil {
 		return fmt.Errorf("cannot parse collateral rate, must be an integer")
 	}
 	msg := types.NewMsgSetCCCConversionRate(signer, rate)

@@ -19,7 +19,7 @@ var testEtp = NewPosition(
 	sdk.NewCoin("uccc", sdk.NewInt(50)),
 	"E95613F1-8407-4B28-9B66-25AB5F4A5FD9",
 	testCreatedAt,
-	sdk.NewInt(2),
+	sdk.NewDec(2),
 )
 
 func TestPosition_Validate(t *testing.T) {
