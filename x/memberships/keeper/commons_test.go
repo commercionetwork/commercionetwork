@@ -15,6 +15,7 @@ import (
 	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+
 	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
@@ -49,6 +50,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 	pk := params.NewKeeper(cdc, keys[params.StoreKey], tKeys[params.TStoreKey])
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
+
 	maccPerms := map[string][]string{
 		types.ModuleName:      {supply.Minter, supply.Burner},
 		creditrisk.ModuleName: nil,
@@ -58,14 +60,13 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
 
-	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk, govk, ak)
+	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk, bk.BaseSendKeeper, govk, ak)
 
 	// Set module accounts
 	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
 	k.SupplyKeeper.SetModuleAccount(ctx, memAcc)
 
 	// Set the stable credits denom
-	k.SetStableCreditsDenom(ctx, "uccc")
 
 	return ctx, bk, govk, k
 }
@@ -89,6 +90,13 @@ func testCodec() *codec.Codec {
 // Testing variables
 var testUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var testUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
+var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testDenom = "ucommercio"
 var stableCreditDenom = "uccc"
+var testHeight = int64(10)
+var testHeightZero = int64(0)
+var testHeightNegative = int64(-1)
+var depositStableCoin = sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 50000000))
+var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))
+var yearBlocks = int64(4733640)

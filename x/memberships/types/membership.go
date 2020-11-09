@@ -1,10 +1,13 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
+	MembershipTypeGreen  = "green"
 	MembershipTypeBronze = "bronze"
 	MembershipTypeSilver = "silver"
 	MembershipTypeGold   = "gold"
@@ -18,55 +21,37 @@ const (
 // Membership contains the data of a membership associated to a specific user
 type Membership struct {
 	Owner          sdk.AccAddress `json:"owner"`
+	TspAddress     sdk.AccAddress `json:"tsp_address"`
 	MembershipType string         `json:"membership_type"`
+	ExpiryAt       int64          `json:"expiry_at"` // Block height at which the CDP has been created
+
 }
 
 // NewMembership returns a new memberships containing the given data
-func NewMembership(membershipType string, owner sdk.AccAddress) Membership {
+func NewMembership(membershipType string, owner sdk.AccAddress, tsp sdk.AccAddress, expiryAt int64) Membership {
 	return Membership{
 		Owner:          owner,
+		TspAddress:     tsp,
 		MembershipType: membershipType,
+		ExpiryAt:       expiryAt,
 	}
 }
 
 // Equals returns true iff m and other contain the same data
 func (m Membership) Equals(other Membership) bool {
 	return m.Owner.Equals(other.Owner) &&
+		m.TspAddress.Equals(other.TspAddress) &&
+		m.ExpiryAt == other.ExpiryAt &&
 		m.MembershipType == other.MembershipType
 }
 
 // IsMembershipTypeValid returns true iff the given membership type if valid
 func IsMembershipTypeValid(membershipType string) bool {
-	return membershipType == MembershipTypeBronze ||
+	return membershipType == MembershipTypeGreen ||
+		membershipType == MembershipTypeBronze ||
 		membershipType == MembershipTypeSilver ||
 		membershipType == MembershipTypeGold ||
 		membershipType == MembershipTypeBlack
-}
-
-// CanUpgrade returns true iff the currentMembershipType is a less important than the newMembership type and thus a
-// user having a membership of the first type can upgrade to a one of the second type.
-func CanUpgrade(currentMembershipType string, newMembershipType string) bool {
-	if !IsMembershipTypeValid(currentMembershipType) || !IsMembershipTypeValid(newMembershipType) {
-		return false
-	}
-
-	if currentMembershipType == newMembershipType {
-		return false
-	}
-
-	if currentMembershipType == MembershipTypeBronze {
-		return true
-	}
-
-	if currentMembershipType == MembershipTypeSilver {
-		return newMembershipType != MembershipTypeBronze
-	}
-
-	if currentMembershipType == MembershipTypeGold {
-		return newMembershipType == MembershipTypeBlack
-	}
-
-	return false
 }
 
 // -------------------
@@ -100,4 +85,12 @@ func (slice Memberships) Equals(other Memberships) bool {
 	}
 
 	return true
+}
+
+// ValidateBasic returns error if Membership type is not valid
+func (m Membership) ValidateBasic() error {
+	if !IsMembershipTypeValid(m.MembershipType) {
+		return fmt.Errorf("membership has invalid type: %s", m.MembershipType)
+	}
+	return nil
 }

@@ -21,6 +21,7 @@ type MsgInviteUser struct {
 	Sender    sdk.AccAddress `json:"sender"`
 }
 
+// NewMsgInviteUser create MsgInviteUser
 func NewMsgInviteUser(sender, recipient sdk.AccAddress) MsgInviteUser {
 	return MsgInviteUser{
 		Recipient: recipient,
@@ -145,6 +146,53 @@ func (msg MsgAddTsp) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Government}
 }
 
+// --------------------------------
+// --- MsgRemoveTsp
+// --------------------------------
+
+// MsgRemoveTsp should be used when wanting to remove a address
+// from list of  Trusted Service Providers (TSPs).
+type MsgRemoveTsp struct {
+	Tsp        sdk.AccAddress `json:"tsp"`
+	Government sdk.AccAddress `json:"government"`
+}
+
+// NewMsgRemoveTsp return MsgRemoveTsp
+func NewMsgRemoveTsp(tsp, government sdk.AccAddress) MsgRemoveTsp {
+	return MsgRemoveTsp{Tsp: tsp, Government: government}
+}
+
+// Route Implements Msg.
+func (msg MsgRemoveTsp) Route() string { return RouterKey }
+
+// Type Implements Msg.
+func (msg MsgRemoveTsp) Type() string { return MsgTypeRemoveTsp }
+
+// ValidateBasic Implements Msg.
+func (msg MsgRemoveTsp) ValidateBasic() error {
+	if msg.Tsp.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid TSP address: %s", msg.Tsp))
+	}
+	if msg.Government.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
+	}
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgRemoveTsp) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgRemoveTsp) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Government}
+}
+
+// --------------------------------
+// --- MsgBuyMembership
+// --------------------------------
+
 // MsgBuyMembership allows a user to buy a membership.
 // In order to be able to perform such an action, the following requirements
 // should be met:
@@ -154,12 +202,14 @@ func (msg MsgAddTsp) GetSigners() []sdk.AccAddress {
 type MsgBuyMembership struct {
 	MembershipType string         `json:"membership_type"` // Membership type to be bought
 	Buyer          sdk.AccAddress `json:"buyer"`           // Buyer address
+	Tsp            sdk.AccAddress `json:"tsp"`             // Buyer address
 }
 
-func NewMsgBuyMembership(membershipType string, buyer sdk.AccAddress) MsgBuyMembership {
+func NewMsgBuyMembership(membershipType string, buyer sdk.AccAddress, tsp sdk.AccAddress) MsgBuyMembership {
 	return MsgBuyMembership{
 		MembershipType: membershipType,
 		Buyer:          buyer,
+		Tsp:            tsp,
 	}
 }
 
@@ -173,6 +223,10 @@ func (msg MsgBuyMembership) Type() string { return MsgTypeBuyMembership }
 func (msg MsgBuyMembership) ValidateBasic() error {
 	if msg.Buyer.Empty() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid buyer address: %s", msg.Buyer))
+	}
+
+	if msg.Tsp.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid tsp address: %s", msg.Tsp))
 	}
 
 	membershipType := strings.TrimSpace(msg.MembershipType)
@@ -190,8 +244,57 @@ func (msg MsgBuyMembership) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgBuyMembership) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Buyer}
+	return []sdk.AccAddress{msg.Tsp}
 }
+
+// --------------------------------
+// --- MsgRemoveMembership
+// --------------------------------
+
+type MsgRemoveMembership struct {
+	GovernmentAddress sdk.AccAddress `json:"government_address"` // Buyer address
+	Subscriber        sdk.AccAddress `json:"subscriber"`         // Buyer address
+}
+
+func NewMsgRemoveMembership(govAddr sdk.AccAddress, subscriber sdk.AccAddress) MsgRemoveMembership {
+	return MsgRemoveMembership{
+		GovernmentAddress: govAddr,
+		Subscriber:        subscriber,
+	}
+}
+
+// Route Implements Msg.
+func (msg MsgRemoveMembership) Route() string { return RouterKey }
+
+// Type Implements Msg.
+func (msg MsgRemoveMembership) Type() string { return MsgTypeRemoveMembership }
+
+// ValidateBasic Implements Msg.
+func (msg MsgRemoveMembership) ValidateBasic() error {
+	if msg.Subscriber.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
+	}
+
+	if msg.GovernmentAddress.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.GovernmentAddress))
+	}
+
+	return nil
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgRemoveMembership) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners Implements Msg.
+func (msg MsgRemoveMembership) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.GovernmentAddress}
+}
+
+// ---------------------------
+// --- MsgSetMembership
+// ---------------------------
 
 // MsgSetMembership allows government to assign a membership to Subscriber,
 // which has been already invited by another black membership user.
@@ -201,6 +304,7 @@ type MsgSetMembership struct {
 	NewMembership     string         `json:"new_membership"`
 }
 
+// NewMsgSetMembership create MsgSetMembership
 func NewMsgSetMembership(subscriber sdk.AccAddress, govAddr sdk.AccAddress, newMembership string) MsgSetMembership {
 	return MsgSetMembership{
 		Subscriber:        subscriber,
@@ -228,6 +332,11 @@ func (msg MsgSetMembership) ValidateBasic() error {
 	if msg.NewMembership == "" {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "new membership must not be empty")
 	}
+
+	/*membershipType := strings.TrimSpace(msg.NewMembership)
+	if !IsMembershipTypeValid(membershipType) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", msg.NewMembership))
+	}*/
 
 	return nil
 }

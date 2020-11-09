@@ -8,29 +8,40 @@ import (
 )
 
 var membershipRewards = map[string]map[string]sdk.Dec{
+	types.MembershipTypeGreen: {
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(5, 2),    // 1% of 5
+		types.MembershipTypeBronze: sdk.NewDecWithPrec(5, 1),    // 2% of 25
+		types.MembershipTypeSilver: sdk.NewDecWithPrec(75, 1),   // 3% of 250
+		types.MembershipTypeGold:   sdk.NewDecWithPrec(100, 0),  // 4% of 2500
+		types.MembershipTypeBlack:  sdk.NewDecWithPrec(1250, 0), // 2.5% of 50000
+	},
 	types.MembershipTypeBronze: {
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 2),  // 5% of 1.25
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(125, 3),  // 2.5% of 5
+		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 2),  // 5% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(25, 0),   // 10% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(375, 0),  // 15% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(5000, 0), // 20% of 25000
+		types.MembershipTypeBlack:  sdk.NewDecWithPrec(5000, 0), // 10% of 50000
 	},
 	types.MembershipTypeSilver: {
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(5, 0),     // 20% of 1.25
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(5, 1),     // 1% of 5
+		types.MembershipTypeBronze: sdk.NewDecWithPrec(5, 0),     // 20% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(75, 0),    // 30% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(1000, 0),  // 40% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(12500, 0), // 50% of 25000
+		types.MembershipTypeBlack:  sdk.NewDecWithPrec(12500, 0), // 12.5% of 50000
 	},
 	types.MembershipTypeGold: {
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 1),   // 50% of 1.25
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(2, 0),     // 40% of 5
+		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 1),   // 50% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(150, 0),   // 60% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(1750, 0),  // 70% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(20000, 0), // 80% of 25000
+		types.MembershipTypeBlack:  sdk.NewDecWithPrec(20000, 0), // 40% of 50000
 	},
 	types.MembershipTypeBlack: {
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(175, 2),   // 70% of 1.25
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(25, 1),    // 50% of 5
+		types.MembershipTypeBronze: sdk.NewDecWithPrec(175, 2),   // 70% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(200, 0),   // 80% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(2250, 0),  // 90% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(25000, 0), // 100% of 25000
+		types.MembershipTypeBlack:  sdk.NewDecWithPrec(25000, 0), // 50% of 50000
 	},
 }
 
@@ -72,6 +83,14 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 
 	// Get the reward amount by searching up inside the matrix.
 	// Multiply the found amount by 1.000.000 as coins are represented as millionth of units, and make it an int
+	/*
+		var rewardCrossValue sdk.Dec
+		var ok bool
+		if rewardCrossValue, ok = membershipRewards[senderMembershipType][recipientMembershipType]; !ok {
+			return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invalid reward options")
+		}
+		rewardAmount := rewardCrossValue.MulInt64(1000000).TruncateInt()
+	*/
 	rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
 
 	// Get the pool amount

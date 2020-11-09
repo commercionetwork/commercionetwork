@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"
@@ -22,32 +20,33 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 // and that the users associated with them have been invited by a TSP.
 func MembershipVerifiedInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		// get gov address
-		govAddr := k.governmentKeeper.GetGovernmentAddress(ctx)
+		/*
+			// get gov address
+			govAddr := k.governmentKeeper.GetGovernmentAddress(ctx)
 
-		// get all the users with membership
-		i := k.MembershipIterator(ctx)
-		defer i.Close()
-		for ; i.Valid(); i.Next() {
-			user := k.ExtractMembership(i.Key(), i.Value())
+			// get all the users with membership
+			i := k.MembershipIterator(ctx)
+			defer i.Close()
+			for ; i.Valid(); i.Next() {
+				membership := k.ExtractMembership(i.Value())
 
-			if govAddr.Equals(user.Owner) {
-				continue
-			}
+				if govAddr.Equals(membership.Owner) {
+					continue
+				}
 
-			// check that the user has been invited
-			invite, found := k.GetInvite(ctx, user.Owner)
-			if !found || (invite.Status == types.InviteStatusPending || invite.Status == types.InviteStatusInvalid) {
-				return sdk.FormatInvariant(
-					types.ModuleName,
-					membershipVerifiedInvName,
-					fmt.Sprintf(
-						"found user with membership but with no invite: %s",
-						user.Owner.String(),
-					),
-				), true
-			}
-		}
+				// check that the user has been invited
+				invite, found := k.GetInvite(ctx, membership.Owner)
+				if !found || (invite.Status == types.InviteStatusPending || invite.Status == types.InviteStatusInvalid) {
+					return sdk.FormatInvariant(
+						types.ModuleName,
+						membershipVerifiedInvName,
+						fmt.Sprintf(
+							"found user with membership but with no invite: %s",
+							membership.Owner.String(),
+						),
+					), true
+				}
+			}*/
 
 		return "", false
 	}

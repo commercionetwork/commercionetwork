@@ -2,15 +2,15 @@ package keeper
 
 import (
 	"fmt"
+	"strconv"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
-	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
@@ -18,6 +18,7 @@ import (
 )
 
 var membershipCosts = map[string]int64{
+	types.MembershipTypeGreen:  5,
 	types.MembershipTypeBronze: 25,
 	types.MembershipTypeSilver: 250,
 	types.MembershipTypeGold:   2500,
@@ -28,12 +29,26 @@ type Keeper struct {
 	Cdc              *codec.Codec
 	StoreKey         sdk.StoreKey
 	SupplyKeeper     supply.Keeper
+	SendKeeper       bank.SendKeeper
 	governmentKeeper government.Keeper
 	accountKeeper    auth.AccountKeeper
 }
 
+var (
+	// DPY is Days Per Year
+	DPY = sdk.NewDecWithPrec(36525, 2)
+	// HPD is Hours Per Day
+	HPD = sdk.NewDecWithPrec(24, 0)
+	// MPH is Minutes Per Hour
+	MPH = sdk.NewDecWithPrec(60, 0)
+	// BPM Blocks Per Minutes 7 secs x Block
+	BPM = sdk.NewDecWithPrec(9, 0)
+	// BPY is Blocks Per Year
+	BPY = DPY.Mul(HPD).Mul(MPH).Mul(BPM)
+)
+
 // NewKeeper creates new instances of the accreditation module Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, governmentKeeper government.Keeper, accountKeeper auth.AccountKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, sendKeeper bank.SendKeeper, governmentKeeper government.Keeper, accountKeeper auth.AccountKeeper) Keeper {
 
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -44,6 +59,7 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keep
 		Cdc:              cdc,
 		StoreKey:         storeKey,
 		SupplyKeeper:     supplyKeeper,
+		SendKeeper:       sendKeeper,
 		governmentKeeper: governmentKeeper,
 		accountKeeper:    accountKeeper,
 	}
@@ -56,29 +72,36 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 
 // BuyMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
-func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string) error {
+func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipType string, tsp sdk.AccAddress, height int64) error {
 	if membershipType == types.MembershipTypeBlack {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "cannot buy black membership")
 	}
 
-	// Transfer the buyer's tokens to the credit risk pool
+	// Transfer the tsp tokens to government
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
-	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(k.GetStableCreditsDenom(ctx), membershipPrice))
-	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, buyer, creditrisk.ModuleName, membershipCost); err != nil {
+	membershipCost := sdk.NewCoins(sdk.NewInt64Coin("uccc", membershipPrice))
+	govAddr := k.governmentKeeper.GetGovernmentAddress(ctx)
+	if err := k.SendKeeper.SendCoins(ctx, tsp, govAddr, membershipCost); err != nil {
 		return err
 	}
 
 	// Assign the membership
-	return k.AssignMembership(ctx, buyer, membershipType)
+	return k.AssignMembership(ctx, buyer, membershipType, tsp, height)
 }
 
 // AssignMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
 // If the user already has a membership assigned, deletes the current one and assigns to it the new one.
 // Returns the URI of the new minted token represented the assigned membership, or an error if something goes w
-func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string) error {
-	// Check the membership type validity
+// THIS FUNCTION CAN TRANSFORM WITH AssignMembership(ctx sdk.Context, m types.Membership)
+func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string, tsp sdk.AccAddress, height int64) error {
+	// Check the membership type validity.
 	if !types.IsMembershipTypeValid(membershipType) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
+	}
+
+	// Check if height is greater then zero
+	if height <= 0 {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry height: %s", strconv.FormatInt(height, 10)))
 	}
 
 	_ = k.RemoveMembership(ctx, user)
@@ -96,9 +119,19 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 		)
 	}
 
-	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(membershipType))
+	//height := ctx.BlockHeight() + (365 * 24 * 60 * 60/7)
+	membership := types.NewMembership(membershipType, user, tsp, height)
+
+	// Save membership
+	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
 
 	return nil
+}
+
+// ComputeExpiryHeight compute expiry height of membership.
+func (k Keeper) ComputeExpiryHeight(blockHeight int64) int64 {
+	blocksOfYear := DPY.Mul(HPD).Mul(MPH).Mul(BPM)
+	return sdk.NewDec(blockHeight).Add(blocksOfYear).TruncateInt64()
 }
 
 // GetMembership allows to retrieve any existent membership for the specified user.
@@ -114,9 +147,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 
 	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
-	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms.MembershipType)
-	ms.Owner = user
-
+	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
 	return ms, nil
 }
 
@@ -131,45 +162,93 @@ func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	}
 
 	store.Delete(k.storageForAddr(user))
-
 	return nil
 }
 
-// GetMembershipIterator returns an Iterator for all the memberships stored.
+// MembershipIterator returns an Iterator for all the memberships stored.
 func (k Keeper) MembershipIterator(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(k.StoreKey)
-
 	return sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
 }
 
-// ExtractMembership extracts a Membership struct from key and value retrieved
-// from MembershipIterator
-func (k Keeper) ExtractMembership(key []byte, value []byte) types.Membership {
-	rawAddr := key[len(types.MembershipsStorageKey):]
-
-	var addr sdk.AccAddress
-	var m string
-
-	k.Cdc.MustUnmarshalBinaryBare(rawAddr, &addr)
+// ExtractMembership extracts a Membership struct from retrieved value
+func (k Keeper) ExtractMembership(value []byte) types.Membership {
+	var m types.Membership
 	k.Cdc.MustUnmarshalBinaryBare(value, &m)
+	return m
+}
 
-	return types.Membership{
-		Owner:          addr,
-		MembershipType: m,
+// GetMemberships extracts all memerships
+func (k Keeper) GetMemberships(ctx sdk.Context) types.Memberships {
+	im := k.MembershipIterator(ctx)
+	ms := types.Memberships{}
+	defer im.Close()
+	for ; im.Valid(); im.Next() {
+		var m types.Membership
+		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		ms = append(ms, m)
 	}
 
+	return ms
 }
 
-// GetStableCreditsDenom returns the denom that must be used when referring to stable credits
-// that can be used to purchase a membership
-func (k Keeper) GetStableCreditsDenom(ctx sdk.Context) (denom string) {
-	store := ctx.KVStore(k.StoreKey)
-	return string(store.Get([]byte(types.StableCreditsStoreKey)))
+// GetTspMemberships extracts all memerships
+func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Memberships {
+	im := k.MembershipIterator(ctx)
+	m := types.Membership{}
+	ms := types.Memberships{}
+	defer im.Close()
+	for ; im.Valid(); im.Next() {
+		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		if !m.TspAddress.Equals(tsp) {
+			continue
+		}
+		ms = append(ms, m)
+	}
+
+	return ms
 }
 
-// SetStableCreditsDenom allows to set the denom of the coins that must be used as stable credits
-// when purchasing a membership.
-func (k Keeper) SetStableCreditsDenom(ctx sdk.Context, denom string) {
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.StableCreditsStoreKey), []byte(denom))
+// GetExportMemberships extracts all memberships
+func (k Keeper) GetExportMemberships(ctx sdk.Context, height int64) types.Memberships {
+	im := k.MembershipIterator(ctx)
+	m := types.Membership{}
+	ms := types.Memberships{}
+	defer im.Close()
+	for ; im.Valid(); im.Next() {
+		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		m.ExpiryAt = m.ExpiryAt - height
+		if m.ExpiryAt <= 0 && m.MembershipType != types.MembershipTypeBlack {
+			continue
+		}
+		ms = append(ms, m)
+	}
+
+	return ms
+}
+
+// RemoveExpiredMemberships delete all expired memberships
+func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
+	blockHeight := ctx.BlockHeight()
+	if blockHeight == 0 {
+		blockHeight = 1
+	}
+	for _, m := range k.GetMemberships(ctx) {
+		h := m.ExpiryAt - blockHeight
+		if h <= 0 {
+			if m.MembershipType == types.MembershipTypeBlack {
+				height := k.ComputeExpiryHeight(ctx.BlockHeight())
+				membership := types.NewMembership(types.MembershipTypeBlack, m.Owner, m.TspAddress, height)
+				store := ctx.KVStore(k.StoreKey)
+				staddr := k.storageForAddr(m.Owner)
+				store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
+			} else {
+				err := k.RemoveMembership(ctx, m.Owner)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+	}
+	return nil
 }

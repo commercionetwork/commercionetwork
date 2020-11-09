@@ -112,22 +112,22 @@ func NewAppModule(keeper keeper.Keeper, supplyKeeper supply.Keeper, govK governm
 	}
 }
 
-// module name
+// Name returns module name
 func (AppModule) Name() string {
 	return types.ModuleName
 }
 
-// register invariants
+// RegisterInvariants register invariants
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	keeper.RegisterInvariants(ir, am.keeper)
 }
 
-// module message route name
+// Route module message route name
 func (AppModule) Route() string {
 	return types.ModuleName
 }
 
-// module handler
+// NewHandler module handler
 func (am AppModule) NewHandler() sdk.Handler {
 	return keeper.NewHandler(am.keeper, am.governmentKeeper)
 }
@@ -142,7 +142,7 @@ func (am AppModule) NewQuerierHandler() sdk.Querier {
 	return keeper.NewQuerier(am.keeper)
 }
 
-// module init-genesis
+// InitGenesis handles module init-genesis
 func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
 	types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
@@ -157,7 +157,8 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // module begin-block
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
+func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
+	am.keeper.RemoveExpiredMemberships(ctx)
 }
 
 // module end-block

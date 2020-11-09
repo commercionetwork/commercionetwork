@@ -8,21 +8,23 @@ const (
 
 	// --- Keeper
 	MembershipsStorageKey  = StoreKey + ":storage:"
-	StableCreditsStoreKey  = StoreKey + ":stableCreditsDenom"
 	TrustedSignersStoreKey = StoreKey + ":signers"
 	InviteStorePrefix      = "invite:"
 	CredentialsStorePrefix = "credentials:"
 
 	// --- Messages
 	MsgTypeInviteUser                = "inviteUser"
-	MsgTypeSetUserVerified           = "setUserVerified"
 	MsgTypesDepositIntoLiquidityPool = "depositIntoLiquidityPool"
 	MsgTypeAddTsp                    = "addTsp"
+	MsgTypeRemoveTsp                 = "removeTsp"
 	MsgTypeBuyMembership             = "buyMembership"
 	MsgTypeSetMembership             = "setMembership"
+	MsgTypeRemoveMembership          = "removeMembership"
 
 	QueryGetInvites                 = "invites"
 	QueryGetTrustedServiceProviders = "tsps"
 	QueryGetPoolFunds               = "poolFunds"
-	QueryGetMembership              = "memberships"
+	QueryGetMembership              = "membership"
+	QueryGetMemberships             = "memberships"
+	QueryGetTspMemberships          = "sold"
 )

@@ -23,10 +23,11 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 	cmd.AddCommand(
 		getCmdGetInvites(cdc),
-		getCmdGetInvitesForUser(cdc),
 		getCmdGetTrustedServiceProviders(cdc),
 		getCmdGetPoolFunds(cdc),
 		getCmdMembershipForUser(cdc),
+		getCmdMemberships(cdc),
+		getCmdTspMemberships(cdc),
 	)
 
 	return cmd
@@ -34,7 +35,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 
 func getCmdGetInvites(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get-invites [user-address]",
+		Use:   "invites",
 		Short: "Get all membership invitations",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -47,31 +48,6 @@ func getInvitesFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 	cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetInvites)
-	res, _, err := cliCtx.QueryWithData(route, nil)
-	if err != nil {
-		return err
-	}
-
-	cmd.Println(string(res))
-
-	return nil
-}
-
-func getCmdGetInvitesForUser(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "get-invites-for-user [user-address]",
-		Short: "Get all membership invitations for a user",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return getInvitesForUserFunc(cmd, args, cdc)
-		},
-	}
-}
-
-func getInvitesForUserFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-	route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetInvites, args[0])
 	res, _, err := cliCtx.QueryWithData(route, nil)
 	if err != nil {
 		return err
@@ -134,7 +110,7 @@ func getCmdGetPoolFundsFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 
 func getCmdMembershipForUser(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "user-membership [user]",
+		Use:   "membership [user]",
 		Short: "Get user membership",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -150,6 +126,56 @@ func getCmdMembershipForUserFunc(cmd *cobra.Command, args []string, cdc *codec.C
 	res, _, err := cliCtx.QueryWithData(route, nil)
 	if err != nil {
 		return fmt.Errorf("could not get membership for user: %w", err)
+	}
+
+	cmd.Println(string(res))
+
+	return nil
+}
+
+func getCmdMemberships(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "memberships",
+		Short: "Get all memberships",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdMembershipsFunc(cmd, cdc)
+		},
+	}
+}
+
+func getCmdMembershipsFunc(cmd *cobra.Command, cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetMemberships)
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		return fmt.Errorf("could not get memberships: %w", err)
+	}
+
+	cmd.Println(string(res))
+
+	return nil
+}
+
+func getCmdTspMemberships(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "sold [tsp-address]",
+		Short: "Get tsp-address memberships",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdTspMembershipsFunc(cmd, args, cdc)
+		},
+	}
+}
+
+func getCmdTspMembershipsFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetTspMemberships, args[0])
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		return fmt.Errorf("could not get memberships for tsp: %w", err)
 	}
 
 	cmd.Println(string(res))

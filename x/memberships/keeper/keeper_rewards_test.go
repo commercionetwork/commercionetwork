@@ -33,15 +33,15 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			expectedUser: sdk.Coins{},
 		},
 		{
-			name:         "Existing deposit pool in incremented properly",
+			name:         "Existing deposit pool is incremented properly",
 			user:         testUser,
-			userAmt:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000))),
+			userAmt:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1100))),
 			existingPool: sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
 			deposit:      sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000))),
 			expectedPool: sdk.NewCoins(
 				sdk.NewCoin("ucommercio", sdk.NewInt(1100)),
 			),
-			expectedUser: sdk.Coins{},
+			expectedUser: sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(100))),
 		},
 		{
 			name:         "Deposit fails if user has not enough money",
@@ -54,7 +54,7 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 			error:        sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "insufficient account funds;  < 1000ucommercio"),
 		},
 		{
-			name:         "deposit fails because not expressed in ucommercio",
+			name:         "Deposit fails because not expressed in ucommercio",
 			user:         testUser,
 			userAmt:      sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100))),
 			existingPool: sdk.NewCoins(),
@@ -130,9 +130,16 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		{
 			name:                   "Invite recipient without membership returns error",
 			inviteSenderMembership: types.MembershipTypeBlack,
-			invite:                 types.NewInvite(testInviteSender, testUser, "black"),
+			invite:                 types.NewInvite(testInviteSender, testUser, types.MembershipTypeBlack),
 			user:                   testUser,
 			error:                  sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership"),
+		},
+		{
+			name:                      "Invite sender without membership returns error",
+			inviteRecipientMembership: types.MembershipTypeBlack,
+			invite:                    types.NewInvite(testInviteSender, testUser, types.MembershipTypeBlack),
+			user:                      testUser,
+			error:                     sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership"),
 		},
 		{
 			name:                      "Insufficient pool funds greater than zero gives all reward available",
@@ -194,8 +201,8 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			ctx, bk, _, k := SetupTestInput()
 
 			k.SaveInvite(ctx, test.invite)
-			_ = k.AssignMembership(ctx, test.invite.Sender, test.inviteSenderMembership)
-			_ = k.AssignMembership(ctx, test.invite.User, test.inviteRecipientMembership)
+			_ = k.AssignMembership(ctx, test.invite.Sender, test.inviteSenderMembership, testTsp, testHeight)
+			_ = k.AssignMembership(ctx, test.invite.User, test.inviteRecipientMembership, testTsp, testHeight)
 
 			_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.poolFunds)
 

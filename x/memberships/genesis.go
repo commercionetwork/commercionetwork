@@ -18,15 +18,12 @@ type GenesisState struct {
 	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
 	Invites                 types.Invites     `json:"invites"`                   // List of invites
 	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"` // List of trusted service providers
-	StableCreditsDenom      string            `json:"stable_credits_denom"`      // Stable credits denom used during membership buying
 	Memberships             types.Memberships `json:"memberships"`               // List of all the existing memberships
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState(stableCreditsDenom string) GenesisState {
-	return GenesisState{
-		StableCreditsDenom: stableCreditsDenom,
-	}
+	return GenesisState{}
 }
 
 // InitGenesis sets docs information for genesis.
@@ -55,32 +52,23 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 
 	// Import the memberships
 	for _, membership := range data.Memberships {
-		err := keeper.AssignMembership(ctx, membership.Owner, membership.MembershipType)
+		err := keeper.AssignMembership(ctx, membership.Owner, membership.MembershipType, membership.TspAddress, membership.ExpiryAt)
 		if err != nil {
 			panic(err)
 		}
 	}
-
-	// Set the stable credits denom
-	keeper.SetStableCreditsDenom(ctx, data.StableCreditsDenom)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	// create the Memberships set
-	var ms types.Memberships
-	i := keeper.MembershipIterator(ctx)
-	defer i.Close()
-	for ; i.Valid(); i.Next() {
-		ms = append(ms, keeper.ExtractMembership(i.Key(), i.Value()))
-	}
+	height := ctx.BlockHeight()
 
 	return GenesisState{
 		LiquidityPoolAmount:     keeper.GetPoolFunds(ctx),
 		Invites:                 keeper.GetInvites(ctx),
 		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
-		Memberships:             ms,
-		StableCreditsDenom:      keeper.GetStableCreditsDenom(ctx),
+		Memberships:             keeper.GetExportMemberships(ctx, height),
 	}
 }
 

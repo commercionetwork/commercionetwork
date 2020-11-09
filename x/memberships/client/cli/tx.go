@@ -28,8 +28,11 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	txCmd.AddCommand(
 		getCmdDepositIntoPool(cdc),
 		getCmdGovAssignMembership(cdc),
-		getCmdInviteUser(cdc),
-		getCmdBuyMembership(cdc),
+		getCmdGovRemoveMembership(cdc),
+		getCmdInvite(cdc),
+		getCmdBuy(cdc),
+		getCmdAddTsp(cdc),
+		getCmdRemoveTsp(cdc),
 	)
 
 	return txCmd
@@ -79,7 +82,7 @@ func getCmdDepositIntoPoolFunc(cdc *codec.Codec, cmd *cobra.Command, args []stri
 func getCmdGovAssignMembership(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gov-assign-membership [subscriber] [membership]",
-		Short: "As government, assign membership to a user",
+		Short: "As government, assign membership to a user. Membership \"none\" to remove membership",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getCmdGovAssignMembershipFunc(cdc, cmd, args)
@@ -104,8 +107,51 @@ func getCmdGovAssignMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []
 	if err != nil {
 		return err
 	}
+	if membership == "none" {
+		msgRemove := types.NewMsgRemoveMembership(govAddr, recipient)
+		err = msgRemove.ValidateBasic()
+		if err != nil {
+			return err
+		}
+		return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msgRemove})
 
-	msg := types.NewMsgSetMembership(recipient, govAddr, membership)
+	}
+	msgSet := types.NewMsgSetMembership(recipient, govAddr, membership)
+	err = msgSet.ValidateBasic()
+	if err != nil {
+		return err
+	}
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msgSet})
+
+}
+
+func getCmdGovRemoveMembership(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "gov-remove-membership [subscriber]",
+		Short: "As government, remove membership of a user.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdGovRemoveMembershipFunc(cdc, cmd, args)
+		},
+	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func getCmdGovRemoveMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	govAddr := cliCtx.GetFromAddress()
+	recipient, err := sdk.AccAddressFromBech32(args[0])
+
+	if err != nil {
+		return err
+	}
+	msg := types.NewMsgRemoveMembership(govAddr, recipient)
 	err = msg.ValidateBasic()
 	if err != nil {
 		return err
@@ -114,9 +160,9 @@ func getCmdGovAssignMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []
 	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
 
-func getCmdInviteUser(cdc *codec.Codec) *cobra.Command {
+func getCmdInvite(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "invite-user [subscriber]",
+		Use:   "invite [subscriber]",
 		Short: "Invite user to buy a membership",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -150,10 +196,10 @@ func getCmdInviteUserFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) e
 	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
 
-func getCmdBuyMembership(cdc *codec.Codec) *cobra.Command {
+func getCmdBuy(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "buy-membership [membership-type]",
-		Short: "Buy a membership",
+		Use:   "buy [subscriber] [membership-type]",
+		Short: "Tsp buy a membership for subscriber",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getCmdBuyMembershipFunc(cdc, cmd, args)
@@ -170,13 +216,92 @@ func getCmdBuyMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []string
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
-	buyer := cliCtx.GetFromAddress()
-	membershipType := args[0]
+	tsp := cliCtx.GetFromAddress()
 
-	msg := types.NewMsgBuyMembership(membershipType, buyer)
-
-	err := msg.ValidateBasic()
+	buyer, err := sdk.AccAddressFromBech32(args[0])
 	if err != nil {
+		return err
+	}
+	membershipType := args[1]
+
+	msg := types.NewMsgBuyMembership(membershipType, buyer, tsp)
+
+	err2 := msg.ValidateBasic()
+	if err2 != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func getCmdAddTsp(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-tsp [tsp-address]",
+		Short: "Tsp buy a membership for subscriber",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdAddTspFunc(cdc, cmd, args)
+		},
+	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func getCmdAddTspFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	govAddr := cliCtx.GetFromAddress()
+
+	tsp, err := sdk.AccAddressFromBech32(args[0])
+	if err != nil {
+		return err
+	}
+
+	msg := types.NewMsgAddTsp(tsp, govAddr)
+
+	err2 := msg.ValidateBasic()
+	if err2 != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func getCmdRemoveTsp(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-tsp [tsp-address]",
+		Short: "Tsp buy a membership for subscriber",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getCmdRemoveTspFunc(cdc, cmd, args)
+		},
+	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func getCmdRemoveTspFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error {
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	govAddr := cliCtx.GetFromAddress()
+
+	tsp, err := sdk.AccAddressFromBech32(args[0])
+	if err != nil {
+		return err
+	}
+
+	msg := types.NewMsgRemoveTsp(tsp, govAddr)
+
+	err2 := msg.ValidateBasic()
+	if err2 != nil {
 		return err
 	}
 

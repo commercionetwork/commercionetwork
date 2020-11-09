@@ -46,6 +46,7 @@ func (invite Invite) Empty() bool {
 func (invite Invite) Equals(other Invite) bool {
 	return invite.Sender.Equals(other.Sender) &&
 		invite.User.Equals(other.User) &&
+		invite.SenderMembership == other.SenderMembership &&
 		invite.Status == other.Status
 }
 

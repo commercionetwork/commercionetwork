@@ -19,6 +19,18 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 	}
 }
 
+// RemoveTrustedServiceProvider allows to remove the given tsp from trusted entity
+// list that can sign transactions setting an accrediter for a user.
+func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
+	store := ctx.KVStore(k.StoreKey)
+
+	signers := k.GetTrustedServiceProviders(ctx)
+	if signers, success := signers.RemoveIfExisting(tsp); success {
+		newSignersBz := k.Cdc.MustMarshalBinaryBare(&signers)
+		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
+	}
+}
+
 // GetTrustedServiceProviders returns the list of signers that are allowed to sign
 // transactions setting a specific accrediter for a user.
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
@@ -28,12 +40,20 @@ func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers ctypes.Addr
 
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
 	k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
-
+	// Cannot use add govAddress: trust service provider doesn't work proprerly
+	//signers = append(signers, k.governmentKeeper.GetGovernmentAddress(ctx))
 	return
 }
 
 // IsTrustedServiceProvider tells if the given signer is a trusted one or not
 func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
+
 	signers := k.GetTrustedServiceProviders(ctx)
-	return signers.Contains(signer)
+	return signers.Contains(signer) || signer.Equals(k.governmentKeeper.GetGovernmentAddress(ctx))
+}
+
+// TspIterator returns an Iterator for all the tsps stored.
+func (k Keeper) TspIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.StoreKey)
+	return sdk.KVStorePrefixIterator(store, []byte(types.TrustedSignersStoreKey))
 }

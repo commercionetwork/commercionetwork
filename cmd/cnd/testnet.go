@@ -316,7 +316,7 @@ func initGenFiles(
 	cdc.MustUnmarshalJSON(appGenState[membershipsTypes.ModuleName], &memberState)
 	memberState.TrustedServiceProviders, _ = memberState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
 	// cnd add-genesis-membership black
-	membership := membershipsTypes.NewMembership("black", genAccounts[0].GetAddress())
+	membership := membershipsTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), int64(100)) // Calculate
 	memberState.Memberships, _ = memberState.Memberships.AppendIfMissing(membership)
 
 	genesisStateBz = cdc.MustMarshalJSON(memberState)

@@ -183,7 +183,7 @@ func TestMsgAddTsp_Type(t *testing.T) {
 	require.Equal(t, types.MsgTypeAddTsp, msgAddTsp.Type())
 }
 
-func TestMsgAddTsp_ValidateBasic_ValidMsg(t *testing.T) {
+func TestMsgAddTsp_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgAddTsp
@@ -240,13 +240,85 @@ func TestMsgAddTsp_UnmarshalJson(t *testing.T) {
 	require.Equal(t, government, msg.Government)
 }
 
+// --------------------------------
+// --- MsgRemoveTsp
+// --------------------------------
+
+var msgRemoveTsp = types.NewMsgRemoveTsp(tsp, government)
+
+func TestMsgRemoveTsp_Route(t *testing.T) {
+	require.Equal(t, types.RouterKey, msgRemoveTsp.Route())
+}
+
+func TestMsgRemoveTsp_Type(t *testing.T) {
+	require.Equal(t, types.MsgTypeRemoveTsp, msgRemoveTsp.Type())
+}
+
+func TestMsgRemoveTsp_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name  string
+		msg   types.MsgRemoveTsp
+		error error
+	}{
+		{
+			name:  "Valid message does not return any error",
+			msg:   msgRemoveTsp,
+			error: nil,
+		},
+		{
+			name:  "Missing government returns error",
+			msg:   types.MsgRemoveTsp{Government: nil, Tsp: tsp},
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid government address: "),
+		},
+		{
+			name:  "Missing tsp returns error",
+			msg:   types.MsgRemoveTsp{Government: government, Tsp: nil},
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid TSP address: "),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			if test.error != nil {
+				require.Equal(t, test.error.Error(), test.msg.ValidateBasic().Error())
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
+		})
+	}
+}
+
+func TestMsgRemoveTsp_GetSignBytes(t *testing.T) {
+	actual := msgRemoveTsp.GetSignBytes()
+	expected := sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msgRemoveTsp))
+	require.Equal(t, expected, actual)
+}
+
+func TestMsgRemoveTsp_GetSigners(t *testing.T) {
+	actual := msgRemoveTsp.GetSigners()
+	require.Equal(t, 1, len(actual))
+	require.Equal(t, msgRemoveTsp.Government, actual[0])
+}
+
+func TestMsgRemoveTsp_UnmarshalJson(t *testing.T) {
+	json := `{"type":"commercio/MsgRemoveTsp","value":{"government":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","tsp":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+
+	var msg types.MsgRemoveTsp
+	types.ModuleCdc.MustUnmarshalJSON([]byte(json), &msg)
+
+	require.Equal(t, tsp, msg.Tsp)
+	require.Equal(t, government, msg.Government)
+}
+
 // ---------------------------
-// --- MsgBuyMemberships
+// --- MsgBuyMembership
 // ---------------------------
 
 var testBuyer, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testTsp, _ = sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
 var TestMembershipType = "bronze"
-var msgBuyMembership = types.NewMsgBuyMembership(TestMembershipType, testBuyer)
+var msgBuyMembership = types.NewMsgBuyMembership(TestMembershipType, testBuyer, testTsp)
 
 func TestMsgBuyMembership_Route(t *testing.T) {
 	require.Equal(t, types.RouterKey, msgBuyMembership.Route())
@@ -256,7 +328,7 @@ func TestMsgBuyMembership_Type(t *testing.T) {
 	require.Equal(t, types.MsgTypeBuyMembership, msgBuyMembership.Type())
 }
 
-func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
+func TestMsgBuyMembership_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgBuyMembership
@@ -269,17 +341,17 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 		},
 		{
 			name:  "Missing buyer returns error",
-			msg:   types.NewMsgBuyMembership(TestMembershipType, nil),
+			msg:   types.NewMsgBuyMembership(TestMembershipType, nil, testTsp),
 			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid buyer address: "),
 		},
 		{
 			name:  "Missing membership returns error",
-			msg:   types.NewMsgBuyMembership("", testBuyer),
+			msg:   types.NewMsgBuyMembership("", testBuyer, testTsp),
 			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: "),
 		},
 		{
 			name:  "Invalid membership returns error",
-			msg:   types.NewMsgBuyMembership("grn", testBuyer),
+			msg:   types.NewMsgBuyMembership("grn", testBuyer, testTsp),
 			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 	}
@@ -297,14 +369,18 @@ func TestMsgBuyMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 }
 
 func TestMsgBuyMembership_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgBuyMembership","value":{"buyer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","membership_type":"bronze"}}`
+	expected := `{"type":"commercio/MsgBuyMembership","value":{"buyer":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","membership_type":"bronze","tsp":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
 	require.Equal(t, expected, string(msgBuyMembership.GetSignBytes()))
 }
 
 func TestMsgBuyMembership_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{msgBuyMembership.Buyer}
+	expected := []sdk.AccAddress{msgBuyMembership.Tsp}
 	require.Equal(t, expected, msgBuyMembership.GetSigners())
 }
+
+// ---------------------------
+// --- MsgSetMembership
+// ---------------------------
 
 var msgSetBlackmembership = types.NewMsgSetMembership(testBuyer, government, "black")
 
@@ -316,7 +392,7 @@ func TestNewMsgSetMembership_Type(t *testing.T) {
 	require.Equal(t, types.MsgTypeSetMembership, msgSetBlackmembership.Type())
 }
 
-func TestNewMsgSetMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
+func TestNewMsgSetMembership_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name  string
 		msg   types.MsgSetMembership
@@ -342,6 +418,11 @@ func TestNewMsgSetMembership_ValidateBasic_AllFieldsCorrect(t *testing.T) {
 			msg:   types.NewMsgSetMembership(testBuyer, government, ""),
 			error: "new membership must not be empty",
 		},
+		/*{
+			name:  "Error membership returns error",
+			msg:   types.NewMsgSetMembership(testBuyer, government, "nvm"),
+			error: "Invalid membership type",
+		},*/
 	}
 
 	for _, test := range tests {
@@ -364,4 +445,65 @@ func TestNewMsgSetMembership_GetSignBytes(t *testing.T) {
 func TestNewMsgSetMembership_GetSigners(t *testing.T) {
 	expected := []sdk.AccAddress{msgSetBlackmembership.GovernmentAddress}
 	require.Equal(t, expected, msgSetBlackmembership.GetSigners())
+}
+
+// ---------------------------
+// --- MsgRemoveMembership
+// ---------------------------
+
+var testRemoveMembershipGov, _ = sdk.AccAddressFromBech32("cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg")
+var testRemoveMembershipSubscriber, _ = sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
+var msgRemoveMembership = types.NewMsgRemoveMembership(testRemoveMembershipGov, testRemoveMembershipSubscriber)
+
+func TestNewMsgRemoveMembership_Route(t *testing.T) {
+	require.Equal(t, types.RouterKey, msgRemoveMembership.Route())
+}
+
+func TestNewMsgRemoveMembership_Type(t *testing.T) {
+	require.Equal(t, types.MsgTypeRemoveMembership, msgRemoveMembership.Type())
+}
+
+func TestNewMsgRemoveMembership_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name  string
+		msg   types.MsgRemoveMembership
+		error string
+	}{
+		{
+			name:  "Valid message does not return any error",
+			msg:   msgRemoveMembership,
+			error: "",
+		},
+		{
+			name:  "Missing gov address returns error",
+			msg:   types.NewMsgRemoveMembership(nil, testRemoveMembershipSubscriber),
+			error: "Invalid government address: ",
+		},
+		{
+			name:  "Missing subscriber returns error",
+			msg:   types.NewMsgRemoveMembership(testRemoveMembershipGov, nil),
+			error: "Invalid subscriber address: ",
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			if test.error != "" {
+				require.Contains(t, test.msg.ValidateBasic().Error(), test.error)
+			} else {
+				require.NoError(t, test.msg.ValidateBasic())
+			}
+		})
+	}
+}
+
+func TestNewMsgRemoveMembership_GetSignBytes(t *testing.T) {
+	expected := `{"type":"commercio/MsgRemoveMembership","value":{"government_address":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","subscriber":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+	require.Equal(t, expected, string(msgRemoveMembership.GetSignBytes()))
+}
+
+func TestNewMsgRemoveMembership_GetSigners(t *testing.T) {
+	expected := []sdk.AccAddress{msgRemoveMembership.GovernmentAddress}
+	require.Equal(t, expected, msgRemoveMembership.GetSigners())
 }

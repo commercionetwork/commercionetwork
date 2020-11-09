@@ -13,7 +13,9 @@ import (
 
 func TestMembership_Equals(t *testing.T) {
 	owner, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
-	membership := types.NewMembership(types.MembershipTypeBronze, owner)
+	tsp, _ := sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
+	height := int64(10)
+	membership := types.NewMembership(types.MembershipTypeBronze, owner, tsp, height)
 
 	tests := []struct {
 		name          string
@@ -24,25 +26,37 @@ func TestMembership_Equals(t *testing.T) {
 		{
 			name:          "Different type returns false",
 			first:         membership,
-			second:        types.NewMembership(types.MembershipTypeSilver, membership.Owner),
+			second:        types.NewMembership(types.MembershipTypeSilver, membership.Owner, membership.TspAddress, membership.ExpiryAt),
 			shouldBeEqual: false,
 		},
 		{
 			name:          "Different type returns false",
 			first:         membership,
-			second:        types.NewMembership(types.MembershipTypeGold, membership.Owner),
+			second:        types.NewMembership(types.MembershipTypeGold, membership.Owner, membership.TspAddress, membership.ExpiryAt),
 			shouldBeEqual: false,
 		},
 		{
 			name:          "Different type returns false",
 			first:         membership,
-			second:        types.NewMembership(types.MembershipTypeBlack, membership.Owner),
+			second:        types.NewMembership(types.MembershipTypeBlack, membership.Owner, membership.TspAddress, membership.ExpiryAt),
 			shouldBeEqual: false,
 		},
 		{
 			name:          "Different owner returns false",
 			first:         membership,
-			second:        types.NewMembership(membership.MembershipType, sdk.AccAddress{}),
+			second:        types.NewMembership(membership.MembershipType, sdk.AccAddress{}, membership.TspAddress, membership.ExpiryAt),
+			shouldBeEqual: false,
+		},
+		{
+			name:          "Different tsp returns false",
+			first:         membership,
+			second:        types.NewMembership(membership.MembershipType, membership.Owner, sdk.AccAddress{}, membership.ExpiryAt),
+			shouldBeEqual: false,
+		},
+		{
+			name:          "Different expiry at returns false",
+			first:         membership,
+			second:        types.NewMembership(membership.MembershipType, membership.Owner, membership.TspAddress, int64(11)),
 			shouldBeEqual: false,
 		},
 		{
@@ -61,11 +75,12 @@ func TestMembership_Equals(t *testing.T) {
 	}
 }
 
-func TestIsMembershipTypeValid(t *testing.T) {
+func TestMembership_IsMembershipTypeValid(t *testing.T) {
 	tests := []struct {
 		membershipType string
 		shouldBeValid  bool
 	}{
+		{membershipType: types.MembershipTypeGreen, shouldBeValid: true},
 		{membershipType: types.MembershipTypeBronze, shouldBeValid: true},
 		{membershipType: types.MembershipTypeSilver, shouldBeValid: true},
 		{membershipType: types.MembershipTypeGold, shouldBeValid: true},
@@ -81,47 +96,13 @@ func TestIsMembershipTypeValid(t *testing.T) {
 	}
 }
 
-func TestCanUpgrade(t *testing.T) {
-	tests := []struct {
-		first              string
-		second             string
-		shouldBeUpgradable bool
-	}{
-		{first: types.MembershipTypeBronze, second: types.MembershipTypeBronze, shouldBeUpgradable: false},
-		{first: types.MembershipTypeBronze, second: types.MembershipTypeSilver, shouldBeUpgradable: true},
-		{first: types.MembershipTypeBronze, second: types.MembershipTypeGold, shouldBeUpgradable: true},
-		{first: types.MembershipTypeBronze, second: types.MembershipTypeBlack, shouldBeUpgradable: true},
-
-		{first: types.MembershipTypeSilver, second: types.MembershipTypeBronze, shouldBeUpgradable: false},
-		{first: types.MembershipTypeSilver, second: types.MembershipTypeSilver, shouldBeUpgradable: false},
-		{first: types.MembershipTypeSilver, second: types.MembershipTypeGold, shouldBeUpgradable: true},
-		{first: types.MembershipTypeSilver, second: types.MembershipTypeBlack, shouldBeUpgradable: true},
-
-		{first: types.MembershipTypeGold, second: types.MembershipTypeBronze, shouldBeUpgradable: false},
-		{first: types.MembershipTypeGold, second: types.MembershipTypeSilver, shouldBeUpgradable: false},
-		{first: types.MembershipTypeGold, second: types.MembershipTypeGold, shouldBeUpgradable: false},
-		{first: types.MembershipTypeGold, second: types.MembershipTypeBlack, shouldBeUpgradable: true},
-
-		{first: types.MembershipTypeBlack, second: types.MembershipTypeBronze, shouldBeUpgradable: false},
-		{first: types.MembershipTypeBlack, second: types.MembershipTypeSilver, shouldBeUpgradable: false},
-		{first: types.MembershipTypeBlack, second: types.MembershipTypeGold, shouldBeUpgradable: false},
-		{first: types.MembershipTypeBlack, second: types.MembershipTypeBlack, shouldBeUpgradable: false},
-
-		{first: "nonexistingmembership", second: "neitheristhis", shouldBeUpgradable: false},
-	}
-
-	for _, test := range tests {
-		test := test
-		t.Run(fmt.Sprintf("%s can upgrade to %s", test.first, test.second), func(t *testing.T) {
-			require.Equal(t, test.shouldBeUpgradable, types.CanUpgrade(test.first, test.second))
-		})
-	}
-}
-
 func TestMemberships_AppendIfMissing(t *testing.T) {
 	owner, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
-	membership1 := types.NewMembership(types.MembershipTypeBronze, owner)
-	membership2 := types.NewMembership(types.MembershipTypeSilver, owner)
+	tsp, _ := sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
+	height := int64(10)
+
+	membership1 := types.NewMembership(types.MembershipTypeBronze, owner, tsp, height)
+	membership2 := types.NewMembership(types.MembershipTypeSilver, owner, tsp, height)
 
 	tests := []struct {
 		name             string
@@ -155,6 +136,50 @@ func TestMemberships_AppendIfMissing(t *testing.T) {
 			result, appended := test.memberships.AppendIfMissing(test.membership)
 			require.Equal(t, test.shouldBeAppended, appended)
 			require.Contains(t, result, test.membership)
+		})
+	}
+}
+
+func TestMembership_ValidateBasic(t *testing.T) {
+	owner, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
+	tsp, _ := sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
+	height := int64(10)
+
+	tests := []struct {
+		name    string
+		invite  types.Membership
+		wantErr bool
+	}{
+		{
+			"A valid bronze membership",
+			types.Membership{
+				Owner:          owner,
+				TspAddress:     tsp,
+				MembershipType: types.MembershipTypeBronze,
+				ExpiryAt:       height,
+			},
+			false,
+		},
+		{
+			"A invalid membership",
+			types.Membership{
+				Owner:          owner,
+				TspAddress:     tsp,
+				MembershipType: "nvm",
+				ExpiryAt:       height,
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			res := tt.invite.ValidateBasic()
+			if tt.wantErr {
+				require.Error(t, res)
+			} else {
+				require.NoError(t, res)
+			}
 		})
 	}
 }

@@ -21,8 +21,12 @@ func NewHandler(keeper Keeper, governmentKeeper government.Keeper) sdk.Handler {
 			return handleMsgDepositIntoPool(ctx, keeper, msg)
 		case types.MsgAddTsp:
 			return handleMsgAddTrustedSigner(ctx, keeper, governmentKeeper, msg)
+		case types.MsgRemoveTsp:
+			return handleMsgRemoveTrustedSigner(ctx, keeper, governmentKeeper, msg)
 		case types.MsgBuyMembership:
 			return handleMsgBuyMembership(ctx, keeper, msg)
+		case types.MsgRemoveMembership:
+			return handleMsgRemoveMembership(ctx, keeper, msg)
 		case types.MsgSetMembership:
 			return handleMsgSetMembership(ctx, keeper, msg)
 		default:
@@ -63,7 +67,25 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 
+	membership, err := keeper.GetMembership(ctx, msg.Tsp)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Tsp %s has no membership", msg.Tsp))
+	}
+
+	if membership.MembershipType != types.MembershipTypeBlack {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Membership of Tsp %s is %s but must be %s", msg.Tsp, membership.MembershipType, types.MembershipTypeBlack))
+	}
+
 	keeper.AddTrustedServiceProvider(ctx, msg.Tsp)
+	return &sdk.Result{}, nil
+}
+
+func handleMsgRemoveTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgRemoveTsp) (*sdk.Result, error) {
+	if !governmentKeeper.GetGovernmentAddress(ctx).Equals(msg.Government) {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
+	}
+
+	keeper.RemoveTrustedServiceProvider(ctx, msg.Tsp)
 	return &sdk.Result{}, nil
 }
 
@@ -88,15 +110,22 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", msg.MembershipType))
 	}
 
+	if !keeper.IsTrustedServiceProvider(ctx, msg.Tsp) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid trust service provider: %s", msg.Tsp))
+	}
+
 	// Make sure the user can upgrade
-	membership, err := keeper.GetMembership(ctx, msg.Buyer)
+	/*membership, err := keeper.GetMembership(ctx, msg.Buyer)
 	if err == nil && !types.CanUpgrade(membership.MembershipType, msg.MembershipType) {
 		errMsg := fmt.Sprintf("Cannot upgrade from %s membership to %s", membership.MembershipType, msg.MembershipType)
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
-	}
+	}*/
+
+	// Compute expiry height
+	height := keeper.ComputeExpiryHeight(ctx.BlockHeight())
 
 	// Allow him to buy the membership
-	if err := keeper.BuyMembership(ctx, msg.Buyer, msg.MembershipType); err != nil {
+	if err := keeper.BuyMembership(ctx, msg.Buyer, msg.MembershipType, msg.Tsp, height); err != nil {
 		return nil, err
 	}
 
@@ -106,6 +135,20 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	}
 
 	return &sdk.Result{}, nil
+}
+
+// handleMsgRemoveMembership allows to handle a MsgRemoveMembership message.
+// It checks that whoever sent the message is actually the government and remove membership
+func handleMsgRemoveMembership(ctx sdk.Context, keeper Keeper, msg types.MsgRemoveMembership) (*sdk.Result, error) {
+	govAddr := keeper.governmentKeeper.GetGovernmentAddress(ctx)
+	if !govAddr.Equals(msg.GovernmentAddress) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
+			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
+		)
+	}
+	err := keeper.RemoveMembership(ctx, msg.Subscriber)
+	return &sdk.Result{}, err
+
 }
 
 // handleMsgSetMembership handles MsgSetMembership messages.
@@ -129,7 +172,9 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "government could not invite user")
 	}
 
-	err = keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership)
+	height := keeper.ComputeExpiryHeight(ctx.BlockHeight())
+
+	err = keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership, govAddr, height)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not assign membership to user %s: %s", msg.Subscriber, err.Error()),

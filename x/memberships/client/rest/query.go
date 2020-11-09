@@ -13,27 +13,35 @@ import (
 
 const (
 	restParamAddress = "user"
+	restParamTsp     = "tsp"
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
-	r.HandleFunc("/invites", getInvitesHandler(cliCtx)).Methods("GET")
-	r.HandleFunc(
-		fmt.Sprintf("/invites/{%s}", restParamAddress),
-		getInvitesForUserHandler(cliCtx)).
-		Methods("GET")
+	r.HandleFunc("/invites", getInvitesHandler(cliCtx)).Methods(http.MethodGet)
 
-	r.HandleFunc("/tsps", getTrustedServiceProvidersHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/tsps", getTrustedServiceProvidersHandler(cliCtx)).Methods(http.MethodGet)
 
+	r.HandleFunc("/memberships", getMemberships(cliCtx)).Methods(http.MethodGet)
 	r.HandleFunc(
 		fmt.Sprintf("/membership/{%s}", restParamAddress),
 		getMembershipForAddr(cliCtx),
 	).Methods(http.MethodGet)
 
 	r.HandleFunc(
-		"/accreditations-funds",
+		"/funds",
 		getGetPoolFunds(cliCtx)).
-		Methods("GET")
+		Methods(http.MethodGet)
+
+	r.HandleFunc(
+		fmt.Sprintf("/sold/{%s}", restParamTsp),
+		getSoldForTsp(cliCtx),
+	).Methods(http.MethodGet)
+
 }
+
+// ----------------------------------
+// --- Memberships
+// ----------------------------------
 
 func getMembershipForAddr(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +49,19 @@ func getMembershipForAddr(cliCtx context.CLIContext) http.HandlerFunc {
 		address := vars[restParamAddress]
 
 		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetMembership, address)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+func getMemberships(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetMemberships)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -68,22 +89,6 @@ func getInvitesHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
-func getInvitesForUserHandler(cliCtx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		address := vars[restParamAddress]
-
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetInvites, address)
-		res, _, err := cliCtx.QueryWithData(route, nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		rest.PostProcessResponse(w, cliCtx, res)
-	}
-}
-
 // ---------------------------------
 // --- Trusted Service Providers
 // ---------------------------------
@@ -100,6 +105,26 @@ func getTrustedServiceProvidersHandler(cliCtx context.CLIContext) http.HandlerFu
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
+
+func getSoldForTsp(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		tsp := vars[restParamTsp]
+
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetTspMemberships, tsp)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+// ---------------------------------
+// --- Abr
+// ---------------------------------
 
 func getGetPoolFunds(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

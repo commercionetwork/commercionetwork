@@ -44,7 +44,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 		}
 
 		if test.inviterMembership != "" {
-			err := k.AssignMembership(ctx, test.invite.Sender, test.inviterMembership)
+			err := k.AssignMembership(ctx, test.invite.Sender, test.inviterMembership, testTsp, testHeight)
 			require.NoError(t, err)
 		}
 		err := k.InviteUser(ctx, test.invite.User, test.invite.Sender)
@@ -105,7 +105,7 @@ func TestKeeper_GetInvite(t *testing.T) {
 	}
 }
 
-func TestKeeper_GetInvites_EmptyList(t *testing.T) {
+func TestKeeper_GetInvites(t *testing.T) {
 	tests := []struct {
 		name     string
 		stored   types.Invites
