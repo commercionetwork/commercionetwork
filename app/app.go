@@ -280,10 +280,10 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	)
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
 	app.upgradeKeeper = upgrade.NewKeeper(map[int64]bool{}, keys[upgrade.StoreKey], app.cdc)
-	/* // Update demo here https://github.com/regen-network/gaia/blob/gaia-upgrade-demo/docs/upgrade-demo.md
-	app.upgradeKeeper.SetUpgradeHandler("testUpgrade", func(ctx sdk.Context, plan upgrade.Plan) {
-		// add upgrade operations here
-	})*/
+	// Update demo here https://github.com/regen-network/gaia/blob/gaia-upgrade-demo/docs/upgrade-demo.md
+	for upgradeName, upgradeHandler := range upgrades {
+		app.upgradeKeeper.SetUpgradeHandler(upgradeName, upgradeHandler)
+	}
 
 	// Encapsulated modules
 	app.customBankKeeper = custombank.NewKeeper(app.cdc, app.keys[custombank.StoreKey], app.bankKeeper)
