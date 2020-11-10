@@ -237,7 +237,7 @@ func getCmdBuyMembershipFunc(cdc *codec.Codec, cmd *cobra.Command, args []string
 func getCmdAddTsp(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-tsp [tsp-address]",
-		Short: "Tsp buy a membership for subscriber",
+		Short: "Government add a tsp",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getCmdAddTspFunc(cdc, cmd, args)
@@ -273,8 +273,8 @@ func getCmdAddTspFunc(cdc *codec.Codec, cmd *cobra.Command, args []string) error
 
 func getCmdRemoveTsp(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-tsp [tsp-address]",
-		Short: "Tsp buy a membership for subscriber",
+		Use:   "remove-tsp [tsp-address]",
+		Short: "Government remove a tsp",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getCmdRemoveTspFunc(cdc, cmd, args)
