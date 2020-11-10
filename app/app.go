@@ -348,7 +348,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		slashing.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
-		crisis.ModuleName, genutil.ModuleName,
 
 		// Custom modules
 		governmentTypes.ModuleName,
