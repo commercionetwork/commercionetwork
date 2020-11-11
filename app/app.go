@@ -1,6 +1,12 @@
 package app
 
 import (
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+
+	customUpgrade "github.com/commercionetwork/commercionetwork/x/upgrade"
+	customUpgradeKeeper "github.com/commercionetwork/commercionetwork/x/upgrade/keeper"
+	customUpgradeTypes "github.com/commercionetwork/commercionetwork/x/upgrade/types"
+
 	"io"
 	"os"
 
@@ -108,6 +114,7 @@ var (
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
+		upgrade.AppModuleBasic{},
 
 		// Encapsulated modules
 		customcrisis.NewAppModuleBasic(DefaultBondDenom),
@@ -123,6 +130,7 @@ var (
 		pricefeed.AppModuleBasic{},
 		vbr.AppModuleBasic{},
 		creditrisk.AppModuleBasic{},
+		customUpgrade.AppModuleBasic{},
 	)
 
 	maccPerms = map[string][]string{
@@ -187,19 +195,21 @@ type CommercioNetworkApp struct {
 	distrKeeper    distr.Keeper
 	crisisKeeper   crisis.Keeper
 	paramsKeeper   params.Keeper
+	upgradeKeeper  upgrade.Keeper
 
 	// Encapsulated modules
 	customBankKeeper custombank.Keeper
 
 	// Custom modules
-	docsKeeper       docsKeeper.Keeper
-	governmentKeeper governmentKeeper.Keeper
-	idKeeper         idKeeper.Keeper
-	membershipKeeper membershipsKeeper.Keeper
-	mintKeeper       commerciomintKeeper.Keeper
-	priceFeedKeeper  pricefeedKeeper.Keeper
-	vbrKeeper        vbrKeeper.Keeper
-	creditriskKeeper creditrisk.Keeper
+	docsKeeper          docsKeeper.Keeper
+	governmentKeeper    governmentKeeper.Keeper
+	idKeeper            idKeeper.Keeper
+	membershipKeeper    membershipsKeeper.Keeper
+	mintKeeper          commerciomintKeeper.Keeper
+	priceFeedKeeper     pricefeedKeeper.Keeper
+	vbrKeeper           vbrKeeper.Keeper
+	creditriskKeeper    creditrisk.Keeper
+	customUpgradeKeeper customUpgradeKeeper.Keeper
 
 	mm *module.Manager
 }
@@ -221,6 +231,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, distr.StoreKey, slashing.StoreKey,
 		params.StoreKey,
+		upgrade.StoreKey,
 
 		// Encapsulated modules
 		custombank.StoreKey,
@@ -269,6 +280,11 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		app.cdc, keys[slashing.StoreKey], &stakingKeeper, slashingSubspace,
 	)
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
+	app.upgradeKeeper = upgrade.NewKeeper(map[int64]bool{}, keys[upgrade.StoreKey], app.cdc)
+	// Update demo here https://github.com/regen-network/gaia/blob/gaia-upgrade-demo/docs/upgrade-demo.md
+	for upgradeName, upgradeHandler := range upgrades {
+		app.upgradeKeeper.SetUpgradeHandler(upgradeName, upgradeHandler)
+	}
 
 	// Encapsulated modules
 	app.customBankKeeper = custombank.NewKeeper(app.cdc, app.keys[custombank.StoreKey], app.bankKeeper)
@@ -282,6 +298,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper)
 	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciomintTypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
 	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
+	app.customUpgradeKeeper = customUpgradeKeeper.NewKeeper(cdc, app.governmentKeeper, app.upgradeKeeper)
 
 	// register the proposal types
 	// govRouter := gov.NewRouter()
@@ -319,12 +336,15 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
 		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper),
 		creditrisk.NewAppModule(app.creditriskKeeper),
+		upgrade.NewAppModule(app.upgradeKeeper),
+		customUpgrade.NewAppModule(app.customUpgradeKeeper, app.bankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
 	app.mm.SetOrderBeginBlockers(
+		customUpgradeTypes.ModuleName,
 		distr.ModuleName, slashing.ModuleName,
 
 		// Custom modules
@@ -357,6 +377,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		pricefeedTypes.ModuleName,
 		vbrTypes.ModuleName,
 		creditriskTypes.ModuleName,
+		upgrade.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
