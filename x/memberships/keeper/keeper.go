@@ -29,7 +29,7 @@ type Keeper struct {
 	Cdc              *codec.Codec
 	StoreKey         sdk.StoreKey
 	SupplyKeeper     supply.Keeper
-	SendKeeper       bank.SendKeeper
+	BankKeeper       bank.Keeper
 	governmentKeeper government.Keeper
 	accountKeeper    auth.AccountKeeper
 }
@@ -48,7 +48,7 @@ var (
 )
 
 // NewKeeper creates new instances of the accreditation module Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, sendKeeper bank.SendKeeper, governmentKeeper government.Keeper, accountKeeper auth.AccountKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keeper, sendKeeper bank.Keeper, governmentKeeper government.Keeper, accountKeeper auth.AccountKeeper) Keeper {
 
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -59,7 +59,7 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, supplyKeeper supply.Keep
 		Cdc:              cdc,
 		StoreKey:         storeKey,
 		SupplyKeeper:     supplyKeeper,
-		SendKeeper:       sendKeeper,
+		BankKeeper:       sendKeeper,
 		governmentKeeper: governmentKeeper,
 		accountKeeper:    accountKeeper,
 	}
@@ -81,7 +81,7 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 	membershipPrice := membershipCosts[membershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin("uccc", membershipPrice))
 	govAddr := k.governmentKeeper.GetGovernmentAddress(ctx)
-	if err := k.SendKeeper.SendCoins(ctx, tsp, govAddr, membershipCost); err != nil {
+	if err := k.BankKeeper.SendCoins(ctx, tsp, govAddr, membershipCost); err != nil {
 		return err
 	}
 

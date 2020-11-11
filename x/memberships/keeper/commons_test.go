@@ -60,7 +60,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
 
-	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk, bk.BaseSendKeeper, govk, ak)
+	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk, bk, govk, ak)
 
 	// Set module accounts
 	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
