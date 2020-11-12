@@ -19,7 +19,7 @@ import (
 
 func TestAppModuleBasic(t *testing.T) {
 	amb := memberships.AppModuleBasic{}
-	require.Equal(t, "accreditations", amb.Name())
+	require.Equal(t, "abr", amb.Name())
 	require.Equal(t, `{"liquidity_pool_amount":[],"invites":null,"trusted_service_providers":null,"memberships":null}`, string(amb.DefaultGenesis()))
 
 	require.NoError(t, amb.ValidateGenesis(json.RawMessage(`{}`)))
@@ -31,7 +31,7 @@ func TestAppModuleBasic(t *testing.T) {
 }
 
 func TestAppModule(t *testing.T) {
-	moduleName := "accreditations"
+	moduleName := "abr"
 	am := memberships.NewAppModule(keeper.Keeper{}, supply.Keeper{}, government.Keeper{}, auth.AccountKeeper{})
 	require.Equal(t, moduleName, am.Name())
 	require.Equal(t, moduleName, am.QuerierRoute())

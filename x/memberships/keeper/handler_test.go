@@ -150,6 +150,7 @@ func Test_handleAddTrustedSigner(t *testing.T) {
 
 var testInviteSender, _ = sdk.AccAddressFromBech32("cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my")
 
+// TODO: verify balance of tsp and government
 func Test_handleMsgBuyMembership(t *testing.T) {
 	government, _ := sdk.AccAddressFromBech32("cosmos15ne6fy8uukkyyf072qklkeleh2zf39k52mcg2f")
 	tests := []struct {
@@ -171,7 +172,7 @@ func Test_handleMsgBuyMembership(t *testing.T) {
 			name: "Invalid message returns error",
 			msg:  sdk.NewTestMsg(),
 			// TODO change module name invalidate test
-			error: "Unrecognized accreditations message type: Test message",
+			error: "Unrecognized abr message type: Test message",
 		},
 		{
 			name:       "Valid membership allows buying",

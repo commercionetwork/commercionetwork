@@ -222,13 +222,13 @@ setMembership
 Get membership invites for user:
 
 ```bash
-cncli query accreditations get-invites-for-user [address]
+cncli query abr get-invites-for-user [address]
 ```
 
 Get all the membership invites:
 
 ```bash
-cncli query accreditations get-invites
+cncli query abr get-invites
 ```
 
 #### REST
@@ -297,7 +297,7 @@ http://localhost:1317/invites
 #### CLI
 
 ```bash
-cncli query accreditations trusted-service-providers
+cncli query abr trusted-service-providers
 ```
 
 #### REST
@@ -331,7 +331,7 @@ http://localhost:1317/tsps
 #### CLI
 
 ```bash
-cncli query accreditations pool-funds
+cncli query abr pool-funds
 ```
 
 #### REST
@@ -339,7 +339,7 @@ cncli query accreditations pool-funds
 Endpoints:
      
 ```
-/accreditations-funds
+/abr-funds
 ```
 
 ##### Example 
@@ -347,7 +347,7 @@ Endpoints:
 Getting the reward pool funds amount:
 
 ```
-http://localhost:1317/accreditations-funds
+http://localhost:1317/abr-funds
 ```
 
 ##### Response
@@ -366,7 +366,7 @@ http://localhost:1317/accreditations-funds
 #### CLI
 
 ```bash
-cncli query accreditations user-membership
+cncli query abr user-membership
 ```
 
 #### REST

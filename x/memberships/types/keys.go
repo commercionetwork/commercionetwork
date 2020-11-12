@@ -1,7 +1,7 @@
 package types
 
 const (
-	ModuleName   = "accreditations"
+	ModuleName   = "abr"
 	StoreKey     = ModuleName
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName

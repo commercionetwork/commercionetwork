@@ -13,7 +13,7 @@ import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
-// GenesisState - accreditations genesis state
+// GenesisState - abr genesis state
 type GenesisState struct {
 	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
 	Invites                 types.Invites     `json:"invites"`                   // List of invites
