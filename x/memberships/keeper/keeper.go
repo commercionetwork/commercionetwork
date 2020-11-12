@@ -103,6 +103,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	if height <= 0 {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry height: %s", strconv.FormatInt(height, 10)))
 	}
+	// TODO control if address is a tsp
 
 	_ = k.RemoveMembership(ctx, user)
 
@@ -154,7 +155,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 // RemoveMembership allows to remove any existing membership associated with the given user.
 func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
-
+	// TODO control if address is a tsp
 	if !store.Has(k.storageForAddr(user)) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),

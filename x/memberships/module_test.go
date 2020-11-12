@@ -45,13 +45,14 @@ func TestAppModule(t *testing.T) {
 	require.NotNil(t, am.NewQuerierHandler())
 }
 
-/*func TestAppModule_InitGenesis(t *testing.T) {
-	ctx, bk, gk, k := keeper.SetupTestInput()
-	am := memberships.NewAppModule(k, bk.supply.keeper, gk, auth.AccountKeeper{})
+func TestAppModule_InitGenesis(t *testing.T) {
+	ctx, _, gk, k := keeper.SetupTestInput()
+	am := memberships.NewAppModule(k, k.SupplyKeeper, gk, auth.AccountKeeper{})
 	require.Equal(t, 0, len(am.InitGenesis(ctx, json.RawMessage(`{}`))))
 	require.Panics(t, func() { am.InitGenesis(sdk.Context{}, json.RawMessage(`{}`)) })
 }
 
+/*
 func TestAppModule_ExportGenesis(t *testing.T) {
 	ctx, bk, gk, k := SetupTestInput()
 	require.Equal(t, `{"oracles":null,"assets":null,"raw_prices":[],"denom_blacklist":null}`,

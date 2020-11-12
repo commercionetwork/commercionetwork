@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -12,16 +12,13 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 
-	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-
-	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
-// This function create an environment to test modules
-func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keeper) {
+// SetupTestInput function create an environment to test modules
+func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	cdc := testCodec()
@@ -31,7 +28,6 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 		params.StoreKey,
 		supply.StoreKey,
 		governmentTypes.StoreKey,
-
 		types.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -52,15 +48,14 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, keeper.Keepe
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
 
 	maccPerms := map[string][]string{
-		types.ModuleName:      {supply.Minter, supply.Burner},
-		creditrisk.ModuleName: nil,
+		types.ModuleName: {supply.Minter, supply.Burner},
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("stake", 1))))
 
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
 
-	k := keeper.NewKeeper(cdc, keys[types.StoreKey], sk, bk, govk, ak)
+	k := NewKeeper(cdc, keys[types.StoreKey], sk, bk, govk, ak)
 
 	// Set module accounts
 	memAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)

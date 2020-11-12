@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/stretchr/testify/require"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
@@ -74,7 +73,7 @@ func Test_handleMsgInviteUser(t *testing.T) {
 				_ = k.AssignMembership(ctx, test.invitee, test.membershipType, testTsp, testHeight)
 			}
 
-			handler := keeper.NewHandler(k, govK)
+			handler := NewHandler(k, govK)
 			msg := types.NewMsgInviteUser(test.invitee, test.invitedUser)
 			_, err := handler(ctx, msg)
 
@@ -135,7 +134,7 @@ func Test_handleAddTrustedSigner(t *testing.T) {
 				k.AssignMembership(ctx, test.membership.Owner, test.membership.MembershipType, test.membership.TspAddress, test.membership.ExpiryAt)
 			}
 
-			handler := keeper.NewHandler(k, gk)
+			handler := NewHandler(k, gk)
 			msg := types.NewMsgAddTsp(test.tsp, test.signer)
 			_, err = handler(ctx, msg)
 
@@ -248,7 +247,7 @@ func Test_handleMsgBuyMembership(t *testing.T) {
 
 			}
 
-			handler := keeper.NewHandler(k, gk)
+			handler := NewHandler(k, gk)
 			_, err := handler(ctx, test.msg)
 
 			if len(test.error) == 0 {
@@ -370,7 +369,7 @@ func Test_handleMsgSetMembership(t *testing.T) {
 				k.AddTrustedServiceProvider(ctx, tt.message.GovernmentAddress)
 			}
 
-			handler := keeper.NewHandler(k, gk)
+			handler := NewHandler(k, gk)
 			_, err := handler(ctx, tt.message)
 
 			if tt.want != "" {
@@ -423,7 +422,7 @@ func Test_handleMsgRemoveMembership(t *testing.T) {
 				k.AddTrustedServiceProvider(ctx, tt.message.GovernmentAddress)
 			}
 
-			handler := keeper.NewHandler(k, gk)
+			handler := NewHandler(k, gk)
 			_, err := handler(ctx, tt.message)
 
 			if tt.want != "" {
@@ -466,7 +465,7 @@ func Test_handleMsgRemoveTrustedSigner(t *testing.T) {
 			err := gk.SetGovernmentAddress(ctx, government)
 			require.NoError(t, err)
 
-			handler := keeper.NewHandler(k, gk)
+			handler := NewHandler(k, gk)
 			msg := types.NewMsgRemoveTsp(test.tsp, test.signer)
 			_, err = handler(ctx, msg)
 
@@ -509,7 +508,7 @@ func Test_handleMsgDepositIntoPool(t *testing.T) {
 			ctx, bk, gk, k := SetupTestInput()
 			_ = bk.SetCoins(ctx, testUser, test.bankAmount)
 
-			handler := keeper.NewHandler(k, gk)
+			handler := NewHandler(k, gk)
 			_, err := handler(ctx, test.msg)
 			require.NoError(t, err)
 

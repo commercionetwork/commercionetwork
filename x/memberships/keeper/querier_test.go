@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	"testing"
@@ -8,7 +8,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/memberships/keeper"
 	"github.com/commercionetwork/commercionetwork/x/memberships/types"
 )
 
@@ -16,7 +15,7 @@ var request abci.RequestQuery
 
 func TestNewQuerier_InvalidMsg(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
-	querier := keeper.NewQuerier(k)
+	querier := NewQuerier(k)
 	_, res := querier(ctx, []string{""}, abci.RequestQuery{})
 	require.Error(t, res)
 }
@@ -70,7 +69,7 @@ func Test_queryGetInvites(t *testing.T) {
 				k.SaveInvite(ctx, i)
 			}
 
-			querier := keeper.NewQuerier(k)
+			querier := NewQuerier(k)
 			path := []string{types.QueryGetInvites}
 			actualBz, _ := querier(ctx, path, request)
 
@@ -109,7 +108,7 @@ func Test_queryGetSigners(t *testing.T) {
 				k.AddTrustedServiceProvider(ctx, t)
 			}
 
-			querier := keeper.NewQuerier(k)
+			querier := NewQuerier(k)
 			request := abci.RequestQuery{}
 
 			path := []string{types.QueryGetTrustedServiceProviders}
@@ -151,7 +150,7 @@ func Test_queryGetPoolFunds(t *testing.T) {
 				_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.pool)
 			}
 
-			querier := keeper.NewQuerier(k)
+			querier := NewQuerier(k)
 			request := abci.RequestQuery{}
 
 			path := []string{types.QueryGetPoolFunds}
@@ -195,7 +194,7 @@ func Test_queryGetMembership(t *testing.T) {
 			_ = k.AssignMembership(ctx, test.existingMembership.Owner, test.existingMembership.MembershipType, test.existingMembership.TspAddress, test.existingMembership.ExpiryAt)
 		}
 
-		querier := keeper.NewQuerier(k)
+		querier := NewQuerier(k)
 
 		path := []string{types.QueryGetMembership, testUser.String()}
 		actualBz, err := querier(ctx, path, request)
@@ -243,7 +242,7 @@ func Test_queryGetMemberships(t *testing.T) {
 			_ = k.AssignMembership(ctx, m.Owner, m.MembershipType, m.TspAddress, m.ExpiryAt)
 		}
 
-		querier := keeper.NewQuerier(k)
+		querier := NewQuerier(k)
 		request := abci.RequestQuery{}
 
 		path := []string{types.QueryGetMemberships}
@@ -305,7 +304,7 @@ func Test_queryGetTspMemberships(t *testing.T) {
 			_ = k.AssignMembership(ctx, m.Owner, m.MembershipType, m.TspAddress, m.ExpiryAt)
 		}
 		k.AddTrustedServiceProvider(ctx, test.tsp)
-		querier := keeper.NewQuerier(k)
+		querier := NewQuerier(k)
 
 		path := []string{types.QueryGetTspMemberships, test.tsp.String()}
 		actualBz, _ := querier(ctx, path, request)
