@@ -40,11 +40,6 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	// Import the signers
-	for _, signer := range data.TrustedServiceProviders {
-		keeper.AddTrustedServiceProvider(ctx, signer)
-	}
-
 	// Import all the invites
 	for _, invite := range data.Invites {
 		keeper.SaveInvite(ctx, invite)
@@ -57,6 +52,12 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 			panic(err)
 		}
 	}
+
+	// Import the signers
+	for _, signer := range data.TrustedServiceProviders {
+		keeper.AddTrustedServiceProvider(ctx, signer)
+	}
+
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

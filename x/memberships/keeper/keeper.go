@@ -99,11 +99,17 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
 
+	// TODO resolve problems in init genesis to remove membershipType != types.MembershipTypeBlack
+	if k.IsTrustedServiceProvider(ctx, user) && membershipType != types.MembershipTypeBlack {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
+			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user.String()),
+		)
+	}
+
 	// Check if height is greater then zero
 	if height <= 0 {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry height: %s", strconv.FormatInt(height, 10)))
 	}
-	// TODO control if address is a tsp
 
 	_ = k.RemoveMembership(ctx, user)
 
@@ -155,7 +161,13 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 // RemoveMembership allows to remove any existing membership associated with the given user.
 func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
-	// TODO control if address is a tsp
+
+	if k.IsTrustedServiceProvider(ctx, user) {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
+			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user.String()),
+		)
+	}
+
 	if !store.Has(k.storageForAddr(user)) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),

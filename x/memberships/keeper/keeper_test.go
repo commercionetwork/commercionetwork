@@ -62,6 +62,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 		existingMembership string
 		membershipType     string
 		expectedNotExists  bool
+		userIsTsp          bool
 		user               sdk.AccAddress
 		tsp                sdk.AccAddress
 		height             int64
@@ -106,6 +107,16 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			existingMembership: types.MembershipTypeBronze,
 			membershipType:     types.MembershipTypeGold,
 		},
+		{
+			name:               "Cannot assign tsp membership",
+			userIsTsp:          true,
+			user:               testUser,
+			tsp:                testTsp,
+			height:             testHeight,
+			existingMembership: types.MembershipTypeBlack,
+			membershipType:     types.MembershipTypeGold,
+			error:              sdkErr.Wrap(sdkErr.ErrUnauthorized, "account \""+testUser.String()+"\" is a Trust Service Provider: remove from tsps list before"),
+		},
 		/*{
 			name:               "Assign \"none\" membership type to delete membership",
 			user:               testUser,
@@ -126,6 +137,10 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			if len(test.existingMembership) != 0 {
 				err := k.AssignMembership(ctx, test.user, test.existingMembership, test.tsp, test.height)
 				require.NoError(t, err)
+			}
+
+			if test.userIsTsp {
+				k.AddTrustedServiceProvider(ctx, test.user)
 			}
 
 			err := k.AssignMembership(ctx, test.user, test.membershipType, test.tsp, test.height)
@@ -224,6 +239,7 @@ func TestKeeper_RemoveMembership(t *testing.T) {
 	tests := []struct {
 		name       string
 		membership types.Membership
+		tsp        sdk.AccAddress
 		mustError  bool
 	}{
 		{
@@ -236,6 +252,12 @@ func TestKeeper_RemoveMembership(t *testing.T) {
 			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
 			mustError:  false,
 		},
+		{
+			name:       "Tsp membership cannot be removed",
+			membership: types.NewMembership(types.MembershipTypeBlack, testTsp, testUser, testHeight),
+			tsp:        testUser,
+			mustError:  true,
+		},
 	}
 
 	for _, test := range tests {
@@ -245,6 +267,10 @@ func TestKeeper_RemoveMembership(t *testing.T) {
 		// a membership first
 		if !test.mustError {
 			_ = k.AssignMembership(ctx, test.membership.Owner, test.membership.MembershipType, test.membership.TspAddress, test.membership.ExpiryAt)
+		}
+
+		if test.tsp != nil {
+			k.AddTrustedServiceProvider(ctx, test.tsp)
 		}
 
 		err := k.RemoveMembership(ctx, test.membership.Owner)

@@ -139,9 +139,9 @@ func handleMsgRemoveMembership(ctx sdk.Context, keeper Keeper, msg types.MsgRemo
 			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
 		)
 	}
+	// TODO add control for tsp?
 	err := keeper.RemoveMembership(ctx, msg.Subscriber)
 	return &sdk.Result{}, err
-
 }
 
 // handleMsgSetMembership handles MsgSetMembership messages.
