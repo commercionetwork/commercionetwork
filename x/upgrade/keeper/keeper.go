@@ -32,11 +32,7 @@ func (k Keeper) ScheduleUpgrade(ctx sdk.Context, address sdk.AccAddress, plan up
 		return fmt.Errorf("only the government address can schedule an upgrade")
 	}
 
-	if err := k.UpgradeKeeper.ScheduleUpgrade(ctx, plan); err != nil {
-		return err
-	}
-
-	return nil
+	return k.UpgradeKeeper.ScheduleUpgrade(ctx, plan)
 }
 
 // GetUpgradePlan returns the currently scheduled Plan if any, setting havePlan to true if there is a scheduled

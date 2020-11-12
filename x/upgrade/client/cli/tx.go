@@ -59,7 +59,7 @@ const (
 func scheduleUpgradeTimeCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schedule-time [NAME] [TIME] [INFO]",
-		Short: fmt.Sprint("Schedule an upgrade with time format ", TimeFormat),
+		Short: fmt.Sprint("Schedule an upgrade with UTC time using format ", TimeFormat),
 		Long:  "Example usage:\n cncli tx upgrade schedule-time testUpgrade 2020-10-23T15:21:05Z this_is_just_a_test --from ",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -91,6 +91,7 @@ func scheduleUpgradeCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec,
 		}
 	} else {
 		upgradeTime, err = time.Parse(TimeFormat, args[1])
+		upgradeTime = upgradeTime.UTC()
 		if err != nil {
 			return err
 		}
