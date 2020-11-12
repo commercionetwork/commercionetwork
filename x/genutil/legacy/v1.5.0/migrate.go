@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	v134memberships "github.com/commercionetwork/commercionetwork/x/memberships/legacy/v1.3.4"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
+	v134memberships "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v1.3.4"
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -67,7 +67,7 @@ func migrateMemberships(oldState v134memberships.GenesisState) GenesisState {
 	return ng
 }
 
-func lookupMembership(memberships membershipsTypes.Memberships, owner sdk.AccAddress) (string, error) {
+func lookupMembership(memberships commerciokycTypes.Memberships, owner sdk.AccAddress) (string, error) {
 	for _, m := range memberships {
 		if m.Owner.Equals(owner) {
 			return m.MembershipType, nil

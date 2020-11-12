@@ -222,13 +222,13 @@ setMembership
 Get membership invites for user:
 
 ```bash
-cncli query abr get-invites-for-user [address]
+cncli query commerciokyc get-invites-for-user [address]
 ```
 
 Get all the membership invites:
 
 ```bash
-cncli query abr get-invites
+cncli query commerciokyc get-invites
 ```
 
 #### REST
@@ -297,7 +297,7 @@ http://localhost:1317/invites
 #### CLI
 
 ```bash
-cncli query abr trusted-service-providers
+cncli query commerciokyc trusted-service-providers
 ```
 
 #### REST
@@ -331,7 +331,7 @@ http://localhost:1317/tsps
 #### CLI
 
 ```bash
-cncli query abr pool-funds
+cncli query commerciokyc pool-funds
 ```
 
 #### REST
@@ -339,7 +339,7 @@ cncli query abr pool-funds
 Endpoints:
      
 ```
-/abr-funds
+/commerciokyc-funds
 ```
 
 ##### Example 
@@ -347,7 +347,7 @@ Endpoints:
 Getting the reward pool funds amount:
 
 ```
-http://localhost:1317/abr-funds
+http://localhost:1317/commerciokyc-funds
 ```
 
 ##### Response
@@ -366,7 +366,7 @@ http://localhost:1317/abr-funds
 #### CLI
 
 ```bash
-cncli query abr user-membership
+cncli query commerciokyc user-membership
 ```
 
 #### REST

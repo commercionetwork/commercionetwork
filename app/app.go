@@ -17,11 +17,12 @@ import (
 
 	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
 
+	commerciokycKeeper "github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	docsKeeper "github.com/commercionetwork/commercionetwork/x/docs/keeper"
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	membershipsKeeper "github.com/commercionetwork/commercionetwork/x/memberships/keeper"
 	vbrKeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/creditrisk"
@@ -35,12 +36,11 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/id"
 	idKeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
 	idTypes "github.com/commercionetwork/commercionetwork/x/id/types"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships"
+	commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/vbr"
 
@@ -118,7 +118,7 @@ var (
 		docs.AppModuleBasic{},
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
-		memberships.NewAppModuleBasic(StableCreditsDenom),
+		commerciokyc.NewAppModuleBasic(StableCreditsDenom),
 		commerciomint.NewAppModuleBasic(),
 		pricefeed.AppModuleBasic{},
 		vbr.AppModuleBasic{},
@@ -133,7 +133,7 @@ var (
 
 		// Custom modules
 		commerciomintTypes.ModuleName: {supply.Minter, supply.Burner},
-		membershipsTypes.ModuleName:   {supply.Burner},
+		commerciokycTypes.ModuleName:  {supply.Burner},
 		idTypes.ModuleName:            nil,
 		vbrTypes.ModuleName:           {supply.Minter},
 		creditriskTypes.ModuleName:    nil,
@@ -141,7 +141,7 @@ var (
 
 	allowedModuleReceivers = types.Strings{
 		commerciomintTypes.ModuleName,
-		membershipsTypes.ModuleName,
+		commerciokycTypes.ModuleName,
 		vbrTypes.ModuleName,
 		creditriskTypes.ModuleName,
 	}
@@ -196,7 +196,7 @@ type CommercioNetworkApp struct {
 	docsKeeper       docsKeeper.Keeper
 	governmentKeeper governmentKeeper.Keeper
 	idKeeper         idKeeper.Keeper
-	membershipKeeper membershipsKeeper.Keeper
+	membershipKeeper commerciokycKeeper.Keeper
 	mintKeeper       commerciomintKeeper.Keeper
 	priceFeedKeeper  pricefeedKeeper.Keeper
 	vbrKeeper        vbrKeeper.Keeper
@@ -230,7 +230,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		docsTypes.StoreKey,
 		governmentTypes.StoreKey,
 		idTypes.StoreKey,
-		membershipsTypes.StoreKey,
+		commerciokycTypes.StoreKey,
 		commerciomintTypes.StoreKey,
 		pricefeedTypes.StoreKey,
 		vbrTypes.StoreKey,
@@ -276,7 +276,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// Custom modules
 	app.governmentKeeper = governmentKeeper.NewKeeper(app.cdc, app.keys[governmentTypes.StoreKey])
-	app.membershipKeeper = membershipsKeeper.NewKeeper(app.cdc, app.keys[membershipsTypes.StoreKey], app.supplyKeeper, app.bankKeeper, app.governmentKeeper, app.accountKeeper)
+	app.membershipKeeper = commerciokycKeeper.NewKeeper(app.cdc, app.keys[commerciokycTypes.StoreKey], app.supplyKeeper, app.bankKeeper, app.governmentKeeper, app.accountKeeper)
 	app.docsKeeper = docsKeeper.NewKeeper(app.keys[docsTypes.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = idKeeper.NewKeeper(app.cdc, app.keys[idTypes.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeedKeeper.NewKeeper(app.cdc, app.keys[pricefeedTypes.StoreKey], app.governmentKeeper)
@@ -315,7 +315,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		docs.NewAppModule(app.docsKeeper),
 		government.NewAppModule(app.governmentKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper, app.supplyKeeper),
-		memberships.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper, app.accountKeeper),
+		commerciokyc.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper, app.accountKeeper),
 		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
 		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper),
@@ -327,7 +327,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// CanWithdrawInvariant invariant.
 	app.mm.SetOrderBeginBlockers(
 		distr.ModuleName, slashing.ModuleName,
-		membershipsTypes.ModuleName,
+		commerciokycTypes.ModuleName,
 
 		// Custom modules
 		vbrTypes.ModuleName,
@@ -339,7 +339,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 		// Custom modules
 		pricefeedTypes.ModuleName,
-		membershipsTypes.ModuleName,
+		commerciokycTypes.ModuleName,
 		commerciomintTypes.ModuleName,
 	)
 
@@ -354,7 +354,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		governmentTypes.ModuleName,
 		docsTypes.ModuleName,
 		idTypes.ModuleName,
-		membershipsTypes.ModuleName,
+		commerciokycTypes.ModuleName,
 		commerciomintTypes.ModuleName,
 		pricefeedTypes.ModuleName,
 		vbrTypes.ModuleName,

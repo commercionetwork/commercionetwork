@@ -8,10 +8,10 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc"
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/commercionetwork/commercionetwork/x/government"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	"github.com/commercionetwork/commercionetwork/x/memberships"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -56,17 +56,17 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 
 			// set a black membership to the government address
 			// add a membership to the genesis state
-			var genStateMemberships memberships.GenesisState
-			err = json.Unmarshal(appState[membershipsTypes.ModuleName], &genStateMemberships)
+			var genStateMemberships commerciokyc.GenesisState
+			err = json.Unmarshal(appState[commerciokycTypes.ModuleName], &genStateMemberships)
 			if err != nil {
 				return err
 			}
 
-			membership := membershipsTypes.NewMembership(membershipsTypes.MembershipTypeBlack, address, address, int64(10)) // TODO calculate blocks in one year
+			membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, address, int64(10)) // TODO calculate blocks in one year
 			genStateMemberships.Memberships, _ = genStateMemberships.Memberships.AppendIfMissing(membership)
 
 			genesisStateBzMemberships := cdc.MustMarshalJSON(genStateMemberships)
-			appState[membershipsTypes.ModuleName] = genesisStateBzMemberships
+			appState[commerciokycTypes.ModuleName] = genesisStateBzMemberships
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {
