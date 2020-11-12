@@ -114,13 +114,6 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid trust service provider: %s", msg.Tsp))
 	}
 
-	// Make sure the user can upgrade
-	/*membership, err := keeper.GetMembership(ctx, msg.Buyer)
-	if err == nil && !types.CanUpgrade(membership.MembershipType, msg.MembershipType) {
-		errMsg := fmt.Sprintf("Cannot upgrade from %s membership to %s", membership.MembershipType, msg.MembershipType)
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
-	}*/
-
 	// Compute expiry height
 	height := keeper.ComputeExpiryHeight(ctx.BlockHeight())
 

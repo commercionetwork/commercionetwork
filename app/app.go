@@ -327,6 +327,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// CanWithdrawInvariant invariant.
 	app.mm.SetOrderBeginBlockers(
 		distr.ModuleName, slashing.ModuleName,
+		membershipsTypes.ModuleName,
 
 		// Custom modules
 		vbrTypes.ModuleName,

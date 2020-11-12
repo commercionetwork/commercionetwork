@@ -1,6 +1,10 @@
 package cli
 
 import (
+	"fmt"
+
+	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/memberships"
 	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 
@@ -36,9 +40,25 @@ func AddGenesisTspCmd(ctx *server.Context, cdc *codec.Codec,
 				return err
 			}
 
+			// add minter to the app state
+			var genStateGovernment government.GenesisState
+			cdc.MustUnmarshalJSON(appState[governmentTypes.ModuleName], &genStateGovernment)
+
+			if genStateGovernment.GovernmentAddress.Empty() {
+				return fmt.Errorf("Government address isn't set")
+			}
+
+			govAddress := genStateGovernment.GovernmentAddress
+
 			// add tsp to the app state
 			var genState memberships.GenesisState
 			cdc.MustUnmarshalJSON(appState[membershipsTypes.ModuleName], &genState)
+
+			// set a black membership to the government address
+			// add a membership to the genesis state
+
+			membership := membershipsTypes.NewMembership(membershipsTypes.MembershipTypeBlack, address, govAddress, int64(10)) // TODO calculate blocks in one year
+			genState.Memberships, _ = genState.Memberships.AppendIfMissing(membership)
 
 			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(address)
 

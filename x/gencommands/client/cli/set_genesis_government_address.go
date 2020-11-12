@@ -62,7 +62,7 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 				return err
 			}
 
-			membership := membershipsTypes.NewMembership("black", address, address, int64(100)) // Calculate
+			membership := membershipsTypes.NewMembership(membershipsTypes.MembershipTypeBlack, address, address, int64(10)) // TODO calculate blocks in one year
 			genStateMemberships.Memberships, _ = genStateMemberships.Memberships.AppendIfMissing(membership)
 
 			genesisStateBzMemberships := cdc.MustMarshalJSON(genStateMemberships)
