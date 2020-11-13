@@ -10,7 +10,6 @@ const (
 	MembershipsStorageKey  = StoreKey + ":storage:"
 	TrustedSignersStoreKey = StoreKey + ":signers"
 	InviteStorePrefix      = "invite:"
-	CredentialsStorePrefix = "credentials:"
 
 	// --- Messages
 	MsgTypeInviteUser                = "inviteUser"
