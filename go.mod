@@ -3,7 +3,7 @@ module github.com/commercionetwork/commercionetwork
 go 1.14
 
 require (
-	github.com/cosmos/cosmos-sdk v0.39.1
+	github.com/cosmos/cosmos-sdk v0.39.2-rc1
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
@@ -17,7 +17,7 @@ require (
 	github.com/spf13/viper v1.6.3
 	github.com/stretchr/testify v1.6.1
 	github.com/tendermint/go-amino v0.15.1
-	github.com/tendermint/tendermint v0.33.7
+	github.com/tendermint/tendermint v0.33.8
 	github.com/tendermint/tm-db v0.5.1
-	google.golang.org/genproto v0.0.0-20191028173616-919d9bdd9fe6 // indirect
+	google.golang.org/grpc v1.30.0 // indirect
 )
