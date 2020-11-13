@@ -80,7 +80,7 @@ func getConversionRateFunc(cdc *codec.Codec) error {
 		return err
 	}
 
-	var rate sdk.Int
+	var rate sdk.Dec
 	if err := cliCtx.Codec.UnmarshalJSON(res, &rate); err != nil {
 		return err
 	}
