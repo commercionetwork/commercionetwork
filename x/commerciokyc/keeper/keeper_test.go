@@ -459,7 +459,7 @@ func TestKeeper_GetTspMemberships(t *testing.T) {
 	}
 }
 
-func TestKeeper_GetExportMemberships(t *testing.T) {
+func TestKeeper_ExportMemberships(t *testing.T) {
 	tests := []struct {
 		name                string
 		blockHeight         int64
@@ -526,7 +526,7 @@ func TestKeeper_GetExportMemberships(t *testing.T) {
 				err := k.AssignMembership(ctx, m.Owner, m.MembershipType, m.TspAddress, m.ExpiryAt)
 				require.NoError(t, err)
 			}
-			ms := k.GetExportMemberships(ctx, test.blockHeight)
+			ms := k.ExportMemberships(ctx, test.blockHeight)
 			require.Equal(t, test.expectedMemberships, ms)
 		})
 	}

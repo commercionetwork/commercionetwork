@@ -68,6 +68,7 @@ type MsgDepositIntoLiquidityPool struct {
 	Amount    sdk.Coins      `json:"amount"`
 }
 
+// NewMsgDepositIntoLiquidityPool create MsgDepositIntoLiquidityPool
 func NewMsgDepositIntoLiquidityPool(amount sdk.Coins, depositor sdk.AccAddress) MsgDepositIntoLiquidityPool {
 	return MsgDepositIntoLiquidityPool{
 		Depositor: depositor,
@@ -115,6 +116,7 @@ type MsgAddTsp struct {
 	Government sdk.AccAddress `json:"government"`
 }
 
+// NewMsgAddTsp create MsgAddTsp
 func NewMsgAddTsp(tsp, government sdk.AccAddress) MsgAddTsp {
 	return MsgAddTsp{Tsp: tsp, Government: government}
 }
@@ -205,6 +207,7 @@ type MsgBuyMembership struct {
 	Tsp            sdk.AccAddress `json:"tsp"`             // Buyer address
 }
 
+// NewMsgBuyMembership create MsgBuyMembership
 func NewMsgBuyMembership(membershipType string, buyer sdk.AccAddress, tsp sdk.AccAddress) MsgBuyMembership {
 	return MsgBuyMembership{
 		MembershipType: membershipType,
@@ -251,15 +254,17 @@ func (msg MsgBuyMembership) GetSigners() []sdk.AccAddress {
 // --- MsgRemoveMembership
 // --------------------------------
 
+// MsgRemoveMembership allows government to remove a membership.
 type MsgRemoveMembership struct {
-	GovernmentAddress sdk.AccAddress `json:"government_address"` // Buyer address
-	Subscriber        sdk.AccAddress `json:"subscriber"`         // Buyer address
+	Government sdk.AccAddress `json:"government"` // Buyer address
+	Subscriber sdk.AccAddress `json:"subscriber"` // Buyer address
 }
 
+// NewMsgRemoveMembership create MsgRemoveMembership
 func NewMsgRemoveMembership(govAddr sdk.AccAddress, subscriber sdk.AccAddress) MsgRemoveMembership {
 	return MsgRemoveMembership{
-		GovernmentAddress: govAddr,
-		Subscriber:        subscriber,
+		Government: govAddr,
+		Subscriber: subscriber,
 	}
 }
 
@@ -275,8 +280,8 @@ func (msg MsgRemoveMembership) ValidateBasic() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
 	}
 
-	if msg.GovernmentAddress.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.GovernmentAddress))
+	if msg.Government.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 
 	return nil
@@ -289,7 +294,7 @@ func (msg MsgRemoveMembership) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgRemoveMembership) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.GovernmentAddress}
+	return []sdk.AccAddress{msg.Government}
 }
 
 // ---------------------------
@@ -299,17 +304,17 @@ func (msg MsgRemoveMembership) GetSigners() []sdk.AccAddress {
 // MsgSetMembership allows government to assign a membership to Subscriber,
 // which has been already invited by another black membership user.
 type MsgSetMembership struct {
-	GovernmentAddress sdk.AccAddress `json:"government_address"`
-	Subscriber        sdk.AccAddress `json:"subscriber"`
-	NewMembership     string         `json:"new_membership"`
+	Government    sdk.AccAddress `json:"government"`
+	Subscriber    sdk.AccAddress `json:"subscriber"`
+	NewMembership string         `json:"new_membership"`
 }
 
 // NewMsgSetMembership create MsgSetMembership
 func NewMsgSetMembership(subscriber sdk.AccAddress, govAddr sdk.AccAddress, newMembership string) MsgSetMembership {
 	return MsgSetMembership{
-		Subscriber:        subscriber,
-		GovernmentAddress: govAddr,
-		NewMembership:     newMembership,
+		Subscriber:    subscriber,
+		Government:    govAddr,
+		NewMembership: newMembership,
 	}
 }
 
@@ -325,8 +330,8 @@ func (msg MsgSetMembership) ValidateBasic() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
 	}
 
-	if msg.GovernmentAddress.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.GovernmentAddress))
+	if msg.Government.Empty() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 
 	if msg.NewMembership == "" {
@@ -348,5 +353,5 @@ func (msg MsgSetMembership) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgSetMembership) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.GovernmentAddress}
+	return []sdk.AccAddress{msg.Government}
 }

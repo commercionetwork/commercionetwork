@@ -279,9 +279,9 @@ func Test_handleMsgSetMembership(t *testing.T) {
 		{
 			"invited user gets black membership by government",
 			types.MsgSetMembership{
-				GovernmentAddress: testInviteSender,
-				Subscriber:        testUser,
-				NewMembership:     "black",
+				Government:    testInviteSender,
+				Subscriber:    testUser,
+				NewMembership: "black",
 			},
 			&types.Invite{
 				Sender:           testInviteSender,
@@ -295,9 +295,9 @@ func Test_handleMsgSetMembership(t *testing.T) {
 		{
 			"non-invited user gets black membership by government",
 			types.MsgSetMembership{
-				GovernmentAddress: testInviteSender,
-				Subscriber:        testUser,
-				NewMembership:     types.MembershipTypeBlack,
+				Government:    testInviteSender,
+				Subscriber:    testUser,
+				NewMembership: types.MembershipTypeBlack,
 			},
 			nil,
 			true,
@@ -308,7 +308,7 @@ func Test_handleMsgSetMembership(t *testing.T) {
 			{
 				"invited, non-verified user doesn't get black membership by government",
 				types.MsgSetMembership{
-					GovernmentAddress: testInviteSender,
+					Government: testInviteSender,
 					Subscriber:        testUser,
 					NewMembership:     types.MembershipTypeBlack,
 				},
@@ -324,9 +324,9 @@ func Test_handleMsgSetMembership(t *testing.T) {
 		{
 			"invited, verified user doesn't get black membership because sender is not government",
 			types.MsgSetMembership{
-				GovernmentAddress: testInviteSender,
-				Subscriber:        testUser,
-				NewMembership:     "bronze",
+				Government:    testInviteSender,
+				Subscriber:    testUser,
+				NewMembership: "bronze",
 			},
 			&types.Invite{
 				Sender:           testInviteSender,
@@ -340,9 +340,9 @@ func Test_handleMsgSetMembership(t *testing.T) {
 		{
 			"Invalid membershipt type",
 			types.MsgSetMembership{
-				GovernmentAddress: testInviteSender,
-				Subscriber:        testUser,
-				NewMembership:     "grn",
+				Government:    testInviteSender,
+				Subscriber:    testUser,
+				NewMembership: "grn",
 			},
 			&types.Invite{
 				Sender:           testInviteSender,
@@ -359,15 +359,15 @@ func Test_handleMsgSetMembership(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, _, gk, k := SetupTestInput()
 
-			_ = k.AssignMembership(ctx, tt.message.GovernmentAddress, types.MembershipTypeBlack, testTsp, testHeight)
+			_ = k.AssignMembership(ctx, tt.message.Government, types.MembershipTypeBlack, testTsp, testHeight)
 
 			if tt.invite != nil {
 				k.SaveInvite(ctx, *tt.invite)
 			}
 
 			if tt.senderIsGov {
-				require.NoError(t, gk.SetGovernmentAddress(ctx, tt.message.GovernmentAddress))
-				k.AddTrustedServiceProvider(ctx, tt.message.GovernmentAddress)
+				require.NoError(t, gk.SetGovernmentAddress(ctx, tt.message.Government))
+				k.AddTrustedServiceProvider(ctx, tt.message.Government)
 			}
 
 			handler := NewHandler(k, gk)
@@ -395,8 +395,8 @@ func Test_handleMsgRemoveMembership(t *testing.T) {
 		{
 			"Valid: Remover user is government",
 			types.MsgRemoveMembership{
-				GovernmentAddress: testInviteSender,
-				Subscriber:        testUser,
+				Government: testInviteSender,
+				Subscriber: testUser,
 			},
 			true,
 			"",
@@ -404,8 +404,8 @@ func Test_handleMsgRemoveMembership(t *testing.T) {
 		{
 			"Invalid: Remover user is not government",
 			types.MsgRemoveMembership{
-				GovernmentAddress: testInviteSender,
-				Subscriber:        testUser,
+				Government: testInviteSender,
+				Subscriber: testUser,
 			},
 			false,
 			"cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my is not a government address",
@@ -416,11 +416,11 @@ func Test_handleMsgRemoveMembership(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, _, gk, k := SetupTestInput()
 
-			_ = k.AssignMembership(ctx, tt.message.Subscriber, types.MembershipTypeGreen, tt.message.GovernmentAddress, testHeight)
+			_ = k.AssignMembership(ctx, tt.message.Subscriber, types.MembershipTypeGreen, tt.message.Government, testHeight)
 
 			if tt.senderIsGov {
-				require.NoError(t, gk.SetGovernmentAddress(ctx, tt.message.GovernmentAddress))
-				k.AddTrustedServiceProvider(ctx, tt.message.GovernmentAddress)
+				require.NoError(t, gk.SetGovernmentAddress(ctx, tt.message.Government))
+				k.AddTrustedServiceProvider(ctx, tt.message.Government)
 			}
 
 			handler := NewHandler(k, gk)

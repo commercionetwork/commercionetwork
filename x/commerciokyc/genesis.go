@@ -69,7 +69,7 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 		LiquidityPoolAmount:     keeper.GetPoolFunds(ctx),
 		Invites:                 keeper.GetInvites(ctx),
 		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
-		Memberships:             keeper.GetExportMemberships(ctx, height),
+		Memberships:             keeper.ExportMemberships(ctx, height),
 	}
 }
 

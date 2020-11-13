@@ -134,9 +134,9 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 // It checks that whoever sent the message is actually the government and remove membership
 func handleMsgRemoveMembership(ctx sdk.Context, keeper Keeper, msg types.MsgRemoveMembership) (*sdk.Result, error) {
 	govAddr := keeper.governmentKeeper.GetGovernmentAddress(ctx)
-	if !govAddr.Equals(msg.GovernmentAddress) {
+	if !govAddr.Equals(msg.Government) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
-			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
+			fmt.Sprintf("%s is not a government address", msg.Government.String()),
 		)
 	}
 	// TODO add control for tsp?
@@ -150,9 +150,9 @@ func handleMsgRemoveMembership(ctx sdk.Context, keeper Keeper, msg types.MsgRemo
 // If the user isn't invited already, an invite will be created.
 func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMembership) (*sdk.Result, error) {
 	govAddr := keeper.governmentKeeper.GetGovernmentAddress(ctx)
-	if !govAddr.Equals(msg.GovernmentAddress) {
+	if !govAddr.Equals(msg.Government) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
-			fmt.Sprintf("%s is not a government address", msg.GovernmentAddress.String()),
+			fmt.Sprintf("%s is not a government address", msg.Government.String()),
 		)
 	}
 

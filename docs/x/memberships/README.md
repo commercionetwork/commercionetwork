@@ -222,13 +222,13 @@ setMembership
 Get membership invites for user:
 
 ```bash
-cncli query commerciokyc get-invites-for-user [address]
+cncli query accreditations get-invites-for-user [address]
 ```
 
 Get all the membership invites:
 
 ```bash
-cncli query commerciokyc get-invites
+cncli query accreditations get-invites
 ```
 
 #### REST
@@ -297,7 +297,7 @@ http://localhost:1317/invites
 #### CLI
 
 ```bash
-cncli query commerciokyc trusted-service-providers
+cncli query accreditations trusted-service-providers
 ```
 
 #### REST
@@ -331,7 +331,7 @@ http://localhost:1317/tsps
 #### CLI
 
 ```bash
-cncli query commerciokyc pool-funds
+cncli query accreditations pool-funds
 ```
 
 #### REST
@@ -339,7 +339,7 @@ cncli query commerciokyc pool-funds
 Endpoints:
      
 ```
-/commerciokyc-funds
+/accreditations-funds
 ```
 
 ##### Example 
@@ -347,7 +347,7 @@ Endpoints:
 Getting the reward pool funds amount:
 
 ```
-http://localhost:1317/commerciokyc-funds
+http://localhost:1317/accreditations-funds
 ```
 
 ##### Response
@@ -366,7 +366,7 @@ http://localhost:1317/commerciokyc-funds
 #### CLI
 
 ```bash
-cncli query commerciokyc user-membership
+cncli query accreditations user-membership
 ```
 
 #### REST

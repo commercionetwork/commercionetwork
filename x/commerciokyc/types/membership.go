@@ -23,7 +23,7 @@ type Membership struct {
 	Owner          sdk.AccAddress `json:"owner"`
 	TspAddress     sdk.AccAddress `json:"tsp_address"`
 	MembershipType string         `json:"membership_type"`
-	ExpiryAt       int64          `json:"expiry_at"` // Block height at which the CDP has been created
+	ExpiryAt       int64          `json:"expiry_at"` // Block height at which the membership expired
 
 }
 

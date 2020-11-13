@@ -222,8 +222,8 @@ func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Member
 	return ms
 }
 
-// GetExportMemberships extracts all memberships
-func (k Keeper) GetExportMemberships(ctx sdk.Context, height int64) types.Memberships {
+// ExportMemberships extracts all memberships for export
+func (k Keeper) ExportMemberships(ctx sdk.Context, height int64) types.Memberships {
 	im := k.MembershipIterator(ctx)
 	m := types.Membership{}
 	ms := types.Memberships{}

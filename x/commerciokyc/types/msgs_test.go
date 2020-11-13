@@ -438,12 +438,12 @@ func TestNewMsgSetMembership_ValidateBasic(t *testing.T) {
 }
 
 func TestNewMsgSetMembership_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgSetMembership","value":{"government_address":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","new_membership":"black","subscriber":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
+	expected := `{"type":"commercio/MsgSetMembership","value":{"government":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","new_membership":"black","subscriber":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"}}`
 	require.Equal(t, expected, string(msgSetBlackmembership.GetSignBytes()))
 }
 
 func TestNewMsgSetMembership_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{msgSetBlackmembership.GovernmentAddress}
+	expected := []sdk.AccAddress{msgSetBlackmembership.Government}
 	require.Equal(t, expected, msgSetBlackmembership.GetSigners())
 }
 
@@ -499,11 +499,11 @@ func TestNewMsgRemoveMembership_ValidateBasic(t *testing.T) {
 }
 
 func TestNewMsgRemoveMembership_GetSignBytes(t *testing.T) {
-	expected := `{"type":"commercio/MsgRemoveMembership","value":{"government_address":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","subscriber":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
+	expected := `{"type":"commercio/MsgRemoveMembership","value":{"government":"cosmos1ct4ym78j7ksv9weyua4mzlksgwc9qq7q3wvhqg","subscriber":"cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee"}}`
 	require.Equal(t, expected, string(msgRemoveMembership.GetSignBytes()))
 }
 
 func TestNewMsgRemoveMembership_GetSigners(t *testing.T) {
-	expected := []sdk.AccAddress{msgRemoveMembership.GovernmentAddress}
+	expected := []sdk.AccAddress{msgRemoveMembership.Government}
 	require.Equal(t, expected, msgRemoveMembership.GetSigners())
 }
