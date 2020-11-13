@@ -63,7 +63,7 @@ func resolveIdentityHandler(cliCtx context.CLIContext, querierRoute string) http
 // @Description This endpoint returns a user Did power up request, along with the height at which the resource was queried at
 // @ID id_resolvePowerUpRequest
 // @Produce json
-// @Param id path string true
+// @Param id path string true "Request id"
 // @Success 200 {object} rest.resolvePowerUpRequestResponse
 // @Failure 404
 // @Router /powerUpRequest/{id} [get]
