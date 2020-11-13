@@ -46,7 +46,7 @@ func getGovernmentAddr(cliCtx context.CLIContext) http.HandlerFunc {
 }
 
 type getGovernmentAddrResponse struct {
-	Height int `json:"height" example:"1234"`
+	Height string `json:"height" example:"1234"`
 	Result struct {
 		Government_address string `json:"government_address" example:"did:com:1pxelxpwdjqsz23kpz87lmc2qgmkjd35x7uq9zv"`
 	} `json:"result"`
@@ -76,7 +76,7 @@ func getTumblerAddr(cliCtx context.CLIContext) http.HandlerFunc {
 }
 
 type getTumblerAddrResponse struct {
-	Height int `json:"height" example:"1234"`
+	Height string `json:"height" example:"1234"`
 	Result struct {
 		Tumbler_address string `json:"tumbler_address" example:"did:com:1cqq6qveuqkqxek4up92asqkawlqsxh9k5xnnll"`
 	} `json:"result"`
