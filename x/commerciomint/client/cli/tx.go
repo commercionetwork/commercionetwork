@@ -39,7 +39,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func mintCCCCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mint [amount]",
-		Short: "Mints a given amount of CCC\nAmount must be an integer number.",
+		Short: "Mints a given amount of uCCC\nAmount must be an integer number.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return mintCCCCmdFunc(cmd, args, cdc)
