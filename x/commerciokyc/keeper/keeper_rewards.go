@@ -7,6 +7,11 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
+const (
+	eventDeposit          = "deposit_into_pool"
+	eventDistributeReward = "distribute_reward"
+)
+
 var membershipRewards = map[string]map[string]sdk.Dec{
 	types.MembershipTypeGreen: {
 		types.MembershipTypeGreen:  sdk.NewDecWithPrec(5, 2),    // 1% of 5
@@ -57,6 +62,13 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 	if err := k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amount); err != nil {
 		return err
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventDeposit,
+		sdk.NewAttribute("depositor", depositor.String()),
+		sdk.NewAttribute("amount", amount.String()),
+	))
+
 	return nil
 }
 
@@ -109,6 +121,15 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		if err := k.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
 			return err
 		}
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			eventDistributeReward,
+			sdk.NewAttribute("invite_sender", invite.Sender.String()),
+			sdk.NewAttribute("reward_coins", rewardCoins.String()),
+			sdk.NewAttribute("sender_membership_type", senderMembershipType),
+			sdk.NewAttribute("recipient_membership_type", recipientMembership.MembershipType),
+			sdk.NewAttribute("invite_recipient", invite.User.String()),
+		))
+
 	}
 
 	// Set the invitation as rewarded

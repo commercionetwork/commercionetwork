@@ -7,6 +7,11 @@ import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
+const (
+	eventAddTsp    = "add_tsp"
+	eventRemoveTsp = "remove_tsp"
+)
+
 // AddTrustedServiceProvider allows to add the given signer as a trusted entity
 // that can sign transactions setting an accrediter for a user.
 func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
@@ -17,6 +22,11 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 		newSignersBz := k.Cdc.MustMarshalBinaryBare(&signers)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventAddTsp,
+		sdk.NewAttribute("tsp", tsp.String()),
+	))
 }
 
 // RemoveTrustedServiceProvider allows to remove the given tsp from trusted entity
@@ -29,6 +39,11 @@ func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress
 		newSignersBz := k.Cdc.MustMarshalBinaryBare(&signers)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventRemoveTsp,
+		sdk.NewAttribute("tsp", tsp.String()),
+	))
 }
 
 // GetTrustedServiceProviders returns the list of signers that are allowed to sign

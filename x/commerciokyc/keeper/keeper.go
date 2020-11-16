@@ -17,6 +17,12 @@ import (
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
+const (
+	//eventBuyMembership    = "buy_membership"
+	eventAssignMembership = "assign_membership"
+	eventRemoveMembership = "remove_membership"
+)
+
 var membershipCosts = map[string]int64{
 	types.MembershipTypeGreen:  5,
 	types.MembershipTypeBronze: 25,
@@ -130,6 +136,14 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	// Save membership
 	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
 
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventAssignMembership,
+		sdk.NewAttribute("owner", membership.Owner.String()),
+		sdk.NewAttribute("membership_type", membership.MembershipType),
+		sdk.NewAttribute("tsp_address", membership.TspAddress.String()),
+		sdk.NewAttribute("expiry_at", strconv.FormatInt(membership.ExpiryAt, 10)),
+	))
+
 	return nil
 }
 
@@ -173,6 +187,12 @@ func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	}
 
 	store.Delete(k.storageForAddr(user))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventRemoveMembership,
+		sdk.NewAttribute("subscriber", user.String()),
+	))
+
 	return nil
 }
 

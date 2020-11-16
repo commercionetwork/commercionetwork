@@ -10,6 +10,10 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
+const (
+	eventInvite = "invite"
+)
+
 func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {
 	return []byte(types.InviteStorePrefix + user.String())
 }
@@ -30,6 +34,14 @@ func (k Keeper) InviteUser(ctx sdk.Context, recipient, sender sdk.AccAddress) er
 	// Build and save the invite
 	accreditation := types.NewInvite(sender, recipient, inviterMembership.MembershipType)
 	store.Set(inviteKey, k.Cdc.MustMarshalBinaryBare(&accreditation))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventInvite,
+		sdk.NewAttribute("recipient", recipient.String()),
+		sdk.NewAttribute("sender", sender.String()),
+		sdk.NewAttribute("sender_membership_type", inviterMembership.MembershipType), // Maybe
+	))
+
 	return nil
 }
 
