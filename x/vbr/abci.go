@@ -38,6 +38,4 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, 
 	consAddr := sdk.ConsAddress(req.Header.ProposerAddress)
 	k.SetPreviousProposerConsAddr(ctx, consAddr)
 
-	// Update the block height
-	k.UpdateYearlyPool(ctx, ctx.BlockHeight())
 }

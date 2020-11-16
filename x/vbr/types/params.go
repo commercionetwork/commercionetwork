@@ -1,4 +1,4 @@
-package types
+/*package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,13 +27,13 @@ func NewParams(
 	}
 }
 
-// ParamKeyTable for auth module
+// ParamKeyTable for vbr module
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
 // ParamSetPairs implements the ParamSet interface and returns all the key/value pairs
-// pairs of auth module's parameters.
+// pairs of vbr module's parameters.
 // nolint
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
@@ -59,11 +59,6 @@ func validateRewardTax(i interface{}) error {
 	if !v.IsValid() {
 		return fmt.Errorf("invalid reward tax: %s", v)
 	}
-	if !v.IsValid() {
-		return fmt.Errorf("invalid reward tax: %s", v)
-	}
-
-
 	return nil
 }
 
@@ -75,3 +70,4 @@ func (p Params) Validate() error {
 
 	return nil
 }
+*/

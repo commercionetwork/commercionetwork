@@ -1,4 +1,4 @@
-package keeper
+/*package keeper
 
 import (
 	"testing"
@@ -44,107 +44,9 @@ func TestKeeper_GetTotalRewardPool_ExistingPool(t *testing.T) {
 	require.Equal(t, TestBlockRewardsPool, actual)
 }
 
-// --------------------------
-// --- Yearly reward pool
-// --------------------------
 
-func TestKeeper_GetYearlyRewardPool_EmptyPool(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput(true)
 
-	actual := k.GetYearlyRewardPool(ctx)
-	require.Empty(t, actual)
-}
 
-func TestKeeper_GetYearlyRewardPool_ExistingPool(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput(false)
-
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.YearlyPoolStoreKey), cdc.MustMarshalBinaryBare(&TestBlockRewardsPool))
-
-	actual := k.GetYearlyRewardPool(ctx)
-	require.Equal(t, TestBlockRewardsPool, actual)
-}
-
-func TestKeeper_SetYearlyRewardPool(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput(false)
-
-	k.SetYearlyRewardPool(ctx, TestBlockRewardsPool)
-
-	var actual sdk.DecCoins
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.YearlyPoolStoreKey)), &actual)
-
-	require.Equal(t, TestBlockRewardsPool, actual)
-}
-
-// --------------------
-// --- Year number
-// --------------------
-
-func Test_computeYearFromBlockHeight(t *testing.T) {
-	require.Equal(t, int64(0), computeYearFromBlockHeight(0))
-	require.Equal(t, int64(0), computeYearFromBlockHeight(6311519))
-	require.Equal(t, int64(1), computeYearFromBlockHeight(6311520))
-	require.Equal(t, int64(2), computeYearFromBlockHeight(12624040))
-	require.Equal(t, int64(5), computeYearFromBlockHeight(31557600))
-}
-
-func TestKeeper_SetYearNumber(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput(false)
-
-	k.SetYearNumber(ctx, 5)
-
-	var actual int64
-	store := ctx.KVStore(k.storeKey)
-	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.YearNumberStoreKey)), &actual)
-
-	require.Equal(t, int64(5), actual)
-}
-
-func TestKeeper_GetYearNumber_Empty(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput(false)
-	require.Equal(t, int64(0), k.GetYearNumber(ctx))
-}
-
-func TestKeeper_GetYearNumber_Set(t *testing.T) {
-	cdc, ctx, k, _, _ := SetupTestInput(false)
-	store := ctx.KVStore(k.storeKey)
-
-	store.Set([]byte(types.YearNumberStoreKey), cdc.MustMarshalBinaryBare(0))
-	require.Equal(t, int64(0), k.GetYearNumber(ctx))
-
-	store.Set([]byte(types.YearNumberStoreKey), cdc.MustMarshalBinaryBare(5))
-	require.Equal(t, int64(5), k.GetYearNumber(ctx))
-
-	store.Set([]byte(types.YearNumberStoreKey), cdc.MustMarshalBinaryBare(0))
-	require.Equal(t, int64(0), k.GetYearNumber(ctx))
-}
-
-func TestKeeper_UpdateYearlyPool_SameYear(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput(false)
-
-	rewards := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100000)}
-	k.SetYearNumber(ctx, 0)
-	k.SetTotalRewardPool(ctx, rewards)
-
-	k.UpdateYearlyPool(ctx, 0)
-
-	require.Equal(t, rewards, k.GetTotalRewardPool(ctx))
-	require.Empty(t, k.GetYearlyRewardPool(ctx))
-}
-
-func TestKeeper_UpdateYearlyPool_DifferentYear(t *testing.T) {
-	_, ctx, k, _, _ := SetupTestInput(false)
-
-	rewards := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 20000)}
-	k.SetYearNumber(ctx, 0)
-	k.SetTotalRewardPool(ctx, rewards)
-
-	k.UpdateYearlyPool(ctx, 6311520)
-
-	require.Equal(t, int64(1), k.GetYearNumber(ctx))
-	require.Equal(t, sdk.DecCoins{sdk.NewInt64DecCoin("stake", 20000)}, k.GetYearlyRewardPool(ctx))
-}
 
 // ---------------------------
 // --- Reward distribution
@@ -153,7 +55,6 @@ func TestKeeper_UpdateYearlyPool_DifferentYear(t *testing.T) {
 func TestKeeper_ComputeProposerReward_50ValidatorsBalanced(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput(false)
 
-	k.SetYearlyRewardPool(ctx, sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 2500000)})
 	TestValidator = TestValidator.UpdateStatus(sdk.Bonded)
 	TestValidator, _ = TestValidator.AddTokensFromDel(sdk.NewInt(1))
 
@@ -166,7 +67,6 @@ func TestKeeper_ComputeProposerReward_50ValidatorsBalanced(t *testing.T) {
 func TestKeeper_ComputeProposerReward_100ValidatorsBalanced(t *testing.T) {
 	_, ctx, k, _, _ := SetupTestInput(false)
 
-	k.SetYearlyRewardPool(ctx, sdk.DecCoins{sdk.NewInt64DecCoin("uccc", 2500000)})
 	TestValidator = TestValidator.UpdateStatus(sdk.Bonded)
 	TestValidator, _ = TestValidator.AddTokensFromDel(sdk.NewInt(1))
 
@@ -181,7 +81,6 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 
 	pool := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100000)}
 	k.SetTotalRewardPool(ctx, pool)
-	k.SetYearlyRewardPool(ctx, pool)
 
 	validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 	k.distKeeper.SetValidatorCurrentRewards(ctx, TestValidator.GetOperator(), validatorRewards)
@@ -264,4 +163,4 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 			require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
 		})
 	}
-}
+}*/

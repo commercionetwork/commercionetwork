@@ -31,10 +31,6 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 		data.YearlyPoolAmount = data.PoolAmount.QuoDec(sdk.NewDec(5))
 	}
 
-	// Set the yearly reward pool and year number
-	keeper.SetYearlyRewardPool(ctx, data.YearlyPoolAmount)
-	keeper.SetYearNumber(ctx, data.YearNumber)
-
 	moduleAcc := keeper.VbrAccount(ctx)
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -52,9 +48,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
-		PoolAmount:       keeper.GetTotalRewardPool(ctx),
-		YearlyPoolAmount: keeper.GetYearlyRewardPool(ctx),
-		YearNumber:       keeper.GetYearNumber(ctx),
+		PoolAmount: keeper.GetTotalRewardPool(ctx),
 	}
 }
 
