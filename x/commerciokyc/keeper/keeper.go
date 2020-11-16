@@ -89,10 +89,8 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 	return k.AssignMembership(ctx, buyer, membershipType, tsp, height)
 }
 
-// AssignMembership allow to commerciomint and assign a membership of the given membershipType to the specified user.
-// If the user already has a membership assigned, deletes the current one and assigns to it the new one.
-// Returns the URI of the new minted token represented the assigned membership, or an error if something goes w
-// THIS FUNCTION CAN TRANSFORM WITH AssignMembership(ctx sdk.Context, m types.Membership)
+// AssignMembership allow to assign a membership of the given membershipType to the specified user with tsp and experied height.
+// TODO maybe it's better to pass membership object to function
 func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string, tsp sdk.AccAddress, height int64) error {
 	// Check the membership type validity.
 	if !types.IsMembershipTypeValid(membershipType) {
