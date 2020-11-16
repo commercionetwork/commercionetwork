@@ -80,12 +80,17 @@ func (k Keeper) SetYearlyRewardPool(ctx sdk.Context, yearlyPool sdk.DecCoins) {
 // --------------------
 
 var (
-	DPY = sdk.NewDecWithPrec(36525, 2) // Days Per Year
-	HPD = sdk.NewDecWithPrec(24, 0)    //  Hours Per Day
-	MPH = sdk.NewDecWithPrec(60, 0)    //  Minutes Per Hour
-	BPM = sdk.NewDecWithPrec(12, 0)    // Blocks Per Minutes
+	// DPY is Days Per Year
+	DPY = sdk.NewDecWithPrec(36525, 2)
+	// HPD is Hours Per Day
+	HPD = sdk.NewDecWithPrec(24, 0)
+	// MPH  is Minutes Per Hour
+	MPH = sdk.NewDecWithPrec(60, 0)
+	// BPM is Blocks Per Minutes
+	BPM = sdk.NewDecWithPrec(9, 0)
 
-	BPY = DPY.Mul(HPD).Mul(MPH).Mul(BPM) // Blocks Per Year
+	// BPY is Blocks Per Year
+	BPY = DPY.Mul(HPD).Mul(MPH).Mul(BPM)
 )
 
 func computeYearFromBlockHeight(blockHeight int64) int64 {
