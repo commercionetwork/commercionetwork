@@ -89,7 +89,7 @@ func (k Keeper) BuyMembership(ctx sdk.Context, buyer sdk.AccAddress, membershipT
 	return k.AssignMembership(ctx, buyer, membershipType, tsp, height)
 }
 
-// AssignMembership allow to assign a membership of the given membershipType to the specified user with tsp and experied height.
+// AssignMembership allow to assign a membership of the given membershipType to the specified user with tsp and expired height.
 // TODO maybe it's better to pass membership object to function
 func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string, tsp sdk.AccAddress, height int64) error {
 	// Check the membership type validity.
