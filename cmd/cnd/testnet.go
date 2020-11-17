@@ -10,9 +10,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc"
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	"github.com/commercionetwork/commercionetwork/x/memberships"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
@@ -312,15 +312,15 @@ func initGenFiles(
 	appGenState[pricefeedTypes.ModuleName] = genesisStateBz
 
 	// cnd add-genesis-tsp
-	var memberState memberships.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[membershipsTypes.ModuleName], &memberState)
+	var memberState commerciokyc.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &memberState)
 	memberState.TrustedServiceProviders, _ = memberState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
 	// cnd add-genesis-membership black
-	membership := membershipsTypes.NewMembership("black", genAccounts[0].GetAddress())
+	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), int64(100))
 	memberState.Memberships, _ = memberState.Memberships.AppendIfMissing(membership)
 
 	genesisStateBz = cdc.MustMarshalJSON(memberState)
-	appGenState[membershipsTypes.ModuleName] = genesisStateBz
+	appGenState[commerciokycTypes.ModuleName] = genesisStateBz
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	if err != nil {
