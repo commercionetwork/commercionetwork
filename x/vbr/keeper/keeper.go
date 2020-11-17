@@ -16,11 +16,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
-const (
-	// 0.001
-	dailyBlocks = 12960
-)
-
 type Keeper struct {
 	cdc          *codec.Codec
 	storeKey     sdk.StoreKey
@@ -78,8 +73,6 @@ var (
 
 	// BPY is Blocks Per Year
 	BPY = DPY.Mul(BPD)
-
-	rewardRate = sdk.NewDecWithPrec(1, 3)
 )
 
 // ---------------------------
@@ -93,14 +86,16 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorsCount int64,
 	// Get total bonded token
 	proposerBonded := proposer.GetBondedTokens()
 
-	// Get rewarded rate with
-	// rewardRate
+	// Get rewarded rate
+	rewardRate := k.GetRewardRate(ctx)
 
+	// Calculate rewarded rate with validator percentage
 	rewardRateVal := rewardRate.Mul(sdk.NewDec(validatorsCount)).Quo(sdk.NewDec(100))
 
 	// Compute the voting power for this validator at the current block
-	VotingPower := proposerBonded.ToDec().Quo(totalStakedTokens.ToDec())
-	exptedDailyBlocks := sdk.NewDec(dailyBlocks).Mul(VotingPower)
+	// TODO myabe here is better use GetConsensusPower
+	votingPower := proposerBonded.ToDec().Quo(totalStakedTokens.ToDec())
+	exptedDailyBlocks := BPD.Mul(votingPower)
 
 	Rnb := sdk.NewDecCoinsFromCoins(sdk.NewCoin("ucommercio", proposerBonded.ToDec().Mul(rewardRateVal).Quo(exptedDailyBlocks).TruncateInt()))
 
@@ -118,7 +113,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 		err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distribution.ModuleName, rewardInt)
 		if err != nil {
-			return fmt.Errorf("could not send tokens from vbr to distribution module accounts: %w", err)
+			return nil
 		}
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))
 	} else {
@@ -139,5 +134,23 @@ func (k Keeper) MintVBRTokens(ctx sdk.Context, coins sdk.Coins) error {
 		return fmt.Errorf("could not mint requested coins: %w", err)
 	}
 
+	return nil
+}
+
+// GetRewardRate retrieve the vbr reward rate.
+func (k Keeper) GetRewardRate(ctx sdk.Context) sdk.Dec {
+	store := ctx.KVStore(k.storeKey)
+	var rate sdk.Dec
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.RewardRateKey)), &rate)
+	return rate
+}
+
+// SetRewardRate store the vbr reward rate.
+func (k Keeper) SetRewardRate(ctx sdk.Context, rate sdk.Dec) error {
+	if err := types.ValidateRewardRate(rate); err != nil {
+		return err
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.RewardRateKey), k.cdc.MustMarshalBinaryBare(rate))
 	return nil
 }

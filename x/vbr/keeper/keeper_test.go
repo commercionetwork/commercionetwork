@@ -1,4 +1,4 @@
-/*package keeper
+package keeper
 
 import (
 	"testing"
@@ -43,10 +43,6 @@ func TestKeeper_GetTotalRewardPool_ExistingPool(t *testing.T) {
 	actual := k.GetTotalRewardPool(ctx)
 	require.Equal(t, TestBlockRewardsPool, actual)
 }
-
-
-
-
 
 // ---------------------------
 // --- Reward distribution
@@ -96,7 +92,6 @@ func TestKeeper_DistributeBlockRewards_EnoughPoolFunds(t *testing.T) {
 
 	remaining := sdk.DecCoins{sdk.NewInt64DecCoin("stake", 99000)}
 	require.Equal(t, remaining, k.GetTotalRewardPool(ctx))
-	require.Equal(t, remaining, k.GetYearlyRewardPool(ctx))
 }
 
 func TestKeeper_DistributeBlockRewards_InsufficientPoolFunds(t *testing.T) {
@@ -163,4 +158,4 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 			require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
 		})
 	}
-}*/
+}

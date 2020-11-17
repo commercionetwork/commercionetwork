@@ -11,9 +11,8 @@ import (
 )
 
 type GenesisState struct {
-	PoolAmount       sdk.DecCoins `json:"pool_amount"`
-	YearlyPoolAmount sdk.DecCoins `json:"yearly_pool_amount"`
-	YearNumber       int64        `json:"year_number"`
+	PoolAmount sdk.DecCoins `json:"pool_amount"`
+	RewardRate sdk.Dec      `json:"reward_rate"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -25,11 +24,6 @@ func DefaultGenesisState() GenesisState {
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	// Set the reward pool - Should never be nil as its validated inside the ValidateGenesis method
 	keeper.SetTotalRewardPool(ctx, data.PoolAmount)
-
-	// Default yearly reward pool amount
-	if data.YearlyPoolAmount == nil {
-		data.YearlyPoolAmount = data.PoolAmount.QuoDec(sdk.NewDec(5))
-	}
 
 	moduleAcc := keeper.VbrAccount(ctx)
 	if moduleAcc == nil {
@@ -43,12 +37,15 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 			panic(err) // could not mint tokens on chain start, fatal!
 		}
 	}
+	keeper.SetRewardRate(ctx, data.RewardRate)
+
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
 		PoolAmount: keeper.GetTotalRewardPool(ctx),
+		RewardRate: keeper.GetRewardRate(ctx),
 	}
 }
 
@@ -63,9 +60,5 @@ func ValidateGenesis(data GenesisState) error {
 		return fmt.Errorf("invalid validator block reward pool: %s", data.PoolAmount.String())
 	}
 
-	if !data.YearlyPoolAmount.IsValid() {
-		return fmt.Errorf("invalid yearly validator block reward pool: %s", data.YearlyPoolAmount.String())
-	}
-
-	return nil
+	return types.ValidateRewardRate(data.RewardRate)
 }

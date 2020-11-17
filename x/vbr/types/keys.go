@@ -9,7 +9,6 @@ const (
 
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 
-	PoolStoreKey       = StoreKey + ":pool:"
-	YearlyPoolStoreKey = StoreKey + ":yearly_pool:"
-	YearNumberStoreKey = StoreKey + ":year_number:"
+	PoolStoreKey  = StoreKey + ":pool:"
+	RewardRateKey = StoreKey + ":rewardRate"
 )
