@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/staking/exported"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	supplyExported "github.com/cosmos/cosmos-sdk/x/supply/exported"
@@ -83,21 +84,17 @@ var (
 func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorsCount int64,
 	proposer exported.ValidatorI, totalStakedTokens sdk.Int) sdk.DecCoins {
 
-	// Get total bonded token
-	proposerBonded := proposer.GetBondedTokens()
-
 	// Get rewarded rate
 	rewardRate := k.GetRewardRate(ctx)
 
 	// Calculate rewarded rate with validator percentage
 	rewardRateVal := rewardRate.Mul(sdk.NewDec(validatorsCount)).Quo(sdk.NewDec(100))
 
-	// Compute the voting power for this validator at the current block
-	// TODO myabe here is better use GetConsensusPower
-	votingPower := proposerBonded.ToDec().Quo(totalStakedTokens.ToDec())
-	exptedDailyBlocks := BPD.Mul(votingPower)
+	// Get total bonded token of validator
+	proposerBonded := proposer.GetBondedTokens()
 
-	Rnb := sdk.NewDecCoinsFromCoins(sdk.NewCoin("ucommercio", proposerBonded.ToDec().Mul(rewardRateVal).Quo(exptedDailyBlocks).TruncateInt()))
+	// Compute reward for each block
+	Rnb := sdk.NewDecCoinsFromCoins(sdk.NewCoin("ucommercio", proposerBonded.ToDec().Mul(rewardRateVal).Quo(BPD).TruncateInt()))
 
 	return Rnb
 }
@@ -109,15 +106,35 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 	if ctypes.IsAllGTE(rewardPool, reward) {
 		// truncate fractional part and only take the integer part into account
 		rewardInt, _ := reward.TruncateDecimal()
+
 		k.SetTotalRewardPool(ctx, rewardPool.Sub(sdk.NewDecCoinsFromCoins(rewardInt...)))
 
 		err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distribution.ModuleName, rewardInt)
 		if err != nil {
 			return nil
 		}
+
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))
 	} else {
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
+	}
+
+	return nil
+}
+
+// WithdrawRewards withdraw reward to all validator
+func (k Keeper) WithdrawAllRewards(ctx sdk.Context, stakeKeeper staking.Keeper) error {
+	// Get all validators
+	// Loop throw validators and withdraw all delegator rewards
+	dels := stakeKeeper.GetAllDelegations(ctx)
+	for _, delegation := range dels {
+		_, _ = k.distKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
+		k.distKeeper.WithdrawValidatorCommission(ctx, delegation.ValidatorAddress)
+	}
+
+	vals := stakeKeeper.GetAllValidators(ctx)
+	for _, validator := range vals {
+		k.distKeeper.WithdrawValidatorCommission(ctx, validator.GetOperator())
 	}
 
 	return nil
@@ -153,4 +170,14 @@ func (k Keeper) SetRewardRate(ctx sdk.Context, rate sdk.Dec) error {
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.RewardRateKey), k.cdc.MustMarshalBinaryBare(rate))
 	return nil
+}
+
+// IsDailyWighDrawBlock control if height is the daily withdraw block
+func (k Keeper) IsDailyWighDrawBlock(height int64) bool {
+	rest := height % (BPD.Int64() + 2)
+	//rest := height % (10 + 2)
+	if rest > 0 {
+		return false
+	}
+	return true
 }

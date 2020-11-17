@@ -14,7 +14,7 @@ import (
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
-		"/vbr/blockrewardpoolfunds",
+		"/vbr/funds",
 		getRetrieveBlockRewardsPoolFunds(cliCtx))
 }
 

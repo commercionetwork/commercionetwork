@@ -46,8 +46,9 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, 
 		}
 	}
 
-	// Record the proposer for when we payout on the next block
-	consAddr := sdk.ConsAddress(req.Header.ProposerAddress)
-	k.SetPreviousProposerConsAddr(ctx, consAddr)
+	// Reward all
+	if k.IsDailyWighDrawBlock(ctx.BlockHeight()) {
+		k.WithdrawAllRewards(ctx, stakeKeeper)
+	}
 
 }

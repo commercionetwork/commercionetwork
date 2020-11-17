@@ -4,11 +4,12 @@ const (
 	ModuleName   = "vbr"
 	StoreKey     = ModuleName
 	QuerierRoute = ModuleName
+	RouterKey    = ModuleName
 
 	QueryBlockRewardsPoolFunds = "funds"
 
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
-
-	PoolStoreKey  = StoreKey + ":pool:"
-	RewardRateKey = StoreKey + ":rewardRate"
+	MsgTypeSetRewardRate             = "setRewardRate"
+	PoolStoreKey                     = StoreKey + ":pool:"
+	RewardRateKey                    = StoreKey + ":rewardRate"
 )
