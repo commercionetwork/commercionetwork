@@ -149,8 +149,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 // ComputeExpiryHeight compute expiry height of membership.
 func (k Keeper) ComputeExpiryHeight(blockHeight int64) int64 {
-	blocksOfYear := DPY.Mul(HPD).Mul(MPH).Mul(BPM)
-	return sdk.NewDec(blockHeight).Add(blocksOfYear).TruncateInt64()
+	return sdk.NewDec(blockHeight).Add(BPY).TruncateInt64()
 }
 
 // GetMembership allows to retrieve any existent membership for the specified user.
