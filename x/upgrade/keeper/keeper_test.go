@@ -17,6 +17,48 @@ import (
 	"time"
 )
 
+func TestKeeper_GetUpgradePlan(t *testing.T) {
+
+	tests := []struct {
+		name       string
+		planExists bool
+	}{
+		{"government deletes the scheduled plan",
+			true,
+		},
+		{"government deletes nothing",
+			true,
+		},
+		{"non-government address trying to delete raises error",
+			false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput(true)
+
+			var plan upgrade.Plan
+			if tt.planExists {
+				plan = upgrade.Plan{
+					Name:   "name",
+					Info:   "info info info",
+					Height: 100,
+				}
+				err := k.UpgradeKeeper.ScheduleUpgrade(ctx, plan)
+				require.NoError(t, err)
+			} else {
+				plan = upgrade.Plan{Name: "", Time: time.Time{}, Height: 0, Info: ""}
+			}
+
+			upgradePlan, havePlan := k.GetUpgradePlan(ctx)
+
+			require.Equal(t, tt.planExists, havePlan)
+			require.Equal(t, plan, upgradePlan)
+		})
+	}
+}
+
 func TestKeeper_ScheduleUpgrade(t *testing.T) {
 
 	timePast := time.Now()
@@ -87,6 +129,74 @@ func TestKeeper_ScheduleUpgrade(t *testing.T) {
 				upgradePlan, havePlan := k.GetUpgradePlan(ctx)
 				require.True(t, havePlan)
 				require.NotNil(t, upgradePlan)
+			}
+		})
+	}
+}
+
+func TestKeeper_DeleteUpgrade(t *testing.T) {
+
+	tests := []struct {
+		name                 string
+		proposedByGovernment bool
+		planExists           bool
+		wantErr              bool
+	}{
+		{"government deletes the scheduled plan",
+			true,
+			true,
+			false,
+		},
+		{"government deletes nothing",
+			true,
+			false,
+			false,
+		},
+		{"non-government address trying to delete raises error",
+			false,
+			true,
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ctx, k := SetupTestInput(true)
+
+			var plan upgrade.Plan
+			if tt.planExists {
+				plan = upgrade.Plan{
+					Name:   "name",
+					Info:   "info info info",
+					Height: 100,
+				}
+				err := k.ScheduleUpgrade(ctx, governmentTestAddress, plan)
+				require.NoError(t, err)
+			}
+			nilPlan := upgrade.Plan{Name: "", Time: time.Time{}, Height: 0, Info: ""}
+
+			var proposer sdk.AccAddress
+			if tt.proposedByGovernment {
+				proposer = governmentTestAddress
+			} else {
+				proposer = notGovernmentAddress
+			}
+
+			err := k.DeleteUpgrade(ctx, proposer)
+
+			if tt.wantErr {
+				require.Error(t, err)
+
+				upgradePlan, havePlan := k.GetUpgradePlan(ctx)
+				require.True(t, havePlan)
+				require.Equal(t, plan, upgradePlan)
+
+			} else {
+				require.NoError(t, err)
+
+				upgradePlan, havePlan := k.GetUpgradePlan(ctx)
+				require.False(t, havePlan)
+				require.Equal(t, nilPlan, upgradePlan)
 			}
 		})
 	}
