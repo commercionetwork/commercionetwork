@@ -95,6 +95,7 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorsCount int64,
 
 	// Compute reward for each block
 	Rnb := sdk.NewDecCoinsFromCoins(sdk.NewCoin("ucommercio", proposerBonded.ToDec().Mul(rewardRateVal).Quo(BPD).TruncateInt()))
+	fmt.Println(Rnb)
 
 	return Rnb
 }
@@ -122,19 +123,45 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 	return nil
 }
 
-// WithdrawRewards withdraw reward to all validator
+// WithdrawAllRewards withdraw reward to all validator
 func (k Keeper) WithdrawAllRewards(ctx sdk.Context, stakeKeeper staking.Keeper) error {
-	// Get all validators
-	// Loop throw validators and withdraw all delegator rewards
+	// Loop throw delegations and withdraw all rewards from each validator
+	// and immediately delegate to validator
 	dels := stakeKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		_, _ = k.distKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
-		k.distKeeper.WithdrawValidatorCommission(ctx, delegation.ValidatorAddress)
+		returnedCoins, err := k.distKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
+		fmt.Println(returnedCoins)
+		if err == nil {
+			amountRedelegate := returnedCoins.AmountOf("ucommercio")
+			fmt.Println(amountRedelegate)
+			if amountRedelegate.IsPositive() {
+				curValidator, found := stakeKeeper.GetValidator(ctx, delegation.ValidatorAddress)
+				fmt.Println(curValidator)
+
+				if !found {
+					continue
+				}
+				_, _ = stakeKeeper.Delegate(ctx, delegation.DelegatorAddress, amountRedelegate, sdk.Unbonded, curValidator, true)
+				fmt.Println(curValidator)
+
+			}
+		}
 	}
 
+	// Loop throw validators and withdraw all commission
+	// and immediately delegate to validator
 	vals := stakeKeeper.GetAllValidators(ctx)
 	for _, validator := range vals {
-		k.distKeeper.WithdrawValidatorCommission(ctx, validator.GetOperator())
+		returnedCommission, err := k.distKeeper.WithdrawValidatorCommission(ctx, validator.GetOperator())
+		if err == nil {
+			amountRedelegate := returnedCommission.AmountOf("ucommercio")
+			if amountRedelegate.IsPositive() {
+				_, _ = stakeKeeper.Delegate(ctx, sdk.AccAddress(validator.GetOperator()), amountRedelegate, sdk.Unbonded, validator, true)
+				fmt.Println(validator)
+			}
+
+		}
+
 	}
 
 	return nil
