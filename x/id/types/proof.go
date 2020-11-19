@@ -15,12 +15,12 @@ const ProofPurposeAuthentication = "authentication"
 // 1. The subject, or:
 // 1. The controller, if present.
 type Proof struct {
-	Type               string    `json:"type"`
-	Created            time.Time `json:"created"`
-	ProofPurpose       string    `json:"proofPurpose"`
-	Controller         string    `json:"controller"`
-	VerificationMethod string    `json:"verificationMethod"`
-	SignatureValue     string    `json:"signatureValue"`
+	Type               string    `json:"type" example:"EcdsaSecp256k1VerificationKey2019"`
+	Created            time.Time `json:"created" example:"2020-04-22T04:23:50.73112321Z"`
+	ProofPurpose       string    `json:"proofPurpose" example:"authentication"`
+	Controller         string    `json:"controller" example:"did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx"`
+	VerificationMethod string    `json:"verificationMethod" example:"did:com:pub1addwnpepqt6lnn5v0c3rys49v5v9f4kvcchehnu7kyk8t8vce5lsxfy7e2pxwyvmf6t"`
+	SignatureValue     string    `json:"signatureValue" example:"nIgRvObXlF2OIbktZcQJw0UU7zDEku8cEBq7194YOjhEvD5wBZ+TcNu9GNRZucC6OyuplHfK6uo57+3lVQbpgA=="`
 }
 
 func NewProof(proofType string, created time.Time, proofPurpose, controller, verificationMethod, signatureValue string) Proof {
