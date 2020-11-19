@@ -23,6 +23,10 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
+	txCmd.AddCommand(
+		setRewardRateCmd(cdc),
+		setAutomaticWithdrawCmd(cdc),
+	)
 	return txCmd
 }
 
@@ -53,6 +57,41 @@ func setRewardRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) e
 	}
 
 	msg := types.NewMsgSetRewardRate(sender, rate)
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func setAutomaticWithdrawCmd(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-automatic-withdraw [0/1]",
+		Short: "Set automatic withdraw for vbr",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return setAutomaticWithdrawCmdFunc(cmd, args, cdc)
+		},
+	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func setAutomaticWithdrawCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	sender := cliCtx.GetFromAddress()
+
+	aWith := false
+	if args[0] == "1" {
+		aWith = true
+	}
+
+	msg := types.NewMsgSetAutomaticWithdraw(sender, aWith)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}

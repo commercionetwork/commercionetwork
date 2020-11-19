@@ -13,23 +13,49 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	supplyExported "github.com/cosmos/cosmos-sdk/x/supply/exported"
 
+	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
+// --------------------
+// --- Blocks per day
+// --- Blocks per year
+// --------------------
+
+var (
+	// DPY is Days Per Year
+	DPY = sdk.NewDecWithPrec(36525, 2)
+	// HPD is Hours Per Day
+	HPD = sdk.NewDecWithPrec(24, 0)
+	// MPH  is Minutes Per Hour
+	MPH = sdk.NewDecWithPrec(60, 0)
+	// BPM is Blocks Per Minutes
+	BPM = sdk.NewDecWithPrec(9, 0)
+	// BPD is Blocks Per Day
+	BPD = HPD.Mul(MPH).Mul(BPM)
+	// BPY is Blocks Per Year
+	BPY = DPY.Mul(BPD)
+)
+
+// Keeper is keeper type
 type Keeper struct {
 	cdc          *codec.Codec
 	storeKey     sdk.StoreKey
 	distKeeper   distribution.Keeper
 	supplyKeeper supply.Keeper
+	govKeeper    government.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper, sk supply.Keeper) Keeper {
+// NewKeeper create Keeper
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper, sk supply.Keeper, gk government.Keeper) Keeper {
 	return Keeper{
 		cdc:          cdc,
 		storeKey:     storeKey,
 		distKeeper:   dk,
 		supplyKeeper: sk,
+		govKeeper:    gk,
 	}
 }
 
@@ -55,49 +81,24 @@ func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	return sdk.NewDecCoinsFromCoins(mcoins...)
 }
 
-// --------------------
-// --- Year number
-// --------------------
-
-var (
-	// DPY is Days Per Year
-	DPY = sdk.NewDecWithPrec(36525, 2)
-	// HPD is Hours Per Day
-	HPD = sdk.NewDecWithPrec(24, 0)
-	// MPH  is Minutes Per Hour
-	MPH = sdk.NewDecWithPrec(60, 0)
-	// BPM is Blocks Per Minutes
-	BPM = sdk.NewDecWithPrec(9, 0)
-
-	// BPD is Blocks Per Day
-	BPD = HPD.Mul(MPH).Mul(BPM)
-
-	// BPY is Blocks Per Year
-	BPY = DPY.Mul(BPD)
-)
-
 // ---------------------------
 // --- Reward distribution
 // ---------------------------
 
 // ComputeProposerReward computes the final reward for the validator block's proposer
-func (k Keeper) ComputeProposerReward(ctx sdk.Context, validatorsCount int64,
-	proposer exported.ValidatorI, totalStakedTokens sdk.Int) sdk.DecCoins {
+func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, proposer exported.ValidatorI, denom string) sdk.DecCoins {
 
 	// Get rewarded rate
 	rewardRate := k.GetRewardRate(ctx)
 
 	// Calculate rewarded rate with validator percentage
-	rewardRateVal := rewardRate.Mul(sdk.NewDec(validatorsCount)).Quo(sdk.NewDec(100))
+	rewardRateVal := rewardRate.Mul(sdk.NewDec(vCount)).Quo(sdk.NewDec(100))
 
 	// Get total bonded token of validator
 	proposerBonded := proposer.GetBondedTokens()
 
 	// Compute reward for each block
-	Rnb := sdk.NewDecCoinsFromCoins(sdk.NewCoin("ucommercio", proposerBonded.ToDec().Mul(rewardRateVal).Quo(BPD).TruncateInt()))
-	fmt.Println(Rnb)
-
-	return Rnb
+	return sdk.NewDecCoins(sdk.NewDecCoinFromDec(denom, proposerBonded.ToDec().Mul(rewardRateVal).Quo(BPD)))
 }
 
 // DistributeBlockRewards distributes the computed reward to the block proposer
@@ -114,9 +115,9 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 		if err != nil {
 			return nil
 		}
-
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))
 	} else {
+		// TODO this error continue when pool hasn't enough funds for all rewards. Find a method to avoid this
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
 	}
 
@@ -130,20 +131,15 @@ func (k Keeper) WithdrawAllRewards(ctx sdk.Context, stakeKeeper staking.Keeper) 
 	dels := stakeKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
 		returnedCoins, err := k.distKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
-		fmt.Println(returnedCoins)
+
 		if err == nil {
-			amountRedelegate := returnedCoins.AmountOf("ucommercio")
-			fmt.Println(amountRedelegate)
+			amountRedelegate := returnedCoins.AmountOf(stakeKeeper.BondDenom(ctx))
 			if amountRedelegate.IsPositive() {
 				curValidator, found := stakeKeeper.GetValidator(ctx, delegation.ValidatorAddress)
-				fmt.Println(curValidator)
-
 				if !found {
 					continue
 				}
 				_, _ = stakeKeeper.Delegate(ctx, delegation.DelegatorAddress, amountRedelegate, sdk.Unbonded, curValidator, true)
-				fmt.Println(curValidator)
-
 			}
 		}
 	}
@@ -154,16 +150,12 @@ func (k Keeper) WithdrawAllRewards(ctx sdk.Context, stakeKeeper staking.Keeper) 
 	for _, validator := range vals {
 		returnedCommission, err := k.distKeeper.WithdrawValidatorCommission(ctx, validator.GetOperator())
 		if err == nil {
-			amountRedelegate := returnedCommission.AmountOf("ucommercio")
+			amountRedelegate := returnedCommission.AmountOf(stakeKeeper.BondDenom(ctx))
 			if amountRedelegate.IsPositive() {
 				_, _ = stakeKeeper.Delegate(ctx, sdk.AccAddress(validator.GetOperator()), amountRedelegate, sdk.Unbonded, validator, true)
-				fmt.Println(validator)
 			}
-
 		}
-
 	}
-
 	return nil
 }
 
@@ -199,8 +191,23 @@ func (k Keeper) SetRewardRate(ctx sdk.Context, rate sdk.Dec) error {
 	return nil
 }
 
-// IsDailyWighDrawBlock control if height is the daily withdraw block
-func (k Keeper) IsDailyWighDrawBlock(height int64) bool {
+// GetAutomaticWithdraw retrieve automatic withdraw flag.
+func (k Keeper) GetAutomaticWithdraw(ctx sdk.Context) bool {
+	store := ctx.KVStore(k.storeKey)
+	var autoW bool
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.AutomaticWithdraw)), &autoW)
+	return autoW
+}
+
+// SetAutomaticWithdraw store the automatic withdraw flag.
+func (k Keeper) SetAutomaticWithdraw(ctx sdk.Context, autoW bool) error {
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.AutomaticWithdraw), k.cdc.MustMarshalBinaryBare(autoW))
+	return nil
+}
+
+// IsDailyWithdrawBlock control if height is the daily withdraw block
+func (k Keeper) IsDailyWithdrawBlock(height int64) bool {
 	rest := height % (BPD.Int64() + 2)
 	//rest := height % (10 + 2)
 	if rest > 0 {

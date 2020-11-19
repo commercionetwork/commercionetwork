@@ -11,13 +11,14 @@ import (
 )
 
 type GenesisState struct {
-	PoolAmount sdk.DecCoins `json:"pool_amount"`
-	RewardRate sdk.Dec      `json:"reward_rate"`
+	PoolAmount        sdk.DecCoins `json:"pool_amount"`
+	RewardRate        sdk.Dec      `json:"reward_rate"`
+	AutomaticWithdraw bool         `json:"automatic_withdraw"`
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
-	return GenesisState{}
+	return GenesisState{AutomaticWithdraw: true}
 }
 
 // InitGenesis sets the initial Block Reward Pool amount for genesis.
@@ -38,14 +39,16 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 		}
 	}
 	keeper.SetRewardRate(ctx, data.RewardRate)
+	keeper.SetAutomaticWithdraw(ctx, data.AutomaticWithdraw)
 
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return GenesisState{
-		PoolAmount: keeper.GetTotalRewardPool(ctx),
-		RewardRate: keeper.GetRewardRate(ctx),
+		PoolAmount:        keeper.GetTotalRewardPool(ctx),
+		RewardRate:        keeper.GetRewardRate(ctx),
+		AutomaticWithdraw: keeper.GetAutomaticWithdraw(ctx),
 	}
 }
 

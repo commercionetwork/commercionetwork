@@ -10,6 +10,8 @@ const (
 
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 	MsgTypeSetRewardRate             = "setRewardRate"
+	MsgTypeSetAutomaticWithdraw      = "setAutomaticWithdraw"
 	PoolStoreKey                     = StoreKey + ":pool:"
 	RewardRateKey                    = StoreKey + ":rewardRate"
+	AutomaticWithdraw                = StoreKey + ":automaticWithdraw"
 )

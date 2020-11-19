@@ -38,7 +38,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, 
 		validator := stakeKeeper.ValidatorByConsAddr(ctx, previousProposer)
 
 		// Compute the reward based on the number of validators, the validator's staked tokens and the total staked tokens
-		reward := k.ComputeProposerReward(ctx, valNumber, validator, stakeKeeper.TotalBondedTokens(ctx))
+		reward := k.ComputeProposerReward(ctx, valNumber, validator, stakeKeeper.BondDenom(ctx))
 
 		// Distribute the reward to the block proposer
 		if err := k.DistributeBlockRewards(ctx, validator, reward); err != nil {
@@ -47,7 +47,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, 
 	}
 
 	// Reward all
-	if k.IsDailyWighDrawBlock(ctx.BlockHeight()) {
+	if k.GetAutomaticWithdraw(ctx) && k.IsDailyWithdrawBlock(ctx.BlockHeight()) {
 		k.WithdrawAllRewards(ctx, stakeKeeper)
 	}
 

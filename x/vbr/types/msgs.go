@@ -60,3 +60,46 @@ func ValidateRewardRate(rate sdk.Dec) error {
 	}
 	return nil
 }
+
+// -------------------------
+// --- MsgSetAutomaticWithdraw
+// -------------------------
+
+// MsgSetAutomaticWithdraw is messagge structure
+type MsgSetAutomaticWithdraw struct {
+	Government        sdk.AccAddress `json:"government"`
+	AutomaticWithdraw bool           `json:"automatic_withdraw"`
+}
+
+// NewMsgSetAutomaticWithdraw return new MsgSetAutomaticWithdraw
+func NewMsgSetAutomaticWithdraw(governement sdk.AccAddress, aWith bool) MsgSetAutomaticWithdraw {
+	return MsgSetAutomaticWithdraw{
+		Government:        governement,
+		AutomaticWithdraw: aWith,
+	}
+}
+
+// Route Implements Msg.
+func (msg MsgSetAutomaticWithdraw) Route() string { return RouterKey }
+
+// Type returns human-readable string for the message.
+func (msg MsgSetAutomaticWithdraw) Type() string { return MsgTypeSetAutomaticWithdraw }
+
+// ValidateBasic does a basic validation
+func (msg MsgSetAutomaticWithdraw) ValidateBasic() error {
+	if msg.Government.Empty() {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Government.String())
+	}
+
+	return nil
+}
+
+// GetSignBytes returns the canonical byte representation of the Msg.
+func (msg MsgSetAutomaticWithdraw) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners returns the addrs of signers that must sign.
+func (msg MsgSetAutomaticWithdraw) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Government}
+}
