@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/commercionetwork/commercionetwork/x/government/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
@@ -28,7 +30,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 // @Description This endpoint returns the address that the government has currently, along with the height at which the resource was queried at
 // @ID government_address
 // @Produce json
-// @Success 200 {object} rest.getGovernmentAddrResponse
+// @Success 200 {object} x.JSONResult{result=sdk.AccAddress}
 // @Failure 404
 // @Router /government/address [get]
 // @Tags x/government
@@ -45,20 +47,13 @@ func getGovernmentAddr(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
-type getGovernmentAddrResponse struct {
-	Height string `json:"height" example:"1234"`
-	Result struct {
-		Government_address string `json:"government_address" example:"did:com:1pxelxpwdjqsz23kpz87lmc2qgmkjd35x7uq9zv"`
-	} `json:"result"`
-}
-
-var _ getGovernmentAddrResponse
+var _ sdk.AccAddress
 
 // @Summary Get the tumbler address
 // @Description This endpoint returns the address that the tumbler has currently, along with the height at which the resource was queried at
 // @ID government_tumbler
 // @Produce json
-// @Success 200 {object} rest.getTumblerAddrResponse
+// @Success 200 {object} x.JSONResult{result=sdk.AccAddress}
 // @Failure 404
 // @Router /government/tumbler [get]
 // @Tags x/government
@@ -74,12 +69,3 @@ func getTumblerAddr(cliCtx context.CLIContext) http.HandlerFunc {
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
-
-type getTumblerAddrResponse struct {
-	Height string `json:"height" example:"1234"`
-	Result struct {
-		Tumbler_address string `json:"tumbler_address" example:"did:com:1cqq6qveuqkqxek4up92asqkawlqsxh9k5xnnll"`
-	} `json:"result"`
-}
-
-var _ getTumblerAddrResponse
