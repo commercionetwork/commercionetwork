@@ -14,7 +14,7 @@ import (
 // The Did Document contains attributes or claims about the DID Subject, and the DID itself is contained in
 // the id property.
 type DidDocument struct {
-	Context string         `json:"@context"`
+	Context string         `json:"@context" example:"https://www.w3.org/ns/did/v1"`
 	ID      sdk.AccAddress `json:"id"`
 	PubKeys PubKeys        `json:"publicKey"`
 
