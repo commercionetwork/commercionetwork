@@ -131,7 +131,6 @@ func (k Keeper) WithdrawAllRewards(ctx sdk.Context, stakeKeeper staking.Keeper) 
 	dels := stakeKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
 		returnedCoins, err := k.distKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
-
 		if err == nil {
 			amountRedelegate := returnedCoins.AmountOf(stakeKeeper.BondDenom(ctx))
 			if amountRedelegate.IsPositive() {
@@ -149,6 +148,7 @@ func (k Keeper) WithdrawAllRewards(ctx sdk.Context, stakeKeeper staking.Keeper) 
 	vals := stakeKeeper.GetAllValidators(ctx)
 	for _, validator := range vals {
 		returnedCommission, err := k.distKeeper.WithdrawValidatorCommission(ctx, validator.GetOperator())
+
 		if err == nil {
 			amountRedelegate := returnedCommission.AmountOf(stakeKeeper.BondDenom(ctx))
 			if amountRedelegate.IsPositive() {

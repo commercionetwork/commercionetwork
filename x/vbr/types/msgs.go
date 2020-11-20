@@ -8,6 +8,46 @@ import (
 )
 
 // -------------------------
+// --- MsgIncrementBlockRewardsPool
+// -------------------------
+// MsgIncrementBlockRewardsPool - struct for increment the vbr pool
+type MsgIncrementBlockRewardsPool struct {
+	Funder sdk.AccAddress `json:"funder"`
+	Amount sdk.Coins      `json:"amount"`
+}
+
+func NewMsgIncrementBlockRewardsPool(funder sdk.AccAddress, amount sdk.Coins) MsgIncrementBlockRewardsPool {
+	return MsgIncrementBlockRewardsPool{
+		Funder: funder,
+		Amount: amount,
+	}
+}
+
+// Route implements the sdk.Msg interface.
+func (msg MsgIncrementBlockRewardsPool) Route() string { return ModuleName }
+
+func (msg MsgIncrementBlockRewardsPool) Type() string { return MsgTypeIncrementBlockRewardsPool }
+
+func (msg MsgIncrementBlockRewardsPool) ValidateBasic() error {
+	if msg.Funder.Empty() {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Funder.String())
+	}
+	if msg.Amount.IsZero() || msg.Amount.IsAnyNegative() {
+		return errors.Wrap(errors.ErrUnknownRequest, "You can't transfer a null or negative amount")
+	}
+
+	return nil
+}
+
+func (msg MsgIncrementBlockRewardsPool) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg MsgIncrementBlockRewardsPool) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Funder}
+}
+
+// -------------------------
 // --- MsgSetRewardRate
 // -------------------------
 

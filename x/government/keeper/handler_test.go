@@ -3,6 +3,8 @@ package keeper
 import (
 	"testing"
 
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/stretchr/testify/require"
@@ -64,6 +66,12 @@ func TestKeeper_handlerFunc(t *testing.T) {
 		msg     sdk.Msg
 		wantErr bool
 	}{
+		{
+			"a message which is not MsgSetTumblerAddress",
+			vbrTypes.MsgIncrementBlockRewardsPool{},
+			true,
+		},
+
 		{
 			"MsgSetTumblerAddress",
 			types.NewMsgSetTumblerAddress(governmentTestAddress, tumblerTestAddress),

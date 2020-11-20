@@ -26,8 +26,40 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	txCmd.AddCommand(
 		setRewardRateCmd(cdc),
 		setAutomaticWithdrawCmd(cdc),
+		GetCmdIncrementBlockRewardsPool(cdc),
 	)
 	return txCmd
+}
+
+func GetCmdIncrementBlockRewardsPool(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit [coin-denom] [amount]",
+		Short: "Increments the block rewards pool's liquidity by the given amount",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			funder := cliCtx.GetFromAddress()
+			amount, err := sdk.ParseCoins(args[0])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgIncrementBlockRewardsPool(funder, amount)
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+		},
+	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
 }
 
 func setRewardRateCmd(cdc *codec.Codec) *cobra.Command {

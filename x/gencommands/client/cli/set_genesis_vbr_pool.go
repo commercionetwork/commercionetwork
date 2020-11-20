@@ -78,7 +78,6 @@ func SetGenesisVbrRewardRate(ctx *server.Context, cdc *codec.Codec,
 			config := ctx.Config
 			config.SetRoot(viper.GetString(cli.HomeFlag))
 
-			//strconv.FormatFloat()
 			value, err := sdk.NewDecFromStr(args[0])
 			if err != nil {
 				return err

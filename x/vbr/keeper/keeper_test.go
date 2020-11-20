@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	//"fmt"
+
 	"testing"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -218,34 +220,60 @@ func TestKeeper_WithdrawAllRewards(t *testing.T) {
 			testVal := TestValidator.UpdateStatus(sdk.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
 
-			bk.SetCoins(ctx, TestDelegator, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000000000))))
+			bk.SetCoins(ctx, valDelAddr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000000000))))
+			bk.SetCoins(ctx, sdk.AccAddress(valAddrVal), sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000000000))))
+
 			sk.SetValidator(ctx, testVal)
 
-			delegationVal := stakingTypes.NewDelegation(sdk.AccAddress(testVal.GetOperator()), testVal.GetOperator(), sdk.NewDec(1000))
+			val, found := sk.GetValidator(ctx, valAddrVal)
+			if found {
+				fmt.Println(val)
+			}
+			fmt.Println("----- ==================================== -----")
+
+			//delegationVal := stakingTypes.NewDelegation(sdk.AccAddress(valAddrVal), valAddrVal, sdk.NewDec(1000))
+
+			fmt.Println("----- delegation info xxx-----")
+			delegationVal := stakingTypes.NewDelegation(sdk.AccAddress(valAddrVal), valAddrVal, sdk.NewDec(1000))
 			sk.SetDelegation(ctx, delegationVal)
-			delegation := stakingTypes.NewDelegation(TestDelegator, testVal.GetOperator(), sdk.NewDec(1000))
+			fmt.Println(delegationVal)
+
+			//func (k Keeper) SetDelegatorStartingInfo(ctx sdk.Context, val sdk.ValAddress, del sdk.AccAddress, period types.DelegatorStartingInfo) {
+
+			//dist.Keeper.SetDelegatorStartingInfo(ctx, valAddrVal, dist.NewDelegatorStartingInfo(0, sdk.NewDec(0), 1))
+
+			delegation := stakingTypes.NewDelegation(valDelAddr, valAddrVal, sdk.NewDec(1000))
 			sk.SetDelegation(ctx, delegation)
+			fmt.Println(delegation)
+
+			//_, _ = sk.Delegate(ctx, valDelAddr, sdk.NewInt(100), sdk.Unbonded, testVal, true)
 
 			validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", reward))}
-			k.distKeeper.SetValidatorCurrentRewards(ctx, testVal.GetOperator(), validatorRewards)
+			k.distKeeper.SetValidatorCurrentRewards(ctx, valAddrVal, validatorRewards)
+
+			previousPeriod := k.distKeeper.GetValidatorCurrentRewards(ctx, valAddrVal).Period - 1
+
+			stake := testVal.TokensFromSharesTruncated(delegationVal.GetShares())
+			k.distKeeper.SetDelegatorStartingInfo(ctx, valAddr, sdk.AccAddress(valAddrVal), distTypes.NewDelegatorStartingInfo(previousPeriod, stake, uint64(ctx.BlockHeight())))
 
 			validatorOutstandingRewards := sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", reward))
-			k.distKeeper.SetValidatorOutstandingRewards(ctx, testVal.GetOperator(), validatorOutstandingRewards)
+			k.distKeeper.SetValidatorOutstandingRewards(ctx, valAddrVal, validatorOutstandingRewards)
 
-			k.distKeeper.SetValidatorAccumulatedCommission(ctx, testVal.GetOperator(), sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", commision)))
+			k.distKeeper.SetValidatorAccumulatedCommission(ctx, valAddrVal, sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", commision)))
 
 			k.WithdrawAllRewards(ctx, sk)
-			valCurReward := k.distKeeper.GetValidatorCurrentRewards(ctx, testVal.GetOperator())
+			valCurReward := k.distKeeper.GetValidatorCurrentRewards(ctx, valAddrVal)
 			fmt.Println(valCurReward)
 			//actualDel := bk.GetCoins(ctx, TestDelegator)
-			actualVal := bk.GetCoins(ctx, sdk.AccAddress(testVal.GetOperator()))
+			actualVal := bk.GetCoins(ctx, sdk.AccAddress(valAddrVal))
 
 			//require.Equal(t, tt.expectedAccount, actualDel)
 			require.Equal(t, tt.expectedVal, actualVal)
 
 		})
 	}
-}*/
+}
+*/
 
 func TestKeeper_VbrAccount(t *testing.T) {
 	tests := []struct {
