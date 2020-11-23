@@ -5,10 +5,10 @@ import (
 	"sort"
 	"time"
 
-	v200 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v2.0.0"
-
 	v038 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v0_38"
 	v039 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v0_39"
+
+	v200 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v2.0.0"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/types"
