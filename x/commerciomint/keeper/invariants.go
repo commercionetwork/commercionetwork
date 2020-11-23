@@ -15,7 +15,7 @@ const (
 )
 
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
-	ir.RegisterRoute(types.ModuleName, validatePositions, ValidateAllPositions(k))
+	//ir.RegisterRoute(types.ModuleName, validatePositions, ValidateAllPositions(k))
 	//ir.RegisterRoute(types.ModuleName, positionsForExistingPrice,
 	//	PositionsForExistingPrice(k))
 	//ir.RegisterRoute(types.ModuleName, liquidityPoolSumEqualsPositions,
