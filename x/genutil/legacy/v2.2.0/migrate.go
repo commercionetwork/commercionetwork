@@ -1,4 +1,4 @@
-package v2_1_2
+package v2_2_0
 
 import (
 	commKyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
