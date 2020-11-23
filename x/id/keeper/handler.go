@@ -15,6 +15,7 @@ import (
 // messages coming into this module to the proper handler.
 func NewHandler(keeper Keeper, govKeeper government.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
 		case types.MsgSetIdentity:
 			return handleMsgSetIdentity(ctx, keeper, msg)

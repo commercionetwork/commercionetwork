@@ -46,6 +46,8 @@ func (keeper Keeper) SetTumblerAddress(ctx sdk.Context, address sdk.AccAddress) 
 	store := ctx.KVStore(keeper.StoreKey)
 
 	store.Set([]byte(types.TumblerStoreKey), address)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent("set_tumbler_address", sdk.NewAttribute("new_address", address.String())))
 	return nil
 }
 
