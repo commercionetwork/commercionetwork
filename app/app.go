@@ -296,7 +296,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.docsKeeper = docsKeeper.NewKeeper(app.keys[docsTypes.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = idKeeper.NewKeeper(app.cdc, app.keys[idTypes.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.priceFeedKeeper = pricefeedKeeper.NewKeeper(app.cdc, app.keys[pricefeedTypes.StoreKey], app.governmentKeeper)
-	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper)
+	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper, app.governmentKeeper)
 	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciomintTypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
 	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
 	app.customUpgradeKeeper = customUpgradeKeeper.NewKeeper(cdc, app.governmentKeeper, app.upgradeKeeper)

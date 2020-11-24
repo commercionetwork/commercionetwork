@@ -13,6 +13,18 @@ import (
 // the reward ONLY for the block proposer on every begin block.
 func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, stakeKeeper staking.Keeper) {
 
+	// determine the total power signing the block
+	// This calculate the real power in previus block
+	// It consider the validators that were present in precommit process
+	// sum all voting power and all voting power present
+	/*var previousTotalPower, sumPreviousPrecommitPower int64
+	for _, voteInfo := range req.LastCommitInfo.GetVotes() {
+		previousTotalPower += voteInfo.Validator.Power
+		if voteInfo.SignedLastBlock {
+			sumPreviousPrecommitPower += voteInfo.Validator.Power
+		}
+	}*/
+
 	// Get the number of active validators
 	activeValidators := stakeKeeper.GetLastValidators(ctx)
 	valNumber := int64(len(activeValidators))
@@ -26,7 +38,7 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, 
 		validator := stakeKeeper.ValidatorByConsAddr(ctx, previousProposer)
 
 		// Compute the reward based on the number of validators, the validator's staked tokens and the total staked tokens
-		reward := k.ComputeProposerReward(ctx, valNumber, validator, stakeKeeper.TotalBondedTokens(ctx))
+		reward := k.ComputeProposerReward(ctx, valNumber, validator, stakeKeeper.BondDenom(ctx))
 
 		// Distribute the reward to the block proposer
 		if err := k.DistributeBlockRewards(ctx, validator, reward); err != nil {
@@ -34,10 +46,9 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper, 
 		}
 	}
 
-	// Record the proposer for when we payout on the next block
-	consAddr := sdk.ConsAddress(req.Header.ProposerAddress)
-	k.SetPreviousProposerConsAddr(ctx, consAddr)
+	// Reward all
+	if k.GetAutomaticWithdraw(ctx) && k.IsDailyWithdrawBlock(ctx.BlockHeight()) {
+		k.WithdrawAllRewards(ctx, stakeKeeper)
+	}
 
-	// Update the block height
-	k.UpdateYearlyPool(ctx, ctx.BlockHeight())
 }
