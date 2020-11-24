@@ -15,23 +15,28 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 
+	govK "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	govT "github.com/commercionetwork/commercionetwork/x/government/types"
+
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 var (
-	distrAcc = supply.NewEmptyModuleAccount(types.ModuleName)
+	distrAcc         = supply.NewEmptyModuleAccount(types.ModuleName)
+	TestFunder, _    = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+	TestDelegator, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+	valAddr, _       = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
+	valAddrVal, _    = sdk.ValAddressFromBech32("cosmosvaloper1tflk30mq5vgqjdly92kkhhq3raev2hnz6eete3")
+	valDelAddr, _    = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
+	pubKey           = ed25519.GenPrivKey().PubKey()
+	//TestValidator        = staking.NewValidator(valAddr, pubKey, staking.Description{})
+	TestValidator        = staking.NewValidator(valAddrVal, pubKey, staking.Description{})
+	TestAmount           = sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100)))
+	TestBlockRewardsPool = sdk.NewDecCoinsFromCoins(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})...)
+	TestRewarRate        = sdk.NewDecWithPrec(12, 3)
 )
 
-var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-
-var valAddr, _ = sdk.ValAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-var pubKey = ed25519.GenPrivKey().PubKey()
-var TestValidator = staking.NewValidator(valAddr, pubKey, staking.Description{})
-
-var TestAmount = sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100)))
-var TestBlockRewardsPool = sdk.NewDecCoinsFromCoins(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})...)
-
-func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper) {
+func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper Keeper, accKeeper auth.AccountKeeper, bankKeeper bank.BaseKeeper, stakeKeeper staking.Keeper) {
 	memDB := db.NewMemDB()
 	cdc = testCodec()
 
@@ -42,6 +47,7 @@ func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper K
 		staking.StoreKey,
 		types.StoreKey,
 		distr.StoreKey,
+		govT.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey, staking.TStoreKey)
 
@@ -84,13 +90,13 @@ func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper K
 	suk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
 	sk := staking.NewKeeper(cdc, keys[staking.StoreKey], suk, pk.Subspace(staking.DefaultParamspace))
 	sk.SetParams(ctx, staking.DefaultParams())
-
+	gk := govK.NewKeeper(cdc, keys[govT.StoreKey])
 	dk := distr.NewKeeper(cdc, keys[distr.StoreKey], pk.Subspace(distr.DefaultParamspace), sk, suk, auth.FeeCollectorName, blacklistedAddrs)
 
 	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())
 
-	k := NewKeeper(cdc, keys[types.StoreKey], dk, suk)
+	k := NewKeeper(cdc, keys[types.StoreKey], dk, suk, gk)
 
 	if !emptyPool {
 		pool, _ := TestBlockRewardsPool.TruncateDecimal()
@@ -99,7 +105,7 @@ func SetupTestInput(emptyPool bool) (cdc *codec.Codec, ctx sdk.Context, keeper K
 		suk.SetModuleAccount(ctx, macc)
 	}
 
-	return cdc, ctx, k, ak, bk
+	return cdc, ctx, k, ak, bk, sk
 }
 
 func testCodec() *codec.Codec {

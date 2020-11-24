@@ -61,7 +61,7 @@ func (mfd CDPCheckerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 	// check that there's only one OpenCDP message in tx, if any.
 	foundOpenCDP := false
 	for _, msg := range tx.GetMsgs() {
-		if msg.Type() == commerciominttypes.MsgTypeOpenCdp {
+		if msg.Type() == commerciominttypes.MsgTypeMintCCC {
 			if !foundOpenCDP {
 				foundOpenCDP = true
 			} else {

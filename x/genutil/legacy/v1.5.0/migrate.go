@@ -5,9 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commercionetwork/commercionetwork/x/memberships"
-	v134memberships "github.com/commercionetwork/commercionetwork/x/memberships/legacy/v1.3.4"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
+	v134memberships "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v1.3.4"
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -35,15 +34,15 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 	return appState
 }
 
-func migrateMemberships(oldState v134memberships.GenesisState) memberships.GenesisState {
-	ng := memberships.GenesisState{
+func migrateMemberships(oldState v134memberships.GenesisState) GenesisState {
+	ng := GenesisState{
 		LiquidityPoolAmount:     oldState.LiquidityPoolAmount,
 		TrustedServiceProviders: oldState.TrustedServiceProviders,
 		StableCreditsDenom:      oldState.StableCreditsDenom,
 		Memberships:             oldState.Memberships,
 	}
 
-	mutateStatus := func(status bool) membershipsTypes.InviteStatus {
+	/*mutateStatus := func(status bool) membershipsTypes.InviteStatus {
 		if status {
 			return membershipsTypes.InviteStatusRewarded
 		}
@@ -63,12 +62,12 @@ func migrateMemberships(oldState v134memberships.GenesisState) memberships.Genes
 			Status:           mutateStatus(invite.Rewarded),
 			SenderMembership: m,
 		})
-	}
+	}*/
 
 	return ng
 }
 
-func lookupMembership(memberships membershipsTypes.Memberships, owner sdk.AccAddress) (string, error) {
+func lookupMembership(memberships commerciokycTypes.Memberships, owner sdk.AccAddress) (string, error) {
 	for _, m := range memberships {
 		if m.Owner.Equals(owner) {
 			return m.MembershipType, nil

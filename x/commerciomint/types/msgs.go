@@ -5,110 +5,122 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	uuid "github.com/satori/go.uuid"
 )
 
 // -----------------
-// --- MsgOpenCdp
+// --- MsgMintCCC
 // -----------------
 
-type MsgOpenCdp struct {
+type MsgMintCCC struct {
 	Owner   sdk.AccAddress `json:"depositor"`
-	Deposit sdk.Coins      `json:"deposit_amount"`
+	Credits sdk.Coins      `json:"deposit_amount"`
 }
 
-func NewMsgOpenCdp(owner sdk.AccAddress, deposit sdk.Coins) MsgOpenCdp {
-	return MsgOpenCdp{
-		Deposit: deposit,
+func NewMsgMintCCC(owner sdk.AccAddress, deposit sdk.Coins) MsgMintCCC {
+	return MsgMintCCC{
+		Credits: deposit,
 		Owner:   owner,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgOpenCdp) Route() string                { return RouterKey }
-func (msg MsgOpenCdp) Type() string                 { return MsgTypeOpenCdp }
-func (msg MsgOpenCdp) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Owner} }
-func (msg MsgOpenCdp) GetSignBytes() []byte         { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) }
-func (msg MsgOpenCdp) ValidateBasic() error {
+func (msg MsgMintCCC) Route() string                { return RouterKey }
+func (msg MsgMintCCC) Type() string                 { return MsgTypeMintCCC }
+func (msg MsgMintCCC) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Owner} }
+func (msg MsgMintCCC) GetSignBytes() []byte         { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) }
+func (msg MsgMintCCC) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Owner.String())
 	}
-	if !ValidateDeposit(msg.Deposit) {
-		return errors.Wrap(errors.ErrInvalidCoins, msg.Deposit.String())
+
+	if !ValidateDeposit(msg.Credits) {
+		return errors.Wrap(errors.ErrInvalidCoins, msg.Credits.String())
 	}
+
 	return nil
 }
 
-type MsgCloseCdp struct {
-	Signer  sdk.AccAddress `json:"signer"`
-	Created int64          `json:"cdp_timestamp"` // Block height at which the CDP has been created
+type MsgBurnCCC struct {
+	Signer sdk.AccAddress `json:"signer"`
+	Amount sdk.Coin       `json:"amount"`
+	ID     string         `json:"id"`
 }
 
-func NewMsgCloseCdp(signer sdk.AccAddress, timestamp int64) MsgCloseCdp {
-	return MsgCloseCdp{
-		Signer:  signer,
-		Created: timestamp,
+func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) MsgBurnCCC {
+	return MsgBurnCCC{
+		Signer: signer,
+		ID:     id,
+		Amount: amount,
 	}
 }
 
 // Route Implements Msg.
-func (msg MsgCloseCdp) Route() string { return RouterKey }
+func (msg MsgBurnCCC) Route() string { return RouterKey }
 
 // Type Implements Msg.
-func (msg MsgCloseCdp) Type() string { return MsgTypeCloseCdp }
+func (msg MsgBurnCCC) Type() string { return MsgTypeBurnCCC }
 
-func (msg MsgCloseCdp) ValidateBasic() error {
+func (msg MsgBurnCCC) ValidateBasic() error {
 	if msg.Signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
 	}
-	if msg.Created == 0 {
-		return errors.Wrap(errors.ErrInvalidCoins, "CDP timestamp is invalid")
+
+	if msg.Amount.IsZero() || msg.Amount.IsNegative() || msg.Amount.Denom != CreditsDenom {
+		return errors.Wrap(errors.ErrInvalidRequest, "invalid amount")
 	}
+
+	if _, err := uuid.FromString(msg.ID); err != nil {
+		return errors.Wrap(errors.ErrInvalidRequest, "id must be a well-defined UUID")
+	}
+
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgCloseCdp) GetSignBytes() []byte {
+func (msg MsgBurnCCC) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgCloseCdp) GetSigners() []sdk.AccAddress {
+func (msg MsgBurnCCC) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Signer}
 }
 
 // -------------------
-// --- MsgSetCdpCollateralRate
+// --- MsgSetCCCConversionRate
 // -------------------
 
-type MsgSetCdpCollateralRate struct {
-	Signer            sdk.AccAddress `json:"signer"`
-	CdpCollateralRate sdk.Dec        `json:"cdp_collateral_rate"`
+type MsgSetCCCConversionRate struct {
+	Signer sdk.AccAddress `json:"signer"`
+	Rate   sdk.Dec        `json:"rate"`
 }
 
-func NewMsgSetCdpCollateralRate(signer sdk.AccAddress, cdpCollateralRate sdk.Dec) MsgSetCdpCollateralRate {
-	return MsgSetCdpCollateralRate{Signer: signer, CdpCollateralRate: cdpCollateralRate}
+func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Dec) MsgSetCCCConversionRate {
+	return MsgSetCCCConversionRate{Signer: signer, Rate: rate}
 }
 
-func (MsgSetCdpCollateralRate) Route() string                    { return RouterKey }
-func (MsgSetCdpCollateralRate) Type() string                     { return MsgTypeSetCdpCollateralRate }
-func (msg MsgSetCdpCollateralRate) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Signer} }
-func (msg MsgSetCdpCollateralRate) ValidateBasic() error {
+func (MsgSetCCCConversionRate) Route() string                    { return RouterKey }
+func (MsgSetCCCConversionRate) Type() string                     { return MsgTypeSetCCCConversionRate }
+func (msg MsgSetCCCConversionRate) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Signer} }
+func (msg MsgSetCCCConversionRate) ValidateBasic() error {
 	if msg.Signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
 	}
-	return ValidateCollateralRate(msg.CdpCollateralRate)
+
+	return ValidateConversionRate(msg.Rate)
 }
 
-func (msg MsgSetCdpCollateralRate) GetSignBytes() []byte {
+func (msg MsgSetCCCConversionRate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func ValidateCollateralRate(rate sdk.Dec) error {
-	if rate.IsNil() {
-		return fmt.Errorf("cdp collateral rate must be not nil")
+func ValidateConversionRate(rate sdk.Dec) error {
+	if rate.IsZero() {
+		return fmt.Errorf("conversion rate cannot be zero")
 	}
-	if !rate.IsPositive() {
-		return fmt.Errorf("cdp collateral rate must be positive: %s", rate)
+	if rate.IsNegative() {
+		return fmt.Errorf("conversion rate must be positive")
 	}
 	return nil
 }

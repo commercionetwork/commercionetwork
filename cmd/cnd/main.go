@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/cosmos/cosmos-sdk/server"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
@@ -22,7 +23,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/server"
+
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
@@ -72,6 +73,7 @@ func main() {
 	rootCmd.AddCommand(gencmds.AddGenesisLockedAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(gencmds.AddGenesisTspCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(gencmds.SetGenesisPriceCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
+	rootCmd.AddCommand(gencmds.SetGenesisVbrRewardRate(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(version.Cmd)
 
 	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)

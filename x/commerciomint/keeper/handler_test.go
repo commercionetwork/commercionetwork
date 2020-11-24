@@ -10,77 +10,72 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
-var testMsgOpenCdp = types.NewMsgOpenCdp(testCdp.Owner, testCdp.Deposit)
-var testMsgCloseCdp = types.NewMsgCloseCdp(testCdp.Owner, testCdp.CreatedAt)
+var testMsgMintCCC = types.NewMsgMintCCC(testEtp.Owner, sdk.NewCoins(sdk.NewCoin("uccc", testEtp.Collateral)))
+var testMsgBurnCCC = types.NewMsgBurnCCC(testEtp.Owner, testEtp.ID, testEtp.Credits)
 
-func TestHandler_handleMsgOpenCdp(t *testing.T) {
-	ctx, bk, pfk, _, _, k := SetupTestInput()
-	handler := NewHandler(k)
-	ctx = ctx.WithBlockHeight(5)
-
-	// Test setup
-	_, _ = bk.AddCoins(ctx, testCdp.Owner, testCdp.Deposit)
-	balance := bk.GetCoins(ctx, testCdpOwner)
-
-	// Check balance
-	require.Equal(t, "100ucommercio", balance.String())
-
-	// Set credits denom and push a price to pricefeed
-	k.SetCreditsDenom(ctx, "uccc")
-	pfk.SetCurrentPrice(ctx, pricefeedTypes.NewPrice("ucommercio", sdk.NewDec(10), sdk.NewInt(1000)))
-
-	actual, err := handler(ctx, testMsgOpenCdp)
-	require.NoError(t, err)
-	require.Equal(t, &sdk.Result{Log: "Position opened successfully"}, actual)
-
-	// Check final balance
-	balance = bk.GetCoins(ctx, testCdpOwner)
-	require.Equal(t, "500uccc", balance.String())
-}
-
-func TestHandler_handleMsgCloseCdp(t *testing.T) {
+func TestHandler_handleMsgMintCCC(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
-	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), testCdp.Deposit)
-	_ = bk.SetCoins(ctx, testCdp.Owner, sdk.NewCoins(testCdp.Credits))
+	// Test setup
+	_, _ = bk.AddCoins(ctx, testEtp.Owner, sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(200))))
+	balance := bk.GetCoins(ctx, testEtpOwner)
+
+	// Check balance
+	require.Equal(t, "200ucommercio", balance.String())
+
+	actual, err := handler(ctx, testMsgMintCCC)
+	require.NoError(t, err)
+	require.Equal(t, &sdk.Result{Log: "mint successful"}, actual)
+
+	// Check final balance
+	balance = bk.GetCoins(ctx, testEtpOwner)
+	require.Equal(t, "100uccc", balance.String())
+}
+
+func TestHandler_handleMsgBurnCCC(t *testing.T) {
+	ctx, bk, _, _, _, k := SetupTestInput()
+	handler := NewHandler(k)
+	ctx = ctx.WithBlockHeight(5)
+
+	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName), sdk.NewCoins(sdk.NewCoin("ucommercio", testEtp.Collateral)))
+	_ = bk.SetCoins(ctx, testEtp.Owner, sdk.NewCoins(testEtp.Credits))
 	require.Equal(t, 0, len(k.GetAllPositions(ctx)))
-	k.SetPosition(ctx, testCdp)
+	k.SetPosition(ctx, testEtp)
 	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
 
-	expected := &sdk.Result{Log: "Position closed successfully"}
-	actual, err := handler(ctx, testMsgCloseCdp)
+	expected := &sdk.Result{Log: "burn successful"}
+	actual, err := handler(ctx, testMsgBurnCCC)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 }
 
-func TestHandler_handleMsgSetCdpCollateralRate(t *testing.T) {
+func TestHandler_handleMsgSetCCCConversionRate(t *testing.T) {
 	ctx, _, _, gk, _, k := SetupTestInput()
 	govAddr := []byte("governance")
 	gk.SetGovernmentAddress(ctx, govAddr)
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
-	msg := types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(3))
+	msg := types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(3))
 
-	expected := &sdk.Result{Log: "Position collateral rate changed successfully to 3.000000000000000000"}
+	expected := &sdk.Result{Log: "conversion rate changed successfully to 3.000000000000000000"}
 	actual, err := handler(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 
-	msg = types.NewMsgSetCdpCollateralRate(govAddr, sdk.NewDec(0))
+	msg = types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(0))
 	_, err = handler(ctx, msg)
 	require.Error(t, err)
-	require.Equal(t, "invalid request: cdp collateral rate must be positive: 0.000000000000000000", err.Error())
+	require.Equal(t, "invalid request: conversion rate cannot be zero", err.Error())
 
-	msg = types.NewMsgSetCdpCollateralRate([]byte("invalidAddr"), sdk.NewDec(3))
+	msg = types.NewMsgSetCCCConversionRate([]byte("invalidAddr"), sdk.NewDec(3))
 	_, err = handler(ctx, msg)
 	require.Error(t, err)
-	require.Equal(t, "unauthorized: cosmos1d9h8vctvd9jyzerywgt84wdv cannot set collateral rate", err.Error())
+	require.Equal(t, "unauthorized: cosmos1d9h8vctvd9jyzerywgt84wdv cannot set conversion rate", err.Error())
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
@@ -89,7 +84,7 @@ func TestHandler_InvalidMsg(t *testing.T) {
 	ctx = ctx.WithBlockHeight(5)
 
 	invalidMsg := sdk.NewTestMsg()
-	errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, invalidMsg.Type())
+	errMsg := fmt.Sprintf("unrecognized %s message type: %v", types.ModuleName, invalidMsg.Type())
 	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
 
 	_, err := handler(ctx, invalidMsg)

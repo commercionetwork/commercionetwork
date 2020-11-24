@@ -71,6 +71,7 @@ func TestKeeper_handlerFunc(t *testing.T) {
 			vbrTypes.MsgIncrementBlockRewardsPool{},
 			true,
 		},
+
 		{
 			"MsgSetTumblerAddress",
 			types.NewMsgSetTumblerAddress(governmentTestAddress, tumblerTestAddress),

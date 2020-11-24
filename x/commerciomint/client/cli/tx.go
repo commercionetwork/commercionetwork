@@ -3,7 +3,6 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
@@ -29,21 +28,21 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		openCDPCmd(cdc),
-		closeCDPCmd(cdc),
-		setCollateralRateCmd(cdc),
+		mintCCCCmd(cdc),
+		burnCCCCmd(cdc),
+		setConversionRateCmd(cdc),
 	)
 
 	return txCmd
 }
 
-func openCDPCmd(cdc *codec.Codec) *cobra.Command {
+func mintCCCCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "open-cdp [amount]",
-		Short: "Opens a CDP for the given amount of ucommercio coins",
+		Use:   "mint [amount]",
+		Short: "Mints a given amount of CCC\nAmount must be an integer number.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return openCDPCmdFunc(cmd, args, cdc)
+			return mintCCCCmdFunc(cmd, args, cdc)
 		},
 	}
 
@@ -52,18 +51,18 @@ func openCDPCmd(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func mintCCCCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
-	deposit, err := sdk.ParseCoins(args[0])
-	if err != nil {
-		return err
+	deposit, ok := sdk.NewIntFromString(args[0])
+	if !ok {
+		return fmt.Errorf("amount must be an integer.")
 	}
 
-	msg := types.NewMsgOpenCdp(sender, deposit)
+	msg := types.NewMsgMintCCC(sender, sdk.NewCoins(sdk.NewCoin(types.CreditsDenom, deposit)))
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -71,13 +70,13 @@ func openCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
 
-func closeCDPCmd(cdc *codec.Codec) *cobra.Command {
+func burnCCCCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "close-cdp [block-height]",
-		Short: "Closes a CDP for a user, opened at a given block height",
-		Args:  cobra.ExactArgs(1),
+		Use:   "burn [id] [amount]",
+		Short: "Burns a given amount of tokens, associated with id.",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return closeCDPCmdFunc(cmd, args, cdc)
+			return burnCCCCmdFunc(cmd, args, cdc)
 		},
 	}
 
@@ -86,19 +85,20 @@ func closeCDPCmd(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func burnCCCCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 	sender := cliCtx.GetFromAddress()
+	id := args[0]
 
-	timestamp, err := strconv.ParseInt(args[0], 10, 64)
+	amount, err := sdk.ParseCoin(args[1])
 	if err != nil {
-		return fmt.Errorf("timestamp must be a number")
+		return err
 	}
 
-	msg := types.NewMsgCloseCdp(sender, timestamp)
+	msg := types.NewMsgBurnCCC(sender, id, amount)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -106,13 +106,13 @@ func closeCDPCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error 
 	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }
 
-func setCollateralRateCmd(cdc *codec.Codec) *cobra.Command {
+func setConversionRateCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-collateral-rate [rate]",
-		Short: "Set CDP collateral rate",
+		Use:   "set-conversion-rate [rate]",
+		Short: "Sets conversion rate",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return setCollateralRateCmdFunc(cmd, args, cdc)
+			return setConversionRateCmdFunc(cmd, args, cdc)
 		},
 	}
 
@@ -121,7 +121,7 @@ func setCollateralRateCmd(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func setCollateralRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+func setConversionRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -129,9 +129,9 @@ func setCollateralRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Code
 	signer := cliCtx.GetFromAddress()
 	rate, err := sdk.NewDecFromStr(args[0])
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot parse collateral rate, must be an integer")
 	}
-	msg := types.NewMsgSetCdpCollateralRate(signer, rate)
+	msg := types.NewMsgSetCCCConversionRate(signer, rate)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}

@@ -1,8 +1,12 @@
 package cli
 
 import (
-	"github.com/commercionetwork/commercionetwork/x/memberships"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
+	"fmt"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc"
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	"github.com/commercionetwork/commercionetwork/x/government"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -36,15 +40,31 @@ func AddGenesisTspCmd(ctx *server.Context, cdc *codec.Codec,
 				return err
 			}
 
+			// add minter to the app state
+			var genStateGovernment government.GenesisState
+			cdc.MustUnmarshalJSON(appState[governmentTypes.ModuleName], &genStateGovernment)
+
+			if genStateGovernment.GovernmentAddress.Empty() {
+				return fmt.Errorf("Government address isn't set")
+			}
+
+			govAddress := genStateGovernment.GovernmentAddress
+
 			// add tsp to the app state
-			var genState memberships.GenesisState
-			cdc.MustUnmarshalJSON(appState[membershipsTypes.ModuleName], &genState)
+			var genState commerciokyc.GenesisState
+			cdc.MustUnmarshalJSON(appState[commerciokycTypes.ModuleName], &genState)
+
+			// set a black membership to the government address
+			// add a membership to the genesis state
+
+			membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, govAddress, int64(10)) // TODO calculate blocks in one year
+			genState.Memberships, _ = genState.Memberships.AppendIfMissing(membership)
 
 			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(address)
 
 			// save the app state
 			genesisStateBz := cdc.MustMarshalJSON(genState)
-			appState[membershipsTypes.ModuleName] = genesisStateBz
+			appState[commerciokycTypes.ModuleName] = genesisStateBz
 
 			appStateJSON, err := cdc.MarshalJSON(appState)
 			if err != nil {
