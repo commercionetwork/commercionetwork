@@ -6,6 +6,7 @@ import (
 	"time"
 
 	v200 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v2.0.0"
+	v220 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v2.2.0"
 
 	v038 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v0_38"
 	v039 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v0_39"
@@ -39,7 +40,8 @@ var migrationMap = map[string][]extypes.MigrationCallback{
 	"v1.3.4": {v134.Migrate},
 	"v1.5.0": {v150.Migrate},
 	"v2.0.0": {v038.Migrate, v200.Migrate},
-	"v2.1.3": {v039.Migrate},
+	//"v2.1.3": {v039.Migrate},
+	"v2.2.0": {v039.Migrate, v220.Migrate},
 }
 
 const (
