@@ -4,6 +4,7 @@ import (
 	commKyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	v212memberships "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.1.2"
 	commKycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 
 	upgrade "github.com/commercionetwork/commercionetwork/x/upgrade"
 	upgradeTypes "github.com/commercionetwork/commercionetwork/x/upgrade/types"
@@ -18,6 +19,7 @@ import (
 	governTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 func Migrate(appState genutil.AppMap) genutil.AppMap {
@@ -70,6 +72,22 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 		)
 	}
 
+	// Remove creditrisk pool
+	if appState[creditrisk.ModuleName] != nil {
+		var genCreditrisk creditrisk.GenesisState
+		supply.ModuleCdc.MustUnmarshalJSON(appState[creditrisk.ModuleName], &genCreditrisk)
+
+		// Remove all coins except ucommercio
+		riskAmount := genCreditrisk.Pool.AmountOf("ucommercio")
+
+		genCreditrisk.Pool = sdk.NewCoins(sdk.NewCoin("ucommercio", riskAmount))
+
+		delete(appState, creditrisk.ModuleName)
+		appState[creditrisk.ModuleName] = v039Codec.MustMarshalJSON(
+			genCreditrisk,
+		)
+	}
+
 	appState = commercioMintMigrate(appState, govAddr)
 
 	return appState
@@ -87,6 +105,7 @@ func migrateMemberships(oldState v212memberships.GenesisState, govAddress sdk.Ac
 	return commKyc.GenesisState{
 		LiquidityPoolAmount:     oldState.LiquidityPoolAmount,
 		TrustedServiceProviders: oldState.TrustedServiceProviders,
+		Invites:                 oldState.Invites,
 		Memberships:             memberships,
 	}
 }

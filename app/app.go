@@ -141,7 +141,7 @@ var (
 
 		// Custom modules
 		commerciomintTypes.ModuleName: {supply.Minter, supply.Burner},
-		commerciokycTypes.ModuleName:  {supply.Burner},
+		commerciokycTypes.ModuleName:  {supply.Minter, supply.Burner},
 		idTypes.ModuleName:            nil,
 		vbrTypes.ModuleName:           {supply.Minter},
 		creditriskTypes.ModuleName:    nil,
@@ -368,13 +368,12 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.mm.SetOrderInitGenesis(
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		slashing.ModuleName, supply.ModuleName,
-		crisis.ModuleName, genutil.ModuleName,
+		commerciokycTypes.ModuleName, crisis.ModuleName, genutil.ModuleName,
 
 		// Custom modules
 		governmentTypes.ModuleName,
 		docsTypes.ModuleName,
 		idTypes.ModuleName,
-		commerciokycTypes.ModuleName,
 		commerciomintTypes.ModuleName,
 		pricefeedTypes.ModuleName,
 		vbrTypes.ModuleName,

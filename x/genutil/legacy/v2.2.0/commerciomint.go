@@ -44,15 +44,22 @@ func commercioMintMigrate(appState genutil.AppMap, govAddress sdk.AccAddress) ge
 
 			accIface := interface{}(account)
 
-			if macc, ok := accIface.(*supply.ModuleAccount); ok && mintUcomm == nil {
-				if macc.GetName() == "commerciomint" {
-					mintUcomm = macc.GetCoins()
+			if macc, ok := accIface.(*supply.ModuleAccount); ok {
 
-					// reset commerciomint coins
-					err := account.SetCoins(sdk.NewCoins())
-					if err != nil {
-						panic(err)
+				if macc.GetName() == "accreditations" {
+					continue
+				}
+				if mintUcomm == nil {
+					if macc.GetName() == "commerciomint" {
+						mintUcomm = macc.GetCoins()
+
+						// reset commerciomint coins
+						err := account.SetCoins(sdk.NewCoins())
+						if err != nil {
+							panic(err)
+						}
 					}
+
 				}
 			}
 

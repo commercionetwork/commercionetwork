@@ -29,6 +29,7 @@ func DefaultGenesisState(stableCreditsDenom string) GenesisState {
 // InitGenesis sets docs information for genesis.
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keeper, data GenesisState) {
 	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
+
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
@@ -38,6 +39,9 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 			panic(err)
 		}
 		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
+		/*if err := supplyKeeper.MintCoins(ctx, types.ModuleName, data.LiquidityPoolAmount); err != nil {
+			panic(err)
+		}*/
 	}
 
 	// Import all the invites
