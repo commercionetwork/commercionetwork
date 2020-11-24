@@ -5,6 +5,12 @@ import (
 	v212memberships "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.1.2"
 	commKycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
+	upgrade "github.com/commercionetwork/commercionetwork/x/upgrade"
+	upgradeTypes "github.com/commercionetwork/commercionetwork/x/upgrade/types"
+	v212vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.1.2"
+	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
+	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -42,6 +48,25 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 		delete(appState, v212memberships.ModuleName) // delete old key in case the name changed
 		appState[commKycTypes.ModuleName] = v039Codec.MustMarshalJSON(
 			migrateMemberships(genMemberships, govAddr, expiredAt),
+		)
+	}
+
+	// Migrate vbr state
+	if appState[v212vbr.ModuleName] != nil {
+		var genVbr v212vbr.GenesisState
+		v039Codec.MustUnmarshalJSON(appState[v212vbr.ModuleName], &genVbr)
+
+		delete(appState, v212vbr.ModuleName) // delete old key in case the name changed
+		appState[vbrTypes.ModuleName] = v039Codec.MustMarshalJSON(
+			v220vbr.Migrate(genVbr),
+		)
+	}
+
+	// Migrate upgrade module
+	if appState[upgradeTypes.ModuleName] == nil {
+		genUpgrade := upgrade.GenesisState{}
+		appState[upgradeTypes.ModuleName] = v039Codec.MustMarshalJSON(
+			genUpgrade,
 		)
 	}
 
