@@ -70,7 +70,7 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 		)
 	}
 
-	appState = commercioMintMigrate(appState)
+	appState = commercioMintMigrate(appState, govAddr)
 
 	return appState
 }
