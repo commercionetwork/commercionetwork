@@ -30,7 +30,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 // @Description This endpoint returns the address that the government has currently, along with the height at which the resource was queried at
 // @ID government_address
 // @Produce json
-// @Success 200 {object} x.JSONResult{result=sdk.AccAddress}
+// @Success 200 {object} x.JSONResult{result=string}
 // @Failure 404
 // @Router /government/address [get]
 // @Tags x/government
@@ -53,7 +53,7 @@ var _ sdk.AccAddress
 // @Description This endpoint returns the address that the tumbler has currently, along with the height at which the resource was queried at
 // @ID government_tumbler
 // @Produce json
-// @Success 200 {object} x.JSONResult{result=sdk.AccAddress}
+// @Success 200 {object} x.JSONResult{result=string}
 // @Failure 404
 // @Router /government/tumbler [get]
 // @Tags x/government
