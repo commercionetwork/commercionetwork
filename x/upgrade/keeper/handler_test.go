@@ -22,19 +22,29 @@ func TestKeeper_handlerFunc(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"a message which is not compatible with upgrade",
+			"a message which is not compatible with upgrade yields error",
 			vbrTypes.MsgIncrementBlockRewardsPool{},
 			true,
 		},
 		{
-			"MsgSetTumblerAddress",
+			"MsgSetTumblerAddress by government",
 			types.NewMsgScheduleUpgrade(governmentTestAddress, plan),
 			false,
 		},
 		{
-			"MsgSetTumblerAddress",
+			"MsgSetTumblerAddress by fake government yields error",
+			types.NewMsgScheduleUpgrade(notGovernmentAddress, plan),
+			true,
+		},
+		{
+			"MsgSetTumblerAddress by government",
 			types.NewMsgDeleteUpgrade(governmentTestAddress),
 			false,
+		},
+		{
+			"MsgSetTumblerAddress by fake government yields error",
+			types.NewMsgDeleteUpgrade(notGovernmentAddress),
+			true,
 		},
 	}
 	for _, tt := range tests {
