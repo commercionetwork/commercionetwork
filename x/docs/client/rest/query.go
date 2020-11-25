@@ -51,6 +51,15 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 // --- Documents
 // ----------------------------------
 
+// @Summary Get the sent documents
+// @Description This endpoint returns the sent documents, along with the height at which the resource was queried at
+// @ID id_getSentDocumentsHandler
+// @Produce json
+// @Param address path string true "Address of the user"
+// @Success 200 {object} x.JSONResult{result=[]types.Document}
+// @Failure 404
+// @Router /docs/{address}/sent [get]
+// @Tags x/docs
 func getSentDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
