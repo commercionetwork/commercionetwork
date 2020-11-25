@@ -53,7 +53,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 
 // @Summary Get the sent documents
 // @Description This endpoint returns the sent documents, along with the height at which the resource was queried at
-// @ID id_getSentDocumentsHandler
+// @ID getSentDocumentsHandler
 // @Produce json
 // @Param address path string true "Address of the user"
 // @Success 200 {object} x.JSONResult{result=[]types.Document}
@@ -76,6 +76,15 @@ func getSentDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
+// @Summary Get the received documents
+// @Description This endpoint returns the received documents, along with the height at which the resource was queried at
+// @ID getReceivedDocumentsHandler
+// @Produce json
+// @Param address path string true "Address of the user"
+// @Success 200 {object} x.JSONResult{result=[]types.Document}
+// @Failure 404
+// @Router /docs/{address}/received [get]
+// @Tags x/docs
 func getReceivedDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -96,6 +105,15 @@ func getReceivedDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 // --- Document receipts
 // ---------------------------------
 
+// @Summary Get the sent receipts
+// @Description This endpoint returns the sent receipts, along with the height at which the resource was queried at
+// @ID getSentDocumentsReceiptsHandler
+// @Produce json
+// @Param address path string true "Address of the user"
+// @Success 200 {object} x.JSONResult{result=[]types.DocumentReceipt}
+// @Failure 404
+// @Router /receipts/{address}/sent [get]
+// @Tags x/docs
 func getSentDocumentsReceiptsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -112,6 +130,15 @@ func getSentDocumentsReceiptsHandler(cliCtx context.CLIContext) http.HandlerFunc
 	}
 }
 
+// @Summary Get the received receipts
+// @Description This endpoint returns the received receipts, along with the height at which the resource was queried at
+// @ID getReceivedDocumentsReceiptsHandler
+// @Produce json
+// @Param address path string true "Address of the user"
+// @Success 200 {object} x.JSONResult{result=[]types.DocumentReceipt}
+// @Failure 404
+// @Router /receipts/{address}/received [get]
+// @Tags x/docs
 func getReceivedDocumentsReceiptsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -132,6 +159,14 @@ func getReceivedDocumentsReceiptsHandler(cliCtx context.CLIContext) http.Handler
 // --- Document metadata schemes
 // ----------------------------------
 
+// @Summary Get the metadata schemes
+// @Description This endpoint returns the supported metadata schemes, along with the height at which the resource was queried at
+// @ID getSupportedMetadataSchemesHandler
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=[]types.MetadataSchema}
+// @Failure 404
+// @Router /docs/metadataSchemes [get]
+// @Tags x/docs
 func getSupportedMetadataSchemesHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QuerySupportedMetadataSchemes)
@@ -149,6 +184,14 @@ func getSupportedMetadataSchemesHandler(cliCtx context.CLIContext) http.HandlerF
 // --- Document metadata schemes proposers
 // -----------------------------------------
 
+// @Summary Get the metadata proposers
+// @Description This endpoint returns the trusted metadata proposers, along with the height at which the resource was queried at
+// @ID getSupportedMetadataSchemesHandler
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=[]string}
+// @Failure 404
+// @Router /docs/metadataSchemes/proposers [get]
+// @Tags x/docs
 func getTrustedMetadataSchemesProposersHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTrustedMetadataProposers)
