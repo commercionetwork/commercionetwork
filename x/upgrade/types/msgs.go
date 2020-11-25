@@ -13,6 +13,13 @@ type MsgScheduleUpgrade struct {
 	Plan     upgrade.Plan   `json:"plan"`
 }
 
+func NewMsgScheduleUpgrade(proposer sdk.AccAddress, plan upgrade.Plan) MsgScheduleUpgrade {
+	return MsgScheduleUpgrade{
+		Proposer: proposer,
+		Plan:     plan,
+	}
+}
+
 const ScheduleUpgradeConst = "ScheduleUpgrade"
 
 func (msg MsgScheduleUpgrade) Route() string {
@@ -48,6 +55,12 @@ var _ sdk.Msg = &MsgDeleteUpgrade{}
 
 type MsgDeleteUpgrade struct {
 	Proposer sdk.AccAddress `json:"proposer"`
+}
+
+func NewMsgDeleteUpgrade(proposer sdk.AccAddress) MsgDeleteUpgrade {
+	return MsgDeleteUpgrade{
+		Proposer: proposer,
+	}
 }
 
 const DeleteUpgradeConst = "DeleteUpgrade"

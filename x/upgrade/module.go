@@ -106,7 +106,7 @@ func (AppModule) Route() string {
 
 // NewHandler returns an sdk.Handler for the upgrade module.
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return keeper.NewHandler(am.keeper)
 }
 
 // QuerierRoute returns the upgrade module's querier route name.
