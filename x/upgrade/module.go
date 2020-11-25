@@ -2,6 +2,7 @@ package upgrade
 
 import (
 	"encoding/json"
+	"github.com/commercionetwork/commercionetwork/x/upgrade/client/rest"
 
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
@@ -57,8 +58,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // RegisterRESTRoutes registers the REST routes for the upgrade module.
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	// TODO
-	//rest.RegisterRoutes(ctx, rtr)
+	rest.RegisterRoutes(ctx, rtr)
 }
 
 // GetTxCmd returns the root tx command for the upgrade module.
