@@ -13,10 +13,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
-
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr"
 
@@ -300,17 +297,6 @@ func initGenFiles(
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(vbrState)
 
-	// cnd set-genesis-price ucommercio 1 100000000
-	var priceState pricefeed.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[pricefeedTypes.ModuleName], &priceState)
-	price := pricefeedTypes.Price{AssetName: app.DefaultBondDenom, Value: sdk.NewDec(1), Expiry: sdk.NewInt(100000000)}
-	rawPrice := pricefeedTypes.OraclePrice{Oracle: genAccounts[0].GetAddress(), Price: price, Created: sdk.ZeroInt()}
-	priceState.RawPrices, _ = priceState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
-	priceState.Assets, _ = priceState.Assets.AppendIfMissing(price.AssetName)
-	priceState.Oracles, _ = priceState.Oracles.AppendIfMissing(genAccounts[0].GetAddress())
-	genesisStateBz := cdc.MustMarshalJSON(priceState)
-	appGenState[pricefeedTypes.ModuleName] = genesisStateBz
-
 	// cnd add-genesis-tsp
 	var memberState commerciokyc.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &memberState)
@@ -319,7 +305,7 @@ func initGenFiles(
 	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), int64(100))
 	memberState.Memberships, _ = memberState.Memberships.AppendIfMissing(membership)
 
-	genesisStateBz = cdc.MustMarshalJSON(memberState)
+	genesisStateBz := cdc.MustMarshalJSON(memberState)
 	appGenState[commerciokycTypes.ModuleName] = genesisStateBz
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)

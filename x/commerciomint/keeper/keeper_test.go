@@ -15,7 +15,7 @@ import (
 )
 
 func TestKeeper_SetPosition(t *testing.T) {
-	ctx, bk, _, _, _, k := SetupTestInput()
+	ctx, bk, _, _, k := SetupTestInput()
 	// handler := NewHandler(k)
 
 	_, _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName),
@@ -53,7 +53,7 @@ func TestKeeper_SetPositionBasic(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, _, _, k := SetupTestInput()
+			ctx, _, _, _, k := SetupTestInput()
 			for _, etp := range test.positions {
 				k.SetPosition(ctx, etp)
 			}
@@ -108,7 +108,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, bk, _, _, _, k := SetupTestInput()
+			ctx, bk, _, _, k := SetupTestInput()
 			ctx = ctx.WithBlockHeight(10)
 
 			// Setup
@@ -140,12 +140,12 @@ func TestKeeper_NewPosition(t *testing.T) {
 
 func TestKeeper_GetAllPositionsOwnedBy(t *testing.T) {
 	t.Run("Empty list is returned properly", func(t *testing.T) {
-		ctx, _, _, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 		require.Empty(t, k.GetAllPositionsOwnedBy(ctx, testEtpOwner))
 	})
 
 	t.Run("Existing list is returned properly", func(t *testing.T) {
-		ctx, _, _, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 		k.SetPosition(ctx, testEtp)
 		for _, pos := range k.GetAllPositionsOwnedBy(ctx, testEtpOwner) {
 			pos.Equals(testEtp)
@@ -155,15 +155,16 @@ func TestKeeper_GetAllPositionsOwnedBy(t *testing.T) {
 
 func TestKeeper_BurnCCC(t *testing.T) {
 	t.Run("Non existing ETP returns error", func(t *testing.T) {
-		ctx, _, _, _, _, k := SetupTestInput()
+		ctx, _, _, _, k := SetupTestInput()
 
 		err := k.BurnCCC(ctx, testEtp.Owner, "notExists", testEtp.Credits)
 		errMsg := fmt.Sprintf("position for user with address %s and id %s does not exist", testEtpOwner, "notExists")
+		require.Error(t, err)
 		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
 	})
 
 	t.Run("Existing ETP is closed properly", func(t *testing.T) {
-		ctx, bk, _, _, _, k := SetupTestInput()
+		ctx, bk, _, _, k := SetupTestInput()
 
 		k.SetPosition(ctx, testEtp)
 		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
@@ -204,7 +205,7 @@ func TestKeeper_deletePosition(t *testing.T) {
 	for _, test := range testData {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, _, _, k := SetupTestInput()
+			ctx, _, _, _, k := SetupTestInput()
 
 			for _, etp := range test.existingPositions {
 				k.SetPosition(ctx, etp)
@@ -231,7 +232,7 @@ func TestKeeper_deletePosition(t *testing.T) {
 // --------------
 
 func TestKeeper_SetConversionRate(t *testing.T) {
-	ctx, _, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(0)))
 	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(-1)))
 	require.NoError(t, k.SetConversionRate(ctx, sdk.NewDec(2)))
@@ -244,7 +245,7 @@ func TestKeeper_SetConversionRate(t *testing.T) {
 }
 
 func TestKeeper_GetConversionRate(t *testing.T) {
-	ctx, _, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	rate := sdk.NewDec(3)
 	require.NoError(t, k.SetConversionRate(ctx, rate))
 	require.Equal(t, rate, k.GetConversionRate(ctx))

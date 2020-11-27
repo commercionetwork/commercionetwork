@@ -16,7 +16,7 @@ var testMsgMintCCC = types.NewMsgMintCCC(testEtp.Owner, sdk.NewCoins(sdk.NewCoin
 var testMsgBurnCCC = types.NewMsgBurnCCC(testEtp.Owner, testEtp.ID, testEtp.Credits)
 
 func TestHandler_handleMsgMintCCC(t *testing.T) {
-	ctx, bk, _, _, _, k := SetupTestInput()
+	ctx, bk, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
@@ -37,7 +37,7 @@ func TestHandler_handleMsgMintCCC(t *testing.T) {
 }
 
 func TestHandler_handleMsgBurnCCC(t *testing.T) {
-	ctx, bk, _, _, _, k := SetupTestInput()
+	ctx, bk, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
@@ -54,9 +54,9 @@ func TestHandler_handleMsgBurnCCC(t *testing.T) {
 }
 
 func TestHandler_handleMsgSetCCCConversionRate(t *testing.T) {
-	ctx, _, _, gk, _, k := SetupTestInput()
+	ctx, _, gk, _, k := SetupTestInput()
 	govAddr := []byte("governance")
-	gk.SetGovernmentAddress(ctx, govAddr)
+	require.NoError(t, gk.SetGovernmentAddress(ctx, govAddr))
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
@@ -79,7 +79,7 @@ func TestHandler_handleMsgSetCCCConversionRate(t *testing.T) {
 }
 
 func TestHandler_InvalidMsg(t *testing.T) {
-	ctx, _, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
 
@@ -89,5 +89,6 @@ func TestHandler_InvalidMsg(t *testing.T) {
 
 	_, err := handler(ctx, invalidMsg)
 	require.Error(t, err)
+	require.NotNil(t, expected)
 	require.Equal(t, expected.Error(), err.Error())
 }

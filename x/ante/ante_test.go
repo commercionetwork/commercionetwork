@@ -16,7 +16,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
 // run the tx through the anteHandler and ensure its valid
@@ -62,8 +61,8 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	stableCreditsDenom := "uccc"
 
 	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper,
-		app.GovernmentKeeper,
+		app.AccountKeeper, app.SupplyKeeper,
+		app.GovernmentKeeper, app.CommercioMintKeeper,
 		cosmosante.DefaultSigVerificationGasConsumer,
 		stableCreditsDenom,
 	)
@@ -110,7 +109,6 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has not specified enough token frees
-	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(tokenDenom, sdk.NewDec(5), sdk.NewInt(1000)))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 1))
 	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{3}
@@ -118,7 +116,6 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough token fees
-	app.PriceFeedKeeper.SetCurrentPrice(ctx, pricefeedTypes.NewPrice(tokenDenom, sdk.NewDec(2), sdk.NewInt(1000)))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 5000))
 	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
 	seqs = []uint64{2}
@@ -134,7 +131,7 @@ func TestAnteHandlerFees_MsgShareDocFromTumbler(t *testing.T) {
 	stableCreditsDenom := "uccc"
 
 	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper, app.PriceFeedKeeper, app.GovernmentKeeper,
+		app.AccountKeeper, app.SupplyKeeper, app.GovernmentKeeper, app.CommercioMintKeeper,
 		cosmosante.DefaultSigVerificationGasConsumer,
 		stableCreditsDenom,
 	)

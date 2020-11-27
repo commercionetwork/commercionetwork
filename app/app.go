@@ -42,12 +42,9 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/id"
 	idKeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
 	idTypes "github.com/commercionetwork/commercionetwork/x/id/types"
-	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 
 	commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 	"github.com/commercionetwork/commercionetwork/x/vbr"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -127,7 +124,6 @@ var (
 		id.AppModuleBasic{},
 		commerciokyc.NewAppModuleBasic(StableCreditsDenom),
 		commerciomint.NewAppModuleBasic(),
-		pricefeed.AppModuleBasic{},
 		vbr.AppModuleBasic{},
 		creditrisk.AppModuleBasic{},
 		customUpgrade.AppModuleBasic{},
@@ -207,7 +203,6 @@ type CommercioNetworkApp struct {
 	idKeeper            idKeeper.Keeper
 	membershipKeeper    commerciokycKeeper.Keeper
 	mintKeeper          commerciomintKeeper.Keeper
-	priceFeedKeeper     pricefeedKeeper.Keeper
 	vbrKeeper           vbrKeeper.Keeper
 	creditriskKeeper    creditrisk.Keeper
 	customUpgradeKeeper customUpgradeKeeper.Keeper
@@ -243,7 +238,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		idTypes.StoreKey,
 		commerciokycTypes.StoreKey,
 		commerciomintTypes.StoreKey,
-		pricefeedTypes.StoreKey,
 		vbrTypes.StoreKey,
 		creditriskTypes.StoreKey,
 	)
@@ -295,9 +289,8 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.membershipKeeper = commerciokycKeeper.NewKeeper(app.cdc, app.keys[commerciokycTypes.StoreKey], app.supplyKeeper, app.bankKeeper, app.governmentKeeper, app.accountKeeper)
 	app.docsKeeper = docsKeeper.NewKeeper(app.keys[docsTypes.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = idKeeper.NewKeeper(app.cdc, app.keys[idTypes.StoreKey], app.accountKeeper, app.supplyKeeper)
-	app.priceFeedKeeper = pricefeedKeeper.NewKeeper(app.cdc, app.keys[pricefeedTypes.StoreKey], app.governmentKeeper)
 	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper, app.governmentKeeper)
-	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciomintTypes.StoreKey], app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper)
+	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciomintTypes.StoreKey], app.supplyKeeper, app.governmentKeeper)
 	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
 	app.customUpgradeKeeper = customUpgradeKeeper.NewKeeper(cdc, app.governmentKeeper, app.upgradeKeeper)
 
@@ -334,7 +327,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		id.NewAppModule(app.idKeeper, app.governmentKeeper, app.supplyKeeper),
 		commerciokyc.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper, app.accountKeeper),
 		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
-		pricefeed.NewAppModule(app.priceFeedKeeper, app.governmentKeeper),
 		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper),
 		creditrisk.NewAppModule(app.creditriskKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
@@ -358,7 +350,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		staking.ModuleName,
 
 		// Custom modules
-		pricefeedTypes.ModuleName,
 		commerciokycTypes.ModuleName,
 		commerciomintTypes.ModuleName,
 	)
@@ -375,7 +366,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		docsTypes.ModuleName,
 		idTypes.ModuleName,
 		commerciomintTypes.ModuleName,
-		pricefeedTypes.ModuleName,
 		vbrTypes.ModuleName,
 		creditriskTypes.ModuleName,
 		upgrade.ModuleName,
@@ -393,7 +383,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
 		ante.NewAnteHandler(
-			app.accountKeeper, app.supplyKeeper, app.priceFeedKeeper, app.governmentKeeper,
+			app.accountKeeper, app.supplyKeeper, app.governmentKeeper, app.mintKeeper,
 			auth.DefaultSigVerificationGasConsumer, StableCreditsDenom,
 		),
 	)

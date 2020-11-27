@@ -14,7 +14,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 )
 
 const (
@@ -24,25 +23,23 @@ const (
 )
 
 type Keeper struct {
-	cdc             *codec.Codec
-	storeKey        sdk.StoreKey
-	priceFeedKeeper pricefeed.Keeper
-	supplyKeeper    supply.Keeper
-	govKeeper       government.Keeper
+	cdc          *codec.Codec
+	storeKey     sdk.StoreKey
+	supplyKeeper supply.Keeper
+	govKeeper    government.Keeper
 }
 
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, pk pricefeed.Keeper, govKeeper government.Keeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, govKeeper government.Keeper) Keeper {
 	// ensure commerciomint module account is set
 	if addr := supplyKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	return Keeper{
-		cdc:             cdc,
-		storeKey:        key,
-		priceFeedKeeper: pk,
-		supplyKeeper:    supplyKeeper,
-		govKeeper:       govKeeper,
+		cdc:          cdc,
+		storeKey:     key,
+		supplyKeeper: supplyKeeper,
+		govKeeper:    govKeeper,
 	}
 }
 

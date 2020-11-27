@@ -44,5 +44,10 @@ func Setup(isCheckTx bool) *SimApp {
 		panic(err)
 	}
 
+	err = app.CommercioMintKeeper.SetConversionRate(ctx, sdk.NewDec(2))
+	if err != nil {
+		panic(err)
+	}
+
 	return app
 }
