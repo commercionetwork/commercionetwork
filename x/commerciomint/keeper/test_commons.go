@@ -16,7 +16,6 @@ import (
 	db "github.com/tendermint/tm-db"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
@@ -31,7 +30,6 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keepe
 		params.StoreKey,
 		supply.StoreKey,
 		governmentTypes.StoreKey,
-		creditrisk.StoreKey,
 		types.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -51,8 +49,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keepe
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
 	maccPerms := map[string][]string{
-		types.ModuleName:      {supply.Minter, supply.Burner},
-		creditrisk.ModuleName: {supply.Minter, supply.Burner},
+		types.ModuleName: {supply.Minter, supply.Burner},
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 

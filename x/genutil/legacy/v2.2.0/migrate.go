@@ -4,9 +4,8 @@ import (
 	commKyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	v212memberships "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.1.2"
 	commKycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 
-	upgrade "github.com/commercionetwork/commercionetwork/x/upgrade"
+	"github.com/commercionetwork/commercionetwork/x/upgrade"
 	upgradeTypes "github.com/commercionetwork/commercionetwork/x/upgrade/types"
 	v212vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.1.2"
 	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
@@ -19,7 +18,6 @@ import (
 	governTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/cosmos/cosmos-sdk/x/genutil"
-	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
 func Migrate(appState genutil.AppMap) genutil.AppMap {
@@ -73,19 +71,9 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 	}
 
 	// Remove creditrisk pool
-	if appState[creditrisk.ModuleName] != nil {
-		var genCreditrisk creditrisk.GenesisState
-		supply.ModuleCdc.MustUnmarshalJSON(appState[creditrisk.ModuleName], &genCreditrisk)
-
-		// Remove all coins except ucommercio
-		riskAmount := genCreditrisk.Pool.AmountOf("ucommercio")
-
-		genCreditrisk.Pool = sdk.NewCoins(sdk.NewCoin("ucommercio", riskAmount))
-
-		delete(appState, creditrisk.ModuleName)
-		appState[creditrisk.ModuleName] = v039Codec.MustMarshalJSON(
-			genCreditrisk,
-		)
+	// TODO: what do we do with the tokens already in the pool?
+	if appState[creditriskModuleName] != nil {
+		delete(appState, creditriskModuleName)
 	}
 
 	appState = commercioMintMigrate(appState, govAddr)

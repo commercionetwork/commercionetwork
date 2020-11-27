@@ -31,8 +31,6 @@ import (
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/creditrisk"
-	creditriskTypes "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	"github.com/commercionetwork/commercionetwork/x/docs"
 	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
@@ -125,7 +123,6 @@ var (
 		commerciokyc.NewAppModuleBasic(StableCreditsDenom),
 		commerciomint.NewAppModuleBasic(),
 		vbr.AppModuleBasic{},
-		creditrisk.AppModuleBasic{},
 		customUpgrade.AppModuleBasic{},
 	)
 
@@ -140,14 +137,12 @@ var (
 		commerciokycTypes.ModuleName:  {supply.Minter, supply.Burner},
 		idTypes.ModuleName:            nil,
 		vbrTypes.ModuleName:           {supply.Minter},
-		creditriskTypes.ModuleName:    nil,
 	}
 
 	allowedModuleReceivers = types.Strings{
 		commerciomintTypes.ModuleName,
 		commerciokycTypes.ModuleName,
 		vbrTypes.ModuleName,
-		creditriskTypes.ModuleName,
 	}
 )
 
@@ -204,7 +199,6 @@ type CommercioNetworkApp struct {
 	membershipKeeper    commerciokycKeeper.Keeper
 	mintKeeper          commerciomintKeeper.Keeper
 	vbrKeeper           vbrKeeper.Keeper
-	creditriskKeeper    creditrisk.Keeper
 	customUpgradeKeeper customUpgradeKeeper.Keeper
 
 	mm *module.Manager
@@ -239,7 +233,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		commerciokycTypes.StoreKey,
 		commerciomintTypes.StoreKey,
 		vbrTypes.StoreKey,
-		creditriskTypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -291,7 +284,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	app.idKeeper = idKeeper.NewKeeper(app.cdc, app.keys[idTypes.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper, app.governmentKeeper)
 	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciomintTypes.StoreKey], app.supplyKeeper, app.governmentKeeper)
-	app.creditriskKeeper = creditrisk.NewKeeper(cdc, app.keys[creditriskTypes.StoreKey], app.supplyKeeper)
 	app.customUpgradeKeeper = customUpgradeKeeper.NewKeeper(cdc, app.governmentKeeper, app.upgradeKeeper)
 
 	// register the proposal types
@@ -328,7 +320,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		commerciokyc.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper, app.accountKeeper),
 		commerciomint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		vbr.NewAppModule(app.vbrKeeper, app.stakingKeeper),
-		creditrisk.NewAppModule(app.creditriskKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
 		customUpgrade.NewAppModule(app.customUpgradeKeeper, app.bankKeeper),
 	)
@@ -367,7 +358,6 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		idTypes.ModuleName,
 		commerciomintTypes.ModuleName,
 		vbrTypes.ModuleName,
-		creditriskTypes.ModuleName,
 		upgrade.ModuleName,
 	)
 
