@@ -8,6 +8,9 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	dist "github.com/cosmos/cosmos-sdk/x/distribution"
 
+	/*distTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"*/
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
@@ -254,7 +257,13 @@ func TestKeeper_WithdrawAllRewards(t *testing.T) {
 			previousPeriod := k.distKeeper.GetValidatorCurrentRewards(ctx, valAddrVal).Period - 1
 
 			stake := testVal.TokensFromSharesTruncated(delegationVal.GetShares())
-			k.distKeeper.SetDelegatorStartingInfo(ctx, valAddr, sdk.AccAddress(valAddrVal), distTypes.NewDelegatorStartingInfo(previousPeriod, stake, uint64(ctx.BlockHeight())))
+			k.distKeeper.SetDelegatorStartingInfo(ctx, valAddrVal, sdk.AccAddress(valAddrVal), distTypes.NewDelegatorStartingInfo(previousPeriod, stake, uint64(ctx.BlockHeight())))
+
+			period := k.distKeeper.GetDelegatorStartingInfo(ctx, valAddrVal, sdk.AccAddress(valAddrVal))
+			fmt.Print("---->")
+			fmt.Println(valAddrVal)
+			fmt.Println(sdk.AccAddress(valAddrVal))
+			fmt.Println(period)
 
 			validatorOutstandingRewards := sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", reward))
 			k.distKeeper.SetValidatorOutstandingRewards(ctx, valAddrVal, validatorOutstandingRewards)
