@@ -92,6 +92,11 @@ build-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
 
+build-local-linux: go.sum
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd
+
+
 build-windows: go.sum
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
@@ -144,9 +149,9 @@ build-docker-cndode:
 	$(MAKE) -C contrib/localnet
 
 
-localnet-start: localnet-stop
-	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
+localnet-start: localnet-stop build-local-linux
 	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
+	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 	docker-compose up
 
 localnet-stop:

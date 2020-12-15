@@ -66,7 +66,7 @@ func testnetCmd(ctx *server.Context, cdc *codec.Codec,
 
 	cmd := &cobra.Command{
 		Use:   "testnet",
-		Short: "Initialize files for a Gaiad testnet",
+		Short: "Initialize files for a Commercio testnet",
 		Long: `testnet will create "v" number of directories and populate each with
 necessary files (private validator, genesis, config, etc.).
 
@@ -298,6 +298,8 @@ func initGenFiles(
 	cdc.MustUnmarshalJSON(appGenState[vbrTypes.ModuleName], &vbrState)
 	tokens := sdk.TokensFromConsensusPower(1000)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
+	vbrState.AutomaticWithdraw = true
+	vbrState.RewardRate = sdk.NewDecWithPrec(1, 3)
 	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(vbrState)
 
 	// cnd set-genesis-price ucommercio 1 100000000
@@ -311,15 +313,17 @@ func initGenFiles(
 	genesisStateBz := cdc.MustMarshalJSON(priceState)
 	appGenState[pricefeedTypes.ModuleName] = genesisStateBz
 
+	// cnd set-genesis-price ucommercio 1 100000000
+
 	// cnd add-genesis-tsp
-	var memberState commerciokyc.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &memberState)
-	memberState.TrustedServiceProviders, _ = memberState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
+	var kycState commerciokyc.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &kycState)
+	kycState.TrustedServiceProviders, _ = kycState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
 	// cnd add-genesis-membership black
 	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), int64(100))
-	memberState.Memberships, _ = memberState.Memberships.AppendIfMissing(membership)
+	kycState.Memberships, _ = kycState.Memberships.AppendIfMissing(membership)
 
-	genesisStateBz = cdc.MustMarshalJSON(memberState)
+	genesisStateBz = cdc.MustMarshalJSON(kycState)
 	appGenState[commerciokycTypes.ModuleName] = genesisStateBz
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
