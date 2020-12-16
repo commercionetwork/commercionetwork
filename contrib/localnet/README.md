@@ -48,7 +48,7 @@ http://localhost:7124
 
 ## Websocket local access
 ```
-http://localhost:7124/websocket
+ws://localhost:7124/websocket
 ```
 
 ## Node data
