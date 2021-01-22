@@ -71,35 +71,41 @@ following message.
 ```
 
 ##### Fields requirements
-| Field | Required | 
-| :---: | :------: |
-| `sender` | Yes | 
-| `recipients` | Yes |
-| `uuid` | Yes | 
-| `content_uri` | No | 
-| `metadata` | Yes |
-| `checksum` | No | 
-| `encryption_data` | No | 
-| `do_sign` | No | 
+| Field | Required | Limit/Format |
+| :---: | :------: | :---: |
+| `sender` | Yes | bech32 |
+| `recipients` | Yes | bech32 |
+| `uuid` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
+| `content_uri` | No *<sup>1</sup> | 512 bytes |
+| `metadata` | Yes | |
+| `checksum` | No | |
+| `encryption_data` | No *<sup>1</sup> | |
+| `do_sign` | No *<sup>1</sup> | |
+
+
+- *<sup>1</sup> **Must be omitted if empty.**
 
 ##### `metadata`
-| Field | Required | 
-| :---: | :------: |
-| `content_uri` | Yes | 
-| `schema_type` | No *<sup>1</sup> *<sup>2</sup>  | 
-| `schema` | No *<sup>1</sup> |
+| Field | Required | Limit/Format |
+| :---: | :------: | :---: |
+| `content_uri` | Yes | 512 bytes | 
+| `schema_type` | No *<sup>1</sup> *<sup>2</sup> *<sup>3</sup>  | 512 bytes | 
+| `schema` | No *<sup>1</sup> | |
 
 - *<sup>1</sup> The `schema_type` and `schema` fields are mutually exclusive.
 This means that if the first one exists the second will not be used.
    
 - *<sup>2</sup> You can read which `schema_type` values are supported inside 
    the [supported metadata schemes section](metadata-schemes.md#supported-metadata-schemes)
+
+- *<sup>3</sup> **Must be omitted if empty.**
    
+
 ##### `metadata.schema`
-| Field | Required | 
-| :---: | :------: |
-| `uri` | Yes | 
-| `version` | Yes | 
+| Field | Required | Limit/Format | 
+| :---: | :------: | :---: |
+| `uri` | Yes | 512 bytes |
+| `version` | Yes | 32 bytes |
 
 ##### `checksum`
 | Field | Required | 
@@ -111,19 +117,23 @@ This means that if the first one exists the second will not be used.
 [supported checksum algorithms section](#supported-checksum-algorithm)  
 
 ##### `encryption_data`
-| Field | Required | 
-| :---: | :------: |
-| `key` | Yes |
-| `encrypted_data` | Yes |
+| Field | Required | Limit/Format |
+| :---: | :------: | :---: |
+| `key` | Yes | |
+| `encrypted_data` | Yes | |
+| `encryption_data.keys.*.value` | Yes | 512 bytes |
+
+
+
 
 ##### `do_sign`
-| Field | Required | 
-| :---: | :------: |
-| `storage_uri` | Yes |
-| `signer_instance` | Yes |
-| `sdn_data` | No |
-| `vcr_id` | Yes |
-| `certificate_profile` | Yes |
+| Field | Required | Limit/Format |
+| :---: | :------: | :---: |
+| `storage_uri` | Yes | |
+| `signer_instance` | Yes | |
+| `sdn_data` | No | |
+| `vcr_id` | Yes | 64 bytes |
+| `certificate_profile` | Yes | 32 bytes |
 
 
 * storage_uri
@@ -245,7 +255,7 @@ Once you have received a document and you want to acknowledge the sender that yo
 the `MsgSendDocumentReceipt` message that allows you to do that. 
 
 #### Transaction message
-In order to properly send a transaction to share a document, you will need to create and sign the
+In order to properly send a transaction to send a document receipt, you will need to create and sign the
 following message.
 
 ```json
@@ -253,8 +263,8 @@ following message.
   "type": "commercio/MsgSendDocumentReceipt",
   "value": {
     "uuid": "<Unique receipt identifier>",
-    "sender": "<Document sender address>",
-    "recipient": "<Document recipient address>",
+    "sender": "<Receipt sender address: one of recipients of Document>",
+    "recipient": "<Receipt recipient address: sender of Document>",
     "tx_hash": "<Tx hash in which the document has been sent>",
     "document_uuid": "<Document UUID>",
     "proof": "<Optional reading proof>"
@@ -262,15 +272,22 @@ following message.
 }
 ```
 
+
+
 ##### Fields requirements
-| Field | Required | 
-| :---: | :------: | 
-| `uuid` | Yes |
-| `sender` | Yes | 
-| `recipient` | Yes | 
-| `tx_hash` | Yes | 
-| `document_uuid` | Yes |
-| `proof` | No | 
+| Field | Required | Limit/Format |
+| :---: | :------: | :------: |
+| `uuid` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
+| `sender` | Yes | bech32 | 
+| `recipient` | Yes | bech32 | 
+| `tx_hash` | Yes | |
+| `document_uuid` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
+| `proof` | No *<sup>1</sup> | |
+
+
+- *<sup>1</sup> **Must be omitted if empty.**
+
+`proof` is a generic field that can be used to prove some part of receipt correlated to documents and/or some other proof out of chain
 
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
@@ -306,7 +323,7 @@ Parameters:
 
 ##### Example 
 
-Getting invites for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+Getting sent docs from `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 
 ```
 http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
@@ -317,7 +334,7 @@ http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
 #### CLI
 
 ```bash
-cncli query docs sent-documents [address]
+cncli query docs received-documents [address]
 ```
 
 #### REST
@@ -335,9 +352,69 @@ Parameters:
 
 ##### Example 
 
-Getting invites for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+Getting docs for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 
 ```
 http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
+```
+
+
+
+### List sent receipts
+
+#### CLI
+
+```bash
+cncli query docs sent-receipts [address]
+```
+
+#### REST
+
+```
+/receipts/{address}/sent
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `address` | Address of the user for which to read current sent recepits |
+
+##### Example 
+
+Getting sent receipts from `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+
+```
+http://localhost:1317/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
+```
+
+### List received receipts
+
+#### CLI
+
+```bash
+cncli query docs received-receipts [address]
+```
+   
+
+#### REST
+
+```
+/receipts/{address}/received
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `address` | Address of the user for which to read current received documents |
+
+
+##### Example 
+
+Getting recepits for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+
+```
+http://localhost:1317/recepits/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
 
