@@ -26,7 +26,7 @@ func DefaultGenesisState(stableCreditsDenom string) GenesisState {
 	return GenesisState{}
 }
 
-// InitGenesis sets docs information for genesis.
+// InitGenesis sets documents information for genesis.
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keeper, data GenesisState) {
 	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
 

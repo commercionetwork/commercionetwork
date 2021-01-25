@@ -4,9 +4,7 @@ go 1.14
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
-	github.com/cosmos/cosmos-sdk v0.39.1
 	github.com/cosmos/cosmos-sdk v0.39.2
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a

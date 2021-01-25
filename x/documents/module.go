@@ -1,13 +1,7 @@
-package government
+package documents
 
 import (
 	"encoding/json"
-
-	"github.com/commercionetwork/commercionetwork/x/government/keeper"
-	"github.com/commercionetwork/commercionetwork/x/government/types"
-
-	"github.com/commercionetwork/commercionetwork/x/government/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/government/client/rest"
 
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -18,6 +12,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/documents/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/documents/keeper"
+	"github.com/commercionetwork/commercionetwork/x/documents/types"
 )
 
 var (
@@ -102,7 +101,9 @@ func (AppModule) Name() string {
 }
 
 // register invariants
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	keeper.RegisterInvariants(ir, am.keeper)
+}
 
 // module message route name
 func (AppModule) Route() string {

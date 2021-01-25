@@ -21,7 +21,7 @@ import (
 
 const DefaultCreditsDenom = "uccc"
 
-// AppModuleBasic defines the basic application module used by the docs module.
+// AppModuleBasic defines the basic application module used by the documents module.
 type AppModuleBasic struct {
 	CreditsDenom string
 }

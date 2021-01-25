@@ -3,8 +3,8 @@ package v1_3_0
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	v120docs "github.com/commercionetwork/commercionetwork/x/docs/legacy/v1.2.0"
-	v130docs "github.com/commercionetwork/commercionetwork/x/docs/legacy/v1.3.0"
+	v120docs "github.com/commercionetwork/commercionetwork/x/documents/legacy/v1.2.0"
+	v130docs "github.com/commercionetwork/commercionetwork/x/documents/legacy/v1.3.0"
 
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 )
@@ -17,7 +17,7 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 	v130Codec := codec.New()
 	codec.RegisterCrypto(v130Codec)
 
-	// Migrate docs state
+	// Migrate documents state
 	if appState[v120docs.ModuleName] != nil {
 		var genDocs v120docs.GenesisState
 		v120Codec.MustUnmarshalJSON(appState[v120docs.ModuleName], &genDocs)
