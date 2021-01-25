@@ -12,14 +12,14 @@ For example, if you open a CDP lending `100 ucommercio` will result in you recei
 
 ## Transactions
 
-### Open a CDP
+### Mint Commercio Cash Credit (CCC)
 
 #### Transaction message
-To open a new CDP you need to create and sign the following message:
+To mint CCC you need to create and sign the following message:
   
 ```json
 {
-  "type": "commercio/MsgOpenCdp",
+  "type": "commercio/MsgMintCCC",
   "value": {
     "deposited_amount": [
       {
@@ -32,39 +32,66 @@ To open a new CDP you need to create and sign the following message:
 }
 ```
 
-A maximum of 1 `MsgOpenCdp` messages can be sent in each transaction.
+~~A maximum of 1 `MsgMintCCC` messages can be sent in each transaction.~~
+
+
+##### Fields requirements
+| Field | Required | Limit/Format |
+| :---: | :------: | :------: |
+| `deposited_amount` | Yes |  | 
+| `depositor` | Yes | bech32 | 
+
 
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
-openCdp
+mintCCC
 ```  
 
-### Close a CDP
+
+
+
+
+
+### Burn Commercio Cash Credit (CCC)
 
 #### Transaction message
 
-To close a previously opened CDP you need to create and sign the following message:
+To burn previously minteted CCC you need to create and sign the following message:
 
 ```json
 {
-  "type": "commercio/MsgCloseCdp",
+  "type": "commercio/MsgBurnCCC",
   "value": {
     "signer": "<user address>",
-    "timestamp": "<block height at which the CDP is being inserted into the chain>"
+    "amount": {
+      "amount": "<amount to be burned>",
+      "denom": "<token denom to be burned>"
+    },
+    "id": ""
   }
 }
 ```
 
+##### Fields requirements
+| Field | Required | Limit/Format |
+| :---: | :------: | :------: |
+| `signer` | Yes | bech32 | 
+| `amount` | Yes | |
+| `id` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
+
+
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
-closeCdp
-```  
+burnCCC
+```
+
+
 
 ### Set CDP collateral rate
 
