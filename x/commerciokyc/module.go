@@ -27,7 +27,7 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// AppModuleBasic defines the basic application module used by the documents module.
+// AppModuleBasic defines the basic application module used by the commerciokyc module.
 type AppModuleBasic struct {
 	stableCreditsDenom string
 }

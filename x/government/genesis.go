@@ -8,7 +8,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
-// GenesisState - documents genesis state
+// GenesisState - government genesis state
 type GenesisState struct {
 	GovernmentAddress sdk.AccAddress `json:"government_address"`
 	TumblerAddress    sdk.AccAddress `json:"tumbler_address"`
