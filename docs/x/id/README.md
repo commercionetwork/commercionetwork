@@ -98,18 +98,28 @@ to create and sign the following message:
       "verificationMethod": "<did bech32 pubkey>",
       "signatureValue": "QNB13Y7Q91tzjn4w=="
     }
+    "service": [
+      {
+        "id": "",
+        "type": "",
+        "serviceEndpoint": ""
+      }
+    ]
   }
 }
 ```
 
 ##### `value` fields requirements
 
-| Field | Required | 
-| :---: | :------: | 
-| `@context` | Yes (Must be `https://www.w3.org/ns/did/v1`) |
-| `id` | Yes |
-| `publicKey` | Yes |
-| `proof` | Yes |
+| Field | Required | Value |
+| :---: | :------: | :---: |
+| `@context` | Yes| `https://www.w3.org/ns/did/v1` |
+| `id` | Yes | |
+| `publicKey` | Yes | |
+| `proof` | Yes | |
+| `service` | No *<sup>1</sup> | |
+
+- *<sup>1</sup> **Must be omitted if empty.**
 
 The `id` field represents the DID you want to associate the provided identity to.
 
@@ -129,7 +139,7 @@ A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirement
 ##### Proof fields requirements
 
 | Field | Required | Value | 
-| :---: | :------: | :------: | 
+| :---: | :------: | :------ | 
 | `type` | Yes | must always be `EcdsaSecp256k1VerificationKey2019` |
 | `created` | Yes | creation date in UTC format |
 | `proofPurpose` | Yes | must always be `authentication` |
@@ -162,6 +172,14 @@ The signature commercio.network accepts is `EcdsaSecp256k1VerificationKey2019`, 
 
 The signature format produced in step 4, must be of the `r || s` kind, otherwise the identity creation **will** fail.
 
+#### Service fields requirements
+| Field | Required | Limit/Format | 
+| :---: | :------: | :------: | 
+| `id` | Yes | 64 bytes  |
+| `type` | Yes | 64 bytes |
+| `serviceEndpoint` | Yes | 512 bytes |
+
+
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
@@ -169,6 +187,8 @@ you need to use the following `message.action` value:
 ```
 setIdentity
 ```  
+
+
 
 
 
