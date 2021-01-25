@@ -1,14 +1,15 @@
 # CommercioMint
 
-The `commerciomint` module is the one that allows you to create Collateralized Debt Positions (*CDPs*) using your 
+The `commerciomint` module is the one that allows you to create Exchange Trade Position (*ETPs*) using your 
 Commercio.network tokens (*ucommercio*) in order to get Commercio Cash Credits (*uccc*) in return.
 
-A *Collateralized Debt Position* (*CDP*) is a core component of the Commercio Network blockchain whose purpose is to
+A *Exchange Trade Position* (*ETP*) is a core component of the Commercio Network blockchain whose purpose is to
 create Commercio Cash Credits (`uccc`) in exchange for Commercio Tokens (`ucommercio`) which it then holds in
 escrow until the borrowed Commercio Cash Credits are returned.
 
-In simple words, opening a CDP allows you to exchange any amount of `ucommercio` to get half the amount of `uccc`. 
-For example, if you open a CDP lending `100 ucommercio` will result in you receiving `50 uccc`.    
+In simple words, opening a ETP allows you to exchange any amount of `ucommercio` to get relative the amount of `uccc` with relative Conversion Rate value. 
+For example, if you open a ETP lending `100 ucommercio` with 1.1 Conversion Rate value will result in you receiving `90 uccc` (approximation by default).  
+Initial Conversion Rate value is 2.0.       
 
 ## Transactions
 
@@ -70,7 +71,7 @@ To burn previously minteted CCC you need to create and sign the following messag
       "amount": "<amount to be burned>",
       "denom": "<token denom to be burned>"
     },
-    "id": ""
+    "id": "<Mint UUID>"
   }
 }
 ```
@@ -93,7 +94,7 @@ burnCCC
 
 
 
-### Set CDP collateral rate
+### Set CCC conversion rate
 
 :::warning  
 This transaction type is accessible only to the [government](../../government/README.md).  
@@ -102,14 +103,14 @@ Trying to perform this transaction without being the government will result in a
 
 #### Transaction message
 
-To set the CDP collateral rate you need to create and sign the following message:
+To set the CCC conversion rate you need to create and sign the following message:
 
 ```json
 {
-  "type": "commercio/MsgSetCdpCollateralRate",
+  "type": "commercio/MsgSetCCCConversionRate",
   "value": {
-    "signer": "<user address>",
-    "cdp_collateral_rate": "<floating-point collateral rate>"
+    "signer": "<government address>",
+    "rate": "<floating-point collateral rate>"
   }
 }
 ```
@@ -119,67 +120,21 @@ If you want to [list past transactions](../../../developers/listing-transactions
 you need to use the following `message.action` value: 
 
 ```
-setCdpCollateralRate
-```  
+setCCCConversionRate
+```
+
+
+
+
 
 ## Queries
 
-### Reading all CDP opened by a user at a given timestamp
-
-#### CLI
-
-```bash
-cncli query commerciomint get-cdp [user-addr] [block-height]
-```
-
-#### REST
-
-Endpoint:  
-
-```
-/commerciomint/cdps/${address}/${timestamp}
-```
-
-Parameters:
-
-| Parameter | Description |
-| :-------: | :---------- | 
-| `address` | Address of the user for which to read the CDP |
-| `timestamp`| Timestamp of when the CDP request was made |
-
-##### Example 
-
-Getting CDPs opened by `did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke` at timestamp `1570177686`:
-```
-http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686
-```
-#### Response
-```json
-{
-  "height": "0",
-  "result": {
-    "deposited_amount": [
-      {
-        "amount": "10000000",
-        "denom": "ucommercio"
-      }
-    ],
-    "liquidity_amount": {
-      "amount": "500000",
-      "denom": "uccc"
-    },
-    "owner": "did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686",
-    "timestamp": "1570177686"
-  }
-}
-```
-
-### Reading all CDP opened by a user
+### Reading all Exchange Trade Position (ETP) opened by a user
 
 #### CLI
 
 ```sh
-$ cncli query commerciomint get-cdps [user-addr]
+cncli query commerciomint get-etps [user-addr]
 ```
 
 #### REST
@@ -187,7 +142,7 @@ $ cncli query commerciomint get-cdps [user-addr]
 Endpoint:
    
 ```
-/commerciomint/cdps/${address}
+/commerciomint/etps/${address}
 ```
 
 Parameters:
@@ -201,7 +156,7 @@ Parameters:
 Getting CDPs opened by `did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke`:
 
 ```
-http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
+http://localhost:1317/commerciomint/etps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
 ```
 
 #### Response
@@ -210,29 +165,26 @@ http://localhost:1317/commerciomint/cdps/did:com:15erw8aqttln5semks0vnqjy9yzrygz
   "height": "0",
   "result": [
     {
-      "deposited_amount": [
-        {
-          "amount": "10000000",
-          "denom": "ucommercio"
-        }
-      ],
-      "liquidity_amount": {
-        "denom": "uccc",
-        "amount": "500000"
+      "credits": {
+        "amount": "500000",
+        "denom": "uccc"
       },
+      "collateral": 10,
+      "exchange_rate": "1.100000000000000000",
       "owner": "did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686",
-      "timestamp": "1570177686"
+      "id": "83672b49-c2a1-4ce3-a52a-859039b1231e",
+      "created_at": "1570177686"
     }
   ]
 }
 ```
 
-### Reading the current CDP collateral rate
+### Reading the current CCC conversion rate
 
 #### CLI
 
 ```bash
-cncli query commerciomint collateral-rate
+cncli query commerciomint conversion-rate
 ```
 
 #### REST
@@ -240,15 +192,15 @@ cncli query commerciomint collateral-rate
 Endpoint:
    
 ```
-/commerciomint/collateral_rate
+/commerciomint/conversion_rate
 ```
 
 ##### Example
 
-Getting the current CDP collateral rate:
+Getting the current CCC conversion rate:
 
 ```
-http://localhost:1317/commerciomint/collateral_rate
+http://localhost:1317/commerciomint/conversion_rate
 ```
 
 #### Response
