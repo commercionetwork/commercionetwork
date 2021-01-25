@@ -64,11 +64,9 @@ module.exports = {
                     "x/government/",
                     "x/id/",
                     "x/docs/",
-                    "x/pricefeed/",
                     "x/commerciomint/",
-                    "x/memberships/",
-                    "x/vbr/",
-                    "x/creditrisk/"
+                    "x/commerciokyc/",
+                    "x/vbr/"
                 ]
             }
         ],
