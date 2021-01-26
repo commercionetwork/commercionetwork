@@ -58,7 +58,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 // @Param address path string true "Address of the user"
 // @Success 200 {object} x.JSONResult{result=[]types.Document}
 // @Failure 404
-// @Router /documents/{address}/sent [get]
+// @Router /docs/{address}/sent [get]
 // @Tags x/documents
 func getSentDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +83,7 @@ func getSentDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 // @Param address path string true "Address of the user"
 // @Success 200 {object} x.JSONResult{result=[]types.Document}
 // @Failure 404
-// @Router /documents/{address}/received [get]
+// @Router /docs/{address}/received [get]
 // @Tags x/documents
 func getReceivedDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -165,7 +165,7 @@ func getReceivedDocumentsReceiptsHandler(cliCtx context.CLIContext) http.Handler
 // @Produce json
 // @Success 200 {object} x.JSONResult{result=[]types.MetadataSchema}
 // @Failure 404
-// @Router /documents/metadataSchemes [get]
+// @Router /docs/metadataSchemes [get]
 // @Tags x/documents
 func getSupportedMetadataSchemesHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +190,7 @@ func getSupportedMetadataSchemesHandler(cliCtx context.CLIContext) http.HandlerF
 // @Produce json
 // @Success 200 {object} x.JSONResult{result=[]string}
 // @Failure 404
-// @Router /documents/metadataSchemes/proposers [get]
+// @Router /docs/metadataSchemes/proposers [get]
 // @Tags x/documents
 func getTrustedMetadataSchemesProposersHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
