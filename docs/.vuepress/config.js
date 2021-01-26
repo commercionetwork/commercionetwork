@@ -7,12 +7,18 @@ module.exports = {
     ],
     markdown: {
         lineNumbers: true,
-	extendMarkdown: md => {
-		md.use(require("markdown-it-footnote"));
-  	}
+	    extendMarkdown: md => {
+		    md.use(require("markdown-it-footnote"));
+  	    }
     },
     plugins: [
-        'latex'
+        'latex',
+        [
+          "sitemap",
+          {
+            hostname: "https://docs.commercio.network"
+          }
+        ]
     ],
     themeConfig: {
         repo: "commercionetwork/commercionetwork",
