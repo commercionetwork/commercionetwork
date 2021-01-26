@@ -1,10 +1,7 @@
-package pricefeed
+package documents
 
 import (
 	"encoding/json"
-
-	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -16,9 +13,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/client/rest"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed/types"
+	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/documents/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/documents/keeper"
+	"github.com/commercionetwork/commercionetwork/x/documents/types"
 )
 
 var (
@@ -26,7 +24,7 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// AppModuleBasic defines the basic application module used by the pricefeed module.
+// AppModuleBasic defines the basic application module used by the documents module.
 type AppModuleBasic struct{}
 
 var _ module.AppModuleBasic = AppModuleBasic{}
@@ -85,22 +83,27 @@ func (AppModuleSimulation) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
 type AppModule struct {
 	AppModuleBasic
 	AppModuleSimulation
-	keeper    keeper.Keeper
-	govKeeper government.Keeper
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper keeper.Keeper, govKeeper government.Keeper) AppModule {
+func NewAppModule(keeper keeper.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		AppModuleSimulation: AppModuleSimulation{},
 		keeper:              keeper,
-		govKeeper:           govKeeper,
 	}
 }
 
+// module name
+func (AppModule) Name() string {
+	return types.ModuleName
+}
+
 // register invariants
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	keeper.RegisterInvariants(ir, am.keeper)
+}
 
 // module message route name
 func (AppModule) Route() string {
@@ -109,7 +112,7 @@ func (AppModule) Route() string {
 
 // module handler
 func (am AppModule) NewHandler() sdk.Handler {
-	return keeper.NewHandler(am.keeper, am.govKeeper)
+	return keeper.NewHandler(am.keeper)
 }
 
 // module querier route name
@@ -137,10 +140,10 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // module begin-block
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
+}
 
 // module end-block
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	am.keeper.ComputeAndUpdateCurrentPrices(ctx)
+func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
