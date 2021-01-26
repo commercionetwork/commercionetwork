@@ -8,8 +8,7 @@ import (
 
 // @title CommercioNetwork API
 // @description Swagger API for CommercioNetwork
-// @contact.name Gianguido Sorà
-// @contact.email me+work@gsora.xyz
+// @contact.email developers@commercio.network
 
 // @BasePath /
 
