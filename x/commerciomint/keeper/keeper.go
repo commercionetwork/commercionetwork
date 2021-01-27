@@ -261,7 +261,8 @@ func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
 }
 
 func makePositionKey(address sdk.AccAddress, id string) []byte {
-	return []byte(fmt.Sprintf("%s:%s:%s", types.EtpStorePrefix, address.String(), id))
+	base := append([]byte(types.EtpStorePrefix), address...)
+	return append(base, []byte(id)...)
 }
 
 func (k Keeper) deletePosition(ctx sdk.Context, pos types.Position) {

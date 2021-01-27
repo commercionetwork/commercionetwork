@@ -6,7 +6,7 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	EtpStorePrefix       = ":etp:"
+	EtpStorePrefix       = StoreKey + ":etp:"
 	CreditsDenomStoreKey = "CreditsDenom"
 	CollateralRateKey    = StoreKey + ":collateralRate"
 
