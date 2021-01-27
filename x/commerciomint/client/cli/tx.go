@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -59,10 +60,10 @@ func mintCCCCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
 	sender := cliCtx.GetFromAddress()
 	deposit, ok := sdk.NewIntFromString(args[0])
 	if !ok {
-		return fmt.Errorf("amount must be an integer.")
+		return fmt.Errorf("amount must be an integer")
 	}
 
-	msg := types.NewMsgMintCCC(sender, sdk.NewCoins(sdk.NewCoin(types.CreditsDenom, deposit)))
+	msg := types.NewMsgMintCCC(sender, sdk.NewCoins(sdk.NewCoin(types.CreditsDenom, deposit)), uuid.NewV4().String())
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}

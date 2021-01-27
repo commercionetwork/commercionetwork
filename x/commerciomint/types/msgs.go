@@ -15,12 +15,14 @@ import (
 type MsgMintCCC struct {
 	Owner   sdk.AccAddress `json:"depositor"`
 	Credits sdk.Coins      `json:"deposit_amount"`
+	ID      string         `json:"id"`
 }
 
-func NewMsgMintCCC(owner sdk.AccAddress, deposit sdk.Coins) MsgMintCCC {
+func NewMsgMintCCC(owner sdk.AccAddress, deposit sdk.Coins, id string) MsgMintCCC {
 	return MsgMintCCC{
 		Credits: deposit,
 		Owner:   owner,
+		ID:      id,
 	}
 }
 
@@ -32,6 +34,10 @@ func (msg MsgMintCCC) GetSignBytes() []byte         { return sdk.MustSortJSON(Mo
 func (msg MsgMintCCC) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Owner.String())
+	}
+
+	if msg.ID == "" {
+		return errors.Wrap(errors.ErrInvalidRequest, "missing position ID")
 	}
 
 	if !ValidateDeposit(msg.Credits) {
