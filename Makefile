@@ -37,6 +37,22 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
+ifeq ($(OS),Windows_NT)
+    TARGET_BIN = Windows-AMD64
+    TARGET_BUILD = build-windows
+else
+	UNAME_S = $(shell uname -s)
+	ifeq ($(UNAME_S),Darwin)
+		TARGET_BIN = Darwin-AMD64
+		TARGET_BUILD = build-darwin
+	else
+		TARGET_BIN = Linux-AMD64
+		TARGET_BUILD = build-linux
+	endif
+endif
+
+
+
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
 
@@ -154,10 +170,14 @@ localnet-start: localnet-stop build-local-linux
 	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 	docker-compose up
 
+localnet-reset: localnet-stop $(TARGET_BUILD)
+	@for node in 0 1 2 3; do build/$(TARGET_BIN)/cnd unsafe-reset-all --home ./build/node$$node/cnd; done
+
+
 localnet-stop:
 	docker-compose down
 
 clean:
 	rm -rf build/
 
-.PHONY: localnet-start localnet-stop build-docker-cndode clean
+.PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset
