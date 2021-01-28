@@ -77,6 +77,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 	testData := []struct {
 		name            string
 		owner           sdk.AccAddress
+		id              string
 		amount          sdk.Int
 		userFunds       sdk.Coins
 		error           error
@@ -85,6 +86,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 		{
 			name:   "invalid deposited amount",
 			owner:  testEtp.Owner,
+			id:     testEtp.ID,
 			amount: sdk.NewInt(0),
 			error:  fmt.Errorf("no uccc requested"),
 		},
@@ -92,6 +94,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 			name:   "Not enough funds inside user wallet",
 			amount: testEtp.Collateral,
 			owner:  testEtp.Owner,
+			id:     testEtp.ID,
 			error: fmt.Errorf("insufficient funds: insufficient account funds;  < %s",
 				sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)),
 			),
@@ -100,6 +103,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 			name:            "Successful opening",
 			amount:          testEtp.Collateral,
 			owner:           testEtp.Owner,
+			id:              testEtp.ID,
 			userFunds:       sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)),
 			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)),
 		},
@@ -116,7 +120,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 				_ = bk.SetCoins(ctx, test.owner, test.userFunds)
 			}
 
-			err := k.NewPosition(ctx, test.owner, sdk.NewCoins(sdk.NewCoin("uccc", test.amount)))
+			err := k.NewPosition(ctx, test.owner, sdk.NewCoins(sdk.NewCoin("uccc", test.amount)), test.id)
 			if test.error != nil {
 				require.Error(t, err)
 				e := errors.Unwrap(err)
