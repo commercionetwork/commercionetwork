@@ -21,9 +21,11 @@ func TestMsgBasics(t *testing.T) {
 }
 
 func TestMsgMintCCC_ValidateBasic(t *testing.T) {
-	require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
-	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins()).ValidateBasic())
-	require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100))).ValidateBasic())
+	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
+	require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100)), uuid).ValidateBasic())
+	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), uuid).ValidateBasic())
+	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), "").ValidateBasic())
+	require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
 }
 
 func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {

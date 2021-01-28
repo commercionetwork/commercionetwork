@@ -62,7 +62,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper) (res []
 }
 
 type ResolveIdentityResponse struct {
-	Owner       sdk.AccAddress     `json:"owner"`
+	Owner       sdk.AccAddress     `json:"owner" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
 	DidDocument *types.DidDocument `json:"did_document"`
 }
 

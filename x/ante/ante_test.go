@@ -15,7 +15,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
+	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 

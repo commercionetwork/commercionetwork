@@ -18,7 +18,7 @@ var blacklistedByDefault = []string{
 	"uccc",
 }
 
-// GenesisState - docs genesis state
+// GenesisState - pricefeed genesis state
 type GenesisState struct {
 	Oracles        ctypes.Addresses   `json:"oracles"`
 	Assets         ctypes.Strings     `json:"assets"`
@@ -33,7 +33,7 @@ func DefaultGenesisState() GenesisState {
 	}
 }
 
-// InitGenesis sets docs information for genesis.
+// InitGenesis sets pricefeed information for genesis.
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, genState GenesisState) {
 	for _, oracle := range genState.Oracles {
 		keeper.AddOracle(ctx, oracle)

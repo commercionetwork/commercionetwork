@@ -10,7 +10,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
-// GenesisState - docs genesis state
+// GenesisState - commerciomint genesis state
 type GenesisState struct {
 	Positions           []types.Position `json:"positions"`
 	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
@@ -26,7 +26,7 @@ func DefaultGenesisState() GenesisState {
 	}
 }
 
-// InitGenesis sets docs information for genesis.
+// InitGenesis sets commerciomint information for genesis.
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keeper, data GenesisState) {
 
 	// Get the module account

@@ -27,7 +27,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgMintCCC(ctx sdk.Context, keeper Keeper, msg types.MsgMintCCC) (*sdk.Result, error) {
-	err := keeper.NewPosition(ctx, msg.Owner, msg.Credits)
+	err := keeper.NewPosition(ctx, msg.Owner, msg.Credits, msg.ID)
 	if err != nil {
 		return nil, sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "cannot mint ccc, %s", err.Error())
 	}

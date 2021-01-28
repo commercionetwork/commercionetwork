@@ -29,6 +29,9 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+
+	docs "github.com/commercionetwork/commercionetwork/swagger"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 var defaultCLIHome = os.ExpandEnv("$HOME/.cncli")
@@ -147,6 +150,16 @@ func txCmd(cdc *amino.Codec) *cobra.Command {
 
 // registerRoutes registers the routes from the different modules for the LCD.
 func registerRoutes(rs *lcd.RestServer) {
+
+	swaggerSub := rs.Mux.PathPrefix("/swagger/").Subrouter()
+	swaggerSub.Handle("/{.*}", httpSwagger.Handler(
+		httpSwagger.DeepLinking(true),
+		httpSwagger.DocExpansion("none"),
+		httpSwagger.DomID("#swagger-ui"),
+	))
+
+	docs.SwaggerInfo.Version = version.Version
+
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
 	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)

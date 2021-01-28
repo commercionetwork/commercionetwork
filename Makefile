@@ -90,7 +90,7 @@ install: git-hooks go.sum
 ########################################
 ### Build
 
-build: go.sum
+build: go.sum generate
 ifeq ($(OS),Windows_NT)
 	go build -mod=readonly -o ./build/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
 	go build -mod=readonly -o ./build/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
@@ -100,20 +100,19 @@ else
 endif
 
 
-build-darwin: go.sum
+build-darwin: go.sum generate
 	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
 	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
 
-build-linux: go.sum
+build-linux: go.sum generate
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
 
-build-local-linux: go.sum
+build-local-linux: go.sum generate
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd
 
-
-build-windows: go.sum
+build-windows: go.sum generate
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
 
@@ -148,6 +147,9 @@ lint:
 	golangci-lint run
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
+
+generate:
+	go generate ./...
 
 .PHONY: git-hooks
 
