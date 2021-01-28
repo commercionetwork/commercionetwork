@@ -20,6 +20,18 @@ To stop stack use `ctrl + c` or
 make localnet-stop
 ```
 
+You can reset chain without delete genesis ora accounts with 
+
+```bash
+make localnet-reset
+```
+
+You can delete all data of the local chain and all binaries with
+
+```bash
+make clean
+```
+
 
 If there are no problems, the nodes listen on the follow ports
 
@@ -59,7 +71,8 @@ Every node account mnemonics are in
 /build/node<N>/cncli/key_seed.json
 ```
 
-where `<N>` is the id of node
+where `<N>` is the id of node.  
+Government wallet is in node0.    
 
 Every node configs are under 
 
@@ -73,4 +86,3 @@ Logs
 ```
 /build/node<N>/cnd/cnd.log
 ```
-
