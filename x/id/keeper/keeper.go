@@ -145,10 +145,15 @@ func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, id string, status ty
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
-	oldStatus := request.Status.Type
+	currentStatus := request.Status
+	oldStatus := ""
+	if currentStatus != nil {
+		oldStatus = request.Status.Type
+	}
 
 	// Update and store the request
 	request.Status = &status
+
 	store.Set(getDidPowerUpRequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(eventPowerupChangeStatus,
