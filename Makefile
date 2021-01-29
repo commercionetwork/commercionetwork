@@ -5,6 +5,8 @@ COMMIT := $(shell git log -1 --format='%H')
 
 REPO_ROOT := $(shell git rev-parse --show-toplevel)
 
+GENERATE ?= 1
+
 export GO111MODULE = on
 
 LEDGER_ENABLED ?= true
@@ -100,6 +102,7 @@ else
 endif
 
 
+
 build-darwin: go.sum generate
 	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
 	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
@@ -149,7 +152,9 @@ lint:
 	go mod verify
 
 generate:
+ifeq ($(GENERATE),1)
 	go generate ./...
+endif
 
 .PHONY: git-hooks
 
