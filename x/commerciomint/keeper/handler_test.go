@@ -19,17 +19,52 @@ func TestHandler_handleMsgMintCCC(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
-
+	ctx = ctx.WithEventManager(sdk.NewEventManager())
 	// Test setup
-	_, _ = bk.AddCoins(ctx, testEtp.Owner, sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(200))))
+	ucomAmount := sdk.NewCoin("ucommercio", sdk.NewInt(200))
+	_, _ = bk.AddCoins(ctx, testEtp.Owner, sdk.NewCoins(ucomAmount))
 	balance := bk.GetCoins(ctx, testEtpOwner)
 
 	// Check balance
 	require.Equal(t, "200ucommercio", balance.String())
+	creditsCoins := sdk.NewCoin("uccc", sdk.NewInt(100))
+
+	CreatedAt := ctx.BlockTime()
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		"transfer",
+		sdk.NewAttribute("recipient", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
+		sdk.NewAttribute("sender", testEtpOwner.String()),
+		sdk.NewAttribute("amount", ucomAmount.String()),
+		sdk.NewAttribute("recipient", testEtpOwner.String()),
+		sdk.NewAttribute("sender", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
+		sdk.NewAttribute("amount", creditsCoins.String()),
+	))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		"message",
+		sdk.NewAttribute("action", "mintCCC"),
+		sdk.NewAttribute("sender", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
+		//		sdk.NewAttribute("sender", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
+	))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventNewPosition,
+		sdk.NewAttribute("depositor", testEtpOwner.String()),
+		sdk.NewAttribute("amount_deposited", ucomAmount.String()),
+		sdk.NewAttribute("minted_coins", creditsCoins.String()),
+		sdk.NewAttribute("position_id", testEtp.ID),
+		sdk.NewAttribute("timestamp", CreatedAt.String()),
+	))
 
 	actual, err := handler(ctx, testMsgMintCCC)
+
+	fmt.Println(k.supplyKeeper.GetModuleAddress(types.ModuleName).String())
+	fmt.Println(testEtpOwner.String())
+
 	require.NoError(t, err)
-	require.Equal(t, &sdk.Result{Log: "mint successful"}, actual)
+	//require.Equal(t, &sdk.Result{Events: ctx.EventManager().Events(), Log: "mint successful"}, actual)
+	require.Equal(t, "mint successful", actual.Log)
 
 	// Check final balance
 	balance = bk.GetCoins(ctx, testEtpOwner)
@@ -47,10 +82,12 @@ func TestHandler_handleMsgBurnCCC(t *testing.T) {
 	k.SetPosition(ctx, testEtp)
 	require.Equal(t, 1, len(k.GetAllPositions(ctx)))
 
-	expected := &sdk.Result{Log: "burn successful"}
+	//expected := &sdk.Result{Events: ctx.EventManager().Events(), Log: "burn successful"}
+	expected := "burn successful"
 	actual, err := handler(ctx, testMsgBurnCCC)
 	require.NoError(t, err)
-	require.Equal(t, expected, actual)
+	//require.Equal(t, expected, actual)
+	require.Equal(t, expected, actual.Log)
 }
 
 func TestHandler_handleMsgSetCCCConversionRate(t *testing.T) {
@@ -62,10 +99,12 @@ func TestHandler_handleMsgSetCCCConversionRate(t *testing.T) {
 
 	msg := types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(3))
 
-	expected := &sdk.Result{Log: "conversion rate changed successfully to 3.000000000000000000"}
+	//expected := &sdk.Result{Events: ctx.EventManager().Events(), Log: "conversion rate changed successfully to 3.000000000000000000"}
+	expected := "conversion rate changed successfully to 3.000000000000000000"
 	actual, err := handler(ctx, msg)
 	require.NoError(t, err)
-	require.Equal(t, expected, actual)
+	//require.Equal(t, expected, actual)
+	require.Equal(t, expected, actual.Log)
 
 	msg = types.NewMsgSetCCCConversionRate(govAddr, sdk.NewDec(0))
 	_, err = handler(ctx, msg)
