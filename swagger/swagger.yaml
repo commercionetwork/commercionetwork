@@ -19,6 +19,8 @@ definitions:
       denom:
         type: string
     type: object
+  types.Dec:
+    type: object
   types.DidDocument:
     properties:
       '@context':
@@ -188,6 +190,23 @@ definitions:
       version:
         type: string
     type: object
+  types.Position:
+    properties:
+      collateral:
+        $ref: '#/definitions/types.Int'
+      created_at:
+        type: string
+      credits:
+        $ref: '#/definitions/types.Coin'
+      exchange_rate:
+        $ref: '#/definitions/types.Dec'
+      id:
+        type: string
+      owner:
+        items:
+          type: integer
+        type: array
+    type: object
   types.Proof:
     properties:
       controller:
@@ -211,11 +230,26 @@ definitions:
     type: object
   types.PubKey:
     properties:
-      data:
-        items:
-          type: integer
-        type: array
+      controller:
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
+      id:
+        example: did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-1
+        type: string
+      publicKeyPem:
+        example: |
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHg
+          kKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScAD
+          G9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUc
+          zhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7
+          ZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0
+          O2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfK
+          HQIDAQAB
+          -----END PUBLIC KEY-----
+        type: string
       type:
+        example: RsaVerificationKey2018
         type: string
     type: object
   types.RequestStatus:
@@ -270,6 +304,54 @@ paths:
       summary: Get the user Did power up approved requests
       tags:
       - x/id
+  /commerciomint/etps:
+    get:
+      description: This endpoint returns the Conversion rate, along with the height at which the resource was queried at
+      operationId: getConversionRateHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  $ref: '#/definitions/types.Dec'
+              type: object
+        "404": {}
+      summary: Get Conversion rate
+      tags:
+      - x/commerciomint
+  /commerciomint/etps/{address}:
+    get:
+      description: This endpoint returns the Exchange Trade Position, along with the height at which the resource was queried at
+      operationId: getEtpsHandler
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Position'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get all the Exchange Trade Positions for user
+      tags:
+      - x/commerciomint
   /docs/{address}/received:
     get:
       description: This endpoint returns the received documents, along with the height at which the resource was queried at
