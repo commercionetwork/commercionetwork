@@ -136,7 +136,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventNewPosition,
 		sdk.NewAttribute("depositor", depositor.String()),
-		sdk.NewAttribute("amount_deposited", deposit.String()),
+		sdk.NewAttribute("amount_deposited", ucomAmount.String()),
 		sdk.NewAttribute("minted_coins", creditsCoins.String()),
 		sdk.NewAttribute("position_id", position.ID),
 		sdk.NewAttribute("timestamp", position.CreatedAt.String()),

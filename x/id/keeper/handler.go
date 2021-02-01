@@ -38,7 +38,7 @@ func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdenti
 		return nil, err
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Set identity successfully added"}, nil
 }
 
 // ----------------------------
@@ -60,7 +60,7 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 		return nil, err
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Power up request successfully added"}, nil
 }
 
 // handleMsgChangePowerUpStatus marks the PowerUp request identified by the activation reference as handled successfully.
@@ -93,5 +93,5 @@ func handleMsgChangePowerUpStatus(ctx sdk.Context, keeper Keeper, govKeeper gove
 		return nil, err
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Power up status successfully changed"}, nil
 }

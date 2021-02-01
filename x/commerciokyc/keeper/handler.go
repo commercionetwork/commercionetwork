@@ -52,7 +52,7 @@ func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser
 		return nil, err
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "User successfully invited"}, nil
 }
 
 func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepositIntoLiquidityPool) (*sdk.Result, error) {
@@ -60,7 +60,7 @@ func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepos
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Amount successfully deposited into pool"}, nil
 }
 
 func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgAddTsp) (*sdk.Result, error) {
@@ -78,7 +78,7 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 	}
 
 	keeper.AddTrustedServiceProvider(ctx, msg.Tsp)
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Tsp successfully added"}, nil
 }
 
 func handleMsgRemoveTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgRemoveTsp) (*sdk.Result, error) {
@@ -87,7 +87,7 @@ func handleMsgRemoveTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeep
 	}
 
 	keeper.RemoveTrustedServiceProvider(ctx, msg.Tsp)
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Tsp successfully removed"}, nil
 }
 
 // handleMsgBuyMembership allows to handle a MsgBuyMembership message.
@@ -128,7 +128,7 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 		return nil, err
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully purchased"}, nil
 }
 
 // handleMsgRemoveMembership allows to handle a MsgRemoveMembership message.
@@ -142,7 +142,7 @@ func handleMsgRemoveMembership(ctx sdk.Context, keeper Keeper, msg types.MsgRemo
 	}
 	// TODO add control for tsp?
 	err := keeper.RemoveMembership(ctx, msg.Subscriber)
-	return &sdk.Result{}, err
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully removed"}, err
 }
 
 // handleMsgSetMembership handles MsgSetMembership messages.
@@ -182,7 +182,7 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 		)
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully set up"}, nil
 }
 
 // governmentInvitesUser makes government invite an user if it isn't already invited and validated.

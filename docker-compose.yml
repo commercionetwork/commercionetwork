@@ -23,6 +23,7 @@ services:
     environment:
       - ID=1
       - LOG=${LOG:-cnd.log}
+      - TZ=Asia/Colombo
     volumes:
       - ./build:/cnd:Z
     networks:

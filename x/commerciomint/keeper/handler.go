@@ -12,6 +12,7 @@ import (
 
 func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
 		case types.MsgMintCCC:
 			return handleMsgMintCCC(ctx, keeper, msg)
@@ -32,7 +33,7 @@ func handleMsgMintCCC(ctx sdk.Context, keeper Keeper, msg types.MsgMintCCC) (*sd
 		return nil, sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "cannot mint ccc, %s", err.Error())
 	}
 
-	return &sdk.Result{Log: "mint successful"}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "mint successful"}, nil
 }
 
 func handleMsgBurnCCC(ctx sdk.Context, keeper Keeper, msg types.MsgBurnCCC) (*sdk.Result, error) {
@@ -41,7 +42,7 @@ func handleMsgBurnCCC(ctx sdk.Context, keeper Keeper, msg types.MsgBurnCCC) (*sd
 		return nil, err
 	}
 
-	return &sdk.Result{Log: "burn successful"}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "burn successful"}, nil
 }
 
 func handleMsgSetCCCConversionRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetCCCConversionRate) (*sdk.Result, error) {
@@ -52,5 +53,5 @@ func handleMsgSetCCCConversionRate(ctx sdk.Context, keeper Keeper, msg types.Msg
 	if err := keeper.SetConversionRate(ctx, msg.Rate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	return &sdk.Result{Log: fmt.Sprintf("conversion rate changed successfully to %s", msg.Rate)}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("conversion rate changed successfully to %s", msg.Rate)}, nil
 }
