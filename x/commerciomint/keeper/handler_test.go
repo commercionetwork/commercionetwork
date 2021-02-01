@@ -19,7 +19,6 @@ func TestHandler_handleMsgMintCCC(t *testing.T) {
 	ctx, bk, _, _, _, k := SetupTestInput()
 	handler := NewHandler(k)
 	ctx = ctx.WithBlockHeight(5)
-	ctx = ctx.WithEventManager(sdk.NewEventManager())
 	// Test setup
 	ucomAmount := sdk.NewCoin("ucommercio", sdk.NewInt(200))
 	_, _ = bk.AddCoins(ctx, testEtp.Owner, sdk.NewCoins(ucomAmount))
@@ -27,43 +26,14 @@ func TestHandler_handleMsgMintCCC(t *testing.T) {
 
 	// Check balance
 	require.Equal(t, "200ucommercio", balance.String())
-	creditsCoins := sdk.NewCoin("uccc", sdk.NewInt(100))
 
-	CreatedAt := ctx.BlockTime()
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		"transfer",
-		sdk.NewAttribute("recipient", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
-		sdk.NewAttribute("sender", testEtpOwner.String()),
-		sdk.NewAttribute("amount", ucomAmount.String()),
-		sdk.NewAttribute("recipient", testEtpOwner.String()),
-		sdk.NewAttribute("sender", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
-		sdk.NewAttribute("amount", creditsCoins.String()),
-	))
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		"message",
-		sdk.NewAttribute("action", "mintCCC"),
-		sdk.NewAttribute("sender", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
-		//		sdk.NewAttribute("sender", k.supplyKeeper.GetModuleAddress(types.ModuleName).String()),
-	))
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventNewPosition,
-		sdk.NewAttribute("depositor", testEtpOwner.String()),
-		sdk.NewAttribute("amount_deposited", ucomAmount.String()),
-		sdk.NewAttribute("minted_coins", creditsCoins.String()),
-		sdk.NewAttribute("position_id", testEtp.ID),
-		sdk.NewAttribute("timestamp", CreatedAt.String()),
-	))
+	//creditsCoins := sdk.NewCoin("uccc", sdk.NewInt(100))
+	//CreatedAt := ctx.BlockTime()
 
 	actual, err := handler(ctx, testMsgMintCCC)
 
-	fmt.Println(k.supplyKeeper.GetModuleAddress(types.ModuleName).String())
-	fmt.Println(testEtpOwner.String())
-
 	require.NoError(t, err)
-	//require.Equal(t, &sdk.Result{Events: ctx.EventManager().Events(), Log: "mint successful"}, actual)
+	//require.Equal(t, &sdk.Result{Events: ctx2.EventManager().Events(), Log: "mint successful"}, actual)
 	require.Equal(t, "mint successful", actual.Log)
 
 	// Check final balance
