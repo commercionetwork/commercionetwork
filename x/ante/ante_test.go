@@ -15,7 +15,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
+	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 )
 
 // run the tx through the anteHandler and ensure its valid

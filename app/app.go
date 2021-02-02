@@ -21,17 +21,17 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint"
 	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 
-	docsTypes "github.com/commercionetwork/commercionetwork/x/docs/types"
+	documentsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 
 	commerciokycKeeper "github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
-	docsKeeper "github.com/commercionetwork/commercionetwork/x/docs/keeper"
+	documentsKeeper "github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	vbrKeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/docs"
+	"github.com/commercionetwork/commercionetwork/x/documents"
 	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
 	customstaking "github.com/commercionetwork/commercionetwork/x/encapsulated/staking"
@@ -117,7 +117,7 @@ var (
 		custombank.NewAppModuleBasic(bank.AppModuleBasic{}),
 
 		// Custom modules
-		docs.AppModuleBasic{},
+		documents.AppModuleBasic{},
 		government.AppModuleBasic{},
 		id.AppModuleBasic{},
 		commerciokyc.NewAppModuleBasic(StableCreditsDenom),
@@ -193,7 +193,7 @@ type CommercioNetworkApp struct {
 	customBankKeeper custombank.Keeper
 
 	// Custom modules
-	docsKeeper          docsKeeper.Keeper
+	documentsKeeper     documentsKeeper.Keeper
 	governmentKeeper    governmentKeeper.Keeper
 	idKeeper            idKeeper.Keeper
 	membershipKeeper    commerciokycKeeper.Keeper
@@ -227,7 +227,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		custombank.StoreKey,
 
 		// Custom modules
-		docsTypes.StoreKey,
+		documentsTypes.StoreKey,
 		governmentTypes.StoreKey,
 		idTypes.StoreKey,
 		commerciokycTypes.StoreKey,
@@ -280,7 +280,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	// Custom modules
 	app.governmentKeeper = governmentKeeper.NewKeeper(app.cdc, app.keys[governmentTypes.StoreKey])
 	app.membershipKeeper = commerciokycKeeper.NewKeeper(app.cdc, app.keys[commerciokycTypes.StoreKey], app.supplyKeeper, app.bankKeeper, app.governmentKeeper, app.accountKeeper)
-	app.docsKeeper = docsKeeper.NewKeeper(app.keys[docsTypes.StoreKey], app.governmentKeeper, app.cdc)
+	app.documentsKeeper = documentsKeeper.NewKeeper(app.keys[documentsTypes.StoreKey], app.governmentKeeper, app.cdc)
 	app.idKeeper = idKeeper.NewKeeper(app.cdc, app.keys[idTypes.StoreKey], app.accountKeeper, app.supplyKeeper)
 	app.vbrKeeper = vbrKeeper.NewKeeper(app.cdc, app.keys[vbrTypes.StoreKey], app.distrKeeper, app.supplyKeeper, app.governmentKeeper)
 	app.mintKeeper = commerciomintKeeper.NewKeeper(app.cdc, app.keys[commerciomintTypes.StoreKey], app.supplyKeeper, app.governmentKeeper)
@@ -314,7 +314,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		custombank.NewAppModule(bank.NewAppModule(app.bankKeeper, app.accountKeeper), app.customBankKeeper, app.governmentKeeper),
 
 		// Custom modules
-		docs.NewAppModule(app.docsKeeper),
+		documents.NewAppModule(app.documentsKeeper),
 		government.NewAppModule(app.governmentKeeper),
 		id.NewAppModule(app.idKeeper, app.governmentKeeper, app.supplyKeeper),
 		commerciokyc.NewAppModule(app.membershipKeeper, app.supplyKeeper, app.governmentKeeper, app.accountKeeper),
@@ -354,7 +354,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 		// Custom modules
 		governmentTypes.ModuleName,
-		docsTypes.ModuleName,
+		documentsTypes.ModuleName,
 		idTypes.ModuleName,
 		commerciomintTypes.ModuleName,
 		vbrTypes.ModuleName,

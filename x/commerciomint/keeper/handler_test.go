@@ -12,7 +12,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
-var testMsgMintCCC = types.NewMsgMintCCC(testEtp.Owner, sdk.NewCoins(sdk.NewCoin("uccc", testEtp.Collateral)))
+var testMsgMintCCC = types.NewMsgMintCCC(testEtp.Owner, sdk.NewCoins(sdk.NewCoin("uccc", testEtp.Collateral)), testEtp.ID)
 var testMsgBurnCCC = types.NewMsgBurnCCC(testEtp.Owner, testEtp.ID, testEtp.Credits)
 
 func TestHandler_handleMsgMintCCC(t *testing.T) {

@@ -43,7 +43,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keepe
 	}
 	_ = ms.LoadLatestVersion()
 
-	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger()).WithBlockTime(time.Now())
 
 	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey])
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)

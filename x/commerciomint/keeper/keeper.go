@@ -4,13 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
@@ -47,10 +45,17 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper supply.Keeper, g
 // --- Positions
 // --------------
 
-func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) {
+func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) error {
 	store := ctx.KVStore(k.storeKey)
 	key := makePositionKey(position.Owner, position.ID)
+
+	if store.Has(key) {
+		return fmt.Errorf("a position with id %s already exists", position.ID)
+	}
+
 	store.Set(key, k.cdc.MustMarshalBinaryBare(position))
+
+	return nil
 }
 
 func (k Keeper) GetPosition(ctx sdk.Context, owner sdk.AccAddress, id string) (types.Position, bool) {
@@ -78,7 +83,7 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 }
 
 // NewPosition creates a new minting position for the amount deposited, credited to depositor.
-func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins) error {
+func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins, id string) error {
 	ucccRequested := deposit.AmountOf("uccc")
 	if ucccRequested.IsZero() {
 		return errors.New("no uccc requested")
@@ -94,15 +99,13 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 
 	ucomAmount := sdk.NewCoin("ucommercio", ucommercioAmount)
 
-	id := uuid.NewV4()
-
 	// Create the ETP and validate it
 	position := types.NewPosition(
 		depositor,
 		ucomAmount.Amount,
 		ucccEmitted,
-		id.String(),
-		time.Now(),
+		id,
+		ctx.BlockTime(),
 		conversionRate,
 	)
 	if err := position.Validate(); err != nil {
@@ -249,7 +252,7 @@ func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 }
 
 func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
-	prefix := []byte(fmt.Sprintf("%s:%s:", types.EtpStorePrefix, owner.String()))
+	prefix := append([]byte(types.EtpStorePrefix), owner...)
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
 
@@ -258,7 +261,8 @@ func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
 }
 
 func makePositionKey(address sdk.AccAddress, id string) []byte {
-	return []byte(fmt.Sprintf("%s:%s:%s", types.EtpStorePrefix, address.String(), id))
+	base := append([]byte(types.EtpStorePrefix), address...)
+	return append(base, []byte(id)...)
 }
 
 func (k Keeper) deletePosition(ctx sdk.Context, pos types.Position) {
