@@ -16,15 +16,12 @@ import (
 	db "github.com/tendermint/tm-db"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
-func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, supply.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -32,9 +29,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		pricefeedTypes.StoreKey,
 		governmentTypes.StoreKey,
-		creditrisk.StoreKey,
 		types.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -54,15 +49,13 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
 	maccPerms := map[string][]string{
-		types.ModuleName:      {supply.Minter, supply.Burner},
-		creditrisk.ModuleName: {supply.Minter, supply.Burner},
+		types.ModuleName: {supply.Minter, supply.Burner},
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 
 	govkeeper := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
-	pfk := pricefeed.NewKeeper(cdc, keys[pricefeedTypes.StoreKey], govkeeper)
 
-	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk, govkeeper)
+	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, govkeeper)
 
 	// Set initial supply
 	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testEtp.Credits)))
@@ -76,7 +69,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	if err != nil {
 		panic(err)
 	}
-	return ctx, bk, pfk, govkeeper, sk, mintK
+	return ctx, bk, govkeeper, sk, mintK
 }
 
 func testCodec() *codec.Codec {
@@ -86,7 +79,6 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
-	pricefeedTypes.RegisterCodec(cdc)
 	governmentTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
@@ -100,7 +92,6 @@ func testCodec() *codec.Codec {
 // --- Test variables
 // ----------------------
 
-var testCreditsDenom = "stake"
 var testLiquidityDenom = "ucommercio"
 var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"

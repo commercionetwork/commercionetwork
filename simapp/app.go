@@ -3,11 +3,10 @@ package simapp
 import (
 	"io"
 
+	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
-	pricefeedKeeper "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -55,12 +54,13 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		auth.FeeCollectorName:     nil,
-		distr.ModuleName:          nil,
-		mint.ModuleName:           {supply.Minter},
-		staking.BondedPoolName:    {supply.Burner, supply.Staking},
-		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-		gov.ModuleName:            {supply.Burner},
+		auth.FeeCollectorName:         nil,
+		distr.ModuleName:              nil,
+		mint.ModuleName:               {supply.Minter},
+		staking.BondedPoolName:        {supply.Burner, supply.Staking},
+		staking.NotBondedPoolName:     {supply.Burner, supply.Staking},
+		gov.ModuleName:                {supply.Burner},
+		commerciomintTypes.ModuleName: {supply.Minter, supply.Burner},
 	}
 )
 
@@ -98,8 +98,8 @@ type SimApp struct {
 	CrisisKeeper   crisis.Keeper
 	ParamsKeeper   params.Keeper
 
-	GovernmentKeeper governmentKeeper.Keeper
-	PriceFeedKeeper  pricefeedKeeper.Keeper
+	GovernmentKeeper    governmentKeeper.Keeper
+	CommercioMintKeeper commerciomintKeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -122,7 +122,7 @@ func NewSimApp(
 
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, pricefeedTypes.StoreKey, governmentTypes.StoreKey)
+		gov.StoreKey, params.StoreKey, governmentTypes.StoreKey, commerciomintTypes.StoreKey)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	app := &SimApp{
@@ -157,7 +157,7 @@ func NewSimApp(
 		slashingSubspace)
 	app.CrisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.SupplyKeeper, auth.FeeCollectorName)
 	app.GovernmentKeeper = governmentKeeper.NewKeeper(app.cdc, keys[governmentTypes.StoreKey])
-	app.PriceFeedKeeper = pricefeedKeeper.NewKeeper(app.cdc, keys[pricefeedTypes.StoreKey], app.GovernmentKeeper)
+	app.CommercioMintKeeper = commerciomintKeeper.NewKeeper(cdc, keys[commerciomintTypes.StoreKey], app.SupplyKeeper, app.GovernmentKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -186,7 +186,6 @@ func NewSimApp(
 		distr.NewAppModule(app.DistrKeeper, app.AccountKeeper, app.SupplyKeeper, app.StakingKeeper),
 		slashing.NewAppModule(app.SlashingKeeper, app.AccountKeeper, app.StakingKeeper),
 		staking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
-		pricefeed.NewAppModule(app.PriceFeedKeeper, app.GovernmentKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

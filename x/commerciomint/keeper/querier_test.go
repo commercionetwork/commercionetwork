@@ -14,7 +14,7 @@ import (
 var req abci.RequestQuery
 
 func TestQuerier_queryGetEtps(t *testing.T) {
-	ctx, _, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 
 	k.SetPosition(ctx, testEtp)
 
@@ -29,7 +29,7 @@ func TestQuerier_queryGetEtps(t *testing.T) {
 }
 
 func TestQuerier_queryConversionRate(t *testing.T) {
-	ctx, _, _, _, _, k := SetupTestInput()
+	ctx, _, _, _, k := SetupTestInput()
 	require.NoError(t, k.SetConversionRate(ctx, sdk.NewDec(2)))
 	querier := NewQuerier(k)
 	actualBz, err := querier(ctx, []string{types.QueryConversionRate}, req)

@@ -15,7 +15,7 @@ import (
 func TestInitGenesis(t *testing.T) {
 	got := commerciomint.DefaultGenesisState()
 	require.NoError(t, commerciomint.ValidateGenesis(got))
-	ctx, _, _, _, sk, k := keeper.SetupTestInput()
+	ctx, _, _, sk, k := keeper.SetupTestInput()
 	require.Equal(t, commerciomint.GenesisState{Positions: []types.Position{}, LiquidityPoolAmount: sdk.NewCoins(), CollateralRate: sdk.NewDec(2)}, got)
 	commerciomint.InitGenesis(ctx, k, sk, got)
 	export := commerciomint.ExportGenesis(ctx, k)
