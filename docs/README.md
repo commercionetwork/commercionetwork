@@ -23,7 +23,7 @@ Apart from these modules, `cn` comes with the following custom modules:
 * [`x/id`](x/id/README.md): Pseudonymous identities creation.
 * [`x/government`](x/government/README.md): On-chain government. 
 * [`x/memberships`](x/memberships/README.md): Allows you to invite new user and buy a membership. 
-* [`x/commerciomint`](x/commerciomint/README.md): Handle Collateralized Debt Positions. 
+* [`x/commerciomint`](x/commerciomint/README.md): Handle exchange trade Positions. 
 * [`x/pricefeed`](x/pricefeed/README.md): Pricefeed to setup prices. 
 * [`x/vbr`](x/vbr/README.md): Validator Block Rewards. 
 
