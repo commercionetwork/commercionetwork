@@ -27,7 +27,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 // ----------------------------------
 
 // @Summary Get all the Exchange Trade Positions for user
-// @Description This endpoint returns the Exchange Trade Position, along with the height at which the resource was queried at
+// @Description This endpoint returns the Exchange Trade Position, along with the blocktime at which the resource was queried at
 // @ID getEtpsHandler
 // @Produce json
 // @Param address path string true "Address of the user"

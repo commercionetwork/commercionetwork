@@ -18,6 +18,18 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		getRetrieveBlockRewardsPoolFunds(cliCtx))
 }
 
+// ----------------------------------
+// --- Vbr
+// ----------------------------------
+
+// @Summary Get All Current VBR pool funds
+// @Description This endpoint returns current pool funds for validator block reward
+// @ID getRetrieveBlockRewardsPoolFunds
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=types.DecCoins}
+// @Failure 404
+// @Router /vbr/funds [get]
+// @Tags x/vbr
 func getRetrieveBlockRewardsPoolFunds(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.ModuleName, types.QueryBlockRewardsPoolFunds)

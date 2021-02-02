@@ -16,7 +16,7 @@ const (
 	proofParam    = "proof"
 )
 
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, querierRoute string) {
+func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, querierRoute string) {
 	r.HandleFunc(fmt.Sprintf(
 		"/identities/{%s}", identityParam),
 		resolveIdentityHandler(cliCtx, querierRoute)).

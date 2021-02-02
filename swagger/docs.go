@@ -63,6 +63,249 @@ var doc = `{
                 }
             }
         },
+        "/commerciokyc/funds": {
+            "get": {
+                "description": "This endpoint returns current pool funds for accreditation block reward",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "x/commerciokyc"
+                ],
+                "summary": "Get All Current pool funds",
+                "operationId": "getGetPoolFunds",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/x.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/types.Coin"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {}
+                }
+            }
+        },
+        "/commerciokyc/invites": {
+            "get": {
+                "description": "This endpoint returns all the Invites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "x/commerciokyc"
+                ],
+                "summary": "Get All Invites",
+                "operationId": "getInvitesHandler",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/x.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/definitions/types.Invite"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {}
+                }
+            }
+        },
+        "/commerciokyc/membership/{address}": {
+            "get": {
+                "description": "This endpoint returns the Membership",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "x/commerciokyc"
+                ],
+                "summary": "Get Membership for given address",
+                "operationId": "getMembershipForAddr",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Address of the user",
+                        "name": "address",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/x.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "$ref": "#/definitions/types.Membership"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {}
+                }
+            }
+        },
+        "/commerciokyc/memberships": {
+            "get": {
+                "description": "This endpoint returns all the Memberships",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "x/commerciokyc"
+                ],
+                "summary": "Get All Memberships",
+                "operationId": "getMemberships",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/x.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/types.Membership"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {}
+                }
+            }
+        },
+        "/commerciokyc/sold/{address}": {
+            "get": {
+                "description": "This endpoint returns all Memberships sold by a specific Trusted Service Provider",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "x/commerciokyc"
+                ],
+                "summary": "Get All Memberships sold by Trusted Service Provider",
+                "operationId": "getSoldForTsp",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Address of the tsp which to read the sold memberhip",
+                        "name": "did",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/x.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/types.Membership"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {}
+                }
+            }
+        },
+        "/commerciokyc/tsps": {
+            "get": {
+                "description": "This endpoint returns all the Trusted Service Providers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "x/commerciokyc"
+                ],
+                "summary": "Get All Trusted Service Providers",
+                "operationId": "getTrustedServiceProvidersHandler",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/x.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {}
+                }
+            }
+        },
         "/commerciomint/etps": {
             "get": {
                 "description": "This endpoint returns the Conversion rate, along with the height at which the resource was queried at",
@@ -99,7 +342,7 @@ var doc = `{
         },
         "/commerciomint/etps/{address}": {
             "get": {
-                "description": "This endpoint returns the Exchange Trade Position, along with the height at which the resource was queried at",
+                "description": "This endpoint returns the Exchange Trade Position, along with the blocktime at which the resource was queried at",
                 "produces": [
                     "application/json"
                 ],
@@ -628,6 +871,43 @@ var doc = `{
                     "404": {}
                 }
             }
+        },
+        "/vbr/funds": {
+            "get": {
+                "description": "This endpoint returns current pool funds for validator block reward",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "x/vbr"
+                ],
+                "summary": "Get All Current VBR pool funds",
+                "operationId": "getRetrieveBlockRewardsPoolFunds",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/x.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/types.DecCoin"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {}
+                }
+            }
         }
     },
     "definitions": {
@@ -657,6 +937,17 @@ var doc = `{
         },
         "types.Dec": {
             "type": "object"
+        },
+        "types.DecCoin": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "$ref": "#/definitions/types.Dec"
+                },
+                "denom": {
+                    "type": "string"
+                }
+            }
         },
         "types.DidDocument": {
             "type": "object",
@@ -891,6 +1182,57 @@ var doc = `{
         "types.Int": {
             "type": "object"
         },
+        "types.Invite": {
+            "type": "object",
+            "properties": {
+                "sender": {
+                    "description": "User that has sent the invitation",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "sender_membership": {
+                    "description": "Membership of Sender when the invite was created",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Tells if the invite is pending, rewarded or invalid",
+                    "type": "integer"
+                },
+                "user": {
+                    "description": "Invited user",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "types.Membership": {
+            "type": "object",
+            "properties": {
+                "expiry_at": {
+                    "description": "Block height at which the membership expired",
+                    "type": "integer"
+                },
+                "membership_type": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "tsp_address": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "types.MetadataSchema": {
             "type": "object",
             "properties": {
@@ -963,21 +1305,14 @@ var doc = `{
         "types.PubKey": {
             "type": "object",
             "properties": {
-                "controller": {
-                    "type": "string",
-                    "example": "did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-1"
-                },
-                "publicKeyPem": {
-                    "type": "string",
-                    "example": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHg\nkKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScAD\nG9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUc\nzhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7\nZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0\nO2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfK\nHQIDAQAB\n-----END PUBLIC KEY-----\n"
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "type": {
-                    "type": "string",
-                    "example": "RsaVerificationKey2018"
+                    "type": "string"
                 }
             }
         },
