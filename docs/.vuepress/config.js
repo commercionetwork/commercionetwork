@@ -71,7 +71,7 @@ module.exports = {
                     "x/bank/",
                     "x/government/",
                     "x/id/",
-                    "x/docs/",
+                    "x/documents/",
                     "x/commerciomint/",
                     "x/commerciokyc/",
                     "x/vbr/"

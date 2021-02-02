@@ -149,11 +149,11 @@ Parameters:
 
 | Parameter | Description |
 | :-------: | :---------- | 
-| `address` | Address of the user for which to read all the CDPs |
+| `address` | Address of the user for which to read all the ETPs |
 
 ##### Example
 
-Getting CDPs opened by `did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke`:
+Getting ETPs opened by `did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke`:
 
 ```
 http://localhost:1317/commerciomint/etps/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
