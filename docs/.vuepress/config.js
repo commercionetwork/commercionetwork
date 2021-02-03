@@ -30,7 +30,7 @@ module.exports = {
         //logo: '/.vuepress/icon.png',
         nav: [
             {text: "Commercio.network", link: "https://commercio.network"},
-            {text: "ver 2.2.2", link: "/" },
+            {text: "ver 2.2.0", link: "/" },
             {text: "ver 2.1.2", link: "/docs2.1.2/" },
         ],
         sidebarDepth: 3,
