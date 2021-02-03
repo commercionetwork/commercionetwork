@@ -3,8 +3,7 @@
 
 
 ## What is `cn`
-`cn` is the name of the Commercio.network application for the [Cosmos Hub](https://hub.cosmos.network/). It is shipped
-with two different entrypoints: 
+`cn` is the name of the [Commercio.network](https://commercio.network) blockchain application. It is shipped with two different entrypoints:  
 
 * `cnd`: The Commercio.network Daemon, runs a full-node of the `cn` application
 * `cndcli`: The Commercio.network command-line interface, which enables interaction with a Commercio.network full-node.
@@ -24,7 +23,7 @@ Apart from these modules, `cn` comes with the following custom modules:
 * [`x/id`](x/id/README.md): Pseudonymous identities creation.
 * [`x/government`](x/government/README.md): On-chain government. 
 * [`x/commerciokyc`](x/commerciokyc/README.md): Allows you to invite new user and buy a membership. 
-* [`x/commerciomint`](x/commerciomint/README.md): Handle Collateralized Debt Positions. 
+* [`x/commerciomint`](x/commerciomint/README.md): Handle exchange trade Positions. 
 * [`x/vbr`](x/vbr/README.md): Validator Block Rewards. 
 
 
