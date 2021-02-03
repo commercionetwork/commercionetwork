@@ -90,16 +90,16 @@ definitions:
       metadata:
         $ref: '#/definitions/types.DocumentMetadata'
       recipients:
+        example:
+        - did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
         items:
-          items:
-            type: integer
-          type: array
+          type: string
         type: array
       sender:
-        items:
-          type: integer
-        type: array
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
       uuid:
+        example: d0f6c692-506f-4bd7-bdf4-f6693633d1da
         type: string
     type: object
   types.DocumentChecksum:
@@ -272,11 +272,26 @@ definitions:
     type: object
   types.PubKey:
     properties:
-      data:
-        items:
-          type: integer
-        type: array
+      controller:
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
+      id:
+        example: did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-1
+        type: string
+      publicKeyPem:
+        example: |
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHg
+          kKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScAD
+          G9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUc
+          zhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7
+          ZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0
+          O2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfK
+          HQIDAQAB
+          -----END PUBLIC KEY-----
+        type: string
       type:
+        example: RsaVerificationKey2018
         type: string
     type: object
   types.RequestStatus:
@@ -468,6 +483,7 @@ paths:
             - properties:
                 result:
                   items:
+                    description: Invited user
                     items:
                       type: integer
                     type: array

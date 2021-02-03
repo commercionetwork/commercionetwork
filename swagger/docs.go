@@ -291,6 +291,7 @@ var doc = `{
                                         "result": {
                                             "type": "array",
                                             "items": {
+                                                "description": "Invited user",
                                                 "type": "array",
                                                 "items": {
                                                     "type": "integer"
@@ -1036,20 +1037,19 @@ var doc = `{
                 "recipients": {
                     "type": "array",
                     "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
+                        "type": "string"
+                    },
+                    "example": [
+                        "did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"
+                    ]
                 },
                 "sender": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string",
+                    "example": "did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"
                 },
                 "uuid": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "d0f6c692-506f-4bd7-bdf4-f6693633d1da"
                 }
             }
         },
@@ -1305,14 +1305,21 @@ var doc = `{
         "types.PubKey": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                "controller": {
+                    "type": "string",
+                    "example": "did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-1"
+                },
+                "publicKeyPem": {
+                    "type": "string",
+                    "example": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHg\nkKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScAD\nG9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUc\nzhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7\nZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0\nO2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfK\nHQIDAQAB\n-----END PUBLIC KEY-----\n"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "RsaVerificationKey2018"
                 }
             }
         },
