@@ -19,6 +19,15 @@ definitions:
       denom:
         type: string
     type: object
+  types.Dec:
+    type: object
+  types.DecCoin:
+    properties:
+      amount:
+        $ref: '#/definitions/types.Dec'
+      denom:
+        type: string
+    type: object
   types.DidDocument:
     properties:
       '@context':
@@ -81,16 +90,16 @@ definitions:
       metadata:
         $ref: '#/definitions/types.DocumentMetadata'
       recipients:
+        example:
+        - did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
         items:
-          items:
-            type: integer
-          type: array
+          type: string
         type: array
       sender:
-        items:
-          type: integer
-        type: array
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
       uuid:
+        example: d0f6c692-506f-4bd7-bdf4-f6693633d1da
         type: string
     type: object
   types.DocumentChecksum:
@@ -179,6 +188,41 @@ definitions:
     type: object
   types.Int:
     type: object
+  types.Invite:
+    properties:
+      sender:
+        description: User that has sent the invitation
+        items:
+          type: integer
+        type: array
+      sender_membership:
+        description: Membership of Sender when the invite was created
+        type: string
+      status:
+        description: Tells if the invite is pending, rewarded or invalid
+        type: integer
+      user:
+        description: Invited user
+        items:
+          type: integer
+        type: array
+    type: object
+  types.Membership:
+    properties:
+      expiry_at:
+        description: Block height at which the membership expired
+        type: integer
+      membership_type:
+        type: string
+      owner:
+        items:
+          type: integer
+        type: array
+      tsp_address:
+        items:
+          type: integer
+        type: array
+    type: object
   types.MetadataSchema:
     properties:
       schema_uri:
@@ -187,6 +231,23 @@ definitions:
         type: string
       version:
         type: string
+    type: object
+  types.Position:
+    properties:
+      collateral:
+        $ref: '#/definitions/types.Int'
+      created_at:
+        type: string
+      credits:
+        $ref: '#/definitions/types.Coin'
+      exchange_rate:
+        $ref: '#/definitions/types.Dec'
+      id:
+        type: string
+      owner:
+        items:
+          type: integer
+        type: array
     type: object
   types.Proof:
     properties:
@@ -211,11 +272,26 @@ definitions:
     type: object
   types.PubKey:
     properties:
-      data:
-        items:
-          type: integer
-        type: array
+      controller:
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
+      id:
+        example: did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-1
+        type: string
+      publicKeyPem:
+        example: |
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHg
+          kKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScAD
+          G9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUc
+          zhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7
+          ZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0
+          O2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfK
+          HQIDAQAB
+          -----END PUBLIC KEY-----
+        type: string
       type:
+        example: RsaVerificationKey2018
         type: string
     type: object
   types.RequestStatus:
@@ -270,6 +346,201 @@ paths:
       summary: Get the user Did power up approved requests
       tags:
       - x/id
+  /commerciokyc/funds:
+    get:
+      description: This endpoint returns current pool funds for accreditation block reward
+      operationId: getGetPoolFunds
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Coin'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Current pool funds
+      tags:
+      - x/commerciokyc
+  /commerciokyc/invites:
+    get:
+      description: This endpoint returns all the Invites
+      operationId: getInvitesHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    items:
+                      $ref: '#/definitions/types.Invite'
+                    type: array
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Invites
+      tags:
+      - x/commerciokyc
+  /commerciokyc/membership/{address}:
+    get:
+      description: This endpoint returns the Membership
+      operationId: getMembershipForAddr
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  $ref: '#/definitions/types.Membership'
+              type: object
+        "404": {}
+      summary: Get Membership for given address
+      tags:
+      - x/commerciokyc
+  /commerciokyc/memberships:
+    get:
+      description: This endpoint returns all the Memberships
+      operationId: getMemberships
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Membership'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Memberships
+      tags:
+      - x/commerciokyc
+  /commerciokyc/sold/{address}:
+    get:
+      description: This endpoint returns all Memberships sold by a specific Trusted Service Provider
+      operationId: getSoldForTsp
+      parameters:
+      - description: Address of the tsp which to read the sold memberhip
+        in: path
+        name: did
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Membership'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Memberships sold by Trusted Service Provider
+      tags:
+      - x/commerciokyc
+  /commerciokyc/tsps:
+    get:
+      description: This endpoint returns all the Trusted Service Providers
+      operationId: getTrustedServiceProvidersHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    description: Invited user
+                    items:
+                      type: integer
+                    type: array
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Trusted Service Providers
+      tags:
+      - x/commerciokyc
+  /commerciomint/etps:
+    get:
+      description: This endpoint returns the Conversion rate, along with the height at which the resource was queried at
+      operationId: getConversionRateHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  $ref: '#/definitions/types.Dec'
+              type: object
+        "404": {}
+      summary: Get Conversion rate
+      tags:
+      - x/commerciomint
+  /commerciomint/etps/{address}:
+    get:
+      description: This endpoint returns the Exchange Trade Position, along with the blocktime at which the resource was queried at
+      operationId: getEtpsHandler
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Position'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get all the Exchange Trade Positions for user
+      tags:
+      - x/commerciomint
   /docs/{address}/received:
     get:
       description: This endpoint returns the received documents, along with the height at which the resource was queried at
@@ -562,4 +833,26 @@ paths:
       summary: Get the user Did power up rejected power up requests
       tags:
       - x/id
+  /vbr/funds:
+    get:
+      description: This endpoint returns current pool funds for validator block reward
+      operationId: getRetrieveBlockRewardsPoolFunds
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.DecCoin'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Current VBR pool funds
+      tags:
+      - x/vbr
 swagger: "2.0"

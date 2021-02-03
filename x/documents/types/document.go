@@ -15,9 +15,9 @@ import (
 // In order to be valid, a document must have a non-empty and unique UUID and a valid metadata information.
 // Both the content and the checksum information are optional.
 type Document struct {
-	Sender         sdk.AccAddress          `json:"sender"`
-	Recipients     types.Addresses         `json:"recipients"`
-	UUID           string                  `json:"uuid"`
+	Sender         sdk.AccAddress          `json:"sender" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
+	Recipients     types.Addresses         `json:"recipients" swaggertype:"array,string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
+	UUID           string                  `json:"uuid" swaggertype:"string" example:"d0f6c692-506f-4bd7-bdf4-f6693633d1da"`
 	Metadata       DocumentMetadata        `json:"metadata"`
 	ContentURI     string                  `json:"content_uri,omitempty"`     // Optional
 	Checksum       *DocumentChecksum       `json:"checksum,omitempty"`        // Optional

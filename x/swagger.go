@@ -1,4 +1,4 @@
-//go:generate go run github.com/swaggo/swag/cmd/swag init --parseDependency -g swagger.go -o ../swagger
+//go:generate go run github.com/swaggo/swag/cmd/swag init --parseDependency --parseInternal -g swagger.go -o ../swagger
 
 package x
 

@@ -22,6 +22,19 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/commerciomint/etps", getConversionRateHandler(cliCtx)).Methods("GET")
 }
 
+// ----------------------------------
+// --- Commerciomint
+// ----------------------------------
+
+// @Summary Get all the Exchange Trade Positions for user
+// @Description This endpoint returns the Exchange Trade Position, along with the blocktime at which the resource was queried at
+// @ID getEtpsHandler
+// @Produce json
+// @Param address path string true "Address of the user"
+// @Success 200 {object} x.JSONResult{result=[]types.Position}
+// @Failure 404
+// @Router /commerciomint/etps/{address} [get]
+// @Tags x/commerciomint
 func getEtpsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -36,6 +49,14 @@ func getEtpsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
+// @Summary Get Conversion rate
+// @Description This endpoint returns the Conversion rate, along with the height at which the resource was queried at
+// @ID getConversionRateHandler
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=types.Dec}
+// @Failure 404
+// @Router /commerciomint/etps [get]
+// @Tags x/commerciomint
 func getConversionRateHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryConversionRate)
