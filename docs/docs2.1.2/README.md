@@ -20,11 +20,12 @@
 
 Apart from these modules, `cn` comes with the following custom modules: 
 
-* [`x/documents`](x/documents/README.md): Documents storing and sharing. 
+* [`x/docs`](x/docs/README.md): Documents storing and sharing. 
 * [`x/id`](x/id/README.md): Pseudonymous identities creation.
 * [`x/government`](x/government/README.md): On-chain government. 
-* [`x/commerciokyc`](x/commerciokyc/README.md): Allows you to invite new user and buy a membership. 
-* [`x/commerciomint`](x/commerciomint/README.md): Handle exchange trade Positions. 
+* [`x/memberships`](x/memberships/README.md): Allows you to invite new user and buy a membership. 
+* [`x/commerciomint`](x/commerciomint/README.md): Handle Collateralized Debt Positions. 
+* [`x/pricefeed`](x/pricefeed/README.md): Pricefeed to setup prices. 
 * [`x/vbr`](x/vbr/README.md): Validator Block Rewards. 
 
 

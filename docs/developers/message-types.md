@@ -11,24 +11,21 @@ Inside this page you can find all the types and values for the different message
 * Change Did power up status: [MsgChangePowerUpStatus](../x/id/#change-did-power-up-status-wip)
 
 ## `docs`
-* Share a document: [MsgSendDocument](../x/docs/#sending-a-document) 
-* Send a document receipt: [MsgSendDocumentReceipt](../x/docs/#sending-a-document-reading-receipt)
-
-## `pricefeed`
-
-* Add an oracle: [MsgAddOracle](../x/pricefeed/#adding-an-oracle)
-* Set an asset's price: [MsgSetPrice](../x/pricefeed/#set-a-price-for-an-asset)
-
+* Share a document: [MsgSendDocument](../x/documents/#sending-a-document) 
+* Send a document receipt: [MsgSendDocumentReceipt](../x/documents/#sending-a-document-reading-receipt)
 
 ## `commerciomint`
-* Open a CDP: [MsgOpenCdp](../x/commerciomint/#open-a-cdp)
-* Close a CDP: [MsgCloseCdp](../x/commerciomint/#close-a-cdp)
-* Set CDP collateral rate: [MsgSetCdpCollateralRate](../x/commerciomint/#set-cdp-collateral-rate)
+* Open a ETP: [MsgMintCCC](../x/commerciomint/#mint-commercio-cash-credit-ccc)
+* Close a ETP: [MsgBurnCCC](../x/commerciomint/#burn-commercio-cash-credit-ccc)
+* Set ETP conversion rate: [MsgSetCCCConversionRate](../x/commerciomint/#set-ccc-conversion-rate)
 
-## `memberships`
-* Sending an invite: [MsgInviteUser](../x/memberships/#sending-an-invite)
-* Buy a membership: [MsgBuyMembership](../x/memberships/#buying-a-membership-2)
-* Adding a TSP (Trust Service Provider): [MsgAddTsp](../x/memberships/#adding-a-tsp)
-* Deposit into reward pool: [MsgDepositIntoLiquidityPool](../x/memberships/#deposit-into-reward-pool)
-* Set user membership: [MsgSetMembership](../x/memberships/#set-user-membership)
+## `commerciokyc`
+* Sending an invite: [MsgInviteUser](../x/commerciokyc/#sending-an-invite)
+* Buy a membership: [MsgBuyMembership](../x/commerciokyc/#buying-a-membership-2)
+* Adding a TSP (Trust Service Provider): [MsgAddTsp](../x/commerciokyc/#adding-a-tsp)
+* Removing a TSP (Trust Service Provider): [MsgRemoveTsp](../x/commerciokyc/#removing-a-tsp)
+* Deposit into reward pool: [MsgDepositIntoLiquidityPool](../x/commerciokyc/#deposit-into-reward-pool)
+* Set user membership: [MsgSetMembership](../x/commerciokyc/#set-user-membership)
+
+
 
