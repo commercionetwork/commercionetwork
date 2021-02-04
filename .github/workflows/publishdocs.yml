@@ -1,0 +1,19 @@
+name: Publish-Docs
+
+on: 
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master      
+      - name: vuepress-deploy
+        uses: testthedocs/github-pages-deploy-action@master
+        env:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_SCRIPT: npm ci && npm run docs:build && echo 'docs.commercio.network' > docs/.vuepress/dist/CNAME
+          BUILD_DIR: docs/.vuepress/dist/
+
