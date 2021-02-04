@@ -1,3 +1,110 @@
+# Version 2.2.0-pre.1
+* Rewrite module membership to commercioKyc
+* Rewrite module commercioMint
+* Add migrate 2.2.0
+* Add module update
+
+
+# Version 2.1.2
+
+* Security fix
+* Added DDO pub keys duplicated check
+* Added control to avoid multiple insertion of opencdp messages in the same block
+
+# Version 2.1.1
+## Bug fix
+
+- Fixed tendermint/tmksm comunication with tendermint fork
+- Fixed proof calculation in did document
+- Fixed named `PublicKey`  to `PublicKeyPem` 
+- Removed add-genesis-membership, assign black membership to government
+- Deleted old cdp queries files
+
+## Additions
+- Add rest api for tumbler address
+- Add documentations
+
+
+# Version 2.1.0
+## Bug fix
+
+- Fixed p2p memory issue
+- Removed aliasing from commerciomint
+- Removed verify credentials
+- Fixed price feed command flags
+- Added invariants for Commerciomint and tests
+- Fixed credit risk query pool 
+- Fixed build issues
+- Fixed price feed issues
+- Removed module gov
+
+## Additions
+- Upgrade to cosmos sdk 0.38.3
+- Added do_sign to shareDoc
+- Added cdp auto liquidate
+- Added cncli command module id:
+   - getSetIdentityCommand
+   - getCmdQueryPowerUpRequest
+- Added cncli command module commerciomint :
+  - setCollateralRateCmd
+  - getCdpCollateralRate
+- Added cncli command module creditrisk:
+  - getPoolFundsCmd
+- Added cncli command module government:
+   - getCmdSetTumblerAddress
+   - getCmdGetTumblerAddr
+- Added cncli command module pricefeed:
+  - getCmdBlacklistedDenoms
+  - GetCmdBlacklistDenom
+- Added rest query for Vbr membership:
+  - /memebership/did:com:1address
+
+
+# Version 1.5.0
+## Bug fix
+
+- Fixed incompatibility with cosmos sdk in the management of the rewards of the Vbr module
+- Remove AppendIfMissing from Id module
+- Added invariants for Commerciomint and tests
+- Redesign Membership module and fixed tests 
+- Modify Membership invariant
+
+## Additions
+- Added cncli command module membership:
+   - getCmdDepositIntoPool
+   - getCmdGovAssignMembership
+   - getCmdInviteUser
+   - getCmdBuyMembership
+   - getCmdGetTrustedServiceProviders
+   - getCmdGetInvitesForUser
+   - getCmdGetInvites
+- Added cncli command module vbr:
+   - getRetrieveBlockRewardsPoolFunds
+   - government:
+   - getCmdGetGovernmentAddr
+- Added cncli command module commerciomint :
+  - openCDPCmd
+  - closeCDPCmd
+- Added cncli command module government:
+   - getCmdGetGovernmentAddr
+- Added rest  query for Vbr module
+
+# Version 1.4.0
+
+## Bug fix
+
+- Duplication of receipts prevented
+- Remove AppendIfMissing from Docs module
+- Correct deserialized RawPrices and Cdps
+- Use "require" instead of "assert" on every test source file
+- Added invariants for docs and memberships
+- Fix test execution for memberships
+## Additions
+
+- Added cdp query and tx command to cncli
+- Removed the NFT module completely
+
+
 # Version 1.3.4
 ## Bug fixes
 - Renamed `mint` module to `commerciomint` to increase clearness

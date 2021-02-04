@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,15 +16,12 @@ import (
 	db "github.com/tendermint/tm-db"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	creditrisk "github.com/commercionetwork/commercionetwork/x/creditrisk/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 )
 
-func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Keeper, supply.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
@@ -30,9 +29,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 		auth.StoreKey,
 		params.StoreKey,
 		supply.StoreKey,
-		pricefeedTypes.StoreKey,
 		governmentTypes.StoreKey,
-		creditrisk.StoreKey,
 		types.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -46,35 +43,33 @@ func SetupTestInput() (sdk.Context, bank.Keeper, pricefeed.Keeper, government.Ke
 	}
 	_ = ms.LoadLatestVersion()
 
-	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger()).WithBlockTime(time.Now())
 
 	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey])
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
 	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
 	maccPerms := map[string][]string{
-		types.ModuleName:      {supply.Minter, supply.Burner},
-		creditrisk.ModuleName: {supply.Minter, supply.Burner},
+		types.ModuleName: {supply.Minter, supply.Burner},
 	}
 	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 
 	govkeeper := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
-	pfk := pricefeed.NewKeeper(cdc, keys[pricefeedTypes.StoreKey], govkeeper)
 
-	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, pfk, govkeeper)
+	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, govkeeper)
 
 	// Set initial supply
-	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testCdp.Credits)))
+	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testEtp.Credits)))
 
 	// Set module accounts
 	mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
 	mintK.supplyKeeper.SetModuleAccount(ctx, mintAcc)
 
-	// Set the credits denom
-	mintK.SetCreditsDenom(ctx, testCreditsDenom)
-	// Set cdp collateral rate
-	mintK.SetCollateralRate(ctx, sdk.NewDec(2))
-
-	return ctx, bk, pfk, govkeeper, sk, mintK
+	// Set etp collateral rate
+	err := mintK.SetConversionRate(ctx, sdk.NewDec(2))
+	if err != nil {
+		panic(err)
+	}
+	return ctx, bk, govkeeper, sk, mintK
 }
 
 func testCodec() *codec.Codec {
@@ -84,7 +79,6 @@ func testCodec() *codec.Codec {
 	staking.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	supply.RegisterCodec(cdc)
-	pricefeedTypes.RegisterCodec(cdc)
 	governmentTypes.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
@@ -98,15 +92,17 @@ func testCodec() *codec.Codec {
 // --- Test variables
 // ----------------------
 
-var testCreditsDenom = "stake"
 var testLiquidityDenom = "ucommercio"
-var testCdpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
 
-var testCdp = types.NewPosition(
-	testCdpOwner,
-	sdk.NewCoins(sdk.NewCoin(testLiquidityDenom, sdk.NewInt(100))),
-	sdk.NewCoin(testCreditsDenom, sdk.NewInt(50)),
-	10,
+var testEtp = types.NewPosition(
+	testEtpOwner,
+	sdk.NewInt(100),
+	sdk.NewCoin("ucommercio", sdk.NewInt(50)),
+	testID,
+	time.Now(),
+	sdk.NewDec(2),
 )
 
 var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))

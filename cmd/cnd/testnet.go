@@ -10,13 +10,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc"
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	"github.com/commercionetwork/commercionetwork/x/memberships"
-	membershipsTypes "github.com/commercionetwork/commercionetwork/x/memberships/types"
-	pricefeedTypes "github.com/commercionetwork/commercionetwork/x/pricefeed/types"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
-
-	"github.com/commercionetwork/commercionetwork/x/pricefeed"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr"
 
@@ -66,7 +63,7 @@ func testnetCmd(ctx *server.Context, cdc *codec.Codec,
 
 	cmd := &cobra.Command{
 		Use:   "testnet",
-		Short: "Initialize files for a Gaiad testnet",
+		Short: "Initialize files for a Commercio testnet",
 		Long: `testnet will create "v" number of directories and populate each with
 necessary files (private validator, genesis, config, etc.).
 
@@ -298,29 +295,19 @@ func initGenFiles(
 	cdc.MustUnmarshalJSON(appGenState[vbrTypes.ModuleName], &vbrState)
 	tokens := sdk.TokensFromConsensusPower(1000)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
+	vbrState.AutomaticWithdraw = true
+	vbrState.RewardRate = sdk.NewDecWithPrec(1, 3)
 	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(vbrState)
 
-	// cnd set-genesis-price ucommercio 1 100000000
-	var priceState pricefeed.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[pricefeedTypes.ModuleName], &priceState)
-	price := pricefeedTypes.Price{AssetName: app.DefaultBondDenom, Value: sdk.NewDec(1), Expiry: sdk.NewInt(100000000)}
-	rawPrice := pricefeedTypes.OraclePrice{Oracle: genAccounts[0].GetAddress(), Price: price, Created: sdk.ZeroInt()}
-	priceState.RawPrices, _ = priceState.RawPrices.UpdatePriceOrAppendIfMissing(rawPrice)
-	priceState.Assets, _ = priceState.Assets.AppendIfMissing(price.AssetName)
-	priceState.Oracles, _ = priceState.Oracles.AppendIfMissing(genAccounts[0].GetAddress())
-	genesisStateBz := cdc.MustMarshalJSON(priceState)
-	appGenState[pricefeedTypes.ModuleName] = genesisStateBz
-
 	// cnd add-genesis-tsp
-	var memberState memberships.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[membershipsTypes.ModuleName], &memberState)
-	memberState.TrustedServiceProviders, _ = memberState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
+	var kycState commerciokyc.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &kycState)
+	kycState.TrustedServiceProviders, _ = kycState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
 	// cnd add-genesis-membership black
-	membership := membershipsTypes.NewMembership("black", genAccounts[0].GetAddress())
-	memberState.Memberships, _ = memberState.Memberships.AppendIfMissing(membership)
-
-	genesisStateBz = cdc.MustMarshalJSON(memberState)
-	appGenState[membershipsTypes.ModuleName] = genesisStateBz
+	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), int64(100))
+	kycState.Memberships, _ = kycState.Memberships.AppendIfMissing(membership)
+	genesisStateBz := cdc.MustMarshalJSON(kycState)
+	appGenState[commerciokycTypes.ModuleName] = genesisStateBz
 
 	appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	if err != nil {

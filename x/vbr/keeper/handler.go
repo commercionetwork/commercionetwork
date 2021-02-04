@@ -15,6 +15,10 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case types.MsgIncrementBlockRewardsPool:
 			return handleMsgIncrementBlockRewardsPool(ctx, keeper, msg)
+		case types.MsgSetRewardRate:
+			return handleMsgSetRewardRate(ctx, keeper, msg)
+		case types.MsgSetAutomaticWithdraw:
+			return handleMsgSetAutomaticWithdraw(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized %s message type: %v", types.ModuleName, msg.Type())
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
@@ -32,4 +36,28 @@ func handleMsgIncrementBlockRewardsPool(ctx sdk.Context, k Keeper, msg types.Msg
 	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(sdk.NewDecCoinsFromCoins(msg.Amount...)...))
 
 	return &sdk.Result{}, nil
+}
+
+func handleMsgSetRewardRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetRewardRate) (*sdk.Result, error) {
+	gov := keeper.govKeeper.GetGovernmentAddress(ctx)
+	if !(gov.Equals(msg.Government)) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
+	}
+	err := keeper.SetRewardRate(ctx, msg.RewardRate)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+	}
+	return &sdk.Result{Log: fmt.Sprintf("Reward rate changed successfully to %s", msg.RewardRate)}, nil
+}
+
+func handleMsgSetAutomaticWithdraw(ctx sdk.Context, keeper Keeper, msg types.MsgSetAutomaticWithdraw) (*sdk.Result, error) {
+	gov := keeper.govKeeper.GetGovernmentAddress(ctx)
+	if !(gov.Equals(msg.Government)) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
+	}
+	err := keeper.SetAutomaticWithdraw(ctx, msg.AutomaticWithdraw)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+	}
+	return &sdk.Result{Log: fmt.Sprintf("Automatic withdraw changed successfully to %v", msg.AutomaticWithdraw)}, nil
 }

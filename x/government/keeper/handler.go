@@ -12,6 +12,7 @@ import (
 // NewHandler is essentially a sub-router that directs messages coming into this module to the proper handler.
 func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
 		case types.MsgSetTumblerAddress:
 			return handleMsgSetTumblerAddress(ctx, keeper, msg)

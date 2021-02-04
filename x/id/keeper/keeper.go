@@ -20,6 +20,12 @@ type Keeper struct {
 	supplyKeeper supply.Keeper
 }
 
+const (
+	eventNewDDO              = "new_ddo"
+	eventNewPowerupRequest   = "new_powerup_request"
+	eventPowerupChangeStatus = "powerup_changed_status"
+)
+
 // NewKeeper creates new instances of the CommercioID Keeper
 func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, accKeeper auth.AccountKeeper, supplyKeeper supply.Keeper) Keeper {
 
@@ -50,6 +56,8 @@ func (k Keeper) SaveDidDocument(ctx sdk.Context, document types.DidDocument) err
 	// Set the Did Document into the store
 	identitiesStore := ctx.KVStore(k.storeKey)
 	identitiesStore.Set(getIdentityStoreKey(document.ID), k.cdc.MustMarshalBinaryBare(document))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(eventNewDDO, sdk.NewAttribute("address", document.ID.String())))
 
 	return nil
 }
@@ -105,6 +113,11 @@ func (k Keeper) StorePowerUpRequest(ctx sdk.Context, request types.DidPowerUpReq
 
 	store.Set(requestStoreKey, k.cdc.MustMarshalBinaryBare(&request))
 
+	ctx.EventManager().EmitEvent(sdk.NewEvent(eventNewPowerupRequest,
+		sdk.NewAttribute("id", request.ID),
+		sdk.NewAttribute("claimant", request.Claimant.String()),
+		sdk.NewAttribute("amount", request.Amount.String())))
+
 	return nil
 }
 
@@ -132,9 +145,23 @@ func (k Keeper) ChangePowerUpRequestStatus(ctx sdk.Context, id string, status ty
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
+	currentStatus := request.Status
+	oldStatus := ""
+	if currentStatus != nil {
+		oldStatus = request.Status.Type
+	}
+
 	// Update and store the request
 	request.Status = &status
+
 	store.Set(getDidPowerUpRequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(eventPowerupChangeStatus,
+		sdk.NewAttribute("id", request.ID),
+		sdk.NewAttribute("claimant", request.Claimant.String()),
+		sdk.NewAttribute("amount", request.Amount.String()),
+		sdk.NewAttribute("old_status", oldStatus),
+		sdk.NewAttribute("new_status", status.Type)))
 
 	return nil
 }

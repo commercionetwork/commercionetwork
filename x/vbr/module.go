@@ -26,8 +26,6 @@ var (
 
 type AppModuleBasic struct{}
 
-var _ module.AppModuleBasic = AppModuleBasic{}
-
 // module name
 func (AppModuleBasic) Name() string {
 	return types.ModuleName

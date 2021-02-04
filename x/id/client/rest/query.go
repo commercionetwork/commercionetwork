@@ -16,7 +16,7 @@ const (
 	proofParam    = "proof"
 )
 
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, querierRoute string) {
+func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, querierRoute string) {
 	r.HandleFunc(fmt.Sprintf(
 		"/identities/{%s}", identityParam),
 		resolveIdentityHandler(cliCtx, querierRoute)).
@@ -43,6 +43,15 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, querierRoute 
 		Methods("GET")
 }
 
+// @Summary Get a user Did Document
+// @Description This endpoint returns a user Did Document, along with the height at which the resource was queried at
+// @ID id_resolveIdentityHandler
+// @Produce json
+// @Param did path string true "Address of the user for which to read the Did Document"
+// @Success 200 {object} x.JSONResult{result=keeper.ResolveIdentityResponse}
+// @Failure 404
+// @Router /identities/{did} [get]
+// @Tags x/id
 func resolveIdentityHandler(cliCtx context.CLIContext, querierRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -59,6 +68,15 @@ func resolveIdentityHandler(cliCtx context.CLIContext, querierRoute string) http
 	}
 }
 
+// @Summary Get a user Did power up request
+// @Description This endpoint returns a user Did power up request, along with the height at which the resource was queried at
+// @ID id_resolvePowerUpRequest
+// @Produce json
+// @Param id path string true "Request id"
+// @Success 200 {object} x.JSONResult{result=types.DidPowerUpRequest}
+// @Failure 404
+// @Router /powerUpRequest/{id} [get]
+// @Tags x/id
 func resolvePowerUpRequestHandler(cliCtx context.CLIContext, querierRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -75,6 +93,14 @@ func resolvePowerUpRequestHandler(cliCtx context.CLIContext, querierRoute string
 	}
 }
 
+// @Summary Get the user Did power up approved requests
+// @Description This endpoint returns the user Did power up approved requests, along with the height at which the resource was queried at
+// @ID id_resolveApprovedPowerUpRequests
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=[]types.DidPowerUpRequest}
+// @Failure 404
+// @Router /approvedPowerUpRequests [get]
+// @Tags x/id
 func resolveApprovedPowerUpRequests(cliCtx context.CLIContext, querierRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryGetApprovedPowerUpRequest)
@@ -88,6 +114,14 @@ func resolveApprovedPowerUpRequests(cliCtx context.CLIContext, querierRoute stri
 	}
 }
 
+// @Summary Get the user Did power up rejected power up requests
+// @Description This endpoint returns the user Did power up rejected requests, along with the height at which the resource was queried at
+// @ID id_resolveRejectedPowerUpRequests
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=[]types.DidPowerUpRequest}
+// @Failure 404
+// @Router /rejectedPowerUpRequests [get]
+// @Tags x/id
 func resolveRejectedPowerUpRequests(cliCtx context.CLIContext, querierRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryGetRejectedPowerUpRequest)
@@ -100,6 +134,15 @@ func resolveRejectedPowerUpRequests(cliCtx context.CLIContext, querierRoute stri
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
+
+// @Summary Get the user Did power up pending requests
+// @Description This endpoint returns the user Did power up pending requests, along with the height at which the resource was queried at
+// @ID id_resolvePendingPowerUpRequests
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=[]types.DidPowerUpRequest}
+// @Failure 404
+// @Router /pendingPowerUpRequests [get]
+// @Tags x/id
 func resolvePendingPowerUpRequests(cliCtx context.CLIContext, querierRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryGetPendingPowerUpRequest)

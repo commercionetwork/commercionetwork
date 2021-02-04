@@ -1,0 +1,858 @@
+basePath: /
+definitions:
+  keeper.ResolveIdentityResponse:
+    properties:
+      did_document:
+        $ref: '#/definitions/types.DidDocument'
+      owner:
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
+    type: object
+  types.Coin:
+    properties:
+      amount:
+        $ref: '#/definitions/types.Int'
+        description: |-
+          To allow the use of unsigned integers (see: #1273) a larger refactor will
+          need to be made. So we use signed integers for now with safety measures in
+          place preventing negative values being used.
+      denom:
+        type: string
+    type: object
+  types.Dec:
+    type: object
+  types.DecCoin:
+    properties:
+      amount:
+        $ref: '#/definitions/types.Dec'
+      denom:
+        type: string
+    type: object
+  types.DidDocument:
+    properties:
+      '@context':
+        example: https://www.w3.org/ns/did/v1
+        type: string
+      id:
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
+      proof:
+        $ref: '#/definitions/types.Proof'
+        description: |-
+          Proof is **NOT** optional, we need it to have omitempty/pointer to make the signature procedure more straightforward,
+          i.e. DidDocument.Validate() will check if proof is empty, and throw an error if true.
+      publicKey:
+        items:
+          $ref: '#/definitions/types.PubKey'
+        type: array
+      service:
+        description: Services are optional
+        items:
+          $ref: '#/definitions/types.Service'
+        type: array
+    type: object
+  types.DidPowerUpRequest:
+    properties:
+      amount:
+        items:
+          $ref: '#/definitions/types.Coin'
+        type: array
+      claimant:
+        items:
+          type: integer
+        type: array
+      id:
+        example: d423c645-fd50-4841-8138-192ee8e23dde
+        type: string
+      proof:
+        example: S5hyg4slMxm9fK8PTNDs8tHmQcBfWXG0vqrNHLXY5K1qUz3QwZYjR9nzJoNDJh18aPsXper7rNBbyZPOm5K//x8Bqm2EJkdnHd7woa5eFqpziGaHxqvgPaLGspH47tnVilARTeF23L2NVHWcEWuo9U5cWg52l1lOixOG+DehT3vC9KjLqg0YqBoL2u0LTLqQMON4UUjC8JwzT/RMs30OYGsWuLc9s48RtJCQJZ+yAg3U6jZn3OokGwWWjYxF9tAsMR48KilHsPigsa9WPnaAyCMSJ05hOqjBxWiSHYiH1nAefFqHtNFXhJF3LRUCJ2xnSHxJC5Ndj4HFzUjyK4aiV1mtRlRcsqmXU80HEk7IzI74HYpW74F8LzXNsh8Pbl7HXoIzEiOHB5XStFnrxkIL3sYAJGH/pGbX3SxeyfoZhY4ikEyqX3OB7Pat2yHh/63XSPThRVpD7g0gy5N2aKBz3vrHCPhe3QQTzWmKlJOcg1FE5ZtSUEHdVQbm1GD9zP6KZDfbekh9+xU0EFczW9JF/we61LTvMF1KoxaBpL46O/J6ROEOQsb03hLEMadBKxZ+XaqAHiQWKu6G5YH2opNTGKcvSyNfDInOvAygUOfzLgTCWp7JOU09hWBKW1ya2yJNJMZ6q9giEAlqS/qqYy4gAqZKjt7nF0siOb3Vz6zEaXdhCcqrfnNN6n/kFXWz24yAucW+/EHt+hsygEVUZQ==
+        type: string
+      proof_key:
+        example: L0QIWxtHeWeUQhmfWqB2n+MZXFqEYctltilM0j69tBd1drUoUSz/vUkaPadQAdKqtQOD43Py7/JZt5IFyx7iDdphzJEX7bqq+B6nC2DQUeISEiXwtDmJYMp20/N23DY2T7L/Z/dzbxRZDWoUhtr9fRPeJL8NHtPqU9YZw2f1tgMk2t/ZMKtBhYzO5BnF8Crmshjw6b6KA3fK+j7YrmF8fVpVFCdz5jd7cprf5RIqwVjt4w1cYZWeKvGLWeGVX3oiCB67EzXZVUCsD03evr90GDY9qGLfUaWJdBkNjByDotLY0OhrKpcZ+O0IZyZv1+YKx7ZDoPAsEJqpqw4M9bGQRg==
+        type: string
+      status:
+        $ref: '#/definitions/types.RequestStatus'
+    type: object
+  types.Document:
+    properties:
+      checksum:
+        $ref: '#/definitions/types.DocumentChecksum'
+        description: Optional
+      content_uri:
+        description: Optional
+        type: string
+      do_sign:
+        $ref: '#/definitions/types.DocumentDoSign'
+        description: Optional
+      encryption_data:
+        $ref: '#/definitions/types.DocumentEncryptionData'
+        description: Optional
+      metadata:
+        $ref: '#/definitions/types.DocumentMetadata'
+      recipients:
+        example:
+        - did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        items:
+          type: string
+        type: array
+      sender:
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
+      uuid:
+        example: d0f6c692-506f-4bd7-bdf4-f6693633d1da
+        type: string
+    type: object
+  types.DocumentChecksum:
+    properties:
+      algorithm:
+        type: string
+      value:
+        type: string
+    type: object
+  types.DocumentDoSign:
+    properties:
+      certificate_profile:
+        type: string
+      sdn_data:
+        items:
+          type: string
+        type: array
+      signer_instance:
+        type: string
+      storage_uri:
+        type: string
+      vcr_id:
+        type: string
+    type: object
+  types.DocumentEncryptionData:
+    properties:
+      encrypted_data:
+        description: contains the list of data that have been encrypted
+        items:
+          type: string
+        type: array
+      keys:
+        description: contains the keys used to encrypt the data
+        items:
+          $ref: '#/definitions/types.DocumentEncryptionKey'
+        type: array
+    type: object
+  types.DocumentEncryptionKey:
+    properties:
+      recipient:
+        description: Recipient that should use this data
+        items:
+          type: integer
+        type: array
+      value:
+        description: Value of the key that should be used. This is encrypted with the recipient's public key
+        type: string
+    type: object
+  types.DocumentMetadata:
+    properties:
+      content_uri:
+        type: string
+      schema:
+        $ref: '#/definitions/types.DocumentMetadataSchema'
+        description: Optional - Either this or schema_type must be defined
+      schema_type:
+        description: Optional - Either this or schema must be defined
+        type: string
+    type: object
+  types.DocumentMetadataSchema:
+    properties:
+      uri:
+        type: string
+      version:
+        type: string
+    type: object
+  types.DocumentReceipt:
+    properties:
+      document_uuid:
+        type: string
+      proof:
+        description: Optional
+        type: string
+      recipient:
+        items:
+          type: integer
+        type: array
+      sender:
+        items:
+          type: integer
+        type: array
+      tx_hash:
+        type: string
+      uuid:
+        type: string
+    type: object
+  types.Int:
+    type: object
+  types.Invite:
+    properties:
+      sender:
+        description: User that has sent the invitation
+        items:
+          type: integer
+        type: array
+      sender_membership:
+        description: Membership of Sender when the invite was created
+        type: string
+      status:
+        description: Tells if the invite is pending, rewarded or invalid
+        type: integer
+      user:
+        description: Invited user
+        items:
+          type: integer
+        type: array
+    type: object
+  types.Membership:
+    properties:
+      expiry_at:
+        description: Block height at which the membership expired
+        type: integer
+      membership_type:
+        type: string
+      owner:
+        items:
+          type: integer
+        type: array
+      tsp_address:
+        items:
+          type: integer
+        type: array
+    type: object
+  types.MetadataSchema:
+    properties:
+      schema_uri:
+        type: string
+      type:
+        type: string
+      version:
+        type: string
+    type: object
+  types.Position:
+    properties:
+      collateral:
+        $ref: '#/definitions/types.Int'
+      created_at:
+        type: string
+      credits:
+        $ref: '#/definitions/types.Coin'
+      exchange_rate:
+        $ref: '#/definitions/types.Dec'
+      id:
+        type: string
+      owner:
+        items:
+          type: integer
+        type: array
+    type: object
+  types.Proof:
+    properties:
+      controller:
+        example: did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx
+        type: string
+      created:
+        example: "2020-04-22T04:23:50.73112321Z"
+        type: string
+      proofPurpose:
+        example: authentication
+        type: string
+      signatureValue:
+        example: nIgRvObXlF2OIbktZcQJw0UU7zDEku8cEBq7194YOjhEvD5wBZ+TcNu9GNRZucC6OyuplHfK6uo57+3lVQbpgA==
+        type: string
+      type:
+        example: EcdsaSecp256k1VerificationKey2019
+        type: string
+      verificationMethod:
+        example: did:com:pub1addwnpepqt6lnn5v0c3rys49v5v9f4kvcchehnu7kyk8t8vce5lsxfy7e2pxwyvmf6t
+        type: string
+    type: object
+  types.PubKey:
+    properties:
+      controller:
+        example: did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf
+        type: string
+      id:
+        example: did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx#keys-1
+        type: string
+      publicKeyPem:
+        example: |
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHg
+          kKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScAD
+          G9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUc
+          zhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7
+          ZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0
+          O2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfK
+          HQIDAQAB
+          -----END PUBLIC KEY-----
+        type: string
+      type:
+        example: RsaVerificationKey2018
+        type: string
+    type: object
+  types.RequestStatus:
+    properties:
+      message:
+        type: string
+      type:
+        type: string
+    type: object
+  types.Service:
+    properties:
+      id:
+        type: string
+      serviceEndpoint:
+        type: string
+      type:
+        type: string
+    type: object
+  x.JSONResult:
+    properties:
+      height:
+        example: "1234"
+        type: string
+      result:
+        type: object
+    type: object
+info:
+  contact:
+    email: developers@commercio.network
+  description: Swagger API for CommercioNetwork
+  title: CommercioNetwork API
+paths:
+  /approvedPowerUpRequests:
+    get:
+      description: This endpoint returns the user Did power up approved requests, along with the height at which the resource was queried at
+      operationId: id_resolveApprovedPowerUpRequests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.DidPowerUpRequest'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the user Did power up approved requests
+      tags:
+      - x/id
+  /commerciokyc/funds:
+    get:
+      description: This endpoint returns current pool funds for accreditation block reward
+      operationId: getGetPoolFunds
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Coin'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Current pool funds
+      tags:
+      - x/commerciokyc
+  /commerciokyc/invites:
+    get:
+      description: This endpoint returns all the Invites
+      operationId: getInvitesHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    items:
+                      $ref: '#/definitions/types.Invite'
+                    type: array
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Invites
+      tags:
+      - x/commerciokyc
+  /commerciokyc/membership/{address}:
+    get:
+      description: This endpoint returns the Membership
+      operationId: getMembershipForAddr
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  $ref: '#/definitions/types.Membership'
+              type: object
+        "404": {}
+      summary: Get Membership for given address
+      tags:
+      - x/commerciokyc
+  /commerciokyc/memberships:
+    get:
+      description: This endpoint returns all the Memberships
+      operationId: getMemberships
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Membership'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Memberships
+      tags:
+      - x/commerciokyc
+  /commerciokyc/sold/{address}:
+    get:
+      description: This endpoint returns all Memberships sold by a specific Trusted Service Provider
+      operationId: getSoldForTsp
+      parameters:
+      - description: Address of the tsp which to read the sold memberhip
+        in: path
+        name: did
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Membership'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Memberships sold by Trusted Service Provider
+      tags:
+      - x/commerciokyc
+  /commerciokyc/tsps:
+    get:
+      description: This endpoint returns all the Trusted Service Providers
+      operationId: getTrustedServiceProvidersHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    description: Invited user
+                    items:
+                      type: integer
+                    type: array
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Trusted Service Providers
+      tags:
+      - x/commerciokyc
+  /commerciomint/etps:
+    get:
+      description: This endpoint returns the Conversion rate, along with the height at which the resource was queried at
+      operationId: getConversionRateHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  $ref: '#/definitions/types.Dec'
+              type: object
+        "404": {}
+      summary: Get Conversion rate
+      tags:
+      - x/commerciomint
+  /commerciomint/etps/{address}:
+    get:
+      description: This endpoint returns the Exchange Trade Position, along with the blocktime at which the resource was queried at
+      operationId: getEtpsHandler
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Position'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get all the Exchange Trade Positions for user
+      tags:
+      - x/commerciomint
+  /docs/{address}/received:
+    get:
+      description: This endpoint returns the received documents, along with the height at which the resource was queried at
+      operationId: getReceivedDocumentsHandler
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Document'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the received documents
+      tags:
+      - x/documents
+  /docs/{address}/sent:
+    get:
+      description: This endpoint returns the sent documents, along with the height at which the resource was queried at
+      operationId: getSentDocumentsHandler
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.Document'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the sent documents
+      tags:
+      - x/documents
+  /docs/metadataSchemes:
+    get:
+      description: This endpoint returns the supported metadata schemes, along with the height at which the resource was queried at
+      operationId: getSupportedMetadataSchemesHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.MetadataSchema'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the metadata schemes
+      tags:
+      - x/documents
+  /docs/metadataSchemes/proposers:
+    get:
+      description: This endpoint returns the trusted metadata proposers, along with the height at which the resource was queried at
+      operationId: getTrustedMetadataSchemesProposersHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    type: string
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the metadata proposers
+      tags:
+      - x/documents
+  /government/address:
+    get:
+      description: This endpoint returns the address that the government has currently, along with the height at which the resource was queried at
+      operationId: government_address
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  type: string
+              type: object
+        "404": {}
+      summary: Get the government address
+      tags:
+      - x/government
+  /government/tumbler:
+    get:
+      description: This endpoint returns the address that the tumbler has currently, along with the height at which the resource was queried at
+      operationId: government_tumbler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  type: string
+              type: object
+        "404": {}
+      summary: Get the tumbler address
+      tags:
+      - x/government
+  /identities/{did}:
+    get:
+      description: This endpoint returns a user Did Document, along with the height at which the resource was queried at
+      operationId: id_resolveIdentityHandler
+      parameters:
+      - description: Address of the user for which to read the Did Document
+        in: path
+        name: did
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  $ref: '#/definitions/keeper.ResolveIdentityResponse'
+              type: object
+        "404": {}
+      summary: Get a user Did Document
+      tags:
+      - x/id
+  /pendingPowerUpRequests:
+    get:
+      description: This endpoint returns the user Did power up pending requests, along with the height at which the resource was queried at
+      operationId: id_resolvePendingPowerUpRequests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.DidPowerUpRequest'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the user Did power up pending requests
+      tags:
+      - x/id
+  /powerUpRequest/{id}:
+    get:
+      description: This endpoint returns a user Did power up request, along with the height at which the resource was queried at
+      operationId: id_resolvePowerUpRequest
+      parameters:
+      - description: Request id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  $ref: '#/definitions/types.DidPowerUpRequest'
+              type: object
+        "404": {}
+      summary: Get a user Did power up request
+      tags:
+      - x/id
+  /receipts/{address}/received:
+    get:
+      description: This endpoint returns the received receipts, along with the height at which the resource was queried at
+      operationId: getReceivedDocumentsReceiptsHandler
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.DocumentReceipt'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the received receipts
+      tags:
+      - x/documents
+  /receipts/{address}/sent:
+    get:
+      description: This endpoint returns the sent receipts, along with the height at which the resource was queried at
+      operationId: getSentDocumentsReceiptsHandler
+      parameters:
+      - description: Address of the user
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.DocumentReceipt'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the sent receipts
+      tags:
+      - x/documents
+  /rejectedPowerUpRequests:
+    get:
+      description: This endpoint returns the user Did power up rejected requests, along with the height at which the resource was queried at
+      operationId: id_resolveRejectedPowerUpRequests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.DidPowerUpRequest'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get the user Did power up rejected power up requests
+      tags:
+      - x/id
+  /vbr/funds:
+    get:
+      description: This endpoint returns current pool funds for validator block reward
+      operationId: getRetrieveBlockRewardsPoolFunds
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/x.JSONResult'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/types.DecCoin'
+                  type: array
+              type: object
+        "404": {}
+      summary: Get All Current VBR pool funds
+      tags:
+      - x/vbr
+swagger: "2.0"

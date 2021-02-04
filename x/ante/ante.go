@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	commerciominttypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+
+	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
-	pricefeed "github.com/commercionetwork/commercionetwork/x/pricefeed/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -26,8 +26,8 @@ var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
 func NewAnteHandler(
 	ak keeper.AccountKeeper,
 	supplyKeeper types.SupplyKeeper,
-	priceKeeper pricefeed.Keeper,
 	govKeeper government.Keeper,
+	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	stableCreditsDemon string,
 ) sdk.AnteHandler {
@@ -37,7 +37,7 @@ func NewAnteHandler(
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
 		NewCDPCheckerDecorator(),
-		NewMinFeeDecorator(priceKeeper, govKeeper, stableCreditsDemon),
+		NewMinFeeDecorator(govKeeper, mintKeeper, stableCreditsDemon),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
@@ -61,7 +61,7 @@ func (mfd CDPCheckerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 	// check that there's only one OpenCDP message in tx, if any.
 	foundOpenCDP := false
 	for _, msg := range tx.GetMsgs() {
-		if msg.Type() == commerciominttypes.MsgTypeOpenCdp {
+		if msg.Type() == commerciominttypes.MsgTypeMintCCC {
 			if !foundOpenCDP {
 				foundOpenCDP = true
 			} else {
@@ -76,18 +76,17 @@ func (mfd CDPCheckerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 // MinFeeDecorator checks that each transaction containing a MsgShareDocument
 // contains also a minimum fee amount corresponding to 0.01 euro per
 // MsgShareDocument included into the transaction itself.
-// The amount can be specified either using stableCreditsDenom tokens or
-// by using any other token which price is contained inside the pricefeedKeeper.
+// The amount can be specified using stableCreditsDenom.
 type MinFeeDecorator struct {
-	pfk                pricefeed.Keeper
 	govk               government.Keeper
+	mintk              commerciomintKeeper.Keeper
 	stableCreditsDenom string
 }
 
-func NewMinFeeDecorator(priceKeeper pricefeed.Keeper, govKeeper government.Keeper, stableCreditsDenom string) MinFeeDecorator {
+func NewMinFeeDecorator(govKeeper government.Keeper, mintk commerciomintKeeper.Keeper, stableCreditsDenom string) MinFeeDecorator {
 	return MinFeeDecorator{
-		pfk:                priceKeeper,
 		govk:               govKeeper,
+		mintk:              mintk,
 		stableCreditsDenom: stableCreditsDenom,
 	}
 }
@@ -111,7 +110,7 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.Msgs)))
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.pfk, mfd.govk, mfd.stableCreditsDenom, requiredFees); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.govk, mfd.mintk, mfd.stableCreditsDenom, requiredFees); err != nil {
 		return ctx, err
 	}
 
@@ -121,61 +120,36 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 func checkMinimumFees(
 	stdTx types.StdTx,
 	ctx sdk.Context,
-	pfk pricefeed.Keeper,
 	govk government.Keeper,
+	mintk commerciomintKeeper.Keeper,
 	stableCreditsDenom string,
 	requiredFees sdk.Dec,
 ) error {
-
-	// ----
-	// Each message should cost 0.01€, which can be paid:
-	// 1 .Using stable credits worth 1€ (10.000 ustable)
-	// 2. Using other tokens (their required quantity is based on their value)
-	// ----
 
 	// No Fees for the Tumbler.
 	if stdTx.FeePayer().Equals(govk.GetTumblerAddress(ctx)) {
 		return nil
 	}
 
-	// ----
-	// Try using stable credits
-	// ----
+	fiatAmount := sdk.ZeroDec()
 
-	// Token quantity is always set as millionth of units
 	stableRequiredQty := requiredFees.MulInt64(1000000)
-	stableFeeAmount := sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
-	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(stableFeeAmount) {
+	fiatAmount = sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
+	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(fiatAmount) {
 		return nil
 	}
 
-	// ----
-	// Stable credits where not sufficient, fall back to normal ones
-	// ----
+	ucccConversionRate := mintk.GetConversionRate(ctx)
 
-	fiatAmount := sdk.ZeroDec()
-	for _, fee := range stdTx.Fee.Amount {
+	if comAmount := stdTx.Fee.Amount.AmountOf("ucommercio"); comAmount.IsPositive() {
+		f := comAmount.ToDec().Mul(ucccConversionRate)
+		realQty := f.QuoInt64(1000000)
 
-		// Skip stable credits
-		if fee.Denom == stableCreditsDenom {
-			continue
-		}
-
-		// Search for the token price
-		if ctPrice, found := pfk.GetCurrentPrice(ctx, fee.Denom); found {
-			// The quantity is always set as millionth of unit
-			realQty := fee.Amount.ToDec().QuoInt64(1000000)
-
-			// Fiat amount = price * quantity
-			tokenFiatAmount := ctPrice.Value.Mul(realQty)
-
-			// Add up everything
-			fiatAmount = fiatAmount.Add(tokenFiatAmount)
-		}
+		fiatAmount = fiatAmount.Add(realQty)
 	}
 
 	if !fiatAmount.GTE(requiredFees) {
-		msg := fmt.Sprintf("Insufficient fees. Expected %s fiat amount, got %s", requiredFees, fiatAmount)
+		msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s", requiredFees, fiatAmount)
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
 	}
 

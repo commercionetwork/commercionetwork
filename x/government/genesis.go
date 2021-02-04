@@ -8,7 +8,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
-// GenesisState - docs genesis state
+// GenesisState - government genesis state
 type GenesisState struct {
 	GovernmentAddress sdk.AccAddress `json:"government_address"`
 	TumblerAddress    sdk.AccAddress `json:"tumbler_address"`
@@ -19,7 +19,7 @@ func DefaultGenesisState() GenesisState {
 	return GenesisState{}
 }
 
-// InitGenesis sets docs information for genesis.
+// InitGenesis sets documents information for genesis.
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	errSetGov := keeper.SetGovernmentAddress(ctx, data.GovernmentAddress)
 

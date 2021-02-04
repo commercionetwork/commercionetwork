@@ -6,15 +6,14 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	CdpStorePrefix       = ":cdp:"
-	CreditsDenomStoreKey = "creditsDenom"
+	EtpStorePrefix       = StoreKey + ":etp:"
+	CreditsDenomStoreKey = "CreditsDenom"
 	CollateralRateKey    = StoreKey + ":collateralRate"
 
-	QueryGetCdp         = "cdp"
-	QueryGetCdps        = "cdps"
-	QueryCollateralRate = "collateral_rate"
+	QueryGetEtps        = "etps"
+	QueryConversionRate = "conversion_rate"
 
-	MsgTypeOpenCdp              = "openCdp"
-	MsgTypeCloseCdp             = "closeCdp"
-	MsgTypeSetCdpCollateralRate = "setCdpCollateralRate"
+	MsgTypeMintCCC              = "mintCCC"
+	MsgTypeBurnCCC              = "burnCCC"
+	MsgTypeSetCCCConversionRate = "setEtpsConversionRate"
 )

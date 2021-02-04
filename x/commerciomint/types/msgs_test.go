@@ -8,45 +8,46 @@ import (
 )
 
 func TestMsgBasics(t *testing.T) {
-	require.Equal(t, "commerciomint", MsgOpenCdp{}.Route())
-	require.Equal(t, "openCdp", MsgOpenCdp{}.Type())
-	require.Equal(t, 1, len(MsgOpenCdp{}.GetSigners()))
-	require.NotNil(t, MsgOpenCdp{}.GetSignBytes())
+	require.Equal(t, "commerciomint", MsgMintCCC{}.Route())
+	require.Equal(t, "mintCCC", MsgMintCCC{}.Type())
+	require.Equal(t, 1, len(MsgMintCCC{}.GetSigners()))
+	require.NotNil(t, MsgMintCCC{}.GetSignBytes())
 
-	msg := NewMsgCloseCdp(nil, 0)
+	msg := NewMsgBurnCCC(nil, "id", sdk.NewCoin("denom", sdk.NewInt(1)))
 	require.Equal(t, "commerciomint", msg.Route())
-	require.Equal(t, "closeCdp", msg.Type())
+	require.Equal(t, "burnCCC", msg.Type())
 	require.Equal(t, 1, len(msg.GetSigners()))
 	require.NotNil(t, msg.GetSignBytes())
 }
 
-func TestMsgOpenCdp_ValidateBasic(t *testing.T) {
-	require.Error(t, NewMsgOpenCdp(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
-	require.Error(t, NewMsgOpenCdp(testOwner, sdk.NewCoins()).ValidateBasic())
-	require.NoError(t, NewMsgOpenCdp(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100))).ValidateBasic())
+func TestMsgMintCCC_ValidateBasic(t *testing.T) {
+	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
+	require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100)), uuid).ValidateBasic())
+	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), uuid).ValidateBasic())
+	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), "").ValidateBasic())
+	require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
 }
 
-func TestMsgSetCdpCollateralRate_ValidateBasic(t *testing.T) {
+func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 	type fields struct {
-		Signer            sdk.AccAddress
-		CdpCollateralRate sdk.Dec
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
+		name           string
+		signer         sdk.AccAddress
+		collateralRate sdk.Dec
+		wantErr        bool
 	}{
-		{"empty signer", fields{nil, sdk.NewDec(2)}, true},
-		{"ok", fields{[]byte("test"), sdk.NewDec(2)}, false},
-		{"zero collateral rate", fields{[]byte("test"), sdk.NewDec(0)}, true},
-		{"negative collateral rate", fields{[]byte("test"), sdk.NewDec(-1)}, true},
+		{"empty signer", nil, sdk.NewDec(2), true},
+		{"ok", []byte("test"), sdk.NewDec(2), false},
+		{"zero collateral rate", []byte("test"), sdk.NewDec(0), true},
+		{"negative collateral rate", []byte("test"), sdk.NewDec(-1), true},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			msg := NewMsgSetCdpCollateralRate(tt.fields.Signer, tt.fields.CdpCollateralRate)
+			msg := NewMsgSetCCCConversionRate(tt.signer, tt.collateralRate)
 			require.Equal(t, "commerciomint", msg.Route())
-			require.Equal(t, "setCdpCollateralRate", msg.Type())
+			require.Equal(t, "setEtpsConversionRate", msg.Type())
 			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)
 		})
 	}
