@@ -3,6 +3,8 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	uuid "github.com/satori/go.uuid"
@@ -32,6 +34,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		mintCCCCmd(cdc),
 		burnCCCCmd(cdc),
 		setConversionRateCmd(cdc),
+		setFreezePeriodCmd(cdc),
 	)
 
 	return txCmd
@@ -133,6 +136,40 @@ func setConversionRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Code
 		return fmt.Errorf("cannot parse collateral rate, must be an integer")
 	}
 	msg := types.NewMsgSetCCCConversionRate(signer, rate)
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
+}
+
+func setFreezePeriodCmd(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-freeze-period [freeze period]",
+		Short: "Sets freeze period",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return setFreezePeriodCmdFunc(cmd, args, cdc)
+		},
+	}
+
+	cmd = flags.PostCommands(cmd)[0]
+
+	return cmd
+}
+
+func setFreezePeriodCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
+	inBuf := bufio.NewReader(cmd.InOrStdin())
+	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+	signer := cliCtx.GetFromAddress()
+
+	freezePeriod, err := time.ParseDuration(strings.TrimSpace(args[0]) + "s")
+	if err != nil {
+		return fmt.Errorf("cannot parse freeze period, must be an integer")
+	}
+	msg := types.NewMsgSetCCCFreezePeriod(signer, freezePeriod)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}

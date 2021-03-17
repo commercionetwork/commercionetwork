@@ -7,6 +7,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgMintCCC{}, "commercio/MsgMintCCC", nil)
 	cdc.RegisterConcrete(MsgBurnCCC{}, "commercio/MsgBurnCCC", nil)
 	cdc.RegisterConcrete(MsgSetCCCConversionRate{}, "commercio/MsgSetCCCConversionRate", nil)
+	cdc.RegisterConcrete(MsgSetCCCFreezePeriod{}, "commercio/MsgSetCCCFreezePeriod", nil)
 }
 
 var ModuleCdc *codec.Codec

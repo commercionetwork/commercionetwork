@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -127,6 +128,41 @@ func ValidateConversionRate(rate sdk.Dec) error {
 	}
 	if rate.IsNegative() {
 		return fmt.Errorf("conversion rate must be positive")
+	}
+	return nil
+}
+
+// -------------------
+// --- MsgSetCCCFreezePeriod
+// -------------------
+
+type MsgSetCCCFreezePeriod struct {
+	Signer       sdk.AccAddress `json:"signer"`
+	FreezePeriod time.Duration  `json:"freeze_period"`
+}
+
+func NewMsgSetCCCFreezePeriod(signer sdk.AccAddress, freezePeriod time.Duration) MsgSetCCCFreezePeriod {
+	return MsgSetCCCFreezePeriod{Signer: signer, FreezePeriod: freezePeriod}
+}
+
+func (MsgSetCCCFreezePeriod) Route() string                    { return RouterKey }
+func (MsgSetCCCFreezePeriod) Type() string                     { return MsgTypeSetCCCFreezePeriod }
+func (msg MsgSetCCCFreezePeriod) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Signer} }
+func (msg MsgSetCCCFreezePeriod) ValidateBasic() error {
+	if msg.Signer.Empty() {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
+	}
+
+	return ValidateFreezePeriod(msg.FreezePeriod)
+}
+
+func (msg MsgSetCCCFreezePeriod) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func ValidateFreezePeriod(freezePeriod time.Duration) error {
+	if freezePeriod.Seconds() < 0 {
+		return fmt.Errorf("freeze rate cannot lower then zero")
 	}
 	return nil
 }

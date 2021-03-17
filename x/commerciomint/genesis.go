@@ -2,6 +2,7 @@ package commerciomint
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/supply"
@@ -15,6 +16,7 @@ type GenesisState struct {
 	Positions           []types.Position `json:"positions"`
 	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
 	CollateralRate      sdk.Dec          `json:"collateral_rate"`
+	FreezePeriod        time.Duration    `json:"freeze_period"`
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -23,6 +25,7 @@ func DefaultGenesisState() GenesisState {
 		Positions:           []types.Position{},
 		LiquidityPoolAmount: sdk.Coins{},
 		CollateralRate:      sdk.NewDec(2),
+		FreezePeriod:        DefaultFreezePeriod,
 	}
 }
 
@@ -48,6 +51,11 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 		panic(err)
 	}
 
+	errFreeze := keeper.SetFreezePeriod(ctx, data.FreezePeriod)
+	if errFreeze != nil {
+		panic(errFreeze)
+	}
+
 	// Add the existing ETPs
 	for _, position := range data.Positions {
 		keeper.SetPosition(ctx, position)
@@ -60,6 +68,7 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 		Positions:           keeper.GetAllPositions(ctx),
 		LiquidityPoolAmount: keeper.GetLiquidityPoolAmount(ctx),
 		CollateralRate:      keeper.GetConversionRate(ctx),
+		FreezePeriod:        keeper.GetFreezePeriod(ctx),
 	}
 }
 

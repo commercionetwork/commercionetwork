@@ -2,6 +2,7 @@ package types
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -22,10 +23,19 @@ func TestMsgBasics(t *testing.T) {
 
 func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
-	require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("atom", 100)), uuid).ValidateBasic())
+	require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
 	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), uuid).ValidateBasic())
 	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), "").ValidateBasic())
+	require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100)), uuid).ValidateBasic())
 	require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
+}
+
+func TestMsgBurnCCC_ValidateBasic(t *testing.T) {
+	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
+	require.Error(t, NewMsgBurnCCC(nil, uuid, sdk.NewCoin("uccc", sdk.NewInt(100))).ValidateBasic())
+	require.Error(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin("atom", sdk.NewInt(100))).ValidateBasic())
+	require.Error(t, NewMsgBurnCCC(testOwner, "", sdk.NewCoin("uccc", sdk.NewInt(100))).ValidateBasic())
+	require.NoError(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin("uccc", sdk.NewInt(100))).ValidateBasic())
 }
 
 func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
@@ -48,6 +58,29 @@ func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 			msg := NewMsgSetCCCConversionRate(tt.signer, tt.collateralRate)
 			require.Equal(t, "commerciomint", msg.Route())
 			require.Equal(t, "setEtpsConversionRate", msg.Type())
+			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)
+		})
+	}
+}
+
+func TestMsgSetCCCFreezePeriod_ValidateBasic(t *testing.T) {
+	type fields struct {
+	}
+	tests := []struct {
+		name         string
+		signer       sdk.AccAddress
+		freezePeriod time.Duration
+		wantErr      bool
+	}{
+		{"ok", []byte("test"), 60, false},
+		{"Negative duration", []byte("test"), -60, true},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			msg := NewMsgSetCCCFreezePeriod(tt.signer, tt.freezePeriod)
+			require.Equal(t, "commerciomint", msg.Route())
+			require.Equal(t, "setEtpsFreezePeriod", msg.Type())
 			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)
 		})
 	}

@@ -20,6 +20,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryGetEtps(ctx, path[1:], keeper)
 		case types.QueryConversionRate:
 			return queryConversionRate(ctx, keeper)
+		case types.QueryFreezePeriod:
+			return queryFreezePeriod(ctx, keeper)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
@@ -39,4 +41,8 @@ func queryGetEtps(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error)
 
 func queryConversionRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {
 	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetConversionRate(ctx))
+}
+
+func queryFreezePeriod(ctx sdk.Context, keeper Keeper) ([]byte, error) {
+	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetFreezePeriod(ctx))
 }
