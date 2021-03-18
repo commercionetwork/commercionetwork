@@ -13,6 +13,12 @@ To send in backgroud the stack use
 make build-docker-cndode localnet-start >/dev/null 2>&1 &
 ```
 
+**NB**: the compilation could be very heavy because of the production of the swagger documentation. To avoid swagger production use
+
+```bash
+make GENERATE=0 build-docker-cndode localnet-start
+```
+
 
 To stop stack use `ctrl + c` or
 

@@ -144,7 +144,6 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit s
 
 	// Create position
 	k.SetPosition(ctx, position)
-
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventNewPosition,
 		sdk.NewAttribute("depositor", depositor.String()),

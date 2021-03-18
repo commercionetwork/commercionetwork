@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 func NewHandler(keeper Keeper) sdk.Handler {
@@ -34,7 +35,7 @@ func handleMsgMintCCC(ctx sdk.Context, keeper Keeper, msg types.MsgMintCCC) (*sd
 	if err != nil {
 		return nil, sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "cannot mint ccc, %s", err.Error())
 	}
-
+	ctypes.EmitCommonEvents(ctx, msg.Owner)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "mint successful"}, nil
 }
 
@@ -43,7 +44,7 @@ func handleMsgBurnCCC(ctx sdk.Context, keeper Keeper, msg types.MsgBurnCCC) (*sd
 	if err != nil {
 		return nil, err
 	}
-
+	ctypes.EmitCommonEvents(ctx, msg.Signer)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "burn successful"}, nil
 }
 
@@ -55,6 +56,7 @@ func handleMsgSetCCCConversionRate(ctx sdk.Context, keeper Keeper, msg types.Msg
 	if err := keeper.SetConversionRate(ctx, msg.Rate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
+	ctypes.EmitCommonEvents(ctx, msg.Signer)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("conversion rate changed successfully to %s", msg.Rate)}, nil
 }
 
@@ -66,5 +68,6 @@ func handleMsgSetCCCFreezePeriod(ctx sdk.Context, keeper Keeper, msg types.MsgSe
 	if err := keeper.SetFreezePeriod(ctx, msg.FreezePeriod); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
+	ctypes.EmitCommonEvents(ctx, msg.Signer)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("conversion rate changed successfully to %s", msg.FreezePeriod)}, nil
 }

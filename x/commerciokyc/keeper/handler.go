@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
@@ -51,7 +52,7 @@ func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser
 	if err := keeper.InviteUser(ctx, msg.Recipient, msg.Sender); err != nil {
 		return nil, err
 	}
-
+	ctypes.EmitCommonEvents(ctx, msg.Sender)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "User successfully invited"}, nil
 }
 
@@ -78,6 +79,7 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 	}
 
 	keeper.AddTrustedServiceProvider(ctx, msg.Tsp)
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Tsp successfully added"}, nil
 }
 
@@ -127,7 +129,7 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	if err := keeper.DistributeReward(ctx, invite); err != nil {
 		return nil, err
 	}
-
+	ctypes.EmitCommonEvents(ctx, msg.Tsp)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully purchased"}, nil
 }
 
@@ -142,6 +144,7 @@ func handleMsgRemoveMembership(ctx sdk.Context, keeper Keeper, msg types.MsgRemo
 	}
 	// TODO add control for tsp?
 	err := keeper.RemoveMembership(ctx, msg.Subscriber)
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully removed"}, err
 }
 
@@ -181,7 +184,7 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 			fmt.Sprintf("could not distribute membership reward to user %s: %s", invite.Sender, err.Error()),
 		)
 	}
-
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully set up"}, nil
 }
 

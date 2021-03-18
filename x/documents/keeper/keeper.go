@@ -151,7 +151,6 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 			r.String(),
 		))
 	}
-
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventSavedDocument,
 		attributes...,
