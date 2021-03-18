@@ -119,7 +119,7 @@ This means that if the first one exists the second will not be used.
 ##### `encryption_data`
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
-| `key` | Yes | |
+| `keys` | Yes | |
 | `encrypted_data` | Yes | |
 | `encryption_data.keys.*.value` | Yes | 512 bytes |
 

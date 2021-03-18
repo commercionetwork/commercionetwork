@@ -5,9 +5,9 @@ transactions on a Cosmos.network chain.
 All the references about how to perform the actions described below can also be found across the different 
 Cosmos.network documentation pages, such as (but not limited to): 
 
-- [Cosmos SDK transaction signing](https://cosmos-staging.interblock.io/docs/clients/service-providers.html#cosmos-sdk-transaction-signing)
-- [Cosmos.network RPC APIs](https://cosmos.network/rpc/#/)
-- [Cosmos SDK Documentation](https://cosmos.network/docs/)
+- [Cosmos SDK transaction signing](https://docs.cosmos.network/master/core/transactions.html#signing-transactions)
+- [Cosmos.network RPC APIs](https://cosmos.network/rpc/v0.39.2)
+- [Cosmos SDK Documentation](https://docs.cosmos.network)
 
 Please note that the above links **will not** be kept in sync with the frequent updates that the Cosmos developers 
 do to their documentation structure.

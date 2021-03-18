@@ -15,11 +15,13 @@ In order to buy a membership, the following requirements must be met:
 
 1. You must have been invited by a user already having a Green membership or superior.  
    Please refer to the [invitation procedure page](#invitation-process) 
-   to know more about invitations. 
-2. You must possess a sufficient amount of CCCs to buy a membership.  
+   for more details on invitations. 
+2. You must own a sufficient amount of CCCs to buy a membership or buy it directaly from Trusted Service Provider. 
    Please refer to the [proper page](../commerciomint/README.md) to know more about how to get CCCs out of your Commercio Tokens.
+3. You need to transfer the amount of CCCs to your Trusted Service Provider or otherwise let the Trusted Service Provider complete the transaction for you as a service.
+4. Your Trusted Service Provider will purchase the membership for you after proper verification of your identity.
    
-The system will **prevent** sending an invite to an account with a balance greater than zero across CCCs and/or Commercio token.
+The system will **prevent** sending an invitation to an account already active on the chain or to an address already invited.
 
 ### Buying process
 
