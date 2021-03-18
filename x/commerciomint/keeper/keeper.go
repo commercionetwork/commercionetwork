@@ -249,7 +249,7 @@ func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmo
 	return nil
 }
 
-// GetConversionRate retrieve the conversion rate.
+// GetConversionRate retrieves the conversion rate.
 func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Dec {
 	store := ctx.KVStore(k.storeKey)
 	var rate sdk.Dec
@@ -257,7 +257,7 @@ func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Dec {
 	return rate
 }
 
-// SetConversionRate store the conversion rate.
+// SetConversionRate stores the conversion rate.
 func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 	if err := types.ValidateConversionRate(rate); err != nil {
 		return err
@@ -273,7 +273,7 @@ func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 	return nil
 }
 
-// GetFreezePeriod retrieve the freeze period.
+// GetFreezePeriod retrieves the freeze period.
 func (k Keeper) GetFreezePeriod(ctx sdk.Context) time.Duration {
 	store := ctx.KVStore(k.storeKey)
 	var freezePeriod time.Duration
@@ -281,7 +281,7 @@ func (k Keeper) GetFreezePeriod(ctx sdk.Context) time.Duration {
 	return freezePeriod
 }
 
-// SetFreezePeriod store the freeze period in seconds.
+// SetFreezePeriod stores the freeze period in seconds.
 func (k Keeper) SetFreezePeriod(ctx sdk.Context, freezePeriod time.Duration) error {
 	if err := types.ValidateFreezePeriod(freezePeriod); err != nil {
 		return err

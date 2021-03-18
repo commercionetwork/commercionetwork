@@ -162,7 +162,7 @@ func (msg MsgSetCCCFreezePeriod) GetSignBytes() []byte {
 
 func ValidateFreezePeriod(freezePeriod time.Duration) error {
 	if freezePeriod.Seconds() < 0 {
-		return fmt.Errorf("freeze rate cannot lower then zero")
+		return fmt.Errorf("freeze rate cannot be lower than zero")
 	}
 	return nil
 }
