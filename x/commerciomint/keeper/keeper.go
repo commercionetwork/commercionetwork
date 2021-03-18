@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,6 +19,7 @@ const (
 	eventNewPosition       = "new_position"
 	eventBurnCCC           = "burned_ccc"
 	eventSetConversionRate = "new_conversion_rate"
+	eventSetFreezePeriod   = "new_freeze_period"
 )
 
 type Keeper struct {
@@ -51,6 +53,19 @@ func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) error {
 
 	if store.Has(key) {
 		return fmt.Errorf("a position with id %s already exists", position.ID)
+	}
+
+	store.Set(key, k.cdc.MustMarshalBinaryBare(position))
+
+	return nil
+}
+
+func (k Keeper) UpdatePosition(ctx sdk.Context, position types.Position) error {
+	store := ctx.KVStore(k.storeKey)
+	key := makePositionKey(position.Owner, position.ID)
+
+	if !store.Has(key) {
+		return fmt.Errorf("a position with id %s doesn't exists", position.ID)
 	}
 
 	store.Set(key, k.cdc.MustMarshalBinaryBare(position))
@@ -164,6 +179,13 @@ func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmo
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
+	// Control if position is almost in freezing period
+	freezePeriod := k.GetFreezePeriod(ctx)
+	if time.Now().Sub(pos.CreatedAt) <= freezePeriod {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
+	}
+
+	// Control if tokens request to burn are more then initially requested
 	if pos.Credits.Amount.Sub(burnAmount.Amount).IsNegative() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn more tokens that those initially requested")
 	}
@@ -222,12 +244,12 @@ func (k Keeper) BurnCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmo
 		return nil
 	}
 
-	k.SetPosition(ctx, pos)
+	k.UpdatePosition(ctx, pos)
 
 	return nil
 }
 
-// GetConversionRate retrieve the conversion rate.
+// GetConversionRate retrieves the conversion rate.
 func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Dec {
 	store := ctx.KVStore(k.storeKey)
 	var rate sdk.Dec
@@ -235,7 +257,7 @@ func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Dec {
 	return rate
 }
 
-// SetConversionRate store the conversion rate.
+// SetConversionRate stores the conversion rate.
 func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 	if err := types.ValidateConversionRate(rate); err != nil {
 		return err
@@ -246,6 +268,30 @@ func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventSetConversionRate,
 		sdk.NewAttribute("rate", rate.String()),
+	))
+
+	return nil
+}
+
+// GetFreezePeriod retrieves the freeze period.
+func (k Keeper) GetFreezePeriod(ctx sdk.Context) time.Duration {
+	store := ctx.KVStore(k.storeKey)
+	var freezePeriod time.Duration
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.FreezePeriodKey)), &freezePeriod)
+	return freezePeriod
+}
+
+// SetFreezePeriod stores the freeze period in seconds.
+func (k Keeper) SetFreezePeriod(ctx sdk.Context, freezePeriod time.Duration) error {
+	if err := types.ValidateFreezePeriod(freezePeriod); err != nil {
+		return err
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.FreezePeriodKey), k.cdc.MustMarshalBinaryBare(freezePeriod))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetFreezePeriod,
+		sdk.NewAttribute("freeze_period", freezePeriod.String()),
 	))
 
 	return nil

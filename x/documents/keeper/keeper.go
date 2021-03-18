@@ -15,7 +15,7 @@ import (
 
 const (
 	eventNewMetadataScheme = "new_metadata_scheme"
-	eventNewTSP            = "new_tsp"
+	eventNewTMSP           = "new_tmsp"
 	eventSavedDocument     = "new_saved_document"
 	eventSavedReceipt      = "new_saved_receipt"
 )
@@ -91,7 +91,7 @@ func (keeper Keeper) AddTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccA
 	store.Set(metadataSchemaProposerKey(proposer), keeper.cdc.MustMarshalBinaryBare(proposer))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventNewTSP,
+		eventNewTMSP,
 		sdk.NewAttribute("address", proposer.String()),
 	))
 }

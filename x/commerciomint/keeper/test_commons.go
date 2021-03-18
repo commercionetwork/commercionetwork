@@ -69,6 +69,13 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keepe
 	if err != nil {
 		panic(err)
 	}
+
+	// Set etp freeze period
+	err = mintK.SetFreezePeriod(ctx, 0)
+	if err != nil {
+		panic(err)
+	}
+
 	return ctx, bk, govkeeper, sk, mintK
 }
 
@@ -95,12 +102,23 @@ func testCodec() *codec.Codec {
 var testLiquidityDenom = "ucommercio"
 var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
+var fakeID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
+var halfCoinSub = sdk.NewCoin("uccc", sdk.NewInt(10))
 
 var testEtp = types.NewPosition(
 	testEtpOwner,
 	sdk.NewInt(100),
-	sdk.NewCoin("ucommercio", sdk.NewInt(50)),
+	sdk.NewCoin("uccc", sdk.NewInt(50)),
 	testID,
+	time.Now(),
+	sdk.NewDec(2),
+)
+
+var fakeEtp = types.NewPosition(
+	testEtpOwner,
+	sdk.NewInt(100),
+	sdk.NewCoin("uccc", sdk.NewInt(50)),
+	fakeID,
 	time.Now(),
 	sdk.NewDec(2),
 )

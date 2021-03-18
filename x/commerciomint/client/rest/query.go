@@ -19,7 +19,8 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
 		fmt.Sprintf("/commerciomint/etps/{%s}", restOwnerAddress),
 		getEtpsHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/etps", getConversionRateHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commerciomint/conversion_rate", getConversionRateHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commerciomint/freeze_period", getFreezePeriodHandler(cliCtx)).Methods("GET")
 }
 
 // ----------------------------------
@@ -55,11 +56,30 @@ func getEtpsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 // @Produce json
 // @Success 200 {object} x.JSONResult{result=types.Dec}
 // @Failure 404
-// @Router /commerciomint/etps [get]
+// @Router /commerciomint/conversion_rate [get]
 // @Tags x/commerciomint
 func getConversionRateHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryConversionRate)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		}
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+// @Summary Get Freeze period
+// @Description This endpoint returns the Freeze period, along with the height at which the resource was queried at
+// @ID getFreezePeriodHandler
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=time.Duration}
+// @Failure 404
+// @Router /commerciomint/freeze_period [get]
+// @Tags x/commerciomint
+func getFreezePeriodHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryFreezePeriod)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())

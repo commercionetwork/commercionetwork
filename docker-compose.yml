@@ -64,6 +64,8 @@ services:
     environment:
       - ID=0
       - LOGCNCLI=${LOG:-cnd.cli.log}
+    ports:
+      - "1317:1317"
     volumes:
       - ./build:/cnd:Z
     networks:
