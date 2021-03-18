@@ -63,7 +63,7 @@ func handleMsgSetCCCConversionRate(ctx sdk.Context, keeper Keeper, msg types.Msg
 func handleMsgSetCCCFreezePeriod(ctx sdk.Context, keeper Keeper, msg types.MsgSetCCCFreezePeriod) (*sdk.Result, error) {
 	gov := keeper.govKeeper.GetGovernmentAddress(ctx)
 	if !(gov.Equals(msg.Signer)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set conversion rate", msg.Signer))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set freezse period", msg.Signer))
 	}
 	if err := keeper.SetFreezePeriod(ctx, msg.FreezePeriod); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
