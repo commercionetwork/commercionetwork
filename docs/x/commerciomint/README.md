@@ -33,8 +33,6 @@ To mint CCC you need to create and sign the following message:
 }
 ```
 
-~~A maximum of 1 `MsgMintCCC` messages can be sent in each transaction.~~
-
 
 ##### Fields requirements
 | Field | Required | Limit/Format |
@@ -123,6 +121,36 @@ you need to use the following `message.action` value:
 setCCCConversionRate
 ```
 
+### Set CCC freeze period
+
+:::warning  
+This transaction type is accessible only to the [government](../../government/README.md).  
+Trying to perform this transaction without being the government will result in an error.  
+:::
+
+#### Transaction message
+
+To set the CCC conversion rate you need to create and sign the following message:
+
+```json
+{
+  "type": "commercio/MsgSetCCCFreezePeriod",
+  "value": {
+    "signer": "<government address>",
+    "freeze_period": "<nono seconds freeze period>"
+  }
+}
+```
+
+#### Action type
+If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+you need to use the following `message.action` value: 
+
+```
+setCCCFreezePeriod
+```
+
+
 
 
 
@@ -208,5 +236,38 @@ http://localhost:1317/commerciomint/conversion_rate
 {
   "height": "0",
   "result": "2.000000000000000000"
+}
+```
+
+
+
+### Reading the current CCC freeze period
+#### CLI
+
+```bash
+cncli query commerciomint freeze-period
+```
+
+#### REST
+
+Endpoint:
+   
+```
+/commerciomint/freeze_period
+```
+
+##### Example
+
+Getting the current CCC conversion rate:
+
+```
+http://localhost:1317/commerciomint/freeze_period
+```
+
+#### Response
+```json
+{
+  "height": "0",
+  "result": "60000000000"
 }
 ```
