@@ -431,10 +431,9 @@ http://localhost:1317/identities/did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke
             "controller": "did:com:1tkgm3rra9cs3sfugjqdps30ujggf5klm425zvx",
             "verificationMethod": "did:com:pub1addwnpepqt6lnn5v0c3rys49v5v9f4kvcchehnu7kyk8t8vce5lsxfy7e2pxwyvmf6t",
             "signatureValue": "nIgRvObXlF2OIbktZcQJw0UU7zDEku8cEBq7194YOjhEvD5wBZ+TcNu9GNRZucC6OyuplHfK6uo57+3lVQbpgA=="
-        },
-        "service": null
+        }
     }
-    }
+  }
 }
 ```
 
