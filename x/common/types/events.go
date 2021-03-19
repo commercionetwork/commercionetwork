@@ -4,10 +4,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const commonEvents = "commerciotx"
+const attributeKeySender = "sender"
 
 func EmitCommonEvents(ctx sdk.Context, sender sdk.AccAddress) {
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		commonEvents,
-		sdk.NewAttribute("account", sender.String())))
+		sdk.EventTypeMessage,
+		sdk.NewAttribute(attributeKeySender, sender.String())))
 }
