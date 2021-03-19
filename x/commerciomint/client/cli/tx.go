@@ -133,7 +133,7 @@ func setConversionRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Code
 	signer := cliCtx.GetFromAddress()
 	rate, err := sdk.NewDecFromStr(args[0])
 	if err != nil {
-		return fmt.Errorf("cannot parse collateral rate, must be an integer")
+		return fmt.Errorf("cannot parse collateral rate, must be a decimal")
 	}
 	msg := types.NewMsgSetCCCConversionRate(signer, rate)
 	if err := msg.ValidateBasic(); err != nil {

@@ -121,6 +121,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		if err := k.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, invite.Sender, rewardCoins); err != nil {
 			return err
 		}
+
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			eventDistributeReward,
 			sdk.NewAttribute("invite_sender", invite.Sender.String()),

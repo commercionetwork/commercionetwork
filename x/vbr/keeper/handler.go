@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
@@ -47,6 +48,7 @@ func handleMsgSetRewardRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetRewa
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("Reward rate changed successfully to %s", msg.RewardRate)}, nil
 }
 
@@ -59,5 +61,6 @@ func handleMsgSetAutomaticWithdraw(ctx sdk.Context, keeper Keeper, msg types.Msg
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("Automatic withdraw changed successfully to %v", msg.AutomaticWithdraw)}, nil
 }

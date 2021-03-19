@@ -135,7 +135,6 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	// Save membership
 	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
-
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventAssignMembership,
 		sdk.NewAttribute("owner", membership.Owner.String()),

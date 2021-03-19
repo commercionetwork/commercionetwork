@@ -237,6 +237,16 @@ func TestKeeper_BurnCCC(t *testing.T) {
 		require.Equal(t, collateralAmount, bk.GetCoins(ctx, testEtpOwner).AmountOf("ucommercio"))
 	})
 
+	t.Run("Existing ETP can't modify before freeze period passes", func(t *testing.T) {
+		ctx, bk, _, _, k := SetupTestInput()
+		_ = k.SetFreezePeriod(ctx, 3000000000) // 30 seconds
+		k.SetPosition(ctx, testEtp)
+		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
+		_, _ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(testEtp.Credits))
+
+		require.Error(t, k.BurnCCC(ctx, testEtpOwner, testEtp.ID, testEtp.Credits))
+	})
+
 }
 
 func TestKeeper_deletePosition(t *testing.T) {
