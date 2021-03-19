@@ -130,7 +130,7 @@ Trying to perform this transaction without being the government will result in a
 
 #### Transaction message
 
-To set the CCC conversion rate you need to create and sign the following message:
+To set the CCC freeze period you need to create and sign the following message:
 
 ```json
 {
@@ -258,7 +258,7 @@ Endpoint:
 
 ##### Example
 
-Getting the current CCC conversion rate:
+Getting the current CCC freeze period:
 
 ```
 http://localhost:1317/commerciomint/freeze_period
