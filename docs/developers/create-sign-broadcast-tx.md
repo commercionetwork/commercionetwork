@@ -5,9 +5,9 @@ transactions on a Cosmos.network chain.
 All the references about how to perform the actions described below can also be found across the different 
 Cosmos.network documentation pages, such as (but not limited to): 
 
-- [Cosmos SDK transaction signing](https://cosmos-staging.interblock.io/docs/clients/service-providers.html#cosmos-sdk-transaction-signing)
-- [Cosmos.network RPC APIs](https://cosmos.network/rpc/#/)
-- [Cosmos SDK Documentation](https://cosmos.network/docs/)
+- [Cosmos SDK transaction signing](https://docs.cosmos.network/master/core/transactions.html#signing-transactions)
+- [Cosmos.network RPC APIs](https://cosmos.network/rpc/v0.39.2)
+- [Cosmos SDK Documentation](https://docs.cosmos.network)
 
 Please note that the above links **will not** be kept in sync with the frequent updates that the Cosmos developers 
 do to their documentation structure.
@@ -27,8 +27,8 @@ An example of message object is the following:
     "to_address": "<Recipient address>",
     "amount": [
       {
-        "denom" : 10,
-        "amount" : "ucommercio"
+        "denom" : "ucommercio",
+        "amount" : "10"
       }
     ]
   }
@@ -88,9 +88,12 @@ This should print a JSON object similar to this:
           "amount": "9999899990000"
         }
       ],
-      "public_key": "did:com:pub1addwnpepqw6amy77xennkrkh3d32pz8ykr5kvuwx97w5ychn87ett8m2dzhzzxyynp4",
-      "account_number": 0,
-      "sequence": 1
+      "public_key": {
+        "type": "tendermint/PubKeySecp256k1",
+        "value": "A5/HGais8i/8X6R686tRNAIiQy17OkA/fTona7gZf9uz"
+      },
+      "account_number": "0",
+      "sequence": "1"
     }
   }
 }
@@ -180,8 +183,8 @@ Using the same example data of the previous sections, a valid signature data wil
   "fee": {
     "amount": [
       {
-        "denom" : 10000,
-        "amount" : "ucommercio"
+        "denom" : "ucommercio",
+        "amount" : "10000"
       }
     ],
     "gas": "20000"
@@ -195,8 +198,8 @@ Using the same example data of the previous sections, a valid signature data wil
         "to_address": "<Recipient address>",
         "amount": [
           {
-            "denom" : 10,
-            "amount" : "ucommercio"
+            "denom" : "ucommercio",
+            "amount" : "10"
           }
         ]
       }
@@ -355,8 +358,8 @@ The first thing that needs to be done in order to create a transaction, is to cr
         "to_address": "<Recipient address>",
         "amount": [
           {
-            "denom" : 10,
-            "amount" : "ucommercio"
+            "denom" : "ucommercio",
+            "amount" : "10"
           }
         ]
       }
@@ -365,8 +368,8 @@ The first thing that needs to be done in order to create a transaction, is to cr
   "fee": {
     "amount": [
       {
-        "denom" : 10000,
-        "amount" : "ucommercio"
+        "denom" : "ucommercio",
+        "amount" : "10000"
       }
     ],
     "gas": "20000"
@@ -445,8 +448,8 @@ curl -X POST http://localhost:1317/txs -d @request_body.json
           "to_address": "<Recipient address>",
           "amount": [
             {
-              "denom" : 10,
-              "amount" : "ucommercio"
+              "denom" : "ucommercio",
+              "amount" : "10"
             }
           ]
         }
