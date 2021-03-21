@@ -16,6 +16,9 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
 		"/vbr/funds",
 		getRetrieveBlockRewardsPoolFunds(cliCtx))
+	r.HandleFunc("/vbr/reward_rate", getRewardRateHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/vbr/automatic_withdraw", getAutomaticWithdrawHandler(cliCtx)).Methods("GET")
+
 }
 
 // ----------------------------------
@@ -41,6 +44,44 @@ func getRetrieveBlockRewardsPoolFunds(cliCtx context.CLIContext) http.HandlerFun
 			)
 		}
 
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+// @Summary Get Reward rate
+// @Description This endpoint returns the Reward rate, along with the height at which the resource was queried at
+// @ID getRewardRateHandler
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=types.Dec}
+// @Failure 404
+// @Router /vbr/reward_rate [get]
+// @Tags x/vbr
+func getRewardRateHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryRewardRate)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		}
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+// @Summary Get Automatic withdraw
+// @Description This endpoint returns the Automatic withdraw flag, along with the height at which the resource was queried at
+// @ID getAutomaticWithdrawHandler
+// @Produce json
+// @Success 200 {object} x.JSONResult{result=bool}
+// @Failure 404
+// @Router /vbr/automatic_withdraw [get]
+// @Tags x/vbr
+func getAutomaticWithdrawHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryAutomaticWithdraw)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		}
 		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }

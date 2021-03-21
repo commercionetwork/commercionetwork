@@ -7,6 +7,8 @@ const (
 	RouterKey    = ModuleName
 
 	QueryBlockRewardsPoolFunds = "funds"
+	QueryRewardRate            = "reward_rate"
+	QueryAutomaticWithdraw     = "automatic_withdraw"
 
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 	MsgTypeSetRewardRate             = "setRewardRate"
