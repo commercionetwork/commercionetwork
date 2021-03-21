@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -14,8 +15,8 @@ import (
 func TestMembership_Equals(t *testing.T) {
 	owner, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
 	tsp, _ := sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
-	height := int64(10)
-	membership := types.NewMembership(types.MembershipTypeBronze, owner, tsp, height)
+	expiration := time.Now().Add(60)
+	membership := types.NewMembership(types.MembershipTypeBronze, owner, tsp, expiration)
 
 	tests := []struct {
 		name          string
@@ -56,7 +57,7 @@ func TestMembership_Equals(t *testing.T) {
 		{
 			name:          "Different expiry at returns false",
 			first:         membership,
-			second:        types.NewMembership(membership.MembershipType, membership.Owner, membership.TspAddress, int64(11)),
+			second:        types.NewMembership(membership.MembershipType, membership.Owner, membership.TspAddress, time.Now().Add(90)),
 			shouldBeEqual: false,
 		},
 		{
@@ -99,10 +100,11 @@ func TestMembership_IsMembershipTypeValid(t *testing.T) {
 func TestMemberships_AppendIfMissing(t *testing.T) {
 	owner, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
 	tsp, _ := sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
-	height := int64(10)
+	//height := int64(10)
+	expiration := time.Now().Add(60)
 
-	membership1 := types.NewMembership(types.MembershipTypeBronze, owner, tsp, height)
-	membership2 := types.NewMembership(types.MembershipTypeSilver, owner, tsp, height)
+	membership1 := types.NewMembership(types.MembershipTypeBronze, owner, tsp, expiration)
+	membership2 := types.NewMembership(types.MembershipTypeSilver, owner, tsp, expiration)
 
 	tests := []struct {
 		name             string
@@ -143,7 +145,8 @@ func TestMemberships_AppendIfMissing(t *testing.T) {
 func TestMembership_ValidateBasic(t *testing.T) {
 	owner, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
 	tsp, _ := sdk.AccAddressFromBech32("cosmos152eg5tmgsu65mcytrln4jk5pld7qd4us5pqdee")
-	height := int64(10)
+	//height := int64(10)
+	expiration := time.Now().Add(60)
 
 	tests := []struct {
 		name    string
@@ -156,7 +159,7 @@ func TestMembership_ValidateBasic(t *testing.T) {
 				Owner:          owner,
 				TspAddress:     tsp,
 				MembershipType: types.MembershipTypeBronze,
-				ExpiryAt:       height,
+				ExpiryAt:       expiration,
 			},
 			false,
 		},
@@ -166,7 +169,7 @@ func TestMembership_ValidateBasic(t *testing.T) {
 				Owner:          owner,
 				TspAddress:     tsp,
 				MembershipType: "nvm",
-				ExpiryAt:       height,
+				ExpiryAt:       expiration,
 			},
 			true,
 		},

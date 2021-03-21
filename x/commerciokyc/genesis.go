@@ -67,13 +67,11 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	// create the Memberships set
-	height := ctx.BlockHeight()
-
 	return GenesisState{
 		LiquidityPoolAmount:     keeper.GetPoolFunds(ctx),
 		Invites:                 keeper.GetInvites(ctx),
 		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
-		Memberships:             keeper.ExportMemberships(ctx, height),
+		Memberships:             keeper.ExportMemberships(ctx),
 	}
 }
 

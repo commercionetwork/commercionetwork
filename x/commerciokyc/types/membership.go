@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -23,12 +24,12 @@ type Membership struct {
 	Owner          sdk.AccAddress `json:"owner"`
 	TspAddress     sdk.AccAddress `json:"tsp_address"`
 	MembershipType string         `json:"membership_type"`
-	ExpiryAt       int64          `json:"expiry_at"` // Block height at which the membership expired
+	ExpiryAt       time.Time      `json:"expiry_at"` // Time at which the membership expired
 
 }
 
 // NewMembership returns a new memberships containing the given data
-func NewMembership(membershipType string, owner sdk.AccAddress, tsp sdk.AccAddress, expiryAt int64) Membership {
+func NewMembership(membershipType string, owner sdk.AccAddress, tsp sdk.AccAddress, expiryAt time.Time) Membership {
 	return Membership{
 		Owner:          owner,
 		TspAddress:     tsp,
