@@ -61,7 +61,7 @@ func getInvitesFunc(cmd *cobra.Command, cdc *codec.Codec) error {
 func getCmdGetTrustedServiceProviders(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "trusted-service-providers",
-		Short: "Get all membership invitations for a user",
+		Short: "Get all trusted services providers",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getTrustedServiceProvidersFunc(cmd, cdc)
