@@ -146,7 +146,7 @@ func setConversionRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Code
 func setFreezePeriodCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-freeze-period [freeze period]",
-		Short: "Sets freeze period",
+		Short: "Sets freeze period in seconds",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return setFreezePeriodCmdFunc(cmd, args, cdc)

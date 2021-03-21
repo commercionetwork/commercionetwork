@@ -104,24 +104,32 @@ func checkMinimumFees(
 	}
 
 	fiatAmount := sdk.ZeroDec()
-
+	// Find required quantity of stable coin = number of msg * 10000
+	// Every message need 0.01 ccc
 	stableRequiredQty := requiredFees.MulInt64(1000000)
+	// Extract amount of stable coin from fees
 	fiatAmount = sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
+	// Check if amount of stable coin is enough
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(fiatAmount) {
+		// If amount of stable coin is enough return without error
 		return nil
 	}
 
+	// Retrive stable coin conversion rate
 	ucccConversionRate := mintk.GetConversionRate(ctx)
-
+	// Retrive amount of commercio token and calculate equivalent in stable coin
 	if comAmount := stdTx.Fee.Amount.AmountOf("ucommercio"); comAmount.IsPositive() {
-		f := comAmount.ToDec().Mul(ucccConversionRate)
-		realQty := f.QuoInt64(1000000)
+		//f := comAmount.ToDec().Mul(ucccConversionRate)
+		f := comAmount.ToDec().Quo(ucccConversionRate)
+		//realQty := f.QuoInt64(1000000)
+		//fiatAmount = fiatAmount.Add(realQty)
+		fiatAmount = fiatAmount.Add(f)
 
-		fiatAmount = fiatAmount.Add(realQty)
 	}
 
-	if !fiatAmount.GTE(requiredFees) {
-		msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s", requiredFees, fiatAmount)
+	// Check if amount of stable coin plus equivalent amount of commercio token are enough
+	if !stableRequiredQty.LTE(fiatAmount) {
+		msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s", stableRequiredQty, fiatAmount)
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
 	}
 

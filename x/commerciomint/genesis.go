@@ -24,7 +24,7 @@ func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Positions:           []types.Position{},
 		LiquidityPoolAmount: sdk.Coins{},
-		CollateralRate:      sdk.NewDec(2),
+		CollateralRate:      sdk.NewDec(1),
 		FreezePeriod:        DefaultFreezePeriod,
 	}
 }
