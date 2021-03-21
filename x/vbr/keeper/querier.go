@@ -18,6 +18,12 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		switch path[0] {
 		case vbrTypes.QueryBlockRewardsPoolFunds:
 			return queryGetBlockRewardsPoolFunds(ctx, path[1:], keeper)
+		case vbrTypes.QueryRewardRate:
+			return queryRewardRate(ctx, keeper)
+
+		case vbrTypes.QueryAutomaticWithdraw:
+			return queryAutomaticWithdraw(ctx, keeper)
+
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", vbrTypes.ModuleName))
 		}
@@ -33,4 +39,12 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, keeper Keeper) (
 	}
 
 	return fundsBz, nil
+}
+
+func queryRewardRate(ctx sdk.Context, keeper Keeper) ([]byte, error) {
+	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetRewardRate(ctx))
+}
+
+func queryAutomaticWithdraw(ctx sdk.Context, keeper Keeper) ([]byte, error) {
+	return codec.MarshalJSONIndent(keeper.cdc, keeper.GetAutomaticWithdraw(ctx))
 }
