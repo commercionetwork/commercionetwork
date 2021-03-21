@@ -100,7 +100,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	}
 
 	// Check if height is greater then zero
-	if expited_at.Sub(time.Now()) <= 0 {
+	if expited_at.Before(time.Now()) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", expited_at))
 	}
 
@@ -245,8 +245,7 @@ func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
 func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
 	blockTime := ctx.BlockTime()
 	for _, m := range k.GetMemberships(ctx) {
-		h := m.ExpiryAt.Sub(blockTime)
-		if h <= 0 {
+		if blockTime.After(m.ExpiryAt) {
 			if m.MembershipType == types.MembershipTypeBlack {
 				expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
 				membership := types.NewMembership(types.MembershipTypeBlack, m.Owner, m.TspAddress, expiredAt)
