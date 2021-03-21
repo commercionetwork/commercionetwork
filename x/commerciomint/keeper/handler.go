@@ -69,5 +69,5 @@ func handleMsgSetCCCFreezePeriod(ctx sdk.Context, keeper Keeper, msg types.MsgSe
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 	ctypes.EmitCommonEvents(ctx, msg.Signer)
-	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("conversion rate changed successfully to %s", msg.FreezePeriod)}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("freeze period changed successfully to %s", msg.FreezePeriod)}, nil
 }
