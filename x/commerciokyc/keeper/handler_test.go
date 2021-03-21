@@ -70,7 +70,7 @@ func Test_handleMsgInviteUser(t *testing.T) {
 			}
 
 			if len(test.membershipType) != 0 {
-				_ = k.AssignMembership(ctx, test.invitee, test.membershipType, testTsp, testHeight)
+				_ = k.AssignMembership(ctx, test.invitee, test.membershipType, testTsp, testExpiration)
 			}
 
 			handler := NewHandler(k, govK)
@@ -112,14 +112,14 @@ func Test_handleAddTrustedSigner(t *testing.T) {
 		{
 			name:       "Invalid tsp has no valid membership",
 			tsp:        testTsp,
-			membership: types.NewMembership(types.MembershipTypeBronze, testTsp, government, testHeight),
+			membership: types.NewMembership(types.MembershipTypeBronze, testTsp, government, testExpiration),
 			signer:     government,
 			error:      "Membership of Tsp cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0 is bronze but must be black",
 		},
 		{
 			name:       "Valid government adds successfully",
 			tsp:        testTsp,
-			membership: types.NewMembership(types.MembershipTypeBlack, testTsp, government, testHeight),
+			membership: types.NewMembership(types.MembershipTypeBlack, testTsp, government, testExpiration),
 			signer:     government,
 		},
 	}
@@ -230,7 +230,7 @@ func Test_handleMsgBuyMembership(t *testing.T) {
 			_ = bk.SetCoins(ctx, testTsp, test.bankAmount)
 
 			if !test.invite.Empty() {
-				err := k.AssignMembership(ctx, test.invite.Sender, types.MembershipTypeBlack, testTsp, testHeight)
+				err := k.AssignMembership(ctx, test.invite.Sender, types.MembershipTypeBlack, testTsp, testExpiration)
 				require.NoError(t, err)
 				k.SaveInvite(ctx, test.invite)
 			}
@@ -242,7 +242,7 @@ func Test_handleMsgBuyMembership(t *testing.T) {
 				k.AddTrustedServiceProvider(ctx, msg.Tsp)
 
 				if len(test.existingMembership) != 0 {
-					err = k.AssignMembership(ctx, msg.Buyer, test.existingMembership, msg.Tsp, testHeight)
+					err = k.AssignMembership(ctx, msg.Buyer, test.existingMembership, msg.Tsp, testExpiration)
 					require.NoError(t, err)
 				}
 
@@ -359,7 +359,7 @@ func Test_handleMsgSetMembership(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, _, gk, k := SetupTestInput()
 
-			_ = k.AssignMembership(ctx, tt.message.Government, types.MembershipTypeBlack, testTsp, testHeight)
+			_ = k.AssignMembership(ctx, tt.message.Government, types.MembershipTypeBlack, testTsp, testExpiration)
 
 			if tt.invite != nil {
 				k.SaveInvite(ctx, *tt.invite)
@@ -416,7 +416,7 @@ func Test_handleMsgRemoveMembership(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, _, gk, k := SetupTestInput()
 
-			_ = k.AssignMembership(ctx, tt.message.Subscriber, types.MembershipTypeGreen, tt.message.Government, testHeight)
+			_ = k.AssignMembership(ctx, tt.message.Subscriber, types.MembershipTypeGreen, tt.message.Government, testExpiration)
 
 			if tt.senderIsGov {
 				require.NoError(t, gk.SetGovernmentAddress(ctx, tt.message.Government))

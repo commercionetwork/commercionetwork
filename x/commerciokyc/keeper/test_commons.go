@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -42,6 +44,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 	_ = ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx = ctx.WithBlockTime(time.Now())
 
 	pk := params.NewKeeper(cdc, keys[params.StoreKey], tKeys[params.TStoreKey])
 	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
@@ -89,9 +92,8 @@ var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testDenom = "ucommercio"
 var stableCreditDenom = "uccc"
-var testHeight = int64(10)
-var testHeightZero = int64(0)
-var testHeightNegative = int64(-1)
+var testExpiration = time.Now().Add(secondsPerYear).UTC()
+var testExpirationNegative = time.Now()
 var depositStableCoin = sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 50000000))
 var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))
 var yearBlocks = int64(4733640)

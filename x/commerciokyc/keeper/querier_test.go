@@ -172,13 +172,13 @@ func Test_queryGetMembership(t *testing.T) {
 	}{
 		{
 			name:               "Existing membership is returned properly",
-			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
-			expected:           types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
+			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+			expected:           types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
 			mustErr:            false,
 		},
 		{
 			name:               "Not found membership returns correctly",
-			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
+			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			mustErr:            true,
 		},
 		{
@@ -220,12 +220,12 @@ func Test_queryGetMemberships(t *testing.T) {
 		{
 			name: "Existing memberships is returned properly",
 			existingMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
 			},
 			expected: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
 			},
 		},
 		{
@@ -266,31 +266,31 @@ func Test_queryGetTspMemberships(t *testing.T) {
 		{
 			name: "All memberships for tsp is returned properly",
 			existingMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
 			},
 			tsp: testTsp,
 			expected: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
 			},
 		},
 		{
 			name: "Existing memberships for tsp is returned properly",
 			existingMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testUser, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testUser, testExpiration),
 			},
 			tsp: testTsp,
 			expected: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
 			},
 		},
 		{
 			name: "Not found memberships for tsp returns correctly",
 			existingMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser, testUser2, testHeight),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testUser, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser, testUser2, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testUser, testExpiration),
 			},
 			tsp:      testTsp,
 			expected: types.Memberships(nil), //TODO FIX THIS: should be types.Memberships{}

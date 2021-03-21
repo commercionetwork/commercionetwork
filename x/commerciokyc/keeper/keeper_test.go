@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -19,7 +20,7 @@ func TestKeeper_BuyMembership(t *testing.T) {
 		user           sdk.AccAddress
 		tsp            sdk.AccAddress
 		bankAmount     sdk.Coins
-		height         int64
+		expiration     time.Time
 		error          error
 	}{
 		{
@@ -27,7 +28,7 @@ func TestKeeper_BuyMembership(t *testing.T) {
 			membershipType: types.MembershipTypeBlack,
 			user:           testUser,
 			tsp:            testTsp,
-			height:         testHeight,
+			expiration:     testExpiration,
 			bankAmount:     sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 10000000000)),
 			error:          sdkErr.Wrap(sdkErr.ErrInvalidAddress, "cannot buy black membership"),
 		},
@@ -37,7 +38,7 @@ func TestKeeper_BuyMembership(t *testing.T) {
 			user:           testUser,
 			tsp:            testTsp,
 			bankAmount:     sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 10000000000)),
-			height:         testHeight,
+			expiration:     testExpiration,
 		},
 	}
 	for _, test := range tests {
@@ -45,7 +46,7 @@ func TestKeeper_BuyMembership(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			ctx, bk, _, k := SetupTestInput()
 			_ = bk.SetCoins(ctx, test.tsp, test.bankAmount)
-			err := k.BuyMembership(ctx, test.user, test.membershipType, test.tsp, test.height)
+			err := k.BuyMembership(ctx, test.user, test.membershipType, test.tsp, test.expiration)
 
 			if err != nil && test.error != nil {
 				require.Equal(t, test.error.Error(), err.Error())
@@ -65,7 +66,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 		userIsTsp          bool
 		user               sdk.AccAddress
 		tsp                sdk.AccAddress
-		height             int64
+		expiredAt          time.Time
 		error              error
 	}{
 		{
@@ -73,16 +74,16 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			membershipType: "grn",
 			user:           testUser,
 			tsp:            testTsp,
-			height:         testHeight,
+			expiredAt:      testExpiration,
 			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 		{
-			name:           "Membership with invalid height zero or negative",
+			name:           "Membership with invalid expired date",
 			user:           testUser,
 			tsp:            testTsp,
-			height:         testHeightNegative,
+			expiredAt:      testExpirationNegative,
 			membershipType: types.MembershipTypeBronze,
-			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid expiry height: -1"),
+			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", testExpirationNegative)),
 		},
 		/*{
 			name:               "Invalid tsp",
@@ -96,14 +97,14 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			name:           "Non existing membership is properly saved",
 			user:           testUser,
 			tsp:            testTsp,
-			height:         testHeight,
+			expiredAt:      testExpiration,
 			membershipType: types.MembershipTypeBronze,
 		},
 		{
 			name:               "Existing membership is replaced",
 			user:               testUser,
 			tsp:                testTsp,
-			height:             testHeight,
+			expiredAt:          testExpiration,
 			existingMembership: types.MembershipTypeBronze,
 			membershipType:     types.MembershipTypeGold,
 		},
@@ -112,7 +113,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			userIsTsp:          true,
 			user:               testUser,
 			tsp:                testTsp,
-			height:             testHeight,
+			expiredAt:          testExpiration,
 			existingMembership: types.MembershipTypeBlack,
 			membershipType:     types.MembershipTypeGold,
 			error:              sdkErr.Wrap(sdkErr.ErrUnauthorized, "account \""+testUser.String()+"\" is a Trust Service Provider: remove from tsps list before"),
@@ -135,7 +136,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
 
 			if len(test.existingMembership) != 0 {
-				err := k.AssignMembership(ctx, test.user, test.existingMembership, test.tsp, test.height)
+				err := k.AssignMembership(ctx, test.user, test.existingMembership, test.tsp, test.expiredAt)
 				require.NoError(t, err)
 			}
 
@@ -143,7 +144,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 				k.AddTrustedServiceProvider(ctx, test.user)
 			}
 
-			err := k.AssignMembership(ctx, test.user, test.membershipType, test.tsp, test.height)
+			err := k.AssignMembership(ctx, test.user, test.membershipType, test.tsp, test.expiredAt)
 
 			if err != nil {
 				if test.expectedNotExists {
@@ -159,15 +160,16 @@ func TestKeeper_AssignMembership(t *testing.T) {
 }
 
 func TestKeeper_ComputeExpiryHeight(t *testing.T) {
+	currentTime := time.Now()
 	tests := []struct {
-		name              string
-		expectedNumBlocks int64
-		curHeight         int64
+		name               string
+		expectedExpiration time.Time
+		curTime            time.Time
 	}{
 		{
-			name:              "Compute expiry",
-			expectedNumBlocks: yearBlocks + testHeight,
-			curHeight:         testHeight,
+			name:               "Compute expiry",
+			expectedExpiration: currentTime.Add(secondsPerYear),
+			curTime:            currentTime,
 		},
 	}
 
@@ -176,8 +178,8 @@ func TestKeeper_ComputeExpiryHeight(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			_, _, _, k := SetupTestInput()
 
-			computedHeight := k.ComputeExpiryHeight(test.curHeight)
-			require.Equal(t, test.expectedNumBlocks, computedHeight)
+			computedHeight := k.ComputeExpiryHeight(test.curTime)
+			require.Equal(t, test.expectedExpiration, computedHeight)
 
 		})
 	}
@@ -189,15 +191,15 @@ func TestKeeper_GetMembership(t *testing.T) {
 		existingMembershipType string
 		user                   sdk.AccAddress
 		tsp                    sdk.AccAddress
-		height                 int64
+		expiration             time.Time
 		expectedError          error
 		expectedMembership     types.Membership
 	}{
 		{
-			name:   "Non existing membership is returned properly",
-			user:   testUser,
-			tsp:    testTsp,
-			height: testHeight,
+			name:       "Non existing membership is returned properly",
+			user:       testUser,
+			tsp:        testTsp,
+			expiration: testExpiration,
 			expectedError: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("membership not found for user \"%s\"", testUser.String()),
 			),
@@ -207,13 +209,13 @@ func TestKeeper_GetMembership(t *testing.T) {
 			existingMembershipType: types.MembershipTypeBronze,
 			user:                   testUser,
 			tsp:                    testTsp,
-			height:                 testHeight,
+			expiration:             testExpiration,
 			expectedError:          nil,
 			expectedMembership: types.Membership{
 				Owner:          testUser,
 				TspAddress:     testTsp,
 				MembershipType: types.MembershipTypeBronze,
-				ExpiryAt:       testHeight,
+				ExpiryAt:       testExpiration,
 			},
 		},
 	}
@@ -222,7 +224,7 @@ func TestKeeper_GetMembership(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
-			_ = k.AssignMembership(ctx, test.user, test.existingMembershipType, test.tsp, test.height)
+			_ = k.AssignMembership(ctx, test.user, test.existingMembershipType, test.tsp, test.expiration)
 
 			foundMembership, err := k.GetMembership(ctx, testUser)
 			if test.expectedError == nil {
@@ -244,17 +246,17 @@ func TestKeeper_RemoveMembership(t *testing.T) {
 	}{
 		{
 			name:       "Non existing membership throws an error",
-			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
+			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
 			mustError:  true,
 		},
 		{
 			name:       "Existing membership is removed properly",
-			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
+			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
 			mustError:  false,
 		},
 		{
 			name:       "Tsp membership cannot be removed",
-			membership: types.NewMembership(types.MembershipTypeBlack, testTsp, testUser, testHeight),
+			membership: types.NewMembership(types.MembershipTypeBlack, testTsp, testUser, testExpiration),
 			tsp:        testUser,
 			mustError:  true,
 		},
@@ -297,8 +299,8 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 		{
 			name: "Existing set is returned properly",
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			},
 		},
 	}
@@ -314,13 +316,16 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 			}
 			i := k.MembershipIterator(ctx)
 			for ; i.Valid(); i.Next() {
-				m := k.ExtractMembership(i.Value())
+				//m := k.ExtractMembership(i.Value())
+				var m types.Membership
+				k.Cdc.MustUnmarshalBinaryBare(i.Value(), &m)
 				require.Contains(t, test.storedMemberships, m)
 			}
 		})
 	}
 }
 
+/*
 func TestKeeper_ExtractMembership(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -333,7 +338,7 @@ func TestKeeper_ExtractMembership(t *testing.T) {
 			"a good membership",
 			[]byte{97, 99, 99, 114, 101, 100, 105, 116, 97, 116, 105, 111, 110, 115, 58, 115, 116, 111, 114, 97, 103, 101, 58, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239},
 			[]byte{10, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239, 18, 20, 251, 182, 16, 225, 99, 30, 161, 9, 143, 124, 32, 185, 74, 85, 162, 77, 31, 208, 217, 44, 26, 6, 98, 114, 111, 110, 122, 101, 32, 10},
-			types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
+			types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
 			false,
 		},
 		{
@@ -361,7 +366,7 @@ func TestKeeper_ExtractMembership(t *testing.T) {
 		})
 	}
 }
-
+*/
 func TestKeeper_GetMemberships(t *testing.T) {
 	tests := []struct {
 		name              string
@@ -374,8 +379,8 @@ func TestKeeper_GetMemberships(t *testing.T) {
 		{
 			name: "Existing set is returned properly",
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			},
 		},
 	}
@@ -414,8 +419,8 @@ func TestKeeper_GetTspMemberships(t *testing.T) {
 			name: "Tsp without membership return empty set properly ",
 			tsp:  testTsp,
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testUser2, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testUser, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testUser2, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testUser, testExpiration),
 			},
 			expetedMemberships: types.Memberships{},
 		},
@@ -423,23 +428,23 @@ func TestKeeper_GetTspMemberships(t *testing.T) {
 			name: "Tsp with some memberships return set with correct items",
 			tsp:  testTsp,
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testUser, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testUser, testExpiration),
 			},
 			expetedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
 			},
 		},
 		{
 			name: "Tsp with all memberships return all set",
 			tsp:  testTsp,
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			},
 			expetedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			},
 		},
 	}
@@ -462,7 +467,6 @@ func TestKeeper_GetTspMemberships(t *testing.T) {
 func TestKeeper_ExportMemberships(t *testing.T) {
 	tests := []struct {
 		name                string
-		blockHeight         int64
 		storedMemberships   types.Memberships
 		expectedMemberships types.Memberships
 	}{
@@ -471,48 +475,16 @@ func TestKeeper_ExportMemberships(t *testing.T) {
 			storedMemberships:   types.Memberships{},
 			expectedMemberships: types.Memberships{},
 		},
+
 		{
-			name:        "All expired membership return empty set",
-			blockHeight: int64(11),
+			name: "All memberships return all set",
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testUser2, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testUser, testHeight),
-			},
-			expectedMemberships: types.Memberships{},
-		},
-		{
-			name:        "Some memberships expired return set with correct items",
-			blockHeight: int64(11),
-			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, int64(12)),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, int64(11)),
-				types.NewMembership(types.MembershipTypeGold, testUser3, testUser, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			},
 			expectedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, int64(1)),
-			},
-		},
-		{
-			name:        "All memberships not expired return all set",
-			blockHeight: int64(9),
-			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
-			},
-			expectedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, int64(1)),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, int64(1)),
-			},
-		},
-		{
-			name:        "Black membership returned in set although it has expired",
-			blockHeight: int64(11),
-			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBlack, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
-			},
-			expectedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBlack, testUser, testTsp, int64(-1)),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			},
 		},
 	}
@@ -526,13 +498,14 @@ func TestKeeper_ExportMemberships(t *testing.T) {
 				err := k.AssignMembership(ctx, m.Owner, m.MembershipType, m.TspAddress, m.ExpiryAt)
 				require.NoError(t, err)
 			}
-			ms := k.ExportMemberships(ctx, test.blockHeight)
+			ms := k.ExportMemberships(ctx)
 			require.Equal(t, test.expectedMemberships, ms)
 		})
 	}
 }
 
 func TestKeeper_RemoveExpiredMemberships(t *testing.T) {
+	curRemoveTime := time.Now().AddDate(1, 0, 1)
 	tests := []struct {
 		name                string
 		storedMemberships   types.Memberships
@@ -546,49 +519,51 @@ func TestKeeper_RemoveExpiredMemberships(t *testing.T) {
 		{
 			name: "All expired memberships are properly removed",
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testUser2, int64(1)),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testUser, int64(1)),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testUser2, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testUser, testExpiration),
 			},
 			expectedMemberships: types.Memberships{},
 		},
 		{
 			name: "Some memberships expired are properly removed",
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, int64(1)),
-				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, int64(1)),
-				types.NewMembership(types.MembershipTypeGold, testUser3, testUser, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser3, testUser, testExpiration.AddDate(1, 0, 0)),
 			},
 			expectedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeGold, testUser3, testUser, testHeight),
+				types.NewMembership(types.MembershipTypeGold, testUser3, testUser, testExpiration.AddDate(1, 0, 0)),
 			},
 		},
 		{
 			name: "All memberships not expired are properly left on store",
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration.AddDate(1, 0, 0)),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration.AddDate(1, 0, 0)),
 			},
 			expectedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testHeight),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testHeight),
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration.AddDate(1, 0, 0)),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration.AddDate(1, 0, 0)),
 			},
 		},
 		{
 			name: "Black membership left in store and renewed",
 			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBlack, testUser, testTsp, int64(1)),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, int64(1)),
+				types.NewMembership(types.MembershipTypeBlack, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
 			},
 			expectedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBlack, testUser, testTsp, yearBlocks),
+				types.NewMembership(types.MembershipTypeBlack, testUser, testTsp, curRemoveTime.UTC().Add(secondsPerYear)),
 			},
 		},
 	}
 
 	for _, test := range tests {
+
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
+			ctx = ctx.WithBlockTime(curRemoveTime)
 			for _, m := range test.storedMemberships {
 				err := k.AssignMembership(ctx, m.Owner, m.MembershipType, m.TspAddress, m.ExpiryAt)
 				require.NoError(t, err)

@@ -44,7 +44,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 		}
 
 		if test.inviterMembership != "" {
-			err := k.AssignMembership(ctx, test.invite.Sender, test.inviterMembership, testTsp, testHeight)
+			err := k.AssignMembership(ctx, test.invite.Sender, test.inviterMembership, testTsp, testExpiration)
 			require.NoError(t, err)
 		}
 		err := k.InviteUser(ctx, test.invite.User, test.invite.Sender)

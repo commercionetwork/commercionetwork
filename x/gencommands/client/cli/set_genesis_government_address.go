@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -62,7 +63,10 @@ func SetGenesisGovernmentAddressCmd(ctx *server.Context, cdc *codec.Codec,
 				return err
 			}
 
-			membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, address, int64(10)) // TODO calculate blocks in one year
+			initSecondsPerYear := time.Hour * 24 * 365
+			initExpirationDate := time.Now().Add(initSecondsPerYear) // It's safe becouse command is executed in one machine
+
+			membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, address, initExpirationDate)
 			genStateMemberships.Memberships, _ = genStateMemberships.Memberships.AppendIfMissing(membership)
 
 			genesisStateBzMemberships := cdc.MustMarshalJSON(genStateMemberships)

@@ -118,10 +118,10 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	}
 
 	// Compute expiry height
-	height := keeper.ComputeExpiryHeight(ctx.BlockHeight())
+	expirationAt := keeper.ComputeExpiryHeight(ctx.BlockTime())
 
 	// Allow him to buy the membership
-	if err := keeper.BuyMembership(ctx, msg.Buyer, msg.MembershipType, msg.Tsp, height); err != nil {
+	if err := keeper.BuyMembership(ctx, msg.Buyer, msg.MembershipType, msg.Tsp, expirationAt); err != nil {
 		return nil, err
 	}
 
@@ -169,7 +169,7 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "government could not invite user")
 	}
 
-	height := keeper.ComputeExpiryHeight(ctx.BlockHeight())
+	height := keeper.ComputeExpiryHeight(ctx.BlockTime())
 
 	err = keeper.AssignMembership(ctx, msg.Subscriber, msg.NewMembership, govAddr, height)
 	if err != nil {

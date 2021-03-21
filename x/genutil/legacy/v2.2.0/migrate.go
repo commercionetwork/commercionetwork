@@ -1,6 +1,8 @@
 package v2_2_0
 
 import (
+	"time"
+
 	commKyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	v212memberships "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.1.2"
 	commKycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -39,7 +41,11 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 	}
 
 	govAddr := govState.GovernmentAddress
-	expiredAt := int64(4733640)
+
+	currentTime := time.Now()
+	// Use only day and add 1 year so we have YYYY-MM-DD 00:00:00 and date should be the same in all nodes
+	expiredAt, _ := time.Parse("2006-01-02", currentTime.Format("2006-01-02"))
+	expiredAt = expiredAt.Add(time.Hour * 24 * 365)
 
 	if appState[v212memberships.ModuleName] != nil {
 		var genMemberships v212memberships.GenesisState
@@ -81,12 +87,12 @@ func Migrate(appState genutil.AppMap) genutil.AppMap {
 	return appState
 }
 
-func migrateMemberships(oldState v212memberships.GenesisState, govAddress sdk.AccAddress, expiredAt int64) commKyc.GenesisState {
+func migrateMemberships(oldState v212memberships.GenesisState, govAddress sdk.AccAddress, expiryAt time.Time) commKyc.GenesisState {
 
 	memberships := commKycTypes.Memberships{}
 
 	for _, oldMembership := range oldState.Memberships {
-		membership := migrateMembership(oldMembership, govAddress, expiredAt)
+		membership := migrateMembership(oldMembership, govAddress, expiryAt)
 		memberships = append(memberships, membership)
 	}
 
@@ -98,10 +104,10 @@ func migrateMemberships(oldState v212memberships.GenesisState, govAddress sdk.Ac
 	}
 }
 
-func migrateMembership(oldMembership v212memberships.Membership, govAddress sdk.AccAddress, expiredAt int64) commKycTypes.Membership {
+func migrateMembership(oldMembership v212memberships.Membership, govAddress sdk.AccAddress, expiryAt time.Time) commKycTypes.Membership {
 	return commKycTypes.Membership{
 		TspAddress:     govAddress,
-		ExpiryAt:       expiredAt,
+		ExpiryAt:       expiryAt,
 		Owner:          oldMembership.Owner,
 		MembershipType: oldMembership.MembershipType,
 	}

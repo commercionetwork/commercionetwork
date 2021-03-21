@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -57,7 +58,9 @@ func AddGenesisTspCmd(ctx *server.Context, cdc *codec.Codec,
 			// set a black membership to the government address
 			// add a membership to the genesis state
 
-			membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, govAddress, int64(10)) // TODO calculate blocks in one year
+			initSecondsPerYear := time.Hour * 24 * 365
+			initExpirationDate := time.Now().Add(initSecondsPerYear) // It's safe becouse command is executed in one machine
+			membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, govAddress, initExpirationDate)
 			genState.Memberships, _ = genState.Memberships.AppendIfMissing(membership)
 
 			genState.TrustedServiceProviders, _ = genState.TrustedServiceProviders.AppendIfMissing(address)

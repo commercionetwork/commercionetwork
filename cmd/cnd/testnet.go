@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -306,7 +307,11 @@ func initGenFiles(
 	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &kycState)
 	kycState.TrustedServiceProviders, _ = kycState.TrustedServiceProviders.AppendIfMissing(genAccounts[0].GetAddress())
 	// cnd add-genesis-membership black
-	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), int64(100))
+	currentTime := time.Now()
+	expiryAt, _ := time.Parse("2006-01-02", currentTime.Format("2006-01-02"))
+	expiryAt = expiryAt.Add(time.Hour * 24 * 365)
+
+	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), expiryAt)
 	kycState.Memberships, _ = kycState.Memberships.AppendIfMissing(membership)
 	genesisStateBz := cdc.MustMarshalJSON(kycState)
 	appGenState[commerciokycTypes.ModuleName] = genesisStateBz
