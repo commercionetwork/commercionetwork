@@ -197,11 +197,11 @@ http://localhost:1317/commerciomint/etps/did:com:15erw8aqttln5semks0vnqjy9yzrygz
         "amount": "500000",
         "denom": "uccc"
       },
-      "collateral": 10,
-      "exchange_rate": "1.100000000000000000",
+      "collateral": "450000",
+      "exchange_rate": "0.900000000000000000",
       "owner": "did:com:15erw8aqttln5semks0vnqjy9yzrygzmjwh7vke/1570177686",
       "id": "83672b49-c2a1-4ce3-a52a-859039b1231e",
-      "created_at": "1570177686"
+      "created_at": "2021-03-21T22:42:39.805871642Z"
     }
   ]
 }
@@ -235,7 +235,7 @@ http://localhost:1317/commerciomint/conversion_rate
 ```json
 {
   "height": "0",
-  "result": "2.000000000000000000"
+  "result": "1.000000000000000000"
 }
 ```
 
@@ -268,6 +268,6 @@ http://localhost:1317/commerciomint/freeze_period
 ```json
 {
   "height": "0",
-  "result": "60000000000"
+  "result": "1814400000000000"
 }
 ```
