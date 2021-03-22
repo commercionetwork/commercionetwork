@@ -64,7 +64,7 @@ and we will send you some as soon as possible.
 Being your account address a Did, using the Commercio Network blockchain you can associate to it a Did Document
 containing the information that are related to your public (or private) identity.  
 In order to do so you will need to perform a transaction and so your account must have first received some tokens. To
-know how to get them, please take a look at the [*"Using an identity"* section](create-an-identity.md#using-an-identity). 
+know how to get them, please take a look at the [*"Using an identity"* section](#using-an-identity). 
 
 #### Transaction message
 In order to properly send a transaction to set a DID Document associating it to your identity, you will need

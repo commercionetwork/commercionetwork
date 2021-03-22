@@ -452,7 +452,7 @@ http://localhost:1317/commerciokyc/membership/did:com:1l9rr5ck7ed30ny3ex4uj75ezr
     "user": "did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen",
     "tsp_address" : "did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen",
     "membership_type": "black",
-    "expiry_at" : 1012345
+    "expiry_at" : "2022-03-21T00:00:00Z"
 
 }
 ```
@@ -491,7 +491,7 @@ http://localhost:1317/commerciokyc/memberships
       "user": "did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen",
       "tsp_address" : "did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen",
       "membership_type": "black",
-      "expiry_at" : 1012345
+      "expiry_at" : "2022-03-21T00:00:00Z"
     }
   ]
 ```
@@ -536,7 +536,7 @@ http://localhost:1317/commerciokyc/sold/did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp
       "user": "did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen",
       "tsp_address" : "did:com:1l9rr5ck7ed30ny3ex4uj75ezrt03gfp96z7nen",
       "membership_type": "black",
-      "expiry_at" : 1012345
+      "expiry_at" : "2022-03-21T00:00:00Z"
     }
   ]
 ```
