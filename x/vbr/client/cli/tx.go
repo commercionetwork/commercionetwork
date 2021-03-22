@@ -31,6 +31,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	return txCmd
 }
 
+// GetCmdIncrementBlockRewardsPool create increment block reward message and brodcast
 func GetCmdIncrementBlockRewardsPool(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [coin-denom] [amount]",

@@ -30,7 +30,6 @@ import (
 
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/documents"
 	custombank "github.com/commercionetwork/commercionetwork/x/encapsulated/bank"
 	customcrisis "github.com/commercionetwork/commercionetwork/x/encapsulated/crisis"
@@ -137,12 +136,6 @@ var (
 		commerciokycTypes.ModuleName:  {supply.Minter, supply.Burner},
 		idTypes.ModuleName:            nil,
 		vbrTypes.ModuleName:           {supply.Minter},
-	}
-
-	allowedModuleReceivers = types.Strings{
-		commerciomintTypes.ModuleName,
-		commerciokycTypes.ModuleName,
-		vbrTypes.ModuleName,
 	}
 )
 
@@ -256,7 +249,7 @@ func NewCommercioNetworkApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	// add keepers
 	app.accountKeeper = auth.NewAccountKeeper(app.cdc, keys[auth.StoreKey], authSubspace, auth.ProtoBaseAccount)
-	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, app.BlacklistedModuleAccAddrs())
+	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, app.ModuleAccountAddrs())
 	app.supplyKeeper = supply.NewKeeper(app.cdc, keys[supply.StoreKey], app.accountKeeper, app.bankKeeper, maccPerms)
 	stakingKeeper := staking.NewKeeper(
 		app.cdc, keys[staking.StoreKey],
@@ -416,17 +409,6 @@ func (app *CommercioNetworkApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = true
-	}
-
-	return modAccAddrs
-}
-
-// BlacklistedModuleAccAddrs returns all the app's module account addresses that
-// are black listed from received tokens from the users.
-func (app *CommercioNetworkApp) BlacklistedModuleAccAddrs() map[string]bool {
-	modAccAddrs := make(map[string]bool)
-	for acc := range maccPerms {
-		modAccAddrs[app.supplyKeeper.GetModuleAddress(acc).String()] = allowedModuleReceivers.Contains(acc)
 	}
 
 	return modAccAddrs

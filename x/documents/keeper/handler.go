@@ -8,6 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 )
 
@@ -50,14 +51,16 @@ func handleMsgShareDocument(ctx sdk.Context, keeper Keeper, msg types.MsgShareDo
 	if err := keeper.SaveDocument(ctx, types.Document(msg)); err != nil {
 		return nil, err
 	}
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Sender)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Document successfully shared"}, nil
 }
 
 func handleMsgSendDocumentReceipt(ctx sdk.Context, keeper Keeper, msg types.MsgSendDocumentReceipt) (*sdk.Result, error) {
 	if err := keeper.SaveReceipt(ctx, types.DocumentReceipt(msg)); err != nil {
 		return nil, err
 	}
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Sender)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Receipt Document successfully sent"}, nil
 }
 
 func handleMsgAddSupportedMetadataSchema(ctx sdk.Context, keeper Keeper, msg types.MsgAddSupportedMetadataSchema) (*sdk.Result, error) {
@@ -70,8 +73,9 @@ func handleMsgAddSupportedMetadataSchema(ctx sdk.Context, keeper Keeper, msg typ
 
 	// Add the schema
 	keeper.AddSupportedMetadataScheme(ctx, msg.Schema)
+	ctypes.EmitCommonEvents(ctx, msg.Signer)
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Metadata schema successfully added"}, nil
 }
 
 func handleMsgAddTrustedMetadataSchemaProposer(ctx sdk.Context, keeper Keeper, msg types.MsgAddTrustedMetadataSchemaProposer) (*sdk.Result, error) {
@@ -82,6 +86,7 @@ func handleMsgAddTrustedMetadataSchemaProposer(ctx sdk.Context, keeper Keeper, m
 	}
 
 	// Add the trusted schema proposer
+	ctypes.EmitCommonEvents(ctx, msg.Proposer)
 	keeper.AddTrustedSchemaProposer(ctx, msg.Proposer)
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Trusted Metadata Schema Proposer successfully added"}, nil
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
+const eventSetTumblerAddress = "set_tumbler_address"
+
 type Keeper struct {
 	StoreKey sdk.StoreKey
 	cdc      *codec.Codec
@@ -47,7 +49,9 @@ func (keeper Keeper) SetTumblerAddress(ctx sdk.Context, address sdk.AccAddress) 
 
 	store.Set([]byte(types.TumblerStoreKey), address)
 
-	ctx.EventManager().EmitEvent(sdk.NewEvent("set_tumbler_address", sdk.NewAttribute("new_address", address.String())))
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetTumblerAddress,
+		sdk.NewAttribute("new_address", address.String())))
 	return nil
 }
 

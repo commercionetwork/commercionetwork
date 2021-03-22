@@ -35,6 +35,48 @@ func TestKeeper_SetPosition(t *testing.T) {
 // --- etps
 // --------------
 
+func TestKeeper_UpdatePositionBasic(t *testing.T) {
+	testData := []struct {
+		name            string
+		position        types.Position
+		insPostion      bool
+		shouldBeUpdated bool
+	}{
+		{
+			name:            "Etp doesn't exists",
+			position:        fakeEtp,
+			insPostion:      false,
+			shouldBeUpdated: false,
+		},
+
+		{
+			name:            "Etp update properly",
+			position:        testEtp,
+			insPostion:      true,
+			shouldBeUpdated: true,
+		},
+	}
+
+	for _, test := range testData {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, _, k := SetupTestInput()
+			if test.insPostion {
+				k.SetPosition(ctx, test.position)
+			}
+			if test.shouldBeUpdated {
+				require.NoError(t, k.UpdatePosition(ctx, test.position))
+				return
+			}
+
+			if !test.shouldBeUpdated {
+				require.Error(t, k.UpdatePosition(ctx, test.position))
+				return
+			}
+		})
+	}
+}
+
 func TestKeeper_SetPositionBasic(t *testing.T) {
 	testData := []struct {
 		name             string
@@ -176,6 +218,33 @@ func TestKeeper_BurnCCC(t *testing.T) {
 
 		require.NoError(t, k.BurnCCC(ctx, testEtpOwner, testEtp.ID, testEtp.Credits))
 		require.Equal(t, testEtp.Collateral, bk.GetCoins(ctx, testEtpOwner).AmountOf("ucommercio"))
+	})
+
+	t.Run("Existing ETP return correct balance", func(t *testing.T) {
+		ctx, bk, _, _, k := SetupTestInput()
+
+		k.SetPosition(ctx, testEtp)
+		baseUcccAccount := sdk.NewCoin("uccc", sdk.NewInt(50))
+		baseUcommercioAccount := sdk.NewCoin("ucommercio", sdk.NewInt(0))
+		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
+		_, _ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(baseUcommercioAccount, baseUcccAccount))
+		require.NoError(t, k.BurnCCC(ctx, testEtpOwner, testEtp.ID, halfCoinSub))
+		require.Equal(t, baseUcccAccount.Amount.Sub(halfCoinSub.Amount), bk.GetCoins(ctx, testEtpOwner).AmountOf("uccc"))
+
+		burnAmountDec := sdk.NewDecFromInt(halfCoinSub.Amount)
+		collateralAmount := burnAmountDec.Mul(testEtp.ExchangeRate).Ceil().TruncateInt()
+
+		require.Equal(t, collateralAmount, bk.GetCoins(ctx, testEtpOwner).AmountOf("ucommercio"))
+	})
+
+	t.Run("Existing ETP can't modify before freeze period passes", func(t *testing.T) {
+		ctx, bk, _, _, k := SetupTestInput()
+		_ = k.SetFreezePeriod(ctx, 3000000000) // 30 seconds
+		k.SetPosition(ctx, testEtp)
+		_ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
+		_, _ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(testEtp.Credits))
+
+		require.Error(t, k.BurnCCC(ctx, testEtpOwner, testEtp.ID, testEtp.Credits))
 	})
 
 }

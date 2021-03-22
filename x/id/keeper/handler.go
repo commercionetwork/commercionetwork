@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
@@ -37,8 +38,8 @@ func handleMsgSetIdentity(ctx sdk.Context, keeper Keeper, msg types.MsgSetIdenti
 	if err := keeper.SaveDidDocument(ctx, types.DidDocument(msg)); err != nil {
 		return nil, err
 	}
-
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.ID)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Set identity successfully added"}, nil
 }
 
 // ----------------------------
@@ -60,7 +61,9 @@ func handleMsgRequestDidPowerUp(ctx sdk.Context, keeper Keeper, msg types.MsgReq
 		return nil, err
 	}
 
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Claimant)
+
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Power up request successfully added"}, nil
 }
 
 // handleMsgChangePowerUpStatus marks the PowerUp request identified by the activation reference as handled successfully.
@@ -93,5 +96,7 @@ func handleMsgChangePowerUpStatus(ctx sdk.Context, keeper Keeper, govKeeper gove
 		return nil, err
 	}
 
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Signer)
+
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Power up status successfully changed"}, nil
 }

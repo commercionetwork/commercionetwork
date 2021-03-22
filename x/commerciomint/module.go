@@ -2,6 +2,7 @@ package commerciomint
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/gorilla/mux"
@@ -19,7 +20,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const DefaultCreditsDenom = "uccc"
+const (
+	DefaultCreditsDenom               = "uccc"
+	DefaultFreezePeriod time.Duration = time.Hour * 24 * 7 * 3
+)
 
 // AppModuleBasic defines the basic application module used by the commerciomint module.
 type AppModuleBasic struct {

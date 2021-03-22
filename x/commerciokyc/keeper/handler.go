@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
@@ -51,8 +52,8 @@ func handleMsgInviteUser(ctx sdk.Context, keeper Keeper, msg types.MsgInviteUser
 	if err := keeper.InviteUser(ctx, msg.Recipient, msg.Sender); err != nil {
 		return nil, err
 	}
-
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Sender)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "User successfully invited"}, nil
 }
 
 func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepositIntoLiquidityPool) (*sdk.Result, error) {
@@ -60,7 +61,7 @@ func handleMsgDepositIntoPool(ctx sdk.Context, keeper Keeper, msg types.MsgDepos
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Amount successfully deposited into pool"}, nil
 }
 
 func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgAddTsp) (*sdk.Result, error) {
@@ -78,7 +79,8 @@ func handleMsgAddTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper 
 	}
 
 	keeper.AddTrustedServiceProvider(ctx, msg.Tsp)
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Government)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Tsp successfully added"}, nil
 }
 
 func handleMsgRemoveTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeeper government.Keeper, msg types.MsgRemoveTsp) (*sdk.Result, error) {
@@ -87,7 +89,7 @@ func handleMsgRemoveTrustedSigner(ctx sdk.Context, keeper Keeper, governmentKeep
 	}
 
 	keeper.RemoveTrustedServiceProvider(ctx, msg.Tsp)
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Tsp successfully removed"}, nil
 }
 
 // handleMsgBuyMembership allows to handle a MsgBuyMembership message.
@@ -127,8 +129,8 @@ func handleMsgBuyMembership(ctx sdk.Context, keeper Keeper, msg types.MsgBuyMemb
 	if err := keeper.DistributeReward(ctx, invite); err != nil {
 		return nil, err
 	}
-
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Tsp)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully purchased"}, nil
 }
 
 // handleMsgRemoveMembership allows to handle a MsgRemoveMembership message.
@@ -142,7 +144,8 @@ func handleMsgRemoveMembership(ctx sdk.Context, keeper Keeper, msg types.MsgRemo
 	}
 	// TODO add control for tsp?
 	err := keeper.RemoveMembership(ctx, msg.Subscriber)
-	return &sdk.Result{}, err
+	ctypes.EmitCommonEvents(ctx, msg.Government)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully removed"}, err
 }
 
 // handleMsgSetMembership handles MsgSetMembership messages.
@@ -181,8 +184,8 @@ func handleMsgSetMembership(ctx sdk.Context, keeper Keeper, msg types.MsgSetMemb
 			fmt.Sprintf("could not distribute membership reward to user %s: %s", invite.Sender, err.Error()),
 		)
 	}
-
-	return &sdk.Result{}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Government)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Membership successfully set up"}, nil
 }
 
 // governmentInvitesUser makes government invite an user if it isn't already invited and validated.

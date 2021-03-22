@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
@@ -34,5 +35,7 @@ func handleMsgSetTumblerAddress(ctx sdk.Context, keeper Keeper, msg types.MsgSet
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	return &sdk.Result{}, nil
+
+	ctypes.EmitCommonEvents(ctx, msg.GetSigners()[0])
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Tumbler address configured"}, nil
 }

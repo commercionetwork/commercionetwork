@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -38,4 +39,16 @@ func TestQuerier_queryConversionRate(t *testing.T) {
 	var rate sdk.Dec
 	k.cdc.MustUnmarshalJSON(actualBz, &rate)
 	require.Equal(t, sdk.NewDec(2), rate)
+}
+
+func TestQuerier_queryFreezePeriod(t *testing.T) {
+	ctx, _, _, _, k := SetupTestInput()
+	require.NoError(t, k.SetFreezePeriod(ctx, 120))
+	querier := NewQuerier(k)
+	actualBz, err := querier(ctx, []string{types.QueryFreezePeriod}, req)
+	require.Nil(t, err)
+
+	var freezePeriod time.Duration
+	k.cdc.MustUnmarshalJSON(actualBz, &freezePeriod)
+	require.Equal(t, time.Duration(120), freezePeriod)
 }

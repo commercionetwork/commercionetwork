@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -25,6 +26,7 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	cmd.AddCommand(
 		getEtps(cdc),
 		getConversionRate(cdc),
+		getFreezePeriod(cdc),
 	)
 
 	return cmd
@@ -80,10 +82,37 @@ func getConversionRateFunc(cdc *codec.Codec) error {
 		return err
 	}
 
-	var rate sdk.Int
+	var rate sdk.Dec
 	if err := cliCtx.Codec.UnmarshalJSON(res, &rate); err != nil {
 		return err
 	}
 
 	return cliCtx.PrintOutput(rate)
+}
+
+func getFreezePeriod(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "freeze-period",
+		Short: "Display the current freeze period",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			return getFreezePeriodFunc(cdc)
+		},
+	}
+}
+
+func getFreezePeriodFunc(cdc *codec.Codec) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryFreezePeriod)
+	res, _, err := cliCtx.QueryWithData(route, nil)
+	if err != nil {
+		return err
+	}
+
+	var freezePeriod time.Duration
+	if err := cliCtx.Codec.UnmarshalJSON(res, &freezePeriod); err != nil {
+		return err
+	}
+	return cliCtx.PrintOutput(freezePeriod)
 }

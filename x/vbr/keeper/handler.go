@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
@@ -35,7 +36,7 @@ func handleMsgIncrementBlockRewardsPool(ctx sdk.Context, k Keeper, msg types.Msg
 	// Set the total rewards pool
 	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(sdk.NewDecCoinsFromCoins(msg.Amount...)...))
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: "Block reward pool successfully increased"}, nil
 }
 
 func handleMsgSetRewardRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetRewardRate) (*sdk.Result, error) {
@@ -47,7 +48,8 @@ func handleMsgSetRewardRate(ctx sdk.Context, keeper Keeper, msg types.MsgSetRewa
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	return &sdk.Result{Log: fmt.Sprintf("Reward rate changed successfully to %s", msg.RewardRate)}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Government)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("Reward rate changed successfully to %s", msg.RewardRate)}, nil
 }
 
 func handleMsgSetAutomaticWithdraw(ctx sdk.Context, keeper Keeper, msg types.MsgSetAutomaticWithdraw) (*sdk.Result, error) {
@@ -59,5 +61,6 @@ func handleMsgSetAutomaticWithdraw(ctx sdk.Context, keeper Keeper, msg types.Msg
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	return &sdk.Result{Log: fmt.Sprintf("Automatic withdraw changed successfully to %v", msg.AutomaticWithdraw)}, nil
+	ctypes.EmitCommonEvents(ctx, msg.Government)
+	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("Automatic withdraw changed successfully to %v", msg.AutomaticWithdraw)}, nil
 }
