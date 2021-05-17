@@ -51,10 +51,10 @@ module.exports = {
                 title: "API Developers",
                 collapsable: false,
                 children: [
-                    ["app_developers/overview", "Commercio.network overview"]
-                    ["app_developers/introduction", "CommercioAPI Introduction"]
-                    ["app_developers/authentication", "CommercioAPI Authentication"]
-                    ["app_developers/sharedoc", "CommercioAPI ShareDoc"]
+                    ["app_developers/commercio-blockchain-overview", "Commercio.network overview"],
+                    ["app_developers/commercioapi-introduction", "CommercioAPI Introduction"],
+                    ["app_developers/commercioapi-authentication", "CommercioAPI Authentication"],
+                    ["app_developers/commercioapi-sharedoc", "CommercioAPI ShareDoc"],
                 ]
             },
             {
