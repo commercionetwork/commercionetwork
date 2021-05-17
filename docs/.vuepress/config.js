@@ -44,16 +44,16 @@ module.exports = {
                     ["nodes/full-node-installation", "Installing a full node"],
                     ["nodes/validator-node-installation", "Becoming a validator"],
                     ["nodes/validator-node-handling", "Handling a validator"],
-                    ["nodes/validator-node-update", "Updating a validator"],
+                    ["nodes/validator-node-update", "Updating a validator"]
                 ]
             },
             {
                 title: "API Developers",
                 collapsable: false,
                 children: [
-                    ["app_developers/overview", "Commercio.network overview"]
-                    ["app_developers/introduction", "CommercioAPI Introduction"]
-                    ["app_developers/authentication", "CommercioAPI Authentication"]
+                    ["app_developers/overview", "Commercio.network overview"],
+                    ["app_developers/introduction", "CommercioAPI Introduction"],
+                    ["app_developers/authentication", "CommercioAPI Authentication"],
                     ["app_developers/sharedoc", "CommercioAPI ShareDoc"]
                 ]
             },
