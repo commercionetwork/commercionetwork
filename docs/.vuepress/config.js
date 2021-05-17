@@ -44,7 +44,7 @@ module.exports = {
                     ["nodes/full-node-installation", "Installing a full node"],
                     ["nodes/validator-node-installation", "Becoming a validator"],
                     ["nodes/validator-node-handling", "Handling a validator"],
-                    ["nodes/validator-node-update", "Updating a validator"],
+                    ["nodes/validator-node-update", "Updating a validator"]
                 ]
             },
             {

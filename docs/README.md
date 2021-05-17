@@ -12,7 +12,7 @@ Anyone can exchange electronic documents in a legally binding way thanks to our 
 
 A blockchain is a big distributed database. Think of it as a huge spreadsheet runned simultaneously on millions of worldwide computers. It’s a peer to peer network of nodes where you can settle transactions without the need of any trusted third party.
 
-A node is  a computer that is running the Commercio.network node software 
+A node is a computer that is running the Commercio.network node software 
 it is connected to other computers on the same network and there are two kind of nodes:
 
 * Full node* Full nodes are nodes that stores the whole transaction history. They connect to the blockchain and each time a new block is finalized, they write it on their hard disk. This means that being a full node you will be able to read the whole chain transaction history, you will need to have a large hard disk space if you want to keep it running.
