@@ -1,14 +1,14 @@
-# CommercioAPI ShareDoc
+# CommercioAPI DOCS
 
-The  CommercioAPI ShareDoc allows you to send a document to another user, and retrieve the list of documents that you have received.
+The  CommercioAPI DOCS allows you to share a document with another user, and retrieve the list of documents that you have received.
 
 
 ## What is an Electronic Cerified Delivery?
 
 **IMPORTANT!!!**
 
-* We are not sending Documents on a blockchain. 
-* We are sending a transaction on a blockchain with a document footprint (HASH) 
+* We are not actually sharing Documents on a blockchain. 
+* We are sharing a transaction on a blockchain with a document footprint (HASH) 
 
 An hash is the output of a hashing algorithm like SHA (Secure Hash Algorithm). These algorithms essentially aim to produce a unique, fixed-length string – the hash value, or “message digest” – for any given piece of data or “message”. 
 
@@ -16,10 +16,10 @@ As every electronic file is just data that can be represented in binary form, a 
 
 The result is the file’s hash value or message digest.
 
-'Sharing a Document' on Commercio.network  means sending a shareDoc transaction on a blockchain with your document hash.
+'Sharing a Document' on Commercio.network means sending a shareDoc transaction on a blockchain with your document hash.
 
 
-## shareDoc 
+## shareDoc Trasaction
 
 ### shareDoc real world use cases
 
@@ -50,12 +50,15 @@ Step 3
 PHP Python C# Java Go
 
 
-## sendReceipt
 
-## documentList sent 
 
-## documentList sent received
+## sendReceipt Trasaction
 
-## receiptList sent 
+## documentList sent Trasaction
 
-## receiptList sent received
+## documentList sent received Trasaction
+
+## receiptList sent Trasaction
+
+## receiptList sent received Trasaction
+
