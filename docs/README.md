@@ -34,7 +34,7 @@ wish to setup a new node, please refer to our [nodes section](nodes/README.md).
 
 ## App Developers
 If you're an App  developer and would like to integrate to Commercio.network, please refer to our 
-[App developers guide](app_developers/README.md). 
+[App developers guide](app_developers/README.md). Thanks
 
 
 ## SDK Developers
