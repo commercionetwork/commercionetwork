@@ -15,9 +15,9 @@ A blockchain is a big distributed database. Think of it as a huge spreadsheet ru
 A node is a computer that is running the Commercio.network node software 
 it is connected to other computers on the same network and there are two kind of nodes:
 
-* Full node* Full nodes are nodes that stores the whole transaction history. They connect to the blockchain and each time a new block is finalized, they write it on their hard disk. This means that being a full node you will be able to read the whole chain transaction history, you will need to have a large hard disk space if you want to keep it running.
+* **Full node** Full nodes are nodes that stores the whole transaction history. They connect to the blockchain and each time a new block is finalized, they write it on their hard disk. This means that being a full node you will be able to read the whole chain transaction history, you will need to have a large hard disk space if you want to keep it running.
 
-* Validator node* Validator nodes are  full nodes with the added ability of validating new transactions that should be added to the chain. In order to do so, they possess a private key with which they sign the transactions marking them as valid. In exchange of their work, they get  a reward that is given to them each time a new block is created.
+* **Validator node**  Validator nodes are  full nodes with the added ability of validating new transactions that should be added to the chain. In order to do so, they possess a private key with which they sign the transactions marking them as valid. In exchange of their work, they get  a reward that is given to them each time a new block is created.
 
 ## What is the the software that allow this blockchain to exist ?
 
