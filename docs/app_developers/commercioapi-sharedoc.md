@@ -21,7 +21,7 @@ The result is the file’s hash value or message digest.
 
 ## shareDoc 
 
-### shareDoc  real world use cases
+### shareDoc real world use cases
 
 * Legally prove a document was shared with a third party
 * Timestamp a document 
@@ -31,7 +31,7 @@ The result is the file’s hash value or message digest.
 
 ### Step by step Example
 
-Let's create  a new transaction to share the document hash (REMEMBER not the actual document, only the hash ) associated with the given contentUri and having the given metadata and checksum. 
+Let's create a new transaction to share the document hash (REMEMBER not the actual document, only the hash ) associated with the given contentUri and having the given metadata and checksum. 
 
 Step 1
 
@@ -39,8 +39,7 @@ Step 1
 Step 2
 
 
-
-Step3
+Step 3
 
 
 
