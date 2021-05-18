@@ -4,6 +4,8 @@ CommercioAPI is a RESTfull web service  that  allows anyone to send a blockchain
 
 ## Getting Started
 
+In order to operate with the api 
+
 To use the API you need to
 
 * Register and Login on commercio.app
