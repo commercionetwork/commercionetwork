@@ -44,11 +44,20 @@ For any support or questions regarding the API or the documentation please open 
 
 
 ### Swagger environement
-In the **CommercioAPI base url**  is available the documentation of the set of released API  and a Tryout is possible
-through the Swagger interface
+In the **CommercioAPI base url**  is available the documentation of the set of released API  and a Tryout is possible through the Swagger interface
 
 
 NB: Any Examples in the documentation refers to the **Develop & Test environement**
+
+
+#### Hint : Basic Client for Major scritp Languages 
+
+Downloading the `openapi.yaml` file from the Swagger interface page you can upload it in the  [https://editor.swagger.io/](https://editor.swagger.io/) 
+
+Using the Generate Client menu you can obtain a basic stack software for the language you choose 
+
+
+
 
 
 ### Authentication process  
