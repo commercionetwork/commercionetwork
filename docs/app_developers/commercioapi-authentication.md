@@ -61,6 +61,17 @@ curl -s --request POST \
     --data-urlencode 'password=Testuser001' | jq -r '.id_token'
 ```
 
+**Acquire `Bearer ID_Token`**
+
+Simple way to compose `Bearer` `ID_token` string through curl
+
+
+```
+
+ echo "Bearer "$(curl -s --request POST  'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token'  --header 'Content-Type: application/x-www-form-urlencoded'   --header 'Cookie: KEYCLOAK_LOCALE=en'  --data-urlencode 'client_id=dev.commercio.app'   --data-urlencode 'grant_type=password'   --data-urlencode 'scope=openid'   --data-urlencode 'username=marco.ruaro@gmail.com'   --data-urlencode 'password=Admin1234' | jq -r '.id_token')
+
+```
+
 **Identity Manager (IDM) reply**
 
 
@@ -70,22 +81,37 @@ eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlm
 
 *You can decode the Id_token here <a href="jwt.io" target="_blank">jwt.io</a>*
 
-For the `Tryout`  in the Swagger (available at the  CommercioAPI base url)  use  in the modal associated to the `Authorize` button the id_token obtained.
+
+
+For the `Tryout`  in the Swagger (available at the  CommercioAPI base url)  use  in the modal associated to the `Authorize` button composing the two element separated by a space   
+
+* Method : `Beared` 
+* id_token obtained.
+
+Example : 
+
+```
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjEwMDMwMjEsImlhdCI6MTYyMTAwMjcyMSwiYXV0aF90aW1lIjowLCJqdGkiOiJmNTA5YjQ0YS0xYzIxLTQ5NjktYjE5Ni03YWYxOGFmZDkyYTciLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiJhMmIzZGI5Yi03NzUwLTQzYTEtODExZC1iOGI3MjA2NmQzZDYiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImE5ZGNmMWFjLTdjMTctNDViYS1hY2JlLWZkMmY1MGNhZGEzMyIsImF0X2hhc2giOiJLZko4XzJfWGxCQmFFNjVBYVhOWWRnIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMDk5NDk2MCIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6Ik1hcmNvIEF1cm8iLCJwaG9uZV9udW1iZXIiOiIxMjM0NTY3ODkwMSIsInByZWZlcnJlZF91c2VybmFtZSI6Im1hcmNvLnJ1YXJvQGdtYWlsLmNvbSIsImdpdmVuX25hbWUiOiJNYXJjbyIsImZhbWlseV9uYW1lIjoiQXVybyIsImVtYWlsIjoibWFyY28ucnVhcm9AZ21haWwuY29tIiwidXNlcm5hbWUiOiJtYXJjby5ydWFyb0BnbWFpbC5jb20ifQ.hDParV3scvir8B9kkNN-e56IF5Jmqxuhkfd7B__s8Vn41VAaccJBTl1bwqLggcrNJ2Yjl3jAKOxfXX3PFf_RtsFloFyYSZDlOdt73qD1m-8TzdPGfMjNwgiCLc7IvKIFV3_8JYsgkm3fsqtMGqOdsqZSD_s9KrGK7oYcoMIWHqiBKqeymAX9urLFg4lbHlEY1rJJ6C0zpFhA1nrqSFqwu3MuYdfylmtkhvKVreOl9jR8kG326BvwEd7NnwaYtJI6Anoe2ojNHzWgRwFTzd3djhwhYLziJTt3Q8SE7ag_FKxQ4BhjaK3w4PlBz9HK15B4rp_shd_ZUohVaZtJsNrKwg
+```
 
 <img src="./authorise_button.png">  
-
 
 
 ![Modal](./authorize_modal.png)
 
 
 
-Rif : [Bearer Authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)
+### Direct usage  in the api endpoint 
 
-Usefull guide for common Client available can be found here  <a href="https://openid.net/developers/certified/">Certified OpenID Connect Implementations </a>
+Example path /sharedoc/process
 
 
-
+```
+curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/process' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjE1MjE0MzYsImlhdCI6MTYyMTUyMTEzNiwiYXV0aF90aW1lIjowLCJqdGkiOiI1NjYzNjQ3Yi1jYjFhLTQxNDUtYWI5OS0xYjM0MGRhMmE4ZTciLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI1MzAwOTI2Ny00YzNkLTQ3ZTktODg2MC1mZTgyNmEwM2Y4MGMiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6IjNiOWJkZDg3LWRjYmYtNDlhZC04ZTg5LWIyNDJhZDIxZjI1NiIsImF0X2hhc2giOiI1WHBPWXVaS3RLZTNPUi1KczdBa2lnIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTAwOTUwMyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6Ik1hcmNvIFJ1YXJvIiwicGhvbmVfbnVtYmVyIjoiMTIzNDU2Nzg5MDEiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJtYXJjby5ydWFyb0BnbWFpbC5jb20iLCJnaXZlbl9uYW1lIjoiTWFyY28iLCJmYW1pbHlfbmFtZSI6IlJ1YXJvIiwiZW1haWwiOiJtYXJjby5ydWFyb0BnbWFpbC5jb20iLCJ1c2VybmFtZSI6Im1hcmNvLnJ1YXJvQGdtYWlsLmNvbSJ9.p9cJYeRDCqPiQLWKV3JQEYoLTvWm7Phbsv_61umM5HbZN052ZDHa_WcF-HibhFkagphQRoXur7w2UK6UVpRzsRygViyOT8AeSQrJS0_H-ySluZxn-vfnwxsEVuew0mx7iQsYY7mXmVX4pGYTdjZ43cUjo8kMd2_-CjqJlvn3B2H_JJwmjjBOSE8jF5i92xmEX1oieeIpNc1rQkdggPwh9bpK43S4dKlm1okrxQCrADMNoLCDJSi8_AYoAYMUJhzkn8hgrbC2LMQmTavQHSwzajcmikrk16ricTFHSe3NPn_a7is3g0fYrH5gf3qq3bajLVHeTT8_8dbaKknQBC6P6A'
+``` 
 
 
 ### Expiration time 
@@ -106,6 +132,8 @@ Pay attention that the `id_token` has an expiration time
 }
 ```
 
+* Rif : [Bearer Authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)
+* Usefull guide for common Client available can be found here  <a href="https://openid.net/developers/certified/">Certified OpenID Connect Implementations </a>
 
 --- 
 
