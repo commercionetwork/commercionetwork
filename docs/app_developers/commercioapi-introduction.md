@@ -6,19 +6,19 @@ and to query it.
 ## Getting Started
 
 In order to operate with the CommercioAPI are available two environements 
-* Develop & Test environement : to test the APi and get familiar with the system in the Test-net
-* Official  : To operate with the real CommercioAPI in the Main-net
+* Develop & Test : to test the APi and get familiar with the system in the Test-net
+* Official  : to operate with the real CommercioAPI in the Main-net
 
 The following services are envolved  with the CommercioAPI usage
 
 *  <strong>Web App</strong> : permit to obtain and mange your membership, generate and manage your hostedwallet, get your account address, see the accountability of your transactions
 *  <strong>CommercioAPI base url</strong>  : have access to the documentation of the Web RESTful services and interact with the API in the proper subpath
-*  <strong>IDM(OpenID)</strong>  : The IDentity Management service to be used for proper auhentication in the API services 
+*  <strong>IDM(OpenID)</strong>  : The IDentity Management service to be used for proper auhentication in the APIs services 
 *  <strong>Explorer</strong>  : The web application "**Almerico**" that permit to get the transaction informations from the Commercio.network blockchain ledger
 
 ### Directions 
 
-This are the end point of the serivices in the **Develop & Test** environement and **Offical** (Production) one.
+These are the end points of the services in the **Develop & Test** environement and **Offical** (Production) one.
 
 | Develop & Test | Official  | Note |
 | --- | --- | ---|
@@ -30,15 +30,15 @@ This are the end point of the serivices in the **Develop & Test** environement a
 
 ## Prerequisite 
 
-To use the API you need to
+To use the APIs you need to : 
 
-* Register and Login on web App (dev.commercio.app/commercio.app
-* Own a valid membership (Bronze,Silver,Gold) and get your id account  (or own wallet address  example : `did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl` )
-* Own enough CCC (Commerce Cash Credits) to pay the fees of the transactions you send
+* Register and Login on web App (dev.commercio.app or commercio.app)
+* Own a valid membership (Bronze,Silver,Gold) and get your `ID account`  (or own wallet address  example : `did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl` )
+* Own enough CCCs (Commerce Cash Credits) to pay for the sending of the transactions.
 
 
-## CommercioAPI overview
-Brief overview of the available functions. Refer tho the specific API guide for more details.
+## CommercioAPIs overview
+Brief overview of the available functions. Refer tho the specific APIs guide for more details.
 
 For any support or questions regarding the API or the documentation please open an <a href="https://github.com/commercionetwork/commercionetwork/issues" target="_blank">Issue </a>
 
