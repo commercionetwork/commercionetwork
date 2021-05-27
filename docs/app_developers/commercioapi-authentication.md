@@ -68,7 +68,7 @@ Simple way to compose `Bearer` `ID_token` string through curl
 
 ```
 
- echo "Bearer "$(curl -s --request POST  'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token'  --header 'Content-Type: application/x-www-form-urlencoded'   --header 'Cookie: KEYCLOAK_LOCALE=en'  --data-urlencode 'client_id=dev.commercio.app'   --data-urlencode 'grant_type=password'   --data-urlencode 'scope=openid'   --data-urlencode 'username=marco.ruaro@gmail.com'   --data-urlencode 'password=Admin1234' | jq -r '.id_token')
+ echo "Bearer "$(curl -s --request POST  'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token'  --header 'Content-Type: application/x-www-form-urlencoded'   --header 'Cookie: KEYCLOAK_LOCALE=en'  --data-urlencode 'client_id=dev.commercio.app'   --data-urlencode 'grant_type=password'   --data-urlencode 'scope=openid'   --data-urlencode 'username=testuser001@commercio.app'   --data-urlencode 'password=Testuser001' | jq -r '.id_token')
 
 ```
 

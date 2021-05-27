@@ -44,7 +44,11 @@ For any support or questions regarding the API or the documentation please open 
 
 
 ### Swagger environement
-In the **CommercioAPI base url**  is available the documentation of the set of released API  and a Tryout is possible through the Swagger interface
+In the **CommercioAPI base url**  in the path `/swagger/` is available the documentation of the set of released API  and a Tryout is possible through the Swagger interface
+
+Example 
+
+https://dev-api.commercio.app/v1/swagger/
 
 
 NB: Any Examples in the documentation refers to the **Develop & Test environement**
@@ -58,12 +62,10 @@ Using the Generate Client menu you can obtain a basic stack software for the lan
 
 
 
-
-
 ### Authentication process  
 In order to gain proper access to the API an authetication process should be performed.
 
-* <a href="">AUTHORIZE</a> : Permit to authenticate through the IDM and get permission to API usage
+* <a href="/app_developers/commercioapi-authentication.html">AUTHORIZE</a> : Permit to authenticate through the IDM and get permission to API usage
 
 ### Available APi
 
