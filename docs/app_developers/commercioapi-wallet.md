@@ -38,7 +38,7 @@ Another important things is that wallets generally don’t allow you to buy cryp
 Exchanges perform this for you.All exchanges propose you wallets where store the coins you buy,
 but wallets usually DON'T provide you any exchange service.
 
-Thus the only way to get coins in your wallet is to receive them from another did 
+Thus the only way to get coins in your wallet is to receive them from another one.  
 
 
 ## Manage the key - types of wallet 
