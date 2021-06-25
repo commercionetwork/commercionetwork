@@ -49,8 +49,11 @@ In the **CommercioAPI base url**  in the path `/swagger/` is available the docum
 Example 
 
 https://dev-api.commercio.app/v1/swagger/
+<br><br>
 
+<img src="./img/swagger.png"> 
 
+<br><br>
 NB: Any Examples in the documentation refers to the **Develop & Test environement**
 
 
@@ -73,6 +76,9 @@ The following api are available categorize by the Commercio.network Modules on w
 
 
 * <a href="/app_developers/commercioapi-sharedoc.html">Sharedoc</a> Permit to manage the  <a href="/x/documents/#sending-a-document">MsgShareDocument</a>  eDelivery Digital Time Stamping to certify document integrity  using the <a href="/x/documents/#docs">DOCS MODULE</a> 
+
+
+
 
 
 * ID (coming next): the eID. To Create and manage Self Sovereign Identities
