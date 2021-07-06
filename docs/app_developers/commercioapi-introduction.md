@@ -22,9 +22,10 @@ These are the end points of the services in the **Develop & Test** environement 
 
 | Develop & Test | Official  | Note |
 | --- | --- | ---|
-| <a href="https://dev.commercio.app" target="_blank">dev.commercio.app</a>| Cooming soon  | Web App   |
-| dev-api.commercio.app/v1/ | Cooming soon  | CommercioAPI base url  |
-| <a href="https://devlogin.commercio.app" target="_blank">devlogin.commercio.app</a> | <a href="https://login.commercio.app" target="_blank">login.commercio.app</a>    | IDM(OpenID)  |
+| <a href="dev.commercio.app" target="_blank">dev.commercio.app</a>| <a href="commercio.app" target="_blank">commercio.app</a>  | Web App   |
+| [dev-api.commercio.app/v1/](dev-api.commercio.app/v1/) | [api.commercio.app/v1/](api.commercio.app/v1/)  | CommercioAPI base url  |
+| [dev-api.commercio.app/v1//swagger/](dev-api.commercio.app/v1/swagger/) | [api.commercio.app/v1/swagger/](api.commercio.app/v1/swagger/)  | Swagger  |
+| <a href="devlogin.commercio.app" target="_blank">devlogin.commercio.app</a> | <a href="login.commercio.app" target="_blank">login.commercio.app</a>    | IDM(OpenID)  |
 | <a href="https://testnet.commercio.network" target="_blank">testnet.commercio.network</a>  | <a href="https://mainnet.commercio.network" target="_blank">mainnet.commercio.network</a>   | Explorer |
 
 
