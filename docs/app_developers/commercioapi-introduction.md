@@ -1,5 +1,9 @@
 # CommercioAPI introduction
 
+<!-- npm run docs:serve  -->
+<--! https://lcd-testnet.commercio.network/docs/did:com:1ug9j7hgaxu6mvfu2kgfdt3hqxn4mrwuztxc7nu/received -->
+
+
 CommercioAPI is a RESTfull web service  that  allows anyone to create transactions  with the set of permitted messages on the commercio.network  Blockchain 
 and to query it. 
 
@@ -22,11 +26,13 @@ These are the end points of the services in the **Develop & Test** environement 
 
 | Develop & Test | Official  | Note |
 | --- | --- | ---|
-| <a href="dev.commercio.app" target="_blank">dev.commercio.app</a>| <a href="commercio.app" target="_blank">commercio.app</a>  | Web App   |
-| [dev-api.commercio.app/v1/](dev-api.commercio.app/v1/) | [api.commercio.app/v1/](api.commercio.app/v1/)  | CommercioAPI base url  |
-| [dev-api.commercio.app/v1//swagger/](dev-api.commercio.app/v1/swagger/) | [api.commercio.app/v1/swagger/](api.commercio.app/v1/swagger/)  | Swagger  |
-| <a href="devlogin.commercio.app" target="_blank">devlogin.commercio.app</a> | <a href="login.commercio.app" target="_blank">login.commercio.app</a>    | IDM(OpenID)  |
+| <a href="https://dev.commercio.app" target="_blank">dev.commercio.app</a>| <a href="https://commercio.app" target="_blank">commercio.app</a>  | Web App   |
+| [dev-api.commercio.app/v1/](https://dev-api.commercio.app/v1/) | [api.commercio.app/v1/](https://api.commercio.app/v1/)  | CommercioAPI base url  |
+| [dev-api.commercio.app/v1/swagger/index.html](https://dev-api.commercio.app/v1/swagger/index.html) | [api.commercio.app/v1/swagger/index.html](https://api.commercio.app/v1/swagger/index.html)  | Swagger  |
+| <a href="https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token" target="_blank">devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token</a> | <a href="https://login.commercio.app/auth/realms/commercio/protocol/openid-connect/token" target="_blank">login.commercio.app/auth/realms/commercio/protocol/openid-connect/token</a>    | IDM(OpenID)  |
 | <a href="https://testnet.commercio.network" target="_blank">testnet.commercio.network</a>  | <a href="https://mainnet.commercio.network" target="_blank">mainnet.commercio.network</a>   | Explorer |
+
+
 
 
 ## Prerequisite 
