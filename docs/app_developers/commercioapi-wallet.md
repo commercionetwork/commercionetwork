@@ -1,5 +1,5 @@
 # CommercioAPI Wallet 
-<!-- npm run docs:serve  -->
+
 
 The  CommercioAPI Wallet permit to manage the basic operations on your Wallet/s
 
