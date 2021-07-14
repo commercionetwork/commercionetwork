@@ -135,11 +135,68 @@ Check the trasaction
 ![Modal](./explorer_transaction_doc_tx_hash.png)
 
 
+### Common error
+
+The following are common error composing using a  POST Sharedocument message 
+
+
+#### 1.Hashing Error
+
+Message Example 
+
+```
+ {
+    "error": "could not validate the ShareDocumentRequest: The hash field must have a length of 32, got instead 64"
+}
+```
+
+It implies that the hash string indicated in entity `hash` has not a compliant format in respect of hashing algoritm indicated in field `hash_algorithm`
+
+Example 
+
+```
+...
+"hash": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+"hash_algorithm": "md5",
+... 
+```
+
+
+The hash `2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824` is a sha-256 format NOT Md5
+
+
+#### 2. Recipients format not correct 
+
+Message Example 
+
+```
+{
+    "error": "could not build MsgShareDocument: could not derive account address from bech32 addr decoding bech32 failed: invalid bech32 string length 6: string"
+}
+```
+
+It implies that the value indicated in the entity `recipients` has not a correct format  (Format example : did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr )
+
+Entity  `recipients`  attend an array of wallet address (did) 
+
+
+Example 
+
+```
+...
+ "recipients": [
+    "string"
+  ]
+... 
+```
+
+The value `string` is not a `did` format 
+
 
 ### API Code Examples
 
 
-PHP Python C# Java Go
+cooming soon
 
 
 ## documentList sent Trasaction
