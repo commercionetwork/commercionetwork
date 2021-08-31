@@ -29,24 +29,25 @@ The result is the file’s hash value or message digest.
 
 ## ShareDoc trasaction processes 
 
-
 See folowing guides for more technical details on  <a href="/x/documents/#sending-a-document">MsgShareDocument</a> using the <a href="/x/documents/#docs">DOCS MODULE</a>
 
 
 ### Send a shareDoc 
+
+Use the API POST : `/sharedoc/process`
+
 Permit to create a process to send a message in the block chain named `MsgShareDocument` or Sharedoc message throught the DOCS  Module
 
-Thisi is done trhought the API POST : /sharedoc/process
 
 
 #### Step by step Example
 
-Let's create a new process to create share the document message containig the hash (REMEMBER not the actual document, only the hash ) of a document associated with the given contentUri and having the given metadata and checksum. 
+Let's create a new process to send a Sharedocument message containig the hash (REMEMBER not the actual document, only the hash ) of a document associated with the given contentUri and having the given metadata and checksum. 
 
-##### Step 1 - Define message datas 
+##### Step 1 - Define the first query 
 
-Following datas are used  
-* Your account address : es `did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3`
+Parameter value :
+* Your account address (authenticated user): es `did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3`
 * Account address of the recipient/s: es `did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3`
 * Hash of the document with `sha-256` algorithm: `3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824`
 * Encripted content uri : `8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9`
@@ -64,11 +65,40 @@ Following datas are used
 }
 ```
 
-##### Step 2 - Send the message 
+#### Step 2 - Use the API to Send the message 
 
-Use the API POST : /sharedoc/process 
+
+**Use the tryout**
 
 ![Modal](./sharedoc_post.png)
+
+**Corresponding Cli request**
+
+
+```
+curl -X 'POST' \
+  'https://dev-api.commercio.app/v1/sharedoc/process' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer .....' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "back_url": "http://example.com/callback",
+  "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
+  "hash": "3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+  "hash_algorithm": "sha-256",
+  "metadata": {
+    "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
+    "schema": {
+      "uri": "http://example.com/schema.xml",
+      "version": "1.0.0"
+    }
+  },
+  "recipients": [
+    "did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr"
+  ]
+}'
+```
+
 
 **API : Body response**
 
@@ -95,13 +125,14 @@ Use the API POST : /sharedoc/process
   "status": "queued"
 }
 ``` 
-Register the  process_id assigned `"process_id": "34669051-707f-4230-a960-e0ef8e517e43"`
+Register the  process_id assigned `"process_id": "34669051-707f-4230-a960-e0ef8e517e43"` for future check 
 
 
 ##### Step 3 - Check the process status 
 
 Use the API Get : /sharedoc/process with process_id = `34669051-707f-4230-a960-e0ef8e517e43`
 
+see for more details below in the guide
 
 **API : Body response**
 
@@ -215,33 +246,213 @@ It implies that the wallet of the sender has not enough CCC to pay the chain fee
 
 
 ### Sent Processes
-Use the API GET : /sharedoc/process 
+Use the API GET : `/sharedoc/process`
+
+Permit to get all the process of sharedoc sent by the authenticated user 
+
+Moreover throught the following  parameters the API  permit to paginate and order the result.
+
+* `limit` : Limit the max number of elements returned
+* `next_cursor`:  Cursor that specifies an ID from starting to return following elements
+* `order` :  Elements ordering by creation timestamp
 
 
+
+#### Step by step Example
+
+Let's create a query to get all messages sent by the sender with `did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr` thati is associated to the authenticated user 
+
+##### Step 1 - Define the first query
+
+Parameter value 
+
+* limit = 30 (is the default value) 
+* cursor = empty
+* order : asc 
+
+**Use the tryout**
+
+
+![Modal](./sharedoc_processes.png)
+
+
+**Corresponding Cli request**
+
+```
+curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/process?limit=30&order=asc' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ....'
+
+```
 
 **API : Body response**
+
+Example Value
+
+```
+{
+  "processes": [
+    {
+      "process_id": "38367565-ce60-4fb7-96ac-be591b5c65cb",
+      "sender": "did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr",
+      "receivers": [
+        "did:com:1ffjuspvy8sm8fw7wjyjtgvzg0wgv36pqxrah9n"
+      ],
+      "document_id": "be3a7460-4935-4434-b045-f0208d55c076",
+      "doc_hash": "2f1ec16b9a177aabd5e1ff6bb5685a3df3a6b462dfa147e6b35585fa58954b6b",
+      "doc_hash_alg": "sha-256",
+      "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
+      "tx_timestamp": "2021-06-30T09:49:32Z",
+      "tx_type": "commercio/MsgShareDocument",
+      "doc_storage_uri": "26148be69aa41cdab718b650c7244d7df654a1300222649ab3fc1558e33e6ec0",
+      "doc_metadata": {
+        "content_uri": "-",
+        "schema": {
+          "uri": "-",
+          "version": "-"
+        }
+      },
+      "chain_id": "commercio-testnet10k2",
+      "timestamp": "2021-06-30T09:46:25Z",
+      "status": "success"
+    },
+    {
+      "process_id": "295c021f-b14b-4b26-859d-f310cc6a7a73",
+      "sender": "did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr",
+      "receivers": [
+        "did:com:1lustf0n3t6fr2sp2p07hrf5qzja47juzccz935"
+      ],
+      "document_id": "d5a84f6c-2540-47b6-8661-70ff99a7fbff",
+      "doc_hash": "c2000af9444c2b4b949e86ab00c7521b8ecc8a5b6485dea84442f1e167b6a755",
+      "doc_hash_alg": "sha-256",
+      "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
+      "tx_timestamp": "2021-06-30T09:49:32Z",
+      "tx_type": "commercio/MsgShareDocument",
+      "doc_storage_uri": "514002e33d7c239c7a2af9a6e9f23aa4de9bb4e5abd9869fbf556f002a71e6e7",
+      "doc_metadata": {
+        "content_uri": "-",
+        "schema": {
+          "uri": "-",
+          "version": "-"
+        }
+      },
+      "chain_id": "commercio-testnet10k2",
+      "timestamp": "2021-06-30T09:46:27Z",
+      "status": "success"
+    },
+....
+    {
+      "process_id": "68b833ad-20e9-4887-bc6d-34431d4c2c03",
+      "sender": "did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr",
+      "receivers": [
+        "did:com:1aeugwtn2tdsqx5uznac5su4k7wscc4atmew04k"
+      ],
+      "document_id": "49c01045-17ab-4e75-a0bb-f683714d2f08",
+      "doc_hash": "a0ed0e4c307bd0a91f5976bb17c444332343716c5ea48f453d623ca8c2d5f4ea",
+      "doc_hash_alg": "sha-256",
+      "doc_tx_hash": "FD2E1D5DD97E9589673A6BDB2F9A2468F4A856664F843619AF0FDC1D99F6560E",
+      "tx_timestamp": "2021-06-30T10:25:06Z",
+      "tx_type": "commercio/MsgShareDocument",
+      "doc_storage_uri": "02975f9494afd8cbb9f2a776f3a5c456d4c6cba40410e1eec2d9cc3476386d2e",
+      "doc_metadata": {
+        "content_uri": "-",
+        "schema": {
+          "uri": "-",
+          "version": "-"
+        }
+      },
+      "chain_id": "commercio-testnet10k2",
+      "timestamp": "2021-06-30T10:19:44Z",
+      "status": "success"
+    }
+  ],
+  "paging": {
+    "next_cursor": "MTYyNTA0ODM4NDg0Njk2NjAwMA==",
+    "next_link": "https://dev.commercio.app/sharedoc/api/v1/sharedoc/process?limit=30&order=asc&cursor=MTYyNTA0ODM4NDg0Njk2NjAwMA==",
+    "total_count": 418
+  }
+}
+```
+
+In order to get the following processes use the value of `next_cursor` ( that is `MTYyNTA0ODM4NDg0Njk2NjAwMA==` in the exmple ) in the parameter `next_cursor`
+
 
 
 ### Sent specific process details
 Use the API GET : /sharedoc/process{process_id} 
 
+Permit to check the status of a specific process knowing its process_id assigned by the system
 
+
+#### Step by step Example
+Let's create a query to get the details of a specific process 
+
+##### Step 1 - Define the first query
+
+Lets's check the process with `"process_id": "38367565-ce60-4fb7-96ac-be591b5c65cb"`
+
+
+**Use the tryout**
+
+![Modal](./sharedoc_process_by_process_id.png)
+
+
+**Corresponding Cli request**
+
+<pre style="color:#FFF;">
+curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/process/38367565-ce60-4fb7-96ac-be591b5c65cb' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOi.....'
+</pre>
 
 **API : Body response**
 
+```
+{
+  "process_id": "38367565-ce60-4fb7-96ac-be591b5c65cb",
+  "sender": "did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr",
+  "receivers": [
+    "did:com:1ffjuspvy8sm8fw7wjyjtgvzg0wgv36pqxrah9n"
+  ],
+  "document_id": "be3a7460-4935-4434-b045-f0208d55c076",
+  "doc_hash": "2f1ec16b9a177aabd5e1ff6bb5685a3df3a6b462dfa147e6b35585fa58954b6b",
+  "doc_hash_alg": "sha-256",
+  "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
+  "tx_timestamp": "2021-06-30T09:49:32Z",
+  "tx_type": "commercio/MsgShareDocument",
+  "doc_storage_uri": "26148be69aa41cdab718b650c7244d7df654a1300222649ab3fc1558e33e6ec0",
+  "doc_metadata": {
+    "content_uri": "-",
+    "schema": {
+      "uri": "-",
+      "version": "-"
+    }
+  },
+  "chain_id": "commercio-testnet10k2",
+  "timestamp": "2021-06-30T09:46:25Z",
+  "status": "success"
+}
+
+```
+
+
+
 
 ## Sent Sharedoc
-Use the API GET : /sharedoc/sent 
+Use the API GET : `/sharedoc/sent`
 
 Permit to get all sharedocs messages sent by the did of the authenticated user. Alse messages not sent
 throught an  APi process [Send Sharedoc process](commercioapi-sharedoc.html#send-a-sharedoc)
 
 
-The API  permit to paginate and order the result through the parameter 
+Moreover throught the following  parameters the API  permit to paginate and order the result.
 
-* Limit the max number of elements returned
-* Cursor that specifies an ID from starting to return elements
-* Elements ordering by creation timestamp
+* `limit` : Limit the max number of elements returned
+* `next_cursor`:  Cursor that specifies an ID from starting to return following elements
+* `order` :  Elements ordering by creation timestamp
+
 
 
 
@@ -257,10 +468,25 @@ Parameter value
 * cursor = empty
 * order : asc 
 
-**API : Use the tryout**
+
+#### Step 2 - Use the API
+
+**Use the tryout**
 
 
 ![Modal](./sharedoc_sent.png)
+
+
+**Corresponding Cli request**
+
+```
+curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/process?limit=30&order=asc' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ....'
+
+```
+
 
 
 **API : Body response**
@@ -423,11 +649,44 @@ Use in the tryout the value
 
 
 ## Received Sharedoc
-Use the API GET : /sharedoc/received 
+Use the API GET : `/sharedoc/received`
 
 
-This an example for recipients = `did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr`
+Permit to get all sharedocs messages received (sent to)  the did of the authenticated user.
 
+Moreover throught the following  parameters the API  permit to paginate and order the result.
+
+* `limit` : Limit the max number of elements returned
+* `next_cursor`:  Cursor that specifies an ID from starting to return following elements
+* `order` :  Elements ordering by creation timestamp
+
+### Step by step Example
+
+Let's create a query to get all messages received by the authenticatd user with the did   `did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr` 
+
+#### Step 1 - Define the first query
+
+Parameter value 
+
+* limit = 3 
+* cursor = empty
+* order : asc 
+
+**Use the tryout**
+
+![Modal](./sharedoc_received.png)
+
+
+**Corresponding Cli request**
+
+```
+curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/received?limit=30&order=asc' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJSU....'
+```
+
+**API : Body response**
 
 ```
 {
@@ -470,12 +729,14 @@ This an example for recipients = `did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20q
         "algorithm": "sha-256"
       }
     },
+    ....
+
     {
-      "sender": "did:com:1e4wh3a2cp20edg7dtkmkrumt9mh4w3x0a4lvjs",
+      "sender": "did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr",
       "recipients": [
         "did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr"
       ],
-      "uuid": "02729091-2547-4130-8fdc-242100ec28c0",
+      "uuid": "12ecae4c-bb8b-411c-b516-aba29e186a21",
       "metadata": {
         "content_uri": "-",
         "schema": {
@@ -483,44 +744,42 @@ This an example for recipients = `did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20q
           "version": "-"
         }
       },
-      "content_uri": "5a2bb1e233c931a1028f4c3039382a3950cf89e0661ddb68d5e6e46fc3db6350",
+      "content_uri": "a537ba5171d65c8c8aecd7971f9a65db93906e7dbb0a8618490ed2c5a5ac19b0",
       "checksum": {
-        "value": "ef6c48e8cd2a7509a74ad3b18f5b7f63456d92c18cac1e5ce7f42c8f5c1dfaf4",
+        "value": "2d1203278986af1ac3a0d6e84b5d2cfb4d8cf2ce60dacddf91824b298189ff09",
         "algorithm": "sha-256"
       }
     }
   ],
   "paging": {
-    "next_cursor": "MDI3MjkwOTEtMjU0Ny00MTMwLThmZGMtMjQyMTAwZWMyOGMw",
-    "next_link": "https://dev.commercio.app/sharedoc/api/v1/sharedoc/received?limit=3&order=asc&cursor=MDI3MjkwOTEtMjU0Ny00MTMwLThmZGMtMjQyMTAwZWMyOGMw",
-    "total_count": 393
+    "next_cursor": "MTJlY2FlNGMtYmI4Yi00MTFjLWI1MTYtYWJhMjllMTg2YTIx",
+    "next_link": "https://dev.commercio.app/sharedoc/api/v1/sharedoc/received?limit=30&order=asc&cursor=MTJlY2FlNGMtYmI4Yi00MTFjLWI1MTYtYWJhMjllMTg2YTIx",
+    "total_count": 397
   }
 }
 
 ```
 
-The API  permit to paginate and order the result through the parameter 
-
-* Limit the max number of elements returned
-* Cursor that specifies an ID from starting to return elements
-* Elements ordering by creation timestamp
-
 
 ## Receipt
+
+This API permit to manage the reading receipt message  `MsgSendDocumentReceipt` throught the DOCS  Module  used when the receivers wants  to acknowledge the sender that he has properly read a  specific `MsgShareDocument`
+
+### Send a Receipt Message process
+
+Use the API POST : cooming soon
+
+Permit to create a recipt message relative to a Sharedocument Message recived (the did of the authenticaded user is a receipient) 
+
+
+### Sent Receipts processes
+Coming soon 
+
+### Sent Receipt Message specific process details
+Coming soon 
+
+### Received Receipt Message
 Coming soon 
 
 
-### Send Receipt Message  process
 
-Coming soon 
-
-### List of Sent Receipts Message processes
-Coming soon 
-
-### Receipts received List
-Coming soon 
-
-
-### API Code Examples
-
-cooming soon

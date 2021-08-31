@@ -82,11 +82,9 @@ In order to gain proper access to the API an authetication process should be per
 
 The following api are available categorize by the Commercio.network Modules on which are based.
 
+* <a href="/app_developers/commercioapi-wallet.html">Wallet</a> Permit to manage the the basic operations on your Wallet/s  throught the <a href="/x/bank/#sending-tokens ">Bank</a>  Module
 
 * <a href="/app_developers/commercioapi-sharedoc.html">Sharedoc</a> Permit to manage the  <a href="/x/documents/#sending-a-document">MsgShareDocument</a>  eDelivery Digital Time Stamping to certify document integrity  using the <a href="/x/documents/#docs">DOCS MODULE</a> 
-
-
-
 
 
 * ID (coming next): the eID. To Create and manage Self Sovereign Identities
