@@ -58,7 +58,7 @@ In order to use the tool is needed
 **Example** 
 Suppose you want to recharge with `10 COM`  your wallet address `did:com:1fjqvugs6dfwtax3k4zzh46pswmwryc8ff7f0mv`
 
-This is the requesto to be used 
+This is the request to be used 
 
 ```
 https://faucet-testnet.commercio.network/give?addr=did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&amount=10000000
