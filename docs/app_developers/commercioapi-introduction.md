@@ -33,6 +33,47 @@ These are the end points of the services in the **Develop & Test** environement 
 | devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token| login.commercio.app/auth/realms/commercio/protocol/openid-connect/token   | IDM(OpenID) authentication URL |
 | <a href="https://testnet.commercio.network" target="_blank">testnet.commercio.network</a>  | <a href="https://mainnet.commercio.network" target="_blank">mainnet.commercio.network</a>   | Explorer |
 
+### Develop & Test
+Is a playground where everyone can test the charcteristics 
+
+#### dev.commercio.app
+
+Memberships can be bought once registered using a sandbox credit card provided by stripe 
+
+<a href="https://stripe.com/docs/testing#cards" target="_blank">Stripe Cards</a>
+
+
+#### Faucet 
+In the https://testnet.commercio.network chain is available a tool that permits to recharge a wallet 
+with COM token . 
+
+In order to use the tool is needed 
+
+* `Endpoint` :  https://faucet-testnet.commercio.network/give
+* `addr` : destination address
+* `amount` : expressed in `ucommercio` 
+
+
+
+**Example** 
+Suppose you want to recharge with `10 COM`  your wallet address `did:com:1fjqvugs6dfwtax3k4zzh46pswmwryc8ff7f0mv`
+
+This is the requesto to be used 
+
+```
+https://faucet-testnet.commercio.network/give?addr=did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&amount=10000000
+``` 
+
+**Limits**
+
+`amount` : There is a limit in the amount value of `100000000 ucommercio`
+
+
+ATTENTION : Is not available a `faucet` for CCC . The Buy function (`coming soon`) in the dev.commercio.app must be used  
+
+
+### Official
+Is the realworld environment where real credit card transacions are requested and real token (COM and CCC) are spent
 
 
 
