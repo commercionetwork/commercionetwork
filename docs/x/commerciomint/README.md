@@ -28,7 +28,8 @@ To mint CCC you need to create and sign the following message:
         "denom": "<token denom to be deposited>"
       }
     ],
-    "depositor": "<user address>"
+    "depositor": "<user address>",
+    "id": "<uuid>”
   }
 }
 ```
