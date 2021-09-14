@@ -17,8 +17,8 @@
     "vuepress": "^1.8.2"
   },
   "dependencies": {
-    "axios": "^0.21.2",
-    "markdown-it-footnote": "^3.0.2",
+    "axios": "^0.21.4",
+    "markdown-it-footnote": "^3.0.3",
     "serialize-javascript": "^3.1.0",
     "vuepress-plugin-latex": "^0.1.3"
   }
