@@ -4,7 +4,7 @@ RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y install curl jq file tzdata
 
-VOLUME [ /cnd ]
+VOLUME /cnd
 WORKDIR /cnd
 EXPOSE 26656 26657
 ENTRYPOINT ["/usr/bin/wrapper.sh"]

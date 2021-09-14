@@ -36,22 +36,26 @@ module.exports = {
         sidebarDepth: 3,
         sidebar: [
             {
-                title: "Nodes",
+                title: "Running Nodes",
                 collapsable: false,
                 children: [
-                    ["nodes/", "Introduction"],
+                    ["nodes/", "Commercio.network overview"],
                     ["nodes/hardware-requirements", "Hardware requirements"],
                     ["nodes/full-node-installation", "Installing a full node"],
                     ["nodes/validator-node-installation", "Becoming a validator"],
                     ["nodes/validator-node-handling", "Handling a validator"],
-                    ["nodes/validator-node-update", "Updating a validator"],
+                    ["nodes/validator-node-update", "Updating a validator"]
                 ]
             },
             {
-                title: "App Developers",
+                title: "API Developers",
                 collapsable: false,
                 children: [
-                    ["app_developers/", "Introduction"]
+                    ["app_developers/commercioapi-introduction", "Introduction to CommercioAPI"],
+                    ["app_developers/commercioapi-authentication", "Authentication process"],
+                    ["app_developers/commercioapi-wallet", "Wallet"],
+                    ["app_developers/commercioapi-sharedoc", "ShareDoc"],
+
                 ]
             },
             {
@@ -65,7 +69,7 @@ module.exports = {
                 ]
             },
             {
-                title: "Modules",
+                title: "Custom Commercio.network Modules",
                 collapsable: false,
                 children: [
                     "x/bank/",
