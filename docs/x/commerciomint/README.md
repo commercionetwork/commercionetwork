@@ -29,7 +29,7 @@ To mint CCC you need to create and sign the following message:
       }
     ],
     "depositor": "<user address>",
-    "id": "<uuid>”
+    "id": "<Mint UUID>”
   }
 }
 ```
@@ -40,7 +40,7 @@ To mint CCC you need to create and sign the following message:
 | :---: | :------: | :------: |
 | `deposited_amount` | Yes |  | 
 | `depositor` | Yes | bech32 | 
-| `id` | Yes | <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank"> uuid-v4</a> | 
+| `id` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) | 
 
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
