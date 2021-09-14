@@ -29,7 +29,7 @@ To mint CCC you need to create and sign the following message:
       }
     ],
     "depositor": "<user address>",
-    "id": "<Mint UUID>”
+    "id": "<Mint UUID>"
   }
 }
 ```
