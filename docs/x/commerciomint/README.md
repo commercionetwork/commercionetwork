@@ -9,7 +9,7 @@ escrow until the borrowed Commercio Cash Credits are returned.
 
 In simple words, opening a ETP allows you to exchange any amount of `ucommercio` to get relative the amount of `uccc` with relative Conversion Rate value. 
 For example, if you open a ETP lending `100 ucommercio` with 1.1 Conversion Rate value will result in you receiving `90 uccc` (approximation by default).  
-Initial Conversion Rate value is 2.0.       
+Initial Conversion Rate value is 1.0.       
 
 ## Transactions
 
@@ -119,7 +119,7 @@ If you want to [list past transactions](../../../developers/listing-transactions
 you need to use the following `message.action` value: 
 
 ```
-setCCCConversionRate
+setEtpsConversionRate
 ```
 
 ### Set CCC freeze period
@@ -148,7 +148,7 @@ If you want to [list past transactions](../../../developers/listing-transactions
 you need to use the following `message.action` value: 
 
 ```
-setCCCFreezePeriod
+setEtpsFreezePeriod
 ```
 
 
