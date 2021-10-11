@@ -1,50 +1,48 @@
 package types
 
 const (
-	ModuleName   = "id"
-	StoreKey     = ModuleName
+	// ModuleName defines the module name
+	ModuleName = "id"
+
+	// StoreKey defines the primary module store key
+	StoreKey = ModuleName
+
+	// RouterKey is the message route for slashing
+	RouterKey = ModuleName
+
+	// QuerierRoute defines the module's query routing key
 	QuerierRoute = ModuleName
 
-	// -----------------
-	// --- Store keys
-	// -----------------
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "mem_id"
 
+	// Version defines the current version the IBC module supports
+	Version = "id-1"
+
+	// PortID is the default port id that module binds to
+	PortID = "id"
+
+	// Identity prefix
 	IdentitiesStorePrefix = StoreKey + ":identities:"
 
-	KeyTypeRsaVerification = "RsaVerificationKey2018"
-	KeyTypeRsaSignature    = "RsaSignatureKey2018"
-	KeyTypeSecp256k1       = "Secp256k1VerificationKey2018"
-	KeyTypeSecp256k12019   = "EcdsaSecp256k1VerificationKey2019"
-	KeyTypeEd25519         = "Ed25519VerificationKey2018"
-
-	DidPowerUpRequestStorePrefix               = StoreKey + "powerUpRequest"
-	HandledPowerUpRequestsReferenceStorePrefix = StoreKey + "handledPowerUpRequestsReference"
-
-	StatusApproved = "approved"
-	StatusRejected = "rejected"
-	StatusCanceled = "canceled"
-
-	// --------------
-	// --- Queries
-	// --------------
-
-	QueryResolveDid = "identities"
-
-	QueryResolvePowerUpRequest     = "powerUpRequest"
-	QueryGetApprovedPowerUpRequest = "approvedPowerUpRequest"
-	QueryGetRejectedPowerUpRequest = "rejectedPowerUpRequest"
-	QueryGetPendingPowerUpRequest  = "pendingPowerUpRequest"
-
-	// --------------
-	// --- Messages
-	// --------------
-
-	MsgTypeSetIdentity         = "setIdentity"
-	MsgTypeRequestDidPowerUp   = "requestDidPowerUp"
-	MsgTypeChangePowerUpStatus = "changePowerUpStatus"
-
-	// --------------
-	// --- Context
-	// --------------
+	// Context
 	ContextDidV1 = "https://www.w3.org/ns/did/v1"
+
+	// key types
+	KeyTypeRsaVerification   = "RsaVerificationKey2018"
+	KeyTypeRsaSignature      = "RsaSignatureKey2018"
+	KeyTypeSecp256k1         = "Secp256k1VerificationKey2018"
+	KeyTypeSecp256k12019     = "EcdsaSecp256k1VerificationKey2019"
+	KeyTypeEd25519           = "Ed25519VerificationKey2018"
+	KeyTypeBls12381G1Key2020 = "Bls12381G1Key2020"
+	KeyTypeBls12381G2Key2020 = "Bls12381G2Key2020"
 )
+
+var (
+	// PortKey defines the key to store the port ID in store
+	PortKey = KeyPrefix("id-port-")
+)
+
+func KeyPrefix(p string) []byte {
+	return []byte(p)
+}

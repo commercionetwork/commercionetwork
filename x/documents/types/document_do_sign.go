@@ -25,15 +25,6 @@ var validSdnData = map[string]struct{}{
 	SdnDataCountry:      {},
 }
 
-// DocumentDoSign represents the optional DoSign value inside a Document.
-type DocumentDoSign struct {
-	StorageURI         string  `json:"storage_uri"`
-	SignerInstance     string  `json:"signer_instance"`
-	SdnData            SdnData `json:"sdn_data"`
-	VcrID              string  `json:"vcr_id"`
-	CertificateProfile string  `json:"certificate_profile"`
-}
-
 // SdnData represents the SdnData value inside a DocumentDoSign struct.
 type SdnData []string
 

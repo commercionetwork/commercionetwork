@@ -1,39 +1,18 @@
 package upgrade
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/commercionetwork/commercionetwork/x/upgrade/keeper"
+	"github.com/commercionetwork/commercionetwork/x/upgrade/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GenesisState - all upgrade state that must be provided at genesis
-type GenesisState struct {
+// InitGenesis initializes the capability module's state from a provided genesis
+// state.
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 }
 
-// NewGenesisState creates a new GenesisState object
-func NewGenesisState() GenesisState {
-	return GenesisState{}
-}
-
-// DefaultGenesisState - default GenesisState used by Cosmos Hub
-func DefaultGenesisState() GenesisState {
-	return GenesisState{}
-}
-
-// ValidateGenesis validates the upgrade genesis parameters
-func ValidateGenesis(data GenesisState) error {
-	return nil
-}
-
-// InitGenesis initialize default parameters
-// and the keeper's address to pubkey map
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState) {
-
-}
-
-// ExportGenesis writes the current store values
-// to a genesis file, which can be imported again
-// with InitGenesis
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper) (data GenesisState) {
-	return NewGenesisState()
+// ExportGenesis returns the capability module's exported genesis.
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	genesis := types.DefaultGenesisState()
+    return genesis
 }

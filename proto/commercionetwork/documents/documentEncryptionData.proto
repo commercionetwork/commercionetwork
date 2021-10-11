@@ -1,0 +1,12 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+import "gogoproto/gogo.proto";
+import "commercionetwork/documents/documentEncryptionKey.proto";
+
+message DocumentEncryptionData {
+  repeated documents.DocumentEncryptionKey keys = 1;
+  repeated string encryptedData = 2;
+}

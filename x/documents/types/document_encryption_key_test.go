@@ -8,7 +8,7 @@ import (
 )
 
 var key = DocumentEncryptionKey{
-	Recipient: recipient,
+	Recipient: recipient.String(),
 	Value:     "76616C7565",
 }
 
@@ -33,7 +33,7 @@ func TestDocumentEncryptionKey_Equals(t *testing.T) {
 			"different recipient",
 			key,
 			DocumentEncryptionKey{
-				Recipient: sender,
+				Recipient: sender.String(),
 				Value:     key.Value,
 			},
 			false,

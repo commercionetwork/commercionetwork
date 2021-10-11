@@ -1,25 +1,33 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-// RegisterCodec registers concrete types on codec
-func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(upgrade.Plan{}, "cosmos-sdk/Plan", nil)
-	cdc.RegisterConcrete(MsgScheduleUpgrade{}, fmt.Sprintf("upgrade/%s", ScheduleUpgradeConst), nil)
-	cdc.RegisterConcrete(MsgDeleteUpgrade{}, fmt.Sprintf("upgrade/%s", DeleteUpgradeConst), nil)
+func RegisterCodec(cdc *codec.LegacyAmino) {
+	// this line is used by starport scaffolding # 2
+cdc.RegisterConcrete(&MsgDeleteUpgrade{}, "upgrade/DeleteUpgrade", nil)
+
+	cdc.RegisterConcrete(&MsgScheduleUpgrade{}, "upgrade/MsgScheduleUpgrade", nil)
+
 }
 
-// ModuleCdc defines the module codec
-var ModuleCdc *codec.Codec
+func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	// this line is used by starport scaffolding # 3
+registry.RegisterImplementations((*sdk.Msg)(nil),
+	&MsgDeleteUpgrade{},
+)
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgScheduleUpgrade{},
+	)
 
-func init() {
-	ModuleCdc = codec.New()
-	RegisterCodec(ModuleCdc)
-	codec.RegisterCrypto(ModuleCdc)
-	ModuleCdc.Seal()
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
+
+var (
+	amino     = codec.NewLegacyAmino()
+	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+)

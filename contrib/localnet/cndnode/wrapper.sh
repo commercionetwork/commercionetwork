@@ -3,7 +3,7 @@
 ##
 ## Input parameters
 ##
-BINARY=/cnd/${BINARY:-cnd}
+BINARY=/cnd/${BINARY:-commercionetworkd}
 ID=${ID:-0}
 LOG=${LOG:-cnd.log}
 

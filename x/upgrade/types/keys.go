@@ -1,14 +1,30 @@
 package types
 
 const (
-	// ModuleName is the name of the module
+	// ModuleName defines the module name
 	ModuleName = "upgrade"
 
-	// RouterKey to be used for routing msgs
+	// StoreKey defines the primary module store key
+	StoreKey = ModuleName
+
+	// RouterKey is the message route for slashing
 	RouterKey = ModuleName
 
-	// QuerierRoute to be used for querier msgs
+	// QuerierRoute defines the module's query routing key
 	QuerierRoute = ModuleName
 
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "mem_upgrade"
+
+	// this line is used by starport scaffolding # ibc/keys/name
 	QueryCurrent = "current"
+
+	MsgTypeScheduleUpgrade  = "ScheduleUpgrade"
+	MsgTypeDeleteUpgrade  = "DeleteUpgrade"
 )
+
+// this line is used by starport scaffolding # ibc/keys/port
+
+func KeyPrefix(p string) []byte {
+	return []byte(p)
+}

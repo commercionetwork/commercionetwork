@@ -1,20 +1,34 @@
 package types
 
-import "github.com/cosmos/cosmos-sdk/codec"
+import (
+	"github.com/cosmos/cosmos-sdk/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
+)
 
-// RegisterCodec registers concrete types on wire codec
-func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgMintCCC{}, "commercio/MsgMintCCC", nil)
-	cdc.RegisterConcrete(MsgBurnCCC{}, "commercio/MsgBurnCCC", nil)
-	cdc.RegisterConcrete(MsgSetCCCConversionRate{}, "commercio/MsgSetCCCConversionRate", nil)
-	cdc.RegisterConcrete(MsgSetCCCFreezePeriod{}, "commercio/MsgSetCCCFreezePeriod", nil)
+func RegisterCodec(cdc *codec.LegacyAmino) {
+	// this line is used by starport scaffolding # 2
+	cdc.RegisterConcrete(&MsgMintCCC{}, "commerciomint/MintCCC", nil)
+	cdc.RegisterConcrete(&MsgBurnCCC{}, "commerciomint/BurnCCC", nil)
+	cdc.RegisterConcrete(&MsgSetCCCConversionRate{}, "commerciomint/MsgSetCCCConversionRate", nil)
+	cdc.RegisterConcrete(&MsgSetCCCFreezePeriod{}, "commerciomint/MsgSetCCCFreezePeriod", nil)
+
 }
 
-var ModuleCdc *codec.Codec
+func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	// this line is used by starport scaffolding # 3
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgMintCCC{},
+		&MsgBurnCCC{},
+		&MsgSetCCCConversionRate{},
+		&MsgSetCCCFreezePeriod{},
+	)
 
-func init() {
-	ModuleCdc = codec.New()
-	RegisterCodec(ModuleCdc)
-	codec.RegisterCrypto(ModuleCdc)
-	ModuleCdc.Seal()
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
+
+var (
+	//amino     = codec.NewLegacyAmino()
+	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+)

@@ -1,14 +1,43 @@
 package types
 
 const (
-	ModuleName   = "docs"
-	StoreKey     = ModuleName
+	// ModuleName defines the module name
+	ModuleName = "documents"
+
+	// StoreKey defines the primary module store key
+	StoreKey = ModuleName
+
+	// RouterKey is the message route for slashing
+	RouterKey = ModuleName
+
+	// QuerierRoute defines the module's query routing key
 	QuerierRoute = ModuleName
 
-	SupportedMetadataSchemesStoreKey = StoreKey + "supportedMetadata"
-	MetadataSchemaProposersStoreKey  = StoreKey + "metadataSchemaProposers"
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "mem_documents"
 
-	DocumentStorePrefix     = StoreKey + ":document:"
+	/*// Version defines the current version the IBC module supports
+	Version = "documents-1"
+
+	// PortID is the default port id that module binds to
+	PortID = "documents"*/
+
+	DocumentStorePrefix = StoreKey + ":document:"
+)
+
+var (
+	// PortKey defines the key to store the port ID in store
+	PortKey = KeyPrefix("documents-port-")
+)
+
+func KeyPrefix(p string) []byte {
+	return []byte(p)
+}
+
+const (
+	DocumentKey      = "Document-value-"
+	DocumentCountKey = "Document-count-"
+
 	SentDocumentsPrefix     = StoreKey + ":documents:sent:"
 	ReceivedDocumentsPrefix = StoreKey + ":documents:received:"
 
@@ -16,15 +45,11 @@ const (
 	SentDocumentsReceiptsPrefix     = StoreKey + ":receipts:sent:"
 	ReceivedDocumentsReceiptsPrefix = StoreKey + ":receipts:received:"
 
-	MsgTypeShareDocument                    = "shareDocument"
-	MsgTypeSendDocumentReceipt              = "sendDocumentReceipt"
-	MsgTypeAddSupportedMetadataSchema       = "addSupportedMetadataSchema"
-	MsgTypeAddTrustedMetadataSchemaProposer = "addTrustedMetadataSchemaProposer"
+	MsgTypeShareDocument       = "shareDocument"
+	MsgTypeSendDocumentReceipt = "sendDocumentReceipt"
 
-	QuerySentDocuments            = "sent"
-	QueryReceivedDocuments        = "received"
-	QueryReceivedReceipts         = "receivedReceipts"
-	QuerySentReceipts             = "sentReceipts"
-	QuerySupportedMetadataSchemes = "supportedMetadataSchemes"
-	QueryTrustedMetadataProposers = "trustedMetadataProposers"
+	QuerySentDocuments     = "sent"
+	QueryReceivedDocuments = "received"
+	QueryReceivedReceipts  = "receivedReceipts"
+	QuerySentReceipts      = "sentReceipts"
 )

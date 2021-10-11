@@ -6,13 +6,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/params"
+	auth "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authType "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bank "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	params "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramsType "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/supply"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
@@ -21,18 +22,17 @@ import (
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
-func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	cdc := testCodec()
 
 	keys := sdk.NewKVStoreKeys(
-		auth.StoreKey,
-		params.StoreKey,
-		supply.StoreKey,
+		authType.StoreKey,
+		paramsType.StoreKey,
 		governmentTypes.StoreKey,
 		types.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(paramsType.QuerierRoute)
 
 	ms := store.NewCommitMultiStore(memDB)
 	for _, key := range keys {
@@ -43,11 +43,15 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keepe
 	}
 	_ = ms.LoadLatestVersion()
 
-	ctx := sdk.NewContext(ms, abci.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger()).WithBlockTime(time.Now())
+	var header tmproto.Header
+	header.ChainID = "test-chain-id"
 
-	pk := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey])
-	ak := auth.NewAccountKeeper(cdc, keys[auth.StoreKey], pk.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(ak, pk.Subspace(bank.DefaultParamspace), nil)
+	ctx := sdk.NewContext(ms, header, false, log.NewNopLogger()).WithBlockTime(time.Now())
+
+	legacyCodec := codec.NewLegacyAmino()
+	pk := params.NewKeeper(cdc, legacyCodec, keys[paramsType.StoreKey], tkeys[paramsType.TStoreKey])
+	/*ak := auth.NewAccountKeeper(cdc, keys[authType.StoreKey], pk.Subspace(authType.Subspace.Name()), authType.ProtoBaseAccount)
+	bk := bank.NewBaseKeeper(cdc, ak, pk.Subspace(bank.DefaultParamspace), nil)
 	maccPerms := map[string][]string{
 		types.ModuleName: {supply.Minter, supply.Burner},
 	}
@@ -74,7 +78,7 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, supply.Keepe
 	err = mintK.SetFreezePeriod(ctx, 0)
 	if err != nil {
 		panic(err)
-	}
+	}*/
 
 	return ctx, bk, govkeeper, sk, mintK
 }

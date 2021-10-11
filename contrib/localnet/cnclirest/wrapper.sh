@@ -3,7 +3,7 @@
 ##
 ## Input parameters
 ##
-BINARYCLI=/cnd/${BINARYCLI:-cncli}
+BINARYCLI=/cnd/${BINARYCLI:-commercionetworkd}
 ID=${ID:-0}
 LOGCLI=${LOGCLI:-cnd.cncli.log}
 

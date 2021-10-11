@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package commercionetwork.commercionetwork.commerciomint;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+message Position {
+  string owner = 1;
+  int64 collateral = 2;
+  cosmos.base.v1beta1.Coin credits = 3;
+  string created_at = 4;
+  string ID = 5;
+  cosmos.base.v1beta1.DecProto exchange_rate = 6; // Maybe string
+}

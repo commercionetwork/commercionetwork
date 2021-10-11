@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
-	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	//	bType "github.com/commercionetwork/commercionetwork/x/basic/types"
+	// this line is used by starport scaffolding # ibc/keeper/import
 )
 
 const (
@@ -20,87 +21,37 @@ const (
 	eventSavedReceipt      = "new_saved_receipt"
 )
 
-// ----------------------------------
-// --- Keeper definition
-// ----------------------------------
+type (
+	Keeper struct {
+		cdc      codec.Marshaler
+		storeKey sdk.StoreKey
+		memKey   sdk.StoreKey
+		/*channelKeeper types.ChannelKeeper
+		portKeeper    types.PortKeeper
+		scopedKeeper  types.ScopedKeeper*/
+	}
+)
 
-type Keeper struct {
-	StoreKey sdk.StoreKey
-
-	GovernmentKeeper government.Keeper
-
-	cdc *codec.Codec
-}
-
-func NewKeeper(storeKey sdk.StoreKey, gKeeper government.Keeper, cdc *codec.Codec) Keeper {
-	return Keeper{
-		StoreKey:         storeKey,
-		GovernmentKeeper: gKeeper,
-		cdc:              cdc,
+func NewKeeper(
+	cdc codec.Marshaler,
+	storeKey,
+	memKey sdk.StoreKey,
+	/*channelKeeper types.ChannelKeeper,
+	portKeeper types.PortKeeper,
+	scopedKeeper types.ScopedKeeper,*/
+) *Keeper {
+	return &Keeper{
+		cdc:      cdc,
+		storeKey: storeKey,
+		memKey:   memKey,
+		/*channelKeeper: channelKeeper,
+		portKeeper:    portKeeper,
+		scopedKeeper:  scopedKeeper,*/
 	}
 }
 
-// ----------------------
-// --- Metadata schemes
-// ----------------------
-
-// AddSupportedMetadataScheme allows to add or update the given metadata scheme definition as a supported metadata
-// scheme that will be accepted into document sending transactions
-func (keeper Keeper) AddSupportedMetadataScheme(ctx sdk.Context, metadataSchema types.MetadataSchema) {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	msk := metadataSchemaKey(metadataSchema)
-
-	store.Set(msk, keeper.cdc.MustMarshalBinaryBare(metadataSchema))
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventNewMetadataScheme,
-		sdk.NewAttribute("version", metadataSchema.Version),
-		sdk.NewAttribute("type", metadataSchema.Type),
-		sdk.NewAttribute("uri", metadataSchema.SchemaURI),
-	))
-}
-
-// IsMetadataSchemeTypeSupported returns true iff the given metadata scheme type is supported
-// as an official one
-func (keeper Keeper) IsMetadataSchemeTypeSupported(ctx sdk.Context, metadataSchemaType string) bool {
-	i := keeper.SupportedMetadataSchemesIterator(ctx)
-	defer i.Close()
-
-	for ; i.Valid(); i.Next() {
-		var ms types.MetadataSchema
-		keeper.cdc.MustUnmarshalBinaryBare(i.Value(), &ms)
-
-		if ms.Type == metadataSchemaType {
-			return true
-		}
-	}
-
-	return false
-}
-
-// ------------------------------
-// --- Metadata schema proposers
-// ------------------------------
-
-// AddTrustedSchemaProposer adds the given proposer to the list of trusted addresses
-// that can propose new metadata schemes as officially recognized
-func (keeper Keeper) AddTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAddress) {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	store.Set(metadataSchemaProposerKey(proposer), keeper.cdc.MustMarshalBinaryBare(proposer))
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventNewTMSP,
-		sdk.NewAttribute("address", proposer.String()),
-	))
-}
-
-// IsTrustedSchemaProposer returns true iff the given proposer is a trusted one
-func (keeper Keeper) IsTrustedSchemaProposer(ctx sdk.Context, proposer sdk.AccAddress) bool {
-	store := ctx.KVStore(keeper.StoreKey)
-
-	return store.Has(metadataSchemaProposerKey(proposer))
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 // ----------------------
@@ -121,34 +72,38 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	}
 
 	// Store the document object
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 	store.Set(getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshalBinaryBare(&document))
 
 	// Store the document as sent by the sender
 
 	// Idea: SentDocumentsPrefix + address + document.UUID -> document.UUID
-	sentDocumentsStoreKey := getSentDocumentsIdsUUIDStoreKey(document.Sender, document.UUID)
+	senderAccadrr, _ := sdk.AccAddressFromBech32(document.Sender)
+	//sentDocumentsStoreKey := getSentDocumentsIdsUUIDStoreKey(sdk.AccAddress(document.Sender), document.UUID)
+	sentDocumentsStoreKey := getSentDocumentsIdsUUIDStoreKey(senderAccadrr, document.UUID)
 
-	store.Set(sentDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(document.UUID))
+	store.Set(sentDocumentsStoreKey, []byte(document.UUID))
 
 	// Store the documents as received for all the recipients
 	for _, recipient := range document.Recipients {
-		receivedDocumentsStoreKey := getReceivedDocumentsIdsUUIDStoreKey(recipient, document.UUID)
+		recipientAccAdrr, _ := sdk.AccAddressFromBech32(recipient)
+		//receivedDocumentsStoreKey := getReceivedDocumentsIdsUUIDStoreKey(sdk.AccAddress(recipient), document.UUID)
+		receivedDocumentsStoreKey := getReceivedDocumentsIdsUUIDStoreKey(recipientAccAdrr, document.UUID)
 
-		store.Set(receivedDocumentsStoreKey, keeper.cdc.MustMarshalBinaryBare(document.UUID))
+		store.Set(receivedDocumentsStoreKey, []byte(document.UUID))
 	}
 
 	attributes := make([]sdk.Attribute, 0, len(document.Recipients)+2)
 
 	attributes = append(attributes,
-		sdk.NewAttribute("sender", document.Sender.String()),
+		sdk.NewAttribute("sender", document.Sender),
 		sdk.NewAttribute("doc_id", document.UUID),
 	)
 
 	for i, r := range document.Recipients {
 		attributes = append(attributes, sdk.NewAttribute(
 			fmt.Sprintf("receiver_%d", i),
-			r.String(),
+			r,
 		))
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -159,18 +114,12 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	return nil
 }
 
-// GetDocumentByID returns the document having the given id, or false if no document has been found
-func (keeper Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, error) {
-	store := ctx.KVStore(keeper.StoreKey)
+// ExtractDocument returns a Document slice instance and its UUID given an iterator byte stream value.
+func (keeper Keeper) ExtractDocument(ctx sdk.Context, keyVal []byte) (types.Document, string, error) {
+	documentUUID := string(keyVal[len(types.DocumentStorePrefix):])
 
-	documentKey := getDocumentStoreKey(id)
-	if !store.Has(documentKey) {
-		return types.Document{}, fmt.Errorf("cannot find document with uuid %s", id)
-	}
-
-	var document types.Document
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(documentKey), &document)
-	return document, nil
+	document, err := keeper.GetDocumentByID(ctx, documentUUID)
+	return document, documentUUID, err
 }
 
 // ----------------------
@@ -188,12 +137,16 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "recepit points to a non-existing document UUID")
 	}
 
-	store := ctx.KVStore(keeper.StoreKey)
-	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(receipt.Sender, receipt.DocumentUUID)
-	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(receipt.Recipient, receipt.DocumentUUID)
+	store := ctx.KVStore(keeper.storeKey)
+	senderAccadrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
+	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccadrr, receipt.DocumentUUID)
+	//sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(sdk.AccAddress(receipt.Sender), receipt.DocumentUUID)
+	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
+	//receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(sdk.AccAddress(receipt.Recipient), receipt.DocumentUUID)
+	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.DocumentUUID)
 
-	marshaledRecepit := keeper.cdc.MustMarshalBinaryBare(receipt)
-	marshaledRecepitID := keeper.cdc.MustMarshalBinaryBare(receipt.UUID)
+	marshaledRecepit := keeper.cdc.MustMarshalBinaryBare(&receipt)
+	marshaledRecepitID := []byte(receipt.UUID)
 
 	// Store the receipt as sent
 	if store.Has(sentReceiptsIdsStoreKey) {
@@ -214,8 +167,8 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 		eventSavedReceipt,
 		sdk.NewAttribute("receipt_id", receipt.UUID),
 		sdk.NewAttribute("document_id", receipt.DocumentUUID),
-		sdk.NewAttribute("sender", receipt.Sender.String()),
-		sdk.NewAttribute("recipient", receipt.Recipient.String()),
+		sdk.NewAttribute("sender", receipt.Sender),
+		sdk.NewAttribute("recipient", receipt.Recipient),
 	))
 
 	return nil
@@ -223,7 +176,7 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 // GetReceiptByID returns the document receipt having the given id, or false if such receipt could not be found
 func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentReceipt, error) {
-	store := ctx.KVStore(keeper.StoreKey)
+	store := ctx.KVStore(keeper.storeKey)
 	key := getReceiptStoreKey(id)
 
 	if !store.Has(key) {
@@ -235,35 +188,12 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	return receipt, nil
 }
 
-// ExtractDocument returns a Document slice instance and its UUID given an iterator byte stream value.
-func (keeper Keeper) ExtractDocument(ctx sdk.Context, keyVal []byte) (types.Document, string, error) {
-	documentUUID := string(keyVal[len(types.DocumentStorePrefix):])
-
-	document, err := keeper.GetDocumentByID(ctx, documentUUID)
-	return document, documentUUID, err
-}
-
 // ExtractReceipt returns a DocumentReceipt slice instance and its UUID given an iterator byte stream value.
 func (keeper Keeper) ExtractReceipt(ctx sdk.Context, iterVal []byte) (types.DocumentReceipt, string, error) {
-	rid := ""
-	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &rid)
+	/*var rid bType.StringContainer
+	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &rid)*/
+	rid := string(iterVal)
 
 	newReceipt, err := keeper.GetReceiptByID(ctx, rid)
 	return newReceipt, rid, err
-}
-
-// ExtractMetadataSchema returns a MetadataSchema slice instance and given an iterator byte stream value.
-func (keeper Keeper) ExtractMetadataSchema(iterVal []byte) types.MetadataSchema {
-	ms := types.MetadataSchema{}
-
-	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &ms)
-	return ms
-}
-
-// ExtractTrustedSchemaProposer returns a sdk.AccAddress slice instance given an iterator byte stream value.
-func (keeper Keeper) ExtractTrustedSchemaProposer(iterVal []byte) sdk.AccAddress {
-	tsp := sdk.AccAddress{}
-
-	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &tsp)
-	return tsp
 }

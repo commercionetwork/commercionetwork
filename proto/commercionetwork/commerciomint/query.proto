@@ -1,0 +1,77 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciomint;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "commercionetwork/commerciomint/position.proto";
+import "cosmos/base/v1beta1/coin.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+// Query defines the gRPC querier service.
+service Query {
+	// Queries a Etp by id.
+	rpc Etp(QueryEtpRequest) returns (QueryEtpResponse) {
+		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/etps/{ID}";
+	}
+
+	rpc EtpByOwner(QueryEtpRequestByOwner) returns (QueryEtpsResponse) {
+		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/owner/{Owner}";
+	}
+
+	rpc Etps(QueryEtpsRequest) returns (QueryEtpsResponse) {
+		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/etps";
+	}
+
+	rpc ConversionRate(QueryConversionRate) returns (QueryConversionRateResponse) {
+		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/conversion_rate";
+	}
+
+	rpc FreezePeriod(QueryFreezePeriod) returns (QueryFreezePeriodResponse) {
+		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/freeze_period";
+	}
+
+    // this line is used by starport scaffolding # 2
+    
+}
+
+message QueryEtpRequest {
+	string ID = 1;
+}
+
+message QueryEtpRequestByOwner {
+	string Owner = 1;
+}
+
+message QueryEtpResponse {
+	Position Position = 1;
+}
+
+
+message QueryEtpsRequest {
+}
+
+message QueryEtpsResponse {
+	repeated Position Positions = 1;
+}
+
+
+message QueryConversionRate {
+}
+
+message QueryConversionRateResponse {
+	cosmos.base.v1beta1.DecProto rate = 1;
+}
+
+
+message QueryFreezePeriod {
+}
+
+message QueryFreezePeriodResponse {
+	string freeze_period = 1;
+}
+
+
+
+// this line is used by starport scaffolding # 3

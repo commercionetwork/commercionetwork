@@ -26,4 +26,6 @@ const (
 	QueryGetMembership              = "membership"
 	QueryGetMemberships             = "memberships"
 	QueryGetTspMemberships          = "sold"
+
+	CreditsDenom = "uccc"
 )

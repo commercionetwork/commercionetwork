@@ -1,0 +1,24 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.government;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";
+
+// Query defines the gRPC querier service.
+service Query {
+	// Queries a DidDocument by id.
+	rpc GovernmentAddr(QueryGovernmentAddrRequest) returns (QueryGovernmentAddrResponse) {
+		option (google.api.http).get = "/commercionetwork/commercionetwork/government/address";
+	}
+
+    // this line is used by starport scaffolding # 2
+    
+}
+message QueryGovernmentAddrRequest {}
+
+message QueryGovernmentAddrResponse {
+	string governmentAddress = 1;
+}

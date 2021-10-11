@@ -1,51 +1,46 @@
 package id
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/commercionetwork/commercionetwork/x/id/keeper"
 	"github.com/commercionetwork/commercionetwork/x/id/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GenesisState - id genesis state
-type GenesisState struct {
-	DidDocuments    []types.DidDocument       `json:"did_documents"`
-	PowerUpRequests []types.DidPowerUpRequest `json:"power_up_requests"`
-}
-
-// DefaultGenesisState returns a default genesis state
-func DefaultGenesisState() GenesisState {
-	return GenesisState{}
-}
-
-// InitGenesis sets ids information for genesis.
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
-	for _, didDocument := range data.DidDocuments {
-		if err := keeper.SaveDidDocument(ctx, didDocument); err != nil {
-			panic(err)
-		}
+// InitGenesis initializes the capability module's state from a provided genesis
+// state.
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
+	for _, elem := range genState.DocumentList {
+		k.AppendId(ctx, *elem)
 	}
 
-	for _, powerUp := range data.PowerUpRequests {
-		if err := keeper.StorePowerUpRequest(ctx, powerUp); err != nil {
-			panic(err)
+	// this line is used by starport scaffolding # genesis/module/init
+
+	k.SetPort(ctx, genState.PortId)
+	// Only try to bind to port if it is not already bound, since we may already own
+	// port capability from capability InitGenesis
+	if !k.IsBound(ctx, genState.PortId) {
+		// module binds to the port on InitChain
+		// and claims the returned capability
+		err := k.BindPort(ctx, genState.PortId)
+		if err != nil {
+			panic("could not claim port capability: " + err.Error())
 		}
 	}
 }
 
-// ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
-	identities := keeper.GetDidDocuments(ctx)
-	requests := keeper.GetPowerUpRequests(ctx)
+// ExportGenesis returns the capability module's exported genesis.
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	genesis := types.DefaultGenesis()
 
-	return GenesisState{
-		DidDocuments:    identities,
-		PowerUpRequests: requests,
+	didDocumenttList := k.GetAllDidDocument(ctx)
+	for _, elem := range didDocumenttList {
+		elem := elem
+		genesis.DocumentList = append(genesis.DocumentList, &elem)
 	}
-}
 
-// ValidateGenesis performs basic validation of genesis data returning an
-// error for any failed validation criteria.
-func ValidateGenesis(_ GenesisState) error {
-	return nil
+	// this line is used by starport scaffolding # genesis/module/export
+
+	genesis.PortId = k.GetPort(ctx)
+
+	return genesis
 }

@@ -1,0 +1,18 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+import "gogoproto/gogo.proto";
+
+message DocumentMetadataSchema {
+  string URI = 1;
+  string version = 2;
+}
+
+message DocumentMetadata {
+	string contentURI = 1;
+	//string schemaType = 2;
+	DocumentMetadataSchema schema = 2;
+}
+  

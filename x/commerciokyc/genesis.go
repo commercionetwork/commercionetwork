@@ -1,57 +1,35 @@
 package commerciokyc
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/supply"
-
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
-// GenesisState - commerciokyc genesis state
-type GenesisState struct {
-	LiquidityPoolAmount     sdk.Coins         `json:"liquidity_pool_amount"`     // Liquidity pool from which to get the rewards
-	Invites                 types.Invites     `json:"invites"`                   // List of invites
-	TrustedServiceProviders ctypes.Addresses  `json:"trusted_service_providers"` // List of trusted service providers
-	Memberships             types.Memberships `json:"memberships"`               // List of all the existing memberships
-}
-
-// DefaultGenesisState returns a default genesis state
-func DefaultGenesisState(stableCreditsDenom string) GenesisState {
-	return GenesisState{}
-}
-
 // InitGenesis sets commerciokyc information for genesis.
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keeper, data GenesisState) {
-	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
+// TODO move all keeper invocation in keeper package
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState) {
 
+	// Get the module account
+	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
-	if moduleAcc.GetCoins().IsZero() {
-		if err := moduleAcc.SetCoins(data.LiquidityPoolAmount); err != nil {
-			panic(err)
-		}
-		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
-		/*if err := supplyKeeper.MintCoins(ctx, types.ModuleName, data.LiquidityPoolAmount); err != nil {
-			panic(err)
-		}*/
-	}
+	// Get the initial pool coins
+	// TODO RESOLVE POOL ISSUE
 
 	// Import all the invites
 	for _, invite := range data.Invites {
-		keeper.SaveInvite(ctx, invite)
+		keeper.SaveInvite(ctx, *invite)
 	}
 
 	// Import the memberships
 	for _, membership := range data.Memberships {
-		err := keeper.AssignMembership(ctx, membership.Owner, membership.MembershipType, membership.TspAddress, membership.ExpiryAt)
+		err := keeper.AssignMembership(ctx, *membership)
 		if err != nil {
 			panic(err)
 		}
@@ -59,28 +37,38 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keep
 
 	// Import the signers
 	for _, signer := range data.TrustedServiceProviders {
-		keeper.AddTrustedServiceProvider(ctx, signer)
+		keeper.AddTrustedServiceProvider(ctx, sdk.AccAddress(signer))
 	}
 
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	// create the Memberships set
-	return GenesisState{
-		LiquidityPoolAmount:     keeper.GetPoolFunds(ctx),
-		Invites:                 keeper.GetInvites(ctx),
-		TrustedServiceProviders: keeper.GetTrustedServiceProviders(ctx),
-		Memberships:             keeper.ExportMemberships(ctx),
+	var liquidityPoolAmount []*sdk.Coin
+	for _, coin := range k.GetPoolFunds(ctx) {
+		liquidityPoolAmount = append(liquidityPoolAmount, &coin)
+	}
+	var trustedServiceProviders []string
+	for _, tsp := range k.GetTrustedServiceProviders(ctx) {
+		trustedServiceProviders = append(trustedServiceProviders, tsp.String())
+	}
+
+	//var invites []*types.Invite
+	/*for _, invite := range k.GetInvites(ctx) {
+		invites = append(invites, &invite)
+	}*/
+
+	return &types.GenesisState{
+		LiquidityPoolAmount:     liquidityPoolAmount,
+		Invites:                 k.GetInvites(ctx),
+		TrustedServiceProviders: trustedServiceProviders,
+		Memberships:             k.GetMemberships(ctx),
 	}
 }
 
 // ValidateGenesis performs basic validation of genesis data returning an
 // error for any failed validation criteria.
-func ValidateGenesis(data GenesisState) error {
-	if data.LiquidityPoolAmount.IsAnyNegative() {
-		return errors.New("liquidity pool amount cannot contain negative values")
-	}
-
-	return nil
+func ValidateGenesis(state types.GenesisState) error {
+	return state.Validate()
 }

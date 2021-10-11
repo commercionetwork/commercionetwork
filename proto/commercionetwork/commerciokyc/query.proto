@@ -1,0 +1,79 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciokyc;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "commercionetwork/commerciokyc/membership.proto";
+import "cosmos/base/v1beta1/coin.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+// Query defines the gRPC querier service.
+service Query {
+	// Queries a Etp by id.
+	rpc Invites(QueryInvitesRequest) returns (QueryInvitesResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/invites";
+	}
+	rpc Tsps(QueryTspsRequest) returns (QueryTspsResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/tsps";
+	}
+	rpc Memberships(QueryMembershipsRequest) returns (QueryMembershipsResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/memberships";
+	}
+	rpc Membership(QueryMembershipRequest) returns (QueryMembershipResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/membership/{address}";
+	}
+	rpc Funds(QueryFundsRequest) returns (QueryFundsResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/funds";
+	}
+    // this line is used by starport scaffolding # 2
+    
+}
+
+
+message QueryInvitesRequest {
+}
+
+message QueryInvitesResponse {
+	repeated Invite invites = 1;
+}
+
+
+
+message QueryTspsRequest {
+}
+
+message QueryTspsResponse {
+	repeated string tsps = 1;
+}
+
+
+
+message QueryMembershipsRequest {
+}
+
+message QueryMembershipsResponse {
+	repeated Membership memberships = 1;
+}
+
+
+
+message QueryMembershipRequest {
+	string address = 1;
+}
+
+message QueryMembershipResponse {
+	Membership membership = 1;
+}
+
+
+message QueryFundsRequest {
+}
+
+message QueryFundsResponse {
+	repeated cosmos.base.v1beta1.Coin funds = 1;
+}
+
+
+// this line is used by starport scaffolding # 3

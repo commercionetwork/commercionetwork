@@ -1,0 +1,9 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.government;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";
+service Msg {
+  // this line is used by starport scaffolding # proto/tx/rpc
+}

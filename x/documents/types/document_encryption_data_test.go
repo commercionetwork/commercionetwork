@@ -8,7 +8,7 @@ import (
 )
 
 var data = DocumentEncryptionData{
-	Keys:          []DocumentEncryptionKey{{Recipient: recipient, Value: "6F7468657276616C7565"}},
+	Keys:          []*DocumentEncryptionKey{{Recipient: recipient.String(), Value: "6F7468657276616C7565"}},
 	EncryptedData: []string{"content", "content_uri", "metadata.content_uri", "metadata.schema.uri"},
 }
 
@@ -32,14 +32,14 @@ func TestDocumentEncryptionData_Equals(t *testing.T) {
 		{
 			"different key length",
 			data,
-			DocumentEncryptionData{Keys: []DocumentEncryptionKey{}, EncryptedData: data.EncryptedData},
+			DocumentEncryptionData{Keys: []*DocumentEncryptionKey{}, EncryptedData: data.EncryptedData},
 			false,
 		},
 		{
 			"different keys",
 			data,
 			DocumentEncryptionData{
-				Keys:          []DocumentEncryptionKey{{Recipient: sender, Value: data.Keys[0].Value}},
+				Keys:          []*DocumentEncryptionKey{{Recipient: sender.String(), Value: data.Keys[0].Value}},
 				EncryptedData: data.EncryptedData,
 			},
 			false,
@@ -88,8 +88,8 @@ func TestDocumentEncryptionData_Validate(t *testing.T) {
 		{
 			"invalid keys (invalid address)",
 			DocumentEncryptionData{
-				Keys: []DocumentEncryptionKey{
-					{Recipient: nil, Value: ""},
+				Keys: []*DocumentEncryptionKey{
+					{Recipient: "", Value: ""},
 				},
 				EncryptedData: data.EncryptedData,
 			},

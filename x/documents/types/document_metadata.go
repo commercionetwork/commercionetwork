@@ -5,23 +5,9 @@ import (
 	"strings"
 )
 
-// DocumentMetadataSchema represents the information about the schema that should be used in order to
-// validate the metadata associated with a document.
-type DocumentMetadataSchema struct {
-	URI     string `json:"uri"`
-	Version string `json:"version"`
-}
-
 func (metaSchema DocumentMetadataSchema) Equals(metSchema2 DocumentMetadataSchema) bool {
 	return metaSchema.URI == metSchema2.URI &&
 		metaSchema.Version == metSchema2.Version
-}
-
-// DocumentMetadata represents the information about the metadata associated to a document
-type DocumentMetadata struct {
-	ContentURI string                  `json:"content_uri"`
-	SchemaType string                  `json:"schema_type,omitempty"` // Optional - Either this or schema must be defined
-	Schema     *DocumentMetadataSchema `json:"schema,omitempty"`      // Optional - Either this or schema_type must be defined
 }
 
 // Equals returns true iff this metadata and other contain the same data
@@ -44,8 +30,8 @@ func (metadata DocumentMetadata) Validate() error {
 		return errors.New("metadata.content_uri can't be empty")
 	}
 
-	if (metadata.Schema == nil) && len(strings.TrimSpace(metadata.SchemaType)) == 0 {
-		return errors.New("either metadata.schema or metadata.schema_type must be defined")
+	if metadata.Schema == nil {
+		return errors.New("metadata.schema must be defined")
 	}
 
 	if metadata.Schema != nil {

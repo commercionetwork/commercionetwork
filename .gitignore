@@ -1,6 +1,10 @@
 ### Docs
 /node_modules
 /.vuepress
+vue/node_modules
+vue/dist
+secret.yml
+
 
 ### JetBrains
 .idea

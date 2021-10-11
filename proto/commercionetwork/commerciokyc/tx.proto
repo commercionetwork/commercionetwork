@@ -1,0 +1,93 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciokyc;
+
+// this line is used by starport scaffolding # proto/tx/import
+import "commercionetwork/commerciokyc/membership.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+    rpc InviteUser(MsgInviteUser) returns (MsgInviteUserResponse);
+    rpc BuyMembership(MsgBuyMembership) returns (MsgBuyMembershipResponse);
+    rpc RemoveMembership(MsgRemoveMembership) returns (MsgRemoveMembershipResponse);
+    rpc SetMembership(MsgSetMembership) returns (MsgSetMembershipResponse);
+    
+    rpc DepositIntoLiquidityPool(MsgDepositIntoLiquidityPool) returns (MsgDepositIntoLiquidityPoolResponse);
+    rpc AddTsp(MsgAddTsp) returns (MsgAddTspResponse);
+    rpc RemoveTsp(MsgRemoveTsp) returns (MsgRemoveTspResponse);
+    
+
+    
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgInviteUser {
+  string recipient = 1;
+  string sender = 2;
+}
+message MsgInviteUserResponse {
+  string status = 1;
+}
+
+// ==========================================
+message MsgBuyMembership {
+  string membership_type = 1;
+  string buyer = 2;
+  string tsp = 3;
+}
+message MsgBuyMembershipResponse {
+  string expiry_at = 1;
+}
+
+// ==========================================
+message MsgDepositIntoLiquidityPool {
+  string depositor = 1;
+  repeated cosmos.base.v1beta1.Coin amount = 2;
+}
+
+message MsgDepositIntoLiquidityPoolResponse {
+  repeated cosmos.base.v1beta1.Coin amount_pool = 1;
+}
+
+
+// ==========================================
+message MsgAddTsp {
+  string tsp = 1;
+  string government = 2;
+}
+message MsgAddTspResponse {
+  string tsp = 1;
+}
+
+// ==========================================
+message MsgRemoveTsp {
+  string tsp = 1;
+  string government = 2;
+}
+message MsgRemoveTspResponse {
+  string tsp = 1;
+}
+
+// ==========================================
+message MsgRemoveMembership {
+  string government = 1;
+  string subscriber = 2;
+}
+message MsgRemoveMembershipResponse {
+  string subscriber = 1;
+}
+
+
+// ==========================================
+message MsgSetMembership {
+  string government = 1;
+  string subscriber = 2;
+  string new_membership = 3;
+}
+message MsgSetMembershipResponse {
+  string expiry_at = 1;
+}
+

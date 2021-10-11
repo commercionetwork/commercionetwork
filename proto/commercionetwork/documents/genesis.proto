@@ -1,0 +1,15 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+// this line is used by starport scaffolding # genesis/proto/import
+import "commercionetwork/documents/document.proto";
+import "commercionetwork/documents/documentReceipt.proto";
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+// GenesisState defines the documents module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+		repeated Document documents = 1; // this line is used by starport scaffolding # genesis/proto/stateField
+		repeated  DocumentReceipt receipts = 2;// this line is used by starport scaffolding # genesis/proto/stateField
+}

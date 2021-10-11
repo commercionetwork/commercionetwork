@@ -1,12 +1,71 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	"github.com/stretchr/testify/require"
-	"testing"
 	"time"
+	"testing"
+	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmdb "github.com/tendermint/tm-db"
+
+	"github.com/commercionetwork/commercionetwork/x/upgrade/types"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	upgradeKeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradeTypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
+
+// Testing variables
+var governmentTestAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var notGovernmentAddress, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
+
+func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
+	storeKeys := sdk.NewKVStoreKeys(
+			types.StoreKey,
+			governmentTypes.GovernmentStoreKey,
+			upgradeTypes.StoreKey)
+	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
+	memStoreKeyGov := storetypes.NewMemoryStoreKey(governmentTypes.MemStoreKey)
+
+	db := tmdb.NewMemDB()
+	stateStore := store.NewCommitMultiStore(db)
+	for _, key := range storeKeys {
+		stateStore.MountStoreWithDB(key, sdk.StoreTypeIAVL, db)
+	}
+	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
+	stateStore.MountStoreWithDB(memStoreKeyGov, sdk.StoreTypeMemory, nil)
+	
+	require.NoError(t, stateStore.LoadLatestVersion())
+
+	ctx := sdk.NewContext(stateStore, tmproto.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	ctx = ctx.WithBlockTime(time.Now())
+
+	registry := codectypes.NewInterfaceRegistry()
+	govk := governmentKeeper.NewKeeper(codec.NewProtoCodec(registry), storeKeys[governmentTypes.GovernmentStoreKey], memStoreKeyGov)
+	upgradek := upgradeKeeper.NewKeeper(map[int64]bool{}, storeKeys[upgradeTypes.StoreKey], &codec.ProtoCodec{}, "")
+	
+	keeper := NewKeeper(
+		codec.NewProtoCodec(registry),
+		storeKeys[types.StoreKey],
+		memStoreKey,
+		*govk,
+		upgradek,
+	)
+
+	_ = govk.SetGovernmentAddress(ctx, governmentTestAddress)
+	store := ctx.KVStore(storeKeys[governmentTypes.GovernmentStoreKey])
+
+	store.Set([]byte(governmentTypes.GovernmentStoreKey), governmentTestAddress)
+
+	return keeper, ctx
+}
+
 
 func TestKeeper_GetUpgradePlan(t *testing.T) {
 
@@ -24,11 +83,11 @@ func TestKeeper_GetUpgradePlan(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k := SetupTestInput(true)
+			k, ctx := setupKeeper(t)
 
-			var plan upgrade.Plan
+			var plan upgradeTypes.Plan
 			if tt.planExists {
-				plan = upgrade.Plan{
+				plan = upgradeTypes.Plan{
 					Name:   "name",
 					Info:   "info info info",
 					Height: 100,
@@ -36,7 +95,7 @@ func TestKeeper_GetUpgradePlan(t *testing.T) {
 				err := k.UpgradeKeeper.ScheduleUpgrade(ctx, plan)
 				require.NoError(t, err)
 			} else {
-				plan = upgrade.Plan{Name: "", Time: time.Time{}, Height: 0, Info: ""}
+				plan = upgradeTypes.Plan{Name: "", Time: time.Time{}, Height: 0, Info: ""}
 			}
 
 			upgradePlan, havePlan := k.GetUpgradePlan(ctx)
@@ -87,9 +146,9 @@ func TestKeeper_ScheduleUpgrade(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k := SetupTestInput(true)
+			k, ctx := setupKeeper(t)
 
-			plan := upgrade.Plan{
+			plan := upgradeTypes.Plan{
 				Name: "name",
 				Info: "info info info",
 			}
@@ -107,7 +166,7 @@ func TestKeeper_ScheduleUpgrade(t *testing.T) {
 				proposer = notGovernmentAddress
 			}
 
-			err := k.ScheduleUpgrade(ctx, proposer, plan)
+			err := k.ScheduleUpgradeGov(ctx, proposer, plan)
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -149,19 +208,19 @@ func TestKeeper_DeleteUpgrade(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k := SetupTestInput(true)
+			k, ctx := setupKeeper(t)
 
-			var plan upgrade.Plan
+			var plan upgradeTypes.Plan
 			if tt.planExists {
-				plan = upgrade.Plan{
+				plan = upgradeTypes.Plan{
 					Name:   "name",
 					Info:   "info info info",
 					Height: 100,
 				}
-				err := k.ScheduleUpgrade(ctx, governmentTestAddress, plan)
+				err := k.ScheduleUpgradeGov(ctx, governmentTestAddress, plan)
 				require.NoError(t, err)
 			}
-			nilPlan := upgrade.Plan{Name: "", Time: time.Time{}, Height: 0, Info: ""}
+			nilPlan := upgradeTypes.Plan{Name: "", Time: time.Time{}, Height: 0, Info: ""}
 
 			var proposer sdk.AccAddress
 			if tt.proposedByGovernment {
@@ -170,7 +229,7 @@ func TestKeeper_DeleteUpgrade(t *testing.T) {
 				proposer = notGovernmentAddress
 			}
 
-			err := k.DeleteUpgrade(ctx, proposer)
+			err := k.DeleteUpgradeGov(ctx, proposer)
 
 			if tt.wantErr {
 				require.Error(t, err)

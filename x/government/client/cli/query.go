@@ -2,79 +2,28 @@ package cli
 
 import (
 	"fmt"
+	// "strings"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-
-	"github.com/commercionetwork/commercionetwork/x/government/types"
+	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/spf13/cobra"
+	// "github.com/cosmos/cosmos-sdk/client/flags"
+	// sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/id/types"
 )
 
-func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+// GetQueryCmd returns the cli query commands for this module
+func GetQueryCmd(queryRoute string) *cobra.Command {
+	// Group id queries under a subcommand
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      fmt.Sprintf("Querying commands for %s module", types.ModuleName),
+		Short:                      fmt.Sprintf("Querying commands for the %s module", types.ModuleName),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
-	cmd.AddCommand(
-		getCmdGetGovernmentAddr(cdc),
-		getCmdGetTumblerAddr(cdc),
-	)
+	// this line is used by starport scaffolding # 1
 
 	return cmd
-}
-
-func getCmdGetGovernmentAddr(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "gov-address",
-		Short: "Get the government address",
-		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdGetGovernmentAddrFunc(cmd, cdc)
-		},
-	}
-}
-
-func getCmdGetGovernmentAddrFunc(cmd *cobra.Command, cdc *codec.Codec) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGovernmentAddress)
-	res, _, err := cliCtx.QueryWithData(route, nil)
-	if err != nil {
-		return fmt.Errorf("could not get government address: %s", err)
-	}
-
-	cmd.Println(string(res))
-
-	return nil
-}
-
-func getCmdGetTumblerAddr(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "tumbler-address",
-		Short: "Get the Tumbler address",
-		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return getCmdGetTumblerAddrFunc(cmd, cdc)
-		},
-	}
-}
-
-func getCmdGetTumblerAddrFunc(cmd *cobra.Command, cdc *codec.Codec) error {
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-	route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTumblerAddress)
-	res, _, err := cliCtx.QueryWithData(route, nil)
-	if err != nil {
-		return fmt.Errorf("could not get Tumbler address: %s", err)
-	}
-
-	cmd.Println(string(res))
-
-	return nil
 }

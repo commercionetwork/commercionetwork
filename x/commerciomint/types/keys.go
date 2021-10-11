@@ -10,10 +10,10 @@ const (
 	CreditsDenomStoreKey = "CreditsDenom"
 	CollateralRateKey    = StoreKey + ":collateralRate"
 	FreezePeriodKey      = StoreKey + ":freezePeriod"
+	CreditsDenom         = "uccc"
+	BondDenom            = "ucommercio"
 
-	QueryGetEtps        = "etps"
-	QueryConversionRate = "conversion_rate"
-	QueryFreezePeriod   = "freeze_period"
+	QueryGetEtps = "etps"
 
 	MsgTypeMintCCC              = "mintCCC"
 	MsgTypeBurnCCC              = "burnCCC"

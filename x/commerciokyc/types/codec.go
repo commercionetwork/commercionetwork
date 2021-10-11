@@ -2,24 +2,41 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	// this line is used by starport scaffolding # 1
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-// RegisterCodec registers concrete types on wire codec
-func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgInviteUser{}, "commercio/MsgInviteUser", nil)
-	cdc.RegisterConcrete(MsgDepositIntoLiquidityPool{}, "commercio/MsgDepositIntoLiquidityPool", nil)
-	cdc.RegisterConcrete(MsgAddTsp{}, "commercio/MsgAddTsp", nil)
-	cdc.RegisterConcrete(MsgRemoveTsp{}, "commercio/MsgRemoveTsp", nil)
-	cdc.RegisterConcrete(MsgBuyMembership{}, "commercio/MsgBuyMembership", nil)
-	cdc.RegisterConcrete(MsgSetMembership{}, "commercio/MsgSetMembership", nil)
-	cdc.RegisterConcrete(MsgRemoveMembership{}, "commercio/MsgRemoveMembership", nil)
+func RegisterCodec(cdc *codec.LegacyAmino) {
+	// this line is used by starport scaffolding # 2
+	cdc.RegisterConcrete(&MsgInviteUser{}, "commercio/MsgInviteUser", nil)
+	cdc.RegisterConcrete(&MsgDepositIntoLiquidityPool{}, "commercio/MsgDepositIntoLiquidityPool", nil)
+	cdc.RegisterConcrete(&MsgBuyMembership{}, "commercio/MsgBuyMembership", nil)
+	cdc.RegisterConcrete(&MsgAddTsp{}, "commercio/MsgAddTsp", nil)
+	cdc.RegisterConcrete(&MsgRemoveTsp{}, "commercio/MsgRemoveTsp", nil)
+	cdc.RegisterConcrete(&MsgRemoveMembership{}, "commercio/MsgRemoveMembership", nil)
+	cdc.RegisterConcrete(&MsgSetMembership{}, "commercio/MsgSetMembership", nil)
+
 }
 
-var ModuleCdc *codec.Codec
+func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	// this line is used by starport scaffolding # 3
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgInviteUser{},
+		&MsgDepositIntoLiquidityPool{},
+		&MsgBuyMembership{},
+		&MsgAddTsp{},
+		&MsgRemoveTsp{},
+		&MsgRemoveMembership{},
+		&MsgSetMembership{},
+	)
 
-func init() {
-	ModuleCdc = codec.New()
-	RegisterCodec(ModuleCdc)
-	codec.RegisterCrypto(ModuleCdc)
-	ModuleCdc.Seal()
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
+
+var (
+	amino     = codec.NewLegacyAmino()
+	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+)

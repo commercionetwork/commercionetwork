@@ -1,5 +1,6 @@
 package v2_2_0
 
+/*
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -116,3 +117,4 @@ func commercioMintMigrate(appState genutil.AppMap, govAddress sdk.AccAddress) ge
 
 	return appState
 }
+*/

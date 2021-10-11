@@ -1,0 +1,62 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciomint;
+
+// this line is used by starport scaffolding # proto/tx/import
+import "commercionetwork/commerciomint/position.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+    rpc MintCCC(MsgMintCCC) returns (MsgMintCCCResponse);
+    rpc BurnCCC(MsgBurnCCC) returns (MsgBurnCCCResponse);
+    rpc SetConversionRate(MsgSetCCCConversionRate) returns (MsgSetCCCConversionRateResponse);
+    rpc SetFreezePeriod(MsgSetCCCFreezePeriod) returns (MsgSetCCCFreezePeriodResponse);
+
+
+    
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgMintCCC {
+  string depositor = 1;
+  repeated cosmos.base.v1beta1.Coin deposit_amount = 2;
+  string ID = 3;
+}
+
+
+message MsgMintCCCResponse {
+  string ID = 1;
+}
+
+message MsgBurnCCC {
+  string signer = 1;
+  cosmos.base.v1beta1.Coin amount = 2;
+  string ID = 3;
+}
+
+message MsgBurnCCCResponse {
+  string ID = 1;
+  cosmos.base.v1beta1.Coin residual = 2;
+}
+
+message MsgSetCCCConversionRate {
+  string signer = 1;
+  cosmos.base.v1beta1.DecProto rate = 2; // Maybe string
+}
+
+message MsgSetCCCConversionRateResponse {
+  cosmos.base.v1beta1.DecProto rate = 1; // Maybe string
+}
+
+
+message MsgSetCCCFreezePeriod {
+  string signer = 1;
+  string freeze_period = 2;
+}
+
+message MsgSetCCCFreezePeriodResponse {
+  string freeze_period = 1;
+}

@@ -1,0 +1,36 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.id;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/id/types";
+
+import "gogoproto/gogo.proto";
+
+message DidDocument {
+  string context = 1;
+  string ID = 2;
+  repeated id.PubKey pubKeys = 3;
+  id.Proof proof = 4;
+  repeated Service service = 5;
+}
+
+message Service {
+  string ID = 1;
+  string type = 2;
+  string serviceEndpoint = 3;
+}
+
+message Proof {
+  string type = 1;
+  string created = 2;
+  string proofPurpose = 3;
+  string controller = 4;
+  string verificationMethod = 5;
+  string signatureValue = 6;
+}
+
+message PubKey {
+  string ID = 1;
+  string type = 2;
+  string controller = 3;
+  string publicKeyPem = 4;
+}

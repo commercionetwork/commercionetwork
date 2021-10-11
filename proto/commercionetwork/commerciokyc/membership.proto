@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package commercionetwork.commercionetwork.commerciokyc;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+import "gogoproto/gogo.proto";
+
+message Membership {
+  string owner = 1;
+  string tsp_address = 2;
+  string membership_type = 3;
+  string expiry_at = 4;
+}
+
+
+message Invite {
+  string sender = 1;
+  string sender_membership = 2;
+  string user = 3;
+  uint64 status = 4;
+}
+

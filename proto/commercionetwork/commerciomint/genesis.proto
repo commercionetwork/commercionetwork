@@ -1,0 +1,18 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciomint;
+import "commercionetwork/commerciomint/position.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+// GenesisState defines the id module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+    repeated Position Positions = 1;
+    repeated cosmos.base.v1beta1.Coin pool_amount = 2;
+    cosmos.base.v1beta1.DecProto collateral_rate = 3;
+    string freeze_period = 4; // convert to time duration
+}
+
