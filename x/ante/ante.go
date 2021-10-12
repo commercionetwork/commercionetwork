@@ -84,7 +84,8 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	}
 
 	// calculate required fees for this transaction as (number of messages * fixed required feees)
-	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.Msgs)))
+
+	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.GetMsgs())))
 
 	// Check the minimum fees
 	if err := checkMinimumFees(stdTx, ctx, mfd.govk, mfd.mintk, mfd.stableCreditsDenom, requiredFees); err != nil {
@@ -95,7 +96,7 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 }
 
 func checkMinimumFees(
-	stdTx types.StdTx,
+	stdTx sdk.Tx,
 	ctx sdk.Context,
 	govk government.Keeper,
 	mintk commerciomintKeeper.Keeper,
@@ -110,7 +111,11 @@ func checkMinimumFees(
 	// Every message need 0.01 ccc
 	stableRequiredQty := requiredFees.MulInt64(1000000)
 	// Extract amount of stable coin from fees
-	fiatAmount = sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
+	feeTx, ok := stdTx.(sdk.FeeTx)
+	if !ok {
+		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
+	}
+	fiatAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
 	// Check if amount of stable coin is enough
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(fiatAmount) {
 		// If amount of stable coin is enough return without error
