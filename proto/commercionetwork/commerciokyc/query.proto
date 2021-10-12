@@ -1,29 +1,36 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.commerciokyc;
 
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+// Import section
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciokyc/membership.proto";
 import "cosmos/base/v1beta1/coin.proto";
-// this line is used by starport scaffolding # 1
-
-option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+import "gogoproto/gogo.proto";
 
 // Query defines the gRPC querier service.
 service Query {
-	// Queries a Etp by id.
+	// Queries all invites
 	rpc Invites(QueryInvitesRequest) returns (QueryInvitesResponse) {
 		option (google.api.http).get = "/commercionetwork/commerciokyc/invites";
 	}
+	// Queries a ivite by id.
+	// Queries all Tsp.
 	rpc Tsps(QueryTspsRequest) returns (QueryTspsResponse) {
 		option (google.api.http).get = "/commercionetwork/commerciokyc/tsps";
 	}
+	// Queries all memberships
 	rpc Memberships(QueryMembershipsRequest) returns (QueryMembershipsResponse) {
 		option (google.api.http).get = "/commercionetwork/commerciokyc/memberships";
 	}
+	// Queries a membership by address
 	rpc Membership(QueryMembershipRequest) returns (QueryMembershipResponse) {
 		option (google.api.http).get = "/commercionetwork/commerciokyc/membership/{address}";
 	}
+	// Queries funds of ABR
 	rpc Funds(QueryFundsRequest) returns (QueryFundsResponse) {
 		option (google.api.http).get = "/commercionetwork/commerciokyc/funds";
 	}
@@ -72,7 +79,8 @@ message QueryFundsRequest {
 }
 
 message QueryFundsResponse {
-	repeated cosmos.base.v1beta1.Coin funds = 1;
+	repeated cosmos.base.v1beta1.Coin funds = 1
+		[(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
 

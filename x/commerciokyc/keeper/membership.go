@@ -67,14 +67,8 @@ func (k Keeper) AssignMembership(goCtx sdk.Context, membership types.Membership)
 	}
 
 	// Check if height is greater then zero
-	expited_at, err := time.Parse("2006-01-02", membership.ExpiryAt)
-	if err != nil {
-		return err
-
-	}
-
-	if expited_at.Before(time.Now()) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", expited_at))
+	if membership.ExpiryAt.Before(time.Now()) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", membership.ExpiryAt))
 	}
 
 	_ = k.DeleteMembership(goCtx, sdk.AccAddress(membership.Owner))

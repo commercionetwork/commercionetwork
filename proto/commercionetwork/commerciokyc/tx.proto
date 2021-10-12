@@ -4,6 +4,7 @@ package commercionetwork.commercionetwork.commerciokyc;
 // this line is used by starport scaffolding # proto/tx/import
 import "commercionetwork/commerciokyc/membership.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
 
@@ -45,11 +46,13 @@ message MsgBuyMembershipResponse {
 // ==========================================
 message MsgDepositIntoLiquidityPool {
   string depositor = 1;
-  repeated cosmos.base.v1beta1.Coin amount = 2;
+  repeated cosmos.base.v1beta1.Coin amount = 2
+    [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
 message MsgDepositIntoLiquidityPoolResponse {
-  repeated cosmos.base.v1beta1.Coin amount_pool = 1;
+  repeated cosmos.base.v1beta1.Coin amount_pool = 1
+    [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
 

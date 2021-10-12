@@ -45,10 +45,10 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	// create the Memberships set
-	var liquidityPoolAmount []*sdk.Coin
+	/*var liquidityPoolAmount []*sdk.Coin
 	for _, coin := range k.GetPoolFunds(ctx) {
 		liquidityPoolAmount = append(liquidityPoolAmount, &coin)
-	}
+	}*/
 	var trustedServiceProviders []string
 	for _, tsp := range k.GetTrustedServiceProviders(ctx) {
 		trustedServiceProviders = append(trustedServiceProviders, tsp.String())
@@ -60,7 +60,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	}*/
 
 	return &types.GenesisState{
-		LiquidityPoolAmount:     liquidityPoolAmount,
+		LiquidityPoolAmount:     k.GetPoolFunds(ctx),
 		Invites:                 k.GetInvites(ctx),
 		TrustedServiceProviders: trustedServiceProviders,
 		Memberships:             k.GetMemberships(ctx),
