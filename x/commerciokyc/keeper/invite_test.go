@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,19 +19,19 @@ func TestKeeper_InviteUser(t *testing.T) {
 		expected          types.Invite
 		error             string
 	}{
-		/*{
+		{
 			name:           "Existing invitation returns error",
 			existingInvite: types.NewInvite(testInviteSender, testUser, "bronze"),
 			invite:         types.NewInvite(testUser2, testUser, "bronze"),
 			expected:       types.NewInvite(testInviteSender, testUser, "bronze"),
-			error:          fmt.Sprintf("unknown request: %s has already been invited", testUser),
+			error:          fmt.Sprintf("%s has already been invited: unknown request", testUser),
 		},
 		{
 			name:              "New invite works properly",
 			inviterMembership: "gold",
 			invite:            types.NewInvite(testInviteSender, testUser, "gold"),
 			expected:          types.NewInvite(testInviteSender, testUser, "gold"),
-		},*/
+		},
 	}
 
 	for _, test := range tests {
@@ -52,7 +53,10 @@ func TestKeeper_InviteUser(t *testing.T) {
 			err := k.AssignMembership(ctx, membership)
 			require.NoError(t, err)
 		}
-		err := k.Invite(ctx, sdk.AccAddress(test.invite.User), sdk.AccAddress(test.invite.Sender))
+		test_invite_User, _ := sdk.AccAddressFromBech32(test.invite.User)
+		test_invite_Sender, _ := sdk.AccAddressFromBech32(test.invite.Sender)
+
+		err := k.Invite(ctx, test_invite_User, test_invite_Sender)
 		if test.error != "" {
 			require.Equal(t, test.error, err.Error())
 		} else {
@@ -112,16 +116,11 @@ func TestKeeper_GetInvite(t *testing.T) {
 
 func TestKeeper_GetInvites(t *testing.T) {
 	storedList := []*types.Invite{}
-	storedInvite := types.NewInvite(testInviteSender, testUser2, "bronze")
-	storedList = append(storedList, &storedInvite)
-	storedInvite = types.NewInvite(testUser2, testUser, "bronze")
-	storedList = append(storedList, &storedInvite)
-
 	expectedList := []*types.Invite{}
-	expectedInvite := types.NewInvite(testInviteSender, testUser2, "bronze")
-	expectedList = append(expectedList, &expectedInvite)
-	expectedInvite = types.NewInvite(testUser2, testUser, "bronze")
-	expectedList = append(expectedList, &expectedInvite)
+	storedInvite := types.NewInvite(testInviteSender, testUser2, "bronze")
+	storedInvite2 := types.NewInvite(testUser2, testUser, "bronze")
+	storedList = append(storedList, &storedInvite, &storedInvite2)
+	expectedList = append(expectedList, &storedInvite, &storedInvite2)
 
 	tests := []struct {
 		name     string
@@ -133,11 +132,11 @@ func TestKeeper_GetInvites(t *testing.T) {
 			stored:   []*types.Invite([]*types.Invite{}),
 			expected: []*types.Invite([]*types.Invite{}),
 		},
-		/*{
+		{
 			name:     "Existing list is returned properly",
 			stored:   storedList,
 			expected: expectedList,
-		},*/
+		},
 	}
 
 	for _, test := range tests {
