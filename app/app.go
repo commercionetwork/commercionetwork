@@ -90,15 +90,15 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+	"github.com/commercionetwork/commercionetwork/x/did"
+	idkeeper "github.com/commercionetwork/commercionetwork/x/did/keeper"
+	idtypes "github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/commercionetwork/commercionetwork/x/documents"
 	documentskeeper "github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	documentstypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 	governmentmodule "github.com/commercionetwork/commercionetwork/x/government"
 	governmentmodulekeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentmoduletypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	"github.com/commercionetwork/commercionetwork/x/id"
-	idkeeper "github.com/commercionetwork/commercionetwork/x/id/keeper"
-	idtypes "github.com/commercionetwork/commercionetwork/x/id/types"
 	upgrademodule "github.com/commercionetwork/commercionetwork/x/upgrade"
 	upgrademodulekeeper "github.com/commercionetwork/commercionetwork/x/upgrade/keeper"
 	upgrademoduletypes "github.com/commercionetwork/commercionetwork/x/upgrade/types"
@@ -179,7 +179,7 @@ var (
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 		//vbrmodule.AppModuleBasic{},
 		upgrademodule.AppModuleBasic{},
-		id.AppModuleBasic{},
+		did.AppModuleBasic{},
 		documents.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
@@ -419,7 +419,7 @@ func New(
 		&app.IBCKeeper.PortKeeper,
 		scopedIdKeeper,
 	)
-	idModule := id.NewAppModule(appCodec, app.IdKeeper)
+	idModule := did.NewAppModule(appCodec, app.IdKeeper)
 	//scopedDocumentsKeeper := app.CapabilityKeeper.ScopeToModule(documentstypes.ModuleName)
 	//app.ScopedDocumentsKeeper = scopedDocumentsKeeper
 	app.DocumentsKeeper = *documentskeeper.NewKeeper(
@@ -441,7 +441,6 @@ func New(
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 	// this line is used by starport scaffolding # ibc/app/router
-	ibcRouter.AddRoute(idtypes.ModuleName, idModule)
 	//ibcRouter.AddRoute(documentstypes.ModuleName, documentsModule)
 
 	// Wasm keeper support
