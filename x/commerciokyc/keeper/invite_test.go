@@ -42,7 +42,8 @@ func TestKeeper_InviteUser(t *testing.T) {
 		if !test.existingInvite.Empty() {
 			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.cdc.MustMarshalBinaryBare(&test.existingInvite))
 		}
-		test_invite_User, _ := sdk.AccAddressFromBech32(test.invite.User)
+
+    test_invite_User, _ := sdk.AccAddressFromBech32(test.invite.User)
 		test_invite_Sender, _ := sdk.AccAddressFromBech32(test.invite.Sender)
 
 		if test.inviterMembership != "" {
@@ -50,6 +51,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 			err := k.AssignMembership(ctx, test_invite_User, test.inviterMembership, test_invite_Sender, testExpiration)
 			require.NoError(t, err)
 		}
+
 
 		err := k.Invite(ctx, test_invite_User, test_invite_Sender)
 		if test.error != "" {
