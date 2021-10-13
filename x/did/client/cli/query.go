@@ -10,7 +10,7 @@ import (
 	// "github.com/cosmos/cosmos-sdk/client/flags"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commercionetwork/commercionetwork/x/government/types"
+	"github.com/commercionetwork/commercionetwork/x/did/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module
@@ -23,6 +23,8 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
+
+	cmd.AddCommand(CmdShowIdentity())
 	// this line is used by starport scaffolding # 1
 
 	return cmd
