@@ -13,7 +13,7 @@ import (
 
 var _ sdk.Msg = &MsgIncrementBlockRewardsPool{}
 
-func NewMsgIncrementBlockRewardsPool(funder string, amount []sdk.Coin) *MsgIncrementBlockRewardsPool {
+func NewMsgIncrementBlockRewardsPool(funder string, amount sdk.Coins) *MsgIncrementBlockRewardsPool {
 	return &MsgIncrementBlockRewardsPool{
 		Funder: funder,
 		Amount: amount,
@@ -47,9 +47,7 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid funder address (%s)", err)
 	}
 
-	var am sdk.Coins = msg.Amount
-
-	if am.IsZero() || am.IsAnyNegative() {
+	if msg.Amount.IsZero() || msg.Amount.IsAnyNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "You can't transfer a null or negative amount")
 	}
 
@@ -62,10 +60,10 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgSetRewardRate{}
 
-func NewMsgSetRewardRate(government string, rewardRate sdk.DecProto) *MsgSetRewardRate {
+func NewMsgSetRewardRate(government string, rewardRate sdk.Dec) *MsgSetRewardRate {
 	return &MsgSetRewardRate{
 		Government: government,
-		RewardRate: &rewardRate,
+		RewardRate: rewardRate,
 	}
 }
 
@@ -96,7 +94,7 @@ func (msg *MsgSetRewardRate) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
 
-	if err := ValidateRewardRate(msg.RewardRate.Dec); err != nil {
+	if err := ValidateRewardRate(msg.RewardRate); err != nil {
 		return err
 	}
 

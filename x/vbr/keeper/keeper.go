@@ -62,19 +62,36 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // -------------
 
 // SetTotalRewardPool allows to set the value of the total rewards pool that has left
-func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecProto) {
+func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	store := ctx.KVStore(k.storeKey)
-	if !updatedPool.Dec.IsNil() {
+	if !updatedPool.Empty() {
 		store.Set([]byte(types.PoolStoreKey), k.cdc.MustMarshalBinaryBare(&updatedPool))
 	} else {
 		store.Delete([]byte(types.PoolStoreKey))
 	}
 }
-/*
+
 // GetTotalRewardPool returns the current total rewards pool amount
-func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecProto {
+func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	macc := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 	mcoins := macc.GetCoins()
 
 	return sdk.NewDecCoinsFromCoins(mcoins...)
-}*/
+}
+
+// SetRewardRate store the vbr reward rate.
+func (k Keeper) SetRewardRateKeeper(ctx sdk.Context, rate sdk.Dec) error {
+	if err := types.ValidateRewardRate(rate); err != nil {
+		return err
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.RewardRateKey), k.cdc.MustMarshalBinaryBare(rate))
+	return nil
+}
+
+// SetAutomaticWithdraw store the automatic withdraw flag.
+func (k Keeper) SetAutomaticWithdrawKeeper(ctx sdk.Context, autoW bool) error {
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(types.AutomaticWithdraw), k.cdc.MustMarshalBinaryBare(autoW))
+	return nil
+}
