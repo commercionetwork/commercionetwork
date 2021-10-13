@@ -33,3 +33,5 @@ func IsMembershipTypeValid(membershipType string) bool {
 		membershipType == MembershipTypeGold ||
 		membershipType == MembershipTypeBlack
 }
+
+type Memberships []Membership
