@@ -115,7 +115,7 @@ func (msg *MsgAddTsp) ValidateBasic() error {
 
 // MsgDepositIntoLiquidityPool
 
-func NewMsgDepositIntoLiquidityPool(amount []*sdk.Coin, depositor string) *MsgDepositIntoLiquidityPool {
+func NewMsgDepositIntoLiquidityPool(amount sdk.Coins, depositor string) *MsgDepositIntoLiquidityPool {
 	return &MsgDepositIntoLiquidityPool{
 		Amount:    amount,
 		Depositor: depositor,

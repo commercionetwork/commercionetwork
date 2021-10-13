@@ -41,7 +41,7 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 		Owner:          msg.Buyer,
 		TspAddress:     msg.Tsp,
 		MembershipType: msg.MembershipType,
-		ExpiryAt:       expirationAt.String(),
+		ExpiryAt:       &expirationAt,
 	}
 
 	err := k.AssignMembership(
@@ -111,8 +111,7 @@ func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembers
 		Owner:          msg.Subscriber,
 		TspAddress:     govAddr.String(),
 		MembershipType: msg.NewMembership,
-		ExpiryAt:       expiredAt.String(), //TODO CONVERSION
-
+		ExpiryAt:       &expiredAt,
 	}
 
 	err = k.AssignMembership(ctx, membership)

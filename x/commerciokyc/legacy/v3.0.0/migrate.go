@@ -1,8 +1,6 @@
 package v3_0_0
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	v220commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -17,7 +15,7 @@ func Migrate(oldGenState v220commerciokyc.GenesisState) *types.GenesisState {
 		membership.Owner = oldMembership.Owner.String()
 		membership.TspAddress = oldMembership.TspAddress.String()
 		membership.MembershipType = oldMembership.MembershipType
-		membership.ExpiryAt = oldMembership.ExpiryAt.String()
+		membership.ExpiryAt = &oldMembership.ExpiryAt
 
 		memberships = append(memberships, &membership)
 	}
@@ -39,13 +37,13 @@ func Migrate(oldGenState v220commerciokyc.GenesisState) *types.GenesisState {
 		tsps = append(tsps, oldTsp.String())
 	}
 
-	var coins []*sdk.Coin
+	/*var coins []*sdk.Coin
 	for _, coin := range oldGenState.LiquidityPoolAmount {
 		coins = append(coins, &coin)
-	}
+	}*/
 
 	return &types.GenesisState{
-		LiquidityPoolAmount:     coins,
+		LiquidityPoolAmount:     oldGenState.LiquidityPoolAmount,
 		TrustedServiceProviders: tsps,
 		Invites:                 invites,
 		Memberships:             memberships,

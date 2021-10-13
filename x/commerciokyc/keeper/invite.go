@@ -80,5 +80,6 @@ func (k Keeper) GetInvites(ctx sdk.Context) []*types.Invite {
 // SaveInvite allows to save the given invite inside the store
 func (k Keeper) SaveInvite(ctx sdk.Context, invite types.Invite) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(k.getInviteStoreKey(sdk.AccAddress(invite.User)), k.cdc.MustMarshalBinaryBare(&invite))
+	test_invite_User, _ := sdk.AccAddressFromBech32(invite.User)
+	store.Set(k.getInviteStoreKey(test_invite_User), k.cdc.MustMarshalBinaryBare(&invite))
 }

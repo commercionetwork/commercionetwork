@@ -1,16 +1,18 @@
 syntax = "proto3";
-
 package commercionetwork.commercionetwork.commerciokyc;
 
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
 
+// Import section
+import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 
 message Membership {
   string owner = 1;
   string tsp_address = 2;
   string membership_type = 3;
-  string expiry_at = 4;
+  google.protobuf.Timestamp expiry_at = 4 [(gogoproto.stdtime) = true];
 }
 
 
