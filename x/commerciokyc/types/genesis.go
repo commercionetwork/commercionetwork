@@ -11,9 +11,9 @@ func DefaultGenesis() *GenesisState {
 
 	return &GenesisState{
 		// this line is used by starport scaffolding # genesis/types/default
-		LiquidityPoolAmount: sdk.Coins{},
-		Invites:             []*Invite{},
-		Memberships:         []*Membership{},
+		LiquidityPoolAmount: sdk.Coins(nil),
+		Invites:             []*Invite(nil),
+		Memberships:         []*Membership(nil),
 	}
 }
 

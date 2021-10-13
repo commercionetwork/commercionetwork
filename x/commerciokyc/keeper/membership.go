@@ -53,36 +53,36 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 
 // AssignMembership allow to assign a membership of the given membershipType to the specified user with tsp and expired height.
 // TODO maybe it's better to pass membership object to function
-func (k Keeper) AssignMembership(ctx sdk.Context, membership types.Membership) error {
+func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string, tsp sdk.AccAddress, expited_at time.Time) error {
 	// Check the membership type validity.
-	if !types.IsMembershipTypeValid(membership.MembershipType) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membership.MembershipType))
+	if !types.IsMembershipTypeValid(membershipType) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
 	membershipOwnerAddr, _ := sdk.AccAddressFromBech32(membership.Owner)
 
 	// TODO resolve problems in init genesis to remove membershipType != types.MembershipTypeBlack
-	if k.IsTrustedServiceProvider(ctx, membershipOwnerAddr) && membership.MembershipType != types.MembershipTypeBlack {
+	if k.IsTrustedServiceProvider(ctx, user) && membershipType != types.MembershipTypeBlack {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
-			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", membership.Owner),
+			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user),
 		)
 	}
 
 	// Check if height is greater then zero
-	if membership.ExpiryAt.Before(time.Now()) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", membership.ExpiryAt))
+	if expited_at.Before(time.Now()) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", expited_at))
 	}
 
-	_ = k.DeleteMembership(ctx, membershipOwnerAddr)
+	_ = k.DeleteMembership(ctx, user)
 
 	store := ctx.KVStore(k.storeKey)
 
-	staddr := k.storageForAddr(membershipOwnerAddr)
+	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf(
 				"cannot add membership \"%s\" for address %s: user already have a membership",
-				membership.MembershipType,
-				membership.Owner,
+				membershipType,
+				user,
 			),
 		)
 	}
@@ -91,6 +91,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, membership types.Membership) e
 	//membership := types.NewMembership(membershipType, user, tsp, expited_at.UTC())
 
 	// Save membership
+	membership := types.NewMembership(membershipType, user, tsp, expited_at.UTC())
 	store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
 	// TODO emits events
 	/*ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -114,16 +115,14 @@ func (k Keeper) DeleteMembership(ctx sdk.Context, user sdk.AccAddress) error {
 		)
 	}
 
-	_ = store
+	if !store.Has(k.storageForAddr(user)) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
+		)
+	}
+
+	store.Delete(k.storageForAddr(user))
 	/*
-		if !store.Has(k.storageForAddr(user)) {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
-			)
-		}
-
-		store.Delete(k.storageForAddr(user))
-
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			eventRemoveMembership,
 			sdk.NewAttribute("subscriber", user.String()),
@@ -295,4 +294,92 @@ func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) accTypes.ModuleAccou
 func (k Keeper) MembershipIterator(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(k.storeKey)
 	return sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
+}
+
+// ComputeExpiryHeight compute expiry height of membership.
+func (k Keeper) ComputeExpiryHeight(blockTime time.Time) time.Time {
+	expirationAt := blockTime.Add(secondsPerYear)
+	return expirationAt
+}
+
+// RemoveMembership allows to remove any existing membership associated with the given user.
+func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
+	store := ctx.KVStore(k.storeKey)
+
+	if k.IsTrustedServiceProvider(ctx, user) {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
+			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user.String()),
+		)
+	}
+
+	if !store.Has(k.storageForAddr(user)) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
+		)
+	}
+
+	store.Delete(k.storageForAddr(user))
+
+	/*
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			eventRemoveMembership,
+			sdk.NewAttribute("subscriber", user.String()),
+		))
+	*/
+
+	return nil
+}
+
+// GetTspMemberships extracts all memerships
+func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Memberships {
+	im := k.MembershipIterator(ctx)
+	m := types.Membership{}
+	ms := types.Memberships{}
+	defer im.Close()
+	for ; im.Valid(); im.Next() {
+		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		if m.TspAddress != tsp.String() {
+			continue
+		}
+		ms = append(ms, m)
+	}
+
+	return ms
+}
+
+// ExportMemberships extracts all memberships for export
+func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
+	im := k.MembershipIterator(ctx)
+	m := types.Membership{}
+	ms := types.Memberships{}
+	defer im.Close()
+	for ; im.Valid(); im.Next() {
+		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		ms = append(ms, m)
+	}
+	return ms
+}
+
+// RemoveExpiredMemberships delete all expired memberships
+func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
+	blockTime := ctx.BlockTime()
+	for _, m := range k.GetMemberships(ctx) {
+		if blockTime.After(*m.ExpiryAt) {
+			mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
+			mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
+			if m.MembershipType == types.MembershipTypeBlack {
+				expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
+				membership := types.NewMembership(types.MembershipTypeBlack, mOwner, mTspAddress, expiredAt)
+				store := ctx.KVStore(k.storeKey)
+				staddr := k.storageForAddr(mOwner)
+				store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
+			} else {
+				err := k.RemoveMembership(ctx, mOwner)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+	}
+	return nil
 }

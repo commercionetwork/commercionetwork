@@ -29,7 +29,9 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 
 	// Import the memberships
 	for _, membership := range data.Memberships {
-		err := keeper.AssignMembership(ctx, *membership)
+		mOwner, _ := sdk.AccAddressFromBech32(membership.Owner)
+		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
+		err := keeper.AssignMembership(ctx, mOwner, membership.MembershipType, mTsp, *membership.ExpiryAt)
 		if err != nil {
 			panic(err)
 		}

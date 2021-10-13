@@ -31,22 +31,20 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 
 	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
 	// TODO Not send coins but control if account has enough
-	if err := k.bankKeeper.SendCoins(ctx, sdk.AccAddress(msg.Tsp), govAddr, membershipCost); err != nil {
+	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
+	if err := k.bankKeeper.SendCoins(ctx, msgTsp, govAddr, membershipCost); err != nil {
 		return &types.MsgBuyMembershipResponse{}, err
 	}
 
 	expirationAt := k.ComputeExpiryHeight(ctx.BlockTime())
-
-	var membership = types.Membership{
-		Owner:          msg.Buyer,
-		TspAddress:     msg.Tsp,
-		MembershipType: msg.MembershipType,
-		ExpiryAt:       &expirationAt,
-	}
+	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
 
 	err := k.AssignMembership(
 		ctx,
-		membership,
+		msgBuyer,
+		msg.MembershipType,
+		msgTsp,
+		expirationAt,
 	)
 
 	// Give the reward to the invitee
@@ -107,14 +105,8 @@ func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembers
 
 	expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
 
-	membership := types.Membership{
-		Owner:          msg.Subscriber,
-		TspAddress:     govAddr.String(),
-		MembershipType: msg.NewMembership,
-		ExpiryAt:       &expiredAt,
-	}
-
-	err = k.AssignMembership(ctx, membership)
+	msgSubscriber, _ := sdk.AccAddressFromBech32(msg.Subscriber)
+	err = k.AssignMembership(ctx, msgSubscriber, msg.NewMembership, govAddr, expiredAt)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not assign membership to user %s: %s", msg.Subscriber, err.Error()),
