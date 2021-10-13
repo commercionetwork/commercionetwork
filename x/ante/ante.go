@@ -25,8 +25,7 @@ var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(
-	ak keeper.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	ak keeper.AccountKeeper, bankKeeper types.BankKeeper,
 	govKeeper government.Keeper,
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,

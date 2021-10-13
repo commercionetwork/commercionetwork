@@ -32,7 +32,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+
+	"github.com/commercionetwork/commercionetwork/x/ante"
+	comosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -90,6 +92,12 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+	commerciokycmodule "github.com/commercionetwork/commercionetwork/x/commerciokyc"
+	commerciokycmodulekeeper "github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
+	commerciokycmoduletypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	commerciomintmodule "github.com/commercionetwork/commercionetwork/x/commerciomint"
+	commerciomintmodulekeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	commerciomintmoduletypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/did"
 	idkeeper "github.com/commercionetwork/commercionetwork/x/did/keeper"
 	idtypes "github.com/commercionetwork/commercionetwork/x/did/types"
@@ -251,8 +259,10 @@ type App struct {
 	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
-	governmentKeeper governmentmodulekeeper.Keeper
-	upgradeKeeper    upgrademodulekeeper.Keeper
+	governmentKeeper    governmentmodulekeeper.Keeper
+	commercioMintKeeper commerciomintmodulekeeper.Keeper
+	commercioKycKeeper  commerciokycmodulekeeper.Keeper
+	upgradeKeeper       upgrademodulekeeper.Keeper
 
 	//VbrKeeper vbrmodulekeeper.Keeper
 
@@ -397,6 +407,25 @@ func New(
 		keys[governmentmoduletypes.MemStoreKey],
 	)
 	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
+	app.commercioKycKeeper = *commerciokycmodulekeeper.NewKeeper(
+		appCodec,
+		keys[commerciokycmoduletypes.StoreKey],
+		keys[commerciokycmoduletypes.MemStoreKey],
+		app.BankKeeper,
+		app.governmentKeeper,
+		app.AccountKeeper,
+	)
+	commercioKycModule := commerciokycmodule.NewAppModule(appCodec, app.commercioKycKeeper)
+
+	app.commercioMintKeeper = *commerciomintmodulekeeper.NewKeeper(
+		appCodec,
+		keys[commerciomintmoduletypes.StoreKey],
+		keys[commerciomintmoduletypes.MemStoreKey],
+		app.BankKeeper,
+		app.AccountKeeper,
+		app.governmentKeeper,
+	)
+	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.commercioMintKeeper)
 
 	app.upgradeKeeper = *upgrademodulekeeper.NewKeeper(
 		appCodec,
@@ -415,9 +444,6 @@ func New(
 		appCodec,
 		keys[idtypes.StoreKey],
 		keys[idtypes.MemStoreKey],
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		scopedIdKeeper,
 	)
 	idModule := did.NewAppModule(appCodec, app.IdKeeper)
 	//scopedDocumentsKeeper := app.CapabilityKeeper.ScopeToModule(documentstypes.ModuleName)
@@ -426,9 +452,6 @@ func New(
 		appCodec,
 		keys[documentstypes.StoreKey],
 		keys[documentstypes.MemStoreKey],
-		/*app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		scopedDocumentsKeeper,*/
 	)
 	documentsModule := documents.NewAppModule(appCodec, app.DocumentsKeeper)
 
@@ -511,6 +534,8 @@ func New(
 		// this line is used by starport scaffolding # stargate/app/appModule
 		//vbrModule,
 		governmentModule,
+		commercioKycModule,
+		commercioMintModule,
 		upgradeModule,
 		idModule,
 		documentsModule,
@@ -569,8 +594,11 @@ func New(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
 		ante.NewAnteHandler(
-			app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer,
+			app.AccountKeeper, app.BankKeeper,
+			app.governmentKeeper, app.commercioMintKeeper,
+			comosante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
+			"uccc",
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)

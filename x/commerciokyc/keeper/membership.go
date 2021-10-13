@@ -58,7 +58,6 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	if !types.IsMembershipTypeValid(membershipType) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
-	membershipOwnerAddr, _ := sdk.AccAddressFromBech32(membership.Owner)
 
 	// TODO resolve problems in init genesis to remove membershipType != types.MembershipTypeBlack
 	if k.IsTrustedServiceProvider(ctx, user) && membershipType != types.MembershipTypeBlack {

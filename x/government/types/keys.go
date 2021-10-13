@@ -5,7 +5,7 @@ const (
 	StoreKey     = ModuleName
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
-	MemStoreKey = "mem_government"
+	MemStoreKey  = "mem_" + ModuleName
 
 	GovernmentStoreKey = StoreKey + "government"
 	TumblerStoreKey    = StoreKey + "tumbler"

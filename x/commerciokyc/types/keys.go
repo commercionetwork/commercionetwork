@@ -5,6 +5,7 @@ const (
 	StoreKey     = ModuleName
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
+	MemStoreKey  = "mem_" + ModuleName
 
 	// --- Keeper
 	MembershipsStorageKey  = StoreKey + ":storage:"
