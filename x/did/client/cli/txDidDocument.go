@@ -1,9 +1,7 @@
 package cli
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 
 	//"time"
@@ -15,8 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
 func CmdSetIdentity() *cobra.Command {
@@ -86,6 +82,7 @@ func CmdSetIdentity() *cobra.Command {
 	return cmd
 }
 
+/*
 func signDidDocument(cliCtx client.Context, unsignedDoc types.DidDocument, keybase keyring.Keyring) (string, error) {
 	cdc := codec.NewLegacyAmino()
 	jsonUnsigned, err := cdc.MarshalJSON(unsignedDoc)
@@ -99,3 +96,4 @@ func signDidDocument(cliCtx client.Context, unsignedDoc types.DidDocument, keyba
 	}
 	return base64.StdEncoding.EncodeToString(sign), nil
 }
+*/
