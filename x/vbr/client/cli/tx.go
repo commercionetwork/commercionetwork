@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	// "github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
@@ -31,9 +30,7 @@ func GetTxCmd() *cobra.Command {
 
 	// this line is used by starport scaffolding # 1
 	cmd.AddCommand(CmdSetAutomaticWithdraw())
-
 	cmd.AddCommand(CmdSetRewardRate())
-
 	cmd.AddCommand(CmdMsgIncrementBlockRewardsPool())
 
 	return cmd
