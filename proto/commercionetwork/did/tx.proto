@@ -18,8 +18,8 @@ message MsgSetIdentity {
   string context = 1;
   string ID = 2;
   repeated PubKey pubKeys = 3;
-  Proof proof = 4;
-  repeated Service service = 5;
+  //Proof proof = 4;
+  repeated Service service = 4;
 }
 
 message MsgSetIdentityResponse {

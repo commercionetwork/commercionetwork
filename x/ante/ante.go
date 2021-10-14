@@ -30,6 +30,7 @@ func NewAnteHandler(
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	signModeHandler authsigning.SignModeHandler,
+	stakeDenom string,
 	stableCreditsDemon string,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
@@ -37,7 +38,7 @@ func NewAnteHandler(
 		cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
-		NewMinFeeDecorator(govKeeper, mintKeeper, stableCreditsDemon),
+		NewMinFeeDecorator(govKeeper, mintKeeper, stakeDenom, stableCreditsDemon),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
@@ -55,13 +56,15 @@ func NewAnteHandler(
 type MinFeeDecorator struct {
 	govk               government.Keeper
 	mintk              commerciomintKeeper.Keeper
+	stakeDenom         string
 	stableCreditsDenom string
 }
 
-func NewMinFeeDecorator(govKeeper government.Keeper, mintk commerciomintKeeper.Keeper, stableCreditsDenom string) MinFeeDecorator {
+func NewMinFeeDecorator(govKeeper government.Keeper, mintk commerciomintKeeper.Keeper, stakeDenom string, stableCreditsDenom string) MinFeeDecorator {
 	return MinFeeDecorator{
 		govk:               govKeeper,
 		mintk:              mintk,
+		stakeDenom:         stakeDenom,
 		stableCreditsDenom: stableCreditsDenom,
 	}
 }
@@ -87,7 +90,7 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.GetMsgs())))
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.govk, mfd.mintk, mfd.stableCreditsDenom, requiredFees); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.govk, mfd.mintk, mfd.stakeDenom, mfd.stableCreditsDenom, requiredFees); err != nil {
 		return ctx, err
 	}
 
@@ -99,6 +102,7 @@ func checkMinimumFees(
 	ctx sdk.Context,
 	govk government.Keeper,
 	mintk commerciomintKeeper.Keeper,
+	stakeDenom string,
 	stableCreditsDenom string,
 	requiredFees sdk.Dec,
 ) error {
@@ -112,7 +116,7 @@ func checkMinimumFees(
 	// Extract amount of stable coin from fees
 	feeTx, ok := stdTx.(sdk.FeeTx)
 	if !ok {
-		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
+		return sdkErr.Wrap(sdkErr.ErrTxDecode, "Tx must be a FeeTx")
 	}
 	fiatAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
 	// Check if amount of stable coin is enough
@@ -124,7 +128,7 @@ func checkMinimumFees(
 	// Retrive stable coin conversion rate
 	ucccConversionRate := mintk.GetConversionRate(ctx)
 	// Retrive amount of commercio token and calculate equivalent in stable coin
-	if comAmount := stdTx.Fee.Amount.AmountOf("ucommercio"); comAmount.IsPositive() {
+	if comAmount := feeTx.GetFee().AmountOf(stakeDenom); comAmount.IsPositive() {
 		//f := comAmount.ToDec().Mul(ucccConversionRate)
 		f := comAmount.ToDec().Quo(ucccConversionRate)
 		//realQty := f.QuoInt64(1000000)

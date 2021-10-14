@@ -5,13 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 
-	"time"
+	//"time"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -19,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func CmdSetIdentity() *cobra.Command {
@@ -29,7 +26,7 @@ func CmdSetIdentity() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			keybase, err := keyring.New(sdk.KeyringServiceName(), viper.GetString(flags.FlagKeyringBackend), viper.GetString(flags.FlagHome), os.Stdin)
+			//keybase, err := keyring.New(sdk.KeyringServiceName(), viper.GetString(flags.FlagKeyringBackend), viper.GetString(flags.FlagHome), os.Stdin)
 
 			argsDDOpath, err := cast.ToStringE(args[0])
 			if err != nil {
@@ -50,7 +47,7 @@ func CmdSetIdentity() *cobra.Command {
 				return err
 			}
 			// Calculate Proof
-			signature, err := signDidDocument(clientCtx, didDocument, keybase)
+			/*signature, err := signDidDocument(clientCtx, didDocument, keybase)
 
 			if err != nil {
 				return err
@@ -73,9 +70,10 @@ func CmdSetIdentity() *cobra.Command {
 				Controller:         clientCtx.GetFromAddress().String(),
 				VerificationMethod: verMeth,
 				SignatureValue:     signature,
-			}
+			}*/
 
-			msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, proof, didDocument.Service)
+			//msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, proof, didDocument.Service)
+			msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, didDocument.Service)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
