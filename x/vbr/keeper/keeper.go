@@ -74,9 +74,14 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	macc := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
-	mcoins := macc.GetCoins()
+	var coins sdk.Coins
+	/*for _, coin := range k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()) {
+		coins = append(coins, coin)
+	}*/
+	coins = append(coins, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress())...)
+	//mcoins := macc.GetCoins()
 
-	return sdk.NewDecCoinsFromCoins(mcoins...)
+	return sdk.NewDecCoinsFromCoins(coins...)
 }
 
 // SetRewardRate store the vbr reward rate.
