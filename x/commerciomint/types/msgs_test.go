@@ -88,7 +88,7 @@ func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			msg := NewMsgSetCCCConversionRate(tt.signer, sdk.DecProto{Dec: tt.collateralRate})
+			msg := NewMsgSetCCCConversionRate(tt.signer, tt.collateralRate)
 			require.Equal(t, "commerciomint", msg.Route())
 			require.Equal(t, "setEtpsConversionRate", msg.Type())
 			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)

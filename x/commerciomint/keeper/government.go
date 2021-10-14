@@ -58,3 +58,43 @@ func (k Keeper) GetFreezePeriod(ctx sdk.Context) time.Duration {
 	freezePeriodDuration, _ := time.ParseDuration(freezePeriod) // Catch the error
 	return freezePeriodDuration
 }
+
+// SetConversionRate stores the conversion rate.
+func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
+	if err := types.ValidateConversionRate(rate); err != nil {
+		return err
+	}
+	store := ctx.KVStore(k.storeKey)
+	setRate := types.ConversionRate{
+		Rate: rate,
+	}
+
+	store.Set([]byte(types.CollateralRateKey), k.cdc.MustMarshalBinaryBare(&setRate))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetConversionRate,
+		sdk.NewAttribute("rate", rate.String()),
+	))
+
+	return nil
+}
+
+// SetFreezePeriod stores the freeze period in seconds.
+func (k Keeper) SetFreezePeriod(ctx sdk.Context, freezePeriod time.Duration) error {
+	if err := types.ValidateFreezePeriod(freezePeriod); err != nil {
+		return err
+	}
+	store := ctx.KVStore(k.storeKey)
+	setFreezePeriod := types.FreezePeriod{
+		FreezePeriod: &freezePeriod,
+	}
+
+	store.Set([]byte(types.FreezePeriodKey), k.cdc.MustMarshalBinaryBare(&setFreezePeriod))
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetFreezePeriod,
+		sdk.NewAttribute("freeze_period", freezePeriod.String()),
+	))
+
+	return nil
+}

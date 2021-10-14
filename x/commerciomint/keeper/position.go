@@ -75,7 +75,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	conversionRate := k.GetConversionRate(ctx)
 
 	uccDec := sdk.NewDecFromInt(ucccRequested)
-	ucommercioAmount := uccDec.Mul(conversionRate.Dec).Ceil().TruncateInt()
+	ucommercioAmount := uccDec.Mul(conversionRate).Ceil().TruncateInt()
 
 	// Create ucccEmitted token
 	ucccEmitted := sdk.NewCoin(types.CreditsDenom, ucccRequested)
@@ -91,8 +91,9 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 		ctx.BlockTime(),
 		conversionRate,
 	)*/
-	position.CreatedAt = ctx.BlockTime().String()
-	position.ExchangeRate = &conversionRate
+	createAt := ctx.BlockTime()
+	position.CreatedAt = &createAt
+	position.ExchangeRate = conversionRate
 	position.Credits = &ucccEmitted
 
 	if err := position.Validate(); err != nil {
@@ -122,7 +123,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 		sdk.NewAttribute("amount_deposited", ucomAmount.String()),
 		sdk.NewAttribute("minted_coins", creditsCoins.String()),
 		sdk.NewAttribute("position_id", position.ID),
-		sdk.NewAttribute("timestamp", position.CreatedAt),
+		sdk.NewAttribute("timestamp", position.CreatedAt.String()),
 	))
 
 	return nil
@@ -153,7 +154,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 
 	// Control if position is almost in freezing period
 	freezePeriod := k.GetFreezePeriod(ctx)
-	createdAt, _ := time.Parse(time.RFC3339, pos.CreatedAt) // TODO CHECK FORMAT AND ERROR
+	createdAt := *pos.CreatedAt // TODO CHECK FORMAT AND ERROR
 	if time.Now().Sub(createdAt) <= freezePeriod {
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
 	}
@@ -191,7 +192,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 
 	// 3.
 	burnAmountDec := sdk.NewDecFromInt(burnAmount.Amount)
-	collateralAmount := burnAmountDec.Mul(pos.ExchangeRate.Dec).Ceil().TruncateInt()
+	collateralAmount := burnAmountDec.Mul(pos.ExchangeRate).Ceil().TruncateInt()
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, user, sdk.NewCoins(sdk.NewCoin(
 		types.BondDenom,
 		collateralAmount,

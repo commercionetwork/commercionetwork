@@ -12,7 +12,7 @@ func (k Keeper) GetModuleAccount(ctx sdk.Context) accType.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
-func (k Keeper) GetLiquidityPoolAmount(ctx sdk.Context) sdk.CoinS {
+func (k Keeper) GetLiquidityPoolAmount(ctx sdk.Context) sdk.Coins {
 	moduleAccount := k.GetModuleAccount(ctx)
 	return k.bankKeeper.GetAllBalances(ctx, moduleAccount.GetAddress())
 
