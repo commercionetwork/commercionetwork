@@ -5,17 +5,18 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	uuid "github.com/satori/go.uuid"
 )
 
-func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.DecProto) Position {
+func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Dec) Position {
 
 	return Position{
 		Owner:        owner.String(),
 		Collateral:   deposit.ToDec().RoundInt64(), // TODO FIX THIS
 		Credits:      &liquidity,
 		ID:           id,
-		CreatedAt:    createdAt.String(), // TODO FIX THIS
-		ExchangeRate: &exchangeRate,
+		CreatedAt:    &createdAt, // TODO FIX THIS
+		ExchangeRate: exchangeRate,
 	}
 }
 
@@ -36,20 +37,17 @@ func (pos Position) Validate() error {
 		return fmt.Errorf("invalid liquidity amount: %s", pos.Credits)
 	}
 
-	if pos.ExchangeRate.Dec.IsNegative() {
+	if pos.ExchangeRate.IsNegative() {
 		return fmt.Errorf("exchange rate cannot be zero")
 	}
 
-	createdAt, err := time.Parse(time.RFC3339, pos.CreatedAt)
-	if err != nil || createdAt == (time.Time{}) {
+	if *pos.CreatedAt == (time.Time{}) {
 		return fmt.Errorf("cannot have empty creation time")
 	}
 
-	// TODO control repeated control
-	/*
-		if _, err := uuid.FromString(pos.ID); err != nil {
-			return fmt.Errorf("id string must be a well-defined UUID")
-		}*/
+	if _, err := uuid.FromString(pos.ID); err != nil {
+		return fmt.Errorf("id string must be a well-defined UUID")
+	}
 
 	return nil
 }
@@ -86,6 +84,6 @@ func (pos Position) Equals(etp Position) bool {
 		posCollateral.Equal(etpCollateral) &&
 		pos.Credits.IsEqual(*etp.Credits) &&
 		pos.ID == etp.ID &&
-		pos.ExchangeRate.Dec.Equal(etp.ExchangeRate.Dec) &&
+		pos.ExchangeRate.Equal(etp.ExchangeRate) &&
 		pos.CreatedAt == etp.CreatedAt
 }

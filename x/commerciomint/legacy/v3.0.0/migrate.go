@@ -16,9 +16,9 @@ func Migrate(oldGenState v220commerciomint.GenesisState) *types.GenesisState {
 
 		position.Owner = oldPosition.Owner.String()
 		position.Collateral = oldPosition.Collateral.Int64()
-		position.CreatedAt = oldPosition.CreatedAt.String()
+		position.CreatedAt = &oldPosition.CreatedAt
 		position.Credits = &oldPosition.Credits
-		position.ExchangeRate.Dec = oldPosition.ExchangeRate
+		position.ExchangeRate = oldPosition.ExchangeRate
 
 		postions = append(postions, &position)
 	}
