@@ -9,8 +9,8 @@ import (
 )
 
 // UpdateConversionRate stores the conversion rate.
-func (k Keeper) UpdateConversionRate(ctx sdk.Context, rate sdk.DecProto) error {
-	if err := types.ValidateConversionRate(rate.Dec); err != nil {
+func (k Keeper) UpdateConversionRate(ctx sdk.Context, rate sdk.Dec) error {
+	if err := types.ValidateConversionRate(rate); err != nil {
 		return err
 	}
 	store := ctx.KVStore(k.storeKey)
@@ -27,12 +27,10 @@ func (k Keeper) UpdateConversionRate(ctx sdk.Context, rate sdk.DecProto) error {
 
 // GetConversionRate retrieves the conversion rate.
 // TODO CONTROL
-func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.DecProto {
+func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Dec {
 	store := ctx.KVStore(k.storeKey)
 	rate, _ := sdk.NewDecFromStr(string(store.Get([]byte(types.CollateralRateKey))))
-	var returnRate sdk.DecProto
-	returnRate.Dec = rate
-	return returnRate
+	return rate
 }
 
 // UpdateFreezePeriod stores the freeze period in seconds.

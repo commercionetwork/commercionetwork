@@ -2,7 +2,6 @@ package government
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
@@ -32,15 +31,12 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 		//supplyKeeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	if err := keeper.UpdateConversionRate(ctx, *data.CollateralRate); err != nil {
+	if err := keeper.UpdateConversionRate(ctx, data.CollateralRate); err != nil {
 		panic(err)
 	}
-	freezePeriod, err := time.ParseDuration(data.FreezePeriod)
-	if err != nil {
-		panic(err)
-	}
+	freezePeriod := data.FreezePeriod
 
-	if err := keeper.UpdateFreezePeriod(ctx, freezePeriod); err != nil {
+	if err := keeper.UpdateFreezePeriod(ctx, *freezePeriod); err != nil {
 		panic(err)
 	}
 
@@ -59,10 +55,10 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 
 	// this line is used by starport scaffolding # genesis/module/export
 	collateralRate := k.GetConversionRate(ctx)
-	genesis.CollateralRate = &collateralRate
+	genesis.CollateralRate = collateralRate
 
-	freezePeriod := k.GetFreezePeriod(ctx).String()
-	genesis.FreezePeriod = freezePeriod
+	freezePeriod := k.GetFreezePeriod(ctx)
+	genesis.FreezePeriod = &freezePeriod
 
 	genesis.PoolAmount = k.GetLiquidityPoolAmount(ctx)
 
@@ -84,13 +80,10 @@ func ValidateGenesis(state types.GenesisState) error {
 	}
 	// PoolAmount
 
-	freezePeriod, err := time.ParseDuration(state.FreezePeriod)
+	freezePeriod := state.FreezePeriod
+	err := types.ValidateFreezePeriod(*freezePeriod)
 	if err != nil {
 		return err
 	}
-	err = types.ValidateFreezePeriod(freezePeriod)
-	if err != nil {
-		return err
-	}
-	return types.ValidateConversionRate(state.CollateralRate.Dec)
+	return types.ValidateConversionRate(state.CollateralRate)
 }

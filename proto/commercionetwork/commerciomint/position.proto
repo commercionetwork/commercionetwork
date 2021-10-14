@@ -14,6 +14,6 @@ message Position {
   cosmos.base.v1beta1.Coin credits = 3;
   google.protobuf.Timestamp created_at = 4 [(gogoproto.stdtime) = true];
   string ID = 5;
-  string exchange_rate = 6 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false]; 
+  string exchange_rate = 6
+    [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
 }
