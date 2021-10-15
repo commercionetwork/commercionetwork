@@ -10,11 +10,11 @@ const (
 
 type DidDocuments []*types.DidDocument
 
-func (didDocuments DidDocuments) AppendIfMissingID(i *types.DidDocument) DidDocuments {
-	for _, ele := range didDocuments {
-		if ele.ID == i.ID {
+func (didDocuments DidDocuments) AppendIfMissingID(ins *types.DidDocument) {
+	/*for _, present := range didDocuments {
+		if present.ID == ins.ID {
 			return didDocuments
 		}
-	}
-	return append(didDocuments, i)
+	}*/
+	didDocuments = append(didDocuments, ins)
 }

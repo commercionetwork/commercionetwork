@@ -41,13 +41,15 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 		var didGenState v220did.GenesisState
 		v039Codec.MustUnmarshalJSON(appState[v220docs.ModuleName], &didGenState)
 		appState[v300did.ModuleName] = v040Codec.MustMarshalJSON(v300did.Migrate(didGenState))
+		delete(appState, v220did.ModuleName)
 	}
 
-	if appState[v220docs.ModuleName] != nil {
+	/*if appState[v220docs.ModuleName] != nil {
 		var docGenState v220docs.GenesisState
 		v039Codec.MustUnmarshalJSON(appState[v220docs.ModuleName], &docGenState)
 		appState[v300docs.ModuleName] = v040Codec.MustMarshalJSON(v300docs.Migrate(docGenState))
-	}
+	}*/
+	appState[v300docs.ModuleName] = appState[v220docs.ModuleName]
 
 	if appState[v220commerciomint.ModuleName] != nil {
 		var commerciomintGenState v220commerciomint.GenesisState
