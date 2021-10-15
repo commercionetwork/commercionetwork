@@ -184,7 +184,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
-		//vbrmodule.AppModuleBasic{},
+		vbrmodule.AppModuleBasic{},
 		governmentmodule.AppModuleBasic{},
 		upgrademodule.AppModuleBasic{},
 		did.AppModuleBasic{},
@@ -201,6 +201,7 @@ var (
 		stakingtypes.BondedPoolName:      {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName:   {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:              {authtypes.Burner},
+		vbrmoduletypes.ModuleName:        {authtypes.Minter},
 		governmentmoduletypes.ModuleName: nil,
 		upgrademoduletypes.ModuleName:    nil,
 		commerciokycTypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
