@@ -3,9 +3,13 @@ package v3_0_0
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/x/genutil/types"
-
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	sdkLegacy "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
+	"github.com/cosmos/cosmos-sdk/x/genutil/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core/types"
 
 	v220government "github.com/commercionetwork/commercionetwork/x/government/legacy/v2.2.0"
 	v300government "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
@@ -23,6 +27,7 @@ import (
 	v300commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v3.0.0"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
@@ -39,17 +44,17 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 
 	if appState[v220did.ModuleName] != nil {
 		var didGenState v220did.GenesisState
-		v039Codec.MustUnmarshalJSON(appState[v220docs.ModuleName], &didGenState)
+		v039Codec.MustUnmarshalJSON(appState[v220did.ModuleName], &didGenState)
 		appState[v300did.ModuleName] = v040Codec.MustMarshalJSON(v300did.Migrate(didGenState))
 		delete(appState, v220did.ModuleName)
 	}
 
-	/*if appState[v220docs.ModuleName] != nil {
+	if appState[v220docs.ModuleName] != nil {
 		var docGenState v220docs.GenesisState
 		v039Codec.MustUnmarshalJSON(appState[v220docs.ModuleName], &docGenState)
 		appState[v300docs.ModuleName] = v040Codec.MustMarshalJSON(v300docs.Migrate(docGenState))
-	}*/
-	appState[v300docs.ModuleName] = appState[v220docs.ModuleName]
+	}
+	//appState[v300docs.ModuleName] = appState[v220docs.ModuleName]
 
 	if appState[v220commerciomint.ModuleName] != nil {
 		var commerciomintGenState v220commerciomint.GenesisState
@@ -66,7 +71,19 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 	}
 
 	//appState[wasm.ModuleName] = wasmKeeper.InitGenesis()
-	appState[wasm.ModuleName] = nil
+	wasmModule := &wasmTypes.GenesisState{}
+
+	wasmModule.Params.InstantiateDefaultPermission = 3
+	wasmModule.Params.CodeUploadAccess.Permission = 3
+	wasmModule.Params.MaxWasmCodeSize = 1228800
+	appState[wasm.ModuleName] = v040Codec.MustMarshalJSON(wasmModule)
+	appState[ibctransfertypes.ModuleName] = v040Codec.MustMarshalJSON(ibctransfertypes.DefaultGenesisState())
+
+	appState["ibc"] = v040Codec.MustMarshalJSON(ibc.DefaultGenesisState())
+	appState[capabilitytypes.ModuleName] = v040Codec.MustMarshalJSON(capabilitytypes.DefaultGenesis())
+	appState[evidencetypes.ModuleName] = v040Codec.MustMarshalJSON(evidencetypes.DefaultGenesisState())
+	appState[evidencetypes.ModuleName] = v040Codec.MustMarshalJSON(evidencetypes.DefaultGenesisState())
+	appState[govtypes.ModuleName] = v040Codec.MustMarshalJSON(govtypes.DefaultGenesisState())
 
 	return appState
 

@@ -18,9 +18,12 @@ func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 	documents := Documents{}
 	var document *types.Document
 	for _, v220document := range oldGenState.Documents {
-		document = migrateDocument(v220document)
-		//documents =  append(documents, document)
-		documents.AppendIfMissingID(document)
+		err := v220document.Validate()
+		if err == nil {
+			document = migrateDocument(v220document)
+			//documents =  append(documents, d"ocument)
+			documents = documents.AppendIfMissingID(document)
+		}
 	}
 
 	//document receipts
@@ -92,7 +95,7 @@ func migrateDocument(doc v220docs.Document) *types.Document {
 			CertificateProfile: doc.DoSign.CertificateProfile,
 		}
 	}
-
+	doc.ContentURI = ""
 	// Return a new document
 	return &types.Document{
 		Sender:     doc.Sender.String(),
