@@ -11,6 +11,7 @@ import (
 
 	distKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+ 	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	// this line is used by starport scaffolding # ibc/keeper/import
@@ -74,12 +75,8 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	macc := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
-	var coins sdk.Coins
-	/*for _, coin := range k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()) {
-		coins = append(coins, coin)
-	}*/
-	coins = append(coins, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress())...)
 	//mcoins := macc.GetCoins()
+	coins := GetCoins(k, ctx, macc)
 
 	return sdk.NewDecCoinsFromCoins(coins...)
 }
@@ -117,4 +114,28 @@ func (k Keeper) GetAutomaticWithdrawKeeper(ctx sdk.Context) bool {
 	var autoW types.VbrAutoW
 	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.AutomaticWithdraw)), &autoW)
 	return autoW.AutoW
+}
+
+// VbrAccount returns vbr's ModuleAccount
+func (k Keeper) VbrAccount(ctx sdk.Context) accountTypes.ModuleAccountI {
+	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
+// MintVBRTokens mints coins into the vbr's ModuleAccount
+func (k Keeper) MintVBRTokens(ctx sdk.Context, coins sdk.Coins) error {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
+		return fmt.Errorf("could not mint requested coins: %w", err)
+	}
+
+	return nil
+}
+
+func GetCoins(k Keeper, ctx sdk.Context, macc accountTypes.ModuleAccountI) sdk.Coins {
+	var coins sdk.Coins
+	/*for _, coin := range k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()) {
+		coins = append(coins, coin)
+	}*/
+	coins = append(coins, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress())...)
+	
+	return coins
 }

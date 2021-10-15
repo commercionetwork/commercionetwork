@@ -1477,6 +1477,9 @@ paths:
           description: A successful response.
           schema:
             type: object
+            properties:
+              autoW:
+                type: boolean
         default:
           description: An unexpected error response.
           schema:
@@ -1500,12 +1503,31 @@ paths:
   /commercionetwork/commercionetwork/vbr/funds:
     get:
       summary: 'this line is used by starport scaffolding # 2'
-      operationId: CommercionetworkCommercionetworkVbrGetRetrieveBlockRewardsPoolFunds
+      operationId: CommercionetworkCommercionetworkVbrGetBlockRewardsPoolFunds
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
+            properties:
+              funds:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
         default:
           description: An unexpected error response.
           schema:
@@ -1534,6 +1556,9 @@ paths:
           description: A successful response.
           schema:
             type: object
+            properties:
+              rewardRate:
+                type: string
         default:
           description: An unexpected error response.
           schema:
@@ -24465,10 +24490,43 @@ definitions:
     type: object
   commercionetwork.commercionetwork.vbr.QueryGetAutomaticWithdrawResponse:
     type: object
-  commercionetwork.commercionetwork.vbr.QueryGetRetrieveBlockRewardsPoolFundsResponse:
+    properties:
+      autoW:
+        type: boolean
+  commercionetwork.commercionetwork.vbr.QueryGetBlockRewardsPoolFundsResponse:
     type: object
+    properties:
+      funds:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
   commercionetwork.commercionetwork.vbr.QueryGetRewardRateResponse:
     type: object
+    properties:
+      rewardRate:
+        type: string
+  cosmos.base.v1beta1.DecCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      DecCoin defines a token with a denomination and a decimal amount.
+
+      NOTE: The amount field is an Dec which implements the custom method
+      signatures required by gogoproto.
   cosmos.bank.v1beta1.DenomUnit:
     type: object
     properties:
@@ -24897,18 +24955,6 @@ definitions:
   cosmos.crisis.v1beta1.MsgVerifyInvariantResponse:
     type: object
     description: MsgVerifyInvariantResponse defines the Msg/VerifyInvariant response type.
-  cosmos.base.v1beta1.DecCoin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      DecCoin defines a token with a denomination and a decimal amount.
-
-      NOTE: The amount field is an Dec which implements the custom method
-      signatures required by gogoproto.
   cosmos.distribution.v1beta1.DelegationDelegatorReward:
     type: object
     properties:
