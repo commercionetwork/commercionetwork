@@ -95,10 +95,26 @@ func (k Keeper) SetRewardRateKeeper(ctx sdk.Context, rate sdk.Dec) error {
 	return nil
 }
 
+// GetRewardRate retrieve the vbr reward rate.
+func (k Keeper) GetRewardRateKeeper(ctx sdk.Context) sdk.Dec {
+	store := ctx.KVStore(k.storeKey)
+	var rate types.VbrRewardrate
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.RewardRateKey)), &rate)
+	return rate.RewardRate
+}
+
 // SetAutomaticWithdraw store the automatic withdraw flag.
 func (k Keeper) SetAutomaticWithdrawKeeper(ctx sdk.Context, autoW bool) error {
 	store := ctx.KVStore(k.storeKey)
 	autoWithdraw := types.VbrAutoW{AutoW: autoW}
 	store.Set([]byte(types.AutomaticWithdraw), k.cdc.MustMarshalBinaryBare(&autoWithdraw))
 	return nil
+}
+
+// GetAutomaticWithdraw retrieve automatic withdraw flag.
+func (k Keeper) GetAutomaticWithdrawKeeper(ctx sdk.Context) bool {
+	store := ctx.KVStore(k.storeKey)
+	var autoW types.VbrAutoW
+	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.AutomaticWithdraw)), &autoW)
+	return autoW.AutoW
 }

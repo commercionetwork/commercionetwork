@@ -618,10 +618,10 @@ type QueryClient interface {
 	// Queries a Document by id.
 	Document(ctx context.Context, in *QueryGetDocumentRequest, opts ...grpc.CallOption) (*QueryGetDocumentResponse, error)
 	//
-	// // Queries a list of Document items.
-	// rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
-	// option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
-	// }
+	//// Queries a list of Document items.
+	//rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
+	//option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
+	//}
 	SentDocuments(ctx context.Context, in *QueryGetSentDocumentsRequest, opts ...grpc.CallOption) (*QueryGetSentDocumentsResponse, error)
 	// Queries a list of Document items.
 	ReceivedDocument(ctx context.Context, in *QueryGetReceivedDocumentRequest, opts ...grpc.CallOption) (*QueryGetReceivedDocumentResponse, error)
@@ -689,10 +689,10 @@ type QueryServer interface {
 	// Queries a Document by id.
 	Document(context.Context, *QueryGetDocumentRequest) (*QueryGetDocumentResponse, error)
 	//
-	// // Queries a list of Document items.
-	// rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
-	// option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
-	// }
+	//// Queries a list of Document items.
+	//rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
+	//option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
+	//}
 	SentDocuments(context.Context, *QueryGetSentDocumentsRequest) (*QueryGetSentDocumentsResponse, error)
 	// Queries a list of Document items.
 	ReceivedDocument(context.Context, *QueryGetReceivedDocumentRequest) (*QueryGetReceivedDocumentResponse, error)

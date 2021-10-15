@@ -1469,6 +1469,91 @@ paths:
                         }
       tags:
         - Query
+  /commercionetwork/commercionetwork/vbr/automatic_withdraw:
+    get:
+      operationId: CommercionetworkCommercionetworkVbrGetAutomaticWithdraw
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /commercionetwork/commercionetwork/vbr/funds:
+    get:
+      summary: 'this line is used by starport scaffolding # 2'
+      operationId: CommercionetworkCommercionetworkVbrGetRetrieveBlockRewardsPoolFunds
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /commercionetwork/commercionetwork/vbr/reward_rate:
+    get:
+      operationId: CommercionetworkCommercionetworkVbrGetRewardRate
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   '/cosmos/bank/v1beta1/balances/{address}':
     get:
       summary: AllBalances queries the balance of all coins for a single account.
@@ -24377,6 +24462,12 @@ definitions:
   commercionetwork.commercionetwork.vbr.MsgSetAutomaticWithdrawResponse:
     type: object
   commercionetwork.commercionetwork.vbr.MsgSetRewardRateResponse:
+    type: object
+  commercionetwork.commercionetwork.vbr.QueryGetAutomaticWithdrawResponse:
+    type: object
+  commercionetwork.commercionetwork.vbr.QueryGetRetrieveBlockRewardsPoolFundsResponse:
+    type: object
+  commercionetwork.commercionetwork.vbr.QueryGetRewardRateResponse:
     type: object
   cosmos.bank.v1beta1.DenomUnit:
     type: object
