@@ -26,6 +26,9 @@ import (
 	v220commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.2.0"
 	v300commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v3.0.0"
 
+	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
+	v300vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v3.0.0"
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
@@ -68,6 +71,12 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 		v039Codec.MustUnmarshalJSON(appState[v220commerciokyc.ModuleName], &commerciokycGenState)
 		appState[v300commerciokyc.ModuleName] = v040Codec.MustMarshalJSON(v300commerciokyc.Migrate(commerciokycGenState))
 
+	}
+
+	if appState[v220vbr.ModuleName] != nil {
+		var vbrGenState v220vbr.GenesisState
+		v039Codec.MustUnmarshalJSON(appState[v220vbr.ModuleName], &vbrGenState)
+		appState[v300vbr.ModuleName] = v040Codec.MustMarshalJSON(v300vbr.Migrate(vbrGenState))
 	}
 
 	//appState[wasm.ModuleName] = wasmKeeper.InitGenesis()

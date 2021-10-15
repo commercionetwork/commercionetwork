@@ -107,9 +107,10 @@ import (
 	upgrademodule "github.com/commercionetwork/commercionetwork/x/upgrade"
 	upgrademodulekeeper "github.com/commercionetwork/commercionetwork/x/upgrade/keeper"
 	upgrademoduletypes "github.com/commercionetwork/commercionetwork/x/upgrade/types"
-	/*vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
+	vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
 	vbrmodulekeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
-	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"*/)
+	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+)
 
 const Name = "commercionetwork"
 
@@ -269,7 +270,7 @@ type App struct {
 	commercioKycKeeper  commerciokycKeeper.Keeper
 	upgradeKeeper       upgrademodulekeeper.Keeper
 
-	//VbrKeeper vbrmodulekeeper.Keeper
+	VbrKeeper vbrmodulekeeper.Keeper
 
 	ScopedIdKeeper capabilitykeeper.ScopedKeeper
 	IdKeeper       didkeeper.Keeper
@@ -304,7 +305,7 @@ func New(
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		wasm.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
-		//vbrmoduletypes.StoreKey,
+		vbrmoduletypes.StoreKey,
 		upgrademoduletypes.StoreKey,
 		didTypes.StoreKey,
 		commerciokycTypes.StoreKey,
@@ -397,14 +398,17 @@ func New(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-	/*
-		app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
-			appCodec,
-			keys[vbrmoduletypes.StoreKey],
-			keys[vbrmoduletypes.MemStoreKey],
-		)
-		vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
-	*/
+
+	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
+		appCodec,
+		keys[vbrmoduletypes.StoreKey],
+		keys[vbrmoduletypes.MemStoreKey],
+		app.DistrKeeper,
+		app.BankKeeper,
+		app.AccountKeeper,
+		app.governmentKeeper,
+	)
+	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
 	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
 		appCodec,
 		keys[governmentmoduletypes.StoreKey],
@@ -535,8 +539,8 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
-		//vbrModule,
 		governmentModule,
+		vbrModule,
 		commerciokycModule,
 		commercioMintModule,
 		upgradeModule,
@@ -574,8 +578,9 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
-		//vbrmoduletypes.ModuleName,
 		governmentmoduletypes.ModuleName,
+		vbrmoduletypes.ModuleName,
+
 		upgrademoduletypes.ModuleName,
 		didTypes.ModuleName,
 		documentstypes.ModuleName,
@@ -772,8 +777,8 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
-	//paramsKeeper.Subspace(vbrmoduletypes.ModuleName)
 	paramsKeeper.Subspace(governmentmoduletypes.ModuleName)
+	paramsKeeper.Subspace(vbrmoduletypes.ModuleName)
 	paramsKeeper.Subspace(upgrademoduletypes.ModuleName)
 	paramsKeeper.Subspace(didTypes.ModuleName)
 	paramsKeeper.Subspace(documentstypes.ModuleName)

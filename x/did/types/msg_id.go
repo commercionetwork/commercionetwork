@@ -86,7 +86,7 @@ func (msg *MsgSetIdentity) ValidateBasic() error {
 		for i, service := range msg.Service {
 			err := service.Validate()
 			if err != nil {
-				return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("service %d validation failed: %w", i, err))
+				return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("service %d validation failed: %s", i, err.Error()))
 			}
 		}
 	}
