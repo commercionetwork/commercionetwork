@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package commercionetwork.commercionetwork.vbr;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+
+message VbrPool {
+    repeated cosmos.base.v1beta1.DecCoin amount = 1 [(gogoproto.moretags) = "yaml:\"amount\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable) = false] ;
+}
+
+message VbrAutoW {
+    bool autoW = 1 [(gogoproto.moretags) = "yaml:\"autoW\""] ;
+}
+
+message VbrRewardrate {
+    string rewardRate = 1 [(gogoproto.moretags) = "yaml:\"rewardRate\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false] ;
+}
