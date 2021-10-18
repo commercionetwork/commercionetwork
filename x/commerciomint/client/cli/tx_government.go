@@ -38,10 +38,8 @@ func setConversionRateCmdFunc(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("cannot parse collateral rate, must be a decimal")
 	}
-	var setRate sdk.DecProto
-	setRate.Dec = rate
 
-	msg := types.NewMsgSetCCCConversionRate(signer, setRate)
+	msg := types.NewMsgSetCCCConversionRate(signer, rate)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}

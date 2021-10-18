@@ -2,7 +2,7 @@ package types
 
 const (
 	// ModuleName defines the module name
-	ModuleName = "documents"
+	ModuleName = "docs"
 
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
@@ -14,7 +14,7 @@ const (
 	QuerierRoute = ModuleName
 
 	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "mem_documents"
+	MemStoreKey = "mem_" + ModuleName
 
 	/*// Version defines the current version the IBC module supports
 	Version = "documents-1"

@@ -10,7 +10,7 @@ import (
 	// "github.com/cosmos/cosmos-sdk/client/flags"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commercionetwork/commercionetwork/x/id/types"
+	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

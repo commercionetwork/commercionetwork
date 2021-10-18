@@ -13,7 +13,7 @@ func NewMembership(membershipType string, owner sdk.AccAddress, tsp sdk.AccAddre
 		Owner:          owner.String(),
 		TspAddress:     tsp.String(),
 		MembershipType: membershipType,
-		ExpiryAt:       expiryAt.String(), //TODO CONVERSION
+		ExpiryAt:       &expiryAt, //TODO CONVERSION
 	}
 }
 
@@ -21,7 +21,7 @@ func NewMembership(membershipType string, owner sdk.AccAddress, tsp sdk.AccAddre
 func (m Membership) Equals(other Membership) bool {
 	return m.Owner == other.Owner &&
 		m.TspAddress == other.TspAddress &&
-		m.ExpiryAt == other.ExpiryAt &&
+		m.ExpiryAt.Equal(*other.ExpiryAt) &&
 		m.MembershipType == other.MembershipType
 }
 
@@ -33,3 +33,5 @@ func IsMembershipTypeValid(membershipType string) bool {
 		membershipType == MembershipTypeGold ||
 		membershipType == MembershipTypeBlack
 }
+
+type Memberships []Membership

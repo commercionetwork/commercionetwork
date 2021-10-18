@@ -1,0 +1,31 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.did;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "commercionetwork/did/didDocument.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
+
+// Query defines the gRPC querier service.
+service Query {
+	// Queries a DidDocument by id.
+	rpc Identity(QueryResolveDidRequest) returns (QueryResolveDidResponse) {
+		option (google.api.http).get = "/commercionetwork/commercionetwork/did/identities/{ID}";
+	}
+
+    // this line is used by starport scaffolding # 2
+    
+}
+
+message QueryResolveDidRequest {
+	string ID = 1;
+}
+
+message QueryResolveDidResponse {
+	DidDocument DidDocument = 1;
+}
+
+
+// this line is used by starport scaffolding # 3

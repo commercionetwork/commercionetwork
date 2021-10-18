@@ -1,6 +1,7 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.commerciomint;
 
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciomint/position.proto";
@@ -61,7 +62,8 @@ message QueryConversionRate {
 }
 
 message QueryConversionRateResponse {
-	cosmos.base.v1beta1.DecProto rate = 1;
+	string rate = 1 
+		[(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
 }
 
 

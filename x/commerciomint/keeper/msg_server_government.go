@@ -16,7 +16,7 @@ func (k msgServer) SetConversionRate(goCtx context.Context, msg *types.MsgSetCCC
 	if !(gov.Equals(sdk.AccAddress(msg.Signer))) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set conversion rate", msg.Signer))
 	}
-	if err := k.UpdateConversionRate(ctx, *msg.Rate); err != nil {
+	if err := k.UpdateConversionRate(ctx, msg.Rate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 	// TODO EMITS EVENTS CORRECTLY

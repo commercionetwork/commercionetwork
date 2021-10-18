@@ -12,13 +12,9 @@ func (k Keeper) GetModuleAccount(ctx sdk.Context) accType.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
-func (k Keeper) GetLiquidityPoolAmount(ctx sdk.Context) []*sdk.Coin {
+func (k Keeper) GetLiquidityPoolAmount(ctx sdk.Context) sdk.Coins {
 	moduleAccount := k.GetModuleAccount(ctx)
-	var coins []*sdk.Coin
-	for _, coin := range k.bankKeeper.GetAllBalances(ctx, moduleAccount.GetAddress()) {
-		coins = append(coins, &coin)
-	}
-	return coins
+	return k.bankKeeper.GetAllBalances(ctx, moduleAccount.GetAddress())
 
 }
 
@@ -33,15 +29,9 @@ func (k Keeper) GetLiquidityPoolAmountCoins(ctx sdk.Context) sdk.Coins {
 
 }
 
-func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins []*sdk.Coin) error {
-
+func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins sdk.Coins) error {
 	moduleAccount := k.GetModuleAccount(ctx)
-	setCoins := sdk.NewCoins()
-	for _, coin := range coins {
-		setCoins = append(setCoins, *coin)
-	}
-
-	return k.bankKeeper.AddCoins(ctx, moduleAccount.GetAddress(), setCoins)
+	return k.bankKeeper.AddCoins(ctx, moduleAccount.GetAddress(), coins)
 }
 
 func (k Keeper) SetModuleAccount(ctx sdk.Context, acc accType.ModuleAccountI) {

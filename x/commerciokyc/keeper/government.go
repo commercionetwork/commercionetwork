@@ -51,7 +51,7 @@ func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress
 }
 
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool
-func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount []*sdk.Coin) error {
+func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
 	// Send the coins from the user wallet to the pool
 	bondDenom := "ucommercio"
 	var amountCoins sdk.Coins
@@ -59,7 +59,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 		if coin.Denom != bondDenom { // TODO change with constant
 			return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf("deposit into membership pool can only be expressed in %s", bondDenom))
 		}
-		amountCoins = append(amountCoins, *coin)
+		amountCoins = append(amountCoins, coin)
 	}
 
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amountCoins); err != nil {

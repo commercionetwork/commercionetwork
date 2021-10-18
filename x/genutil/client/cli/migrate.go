@@ -14,7 +14,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	extypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -30,7 +29,7 @@ const (
 	flagChainID     = "chain-id"
 )
 
-func MigrationsListCmd(_ *server.Context) *cobra.Command {
+func MigrationsListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrations-list",
 		Short: "Lists all the available migrations",

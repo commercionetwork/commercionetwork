@@ -5,18 +5,24 @@ package types
 
 import (
 	fmt "fmt"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
+	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	_ "google.golang.org/protobuf/types/known/durationpb"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -25,12 +31,12 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Position struct {
-	Owner        string          `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
-	Collateral   int64           `protobuf:"varint,2,opt,name=collateral,proto3" json:"collateral,omitempty"`
-	Credits      *types.Coin     `protobuf:"bytes,3,opt,name=credits,proto3" json:"credits,omitempty"`
-	CreatedAt    string          `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	ID           string          `protobuf:"bytes,5,opt,name=ID,proto3" json:"ID,omitempty"`
-	ExchangeRate *types.DecProto `protobuf:"bytes,6,opt,name=exchange_rate,json=exchangeRate,proto3" json:"exchange_rate,omitempty"`
+	Owner        string                                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Collateral   int64                                  `protobuf:"varint,2,opt,name=collateral,proto3" json:"collateral,omitempty"`
+	Credits      *types.Coin                            `protobuf:"bytes,3,opt,name=credits,proto3" json:"credits,omitempty"`
+	CreatedAt    *time.Time                             `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
+	ID           string                                 `protobuf:"bytes,5,opt,name=ID,proto3" json:"ID,omitempty"`
+	ExchangeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=exchange_rate,json=exchangeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"exchange_rate"`
 }
 
 func (m *Position) Reset()         { *m = Position{} }
@@ -87,11 +93,11 @@ func (m *Position) GetCredits() *types.Coin {
 	return nil
 }
 
-func (m *Position) GetCreatedAt() string {
+func (m *Position) GetCreatedAt() *time.Time {
 	if m != nil {
 		return m.CreatedAt
 	}
-	return ""
+	return nil
 }
 
 func (m *Position) GetID() string {
@@ -101,15 +107,91 @@ func (m *Position) GetID() string {
 	return ""
 }
 
-func (m *Position) GetExchangeRate() *types.DecProto {
+type ConversionRate struct {
+	Rate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=rate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"rate"`
+}
+
+func (m *ConversionRate) Reset()         { *m = ConversionRate{} }
+func (m *ConversionRate) String() string { return proto.CompactTextString(m) }
+func (*ConversionRate) ProtoMessage()    {}
+func (*ConversionRate) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e14430094fee823d, []int{1}
+}
+func (m *ConversionRate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ConversionRate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ConversionRate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ConversionRate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConversionRate.Merge(m, src)
+}
+func (m *ConversionRate) XXX_Size() int {
+	return m.Size()
+}
+func (m *ConversionRate) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConversionRate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConversionRate proto.InternalMessageInfo
+
+type FreezePeriod struct {
+	FreezePeriod *time.Duration `protobuf:"bytes,1,opt,name=freeze_period,json=freezePeriod,proto3,stdduration" json:"freeze_period,omitempty"`
+}
+
+func (m *FreezePeriod) Reset()         { *m = FreezePeriod{} }
+func (m *FreezePeriod) String() string { return proto.CompactTextString(m) }
+func (*FreezePeriod) ProtoMessage()    {}
+func (*FreezePeriod) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e14430094fee823d, []int{2}
+}
+func (m *FreezePeriod) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FreezePeriod) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FreezePeriod.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FreezePeriod) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FreezePeriod.Merge(m, src)
+}
+func (m *FreezePeriod) XXX_Size() int {
+	return m.Size()
+}
+func (m *FreezePeriod) XXX_DiscardUnknown() {
+	xxx_messageInfo_FreezePeriod.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FreezePeriod proto.InternalMessageInfo
+
+func (m *FreezePeriod) GetFreezePeriod() *time.Duration {
 	if m != nil {
-		return m.ExchangeRate
+		return m.FreezePeriod
 	}
 	return nil
 }
 
 func init() {
 	proto.RegisterType((*Position)(nil), "commercionetwork.commercionetwork.commerciomint.Position")
+	proto.RegisterType((*ConversionRate)(nil), "commercionetwork.commercionetwork.commerciomint.ConversionRate")
+	proto.RegisterType((*FreezePeriod)(nil), "commercionetwork.commercionetwork.commerciomint.FreezePeriod")
 }
 
 func init() {
@@ -117,27 +199,36 @@ func init() {
 }
 
 var fileDescriptor_e14430094fee823d = []byte{
-	// 315 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x91, 0xcf, 0x4e, 0x02, 0x31,
-	0x10, 0xc6, 0x29, 0x08, 0x4a, 0xfd, 0x73, 0x68, 0x38, 0xac, 0x24, 0x34, 0xc4, 0x13, 0x17, 0xb7,
-	0x41, 0x9e, 0x40, 0xe4, 0xc2, 0x8d, 0xec, 0xd1, 0x98, 0x90, 0x6e, 0x99, 0x2c, 0x8d, 0xec, 0x0e,
-	0xe9, 0x8e, 0x82, 0x6f, 0xe1, 0x63, 0x79, 0xe4, 0xe8, 0xd1, 0xc0, 0xc5, 0xc7, 0x30, 0xbb, 0xec,
-	0x1a, 0x43, 0xe4, 0xd6, 0xfe, 0x32, 0x5f, 0x7f, 0xe9, 0x7c, 0xfc, 0xd6, 0x60, 0x1c, 0x83, 0x33,
-	0x16, 0x13, 0xa0, 0x15, 0xba, 0x67, 0xf5, 0x0b, 0x62, 0x9b, 0x90, 0x5a, 0x62, 0x6a, 0xc9, 0x62,
-	0xe2, 0x2f, 0x1d, 0x12, 0x0a, 0x75, 0x38, 0xee, 0x1f, 0x07, 0x59, 0xbe, 0xdd, 0x8a, 0x30, 0xc2,
-	0x3c, 0xab, 0xb2, 0xd3, 0xfe, 0x99, 0xb6, 0x34, 0x98, 0xc6, 0x98, 0xaa, 0x50, 0xa7, 0xa0, 0x5e,
-	0xfb, 0x21, 0x90, 0xee, 0x2b, 0x83, 0xb6, 0xd0, 0xdc, 0x7c, 0x33, 0x7e, 0x36, 0x29, 0xcc, 0xa2,
-	0xc5, 0xeb, 0xb8, 0x4a, 0xc0, 0x79, 0xac, 0xcb, 0x7a, 0xcd, 0x60, 0x7f, 0x11, 0x92, 0x73, 0x83,
-	0x8b, 0x85, 0x26, 0x70, 0x7a, 0xe1, 0x55, 0xbb, 0xac, 0x57, 0x0b, 0xfe, 0x10, 0x31, 0xe0, 0xa7,
-	0xc6, 0xc1, 0xcc, 0x52, 0xea, 0xd5, 0xba, 0xac, 0x77, 0x7e, 0x77, 0xed, 0xef, 0xa5, 0x7e, 0x26,
-	0xf5, 0x0b, 0xa9, 0xff, 0x80, 0x36, 0x09, 0xca, 0x49, 0xd1, 0xe1, 0xdc, 0x38, 0xd0, 0x04, 0xb3,
-	0xa9, 0x26, 0xef, 0x24, 0xf7, 0x35, 0x0b, 0x72, 0x4f, 0xe2, 0x8a, 0x57, 0xc7, 0x23, 0xaf, 0x9e,
-	0xe3, 0xea, 0x78, 0x24, 0x86, 0xfc, 0x12, 0xd6, 0x66, 0xae, 0x93, 0x08, 0xa6, 0x4e, 0x13, 0x78,
-	0x8d, 0xdc, 0xd4, 0xf9, 0xd7, 0x34, 0x02, 0x33, 0xc9, 0x3e, 0x17, 0x5c, 0x94, 0x99, 0x40, 0x13,
-	0x0c, 0x9f, 0x3e, 0xb6, 0x92, 0x6d, 0xb6, 0x92, 0x7d, 0x6d, 0x25, 0x7b, 0xdf, 0xc9, 0xca, 0x66,
-	0x27, 0x2b, 0x9f, 0x3b, 0x59, 0x79, 0x1c, 0x46, 0x96, 0xe6, 0x2f, 0x61, 0xb6, 0x50, 0x75, 0xbc,
-	0xa5, 0x12, 0xac, 0x0f, 0x8a, 0xa3, 0xb7, 0x25, 0xa4, 0x61, 0x23, 0xdf, 0xe7, 0xe0, 0x27, 0x00,
-	0x00, 0xff, 0xff, 0x79, 0xa1, 0xf6, 0x41, 0xe7, 0x01, 0x00, 0x00,
+	// 449 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x52, 0xb1, 0x6e, 0xdb, 0x30,
+	0x10, 0xb5, 0x1c, 0x27, 0x6d, 0x58, 0x27, 0x83, 0x90, 0x41, 0xf5, 0x40, 0x1b, 0x1e, 0x0a, 0x2f,
+	0x21, 0x91, 0xe6, 0x03, 0x8a, 0x2a, 0x42, 0x81, 0x6c, 0x81, 0xea, 0xa9, 0x28, 0x60, 0x50, 0xd4,
+	0x59, 0x21, 0x62, 0xe9, 0x04, 0x92, 0x4e, 0xd2, 0x7e, 0x45, 0xc6, 0x02, 0xfd, 0xa1, 0x8c, 0x19,
+	0x8b, 0x0e, 0x69, 0x61, 0xff, 0x48, 0x21, 0x4a, 0x6a, 0x53, 0x03, 0x5e, 0x32, 0x49, 0xf7, 0x78,
+	0xef, 0xdd, 0xbb, 0x47, 0x92, 0x63, 0x89, 0x79, 0x0e, 0x5a, 0x2a, 0x2c, 0xc0, 0xde, 0xa0, 0xbe,
+	0xe2, 0x7f, 0x81, 0x5c, 0x15, 0x96, 0x97, 0x68, 0x94, 0x55, 0x58, 0xb0, 0x52, 0xa3, 0x45, 0x9f,
+	0x6f, 0xb6, 0xb3, 0xed, 0x40, 0xc5, 0x1f, 0x1c, 0x65, 0x98, 0xa1, 0xe3, 0xf2, 0xea, 0xaf, 0x96,
+	0x19, 0x0c, 0x33, 0xc4, 0x6c, 0x01, 0xdc, 0x55, 0xc9, 0x72, 0xce, 0xad, 0xca, 0xc1, 0x58, 0x91,
+	0x97, 0x4d, 0x03, 0xdd, 0x6c, 0x48, 0x97, 0x5a, 0xfc, 0xf3, 0x31, 0xa0, 0x12, 0x4d, 0x8e, 0x86,
+	0x27, 0xc2, 0x00, 0xbf, 0x3e, 0x49, 0xc0, 0x8a, 0x13, 0x2e, 0x51, 0x35, 0xe7, 0xe3, 0xef, 0x5d,
+	0xf2, 0xf2, 0xa2, 0xb1, 0xee, 0x1f, 0x91, 0x5d, 0xbc, 0x29, 0x40, 0x07, 0xde, 0xc8, 0x9b, 0xec,
+	0xc7, 0x75, 0xe1, 0x53, 0x42, 0x24, 0x2e, 0x16, 0xc2, 0x82, 0x16, 0x8b, 0xa0, 0x3b, 0xf2, 0x26,
+	0x3b, 0xf1, 0x13, 0xc4, 0x3f, 0x25, 0x2f, 0xa4, 0x86, 0x54, 0x59, 0x13, 0xec, 0x8c, 0xbc, 0xc9,
+	0xab, 0xb7, 0xaf, 0x59, 0x3d, 0x94, 0x55, 0x43, 0x59, 0x33, 0x94, 0x9d, 0xa1, 0x2a, 0xe2, 0xb6,
+	0xd3, 0x7f, 0x47, 0x88, 0xd4, 0x20, 0x2c, 0xa4, 0x33, 0x61, 0x83, 0x9e, 0xe3, 0x0d, 0x58, 0xbd,
+	0x0c, 0x6b, 0x97, 0x61, 0xd3, 0x76, 0xdb, 0xb0, 0x77, 0xf7, 0x6b, 0xe8, 0xc5, 0xfb, 0x0d, 0xe7,
+	0xbd, 0xf5, 0x0f, 0x49, 0xf7, 0x3c, 0x0a, 0x76, 0x9d, 0xd1, 0xee, 0x79, 0xe4, 0x7f, 0x24, 0x07,
+	0x70, 0x2b, 0x2f, 0x45, 0x91, 0xc1, 0x4c, 0x0b, 0x0b, 0xc1, 0x5e, 0x75, 0x14, 0xb2, 0xfb, 0xc7,
+	0x61, 0xe7, 0xe7, 0xe3, 0xf0, 0x4d, 0xa6, 0xec, 0xe5, 0x32, 0xa9, 0x42, 0xe7, 0x4d, 0x24, 0xf5,
+	0xe7, 0xd8, 0xa4, 0x57, 0xdc, 0x7e, 0x29, 0xc1, 0xb0, 0x08, 0x64, 0xdc, 0x6f, 0x45, 0x62, 0x61,
+	0x61, 0x3c, 0x25, 0x87, 0x67, 0x58, 0x5c, 0x83, 0x36, 0x0a, 0x8b, 0x0a, 0xf1, 0x43, 0xd2, 0x73,
+	0xea, 0xde, 0xb3, 0xd4, 0x1d, 0x77, 0x3c, 0x25, 0xfd, 0x0f, 0x1a, 0xe0, 0x2b, 0x5c, 0x80, 0x56,
+	0x98, 0xfa, 0x11, 0x39, 0x98, 0xbb, 0x7a, 0x56, 0x3a, 0xc0, 0x89, 0x57, 0x31, 0x6e, 0xc6, 0x11,
+	0x35, 0x77, 0x1b, 0xf6, 0xbe, 0x55, 0x69, 0xf4, 0xe7, 0x4f, 0x54, 0xc2, 0xcf, 0xf7, 0x2b, 0xea,
+	0x3d, 0xac, 0xa8, 0xf7, 0x7b, 0x45, 0xbd, 0xbb, 0x35, 0xed, 0x3c, 0xac, 0x69, 0xe7, 0xc7, 0x9a,
+	0x76, 0x3e, 0x85, 0xff, 0xb9, 0xdb, 0xf6, 0x8a, 0x5b, 0xe0, 0x76, 0xe3, 0x61, 0x3b, 0xf7, 0xc9,
+	0x9e, 0x33, 0x71, 0xfa, 0x27, 0x00, 0x00, 0xff, 0xff, 0x6f, 0xa9, 0x94, 0x42, 0x07, 0x03, 0x00,
+	0x00,
 }
 
 func (m *Position) Marshal() (dAtA []byte, err error) {
@@ -160,18 +251,16 @@ func (m *Position) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.ExchangeRate != nil {
-		{
-			size, err := m.ExchangeRate.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintPosition(dAtA, i, uint64(size))
+	{
+		size := m.ExchangeRate.Size()
+		i -= size
+		if _, err := m.ExchangeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x32
+		i = encodeVarintPosition(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x32
 	if len(m.ID) > 0 {
 		i -= len(m.ID)
 		copy(dAtA[i:], m.ID)
@@ -179,10 +268,13 @@ func (m *Position) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x2a
 	}
-	if len(m.CreatedAt) > 0 {
-		i -= len(m.CreatedAt)
-		copy(dAtA[i:], m.CreatedAt)
-		i = encodeVarintPosition(dAtA, i, uint64(len(m.CreatedAt)))
+	if m.CreatedAt != nil {
+		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt):])
+		if err1 != nil {
+			return 0, err1
+		}
+		i -= n1
+		i = encodeVarintPosition(dAtA, i, uint64(n1))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -207,6 +299,72 @@ func (m *Position) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.Owner)
 		copy(dAtA[i:], m.Owner)
 		i = encodeVarintPosition(dAtA, i, uint64(len(m.Owner)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ConversionRate) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ConversionRate) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ConversionRate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Rate.Size()
+		i -= size
+		if _, err := m.Rate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintPosition(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *FreezePeriod) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FreezePeriod) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FreezePeriod) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.FreezePeriod != nil {
+		n3, err3 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.FreezePeriod, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.FreezePeriod):])
+		if err3 != nil {
+			return 0, err3
+		}
+		i -= n3
+		i = encodeVarintPosition(dAtA, i, uint64(n3))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -241,16 +399,38 @@ func (m *Position) Size() (n int) {
 		l = m.Credits.Size()
 		n += 1 + l + sovPosition(uint64(l))
 	}
-	l = len(m.CreatedAt)
-	if l > 0 {
+	if m.CreatedAt != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt)
 		n += 1 + l + sovPosition(uint64(l))
 	}
 	l = len(m.ID)
 	if l > 0 {
 		n += 1 + l + sovPosition(uint64(l))
 	}
-	if m.ExchangeRate != nil {
-		l = m.ExchangeRate.Size()
+	l = m.ExchangeRate.Size()
+	n += 1 + l + sovPosition(uint64(l))
+	return n
+}
+
+func (m *ConversionRate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Rate.Size()
+	n += 1 + l + sovPosition(uint64(l))
+	return n
+}
+
+func (m *FreezePeriod) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.FreezePeriod != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdDuration(*m.FreezePeriod)
 		n += 1 + l + sovPosition(uint64(l))
 	}
 	return n
@@ -382,7 +562,7 @@ func (m *Position) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowPosition
@@ -392,23 +572,27 @@ func (m *Position) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthPosition
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthPosition
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.CreatedAt = string(dAtA[iNdEx:postIndex])
+			if m.CreatedAt == nil {
+				m.CreatedAt = new(time.Time)
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(m.CreatedAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -446,6 +630,174 @@ func (m *Position) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ExchangeRate", wireType)
 			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPosition
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPosition
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPosition
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ExchangeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPosition(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPosition
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ConversionRate) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPosition
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ConversionRate: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ConversionRate: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Rate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPosition
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPosition
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPosition
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Rate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPosition(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPosition
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FreezePeriod) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPosition
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FreezePeriod: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FreezePeriod: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FreezePeriod", wireType)
+			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
@@ -471,10 +823,10 @@ func (m *Position) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.ExchangeRate == nil {
-				m.ExchangeRate = &types.DecProto{}
+			if m.FreezePeriod == nil {
+				m.FreezePeriod = new(time.Duration)
 			}
-			if err := m.ExchangeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(m.FreezePeriod, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

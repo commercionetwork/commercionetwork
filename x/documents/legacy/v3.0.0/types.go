@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	ModuleName = "docs"
+	ModuleName = types.ModuleName
 )
 
 type Documents []*types.Document

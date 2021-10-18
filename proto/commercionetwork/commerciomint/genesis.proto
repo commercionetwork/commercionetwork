@@ -1,5 +1,8 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.commerciomint;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
 import "commercionetwork/commerciomint/position.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
@@ -11,8 +14,10 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 message GenesisState {
     // this line is used by starport scaffolding # genesis/proto/state
     repeated Position Positions = 1;
-    repeated cosmos.base.v1beta1.Coin pool_amount = 2;
-    cosmos.base.v1beta1.DecProto collateral_rate = 3;
-    string freeze_period = 4; // convert to time duration
+    repeated cosmos.base.v1beta1.Coin pool_amount = 2
+        [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
+    string collateral_rate = 3 
+        [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
+    google.protobuf.Duration freeze_period = 4 [(gogoproto.stdduration) = true]; // convert to time duration
 }
 

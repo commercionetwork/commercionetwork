@@ -121,9 +121,9 @@ build: go.sum
 	@go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 
-go.sum: go.mod
-	@echo "--> Ensure dependencies have not been modified"
-	GO111MODULE=on go mod verify
+#go.sum: go.mod
+#	@echo "--> Ensure dependencies have not been modified"
+#	GO111MODULE=on go mod verify
 
 ########################################
 ### Testing
@@ -133,7 +133,7 @@ test:
 
 ## TODO test unit ledger ecc. ecc.
 
-.PHONY: lint test test_unit go-mod-cache
+.PHONY: lint test test_unit go-mod-cache build go.sum go.mod
 
 
 ########################################
