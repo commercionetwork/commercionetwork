@@ -17,18 +17,26 @@ func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 	//documents
 	documents := Documents{}
 	var document *types.Document
+	documentsDeleted := make(map[string]string)
 	for _, v220document := range oldGenState.Documents {
-		document = migrateDocument(v220document)
-		//documents =  append(documents, document)
-		documents.AppendIfMissingID(document)
+		err := v220document.Validate()
+		if err == nil {
+			document = migrateDocument(v220document)
+			//documents =  append(documents, d"ocument)
+			documents = documents.AppendIfMissingID(document)
+		} else {
+			documentsDeleted[v220document.UUID] = v220document.UUID
+		}
 	}
 
 	//document receipts
 	var receipts []*types.DocumentReceipt
 	var documentReceipt *types.DocumentReceipt
 	for _, v220documentReceipt := range oldGenState.Receipts {
-		documentReceipt = migrateReceipt(v220documentReceipt)
-		receipts = append(receipts, documentReceipt)
+		if _, ok := documentsDeleted[v220documentReceipt.DocumentUUID]; !ok {
+			documentReceipt = migrateReceipt(v220documentReceipt)
+			receipts = append(receipts, documentReceipt)
+		}
 	}
 
 	return &types.GenesisState{
@@ -92,7 +100,7 @@ func migrateDocument(doc v220docs.Document) *types.Document {
 			CertificateProfile: doc.DoSign.CertificateProfile,
 		}
 	}
-
+	doc.ContentURI = ""
 	// Return a new document
 	return &types.Document{
 		Sender:     doc.Sender.String(),

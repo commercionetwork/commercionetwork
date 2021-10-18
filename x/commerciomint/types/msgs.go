@@ -36,7 +36,7 @@ func (msg *MsgMintCCC) Type() string {
 func (msg *MsgMintCCC) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Depositor)
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	return []sdk.AccAddress{creator}
 }
@@ -89,7 +89,7 @@ func (msg *MsgBurnCCC) Type() string {
 func (msg *MsgBurnCCC) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	return []sdk.AccAddress{creator}
 }
@@ -117,10 +117,10 @@ func (msg *MsgBurnCCC) ValidateBasic() error {
 // NewMsgSetCCCConversionRate
 
 // TODO REVIEW MESSAGES CREATOR
-func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate types.DecProto) *MsgSetCCCConversionRate {
+func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate types.Dec) *MsgSetCCCConversionRate {
 	return &MsgSetCCCConversionRate{
 		Signer: signer.String(),
-		Rate:   &rate,
+		Rate:   rate,
 	}
 }
 
@@ -135,7 +135,7 @@ func (msg *MsgSetCCCConversionRate) Type() string {
 func (msg *MsgSetCCCConversionRate) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	return []sdk.AccAddress{creator}
 }
@@ -150,7 +150,7 @@ func (msg *MsgSetCCCConversionRate) ValidateBasic() error {
 	if sdk.AccAddress(msg.Signer).Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
-	return ValidateConversionRate(msg.Rate.Dec)
+	return ValidateConversionRate(msg.Rate)
 }
 
 // NewMsgSetCCCFreezePeriod
@@ -174,7 +174,7 @@ func (msg *MsgSetCCCFreezePeriod) Type() string {
 func (msg *MsgSetCCCFreezePeriod) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	return []sdk.AccAddress{creator}
 }

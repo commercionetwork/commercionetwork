@@ -70,9 +70,6 @@ import (
 	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
-	"github.com/cosmos/cosmos-sdk/x/mint"
-	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -92,15 +89,15 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
-	commerciokycmodule "github.com/commercionetwork/commercionetwork/x/commerciokyc"
-	commerciokycmodulekeeper "github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
-	commerciokycmoduletypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	commerciokycModule "github.com/commercionetwork/commercionetwork/x/commerciokyc"
+	commerciokycKeeper "github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	commerciomintmodule "github.com/commercionetwork/commercionetwork/x/commerciomint"
-	commerciomintmodulekeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
-	commerciomintmoduletypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/commercionetwork/commercionetwork/x/did"
-	idkeeper "github.com/commercionetwork/commercionetwork/x/did/keeper"
-	idtypes "github.com/commercionetwork/commercionetwork/x/did/types"
+	didkeeper "github.com/commercionetwork/commercionetwork/x/did/keeper"
+	didTypes "github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/commercionetwork/commercionetwork/x/documents"
 	documentskeeper "github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	documentstypes "github.com/commercionetwork/commercionetwork/x/documents/types"
@@ -110,9 +107,10 @@ import (
 	upgrademodule "github.com/commercionetwork/commercionetwork/x/upgrade"
 	upgrademodulekeeper "github.com/commercionetwork/commercionetwork/x/upgrade/keeper"
 	upgrademoduletypes "github.com/commercionetwork/commercionetwork/x/upgrade/types"
-	/*vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
+	vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
 	vbrmodulekeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
-	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"*/)
+	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+)
 
 const Name = "commercionetwork"
 
@@ -124,6 +122,8 @@ var (
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
+	stakeDenom              = "ucommercio"
+	stableCreditDenom       = "uccc"
 )
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
@@ -173,7 +173,6 @@ var (
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(getGovProposalHandlers()...),
 		params.AppModuleBasic{},
@@ -185,23 +184,32 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
-		//vbrmodule.AppModuleBasic{},
+		vbrmodule.AppModuleBasic{},
+		governmentmodule.AppModuleBasic{},
 		upgrademodule.AppModuleBasic{},
 		did.AppModuleBasic{},
 		documents.AppModuleBasic{},
+		commerciokycModule.AppModuleBasic{},
+		commerciomintmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
-		distrtypes.ModuleName:          nil,
-		minttypes.ModuleName:           {authtypes.Minter},
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:            {authtypes.Burner},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		wasm.ModuleName:                {authtypes.Burner},
+		authtypes.FeeCollectorName:       nil,
+		distrtypes.ModuleName:            nil,
+		stakingtypes.BondedPoolName:      {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:   {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:              {authtypes.Burner},
+		vbrmoduletypes.ModuleName:        {authtypes.Minter},
+		governmentmoduletypes.ModuleName: nil,
+		upgrademoduletypes.ModuleName:    nil,
+		commerciokycTypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
+		commerciomintTypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		documentstypes.ModuleName:        nil,
+		didTypes.ModuleName:              nil,
+		ibctransfertypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
+		wasm.ModuleName:                  {authtypes.Burner},
 	}
 )
 
@@ -242,7 +250,6 @@ type App struct {
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
 	DistrKeeper      distrkeeper.Keeper
 	GovKeeper        govkeeper.Keeper
 	CrisisKeeper     crisiskeeper.Keeper
@@ -260,14 +267,14 @@ type App struct {
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 	governmentKeeper    governmentmodulekeeper.Keeper
-	commercioMintKeeper commerciomintmodulekeeper.Keeper
-	commercioKycKeeper  commerciokycmodulekeeper.Keeper
+	commercioMintKeeper commerciomintKeeper.Keeper
+	commercioKycKeeper  commerciokycKeeper.Keeper
 	upgradeKeeper       upgrademodulekeeper.Keeper
 
-	//VbrKeeper vbrmodulekeeper.Keeper
+	VbrKeeper vbrmodulekeeper.Keeper
 
 	ScopedIdKeeper capabilitykeeper.ScopedKeeper
-	IdKeeper       idkeeper.Keeper
+	IdKeeper       didkeeper.Keeper
 	//ScopedDocumentsKeeper capabilitykeeper.ScopedKeeper
 	DocumentsKeeper documentskeeper.Keeper
 	// the module manager
@@ -294,14 +301,17 @@ func New(
 
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
-		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
+		distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		wasm.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
-		//vbrmoduletypes.StoreKey,
+		vbrmoduletypes.StoreKey,
 		upgrademoduletypes.StoreKey,
-		idtypes.StoreKey,
+		didTypes.StoreKey,
+		commerciokycTypes.StoreKey,
+		commerciomintTypes.StoreKey,
+		governmentmoduletypes.StoreKey,
 		documentstypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -341,10 +351,6 @@ func New(
 	)
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
-	)
-	app.MintKeeper = mintkeeper.NewKeeper(
-		appCodec, keys[minttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), &stakingKeeper,
-		app.AccountKeeper, app.BankKeeper, authtypes.FeeCollectorName,
 	)
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -393,34 +399,37 @@ func New(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-	/*
-		app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
-			appCodec,
-			keys[vbrmoduletypes.StoreKey],
-			keys[vbrmoduletypes.MemStoreKey],
-		)
-		vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
-	*/
+
+	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
+		appCodec,
+		keys[vbrmoduletypes.StoreKey],
+		keys[vbrmoduletypes.MemStoreKey],
+		app.DistrKeeper,
+		app.BankKeeper,
+		app.AccountKeeper,
+		app.governmentKeeper,
+	)
+	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
 	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
 		appCodec,
 		keys[governmentmoduletypes.StoreKey],
 		keys[governmentmoduletypes.MemStoreKey],
 	)
 	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
-	app.commercioKycKeeper = *commerciokycmodulekeeper.NewKeeper(
+	app.commercioKycKeeper = *commerciokycKeeper.NewKeeper(
 		appCodec,
-		keys[commerciokycmoduletypes.StoreKey],
-		keys[commerciokycmoduletypes.MemStoreKey],
+		keys[commerciokycTypes.StoreKey],
+		keys[commerciokycTypes.MemStoreKey],
 		app.BankKeeper,
 		app.governmentKeeper,
 		app.AccountKeeper,
 	)
-	commercioKycModule := commerciokycmodule.NewAppModule(appCodec, app.commercioKycKeeper)
+	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.commercioKycKeeper)
 
-	app.commercioMintKeeper = *commerciomintmodulekeeper.NewKeeper(
+	app.commercioMintKeeper = *commerciomintKeeper.NewKeeper(
 		appCodec,
-		keys[commerciomintmoduletypes.StoreKey],
-		keys[commerciomintmoduletypes.MemStoreKey],
+		keys[commerciomintTypes.StoreKey],
+		keys[commerciomintTypes.MemStoreKey],
 		app.BankKeeper,
 		app.AccountKeeper,
 		app.governmentKeeper,
@@ -438,12 +447,12 @@ func New(
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
-	scopedIdKeeper := app.CapabilityKeeper.ScopeToModule(idtypes.ModuleName)
+	scopedIdKeeper := app.CapabilityKeeper.ScopeToModule(didTypes.ModuleName)
 	app.ScopedIdKeeper = scopedIdKeeper
-	app.IdKeeper = *idkeeper.NewKeeper(
+	app.IdKeeper = *didkeeper.NewKeeper(
 		appCodec,
-		keys[idtypes.StoreKey],
-		keys[idtypes.MemStoreKey],
+		keys[didTypes.StoreKey],
+		keys[didTypes.MemStoreKey],
 	)
 	idModule := did.NewAppModule(appCodec, app.IdKeeper)
 	//scopedDocumentsKeeper := app.CapabilityKeeper.ScopeToModule(documentstypes.ModuleName)
@@ -521,7 +530,6 @@ func New(
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
-		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -532,9 +540,9 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
-		//vbrModule,
 		governmentModule,
-		commercioKycModule,
+		vbrModule,
+		commerciokycModule,
 		commercioMintModule,
 		upgradeModule,
 		idModule,
@@ -546,7 +554,7 @@ func New(
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
+		upgradetypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
 	)
 
@@ -565,17 +573,17 @@ func New(
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
-		minttypes.ModuleName,
 		crisistypes.ModuleName,
 		ibchost.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
-		//vbrmoduletypes.ModuleName,
 		governmentmoduletypes.ModuleName,
+		vbrmoduletypes.ModuleName,
+
 		upgrademoduletypes.ModuleName,
-		idtypes.ModuleName,
+		didTypes.ModuleName,
 		documentstypes.ModuleName,
 		wasm.ModuleName,
 	)
@@ -598,7 +606,8 @@ func New(
 			app.governmentKeeper, app.commercioMintKeeper,
 			comosante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
-			"uccc",
+			stakeDenom,
+			stableCreditDenom,
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
@@ -761,7 +770,6 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(authtypes.ModuleName)
 	paramsKeeper.Subspace(banktypes.ModuleName)
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
-	paramsKeeper.Subspace(minttypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
@@ -770,11 +778,13 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
-	//paramsKeeper.Subspace(vbrmoduletypes.ModuleName)
 	paramsKeeper.Subspace(governmentmoduletypes.ModuleName)
+	paramsKeeper.Subspace(vbrmoduletypes.ModuleName)
 	paramsKeeper.Subspace(upgrademoduletypes.ModuleName)
-	paramsKeeper.Subspace(idtypes.ModuleName)
+	paramsKeeper.Subspace(didTypes.ModuleName)
 	paramsKeeper.Subspace(documentstypes.ModuleName)
+	paramsKeeper.Subspace(commerciomintTypes.ModuleName)
+	paramsKeeper.Subspace(commerciokycTypes.ModuleName)
 
 	return paramsKeeper
 }

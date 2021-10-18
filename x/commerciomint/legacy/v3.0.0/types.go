@@ -1,7 +1,7 @@
 package v3_0_0
 
 const (
-	ModuleName = "commeriomint"
+	ModuleName = "commerciomint"
 )
 
 // GenesisState - government genesis state

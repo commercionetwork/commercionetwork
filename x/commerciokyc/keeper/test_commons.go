@@ -75,7 +75,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	k := NewKeeper(
 		cdc,
 		keys[types.StoreKey],
-		keys[types.StoreKey],
+		keys[types.MemStoreKey],
 		bk, *govk, ak)
 
 	return ctx, bk, *govk, *k

@@ -2,6 +2,7 @@ syntax = "proto3";
 package commercionetwork.commercionetwork.commerciomint;
 
 // this line is used by starport scaffolding # proto/tx/import
+import "gogoproto/gogo.proto";
 import "commercionetwork/commerciomint/position.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
@@ -44,11 +45,13 @@ message MsgBurnCCCResponse {
 
 message MsgSetCCCConversionRate {
   string signer = 1;
-  cosmos.base.v1beta1.DecProto rate = 2; // Maybe string
+  string rate = 2
+  [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
 }
 
 message MsgSetCCCConversionRateResponse {
-  cosmos.base.v1beta1.DecProto rate = 1; // Maybe string
+  string rate = 1
+  [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
 }
 
 

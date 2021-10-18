@@ -1,8 +1,6 @@
 package v3_0_0
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	v220commerciomint "github.com/commercionetwork/commercionetwork/x/commerciomint/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
@@ -16,23 +14,24 @@ func Migrate(oldGenState v220commerciomint.GenesisState) *types.GenesisState {
 
 		position.Owner = oldPosition.Owner.String()
 		position.Collateral = oldPosition.Collateral.Int64()
-		position.CreatedAt = oldPosition.CreatedAt.String()
+		position.CreatedAt = &oldPosition.CreatedAt
 		position.Credits = &oldPosition.Credits
-		position.ExchangeRate.Dec = oldPosition.ExchangeRate
+		position.ExchangeRate = oldPosition.ExchangeRate
+		position.ID = oldPosition.ID
 
 		postions = append(postions, &position)
 	}
 
-	var coins []*sdk.Coin
+	/*var coins []*sdk.Coin
 	for _, coin := range oldGenState.LiquidityPoolAmount {
 		coins = append(coins, &coin)
-	}
+	}*/
 
 	return &types.GenesisState{
 		Positions:      postions,
-		PoolAmount:     coins,
-		CollateralRate: &sdk.DecProto{Dec: oldGenState.CollateralRate},
-		FreezePeriod:   oldGenState.FreezePeriod.String(),
+		PoolAmount:     oldGenState.LiquidityPoolAmount,
+		CollateralRate: oldGenState.CollateralRate,
+		FreezePeriod:   &oldGenState.FreezePeriod,
 	}
 
 }

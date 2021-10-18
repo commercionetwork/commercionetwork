@@ -10,41 +10,41 @@ import (
 
 func TestMsgBasics(t *testing.T) {
 	coinPos := sdk.NewCoin("uccc", sdk.NewInt(1))
-	exchangeRate := sdk.DecProto{Dec: sdk.NewDec(1)}
+	exchangeRate := sdk.NewDec(1)
 	position := Position{
 		"1",
 		10,
 		&coinPos,
+		&time.Time{},
 		"1",
-		"1",
-		&exchangeRate,
+		exchangeRate,
 	}
 	msgMint := NewMsgMintCCC(position)
 
 	require.Equal(t, "commerciomint", msgMint.Route())
 	require.Equal(t, "mintCCC", msgMint.Type())
-	require.Equal(t, 1, len(msgMint.GetSigners()))
+	require.Equal(t, 0, len(msgMint.GetSigners()))
 	require.NotNil(t, msgMint.GetSignBytes())
 
 	msgBurn := NewMsgBurnCCC(nil, "id", sdk.NewCoin("denom", sdk.NewInt(1)))
 	require.Equal(t, "commerciomint", msgBurn.Route())
 	require.Equal(t, "burnCCC", msgBurn.Type())
-	require.Equal(t, 1, len(msgBurn.GetSigners()))
+	require.Equal(t, 0, len(msgBurn.GetSigners()))
 	require.NotNil(t, msgBurn.GetSignBytes())
 }
 
 func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
 	coinPos := sdk.NewCoin("uccc", sdk.NewInt(1))
-	exchangeRate := sdk.DecProto{Dec: sdk.NewDec(1)}
-	position := Position{"", 10, &coinPos, "1", uuid, &exchangeRate}
+	exchangeRate := sdk.NewDec(1)
+	position := Position{"", 10, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.Error(t, NewMsgMintCCC(position).ValidateBasic())
 	//require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
 	//coinPos = sdk.NewCoin("denom", sdk.NewInt(0))
-	position = Position{testOwner.String(), 0, &coinPos, "1", uuid, &exchangeRate}
+	position = Position{testOwner.String(), 0, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.Error(t, NewMsgMintCCC(position).ValidateBasic())
 	//require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), uuid).ValidateBasic())
-	position = Position{testOwner.String(), 10, &coinPos, "1", "", &exchangeRate}
+	position = Position{testOwner.String(), 10, &coinPos, &time.Time{}, "", exchangeRate}
 	require.Error(t, NewMsgMintCCC(position).ValidateBasic())
 	//require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), "").ValidateBasic())
 
@@ -58,7 +58,7 @@ func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 	//require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100)), uuid).ValidateBasic())
 	// ---------------------------------------
 
-	position = Position{testOwner.String(), 10, &coinPos, "1", uuid, &exchangeRate}
+	position = Position{testOwner.String(), 10, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.NoError(t, NewMsgMintCCC(position).ValidateBasic())
 	//require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
 }
@@ -88,7 +88,7 @@ func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			msg := NewMsgSetCCCConversionRate(tt.signer, sdk.DecProto{Dec: tt.collateralRate})
+			msg := NewMsgSetCCCConversionRate(tt.signer, tt.collateralRate)
 			require.Equal(t, "commerciomint", msg.Route())
 			require.Equal(t, "setEtpsConversionRate", msg.Type())
 			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)

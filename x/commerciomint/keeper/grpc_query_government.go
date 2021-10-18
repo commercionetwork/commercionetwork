@@ -16,7 +16,7 @@ func (k Keeper) ConversionRate(c context.Context, req *types.QueryConversionRate
 	ctx := sdk.UnwrapSDKContext(c)
 
 	rate := k.GetConversionRate(ctx)
-	return &types.QueryConversionRateResponse{Rate: &rate}, nil
+	return &types.QueryConversionRateResponse{Rate: rate}, nil
 }
 
 func (k Keeper) FreezePeriod(c context.Context, req *types.QueryFreezePeriod) (*types.QueryFreezePeriodResponse, error) {

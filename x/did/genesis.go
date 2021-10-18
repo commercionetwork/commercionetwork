@@ -9,7 +9,7 @@ import (
 // InitGenesis initializes the capability module's state from a provided genesis
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
-	for _, elem := range genState.DocumentList {
+	for _, elem := range genState.DidDocuments {
 		k.AppendId(ctx, *elem)
 	}
 
@@ -21,10 +21,10 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
-	didDocumenttList := k.GetAllDidDocument(ctx)
-	for _, elem := range didDocumenttList {
+	didDocuments := k.GetAllDidDocument(ctx)
+	for _, elem := range didDocuments {
 		elem := elem
-		genesis.DocumentList = append(genesis.DocumentList, &elem)
+		genesis.DidDocuments = append(genesis.DidDocuments, &elem)
 	}
 
 	// this line is used by starport scaffolding # genesis/module/export

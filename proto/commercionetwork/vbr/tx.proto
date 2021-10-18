@@ -18,7 +18,9 @@ service Msg {
 // this line is used by starport scaffolding # proto/tx/message
 message MsgIncrementBlockRewardsPool {
   string funder = 1 [(gogoproto.moretags) = "yaml:\"funder\""];
-  repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.moretags) = "yaml:\"amount\"", (gogoproto.nullable)   = false] ;
+  repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.moretags) = "yaml:\"amount\"",
+  (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+  (gogoproto.nullable) = false] ;
 }
 
 message MsgIncrementBlockRewardsPoolResponse {
@@ -26,7 +28,9 @@ message MsgIncrementBlockRewardsPoolResponse {
 
 message MsgSetRewardRate {
   string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
-  cosmos.base.v1beta1.DecProto RewardRate = 2 [(gogoproto.moretags) = "yaml:\"reward_rate\""] ;        //sdk.Dec
+  string RewardRate = 2 [(gogoproto.moretags) = "yaml:\"reward_rate\"", 
+  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+  (gogoproto.nullable) = false] ;        //sdk.Dec
 }
 
 message MsgSetRewardRateResponse {
@@ -39,4 +43,3 @@ message MsgSetAutomaticWithdraw {
 
 message MsgSetAutomaticWithdrawResponse {
 }
-

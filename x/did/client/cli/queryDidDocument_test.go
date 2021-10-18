@@ -26,12 +26,12 @@ func networkWithDocumentObjects(t *testing.T, n int) (*network.Network, []*types
 		_, _, addr := testdata.KeyTestPubAddr()
 		pubkeys := []*types.PubKey{}
 		service := []*types.Service{}
-		state.DocumentList = append(state.DocumentList, &types.DidDocument{ID: addr.String(), PubKeys: pubkeys, Service: service})
+		state.DidDocuments = append(state.DidDocuments, &types.DidDocument{ID: addr.String(), PubKeys: pubkeys, Service: service})
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
 	cfg.GenesisState[types.ModuleName] = buf
-	return network.New(t, cfg), state.DocumentList
+	return network.New(t, cfg), state.DidDocuments
 }
 
 func TestShowIdentity(t *testing.T) {

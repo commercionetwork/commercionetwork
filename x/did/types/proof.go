@@ -1,19 +1,19 @@
 package types
 
-import (
+/*import (
 	"encoding/base64"
 	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-)
+)*/
 
 const ProofPurposeAuthentication = "authentication"
 
 // Validate checks for the content contained inside the proof and
 // returns an error if something is invalid
-func (proof Proof) Validate() error {
+/*func (proof Proof) Validate() error {
 	// proof is empty
 	if proof == (Proof{}) {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "empty proof")
@@ -57,4 +57,4 @@ func (proof Proof) Validate() error {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "signature value must be base64 encoded")
 	}
 	return nil
-}
+}*/

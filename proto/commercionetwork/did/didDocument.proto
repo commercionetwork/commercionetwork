@@ -11,8 +11,8 @@ message DidDocument {
   string context = 1;
   string ID = 2;
   repeated did.PubKey pubKeys = 3;
-  did.Proof proof = 4;
-  repeated Service service = 5;
+  //did.Proof proof = 4;
+  repeated Service service = 4;
 }
 
 message DidDocumentNew {
@@ -35,8 +35,10 @@ message VerificationMethod {
   string Type = 2;
   string Controller = 3;
   repeated google.protobuf.Any Value = 4;
-  google.protobuf.Any jsonWebKey = 5;
-  string publicKeyMultibase = 6;
+  oneof verificationMaterial {
+    google.protobuf.Any jsonWebKey = 5;
+    string publicKeyMultibase = 6;
+  }
   bool relativeURL = 7;
 }
 
@@ -68,6 +70,7 @@ message Service {
   string serviceEndpoint = 3;
 }
 
+/*
 message Proof {
   string type = 1;
   string created = 2;
@@ -75,7 +78,7 @@ message Proof {
   string controller = 4;
   string verificationMethod = 5;
   string signatureValue = 6;
-}
+}*/
 
 message PubKey {
   string ID = 1;

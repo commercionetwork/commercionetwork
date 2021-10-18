@@ -14,7 +14,7 @@ func (k msgServer) SetIdentity(goCtx context.Context, msg *types.MsgSetIdentity)
 		Context: msg.Context,
 		ID:      msg.ID,
 		PubKeys: msg.PubKeys,
-		Proof:   msg.Proof,
+		//Proof:   msg.Proof,
 		Service: msg.Service,
 	}
 

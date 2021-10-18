@@ -5,6 +5,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 const (
@@ -14,16 +15,14 @@ const (
 
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
-	collateralRate := sdk.DecProto{
-		Dec: sdk.NewDec(1),
-	}
-
+	collateralRate := sdk.NewDec(1)
+	freezePeriod := durationpb.New(DefaultFreezePeriod).AsDuration()
 	return &GenesisState{
 		// this line is used by starport scaffolding # genesis/types/default
 		Positions:      []*Position{},
-		PoolAmount:     []*sdk.Coin{},
-		CollateralRate: &collateralRate,
-		FreezePeriod:   DefaultFreezePeriod.String(), //TODO CONTROL CAST
+		PoolAmount:     sdk.Coins{},
+		CollateralRate: collateralRate,
+		FreezePeriod:   &freezePeriod, //TODO CONTROL CAST
 	}
 }
 
@@ -32,16 +31,15 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 
 	// this line is used by starport scaffolding # genesis/types/validate
-	if gs.CollateralRate.Dec.IsZero() {
+	if gs.CollateralRate.IsZero() {
 		return fmt.Errorf("conversion rate cannot be zero")
 	}
-	if gs.CollateralRate.Dec.IsNegative() {
+	if gs.CollateralRate.IsNegative() {
 		return fmt.Errorf("conversion rate must be positive")
 	}
 
-	freezePeriod, err := time.ParseDuration(gs.FreezePeriod)
-	if freezePeriod.Seconds() < 0 || err != nil {
-		return fmt.Errorf("freeze period cannot be lower than zero or have a incorrect form %s", err.Error())
+	if gs.FreezePeriod.Seconds() < 0 {
+		return fmt.Errorf("freeze period cannot be lower than zero")
 	}
 	for _, position := range gs.Positions {
 		err := position.Validate()

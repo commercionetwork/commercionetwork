@@ -1,8 +1,8 @@
 package types
 
 import (
-// this line is used by starport scaffolding # genesis/types/import
-// this line is used by starport scaffolding # ibc/genesistype/import
+	"errors"
+	"fmt"
 )
 
 // DefaultIndex is the default capability global index
@@ -10,18 +10,19 @@ const DefaultIndex uint64 = 1
 
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		// this line is used by starport scaffolding # ibc/genesistype/default
-		// this line is used by starport scaffolding # genesis/types/default
-	}
+	return &GenesisState{AutomaticWithdraw: true}
 }
 
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-	// this line is used by starport scaffolding # ibc/genesistype/validate
+	if gs.PoolAmount == nil || gs.PoolAmount.Empty() {
+		return errors.New("validator block reward pool cannot be empty")
+	}
 
-	// this line is used by starport scaffolding # genesis/types/validate
+	if !gs.PoolAmount.IsValid() {
+		return fmt.Errorf("invalid validator block reward pool: %s", gs.PoolAmount.String())
+	}
 
-	return nil
+	return ValidateRewardRate(gs.RewardRate)
 }

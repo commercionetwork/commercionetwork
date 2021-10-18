@@ -1,8 +1,8 @@
 package types
 
 import (
-	"encoding/base64"
-	"encoding/json"
+	//"encoding/base64"
+	//"encoding/json"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,12 +11,11 @@ import (
 
 var _ sdk.Msg = &MsgSetIdentity{}
 
-func NewMsgSetIdentity(context string, ID string, pubkeys []*PubKey, proof Proof, service []*Service) *MsgSetIdentity {
+func NewMsgSetIdentity(context string, ID string, pubkeys []*PubKey, service []*Service) *MsgSetIdentity {
 	return &MsgSetIdentity{
 		Context: context,
 		ID:      ID,
 		PubKeys: pubkeys,
-		Proof:   &proof,
 		Service: service,
 	}
 }
@@ -73,28 +72,28 @@ func (msg *MsgSetIdentity) ValidateBasic() error {
 	if !pubKeys.HasVerificationAndSignatureKey() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "specified public keys are not in the correct format")
 	}
+	/*
+		if msg.Proof == nil {
+			return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "proof not provided")
+		}
 
-	if msg.Proof == nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "proof not provided")
-	}
-
-	if err := msg.Proof.Validate(); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("proof validation error: %s", err.Error()))
-	}
-
+		if err := msg.Proof.Validate(); err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("proof validation error: %s", err.Error()))
+		}
+	*/
 	// we have some service, we should validate 'em
 	if msg.Service != nil {
 		for i, service := range msg.Service {
 			err := service.Validate()
 			if err != nil {
-				return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("service %d validation failed: %w", i, err))
+				return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("service %d validation failed: %s", i, err.Error()))
 			}
 		}
 	}
-
-	if err := msg.VerifyProof(); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, err.Error())
-	}
+	/*
+		if err := msg.VerifyProof(); err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, err.Error())
+		}*/
 
 	if err := msg.lengthLimits(); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -110,7 +109,7 @@ func (msg *MsgSetIdentity) ValidateBasic() error {
 //  - let B be the SHA-256 (as defined in the FIPS 180-4) of the JSON representation of d minus the Proof field
 //  - let L be the Proof Signature Value, decoded from Base64 encoding
 // The Proof is verified if K.Verify(B, L) is verified.
-func (msg *MsgSetIdentity) VerifyProof() error {
+/*func (msg *MsgSetIdentity) VerifyProof() error {
 	//u := DidDocumentUnsigned(msg)
 	u := msg
 	// Explicitly zero out the Proof field.
@@ -153,7 +152,7 @@ func (msg *MsgSetIdentity) VerifyProof() error {
 
 	return nil
 }
-
+*/
 func (msg *MsgSetIdentity) lengthLimits() error {
 	e := func(fieldName string, maxLen int) error {
 		return fmt.Errorf("%s content can't be longer than %d bytes", fieldName, maxLen)

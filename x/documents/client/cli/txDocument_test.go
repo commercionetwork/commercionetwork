@@ -34,6 +34,7 @@ func TestShareDocument(t *testing.T) {
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
+			code: 13, //WHY: code 13 insufficient fee???
 		},
 	} {
 		tc := tc
