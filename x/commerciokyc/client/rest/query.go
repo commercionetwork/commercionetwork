@@ -6,17 +6,9 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/rest"
 	restTypes "github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 )
-
-// RegisterHandlers registers all x/bank transaction and query HTTP REST handlers
-// on the provided mux router.
-func RegisterHandlers(cliCtx client.Context, rtr *mux.Router) {
-	r := rest.WithHTTPDeprecationHeaders(rtr)
-	r.HandleFunc("/commercionetwork/commerciokyc/funds", getPoolFunds(cliCtx)).Methods("GET")
-}
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc("/commercionetwork/commerciokyc/funds", getPoolFunds(cliCtx)).Methods("GET")
