@@ -617,13 +617,9 @@ type QueryClient interface {
 	// this line is used by starport scaffolding # 2
 	// Queries a Document by id.
 	Document(ctx context.Context, in *QueryGetDocumentRequest, opts ...grpc.CallOption) (*QueryGetDocumentResponse, error)
-	//
-	// // Queries a list of Document items.
-	// rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
-	// option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
-	// }
+	// Queries a list of sent Document items.
 	SentDocuments(ctx context.Context, in *QueryGetSentDocumentsRequest, opts ...grpc.CallOption) (*QueryGetSentDocumentsResponse, error)
-	// Queries a list of Document items.
+	// Queries a list of received Document items.
 	ReceivedDocument(ctx context.Context, in *QueryGetReceivedDocumentRequest, opts ...grpc.CallOption) (*QueryGetReceivedDocumentResponse, error)
 	SentDocumentsReceipts(ctx context.Context, in *QueryGetSentDocumentsReceiptsRequest, opts ...grpc.CallOption) (*QueryGetSentDocumentsReceiptsResponse, error)
 	// Queries a list of Document items.
@@ -688,13 +684,9 @@ type QueryServer interface {
 	// this line is used by starport scaffolding # 2
 	// Queries a Document by id.
 	Document(context.Context, *QueryGetDocumentRequest) (*QueryGetDocumentResponse, error)
-	//
-	// // Queries a list of Document items.
-	// rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
-	// option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
-	// }
+	// Queries a list of sent Document items.
 	SentDocuments(context.Context, *QueryGetSentDocumentsRequest) (*QueryGetSentDocumentsResponse, error)
-	// Queries a list of Document items.
+	// Queries a list of received Document items.
 	ReceivedDocument(context.Context, *QueryGetReceivedDocumentRequest) (*QueryGetReceivedDocumentResponse, error)
 	SentDocumentsReceipts(context.Context, *QueryGetSentDocumentsReceiptsRequest) (*QueryGetSentDocumentsReceiptsResponse, error)
 	// Queries a list of Document items.

@@ -153,7 +153,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Queries a DidDocument by id.
+	// Queries the government address.
 	GovernmentAddr(ctx context.Context, in *QueryGovernmentAddrRequest, opts ...grpc.CallOption) (*QueryGovernmentAddrResponse, error)
 }
 
@@ -176,7 +176,7 @@ func (c *queryClient) GovernmentAddr(ctx context.Context, in *QueryGovernmentAdd
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Queries a DidDocument by id.
+	// Queries the government address.
 	GovernmentAddr(context.Context, *QueryGovernmentAddrRequest) (*QueryGovernmentAddrResponse, error)
 }
 

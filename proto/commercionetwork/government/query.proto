@@ -9,7 +9,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/government/t
 
 // Query defines the gRPC querier service.
 service Query {
-	// Queries a DidDocument by id.
+	// Queries the government address.
 	rpc GovernmentAddr(QueryGovernmentAddrRequest) returns (QueryGovernmentAddrResponse) {
 		option (google.api.http).get = "/commercionetwork/government/address";
 	}
