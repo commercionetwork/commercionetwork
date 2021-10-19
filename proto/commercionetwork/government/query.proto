@@ -11,7 +11,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/government/t
 service Query {
 	// Queries a DidDocument by id.
 	rpc GovernmentAddr(QueryGovernmentAddrRequest) returns (QueryGovernmentAddrResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/government/address";
+		option (google.api.http).get = "/commercionetwork/government/address";
 	}
 
     // this line is used by starport scaffolding # 2

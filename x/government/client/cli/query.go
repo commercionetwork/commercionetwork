@@ -24,6 +24,29 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	// this line is used by starport scaffolding # 1
-
+	cmd.AddCommand(
+		CmdGetGovernmentAddr(),
+	)
 	return cmd
+}
+
+func CmdGetGovernmentAddr() *cobra.Command {
+	return &cobra.Command{
+		Use:   "gov-address",
+		Short: "Get the government address",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGovernmentAddress)
+			res, _, err := clientCtx.QueryWithData(route, nil)
+			if err != nil {
+				fmt.Printf("could not get government address: %s", err)
+			}
+
+			fmt.Println(string(res))
+
+			return nil
+		},
+	}
 }

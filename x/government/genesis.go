@@ -11,6 +11,16 @@ import (
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 
 	// this line is used by starport scaffolding # genesis/module/init
+	govAddr, err := sdk.AccAddressFromBech32(genState.GovernmentAddress)
+	if err != nil {
+		panic(err)
+
+	}
+
+	errSetGov := k.SetGovernmentAddress(ctx, govAddr)
+	if errSetGov != nil {
+		panic(errSetGov)
+	}
 
 }
 
