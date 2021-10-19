@@ -9,6 +9,11 @@ import "commercionetwork/documents/documentReceipt.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
 
+/*
+
+rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
+	option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
+}*/
 // Query defines the gRPC querier service.
 service Query {
     // this line is used by starport scaffolding # 2
@@ -16,16 +21,12 @@ service Query {
 	rpc Document(QueryGetDocumentRequest) returns (QueryGetDocumentResponse) {
 		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document/{UUID}";
 	}
-/*
-	// Queries a list of Document items.
-	rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
-	}*/
+	// Queries a list of sent Document items.
 	rpc SentDocuments(QueryGetSentDocumentsRequest) returns (QueryGetSentDocumentsResponse) {
 		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document/{address}/sent";
 	}
 
-	// Queries a list of Document items.
+	// Queries a list of received Document items.
 	rpc ReceivedDocument(QueryGetReceivedDocumentRequest) returns (QueryGetReceivedDocumentResponse) {
 		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document/{address}/received";
 	}
