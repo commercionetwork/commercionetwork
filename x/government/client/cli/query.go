@@ -1,16 +1,14 @@
 package cli
 
 import (
+	"context"
 	"fmt"
-	// "strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	// "github.com/cosmos/cosmos-sdk/client/flags"
-	// sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/commercionetwork/commercionetwork/x/government/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 )
 
 // GetQueryCmd returns the cli query commands for this module
@@ -31,22 +29,29 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 }
 
 func CmdGetGovernmentAddr() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "gov-address",
 		Short: "Get the government address",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
-			route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGovernmentAddress)
-			res, _, err := clientCtx.QueryWithData(route, nil)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryGovernmentAddrRequest{}
+
+			res, err := queryClient.GovernmentAddr(context.Background(), params)
+
 			if err != nil {
-				fmt.Printf("could not get government address: %s", err)
+				return err
 			}
 
-			fmt.Println(string(res))
+			return clientCtx.PrintProto(res)
 
-			return nil
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
