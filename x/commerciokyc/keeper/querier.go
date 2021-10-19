@@ -23,19 +23,11 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 
 func queryGetPoolFunds(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
 
-	var params types.QueryFundsRequest
-
-	if err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params); err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
-	}
-
 	poolFunds := k.GetPoolFunds(ctx)
 
-	bz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, poolFunds)
-	if err2 != nil {
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, poolFunds)
+	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
-
 	}
-
 	return bz, nil
 }
