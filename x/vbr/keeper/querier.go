@@ -1,0 +1,50 @@
+package keeper
+
+import (
+	"fmt"
+
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
+)
+
+func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
+		switch path[0] {
+		case types.QueryBlockRewardsPoolFunds:
+			return queryGetBlockRewardsPoolFunds(ctx, path[1:], k, legacyQuerierCdc)
+		case types.QueryRewardRate:
+			return queryRewardRate(ctx, k, legacyQuerierCdc)
+
+		case types.QueryAutomaticWithdraw:
+			return queryAutomaticWithdraw(ctx, k, legacyQuerierCdc)
+
+		default:
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint: %s", types.ModuleName, path[0]))
+		}
+	}
+}
+
+func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	funds := k.GetTotalRewardPool(ctx)
+
+	fundsBz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, funds)
+	if err2 != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+	}
+
+	return fundsBz, nil
+}
+
+func queryRewardRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetRewardRateKeeper(ctx))
+}
+
+func queryAutomaticWithdraw(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetAutomaticWithdrawKeeper(ctx))
+}

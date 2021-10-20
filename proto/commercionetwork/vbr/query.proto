@@ -13,15 +13,15 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 service Query {
     // this line is used by starport scaffolding # 2
     rpc GetBlockRewardsPoolFunds(QueryGetBlockRewardsPoolFundsRequest) returns (QueryGetBlockRewardsPoolFundsResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/vbr/funds";
+		option (google.api.http).get = "/commercionetwork/vbr/funds";
 	}
 
 	rpc GetRewardRate(QueryGetRewardRateRequest) returns (QueryGetRewardRateResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/vbr/reward_rate";
+		option (google.api.http).get = "/commercionetwork/vbr/reward_rate";
 	}
 
 	rpc GetAutomaticWithdraw(QueryGetAutomaticWithdrawRequest) returns (QueryGetAutomaticWithdrawResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/vbr/automatic_withdraw";
+		option (google.api.http).get = "/commercionetwork/vbr/automatic_withdraw";
 	}
 }
 

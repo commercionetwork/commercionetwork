@@ -53,7 +53,7 @@ func getSentDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		address := vars[addressRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QuerySentDocuments, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute,  address, types.QuerySentDocuments)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -78,7 +78,7 @@ func getReceivedDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		address := vars[addressRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceivedDocuments, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedDocuments)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -107,7 +107,7 @@ func getSentDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		address := vars[addressRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QuerySentReceipts, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QuerySentReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -132,7 +132,7 @@ func getReceivedDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc
 		vars := mux.Vars(r)
 		address := vars[addressRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceivedReceipts, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
