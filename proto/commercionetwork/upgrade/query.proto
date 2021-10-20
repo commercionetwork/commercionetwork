@@ -13,7 +13,7 @@ service Query {
 
 	// Queries a list of currentUpgrade items.
 	rpc CurrentUpgrade(QueryCurrentUpgradeRequest) returns (QueryCurrentUpgradeResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/upgrade/currentUpgrade";
+		option (google.api.http).get = "/commercionetwork/upgrade/currentUpgrade";
 	}
 
 }
