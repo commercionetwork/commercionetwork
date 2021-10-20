@@ -710,7 +710,7 @@ paths:
           type: string
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/document/{UUID}':
+  '/commercionetwork/documents/document/{UUID}':
     get:
       summary: |-
         this line is used by starport scaffolding # 2
@@ -811,7 +811,7 @@ paths:
           type: string
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/document/{address}/received':
+  '/commercionetwork/documents/document/{address}/received':
     get:
       summary: Queries a list of received Document items.
       operationId: CommercionetworkCommercionetworkDocumentsReceivedDocument
@@ -985,7 +985,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/document/{address}/sent':
+  '/commercionetwork/documents/document/{address}/sent':
     get:
       summary: Queries a list of sent Document items.
       operationId: CommercionetworkCommercionetworkDocumentsSentDocuments
@@ -1159,7 +1159,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/receipts/{address}/received':
+  '/commercionetwork/documents/receipts/{address}/received':
     get:
       summary: Queries a list of Document items.
       operationId: CommercionetworkCommercionetworkDocumentsReceivedDocumentsReceipts
@@ -1284,7 +1284,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/receipts/{address}/sent':
+  '/commercionetwork/documents/receipts/{address}/sent':
     get:
       operationId: CommercionetworkCommercionetworkDocumentsSentDocumentsReceipts
       responses:

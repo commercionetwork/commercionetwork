@@ -1,0 +1,8 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+message StringProto {
+    string stProto = 1;
+}

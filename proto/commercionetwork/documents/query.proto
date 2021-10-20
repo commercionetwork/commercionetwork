@@ -12,32 +12,32 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 /*
 
 rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
-	option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document";
+	option (google.api.http).get = "/commercionetwork/documents/document";
 }*/
 // Query defines the gRPC querier service.
 service Query {
     // this line is used by starport scaffolding # 2
 	// Queries a Document by id.
 	rpc Document(QueryGetDocumentRequest) returns (QueryGetDocumentResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document/{UUID}";
+		option (google.api.http).get = "/commercionetwork/documents/document/{UUID}";
 	}
 	// Queries a list of sent Document items.
 	rpc SentDocuments(QueryGetSentDocumentsRequest) returns (QueryGetSentDocumentsResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document/{address}/sent";
+		option (google.api.http).get = "/commercionetwork/documents/document/{address}/sent";
 	}
 
 	// Queries a list of received Document items.
 	rpc ReceivedDocument(QueryGetReceivedDocumentRequest) returns (QueryGetReceivedDocumentResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/document/{address}/received";
+		option (google.api.http).get = "/commercionetwork/documents/document/{address}/received";
 	}
 
 	rpc SentDocumentsReceipts(QueryGetSentDocumentsReceiptsRequest) returns (QueryGetSentDocumentsReceiptsResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/receipts/{address}/sent";
+		option (google.api.http).get = "/commercionetwork/documents/receipts/{address}/sent";
 	}
 
 	// Queries a list of Document items.
 	rpc ReceivedDocumentsReceipts(QueryGetReceivedDocumentsReceiptsRequest) returns (QueryGetReceivedDocumentsReceiptsResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/documents/receipts/{address}/received";
+		option (google.api.http).get = "/commercionetwork/documents/receipts/{address}/received";
 	}
 }
 
