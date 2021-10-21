@@ -3,9 +3,9 @@ package commercionetwork.commercionetwork.commerciomint;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos/base/query/v1beta1/pagination.proto";
+//import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciomint/position.proto";
-import "cosmos/base/v1beta1/coin.proto";
+//import "cosmos/base/v1beta1/coin.proto";
 // this line is used by starport scaffolding # 1
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
@@ -14,23 +14,23 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 service Query {
 	// Queries a Etp by id.
 	rpc Etp(QueryEtpRequest) returns (QueryEtpResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/etps/{ID}";
+		option (google.api.http).get = "/commercionetwork/commerciomint/etps/{ID}";
 	}
 
 	rpc EtpByOwner(QueryEtpRequestByOwner) returns (QueryEtpsResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/owner/{Owner}";
+		option (google.api.http).get = "/commercionetwork/commerciomint/owner/{Owner}";
 	}
 
 	rpc Etps(QueryEtpsRequest) returns (QueryEtpsResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/etps";
+		option (google.api.http).get = "/commercionetwork/commerciomint/etps";
 	}
 
 	rpc ConversionRate(QueryConversionRate) returns (QueryConversionRateResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/conversion_rate";
+		option (google.api.http).get = "/commercionetwork/commerciomint/conversion_rate";
 	}
 
 	rpc FreezePeriod(QueryFreezePeriod) returns (QueryFreezePeriodResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/commerciomint/freeze_period";
+		option (google.api.http).get = "/commercionetwork/commerciomint/freeze_period";
 	}
 
     // this line is used by starport scaffolding # 2
@@ -46,7 +46,7 @@ message QueryEtpRequestByOwner {
 }
 
 message QueryEtpResponse {
-	Position Position = 1;
+	commerciomint.Position Position = 1;
 }
 
 
@@ -54,7 +54,7 @@ message QueryEtpsRequest {
 }
 
 message QueryEtpsResponse {
-	repeated Position Positions = 1;
+	repeated commerciomint.Position Positions = 1;
 }
 
 

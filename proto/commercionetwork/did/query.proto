@@ -12,7 +12,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 service Query {
 	// Queries a DidDocument by id.
 	rpc Identity(QueryResolveDidRequest) returns (QueryResolveDidResponse) {
-		option (google.api.http).get = "/commercionetwork/commercionetwork/did/identities/{ID}";
+		option (google.api.http).get = "/commercionetwork/did/identities/{ID}";
 	}
 
     // this line is used by starport scaffolding # 2

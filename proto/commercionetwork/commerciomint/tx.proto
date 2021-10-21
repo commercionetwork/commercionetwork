@@ -3,7 +3,7 @@ package commercionetwork.commercionetwork.commerciomint;
 
 // this line is used by starport scaffolding # proto/tx/import
 import "gogoproto/gogo.proto";
-import "commercionetwork/commerciomint/position.proto";
+//import "commercionetwork/commerciomint/position.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
