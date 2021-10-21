@@ -34,3 +34,9 @@ func NewKeeper(
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+// GetTumblerAddress returns the address that the tumbler has currently
+func (keeper Keeper) GetTumblerAddress(ctx sdk.Context) sdk.AccAddress {
+	store := ctx.KVStore(keeper.storeKey)
+	return store.Get([]byte(types.TumblerStoreKey))
+}
