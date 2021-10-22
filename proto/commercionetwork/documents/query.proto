@@ -1,13 +1,13 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.documents;
 
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
 import "commercionetwork/documents/document.proto";
 import "commercionetwork/documents/documentReceipt.proto";
-
-option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
 
 /*
 
