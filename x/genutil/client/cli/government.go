@@ -53,7 +53,7 @@ func SetGenesisGovernmentAddressCmd() *cobra.Command {
 			var genStateGovernment govTypes.GenesisState
 			json.Unmarshal(genState[govTypes.ModuleName], &genStateGovernment)
 
-			if genStateGovernment.GovernmentAddress == "" {
+			if genStateGovernment.GovernmentAddress != "" {
 				return fmt.Errorf("cannot replace existing government address")
 			}
 

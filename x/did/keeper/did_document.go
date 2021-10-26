@@ -21,6 +21,10 @@ func getIdentityStoreKey(owner sdk.AccAddress) []byte {
 	return append([]byte(types.IdentitiesStorePrefix), owner...)
 }
 
+func getDidPowerUpRequestStoreKey(id string) []byte {
+	return []byte(types.DidPowerUpRequestStorePrefix + id)
+}
+
 func (k Keeper) HasIdentity(ctx sdk.Context, ID string) bool {
 	store := ctx.KVStore(k.storeKey)
 

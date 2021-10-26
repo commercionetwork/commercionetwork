@@ -17,7 +17,7 @@ const (
 	MemStoreKey = "mem_upgrade"
 
 	// this line is used by starport scaffolding # ibc/keys/name
-	QueryCurrent = "current"
+	QueryCurrent = "currentUpgrade"
 
 	MsgTypeScheduleUpgrade  = "ScheduleUpgrade"
 	MsgTypeDeleteUpgrade  = "DeleteUpgrade"

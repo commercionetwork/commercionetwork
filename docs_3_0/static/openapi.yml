@@ -6,6 +6,7 @@ info:
 paths:
   /commercionetwork/commerciokyc/funds:
     get:
+      summary: Queries funds of ABR
       operationId: CommercionetworkCommercionetworkCommerciokycFunds
       responses:
         '200':
@@ -52,7 +53,7 @@ paths:
         - Query
   /commercionetwork/commerciokyc/invites:
     get:
-      summary: Queries a Etp by id.
+      summary: Queries all invites
       operationId: CommercionetworkCommercionetworkCommerciokycInvites
       responses:
         '200':
@@ -96,6 +97,7 @@ paths:
         - Query
   '/commercionetwork/commerciokyc/membership/{address}':
     get:
+      summary: Queries a membership by address
       operationId: CommercionetworkCommercionetworkCommerciokycMembership
       responses:
         '200':
@@ -114,6 +116,7 @@ paths:
                     type: string
                   expiryAt:
                     type: string
+                    format: date-time
         default:
           description: An unexpected error response.
           schema:
@@ -141,6 +144,7 @@ paths:
         - Query
   /commercionetwork/commerciokyc/memberships:
     get:
+      summary: Queries all memberships
       operationId: CommercionetworkCommercionetworkCommerciokycMemberships
       responses:
         '200':
@@ -161,6 +165,7 @@ paths:
                       type: string
                     expiryAt:
                       type: string
+                      format: date-time
         default:
           description: An unexpected error response.
           schema:
@@ -183,6 +188,9 @@ paths:
         - Query
   /commercionetwork/commerciokyc/tsps:
     get:
+      summary: |-
+        Queries a ivite by id.
+        Queries all Tsp.
       operationId: CommercionetworkCommercionetworkCommerciokycTsps
       responses:
         '200':
@@ -214,7 +222,7 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /commercionetwork/commercionetwork/commerciomint/conversion_rate:
+  /commercionetwork/commerciomint/conversion_rate:
     get:
       operationId: CommercionetworkCommercionetworkCommerciomintConversionRate
       responses:
@@ -224,11 +232,7 @@ paths:
             type: object
             properties:
               rate:
-                type: object
-                properties:
-                  dec:
-                    type: string
-                description: DecProto defines a Protobuf wrapper around a Dec object.
+                type: string
         default:
           description: An unexpected error response.
           schema:
@@ -249,7 +253,7 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /commercionetwork/commercionetwork/commerciomint/etps:
+  /commercionetwork/commerciomint/etps:
     get:
       operationId: CommercionetworkCommercionetworkCommerciomintEtps
       responses:
@@ -285,14 +289,11 @@ paths:
                         signatures required by gogoproto.
                     createdAt:
                       type: string
+                      format: date-time
                     ID:
                       type: string
                     exchangeRate:
-                      type: object
-                      properties:
-                        dec:
-                          type: string
-                      description: DecProto defines a Protobuf wrapper around a Dec object.
+                      type: string
         default:
           description: An unexpected error response.
           schema:
@@ -313,7 +314,7 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  '/commercionetwork/commercionetwork/commerciomint/etps/{ID}':
+  '/commercionetwork/commerciomint/etps/{ID}':
     get:
       summary: Queries a Etp by id.
       operationId: CommercionetworkCommercionetworkCommerciomintEtp
@@ -348,14 +349,11 @@ paths:
                       signatures required by gogoproto.
                   createdAt:
                     type: string
+                    format: date-time
                   ID:
                     type: string
                   exchangeRate:
-                    type: object
-                    properties:
-                      dec:
-                        type: string
-                    description: DecProto defines a Protobuf wrapper around a Dec object.
+                    type: string
         default:
           description: An unexpected error response.
           schema:
@@ -381,7 +379,7 @@ paths:
           type: string
       tags:
         - Query
-  /commercionetwork/commercionetwork/commerciomint/freeze_period:
+  /commercionetwork/commerciomint/freeze_period:
     get:
       operationId: CommercionetworkCommercionetworkCommerciomintFreezePeriod
       responses:
@@ -412,7 +410,7 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  '/commercionetwork/commercionetwork/commerciomint/owner/{Owner}':
+  '/commercionetwork/commerciomint/owner/{Owner}':
     get:
       operationId: CommercionetworkCommercionetworkCommerciomintEtpByOwner
       responses:
@@ -448,14 +446,11 @@ paths:
                         signatures required by gogoproto.
                     createdAt:
                       type: string
+                      format: date-time
                     ID:
                       type: string
                     exchangeRate:
-                      type: object
-                      properties:
-                        dec:
-                          type: string
-                      description: DecProto defines a Protobuf wrapper around a Dec object.
+                      type: string
         default:
           description: An unexpected error response.
           schema:
@@ -481,7 +476,241 @@ paths:
           type: string
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/document/{UUID}':
+  '/commercionetwork/did/identities/{ID}':
+    get:
+      summary: Queries a DidDocument by id.
+      operationId: CommercionetworkCommercionetworkDidIdentity
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              DidDocument:
+                type: object
+                properties:
+                  context:
+                    type: string
+                  ID:
+                    type: string
+                  pubKeys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: string
+                        type:
+                          type: string
+                        controller:
+                          type: string
+                        publicKeyPem:
+                          type: string
+                  service:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: string
+                        type:
+                          type: string
+                        serviceEndpoint:
+                          type: string
+                    title: did.Proof proof = 4;
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                  additionalProperties: {}
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: ID
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  '/commercionetwork/documents/document/{UUID}':
     get:
       summary: |-
         this line is used by starport scaffolding # 2
@@ -582,9 +811,9 @@ paths:
           type: string
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/document/{address}/received':
+  '/commercionetwork/documents/document/{address}/received':
     get:
-      summary: Queries a list of Document items.
+      summary: Queries a list of received Document items.
       operationId: CommercionetworkCommercionetworkDocumentsReceivedDocument
       responses:
         '200':
@@ -756,18 +985,9 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/document/{address}/sent':
+  '/commercionetwork/documents/document/{address}/sent':
     get:
-      summary: >-
-        // Queries a list of Document items.
-
-        rpc DocumentAll(QueryAllDocumentRequest) returns
-        (QueryAllDocumentResponse) {
-
-        option (google.api.http).get =
-        "/commercionetwork/commercionetwork/documents/document";
-
-        }
+      summary: Queries a list of sent Document items.
       operationId: CommercionetworkCommercionetworkDocumentsSentDocuments
       responses:
         '200':
@@ -939,7 +1159,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/receipts/{address}/received':
+  '/commercionetwork/documents/receipts/{address}/received':
     get:
       summary: Queries a list of Document items.
       operationId: CommercionetworkCommercionetworkDocumentsReceivedDocumentsReceipts
@@ -1064,7 +1284,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/commercionetwork/documents/receipts/{address}/sent':
+  '/commercionetwork/documents/receipts/{address}/sent':
     get:
       operationId: CommercionetworkCommercionetworkDocumentsSentDocumentsReceipts
       responses:
@@ -1188,88 +1408,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/commercionetwork/id/identities/{ID}':
-    get:
-      summary: Queries a DidDocument by id.
-      operationId: CommercionetworkCommercionetworkIdIdentity
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              DidDocument:
-                type: object
-                properties:
-                  context:
-                    type: string
-                  ID:
-                    type: string
-                  pubKeys:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        ID:
-                          type: string
-                        type:
-                          type: string
-                        controller:
-                          type: string
-                        publicKeyPem:
-                          type: string
-                  proof:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                      created:
-                        type: string
-                      proofPurpose:
-                        type: string
-                      controller:
-                        type: string
-                      verificationMethod:
-                        type: string
-                      signatureValue:
-                        type: string
-                  service:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        ID:
-                          type: string
-                        type:
-                          type: string
-                        serviceEndpoint:
-                          type: string
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      parameters:
-        - name: ID
-          in: path
-          required: true
-          type: string
-      tags:
-        - Query
-  /commercionetwork/commercionetwork/upgrade/currentUpgrade:
+  /commercionetwork/upgrade/currentUpgrade:
     get:
       summary: Queries a list of currentUpgrade items.
       operationId: CommercionetworkCommercionetworkUpgradeCurrentUpgrade
@@ -1467,6 +1606,116 @@ paths:
                           "@type": "type.googleapis.com/google.protobuf.Duration",
                           "value": "1.212s"
                         }
+      tags:
+        - Query
+  /commercionetwork/vbr/automatic_withdraw:
+    get:
+      operationId: CommercionetworkCommercionetworkVbrGetAutomaticWithdraw
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              autoW:
+                type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /commercionetwork/vbr/funds:
+    get:
+      summary: 'this line is used by starport scaffolding # 2'
+      operationId: CommercionetworkCommercionetworkVbrGetBlockRewardsPoolFunds
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              funds:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /commercionetwork/vbr/reward_rate:
+    get:
+      operationId: CommercionetworkCommercionetworkVbrGetRewardRate
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              rewardRate:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
       tags:
         - Query
   '/cosmos/bank/v1beta1/balances/{address}':
@@ -22830,6 +23079,7 @@ definitions:
         type: string
       expiryAt:
         type: string
+        format: date-time
   commercionetwork.commercionetwork.commerciokyc.MsgAddTspResponse:
     type: object
     properties:
@@ -22925,6 +23175,7 @@ definitions:
             type: string
           expiryAt:
             type: string
+            format: date-time
   commercionetwork.commercionetwork.commerciokyc.QueryMembershipsResponse:
     type: object
     properties:
@@ -22941,6 +23192,7 @@ definitions:
               type: string
             expiryAt:
               type: string
+              format: date-time
   commercionetwork.commercionetwork.commerciokyc.QueryTspsResponse:
     type: object
     properties:
@@ -23309,11 +23561,7 @@ definitions:
     type: object
     properties:
       rate:
-        type: object
-        properties:
-          dec:
-            type: string
-        description: DecProto defines a Protobuf wrapper around a Dec object.
+        type: string
   commercionetwork.commercionetwork.commerciomint.MsgSetCCCFreezePeriodResponse:
     type: object
     properties:
@@ -23341,23 +23589,16 @@ definitions:
           signatures required by gogoproto.
       createdAt:
         type: string
+        format: date-time
       ID:
         type: string
       exchangeRate:
-        type: object
-        properties:
-          dec:
-            type: string
-        description: DecProto defines a Protobuf wrapper around a Dec object.
+        type: string
   commercionetwork.commercionetwork.commerciomint.QueryConversionRateResponse:
     type: object
     properties:
       rate:
-        type: object
-        properties:
-          dec:
-            type: string
-        description: DecProto defines a Protobuf wrapper around a Dec object.
+        type: string
   commercionetwork.commercionetwork.commerciomint.QueryEtpResponse:
     type: object
     properties:
@@ -23386,14 +23627,11 @@ definitions:
               signatures required by gogoproto.
           createdAt:
             type: string
+            format: date-time
           ID:
             type: string
           exchangeRate:
-            type: object
-            properties:
-              dec:
-                type: string
-            description: DecProto defines a Protobuf wrapper around a Dec object.
+            type: string
   commercionetwork.commercionetwork.commerciomint.QueryEtpsResponse:
     type: object
     properties:
@@ -23424,25 +23662,108 @@ definitions:
                 signatures required by gogoproto.
             createdAt:
               type: string
+              format: date-time
             ID:
               type: string
             exchangeRate:
-              type: object
-              properties:
-                dec:
-                  type: string
-              description: DecProto defines a Protobuf wrapper around a Dec object.
+              type: string
   commercionetwork.commercionetwork.commerciomint.QueryFreezePeriodResponse:
     type: object
     properties:
       freezePeriod:
         type: string
-  cosmos.base.v1beta1.DecProto:
+  commercionetwork.commercionetwork.did.DidDocument:
     type: object
     properties:
-      dec:
+      context:
         type: string
-    description: DecProto defines a Protobuf wrapper around a Dec object.
+      ID:
+        type: string
+      pubKeys:
+        type: array
+        items:
+          type: object
+          properties:
+            ID:
+              type: string
+            type:
+              type: string
+            controller:
+              type: string
+            publicKeyPem:
+              type: string
+      service:
+        type: array
+        items:
+          type: object
+          properties:
+            ID:
+              type: string
+            type:
+              type: string
+            serviceEndpoint:
+              type: string
+        title: did.Proof proof = 4;
+  commercionetwork.commercionetwork.did.MsgSetIdentityResponse:
+    type: object
+    properties:
+      ID:
+        type: string
+  commercionetwork.commercionetwork.did.PubKey:
+    type: object
+    properties:
+      ID:
+        type: string
+      type:
+        type: string
+      controller:
+        type: string
+      publicKeyPem:
+        type: string
+  commercionetwork.commercionetwork.did.QueryResolveDidResponse:
+    type: object
+    properties:
+      DidDocument:
+        type: object
+        properties:
+          context:
+            type: string
+          ID:
+            type: string
+          pubKeys:
+            type: array
+            items:
+              type: object
+              properties:
+                ID:
+                  type: string
+                type:
+                  type: string
+                controller:
+                  type: string
+                publicKeyPem:
+                  type: string
+          service:
+            type: array
+            items:
+              type: object
+              properties:
+                ID:
+                  type: string
+                type:
+                  type: string
+                serviceEndpoint:
+                  type: string
+            title: did.Proof proof = 4;
+  commercionetwork.commercionetwork.did.Service:
+    type: object
+    properties:
+      ID:
+        type: string
+      type:
+        type: string
+      serviceEndpoint:
+        type: string
   commercionetwork.commercionetwork.documents.Document:
     type: object
     properties:
@@ -24010,141 +24331,6 @@ definitions:
                repeated Bar results = 1;
                PageResponse page = 2;
        }
-  commercionetwork.commercionetwork.id.DidDocument:
-    type: object
-    properties:
-      context:
-        type: string
-      ID:
-        type: string
-      pubKeys:
-        type: array
-        items:
-          type: object
-          properties:
-            ID:
-              type: string
-            type:
-              type: string
-            controller:
-              type: string
-            publicKeyPem:
-              type: string
-      proof:
-        type: object
-        properties:
-          type:
-            type: string
-          created:
-            type: string
-          proofPurpose:
-            type: string
-          controller:
-            type: string
-          verificationMethod:
-            type: string
-          signatureValue:
-            type: string
-      service:
-        type: array
-        items:
-          type: object
-          properties:
-            ID:
-              type: string
-            type:
-              type: string
-            serviceEndpoint:
-              type: string
-  commercionetwork.commercionetwork.id.MsgSetIdentityResponse:
-    type: object
-    properties:
-      ID:
-        type: string
-  commercionetwork.commercionetwork.id.Proof:
-    type: object
-    properties:
-      type:
-        type: string
-      created:
-        type: string
-      proofPurpose:
-        type: string
-      controller:
-        type: string
-      verificationMethod:
-        type: string
-      signatureValue:
-        type: string
-  commercionetwork.commercionetwork.id.PubKey:
-    type: object
-    properties:
-      ID:
-        type: string
-      type:
-        type: string
-      controller:
-        type: string
-      publicKeyPem:
-        type: string
-  commercionetwork.commercionetwork.id.QueryResolveDidResponse:
-    type: object
-    properties:
-      DidDocument:
-        type: object
-        properties:
-          context:
-            type: string
-          ID:
-            type: string
-          pubKeys:
-            type: array
-            items:
-              type: object
-              properties:
-                ID:
-                  type: string
-                type:
-                  type: string
-                controller:
-                  type: string
-                publicKeyPem:
-                  type: string
-          proof:
-            type: object
-            properties:
-              type:
-                type: string
-              created:
-                type: string
-              proofPurpose:
-                type: string
-              controller:
-                type: string
-              verificationMethod:
-                type: string
-              signatureValue:
-                type: string
-          service:
-            type: array
-            items:
-              type: object
-              properties:
-                ID:
-                  type: string
-                type:
-                  type: string
-                serviceEndpoint:
-                  type: string
-  commercionetwork.commercionetwork.id.Service:
-    type: object
-    properties:
-      ID:
-        type: string
-      type:
-        type: string
-      serviceEndpoint:
-        type: string
   commercionetwork.commercionetwork.upgrade.MsgDeleteUpgradeResponse:
     type: object
   commercionetwork.commercionetwork.upgrade.MsgScheduleUpgradeResponse:
@@ -24378,6 +24564,45 @@ definitions:
     type: object
   commercionetwork.commercionetwork.vbr.MsgSetRewardRateResponse:
     type: object
+  commercionetwork.commercionetwork.vbr.QueryGetAutomaticWithdrawResponse:
+    type: object
+    properties:
+      autoW:
+        type: boolean
+  commercionetwork.commercionetwork.vbr.QueryGetBlockRewardsPoolFundsResponse:
+    type: object
+    properties:
+      funds:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+  commercionetwork.commercionetwork.vbr.QueryGetRewardRateResponse:
+    type: object
+    properties:
+      rewardRate:
+        type: string
+  cosmos.base.v1beta1.DecCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      DecCoin defines a token with a denomination and a decimal amount.
+
+      NOTE: The amount field is an Dec which implements the custom method
+      signatures required by gogoproto.
   cosmos.bank.v1beta1.DenomUnit:
     type: object
     properties:
@@ -24806,18 +25031,6 @@ definitions:
   cosmos.crisis.v1beta1.MsgVerifyInvariantResponse:
     type: object
     description: MsgVerifyInvariantResponse defines the Msg/VerifyInvariant response type.
-  cosmos.base.v1beta1.DecCoin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      DecCoin defines a token with a denomination and a decimal amount.
-
-      NOTE: The amount field is an Dec which implements the custom method
-      signatures required by gogoproto.
   cosmos.distribution.v1beta1.DelegationDelegatorReward:
     type: object
     properties:

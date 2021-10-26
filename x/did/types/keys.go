@@ -36,6 +36,24 @@ const (
 	KeyTypeEd25519           = "Ed25519VerificationKey2018"
 	KeyTypeBls12381G1Key2020 = "Bls12381G1Key2020"
 	KeyTypeBls12381G2Key2020 = "Bls12381G2Key2020"
+
+	DidPowerUpRequestStorePrefix               = StoreKey + "powerUpRequest"
+	HandledPowerUpRequestsReferenceStorePrefix = StoreKey + "handledPowerUpRequestsReference"
+	
+	StatusApproved = "approved"
+	StatusRejected = "rejected"
+	StatusCanceled = "canceled"
+
+	// --------------
+	// --- Queries
+	// --------------
+
+	QueryResolveDid = "identities"
+
+	QueryResolvePowerUpRequest     = "powerUpRequest"
+	QueryGetApprovedPowerUpRequest = "approvedPowerUpRequest"
+	QueryGetRejectedPowerUpRequest = "rejectedPowerUpRequest"
+	QueryGetPendingPowerUpRequest  = "pendingPowerUpRequest"
 )
 
 var (

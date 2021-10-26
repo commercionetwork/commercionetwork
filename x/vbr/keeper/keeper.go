@@ -21,8 +21,7 @@ type (
 	Keeper struct {
 		cdc      	codec.Marshaler
 		storeKey	sdk.StoreKey
-		//memKey   sdk.StoreKey
-		// this line is used by starport scaffolding # ibc/keeper/attribute
+		memKey   sdk.StoreKey
 		distKeeper  distKeeper.Keeper
 		bankKeeper	bankKeeper.Keeper
 		accountKeeper accountKeeper.AccountKeeper
@@ -34,7 +33,6 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	storeKey sdk.StoreKey,
 	memKey sdk.StoreKey,
-	// this line is used by starport scaffolding # ibc/keeper/parameter
 	distKeeper   distKeeper.Keeper,
 	bankKeeper	bankKeeper.Keeper,
 	accountKeeper accountKeeper.AccountKeeper,
@@ -44,8 +42,7 @@ func NewKeeper(
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
-		//memKey:   memKey,
-		// this line is used by starport scaffolding # ibc/keeper/return
+		memKey:   memKey,
 		distKeeper: distKeeper,
 		bankKeeper: bankKeeper,
 		accountKeeper: accountKeeper,
@@ -81,6 +78,9 @@ func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	return sdk.NewDecCoinsFromCoins(coins...)
 }
 
+// ---------------------------
+// --- Reward distribution
+// ---------------------------
 // SetRewardRate store the vbr reward rate.
 func (k Keeper) SetRewardRateKeeper(ctx sdk.Context, rate sdk.Dec) error {
 	if err := types.ValidateRewardRate(rate); err != nil {

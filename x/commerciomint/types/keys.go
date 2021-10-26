@@ -15,6 +15,8 @@ const (
 	BondDenom            = "ucommercio"
 
 	QueryGetEtps = "etps"
+	QueryConversionRateRest = "conversion_rate"
+	QueryFreezePeriodRest   = "freeze_period"
 
 	MsgTypeMintCCC              = "mintCCC"
 	MsgTypeBurnCCC              = "burnCCC"
