@@ -12,10 +12,7 @@ import (
 
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
-	r.HandleFunc(
-		"/upgrade/current",
-		getCurrentUpgrade(cliCtx)).
-		Methods("GET")
+	r.HandleFunc("/commercionetwork/upgrade/currentUpgrade",getCurrentUpgrade(cliCtx)).Methods("GET")
 }
 
 func getCurrentUpgrade(cliCtx client.Context) http.HandlerFunc {

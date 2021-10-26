@@ -11,11 +11,8 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/government/t
 service Query {
 	// Queries the government address.
 	rpc GovernmentAddr(QueryGovernmentAddrRequest) returns (QueryGovernmentAddrResponse) {
-		option (google.api.http).get = "/commercionetwork/government/address";
+		option (google.api.http).get = "/commercionetwork/government/governmentAddress";
 	}
-
-    // this line is used by starport scaffolding # 2
-    
 }
 message QueryGovernmentAddrRequest {}
 

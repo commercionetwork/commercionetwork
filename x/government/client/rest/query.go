@@ -11,7 +11,7 @@ import (
 )
 
 func RegisterQueryRoutes(cliCtx client.Context, r *mux.Router) {
-	r.HandleFunc("/commercionetwork/government/address", getGovernmentAddr(cliCtx)).Methods("GET")
+	r.HandleFunc("/commercionetwork/government/governmentAddress", getGovernmentAddr(cliCtx)).Methods("GET")
 }
 
 func getGovernmentAddr(cliCtx client.Context) http.HandlerFunc {

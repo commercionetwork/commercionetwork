@@ -12,14 +12,14 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
-
+/*
 type QueryGovernmentResponse struct {
 	GovernmentAddress string `json:"government_address"`
 }
 
 type QueryTumblerResponse struct {
 	TumblerAddress string `json:"tumbler_address"`
-}
+}*/
 
 // NewQuerier is the module level router for state queries
 func NewQuerier(keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
@@ -27,8 +27,8 @@ func NewQuerier(keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier 
 		switch path[0] {
 		case types.QueryGovernmentAddress:
 			return queryGetGovernmentAddress(ctx, keeper, legacyQuerierCdc)
-		case types.QueryTumblerAddress:
-			return queryGetTumblerAddress(ctx, keeper, legacyQuerierCdc)
+		/*case types.QueryTumblerAddress:
+			return queryGetTumblerAddress(ctx, keeper, legacyQuerierCdc)*/
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
@@ -38,7 +38,7 @@ func NewQuerier(keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier 
 func queryGetGovernmentAddress(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	address := keeper.GetGovernmentAddress(ctx)
 
-	r := QueryGovernmentResponse{
+	r := types.QueryGovernmentAddrResponse{
 		GovernmentAddress: address.String(),
 	}
 
@@ -49,7 +49,7 @@ func queryGetGovernmentAddress(ctx sdk.Context, keeper Keeper, legacyQuerierCdc 
 
 	return bz, nil
 }
-
+/*
 func queryGetTumblerAddress(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	address := keeper.GetTumblerAddress(ctx)
 
@@ -64,3 +64,4 @@ func queryGetTumblerAddress(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *co
 
 	return bz, nil
 }
+*/

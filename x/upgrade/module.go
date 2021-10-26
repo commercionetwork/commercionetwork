@@ -13,7 +13,7 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/client/rest"
+	"github.com/commercionetwork/commercionetwork/x/upgrade/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/upgrade/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/upgrade/keeper"
 	"github.com/commercionetwork/commercionetwork/x/upgrade/types"
