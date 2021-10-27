@@ -8,6 +8,7 @@ require (
 	github.com/armon/go-metrics v0.3.9 // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/cosmos/cosmos-sdk v0.44.2
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/mock v1.6.0 // indirect
@@ -15,11 +16,10 @@ require (
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.6.0 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.29.0 // indirect
-	github.com/regen-network/cosmos-proto v0.3.1 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cast v1.4.0
 	github.com/spf13/cobra v1.1.3
@@ -32,7 +32,6 @@ require (
 	github.com/tendermint/tm-db v0.6.4
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83
 	google.golang.org/grpc v1.40.0
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.0.0 // indirect
 	google.golang.org/protobuf v1.27.1
 )
 
