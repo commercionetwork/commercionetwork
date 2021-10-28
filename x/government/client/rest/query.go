@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func RegisterQueryRoutes(cliCtx client.Context, r *mux.Router) {
+func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc("/commercionetwork/government/governmentAddress", getGovernmentAddr(cliCtx)).Methods("GET")
 }
 

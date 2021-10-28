@@ -1408,6 +1408,38 @@ paths:
           type: boolean
       tags:
         - Query
+  /commercionetwork/government/governmentAddress:
+    get:
+      summary: Queries the government address.
+      operationId: CommercionetworkCommercionetworkGovernmentGovernmentAddr
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              governmentAddress:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   /commercionetwork/upgrade/currentUpgrade:
     get:
       summary: Queries a list of currentUpgrade items.
@@ -24331,6 +24363,13 @@ definitions:
                repeated Bar results = 1;
                PageResponse page = 2;
        }
+  commercionetwork.commercionetwork.government.MsgSetGovAddressResponse:
+    type: object
+  commercionetwork.commercionetwork.government.QueryGovernmentAddrResponse:
+    type: object
+    properties:
+      governmentAddress:
+        type: string
   commercionetwork.commercionetwork.upgrade.MsgDeleteUpgradeResponse:
     type: object
   commercionetwork.commercionetwork.upgrade.MsgScheduleUpgradeResponse:
