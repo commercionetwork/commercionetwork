@@ -10,7 +10,20 @@ client:
   vuex:
     path: "vue/src/store"
   openapi:
-    path: "docs/static/openapi.yml"
+    path: "docs_3_0/static/openapi.yml"
 faucet:
   name: bob
   coins: ["5uccc", "100000ucommercio"]
+genesis:
+  app_state:
+    government:
+      governmentAddress: "did:com:1ugl0j3kq3scus358rg0z9d74te2ymf9w7pfrar"
+    vbr:
+      poolAmount:
+        -
+          denom: "ucommercio"
+          amount: "10000000.000000000000000000"
+      rewardRate: "0.010000000000000000"
+    staking:
+      params:
+        bond_denom: "ucommercio"
