@@ -13,6 +13,27 @@ func (elements Strings) AppendIfMissing(element string) (Strings, bool) {
 	return append(elements, element), true
 }
 
+// RemoveIfExisting returns a new Addresses instance that does not contain the
+// given address.
+func (elements Strings) RemoveIfExisting(address string) (Strings, bool) {
+	indexOf := elements.IndexOf(address)
+	if indexOf > -1 {
+		return append(elements[:indexOf], elements[indexOf+1:]...), true
+	}
+	return elements, false
+}
+
+// IndexOf returns the index of the given address inside the addresses array,
+// or -1 if such an address was not found
+func (elements Strings) IndexOf(address string) int {
+	for i, a := range elements {
+		if a == address {
+			return i
+		}
+	}
+	return -1
+}
+
 // Contains returns true iff the given element is present inside the elements slice
 func (elements Strings) Contains(element string) bool {
 	for _, ele := range elements {

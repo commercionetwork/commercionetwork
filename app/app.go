@@ -580,6 +580,8 @@ func New(
 		ibctransfertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 		governmentmoduletypes.ModuleName,
+		commerciokycTypes.ModuleName,
+		commerciomintTypes.ModuleName,
 		vbrmoduletypes.ModuleName,
 
 		upgrademoduletypes.ModuleName,

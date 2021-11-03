@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -212,23 +211,23 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 // transactions setting a specific accrediter for a user.
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
 // be allowed to send a transaction setting an accrediter for another user.
-func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers ctypes.Addresses) {
+func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.TrustedServiceProviders) {
 	store := ctx.KVStore(k.storeKey)
 
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	json.Unmarshal(signersBz, &signers) // TODO CHECK UNMARSHAL
+	k.cdc.UnmarshalBinaryBare(signersBz, &signers)
 
 	//k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 	// Cannot use add govAddress: trust service provider doesn't work proprerly
 	//signers = append(signers, k.governmentKeeper.GetGovernmentAddress(ctx))
-	return
+	return signers
 }
 
 // IsTrustedServiceProvider tells if the given signer is a trusted one or not
 func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
-
-	signers := k.GetTrustedServiceProviders(ctx)
-	return signers.Contains(signer) || signer.Equals(k.govKeeper.GetGovernmentAddress(ctx))
+	var signers ctypes.Strings
+	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	return signers.Contains(signer.String()) || signer.Equals(k.govKeeper.GetGovernmentAddress(ctx))
 }
 
 // TspIterator returns an Iterator for all the tsps stored.

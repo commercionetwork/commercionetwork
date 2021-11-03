@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	"encoding/json"
 	"fmt"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -15,11 +15,14 @@ import (
 func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 
-	signers := k.GetTrustedServiceProviders(ctx)
-	if signers, success := signers.AppendIfMissing(tsp); success {
-		newSignersBz, _ := json.Marshal(signers) // TODO control this conversion
-		//newSignersBz := k.cdc.MustMarshalBinaryBare(&signers)
+	var trustedServiceProviders types.TrustedServiceProviders
+	var signers ctypes.Strings
+	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	if signersNew, inserted := signers.AppendIfMissing(tsp.String()); inserted {
+		trustedServiceProviders.Addresses = signersNew
+		newSignersBz, _ := k.cdc.MarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
+
 	}
 
 	// TODO emits events
@@ -35,10 +38,12 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 
-	signers := k.GetTrustedServiceProviders(ctx)
-	if signers, success := signers.RemoveIfExisting(tsp); success {
-		newSignersBz, _ := json.Marshal(signers) // TODO control this conversion
-		//newSignersBz := k.cdc.MustMarshalBinaryBare(&signers)
+	var trustedServiceProviders types.TrustedServiceProviders
+	var signers ctypes.Strings
+	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	if signers, find := signers.RemoveIfExisting(tsp.String()); find {
+		trustedServiceProviders.Addresses = signers
+		newSignersBz := k.cdc.MustMarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
 
