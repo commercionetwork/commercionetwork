@@ -23,13 +23,15 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 
 	// Get the initial pool coins
 	// TODO RESOLVE POOL ISSUE
-	if keeper.GetLiquidityPoolAmountCoins(ctx).IsZero() {
+	if keeper.GetModuleBalance(ctx, moduleAcc.GetAddress()).IsZero() {
+		fmt.Println(data.PoolAmount)
 		if err := keeper.SetLiquidityPoolToAccount(ctx, data.PoolAmount); err != nil {
 			panic(err)
 		}
 		keeper.SetModuleAccount(ctx, moduleAcc)
-		//supplyKeeper.SetModuleAccount(ctx, moduleAcc)
+
 	}
+	fmt.Println(keeper.GetModuleBalance(ctx, moduleAcc.GetAddress()))
 
 	if err := keeper.UpdateConversionRate(ctx, data.CollateralRate); err != nil {
 		panic(err)
@@ -41,7 +43,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 	}
 
 	for _, position := range data.Positions {
-		if err := keeper.NewPosition(ctx, *position); err != nil {
+		if err := keeper.SetPosition(ctx, *position); err != nil {
 			panic(err)
 		}
 	}
