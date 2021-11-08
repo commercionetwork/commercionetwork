@@ -109,6 +109,57 @@ func TestKeeper_GetInvite(t *testing.T) {
 	}
 }
 
+func TestInvites_Equals(t *testing.T) {
+	user, _ := sdk.AccAddressFromBech32("cosmos1nm9lkhu4dufva9n8zt8q30yd5kuucp54kymqcn")
+	sender, _ := sdk.AccAddressFromBech32("cosmos1007jzaanx5kmqnn3akgype2jseawfj80dne9t6")
+	invite := types.NewInvite(sender, user, "bronze")
+
+	tests := []struct {
+		name          string
+		first         types.Invite
+		second        types.Invite
+		shouldBeEqual bool
+	}{
+		{
+			name:          "Different sender returns false",
+			first:         invite,
+			second:        types.NewInvite(user, user, "bronze"),
+			shouldBeEqual: false,
+		},
+		{
+			name:          "Different user returns false",
+			first:         invite,
+			second:        types.NewInvite(sender, sender, "bronze"),
+			shouldBeEqual: false,
+		},
+		{
+			name:          "Different memebership returns false",
+			first:         invite,
+			second:        types.Invite{User: user.String(), Sender: sender.String(), SenderMembership: types.MembershipTypeGold},
+			shouldBeEqual: false,
+		},
+		{
+			name:          "Different rewarded returns false",
+			first:         invite,
+			second:        types.Invite{User: user.String(), Sender: sender.String(), Status: uint64(types.InviteStatusRewarded)},
+			shouldBeEqual: false,
+		},
+		{
+			name:          "Same data returns true",
+			first:         invite,
+			second:        invite,
+			shouldBeEqual: true,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
+		})
+	}
+}
+
 func TestKeeper_GetInvites(t *testing.T) {
 	storedList := []*types.Invite{}
 	expectedList := []*types.Invite{}
