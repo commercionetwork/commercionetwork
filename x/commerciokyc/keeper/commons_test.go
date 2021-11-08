@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"time"
@@ -17,17 +17,18 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 const (
-	secondsPerYear time.Duration = time.Hour * 24 * 365
+	SecondsPerYear time.Duration = time.Hour * 24 * 365
 )
 
 // SetupTestInput function create an environment to test modules
-func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper.Keeper) {
 
 	memDB := db.NewMemDB()
 	legacyAmino := codec.NewLegacyAmino()
@@ -72,7 +73,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
 
-	k := NewKeeper(
+	k := keeper.NewKeeper(
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
@@ -102,7 +103,7 @@ var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testDenom = "ucommercio"
 var stableCreditDenom = "uccc"
-var testExpiration = time.Now().Add(secondsPerYear).UTC()
+var testExpiration = time.Now().Add(SecondsPerYear).UTC()
 var testExpirationNegative = time.Now()
 var depositStableCoin = sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 50000000))
 var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))

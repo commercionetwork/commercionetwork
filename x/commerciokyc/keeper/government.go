@@ -13,14 +13,14 @@ import (
 // AddTrustedServiceProvider allows to add the given signer as a trusted entity
 // that can sign transactions setting an accrediter for a user.
 func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, inserted := signers.AppendIfMissing(tsp.String()); inserted {
 		trustedServiceProviders.Addresses = signersNew
-		newSignersBz, _ := k.cdc.MarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz, _ := k.Cdc.MarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 
 	}
@@ -36,14 +36,14 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 // RemoveTrustedServiceProvider allows to remove the given tsp from trusted entity
 // list that can sign transactions setting an accrediter for a user.
 func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signers, find := signers.RemoveIfExisting(tsp.String()); find {
 		trustedServiceProviders.Addresses = signers
-		newSignersBz := k.cdc.MustMarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz := k.Cdc.MustMarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
 

@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"fmt"
@@ -37,10 +37,10 @@ func TestKeeper_InviteUser(t *testing.T) {
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
 
-		store := ctx.KVStore(k.storeKey)
+		store := ctx.KVStore(k.StoreKey)
 
 		if !test.existingInvite.Empty() {
-			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.cdc.MustMarshalBinaryBare(&test.existingInvite))
+			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.Cdc.MustMarshalBinaryBare(&test.existingInvite))
 		}
 
 		test_invite_User, _ := sdk.AccAddressFromBech32(test.invite.User)
@@ -60,7 +60,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 
 		var invite types.Invite
 		accreditationBz := store.Get([]byte(types.InviteStorePrefix + testUser.String()))
-		k.cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
+		k.Cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
 		require.Equal(t, test.expected, invite)
 	}
 }
@@ -97,10 +97,10 @@ func TestKeeper_GetInvite(t *testing.T) {
 
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
-		store := ctx.KVStore(k.storeKey)
+		store := ctx.KVStore(k.StoreKey)
 
 		if !test.storedInvite.Empty() {
-			store.Set([]byte(types.InviteStorePrefix+test.storedInvite.User), k.cdc.MustMarshalBinaryBare(&test.storedInvite))
+			store.Set([]byte(types.InviteStorePrefix+test.storedInvite.User), k.Cdc.MustMarshalBinaryBare(&test.storedInvite))
 		}
 
 		actual, found := k.GetInvite(ctx, test.user)
@@ -189,10 +189,10 @@ func TestKeeper_GetInvites(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
-			store := ctx.KVStore(k.storeKey)
+			store := ctx.KVStore(k.StoreKey)
 
 			for _, invite := range test.stored {
-				store.Set([]byte(types.InviteStorePrefix+invite.User), k.cdc.MustMarshalBinaryBare(invite))
+				store.Set([]byte(types.InviteStorePrefix+invite.User), k.Cdc.MustMarshalBinaryBare(invite))
 			}
 
 			actual := k.GetInvites(ctx)

@@ -1,8 +1,9 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
@@ -18,7 +19,7 @@ func TestNewQuerier_InvalidMsg(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
 	app := simapp.Setup(false)
 	legacyAmino := app.LegacyAmino()
-	querier := NewQuerier(k, legacyAmino)
+	querier := keeper.NewQuerier(k, legacyAmino)
 	_, res := querier(ctx, []string{""}, abci.RequestQuery{})
 	require.Error(t, res)
 }
@@ -74,7 +75,7 @@ func Test_queryGetInvites(t *testing.T) {
 				k.SaveInvite(ctx, i)
 			}
 
-			querier := NewQuerier(k, legacyAmino)
+			querier := keeper.NewQuerier(k, legacyAmino)
 			path := []string{types.QueryGetInvites}
 			actualBz, _ := querier(ctx, path, request)
 
@@ -85,7 +86,7 @@ func Test_queryGetInvites(t *testing.T) {
 				actual = append(actual, *invite)
 			}
 
-			//k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			//k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 			require.True(t, test.expected.Equals(actual))
 		})
 	}
@@ -121,14 +122,14 @@ func Test_queryGetSigners(t *testing.T) {
 				k.AddTrustedServiceProvider(ctx, t)
 			}
 
-			querier := NewQuerier(k, legacyAmino)
+			querier := keeper.NewQuerier(k, legacyAmino)
 			request := abci.RequestQuery{}
 
 			path := []string{types.QueryGetTrustedServiceProviders}
 			actualBz, _ := querier(ctx, path, request)
 
 			var actual types.TrustedServiceProviders
-			k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 
 			for _, tsp := range test.expected {
 				require.Contains(t, actual.Addresses, tsp.String())

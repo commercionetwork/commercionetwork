@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"time"
 
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -10,6 +11,10 @@ import (
 	bank "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+)
+
+const (
+	SecondsPerYear time.Duration = time.Hour * 24 * 365
 )
 
 var membershipCosts = map[string]int64{
@@ -21,8 +26,8 @@ var membershipCosts = map[string]int64{
 }
 
 type Keeper struct {
-	cdc           codec.Marshaler
-	storeKey      sdk.StoreKey
+	Cdc           codec.Marshaler
+	StoreKey      sdk.StoreKey
 	memKey        sdk.StoreKey
 	bankKeeper    bank.Keeper
 	govKeeper     government.Keeper
@@ -42,8 +47,8 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		cdc:           cdc,
-		storeKey:      storeKey,
+		Cdc:           cdc,
+		StoreKey:      storeKey,
 		memKey:        memKey,
 		bankKeeper:    bankKeeper,
 		govKeeper:     govKeeper,
