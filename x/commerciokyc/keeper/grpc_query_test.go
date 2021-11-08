@@ -1,6 +1,5 @@
 package keeper_test
 
-/*
 import (
 	"fmt"
 
@@ -44,22 +43,22 @@ func (suite *KeeperTestSuite) TestGRPCQueryMembership() {
 			false,
 			func(res *types.QueryMembershipResponse) {},
 		},
-		{
+		/*{
 			"success",
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx,
 					suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr))
-				req = &types.QueryAccountRequest{Address: addr.String()}
+				req = &types.QueryMembershipResponse{Address: addr.String()}
 			},
 			true,
-			func(res *types.QueryAccountResponse) {
+			func(res *types.QueryMembershipResponse) {
 				var newAccount types.AccountI
 				err := suite.app.InterfaceRegistry().UnpackAny(res.Account, &newAccount)
 				suite.Require().NoError(err)
 				suite.Require().NotNil(newAccount)
 				suite.Require().True(addr.Equals(newAccount.GetAddress()))
 			},
-		},
+		},*/
 	}
 
 	for _, tc := range testCases {
@@ -69,7 +68,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryMembership() {
 			tc.malleate()
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
-			res, err := suite.queryClient.Account(ctx, req)
+			res, err := suite.queryClient.Membership(ctx, req)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -83,4 +82,5 @@ func (suite *KeeperTestSuite) TestGRPCQueryMembership() {
 		})
 	}
 }
-*/
+
+// TODO test memberships
