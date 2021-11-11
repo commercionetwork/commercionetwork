@@ -1,4 +1,4 @@
-package commerciokyc_test
+package keeper_test
 
 import (
 	"testing"
@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	"github.com/stretchr/testify/require"
@@ -21,7 +20,7 @@ func TestDefaultGenesisState(t *testing.T) {
 
 func TestInitGenesis(t *testing.T) {
 	defGen := types.DefaultGenesis()
-	ctx, _, _, k := keeper.SetupTestInput()
+	ctx, _, _, k := SetupTestInput()
 	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite(nil), TrustedServiceProviders: nil, Memberships: []*types.Membership(nil)}, defGen)
 	commerciokyc.InitGenesis(ctx, k, *defGen)
 	export := commerciokyc.ExportGenesis(ctx, k)
@@ -62,8 +61,8 @@ func TestInitGenesis(t *testing.T) {
 
 /*func TestExportGenesis(t *testing.T) {
 
-}
+}*/
 
 func TestValidateGenesis(t *testing.T) {
 
-}*/
+}
