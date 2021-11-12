@@ -58,3 +58,8 @@ func (elements Strings) Equals(other Strings) bool {
 
 	return true
 }
+
+// Empty returns true if this slice does not contain any address
+func (addresses Strings) Empty() bool {
+	return len(addresses) == 0
+}
