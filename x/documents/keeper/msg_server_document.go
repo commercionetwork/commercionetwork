@@ -20,15 +20,17 @@ func (k msgServer) CreateDocument(goCtx context.Context, msg *types.MsgShareDocu
 		EncryptionData: msg.EncryptionData,
 		DoSign:         msg.DoSign,
 	}
-
+	/*
 	id := k.AppendDocument(
 		ctx,
 		document,
-	)
+	)*/
+	err := k.SaveDocument(ctx, document)
+	if err != nil {
+		return nil, err
+	}
 
-	return &types.MsgShareDocumentResponse{
-		UUID: id,
-	}, nil
+	return &types.MsgShareDocumentResponse{UUID: document.UUID}, nil
 }
 
 func (k msgServer) SendDocument(goCtx context.Context, msg *types.MsgSendDocumentReceipt) (*types.MsgSendDocumentReceiptResponse, error) {

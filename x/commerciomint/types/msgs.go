@@ -147,9 +147,14 @@ func (msg *MsgSetCCCConversionRate) GetSignBytes() []byte {
 
 // TODO remove duplicate validation
 func (msg *MsgSetCCCConversionRate) ValidateBasic() error {
-	if sdk.AccAddress(msg.Signer).Empty() {
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
+
+	/*if sdk.AccAddress(msg.Signer).Empty() {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
+	}*/
 	return ValidateConversionRate(msg.Rate)
 }
 

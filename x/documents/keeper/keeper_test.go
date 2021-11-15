@@ -152,6 +152,7 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 
 			if tt.storedDocument.UUID != "" {
 				store := ctx.KVStore(k.storeKey)
+				//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 				store.Set(getDocumentStoreKey(tt.storedDocument.UUID), k.cdc.MustMarshalBinaryBare(&tt.storedDocument))
 			}
 
