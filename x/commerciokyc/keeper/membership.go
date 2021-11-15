@@ -139,12 +139,14 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		return nil
 	}
 	// Calculate reward for invite
-	_, err := k.GetMembership(ctx, sdk.AccAddress(invite.Sender))
+	inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
+	_, err := k.GetMembership(ctx, inviteSender)
 	if err != nil || invite.SenderMembership == "" {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership")
 	}
 
-	recipientMembership, err := k.GetMembership(ctx, sdk.AccAddress(invite.User))
+	inviteUser, _ := sdk.AccAddressFromBech32(invite.User)
+	recipientMembership, err := k.GetMembership(ctx, inviteUser)
 	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership")
 	}
@@ -177,7 +179,8 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		rewardCoins := sdk.NewCoins(sdk.NewCoin("ucommercio", rewardAmount))
 
 		// Send the reward to the invite sender
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(invite.Sender), rewardCoins); err != nil {
+		inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, inviteSender, rewardCoins); err != nil {
 			return err
 		}
 		// TODO  emits events

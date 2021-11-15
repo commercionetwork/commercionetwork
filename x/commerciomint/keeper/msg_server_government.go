@@ -13,7 +13,8 @@ import (
 func (k msgServer) SetConversionRate(goCtx context.Context, msg *types.MsgSetCCCConversionRate) (*types.MsgSetCCCConversionRateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	gov := k.govKeeper.GetGovernmentAddress(ctx)
-	if !(gov.Equals(sdk.AccAddress(msg.Signer))) {
+	msgSigner, _ := sdk.AccAddressFromBech32(msg.Signer)
+	if !(gov.Equals(msgSigner)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set conversion rate", msg.Signer))
 	}
 	if err := k.UpdateConversionRate(ctx, msg.Rate); err != nil {
@@ -32,7 +33,8 @@ func (k msgServer) SetFreezePeriod(goCtx context.Context, msg *types.MsgSetCCCFr
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	gov := k.govKeeper.GetGovernmentAddress(ctx)
 	// TODO MOVE TO VALIDATION
-	if !(gov.Equals(sdk.AccAddress(msg.Signer))) {
+	msgSigner, _ := sdk.AccAddressFromBech32(msg.Signer)
+	if !(gov.Equals(msgSigner)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set conversion rate", msg.Signer))
 	}
 	// TODO MOVE TO VALIDATION

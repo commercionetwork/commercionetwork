@@ -10,6 +10,11 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const (
+	eventAddTsp    = "add_tsp"
+	eventRemoveTsp = "remove_tsp"
+)
+
 // AddTrustedServiceProvider allows to add the given signer as a trusted entity
 // that can sign transactions setting an accrediter for a user.
 func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
@@ -26,10 +31,10 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 	}
 
 	// TODO emits events
-	//ctx.EventManager().EmitEvent(sdk.NewEvent(
-	//	eventAddTsp,
-	//	sdk.NewAttribute("tsp", tsp.String()),
-	//))
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventAddTsp,
+		sdk.NewAttribute("tsp", tsp.String()),
+	))
 
 }
 
@@ -41,18 +46,17 @@ func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress
 	var trustedServiceProviders types.TrustedServiceProviders
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
-	if signers, find := signers.RemoveIfExisting(tsp.String()); find {
-		trustedServiceProviders.Addresses = signers
+	if signersNew, find := signers.RemoveIfExisting(tsp.String()); find {
+		trustedServiceProviders.Addresses = signersNew
 		newSignersBz := k.Cdc.MustMarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
 
-	/*
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			eventRemoveTsp,
-			sdk.NewAttribute("tsp", tsp.String()),
-		))
-	*/
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventRemoveTsp,
+		sdk.NewAttribute("tsp", tsp.String()),
+	))
+
 }
 
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool

@@ -15,7 +15,8 @@ func (k Keeper) EtpByOwner(c context.Context, req *types.QueryEtpRequestByOwner)
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 
-	positions := k.GetAllPositionsOwnedBy(ctx, sdk.AccAddress(req.Owner))
+	reqOwner, _ := sdk.AccAddressFromBech32(req.Owner)
+	positions := k.GetAllPositionsOwnedBy(ctx, reqOwner)
 	return &types.QueryEtpsResponse{Positions: positions}, nil
 }
 

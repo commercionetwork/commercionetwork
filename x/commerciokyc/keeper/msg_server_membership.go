@@ -13,7 +13,8 @@ import (
 func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembership) (*types.MsgBuyMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	invite, found := k.GetInvite(ctx, sdk.AccAddress(msg.Buyer))
+	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
+	invite, found := k.GetInvite(ctx, msgBuyer)
 	if !found {
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited")
 	}
@@ -37,7 +38,6 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 	}
 
 	expirationAt := k.ComputeExpiryHeight(ctx.BlockTime())
-	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
 
 	err := k.AssignMembership(
 		ctx,

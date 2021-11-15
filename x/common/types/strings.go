@@ -17,10 +17,11 @@ func (elements Strings) AppendIfMissing(element string) (Strings, bool) {
 // given address.
 func (elements Strings) RemoveIfExisting(address string) (Strings, bool) {
 	indexOf := elements.IndexOf(address)
-	if indexOf > -1 {
-		return append(elements[:indexOf], elements[indexOf+1:]...), true
+	if indexOf == -1 {
+		return elements, false
 	}
-	return elements, false
+	return append(elements[:indexOf], elements[indexOf+1:]...), true
+
 }
 
 // IndexOf returns the index of the given address inside the addresses array,
