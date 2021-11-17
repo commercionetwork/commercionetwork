@@ -3,7 +3,7 @@ package commercionetwork.commercionetwork.commerciomint;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-//import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciomint/position.proto";
 //import "cosmos/base/v1beta1/coin.proto";
 // this line is used by starport scaffolding # 1
@@ -39,22 +39,27 @@ service Query {
 
 message QueryEtpRequest {
 	string ID = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 message QueryEtpRequestByOwner {
 	string Owner = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 message QueryEtpResponse {
 	commerciomint.Position Position = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 
 message QueryEtpsRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 message QueryEtpsResponse {
 	repeated commerciomint.Position Positions = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 

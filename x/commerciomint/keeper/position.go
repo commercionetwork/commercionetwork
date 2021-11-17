@@ -13,7 +13,11 @@ import (
 
 func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) error {
 	store := ctx.KVStore(k.storeKey)
-	key := makePositionKey(sdk.AccAddress(position.Owner), position.ID)
+	owner, err := sdk.AccAddressFromBech32(position.Owner)
+	if err != nil {
+		return err
+	}
+	key := makePositionKey(owner, position.ID)
 
 	if store.Has(key) {
 		return fmt.Errorf("a position with id %s already exists", position.ID)
@@ -26,7 +30,11 @@ func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) error {
 
 func (k Keeper) UpdatePosition(ctx sdk.Context, position types.Position) error {
 	store := ctx.KVStore(k.storeKey)
-	key := makePositionKey(sdk.AccAddress(position.Owner), position.ID)
+	owner, err := sdk.AccAddressFromBech32(position.Owner)
+	if err != nil {
+		return err
+	}
+	key := makePositionKey(owner, position.ID)
 
 	if !store.Has(key) {
 		return fmt.Errorf("a position with id %s doesn't exists", position.ID)
@@ -60,11 +68,19 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 	}
 	return positions
 }
+/*
+func (k Keeper) GetPositionOwnedBy(ctx sdk.Context, owner sdk.AccAddress){
+
+}*/
 
 // NewPosition creates a new minting position for the amount deposited, credited to depositor.
 //func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins, id string) error {
 func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
-	depositor := sdk.AccAddress(position.Owner)
+	owner, err := sdk.AccAddressFromBech32(position.Owner)
+	if err != nil {
+		return err
+	}
+	depositor := owner
 	ucccRequested := sdk.NewInt(position.Collateral)
 	if ucccRequested.IsZero() {
 		//return errors.New("no uccc requested")
@@ -232,6 +248,10 @@ func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddres
 	prefix := append([]byte(types.EtpStorePrefix), owner...)
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
+// getSentDocumentsIdsStoreKey generates a ReceivedDocumentsID store key for a given user
+func getEtpByOwnerIdsStoreKey(user sdk.AccAddress) []byte {
+	return append([]byte(types.EtpStorePrefix), user...)
+}
 
 func makePositionKey(address sdk.AccAddress, id string) []byte {
 	base := append([]byte(types.EtpStorePrefix), address...)
@@ -244,7 +264,8 @@ func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
 
 func (k Keeper) deletePosition(ctx sdk.Context, pos types.Position) {
 	store := ctx.KVStore(k.storeKey)
-	key := makePositionKey(sdk.AccAddress(pos.Owner), pos.ID)
+	owner, _ := sdk.AccAddressFromBech32(pos.Owner)
+	key := makePositionKey(owner, pos.ID)
 	if bs := store.Get(key); bs == nil {
 		panic(fmt.Sprintf("no pos stored at key %s", key))
 	}

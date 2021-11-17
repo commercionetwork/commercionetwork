@@ -16,8 +16,12 @@ import (
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryGetEtps:
-			return queryGetEtps(ctx, path[1:], k, legacyQuerierCdc)
+		case types.QueryGetEtp:
+			return queryGetEtp(ctx, path[1:], k, legacyQuerierCdc)
+		case types.QueryGetEtpsByOwner:
+			return queryGetEtpsByOwner(ctx, path[1:], k, legacyQuerierCdc)
+		case types.QueryGetallEtps:
+			return queryGetAllEtp(ctx, k, legacyQuerierCdc)
 		case types.QueryConversionRateRest:
 			return queryConversionRate(ctx, k, legacyQuerierCdc)
 		case types.QueryFreezePeriodRest:
@@ -28,7 +32,12 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	}
 }
 
-func queryGetEtps(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	//TODO
+	return []byte{}, nil
+}
+
+func queryGetEtpsByOwner(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
 	etps := k.GetAllPositionsOwnedBy(ctx, ownerAddr)
 	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
@@ -37,6 +46,11 @@ func queryGetEtps(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *co
 	}
 
 	return etpsBz, nil
+}
+
+func queryGetAllEtp(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	//TODO
+	return []byte{}, nil
 }
 
 func queryConversionRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {

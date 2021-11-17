@@ -22,6 +22,7 @@ var testEtp = NewPosition(
 	testCreatedAt,
 	sdk.NewDec(2),
 )
+var ownerAddr, _ = sdk.AccAddressFromBech32(testEtp.Owner)
 
 func TestPosition_Validate(t *testing.T) {
 	testData := []struct {
@@ -36,17 +37,17 @@ func TestPosition_Validate(t *testing.T) {
 		},
 		{
 			name:          "Invalid collateral amount",
-			etp:           NewPosition(sdk.AccAddress(testEtp.Owner), sdk.ZeroInt(), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, sdk.ZeroInt(), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 		{
 			name:          "Invalid liquidity amount",
-			etp:           NewPosition(sdk.AccAddress(testEtp.Owner), sdk.NewInt(testEtp.Collateral), sdk.Coin{}, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), sdk.Coin{}, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 		{
 			name:          "Invalid timestamp",
-			etp:           NewPosition(sdk.AccAddress(testEtp.Owner), sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, time.Time{}, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, time.Time{}, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 	}
