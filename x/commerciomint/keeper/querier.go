@@ -49,8 +49,13 @@ func queryGetEtpsByOwner(ctx sdk.Context, path []string, k Keeper, legacyQuerier
 }
 
 func queryGetAllEtp(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	//TODO
-	return []byte{}, nil
+	etps := k.GetAllPositions(ctx)
+	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+	}
+
+	return etpsBz, nil
 }
 
 func queryConversionRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {

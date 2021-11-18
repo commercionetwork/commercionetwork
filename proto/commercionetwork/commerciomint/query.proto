@@ -14,7 +14,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 service Query {
 	// Queries a Etp by id.
 	rpc Etp(QueryEtpRequest) returns (QueryEtpResponse) {
-		option (google.api.http).get = "/commercionetwork/commerciomint/etps/{ID}";
+		option (google.api.http).get = "/commercionetwork/commerciomint/etp/{ID}";
 	}
 
 	rpc EtpByOwner(QueryEtpRequestByOwner) returns (QueryEtpsResponse) {

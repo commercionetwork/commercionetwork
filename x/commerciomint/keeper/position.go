@@ -57,6 +57,17 @@ func (k Keeper) GetPosition(ctx sdk.Context, owner sdk.AccAddress, id string) (t
 	return position, true
 }
 
+func (k Keeper) GetPositionById(ctx sdk.Context, id string) (types.Position, bool) {
+	position := types.Position{}
+	positions := k.GetAllPositions(ctx)
+	for _, p := range positions {
+		if p.ID == id {
+			return *p, true
+		}
+	}
+	return position, false
+}
+
 func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []*types.Position {
 	var positions []*types.Position
 	i := k.newPositionsByOwnerIterator(ctx, owner)
