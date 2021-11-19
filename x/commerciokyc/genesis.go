@@ -21,6 +21,14 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 
 	// Get the initial pool coins
 	// TODO RESOLVE POOL ISSUE
+	// Import the signers
+	for _, signer := range data.TrustedServiceProviders {
+		tsp, err := sdk.AccAddressFromBech32(signer)
+		if err != nil {
+			panic(err)
+		}
+		keeper.AddTrustedServiceProvider(ctx, tsp)
+	}
 
 	// Import all the invites
 	for _, invite := range data.Invites {
@@ -37,11 +45,6 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 		}
 	}
 
-	// Import the signers
-	for _, signer := range data.TrustedServiceProviders {
-		keeper.AddTrustedServiceProvider(ctx, sdk.AccAddress(signer))
-	}
-
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -52,14 +55,9 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		liquidityPoolAmount = append(liquidityPoolAmount, &coin)
 	}*/
 	var trustedServiceProviders []string
-	for _, tsp := range k.GetTrustedServiceProviders(ctx) {
-		trustedServiceProviders = append(trustedServiceProviders, tsp.String())
+	for _, tsp := range k.GetTrustedServiceProviders(ctx).Addresses {
+		trustedServiceProviders = append(trustedServiceProviders, tsp)
 	}
-
-	//var invites []*types.Invite
-	/*for _, invite := range k.GetInvites(ctx) {
-		invites = append(invites, &invite)
-	}*/
 
 	return &types.GenesisState{
 		LiquidityPoolAmount:     k.GetPoolFunds(ctx),

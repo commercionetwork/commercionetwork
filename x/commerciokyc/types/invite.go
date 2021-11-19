@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -37,3 +39,29 @@ func (invite Invite) Equals(other Invite) bool {
 }
 
 type Invites []Invite
+
+// Equals returns true iff this slice contains the same data of the
+// other one and in the same order
+func (slice Invites) Equals(other Invites) bool {
+	if len(slice) != len(other) {
+		return false
+	}
+
+	for index, invite := range slice {
+		if !invite.Equals(other[index]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// ValidateBasic returns error if Invite status is not Pending, Reward or Invalid
+func (invite Invite) ValidateBasic() error {
+	switch invite.Status {
+	case uint64(InviteStatusPending), uint64(InviteStatusRewarded), uint64(InviteStatusInvalid):
+		return nil
+	default:
+		return fmt.Errorf("invite has invalid status: %d", invite.Status)
+	}
+}

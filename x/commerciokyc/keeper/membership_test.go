@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"fmt"
@@ -124,7 +124,7 @@ func TestKeeper_ComputeExpiryHeight(t *testing.T) {
 	}{
 		{
 			name:               "Compute expiry",
-			expectedExpiration: currentTime.Add(secondsPerYear),
+			expectedExpiration: currentTime.Add(SecondsPerYear),
 			curTime:            currentTime,
 		},
 	}
@@ -279,7 +279,7 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 			for ; i.Valid(); i.Next() {
 				//m := k.ExtractMembership(i.Value())
 				var m types.Membership
-				k.cdc.MustUnmarshalBinaryBare(i.Value(), &m)
+				k.Cdc.MustUnmarshalBinaryBare(i.Value(), &m)
 				require.Contains(t, test.storedMemberships, m)
 			}
 		})
@@ -474,7 +474,7 @@ func TestKeeper_ExportMemberships(t *testing.T) {
 func TestKeeper_RemoveExpiredMemberships(t *testing.T) {
 	curRemoveTime := time.Now().AddDate(1, 0, 1)
 	curTime := testExpiration.AddDate(1, 0, 0)
-	curTimePlusYear := curRemoveTime.UTC().Add(secondsPerYear)
+	curTimePlusYear := curRemoveTime.UTC().Add(SecondsPerYear)
 	tests := []struct {
 		name                string
 		storedMemberships   []*types.Membership

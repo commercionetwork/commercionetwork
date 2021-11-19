@@ -145,7 +145,7 @@ func RemoveTspFunc(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	msg := types.NewMsgAddTsp(tsp.String(), govAddr.String())
+	msg := types.NewMsgRemoveTsp(tsp.String(), govAddr.String())
 
 	err = msg.ValidateBasic()
 	if err != nil {

@@ -15,7 +15,7 @@ func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {
 
 // InviteUser allows to set a given user as being invited by the given invite sender.
 func (k Keeper) Invite(ctx sdk.Context, recipient, sender sdk.AccAddress) error {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	inviteKey := k.getInviteStoreKey(recipient)
 
 	if store.Has(inviteKey) {
@@ -28,7 +28,7 @@ func (k Keeper) Invite(ctx sdk.Context, recipient, sender sdk.AccAddress) error 
 	}
 	// Build and save the invite
 	accreditation := types.NewInvite(sender, recipient, inviterMembership.MembershipType)
-	store.Set(inviteKey, k.cdc.MustMarshalBinaryBare(&accreditation))
+	store.Set(inviteKey, k.Cdc.MustMarshalBinaryBare(&accreditation))
 
 	// TODO emits events
 	/*
@@ -45,11 +45,11 @@ func (k Keeper) Invite(ctx sdk.Context, recipient, sender sdk.AccAddress) error 
 
 // GetInvite allows to get the invitation related to a user
 func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.Invite, found bool) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	key := k.getInviteStoreKey(user)
 
 	if store.Has(key) {
-		k.cdc.MustUnmarshalBinaryBare(store.Get(key), &invite)
+		k.Cdc.MustUnmarshalBinaryBare(store.Get(key), &invite)
 		return invite, true
 	}
 
@@ -58,7 +58,7 @@ func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.In
 
 // InvitesIterator returns an Iterator which iterates over all the invites.
 func (k Keeper) InvitesIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	return sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
 }
 
@@ -70,7 +70,7 @@ func (k Keeper) GetInvites(ctx sdk.Context) []*types.Invite {
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var invite types.Invite
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &invite)
+		k.Cdc.MustUnmarshalBinaryBare(iterator.Value(), &invite)
 		invites = append(invites, &invite)
 	}
 
@@ -79,7 +79,7 @@ func (k Keeper) GetInvites(ctx sdk.Context) []*types.Invite {
 
 // SaveInvite allows to save the given invite inside the store
 func (k Keeper) SaveInvite(ctx sdk.Context, invite types.Invite) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	test_invite_User, _ := sdk.AccAddressFromBech32(invite.User)
-	store.Set(k.getInviteStoreKey(test_invite_User), k.cdc.MustMarshalBinaryBare(&invite))
+	store.Set(k.getInviteStoreKey(test_invite_User), k.Cdc.MustMarshalBinaryBare(&invite))
 }

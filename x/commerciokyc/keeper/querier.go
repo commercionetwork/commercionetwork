@@ -58,11 +58,9 @@ func queryGetInvites(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 	return bz, nil
 }
 
+// queryGetSigners allows to retrieve the all current trust service providers
 func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
 	signers := keeper.GetTrustedServiceProviders(ctx)
-	if signers == nil {
-		signers = make([]sdk.AccAddress, 0)
-	}
 
 	bz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, signers)
 	if err2 != nil {

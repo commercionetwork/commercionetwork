@@ -1,13 +1,17 @@
 package types
 
 import (
+	"fmt"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var _ sdk.Msg = &MsgBuyMembership{}
 
 // MsgBuyMembership
-
+// TODO change function passing parameters
 func NewMsgBuyMembership(membership Membership) *MsgBuyMembership {
 
 	return &MsgBuyMembership{
@@ -39,6 +43,18 @@ func (msg *MsgBuyMembership) GetSignBytes() []byte {
 }
 
 func (msg *MsgBuyMembership) ValidateBasic() error {
+	if msg.Buyer == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid buyer address: %s", msg.Buyer))
+	}
+
+	if msg.Tsp == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid tsp address: %s", msg.Tsp))
+	}
+
+	membershipType := strings.TrimSpace(msg.MembershipType)
+	if !IsMembershipTypeValid(membershipType) {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", msg.MembershipType))
+	}
 
 	return nil
 }
@@ -74,7 +90,12 @@ func (msg *MsgInviteUser) GetSignBytes() []byte {
 }
 
 func (msg *MsgInviteUser) ValidateBasic() error {
-
+	if msg.Recipient == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid recipient address: %s", msg.Recipient))
+	}
+	if msg.Sender == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid sender address: %s", msg.Sender))
+	}
 	return nil
 }
 
@@ -109,7 +130,12 @@ func (msg *MsgAddTsp) GetSignBytes() []byte {
 }
 
 func (msg *MsgAddTsp) ValidateBasic() error {
-
+	if msg.Tsp == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid TSP address: %s", msg.Tsp))
+	}
+	if msg.Government == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
+	}
 	return nil
 }
 
@@ -127,7 +153,7 @@ func (msg *MsgDepositIntoLiquidityPool) Route() string {
 }
 
 func (msg *MsgDepositIntoLiquidityPool) Type() string {
-	return MsgTypeAddTsp
+	return MsgTypesDepositIntoLiquidityPool
 }
 
 func (msg *MsgDepositIntoLiquidityPool) GetSigners() []sdk.AccAddress {
@@ -144,7 +170,12 @@ func (msg *MsgDepositIntoLiquidityPool) GetSignBytes() []byte {
 }
 
 func (msg *MsgDepositIntoLiquidityPool) ValidateBasic() error {
-
+	if msg.Depositor == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid depositor address: %s", msg.Depositor))
+	}
+	if msg.Amount.Empty() || !msg.Amount.IsValid() {
+		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", msg.Amount))
+	}
 	return nil
 }
 
@@ -179,7 +210,12 @@ func (msg *MsgRemoveTsp) GetSignBytes() []byte {
 }
 
 func (msg *MsgRemoveTsp) ValidateBasic() error {
-
+	if msg.Tsp == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid TSP address: %s", msg.Tsp))
+	}
+	if msg.Government == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
+	}
 	return nil
 }
 
@@ -197,7 +233,7 @@ func (msg *MsgRemoveMembership) Route() string {
 }
 
 func (msg *MsgRemoveMembership) Type() string {
-	return MsgTypeAddTsp
+	return MsgTypeRemoveMembership
 }
 
 func (msg *MsgRemoveMembership) GetSigners() []sdk.AccAddress {
@@ -214,7 +250,13 @@ func (msg *MsgRemoveMembership) GetSignBytes() []byte {
 }
 
 func (msg *MsgRemoveMembership) ValidateBasic() error {
+	if msg.Subscriber == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
+	}
 
+	if msg.Government == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
+	}
 	return nil
 }
 
@@ -234,7 +276,7 @@ func (msg *MsgSetMembership) Route() string {
 }
 
 func (msg *MsgSetMembership) Type() string {
-	return MsgTypeAddTsp
+	return MsgTypeSetMembership
 }
 
 func (msg *MsgSetMembership) GetSigners() []sdk.AccAddress {
@@ -251,6 +293,17 @@ func (msg *MsgSetMembership) GetSignBytes() []byte {
 }
 
 func (msg *MsgSetMembership) ValidateBasic() error {
+	if msg.Subscriber == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid subscriber address: %s", msg.Subscriber))
+	}
+
+	if msg.Government == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
+	}
+
+	if msg.NewMembership == "" {
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "new membership must not be empty")
+	}
 
 	return nil
 }

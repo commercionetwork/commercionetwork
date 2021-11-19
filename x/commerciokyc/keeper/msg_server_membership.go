@@ -13,7 +13,8 @@ import (
 func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembership) (*types.MsgBuyMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	invite, found := k.GetInvite(ctx, sdk.AccAddress(msg.Buyer))
+	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
+	invite, found := k.GetInvite(ctx, msgBuyer)
 	if !found {
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited")
 	}
@@ -37,7 +38,6 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 	}
 
 	expirationAt := k.ComputeExpiryHeight(ctx.BlockTime())
-	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
 
 	err := k.AssignMembership(
 		ctx,
@@ -67,12 +67,13 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveMembership) (*types.MsgRemoveMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
-	if !govAddr.Equals(sdk.AccAddress(msg.Government)) {
+	if !govAddr.Equals(msg.GetSigners()[0]) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
-			fmt.Sprintf("%s is not a government address", msg.Government),
+			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
 		)
 	}
-	err := k.DeleteMembership(ctx, sdk.AccAddress(msg.Subscriber))
+	subscriber, _ := sdk.AccAddressFromBech32(msg.Subscriber)
+	err := k.DeleteMembership(ctx, subscriber)
 	// TODO emits events
 	//ctypes.EmitCommonEvents(ctx, msg.Government)
 
@@ -88,25 +89,25 @@ func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveM
 func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembership) (*types.MsgSetMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
-	if !govAddr.Equals(sdk.AccAddress(msg.Government)) {
+	if !govAddr.Equals(msg.GetSigners()[0]) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
-			fmt.Sprintf("%s is not a government address", msg.Government),
+			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
 		)
 	}
 
 	if !types.IsMembershipTypeValid(msg.NewMembership) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid membership type: %s", msg.NewMembership))
 	}
+	subscriber, _ := sdk.AccAddressFromBech32(msg.Subscriber)
 
-	invite, err := k.governmentInvitesUser(ctx, sdk.AccAddress(msg.Subscriber))
+	invite, err := k.governmentInvitesUser(ctx, subscriber)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "government could not invite user")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("government could not invite user: %s", err.Error()))
 	}
 
 	expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
 
-	msgSubscriber, _ := sdk.AccAddressFromBech32(msg.Subscriber)
-	err = k.AssignMembership(ctx, msgSubscriber, msg.NewMembership, govAddr, expiredAt)
+	err = k.AssignMembership(ctx, subscriber, msg.NewMembership, govAddr, expiredAt)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not assign membership to user %s: %s", msg.Subscriber, err.Error()),

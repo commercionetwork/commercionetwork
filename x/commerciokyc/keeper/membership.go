@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -73,7 +72,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	_ = k.DeleteMembership(ctx, user)
 
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
@@ -91,7 +90,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	// Save membership
 	membership := types.NewMembership(membershipType, user, tsp, expited_at.UTC())
-	store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
+	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
 	// TODO emits events
 	/*ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventAssignMembership,
@@ -106,7 +105,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 // DeleteMembership allows to remove any existing membership associated with the given user.
 func (k Keeper) DeleteMembership(ctx sdk.Context, user sdk.AccAddress) error {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	if k.IsTrustedServiceProvider(ctx, user) {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
@@ -140,12 +139,14 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		return nil
 	}
 	// Calculate reward for invite
-	_, err := k.GetMembership(ctx, sdk.AccAddress(invite.Sender))
+	inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
+	_, err := k.GetMembership(ctx, inviteSender)
 	if err != nil || invite.SenderMembership == "" {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership")
 	}
 
-	recipientMembership, err := k.GetMembership(ctx, sdk.AccAddress(invite.User))
+	inviteUser, _ := sdk.AccAddressFromBech32(invite.User)
+	recipientMembership, err := k.GetMembership(ctx, inviteUser)
 	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership")
 	}
@@ -178,7 +179,8 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		rewardCoins := sdk.NewCoins(sdk.NewCoin("ucommercio", rewardAmount))
 
 		// Send the reward to the invite sender
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(invite.Sender), rewardCoins); err != nil {
+		inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, inviteSender, rewardCoins); err != nil {
 			return err
 		}
 		// TODO  emits events
@@ -212,41 +214,41 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 // transactions setting a specific accrediter for a user.
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
 // be allowed to send a transaction setting an accrediter for another user.
-func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers ctypes.Addresses) {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.TrustedServiceProviders) {
+	store := ctx.KVStore(k.StoreKey)
 
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	json.Unmarshal(signersBz, &signers) // TODO CHECK UNMARSHAL
+	k.Cdc.UnmarshalBinaryBare(signersBz, &signers)
 
 	//k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 	// Cannot use add govAddress: trust service provider doesn't work proprerly
 	//signers = append(signers, k.governmentKeeper.GetGovernmentAddress(ctx))
-	return
+	return signers
 }
 
 // IsTrustedServiceProvider tells if the given signer is a trusted one or not
 func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
-
-	signers := k.GetTrustedServiceProviders(ctx)
-	return signers.Contains(signer) || signer.Equals(k.govKeeper.GetGovernmentAddress(ctx))
+	var signers ctypes.Strings
+	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	return signers.Contains(signer.String()) || signer.Equals(k.govKeeper.GetGovernmentAddress(ctx))
 }
 
 // TspIterator returns an Iterator for all the tsps stored.
 func (k Keeper) TspIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	return sdk.KVStorePrefixIterator(store, []byte(types.TrustedSignersStoreKey))
 }
 
 // storageForAddr returns a string representing the KVStore storage key for an addr.
 func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
-	//return append([]byte(types.MembershipsStorageKey), k.cdc.MustMarshalBinaryBare(&addr)...)
+	//return append([]byte(types.MembershipsStorageKey), k.Cdc.MustMarshalBinaryBare(&addr)...)
 	return append([]byte(types.MembershipsStorageKey), addr.Bytes()...)
 }
 
 // GetMembership allows to retrieve any existent membership for the specified user.
 // The second returned false (the boolean one) tells if the NFT token representing the membership was found or not
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	if !store.Has(k.storageForAddr(user)) {
 		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
@@ -256,7 +258,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 
 	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
-	k.cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
+	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
 	return ms, nil
 }
 
@@ -267,7 +269,7 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
 		var m types.Membership
-		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
 		ms = append(ms, &m)
 	}
 
@@ -291,19 +293,19 @@ func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) accTypes.ModuleAccou
 
 // MembershipIterator returns an Iterator for all the memberships stored.
 func (k Keeper) MembershipIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 	return sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
 }
 
 // ComputeExpiryHeight compute expiry height of membership.
 func (k Keeper) ComputeExpiryHeight(blockTime time.Time) time.Time {
-	expirationAt := blockTime.Add(secondsPerYear)
+	expirationAt := blockTime.Add(SecondsPerYear)
 	return expirationAt
 }
 
 // RemoveMembership allows to remove any existing membership associated with the given user.
 func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(k.StoreKey)
 
 	if k.IsTrustedServiceProvider(ctx, user) {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
@@ -336,7 +338,7 @@ func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Member
 	ms := types.Memberships{}
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
-		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
 		if m.TspAddress != tsp.String() {
 			continue
 		}
@@ -353,7 +355,7 @@ func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
 	ms := types.Memberships{}
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
-		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
 		ms = append(ms, m)
 	}
 	return ms
@@ -369,9 +371,9 @@ func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
 			if m.MembershipType == types.MembershipTypeBlack {
 				expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
 				membership := types.NewMembership(types.MembershipTypeBlack, mOwner, mTspAddress, expiredAt)
-				store := ctx.KVStore(k.storeKey)
+				store := ctx.KVStore(k.StoreKey)
 				staddr := k.storageForAddr(mOwner)
-				store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
+				store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
 			} else {
 				err := k.RemoveMembership(ctx, mOwner)
 				if err != nil {

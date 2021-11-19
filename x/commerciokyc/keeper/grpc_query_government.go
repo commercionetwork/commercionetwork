@@ -11,9 +11,7 @@ import (
 func (k Keeper) Tsps(c context.Context, req *types.QueryTspsRequest) (*types.QueryTspsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	var tsps []string
-	for _, tsp := range k.GetTrustedServiceProviders(ctx) {
-		tsps = append(tsps, tsp.String())
-	}
+	tsps = k.GetTrustedServiceProviders(ctx).Addresses
 	return &types.QueryTspsResponse{Tsps: tsps}, nil
 }
 
