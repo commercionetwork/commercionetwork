@@ -36,8 +36,14 @@ func getEtpsFunc(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	pageReq, err := client.ReadPageRequest(cmd.Flags())
+	if err != nil {
+		return err
+	}
+
 	params := &types.QueryEtpRequestByOwner{
 		Owner: sender.String(),
+		Pagination: pageReq,
 	}
 
 	res, err := queryClient.EtpByOwner(context.Background(), params)
@@ -58,8 +64,14 @@ func CmdGetAllEtps() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
 			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
 
-			params := &types.QueryEtpsRequest{}
+			params := &types.QueryEtpsRequest{
+				Pagination: pageReq,
+			}
 
 			res, err := queryClient.Etps(context.Background(), params)
 			if err != nil {
@@ -73,4 +85,43 @@ func CmdGetAllEtps() *cobra.Command {
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
+}
+
+func CmdGetEtp() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get-etp [id]",
+		Short: "Get opened ETP by an id",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return getEtpFunc(cmd, args)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func getEtpFunc(cmd *cobra.Command, args []string) error {
+	clientCtx := client.GetClientContextFromCmd(cmd)
+
+	queryClient := types.NewQueryClient(clientCtx)
+
+	pageReq, err := client.ReadPageRequest(cmd.Flags())
+	if err != nil {
+		return err
+	}
+
+	params := &types.QueryEtpRequest{
+		ID: string(args[0]),
+		Pagination: pageReq,
+	}
+
+	res, err := queryClient.Etp(context.Background(), params)
+	if err != nil {
+		return err
+	}
+
+	return clientCtx.PrintProto(res)
+
 }

@@ -72,6 +72,7 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	}
 
 	// Store the document object
+	//store := prefix.NewStore(ctx.KVStore(keeper.storeKey), types.KeyPrefix(types.DocumentKey))
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshalBinaryBare(&document))
 
@@ -79,7 +80,6 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 
 	// Idea: SentDocumentsPrefix + address + document.UUID -> document.UUID
 	senderAccadrr, _ := sdk.AccAddressFromBech32(document.Sender)
-	//sentDocumentsStoreKey := getSentDocumentsIdsUUIDStoreKey(sdk.AccAddress(document.Sender), document.UUID)
 	sentDocumentsStoreKey := getSentDocumentsIdsUUIDStoreKey(senderAccadrr, document.UUID)
 
 	store.Set(sentDocumentsStoreKey, []byte(document.UUID))
@@ -87,7 +87,6 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	// Store the documents as received for all the recipients
 	for _, recipient := range document.Recipients {
 		recipientAccAdrr, _ := sdk.AccAddressFromBech32(recipient)
-		//receivedDocumentsStoreKey := getReceivedDocumentsIdsUUIDStoreKey(sdk.AccAddress(recipient), document.UUID)
 		receivedDocumentsStoreKey := getReceivedDocumentsIdsUUIDStoreKey(recipientAccAdrr, document.UUID)
 
 		store.Set(receivedDocumentsStoreKey, []byte(document.UUID))

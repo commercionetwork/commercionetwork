@@ -75,8 +75,8 @@ func ValidateCredits(credits sdk.Coin) bool {
 
 // Equals returns true if and only if the two Position instances are equal.
 func (pos Position) Equals(etp Position) bool {
-	posOwner := sdk.AccAddress(pos.Owner)
-	etpOwner := sdk.AccAddress(etp.Owner)
+	posOwner, _ := sdk.AccAddressFromBech32(pos.Owner)
+	etpOwner, _ := sdk.AccAddressFromBech32(etp.Owner)
 	posCollateral := sdk.NewInt(pos.Collateral)
 	etpCollateral := sdk.NewInt(etp.Collateral)
 

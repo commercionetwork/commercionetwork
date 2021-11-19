@@ -6,8 +6,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	/*"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/stretchr/testify/assert"*/
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -57,7 +57,7 @@ func TestDocumentQuerySingle(t *testing.T) {
 	}
 }
 
-/*
+
 func TestDocumentQueryPaginated(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
@@ -81,7 +81,7 @@ func TestDocumentQueryPaginated(t *testing.T) {
 			require.NoError(t, err)
 			/*for j := i; j < len(msgs) && j < i+step; j++ {
 				assert.Equal(t, &msgs[j], resp.Document[j-i])
-			}*
+			}*/
 			for _, respDocument := range resp.Document {
 				assert.Contains(t, msgs, *respDocument)
 			}
@@ -95,7 +95,7 @@ func TestDocumentQueryPaginated(t *testing.T) {
 			require.NoError(t, err)
 			/*for j := i; j < len(msgs) && j < i+step; j++ {
 				assert.Equal(t, &msgs[j], resp.Document[j-i])
-			}*
+			}*/
 			for _, respDocument := range resp.Document {
 				assert.Contains(t, msgs, *respDocument)
 			}
@@ -112,4 +112,4 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
 }
-*/
+

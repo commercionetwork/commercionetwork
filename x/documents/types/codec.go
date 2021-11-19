@@ -10,7 +10,7 @@ import (
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
 	cdc.RegisterConcrete(&MsgShareDocument{}, "documents/CreateShareDocument", nil)
-
+	cdc.RegisterConcrete(&MsgSendDocumentReceipt{}, "documents/MsgSendDocumentReceipt", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -18,11 +18,14 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgShareDocument{},
 	)
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgSendDocumentReceipt{},
+	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
 var (
-	//amino     = codec.NewLegacyAmino()
+	amino     = codec.NewLegacyAmino()
 	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
 )

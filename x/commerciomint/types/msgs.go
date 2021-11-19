@@ -3,7 +3,6 @@ package types
 import (
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errors "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
@@ -47,7 +46,11 @@ func (msg *MsgMintCCC) GetSignBytes() []byte {
 }
 
 func (msg *MsgMintCCC) ValidateBasic() error {
-	if sdk.AccAddress(msg.Depositor).Empty() {
+	depositor, err := sdk.AccAddressFromBech32(msg.Depositor)
+	if err != nil {
+		return err
+	}
+	if depositor.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor)
 	}
 
@@ -100,7 +103,11 @@ func (msg *MsgBurnCCC) GetSignBytes() []byte {
 }
 
 func (msg *MsgBurnCCC) ValidateBasic() error {
-	if sdk.AccAddress(msg.Signer).Empty() {
+	signer, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return err
+	}
+	if signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
 
@@ -117,7 +124,7 @@ func (msg *MsgBurnCCC) ValidateBasic() error {
 // NewMsgSetCCCConversionRate
 
 // TODO REVIEW MESSAGES CREATOR
-func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate types.Dec) *MsgSetCCCConversionRate {
+func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Dec) *MsgSetCCCConversionRate {
 	return &MsgSetCCCConversionRate{
 		Signer: signer.String(),
 		Rate:   rate,
@@ -147,9 +154,14 @@ func (msg *MsgSetCCCConversionRate) GetSignBytes() []byte {
 
 // TODO remove duplicate validation
 func (msg *MsgSetCCCConversionRate) ValidateBasic() error {
-	if sdk.AccAddress(msg.Signer).Empty() {
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
+
+	/*if sdk.AccAddress(msg.Signer).Empty() {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
+	}*/
 	return ValidateConversionRate(msg.Rate)
 }
 
@@ -185,7 +197,11 @@ func (msg *MsgSetCCCFreezePeriod) GetSignBytes() []byte {
 }
 
 func (msg *MsgSetCCCFreezePeriod) ValidateBasic() error {
-	if sdk.AccAddress(msg.Signer).Empty() {
+	signer, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return err
+	}
+	if signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
 	// TODO move all control into method ValidateFreezePeriod
