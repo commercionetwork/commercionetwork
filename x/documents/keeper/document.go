@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+//	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // AppendDocument appends a document in the store with a new id and update the count
 func (k Keeper) AppendDocument(ctx sdk.Context, document types.Document) string {
 	// Create the Document
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
+	store := ctx.KVStore(k.storeKey)
+	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 	store.Set(getDocumentStoreKey(document.UUID), k.cdc.MustMarshalBinaryBare(&document))
 	return document.UUID
 }
@@ -20,25 +21,26 @@ func (k Keeper) AppendDocument(ctx sdk.Context, document types.Document) string 
 func getDocumentStoreKey(uuid string) []byte {
 	return []byte(types.DocumentStorePrefix + uuid)
 }
-
+/*
 // SetDocument set a specific document in the store
 func (k Keeper) SetDocument(ctx sdk.Context, document types.Document) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 	b := k.cdc.MustMarshalBinaryBare(&document)
 	store.Set(getDocumentStoreKey(document.UUID), b)
-}
-
+}*/
+/*
 // GetDocument returns a document from its id
 func (k Keeper) GetDocument(ctx sdk.Context, id string) types.Document {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 	var document types.Document
 	k.cdc.MustUnmarshalBinaryBare(store.Get(getDocumentStoreKey(id)), &document)
 	return document
-}
+}*/
 
-// GetDocumentByID returns the document having the given id, or false if no document has been found
+// GetDocumentByID returns the document having the given id
 func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, error) {
 	store := ctx.KVStore(k.storeKey)
+	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 	documentKey := getDocumentStoreKey(id)
 	if !store.Has(documentKey) {
 		return types.Document{}, fmt.Errorf("cannot find document with uuid %s", id)
@@ -51,7 +53,8 @@ func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, err
 
 // HasDocument checks if the Document exists in the store
 func (k Keeper) HasDocument(ctx sdk.Context, id string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
+	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
+	store := ctx.KVStore(k.storeKey)
 	documentKey := getDocumentStoreKey(id)
 	return store.Has(documentKey)
 }
@@ -64,7 +67,8 @@ func (k Keeper) GetDocumentOwner(ctx sdk.Context, id string) string {
 
 // GetAllDocument returns all document
 func (k Keeper) GetAllDocument(ctx sdk.Context) (list []types.Document) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
+	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
+	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()

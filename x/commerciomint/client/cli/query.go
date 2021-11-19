@@ -26,6 +26,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 	cmd.AddCommand(
 		CmdGetEtps(),
 		CmdGetAllEtps(),
+		CmdGetEtp(),
 
 		CmdGetConversionRate(),
 		CmdGetFreezePeriod(),

@@ -54,7 +54,6 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 			var genStateVbr vbrTypes.GenesisState
 			json.Unmarshal(genState[vbrTypes.ModuleName], &genStateVbr)
 
-
 			genStateVbr.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
 
 			genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)

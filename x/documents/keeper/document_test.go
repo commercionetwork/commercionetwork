@@ -23,7 +23,8 @@ func TestDocumentGet(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createNDocument(keeper, ctx, 10)
 	for _, item := range items {
-		assert.Equal(t, item, keeper.GetDocument(ctx, item.UUID))
+		actual, _ := keeper.GetDocumentByID(ctx, item.UUID)
+		assert.Equal(t, item, actual)
 	}
 }
 
