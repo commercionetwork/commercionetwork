@@ -14,9 +14,9 @@ const (
 	CreditsDenom         = "uccc"
 	BondDenom            = "ucommercio"
 
-	QueryGetEtp = "etp"
-	QueryGetallEtps = "etps"
-	QueryGetEtpsByOwner = "owner"
+	QueryGetEtp             = "etp"
+	QueryGetallEtps         = "etps"
+	QueryGetEtpsByOwner     = "owner"
 	QueryConversionRateRest = "conversion_rate"
 	QueryFreezePeriodRest   = "freeze_period"
 

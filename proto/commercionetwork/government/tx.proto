@@ -6,4 +6,12 @@ package commercionetwork.commercionetwork.government;
 option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";
 service Msg {
   // this line is used by starport scaffolding # proto/tx/rpc
+  rpc SetGovAddress(MsgSetGovAddress) returns (MsgSetGovAddressResponse);
+}
+
+
+message MsgSetGovAddress {
+}
+
+message MsgSetGovAddressResponse {
 }

@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -43,8 +44,8 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			
-			var genState map[string]json.RawMessage
+
+			/*var genState map[string]json.RawMessage
 			if err = json.Unmarshal(genDoc.AppState, &genState); err != nil {
 				return fmt.Errorf("error unmarshalling genesis doc %s: %s", genFile, err.Error())
 			}
@@ -52,7 +53,6 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 			// set pool amount into the app state
 			var genStateVbr vbrTypes.GenesisState
 			json.Unmarshal(genState[vbrTypes.ModuleName], &genStateVbr)
-			
 
 			genStateVbr.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
 
@@ -60,7 +60,12 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 			if err != nil {
 				return sdkErrors.Wrap(err, "failed to marshal genesis doc")
 			}
-			genState[vbrTypes.ModuleName] = genesisStateBzVbr
+			genState[vbrTypes.ModuleName] = genesisStateBzVbr*/
+
+			genState, err := SetVbrPoolAmount(genDoc.AppState, coins)
+			if err != nil {
+				return err
+			}
 
 			appStateJSON, err := json.Marshal(genState)
 			if err != nil {
@@ -77,6 +82,26 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 	//cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
 	//cmd.Flags().String(flagClientHome, defaultClientHome, "client's home directory")
 	return cmd
+}
+func SetVbrPoolAmount(appState json.RawMessage, coins sdk.Coins) (map[string]json.RawMessage, error) {
+	var genState map[string]json.RawMessage
+	if err := json.Unmarshal(appState, &genState); err != nil {
+		return genState, fmt.Errorf("error unmarshalling genesis doc for vbr: %s", err.Error())
+	}
+
+	// set pool amount into the app state
+	var genStateVbr vbrTypes.GenesisState
+	json.Unmarshal(genState[vbrTypes.ModuleName], &genStateVbr)
+	genStateVbr.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
+
+	genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)
+	if err != nil {
+		return genState, sdkErrors.Wrap(err, "failed to marshal genesis doc")
+	}
+	genState[vbrTypes.ModuleName] = genesisStateBzVbr
+
+	return genState, nil
+
 }
 
 // SetGenesisVbrRewardRate returns set-genesis-vbr-reward-rate cobra Command.
@@ -105,29 +130,14 @@ func SetGenesisVbrRewardRate() *cobra.Command {
 			if err != nil {
 				return err
 			}
-
-			var genState map[string]json.RawMessage
-			if err = json.Unmarshal(genDoc.AppState, &genState); err != nil {
-				return fmt.Errorf("error unmarshalling genesis doc %s: %s", genFile, err.Error())
-			}
-
-			// set pool amount into the app state
-			var genStateVbr vbrTypes.GenesisState
-			json.Unmarshal(genState[vbrTypes.ModuleName], &genStateVbr)
-			
-			genStateVbr.RewardRate = value
-
-			genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)
+			genState, err := SetVbrRewardRate(genDoc.AppState, value)
 			if err != nil {
-				return sdkErrors.Wrap(err, "failed to marshal genesis doc")
+				return err
 			}
-			genState[vbrTypes.ModuleName] = genesisStateBzVbr
-
 			appStateJSON, err := json.Marshal(genState)
 			if err != nil {
 				return err
 			}
-
 			// export app state
 			genDoc.AppState = appStateJSON
 
@@ -138,4 +148,25 @@ func SetGenesisVbrRewardRate() *cobra.Command {
 	//cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
 	//cmd.Flags().String(flagClientHome, defaultClientHome, "client's home directory")
 	return cmd
+}
+
+func SetVbrRewardRate(appState json.RawMessage, value sdk.Dec) (map[string]json.RawMessage, error) {
+	var genState map[string]json.RawMessage
+	if err := json.Unmarshal(appState, &genState); err != nil {
+		return genState, fmt.Errorf("error unmarshalling genesis doc for vbr: %s", err.Error())
+	}
+
+	// set pool amount into the app state
+	var genStateVbr vbrTypes.GenesisState
+	json.Unmarshal(genState[vbrTypes.ModuleName], &genStateVbr)
+	genStateVbr.RewardRate = value
+
+	genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)
+	if err != nil {
+		return genState, sdkErrors.Wrap(err, "failed to marshal genesis doc")
+	}
+	genState[vbrTypes.ModuleName] = genesisStateBzVbr
+
+	return genState, nil
+
 }

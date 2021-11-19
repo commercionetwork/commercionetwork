@@ -44,26 +44,10 @@ func SetGenesisGovernmentAddressCmd() *cobra.Command {
 				return err
 			}
 
-			var genState map[string]json.RawMessage
-			if err = json.Unmarshal(genDoc.AppState, &genState); err != nil {
-				return fmt.Errorf("error unmarshalling genesis doc %s: %s", genFile, err.Error())
-			}
-
-			// add minter to the app state
-			var genStateGovernment govTypes.GenesisState
-			json.Unmarshal(genState[govTypes.ModuleName], &genStateGovernment)
-
-			if genStateGovernment.GovernmentAddress != "" {
-				return fmt.Errorf("cannot replace existing government address")
-			}
-
-			genStateGovernment.GovernmentAddress = address.String()
-
-			genesisStateBzGovernment, err := tmjson.Marshal(genStateGovernment)
+			genState, err := SetGovernmentAddress(genDoc.AppState, address)
 			if err != nil {
-				return errors.Wrap(err, "failed to marshal genesis doc")
+				return err
 			}
-			genState[govTypes.ModuleName] = genesisStateBzGovernment
 
 			// set a black membership to the government address
 			// add a membership to the genesis state
@@ -91,6 +75,31 @@ func SetGenesisGovernmentAddressCmd() *cobra.Command {
 	//cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
 	//cmd.Flags().String(flagClientHome, defaultClientHome, "client's home directory")
 	return cmd
+}
+
+//func SetGovernmentAddress(genStateGovernment govTypes.GenesisState, address sdk.Address) (map[string]json.RawMessage, error) {
+func SetGovernmentAddress(appState json.RawMessage, address sdk.Address) (map[string]json.RawMessage, error) {
+	var genState map[string]json.RawMessage
+	if err := json.Unmarshal(appState, &genState); err != nil {
+		return nil, fmt.Errorf("error unmarshalling genesis doc for government address: %s", err.Error())
+	}
+	var genStateGovernment govTypes.GenesisState
+	json.Unmarshal(genState[govTypes.ModuleName], &genStateGovernment)
+
+	if genStateGovernment.GovernmentAddress != "" {
+		return nil, fmt.Errorf("cannot replace existing government address")
+	}
+
+	genStateGovernment.GovernmentAddress = address.String()
+
+	genesisStateBzGovernment, err := tmjson.Marshal(genStateGovernment)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to marshal genesis doc")
+	}
+	genState[govTypes.ModuleName] = genesisStateBzGovernment
+
+	//return genesisStateBzGovernment, nil
+	return genState, nil
 }
 
 // getAddressFromString reads the given value as an AccAddress object, retuning an error if

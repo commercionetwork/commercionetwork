@@ -19,13 +19,8 @@ func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 		fmt.Sprintf("/commerciomint/etp/{%s}", restuser),
 		getEtpsHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
-		fmt.Sprintf("/commerciomint/owner/{%s}", restuser), 
 		getEtpsByOwnerHandler(cliCtx)).Methods("GET")
 	r.HandleFunc("/commerciomint/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/conversion_rate", getConversionRateHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/freeze_period", getFreezePeriodHandler(cliCtx)).Methods("GET")
-}
-
 // ----------------------------------
 // --- Commerciomint
 // ----------------------------------
@@ -75,10 +70,10 @@ func getConversionRateHandler(cliCtx client.Context) http.HandlerFunc {
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		}
-		restTypes.PostProcessResponse(w, cliCtx, res)
-	}
-}
-
+// @Failure 404
+// @Router /commerciomint/freeze_period [get]
+// @Tags x/commerciomint
+>>>>>>> main-3.0
 func getFreezePeriodHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryFreezePeriodRest)

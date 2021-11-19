@@ -9,6 +9,7 @@ import (
 	restTypes "github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 )
+
 const (
 	addressRestParameterName = "user"
 )
@@ -44,7 +45,7 @@ func getSentDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		address := vars[addressRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute,  address, types.QuerySentDocuments)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QuerySentDocuments)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
