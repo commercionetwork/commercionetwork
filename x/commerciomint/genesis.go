@@ -24,14 +24,11 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 	// Get the initial pool coins
 	// TODO RESOLVE POOL ISSUE
 	if keeper.GetModuleBalance(ctx, moduleAcc.GetAddress()).IsZero() {
-		fmt.Println(data.PoolAmount)
 		if err := keeper.SetLiquidityPoolToAccount(ctx, data.PoolAmount); err != nil {
 			panic(err)
 		}
 		keeper.SetModuleAccount(ctx, moduleAcc)
-
 	}
-	fmt.Println(keeper.GetModuleBalance(ctx, moduleAcc.GetAddress()))
 
 	if err := keeper.UpdateConversionRate(ctx, data.CollateralRate); err != nil {
 		panic(err)

@@ -21,6 +21,13 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 
 	// Get the initial pool coins
 	// TODO RESOLVE POOL ISSUE
+	if keeper.GetModuleBalance(ctx, moduleAcc.GetAddress()).IsZero() {
+		if err := keeper.SetLiquidityPoolToAccount(ctx, data.LiquidityPoolAmount); err != nil {
+			panic(err)
+		}
+		keeper.SetModuleAccount(ctx, moduleAcc)
+	}
+
 	// Import the signers
 	for _, signer := range data.TrustedServiceProviders {
 		tsp, err := sdk.AccAddressFromBech32(signer)

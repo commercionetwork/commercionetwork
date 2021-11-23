@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	accType "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
 // GetLiquidityPoolAmount returns the current liquidity pool amount
@@ -39,6 +39,8 @@ func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins sdk.Coins) erro
 		return err
 	}
 	// TODO: check liquidity amount on migration
+	// Is not correct to put this on total supply.
+	// If you do this chain supply pool is not correct with old genesis
 	supply := k.bankKeeper.GetSupply(ctx)
 	supply.Inflate(coins)
 	k.bankKeeper.SetSupply(ctx, supply)
