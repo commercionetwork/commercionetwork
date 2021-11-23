@@ -81,7 +81,8 @@ func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 		wantErr        bool
 	}{
 		{"empty signer", nil, sdk.NewDec(2), true},
-		{"ok", []byte("test"), sdk.NewDec(2), false},
+		//{"ok", []byte("test"), sdk.NewDec(2), false},
+		{"ok", testOwner, sdk.NewDec(2), false},
 		{"zero collateral rate", []byte("test"), sdk.NewDec(0), true},
 		{"negative collateral rate", []byte("test"), sdk.NewDec(-1), true},
 	}
@@ -105,8 +106,10 @@ func TestMsgSetCCCFreezePeriod_ValidateBasic(t *testing.T) {
 		freezePeriod time.Duration
 		wantErr      bool
 	}{
-		{"ok", []byte("test"), 60, false},
-		{"Negative duration", []byte("test"), -60, true},
+		//{"ok", []byte("test"), 60, false},
+		//{"Negative duration", []byte("test"), -60, true},
+		{"ok", testOwner, 60, false},
+		{"Negative duration", testOwner, -60, true},
 	}
 	for _, tt := range tests {
 		tt := tt

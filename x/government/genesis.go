@@ -14,7 +14,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	govAddr, err := sdk.AccAddressFromBech32(genState.GovernmentAddress)
 	if err != nil {
 		panic(err)
-
 	}
 
 	errSetGov := k.SetGovernmentAddress(ctx, govAddr)
