@@ -14,35 +14,35 @@ import (
 
 var membershipRewards = map[string]map[string]sdk.Dec{
 	types.MembershipTypeGreen: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(5, 2),    // 1% of 5
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(5, 1),    // 2% of 25
-		types.MembershipTypeSilver: sdk.NewDecWithPrec(75, 1),   // 3% of 250
-		types.MembershipTypeGold:   sdk.NewDecWithPrec(100, 0),  // 4% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(1250, 0), // 2.5% of 50000
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(1, 2),   // 1% of 1
+		types.MembershipTypeBronze: sdk.NewDecWithPrec(1, 1),   // 2% of 5
+		types.MembershipTypeSilver: sdk.NewDecWithPrec(15, 1),  // 3% of 50
+		types.MembershipTypeGold:   sdk.NewDecWithPrec(20, 0),  // 4% of 500
+		types.MembershipTypeBlack:  sdk.NewDecWithPrec(250, 0), // 2.5% of 10000
 	},
 	types.MembershipTypeBronze: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(125, 3),  // 2.5% of 5
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(25, 3),   // 2.5% of 1
 		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 2),  // 5% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(25, 0),   // 10% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(375, 0),  // 15% of 2500
 		types.MembershipTypeBlack:  sdk.NewDecWithPrec(5000, 0), // 10% of 50000
 	},
 	types.MembershipTypeSilver: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(5, 1),     // 1% of 5
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(1, 1),     // 1% of 1
 		types.MembershipTypeBronze: sdk.NewDecWithPrec(5, 0),     // 20% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(75, 0),    // 30% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(1000, 0),  // 40% of 2500
 		types.MembershipTypeBlack:  sdk.NewDecWithPrec(12500, 0), // 12.5% of 50000
 	},
 	types.MembershipTypeGold: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(2, 0),     // 40% of 5
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(4, 1),     // 40% of 1
 		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 1),   // 50% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(150, 0),   // 60% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(1750, 0),  // 70% of 2500
 		types.MembershipTypeBlack:  sdk.NewDecWithPrec(20000, 0), // 40% of 50000
 	},
 	types.MembershipTypeBlack: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(25, 1),    // 50% of 5
+		types.MembershipTypeGreen:  sdk.NewDecWithPrec(5, 1),     // 50% of 1
 		types.MembershipTypeBronze: sdk.NewDecWithPrec(175, 2),   // 70% of 25
 		types.MembershipTypeSilver: sdk.NewDecWithPrec(200, 0),   // 80% of 250
 		types.MembershipTypeGold:   sdk.NewDecWithPrec(2250, 0),  // 90% of 2500

@@ -18,7 +18,7 @@ const (
 )
 
 var membershipCosts = map[string]int64{
-	types.MembershipTypeGreen:  5,
+	types.MembershipTypeGreen:  1,
 	types.MembershipTypeBronze: 25,
 	types.MembershipTypeSilver: 250,
 	types.MembershipTypeGold:   2500,
