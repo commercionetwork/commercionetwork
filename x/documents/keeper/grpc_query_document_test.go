@@ -57,7 +57,6 @@ func TestDocumentQuerySingle(t *testing.T) {
 	}
 }
 
-
 func TestDocumentQueryPaginated(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
@@ -65,7 +64,7 @@ func TestDocumentQueryPaginated(t *testing.T) {
 
 	request := func(next []byte, offset, limit uint64, total bool) *types.QueryGetSentDocumentsRequest {
 		return &types.QueryGetSentDocumentsRequest{
-			Address: string(TestingSender),
+			Address: testingSender.String(),
 			Pagination: &query.PageRequest{
 				Key:        next,
 				Offset:     offset,
@@ -112,4 +111,3 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
 }
-

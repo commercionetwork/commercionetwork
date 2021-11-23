@@ -68,7 +68,7 @@ func (k Keeper) SentDocuments(c context.Context, req *types.QueryGetSentDocument
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	userAddress, e:= sdk.AccAddressFromBech32(req.Address)
+	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
 		return nil, e
 	}
@@ -76,21 +76,28 @@ func (k Keeper) SentDocuments(c context.Context, req *types.QueryGetSentDocument
 
 	//setPaginationLimit(req.Pagination)
 	//req.Pagination.Limit = uint64(10)
-	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
-		sentDocument, err := k.GetDocumentByID(ctx, string(value))
-		if err != nil {
-			return err
-		}
-		documents = append(documents, &sentDocument)
+	pageRes, err := query.Paginate(
+		documentStore,
+		req.Pagination,
+		func(key []byte, value []byte) error {
+			sentDocument, err := k.GetDocumentByID(ctx, string(value))
+			if err != nil {
+				return err
+			}
+			documents = append(documents, &sentDocument)
 
-		return nil
-	})
+			return nil
+		},
+	)
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryGetSentDocumentsResponse{Document: documents, Pagination: pageRes}, nil
+	return &types.QueryGetSentDocumentsResponse{
+		Document:   documents,
+		Pagination: pageRes,
+	}, nil
 }
 
 func (k Keeper) ReceivedDocument(c context.Context, req *types.QueryGetReceivedDocumentRequest) (*types.QueryGetReceivedDocumentResponse, error) {
@@ -107,7 +114,7 @@ func (k Keeper) ReceivedDocument(c context.Context, req *types.QueryGetReceivedD
 		return nil, e
 	}
 	documentStore := prefix.NewStore(store, getReceivedDocumentsIdsStoreKey(userAddress))
-	
+
 	//setPaginationLimit(req.Pagination)
 	//req.Pagination.Limit = uint64(10)
 	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
@@ -180,7 +187,6 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 	}
 	documentStore := prefix.NewStore(store, getReceivedReceiptsIdsStoreKey(userAddress))
 
-	
 	//req.Pagination.Limit = uint64(10)
 	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
 		receivedReceipt, err := k.GetReceiptByID(ctx, string(value))
@@ -188,7 +194,7 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 			return err
 		}
 		receivedReceipts = append(receivedReceipts, &receivedReceipt)
-		
+
 		return nil
 	})
 
@@ -198,6 +204,7 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 
 	return &types.QueryGetReceivedDocumentsReceiptsResponse{ReceiptReceived: receivedReceipts, Pagination: pageRes}, nil
 }
+
 /*
 func setPaginationLimit(pageRequest *query.PageRequest) {
 	pageRequest.Limit = uint64(3)
