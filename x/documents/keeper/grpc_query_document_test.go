@@ -102,7 +102,7 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		}
 	})
 	t.Run("Total", func(t *testing.T) {
-		resp, err := keeper.SentDocuments(wctx, request(nil, 0, 0, true))
+		resp, err := keeper.SentDocuments(wctx, request(nil, 2, 0, true))
 		require.NoError(t, err)
 		require.Equal(t, len(msgs), int(resp.Pagination.Total))
 	})
