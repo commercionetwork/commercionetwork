@@ -14,7 +14,7 @@ func CmdBuy() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "buy [subscriber] [membership-type]",
 		Short: "Tsp buy a membership for subscriber",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return buyMembershipFunc(cmd, args)
 		},
