@@ -110,6 +110,9 @@ import (
 	vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
 	vbrmodulekeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+	"github.com/commercionetwork/commercionetwork/x/epochs"
+	epochskeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
 )
 
 const Name = "commercionetwork"
@@ -192,6 +195,7 @@ var (
 		commerciokycModule.AppModuleBasic{},
 		commerciomintmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		epochs.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -279,6 +283,7 @@ type App struct {
 	DocumentsKeeper documentskeeper.Keeper
 	// the module manager
 	mm *module.Manager
+	EpochsKeeper         epochskeeper.Keeper
 }
 
 // New returns a reference to an initialized Gaia.
@@ -313,6 +318,7 @@ func New(
 		commerciomintTypes.StoreKey,
 		governmentmoduletypes.StoreKey,
 		documentstypes.StoreKey,
+		epochstypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -376,7 +382,7 @@ func New(
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, scopedIBCKeeper,
 	)
-
+	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	// register the proposal types
 	govRouter := govtypes.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler).
@@ -464,6 +470,14 @@ func New(
 	)
 	documentsModule := documents.NewAppModule(appCodec, app.DocumentsKeeper)
 
+	app.EpochsKeeper = *epochsKeeper.SetHooks(
+		epochstypes.NewMultiEpochHooks(
+			// insert epoch hooks receivers here
+			//app.IncentivesKeeper.Hooks(),
+			//app.MintKeeper.Hooks(),
+		),
+	)
+
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
@@ -547,6 +561,7 @@ func New(
 		upgradeModule,
 		idModule,
 		documentsModule,
+		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -554,6 +569,8 @@ func New(
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
+		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
+		epochstypes.ModuleName,
 		upgradetypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
 	)
@@ -588,6 +605,8 @@ func New(
 		didTypes.ModuleName,
 		documentstypes.ModuleName,
 		wasm.ModuleName,
+		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
+		epochstypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
