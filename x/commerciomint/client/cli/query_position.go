@@ -107,14 +107,8 @@ func getEtpFunc(cmd *cobra.Command, args []string) error {
 
 	queryClient := types.NewQueryClient(clientCtx)
 
-	pageReq, err := client.ReadPageRequest(cmd.Flags())
-	if err != nil {
-		return err
-	}
-
 	params := &types.QueryEtpRequest{
 		ID: string(args[0]),
-		Pagination: pageReq,
 	}
 
 	res, err := queryClient.Etp(context.Background(), params)
