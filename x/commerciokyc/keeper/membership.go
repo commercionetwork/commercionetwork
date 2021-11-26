@@ -10,6 +10,12 @@ import (
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	//kmint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+)
+
+const (
+	stakeDenom        = "ucommercio"
+	stableCreditDenom = "uccc"
 )
 
 var membershipRewards = map[string]map[string]sdk.Dec{
@@ -167,7 +173,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
 
 	// Get the pool amount
-	poolAmount := k.GetPoolFunds(ctx).AmountOf("ucommercio")
+	poolAmount := k.GetPoolFunds(ctx).AmountOf(stakeDenom)
 
 	// Distribute the reward taking it from the pool amount
 	if poolAmount.GT(sdk.ZeroInt()) {
@@ -176,7 +182,13 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		if rewardAmount.GT(poolAmount) {
 			rewardAmount = poolAmount
 		}
-		rewardCoins := sdk.NewCoins(sdk.NewCoin("ucommercio", rewardAmount))
+		// Calcute equivalent distribution in uccc
+		//mintk := kmint.NewKeeper(k.Cdc, k.StoreKey,)
+
+		//ucccConversionRate := mintk.GetConversionRate(ctx)
+		//kmintTypes.GetConv
+
+		rewardCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardAmount))
 
 		// Send the reward to the invite sender
 		inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
