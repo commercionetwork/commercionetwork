@@ -78,6 +78,9 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		for i := 0; i < len(msgs); i += step {
 			resp, err := keeper.SentDocuments(wctx, request(nil, uint64(i), uint64(step), false))
 			require.NoError(t, err)
+			// TODO: change this test
+			// it doesn't work becouse the slice extraced from store not has the same orders of messages
+			// Maybe it's better to index the message with uuid
 			/*for j := i; j < len(msgs) && j < i+step; j++ {
 				assert.Equal(t, &msgs[j], resp.Document[j-i])
 			}*/

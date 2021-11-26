@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
-//	"github.com/cosmos/cosmos-sdk/store/prefix"
+	//	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -21,6 +21,7 @@ func (k Keeper) AppendDocument(ctx sdk.Context, document types.Document) string 
 func getDocumentStoreKey(uuid string) []byte {
 	return []byte(types.DocumentStorePrefix + uuid)
 }
+
 /*
 // SetDocument set a specific document in the store
 func (k Keeper) SetDocument(ctx sdk.Context, document types.Document) {
@@ -85,7 +86,6 @@ func (k Keeper) GetAllDocument(ctx sdk.Context) (list []types.Document) {
 // getSentDocumentsIdsUUIDStoreKey generates a SentDocumentID for a given user and document UUID
 func getSentDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID string) []byte {
 	userPart := append(user, []byte(":"+documentUUID)...)
-
 	return append([]byte(types.SentDocumentsPrefix), userPart...)
 }
 
