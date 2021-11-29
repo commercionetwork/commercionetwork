@@ -19,7 +19,7 @@ import (
 func TestDocumentQuerySingle(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	msgs := createNDocument(keeper, ctx, 101)
+	msgs := createNDocument(keeper, ctx, 2)
 	for _, tc := range []struct {
 		desc     string
 		request  *types.QueryGetDocumentRequest
@@ -61,7 +61,7 @@ func TestDocumentQuerySingle(t *testing.T) {
 func TestDocumentQueryPaginated(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	msgs := createNDocument(keeper, ctx, 4)
+	msgs := createNDocument(keeper, ctx, 5)
 
 	request := func(next []byte, offset, limit uint64, total bool) *types.QueryGetSentDocumentsRequest {
 		return &types.QueryGetSentDocumentsRequest{
