@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +19,7 @@ import (
 func TestDocumentQuerySingle(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	msgs := createNDocument(keeper, ctx, 2)
+	msgs := createNDocument(keeper, ctx, 101)
 	for _, tc := range []struct {
 		desc     string
 		request  *types.QueryGetDocumentRequest
@@ -60,7 +61,7 @@ func TestDocumentQuerySingle(t *testing.T) {
 func TestDocumentQueryPaginated(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	msgs := createNDocument(keeper, ctx, 5)
+	msgs := createNDocument(keeper, ctx, 4)
 
 	request := func(next []byte, offset, limit uint64, total bool) *types.QueryGetSentDocumentsRequest {
 		return &types.QueryGetSentDocumentsRequest{
@@ -74,18 +75,22 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		}
 	}
 	t.Run("ByOffset", func(t *testing.T) {
-		step := 2
-		for i := 0; i < len(msgs); i += step {
-			resp, err := keeper.SentDocuments(wctx, request(nil, uint64(i), uint64(step), false))
-			require.NoError(t, err)
-			// TODO: change this test
-			// it doesn't work becouse the slice extraced from store not has the same orders of messages
-			// Maybe it's better to index the message with uuid
-			/*for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.Document[j-i])
-			}*/
-			for _, respDocument := range resp.Document {
-				assert.Contains(t, msgs, *respDocument)
+		//  sort the msgs slide by UUID
+		sort.Slice(msgs, func(i, j int) bool {
+			return msgs[i].GetUUID() < msgs[j].GetUUID()
+		})
+
+		for step := 1; step < 5; step++ {
+			index := 0
+			step := 2
+			for i := 0; i < len(msgs); i += step {
+				resp, err := keeper.SentDocuments(wctx, request(nil, uint64(i), uint64(step), false))
+				require.NoError(t, err)
+
+				for _, r := range resp.Document {
+					assert.Equal(t, msgs[index].UUID, r.UUID)
+					index++
+				}
 			}
 		}
 	})
