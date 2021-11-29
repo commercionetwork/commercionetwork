@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"time"
 
+	mintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	mintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -39,6 +41,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		paramsTypes.StoreKey,
 		governmentTypes.StoreKey,
 		types.StoreKey,
+		mintTypes.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
 
@@ -58,7 +61,8 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	ctx = ctx.WithBlockTime(time.Now())
 
 	maccPerms := map[string][]string{
-		types.ModuleName: {authTypes.Minter, authTypes.Burner},
+		types.ModuleName:     {authTypes.Minter, authTypes.Burner},
+		mintTypes.ModuleName: {authTypes.Minter, authTypes.Burner},
 	}
 
 	pk := paramsKeeper.NewKeeper(cdc, legacyAmino, keys[paramsTypes.StoreKey], tKeys[paramsTypes.TStoreKey])
@@ -70,6 +74,11 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	//ak.SetModuleAccount(ctx, authTypes.NewEmptyModuleAccount(types.ModuleName))
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
 
+	mintAcc := authTypes.NewEmptyModuleAccount(mintTypes.ModuleName, authTypes.Minter, authTypes.Burner)
+	ak.SetModuleAccount(ctx, mintAcc)
+
+	mk := mintKeeper.NewKeeper(cdc, keys[mintTypes.StoreKey], keys[mintTypes.StoreKey], bk, ak, *govk)
+
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
 
@@ -77,7 +86,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
-		bk, *govk, ak)
+		bk, *govk, ak, *mk)
 
 	return ctx, bk, *govk, *k
 }

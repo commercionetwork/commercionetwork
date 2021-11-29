@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	mint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,6 +33,7 @@ type Keeper struct {
 	bankKeeper    bank.Keeper
 	govKeeper     government.Keeper
 	accountKeeper auth.AccountKeeper
+	mintKeeper    mint.Keeper
 }
 
 func NewKeeper(
@@ -41,6 +43,7 @@ func NewKeeper(
 	bankKeeper bank.Keeper,
 	govKeeper government.Keeper,
 	accountKeeper auth.AccountKeeper,
+	mintKeeper mint.Keeper,
 ) *Keeper {
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -53,5 +56,6 @@ func NewKeeper(
 		bankKeeper:    bankKeeper,
 		govKeeper:     govKeeper,
 		accountKeeper: accountKeeper,
+		mintKeeper:    mintKeeper,
 	}
 }

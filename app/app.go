@@ -423,6 +423,7 @@ func New(
 		app.BankKeeper,
 		app.governmentKeeper,
 		app.AccountKeeper,
+		app.commercioMintKeeper,
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.commercioKycKeeper)
 

@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	mtypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	uuid "github.com/satori/go.uuid"
 	//kmint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 )
 
@@ -162,15 +164,13 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 
 	// Get the reward amount by searching up inside the matrix.
 	// Multiply the found amount by 1.000.000 as coins are represented as millionth of units, and make it an int
-	/*
-		var rewardCrossValue sdk.Dec
-		var ok bool
-		if rewardCrossValue, ok = membershipRewards[senderMembershipType][recipientMembershipType]; !ok {
-			return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invalid reward options")
-		}
-		rewardAmount := rewardCrossValue.MulInt64(1000000).TruncateInt()
-	*/
-	rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
+	var rewardCrossValue sdk.Dec
+	var ok bool
+	if rewardCrossValue, ok = membershipRewards[senderMembershipType][recipientMembershipType]; !ok {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "Invalid reward options")
+	}
+	rewardAmount := rewardCrossValue.MulInt64(1000000).TruncateInt()
+	//rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
 
 	// Get the pool amount
 	poolAmount := k.GetPoolFunds(ctx).AmountOf(stakeDenom)
@@ -183,12 +183,40 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 			rewardAmount = poolAmount
 		}
 		// Calcute equivalent distribution in uccc
-		//mintk := kmint.NewKeeper(k.Cdc, k.StoreKey,)
-
-		//ucccConversionRate := mintk.GetConversionRate(ctx)
+		ucccConversionRate := k.mintKeeper.GetConversionRate(ctx)
 		//kmintTypes.GetConv
 
-		rewardCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardAmount))
+		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditDenom, rewardAmount))
+		// TODO check calculation mint amount. See calculation of mint
+		rewardStakeCoinAmount := sdk.NewDecFromInt(rewardCoins.AmountOf(stableCreditDenom)).Quo(ucccConversionRate).RoundInt()
+		stakeEquivCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardStakeCoinAmount))
+
+		govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, govAddr, stakeEquivCoins); err != nil {
+			return err
+		}
+
+		// Create a mint position from
+
+		mintUUID := uuid.NewV4().String()
+		var postion = mtypes.Position{
+			Owner:      govAddr.String(),
+			Collateral: rewardStakeCoinAmount.Int64(),
+			ID:         mintUUID,
+		}
+
+		err := k.mintKeeper.NewPosition(
+			ctx,
+			postion,
+		)
+		if err != nil {
+			// TODO find a way to fix an error into error
+			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, stakeEquivCoins); err != nil {
+				return err
+			}
+			return err
+		}
 
 		// Send the reward to the invite sender
 		inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
