@@ -2,11 +2,12 @@ syntax = "proto3";
 package commercionetwork.commercionetwork.vbr;
 
 // this line is used by starport scaffolding # genesis/proto/import
-
 option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 
 import "gogoproto/gogo.proto";
+import "commercionetwork/vbr/params.proto";
 import "cosmos/base/v1beta1/coin.proto";
+
 
 // GenesisState defines the vbr module's genesis state.
 message GenesisState {
@@ -20,4 +21,6 @@ message GenesisState {
     (gogoproto.nullable) = false] ;
 
     bool AutomaticWithdraw = 3 [(gogoproto.moretags) = "yaml:\"automatic_withdraw\""] ;
+   
+    Params params = 4 [ (gogoproto.nullable) = false ];
 }

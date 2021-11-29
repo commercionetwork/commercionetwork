@@ -33,6 +33,15 @@ func DefaultGenesis() *GenesisState {
 			EpochCountingStarted:  false,
 			CurrentEpochEnded:     true,
 		},
+		{
+			Identifier:            "hour",
+			StartTime:             time.Time{},
+			Duration:              time.Hour,
+			CurrentEpoch:          0,
+			CurrentEpochStartTime: time.Time{},
+			EpochCountingStarted:  false,
+			CurrentEpochEnded:     true,
+		},
 	}
 	return NewGenesisState(epochs)
 }

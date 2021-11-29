@@ -1,0 +1,13 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.vbr;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+// Params holds parameters for the incentives module
+message Params {
+  // distribution epoch identifier
+  string distr_epoch_identifier = 1
+      [ (gogoproto.moretags) = "yaml:\"distr_epoch_identifier\"" ];
+}

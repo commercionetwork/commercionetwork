@@ -15,6 +15,8 @@ import (
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	// this line is used by starport scaffolding # ibc/keeper/import
+	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 type (
@@ -26,6 +28,8 @@ type (
 		bankKeeper	bankKeeper.Keeper
 		accountKeeper accountKeeper.AccountKeeper
 		govKeeper   govKeeper.Keeper
+		epochsKeeper epochsKeeper.Keeper
+		paramSpace       paramtypes.Subspace
 	}
 )
 
@@ -37,8 +41,16 @@ func NewKeeper(
 	bankKeeper	bankKeeper.Keeper,
 	accountKeeper accountKeeper.AccountKeeper,
 	govKeeper    govKeeper.Keeper,
+	epochsKeeper epochsKeeper.Keeper,
+	paramSpace paramtypes.Subspace,
 
 ) *Keeper {
+
+	// set KeyTable if it has not already been set
+	if !paramSpace.HasKeyTable() {
+		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
@@ -47,6 +59,8 @@ func NewKeeper(
 		bankKeeper: bankKeeper,
 		accountKeeper: accountKeeper,
 		govKeeper: govKeeper,
+		epochsKeeper: epochsKeeper,
+		paramSpace: paramSpace,
 	}
 }
 

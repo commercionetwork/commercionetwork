@@ -414,6 +414,8 @@ func New(
 		app.BankKeeper,
 		app.AccountKeeper,
 		app.governmentKeeper,
+		app.EpochsKeeper,
+		app.GetSubspace(vbrmoduletypes.ModuleName),
 	)
 	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
 	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
@@ -475,6 +477,7 @@ func New(
 			// insert epoch hooks receivers here
 			//app.IncentivesKeeper.Hooks(),
 			//app.MintKeeper.Hooks(),
+			app.VbrKeeper.Hooks(),
 		),
 	)
 
