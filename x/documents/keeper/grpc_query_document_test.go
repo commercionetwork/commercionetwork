@@ -75,14 +75,14 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		}
 	}
 	t.Run("ByOffset", func(t *testing.T) {
-		//  sort the msgs slide by UUID
+		//  sort the msgs slice by UUID
 		sort.Slice(msgs, func(i, j int) bool {
 			return msgs[i].GetUUID() < msgs[j].GetUUID()
 		})
 
 		for step := 1; step < 5; step++ {
 			index := 0
-			step := 2
+
 			for i := 0; i < len(msgs); i += step {
 				resp, err := keeper.SentDocuments(wctx, request(nil, uint64(i), uint64(step), false))
 				require.NoError(t, err)
