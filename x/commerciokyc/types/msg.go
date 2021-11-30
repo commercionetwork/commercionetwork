@@ -10,7 +10,10 @@ import (
 
 var _ sdk.Msg = &MsgBuyMembership{}
 
+// ------------------
 // MsgBuyMembership
+// ------------------
+
 // TODO change function passing parameters
 func NewMsgBuyMembership(membership Membership) *MsgBuyMembership {
 
@@ -59,7 +62,9 @@ func (msg *MsgBuyMembership) ValidateBasic() error {
 	return nil
 }
 
+// ------------------
 // MsgInviteUser
+// ------------------
 
 func NewMsgInviteUser(sender string, recipient string) *MsgInviteUser {
 	return &MsgInviteUser{
@@ -89,17 +94,22 @@ func (msg *MsgInviteUser) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
+// ValidateBasic Implements Msg Validate Basic
 func (msg *MsgInviteUser) ValidateBasic() error {
-	if msg.Recipient == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid recipient address: %s", msg.Recipient))
+	_, err := sdk.AccAddressFromBech32(msg.Recipient)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid recipient address: %s (%s)", msg.Recipient, err))
 	}
-	if msg.Sender == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid sender address: %s", msg.Sender))
+	_, err = sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid sender address: %s (%s)", msg.Sender, err))
 	}
 	return nil
 }
 
+// ------------------
 // MsgAddTsp
+// ------------------
 
 func NewMsgAddTsp(tsp string, government string) *MsgAddTsp {
 	return &MsgAddTsp{
@@ -139,7 +149,9 @@ func (msg *MsgAddTsp) ValidateBasic() error {
 	return nil
 }
 
+// ------------------
 // MsgDepositIntoLiquidityPool
+// ------------------
 
 func NewMsgDepositIntoLiquidityPool(amount sdk.Coins, depositor string) *MsgDepositIntoLiquidityPool {
 	return &MsgDepositIntoLiquidityPool{
@@ -179,7 +191,9 @@ func (msg *MsgDepositIntoLiquidityPool) ValidateBasic() error {
 	return nil
 }
 
+// ------------------
 // MsgRemoveTsp
+// ------------------
 
 func NewMsgRemoveTsp(tsp string, government string) *MsgRemoveTsp {
 	return &MsgRemoveTsp{
@@ -219,7 +233,9 @@ func (msg *MsgRemoveTsp) ValidateBasic() error {
 	return nil
 }
 
+// ------------------
 // MsgRemoveMembership
+// ------------------
 
 func NewMsgRemoveMembership(government string, subscriber string) *MsgRemoveMembership {
 	return &MsgRemoveMembership{
@@ -260,7 +276,9 @@ func (msg *MsgRemoveMembership) ValidateBasic() error {
 	return nil
 }
 
+// ------------------
 // MsgSetMembership
+// ------------------
 
 func NewMsgSetMembership(subscriber string, government string, newMembership string) *MsgSetMembership {
 

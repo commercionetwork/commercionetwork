@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// CmdInvite returns a root CLI command handler for all x/commerciokyc transaction commands.
 func CmdInvite() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "invite [subscriber]",
@@ -24,6 +25,7 @@ func CmdInvite() *cobra.Command {
 	return cmd
 }
 
+// InviteUserFunc returns a CLI command handler for creating a MsgInviteUser transaction.
 func InviteUserFunc(cmd *cobra.Command, args []string) error {
 	cliCtx, err := client.GetClientTxContext(cmd)
 	if err != nil {
@@ -31,12 +33,13 @@ func InviteUserFunc(cmd *cobra.Command, args []string) error {
 	}
 
 	inviter := cliCtx.GetFromAddress()
-	invitee, err := sdk.AccAddressFromBech32(args[0])
+	inviteeIn := args[0]
+	_, err = sdk.AccAddressFromBech32(inviteeIn)
 	if err != nil {
 		return err
 	}
 
-	msg := types.NewMsgInviteUser(inviter.String(), invitee.String())
+	msg := types.NewMsgInviteUser(inviter.String(), inviteeIn)
 	err = msg.ValidateBasic()
 	if err != nil {
 		return err

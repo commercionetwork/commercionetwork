@@ -10,21 +10,26 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// BuyMembership handle message MsgBuyMembership
 func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembership) (*types.MsgBuyMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Verify invite exists
 	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
 	invite, found := k.GetInvite(ctx, msgBuyer)
 	if !found {
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited")
 	}
+
+	// Verify invite status
 	inviteStatus := types.InviteStatus(invite.Status)
 	if inviteStatus == types.InviteStatusInvalid {
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
 	}
 
+	// Forbidden black membership buying
 	if msg.MembershipType == types.MembershipTypeBlack {
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidAddress, "cannot buy black membership")
+		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot buy black membership")
 	}
 
 	membershipPrice := membershipCosts[msg.MembershipType] * 1000000 // Always multiply by one million

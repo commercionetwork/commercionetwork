@@ -286,7 +286,6 @@ func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
 }
 
 // GetMembership allows to retrieve any existent membership for the specified user.
-// The second returned false (the boolean one) tells if the NFT token representing the membership was found or not
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
 	store := ctx.KVStore(k.StoreKey)
 
