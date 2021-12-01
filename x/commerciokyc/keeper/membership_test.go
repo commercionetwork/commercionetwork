@@ -39,7 +39,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			tsp:            testTsp,
 			expiredAt:      testExpirationNegative,
 			membershipType: types.MembershipTypeBronze,
-			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", testExpirationNegative)),
+			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", testExpirationNegative)),
 		},
 		/*{
 			name:               "Invalid tsp",
@@ -234,7 +234,7 @@ func TestKeeper_RemoveMembership(t *testing.T) {
 			k.AddTrustedServiceProvider(ctx, test.tsp)
 		}
 
-		err := k.RemoveMembership(ctx, membershipOwner)
+		err := k.DeleteMembership(ctx, membershipOwner)
 		if !test.mustError {
 			require.NoError(t, err)
 		} else {

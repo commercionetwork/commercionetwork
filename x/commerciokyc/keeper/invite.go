@@ -31,7 +31,6 @@ func (k Keeper) Invite(ctx sdk.Context, recipient, sender sdk.AccAddress) error 
 	// Verify that the user that is inviting has already a membership
 	inviterMembership, err := k.GetMembership(ctx, sender)
 	if err != nil {
-		//return err
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Cannot send an invitation without having a membership: %s", err.Error()))
 
 	}

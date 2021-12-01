@@ -10,6 +10,10 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const (
+	eventDistributeRewardFail = "distribute_reward_fail"
+)
+
 // BuyMembership handle message MsgBuyMembership
 func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembership) (*types.MsgBuyMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -52,14 +56,23 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 		expirationAt,
 	)
 
-	// Give the reward to the invitee
-	if err := k.DistributeReward(ctx, invite); err != nil {
-		return nil, err
+	// If AssignMembership fail return coins to tsp
+	// TODO: Resolve nested error and potential no return funds to tsp
+	if err != nil {
+		if errRet := k.bankKeeper.SendCoins(ctx, govAddr, msgTsp, membershipCost); errRet != nil {
+			return &types.MsgBuyMembershipResponse{}, errRet
+		}
+		return &types.MsgBuyMembershipResponse{}, err
 	}
 
-	if err != nil {
-		// TODO RETURN COINS
-		return &types.MsgBuyMembershipResponse{}, err
+	// Give the reward to the invitee
+	// Emits events if error occours. No transaction error
+	if err := k.DistributeReward(ctx, invite); err != nil {
+		// Emits events
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			eventDistributeRewardFail,
+			sdk.NewAttribute("error", err.Error()),
+		))
 	}
 
 	return &types.MsgBuyMembershipResponse{

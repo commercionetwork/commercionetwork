@@ -18,6 +18,10 @@ import (
 const (
 	stakeDenom        = "ucommercio"
 	stableCreditDenom = "uccc"
+	//eventBuyMembership    = "buy_membership"
+	eventAssignMembership = "assign_membership"
+	eventRemoveMembership = "remove_membership"
+	eventDistributeReward = "distribute_reward"
 )
 
 var membershipRewards = map[string]map[string]sdk.Dec{
@@ -73,40 +77,41 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 		)
 	}
 
-	// Check if height is greater then zero
+	// Check if the expired at is greater then current time
 	if expited_at.Before(time.Now()) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", expited_at))
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", expited_at))
 	}
 
+	// Delete membership if exists
 	_ = k.DeleteMembership(ctx, user)
 
+	// Check if user already has a membership.
+	// TODO: this check wont pass if DeleteMembership doesn't work.
+	//       Maybe it's better to check error from DeleteMembership method
 	store := ctx.KVStore(k.StoreKey)
-
 	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf(
-				"cannot add membership \"%s\" for address %s: user already have a membership",
+				"cannot add membership \"%s\" for address %s: user already has a membership",
 				membershipType,
 				user,
 			),
 		)
 	}
 
-	//expited_at := ctx.BlockTime() + (365 * 24 * 60 * 60) seconds
-	//membership := types.NewMembership(membershipType, user, tsp, expited_at.UTC())
-
 	// Save membership
 	membership := types.NewMembership(membershipType, user, tsp, expited_at.UTC())
 	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
-	// TODO emits events
-	/*ctx.EventManager().EmitEvent(sdk.NewEvent(
+
+	// TODO: add event to distinguish assign from buy, or add specific event to eventManager in buy method
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventAssignMembership,
-		sdk.NewAttribute("owner", membership.Owner.String()),
+		sdk.NewAttribute("owner", membership.Owner),
 		sdk.NewAttribute("membership_type", membership.MembershipType),
-		sdk.NewAttribute("tsp_address", membership.TspAddress.String()),
+		sdk.NewAttribute("tsp_address", membership.TspAddress),
 		sdk.NewAttribute("expiry_at", membership.ExpiryAt.String()),
-	))*/
+	))
 
 	return nil
 }
@@ -115,34 +120,36 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 func (k Keeper) DeleteMembership(ctx sdk.Context, user sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
 
+	// Check if membership must be deleted is owned user by a trust service provider
 	if k.IsTrustedServiceProvider(ctx, user) {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
 			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user.String()),
 		)
 	}
 
+	// Check if user has a membership
 	if !store.Has(k.storageForAddr(user)) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
 		)
 	}
 
+	// Delete membership user
 	store.Delete(k.storageForAddr(user))
-	/*
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			eventRemoveMembership,
-			sdk.NewAttribute("subscriber", user.String()),
-		))*/
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventRemoveMembership,
+		sdk.NewAttribute("subscriber", user.String()),
+	))
 
 	return nil
 }
 
 // DistributeReward allows to distribute the rewards to the sender of the specified invite upon the receiver has
 // properly bought a membership of the given membershipType
+// TODO: method returns an error even if the membership has been purchased. Maybe need returns a boolean or evalutes error in different way
 func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	// the invite we got is either invalid or already rewarded, get out!
 	inviteStatus := types.InviteStatus(invite.Status)
-
 	if inviteStatus == types.InviteStatusRewarded || inviteStatus == types.InviteStatusInvalid {
 		return nil
 	}
@@ -176,6 +183,9 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	poolAmount := k.GetPoolFunds(ctx).AmountOf(stakeDenom)
 
 	// Distribute the reward taking it from the pool amount
+	// TODO: return immediatly if there is no funds
+	var returnMethod error
+	returnMethod = nil
 	if poolAmount.GT(sdk.ZeroInt()) {
 
 		// If the reward is more than the current pool amount, set the reward as the total pool amount
@@ -211,7 +221,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 			postion,
 		)
 		if err != nil {
-			// TODO find a way to fix an error into error
+			// TODO find a way to fix nested errors
 			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, stakeEquivCoins); err != nil {
 				return err
 			}
@@ -223,18 +233,20 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, inviteSender, rewardCoins); err != nil {
 			return err
 		}
-		// TODO  emits events
-		/*
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				eventDistributeReward,
-				sdk.NewAttribute("invite_sender", invite.Sender.String()),
-				sdk.NewAttribute("reward_coins", rewardCoins.String()),
-				sdk.NewAttribute("sender_membership_type", senderMembershipType),
-				sdk.NewAttribute("recipient_membership_type", recipientMembership.MembershipType),
-				sdk.NewAttribute("invite_recipient", invite.User.String()),
-			))
-		*/
 
+		// Emits events
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			eventDistributeReward,
+			sdk.NewAttribute("invite_sender", invite.Sender),
+			sdk.NewAttribute("reward_coins", rewardCoins.String()),
+			sdk.NewAttribute("sender_membership_type", senderMembershipType),
+			sdk.NewAttribute("recipient_membership_type", recipientMembership.MembershipType),
+			sdk.NewAttribute("invite_recipient", invite.User),
+			sdk.NewAttribute("distrib", invite.User),
+		))
+
+	} else {
+		returnMethod = sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens")
 	}
 
 	// Set the invitation as rewarded
@@ -247,7 +259,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 
 	k.SaveInvite(ctx, newInvite)
 
-	return nil
+	return returnMethod
 }
 
 // GetTrustedServiceProviders returns the list of signers that are allowed to sign
@@ -342,34 +354,6 @@ func (k Keeper) ComputeExpiryHeight(blockTime time.Time) time.Time {
 	return expirationAt
 }
 
-// RemoveMembership allows to remove any existing membership associated with the given user.
-func (k Keeper) RemoveMembership(ctx sdk.Context, user sdk.AccAddress) error {
-	store := ctx.KVStore(k.StoreKey)
-
-	if k.IsTrustedServiceProvider(ctx, user) {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
-			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user.String()),
-		)
-	}
-
-	if !store.Has(k.storageForAddr(user)) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
-		)
-	}
-
-	store.Delete(k.storageForAddr(user))
-
-	/*
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			eventRemoveMembership,
-			sdk.NewAttribute("subscriber", user.String()),
-		))
-	*/
-
-	return nil
-}
-
 // GetTspMemberships extracts all memerships
 func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Memberships {
 	im := k.MembershipIterator(ctx)
@@ -414,7 +398,7 @@ func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
 				staddr := k.storageForAddr(mOwner)
 				store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
 			} else {
-				err := k.RemoveMembership(ctx, mOwner)
+				err := k.DeleteMembership(ctx, mOwner)
 				if err != nil {
 					panic(err)
 				}

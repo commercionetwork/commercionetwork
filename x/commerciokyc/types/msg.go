@@ -15,12 +15,13 @@ var _ sdk.Msg = &MsgBuyMembership{}
 // ------------------
 
 // TODO change function passing parameters
-func NewMsgBuyMembership(membership Membership) *MsgBuyMembership {
+//func NewMsgBuyMembership(membership Membership) *MsgBuyMembership {
+func NewMsgBuyMembership(membershipType string, buyer sdk.AccAddress, tsp sdk.AccAddress) *MsgBuyMembership {
 
 	return &MsgBuyMembership{
-		MembershipType: membership.MembershipType,
-		Buyer:          membership.Owner,
-		Tsp:            membership.TspAddress,
+		MembershipType: membershipType,
+		Buyer:          buyer.String(),
+		Tsp:            tsp.String(),
 	}
 }
 
@@ -46,11 +47,13 @@ func (msg *MsgBuyMembership) GetSignBytes() []byte {
 }
 
 func (msg *MsgBuyMembership) ValidateBasic() error {
-	if msg.Buyer == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Buyer)
+	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid buyer address: %s", msg.Buyer))
 	}
 
-	if msg.Tsp == "" {
+	_, err = sdk.AccAddressFromBech32(msg.Tsp)
+	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid tsp address: %s", msg.Tsp))
 	}
 
@@ -140,10 +143,13 @@ func (msg *MsgAddTsp) GetSignBytes() []byte {
 }
 
 func (msg *MsgAddTsp) ValidateBasic() error {
-	if msg.Tsp == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Tsp)
+	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid TSP address: %s", msg.Tsp))
 	}
-	if msg.Government == "" {
+
+	_, err = sdk.AccAddressFromBech32(msg.Government)
+	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 	return nil
@@ -182,9 +188,11 @@ func (msg *MsgDepositIntoLiquidityPool) GetSignBytes() []byte {
 }
 
 func (msg *MsgDepositIntoLiquidityPool) ValidateBasic() error {
-	if msg.Depositor == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Depositor)
+	if err != nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid depositor address: %s", msg.Depositor))
 	}
+
 	if msg.Amount.Empty() || !msg.Amount.IsValid() {
 		return sdkErr.Wrap(sdkErr.ErrInvalidCoins, fmt.Sprintf("Invalid deposit amount: %s", msg.Amount))
 	}
