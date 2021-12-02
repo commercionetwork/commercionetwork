@@ -51,25 +51,25 @@ func TestKeeper_ShareDocument(t *testing.T) {
 		{
 			"No document in store",
 			types.Document{},
-			TestingDocument,
+			testingDocument,
 			"",
 		},
 		{
 			"One document in store, different recipient",
-			TestingDocument,
-			TestingDocument,
+			testingDocument,
+			testingDocument,
 			recipient.String(),
 		},
 		{
 			"One document in store, different uuid",
-			TestingDocument,
+			testingDocument,
 			types.Document{
-				UUID:       TestingDocument.UUID + "new",
-				ContentURI: TestingDocument.ContentURI,
-				Metadata:   TestingDocument.Metadata,
-				Checksum:   TestingDocument.Checksum,
-				Sender:     TestingDocument.Sender,
-				Recipients: TestingDocument.Recipients,
+				UUID:       testingDocument.UUID + "new",
+				ContentURI: testingDocument.ContentURI,
+				Metadata:   testingDocument.Metadata,
+				Checksum:   testingDocument.Checksum,
+				Sender:     testingDocument.Sender,
+				Recipients: testingDocument.Recipients,
 			},
 			"",
 		},
@@ -81,8 +81,8 @@ func TestKeeper_ShareDocument(t *testing.T) {
 			store := ctx.KVStore(k.storeKey)
 
 			if !tt.storedDocument.Equals(types.Document{}) {
-				store.Set(getSentDocumentsIdsUUIDStoreKey(TestingSender, tt.storedDocument.UUID), []byte(tt.storedDocument.UUID))        //k.cdc.MustMarshalBinaryBare(tt.storedDocument.UUID))
-				store.Set(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, tt.storedDocument.UUID), []byte(tt.storedDocument.UUID)) // k.cdc.MustMarshalBinaryBare(tt.storedDocument.UUID))
+				store.Set(getSentDocumentsIdsUUIDStoreKey(testingSender, tt.storedDocument.UUID), []byte(tt.storedDocument.UUID))        //k.cdc.MustMarshalBinaryBare(tt.storedDocument.UUID))
+				store.Set(getReceivedDocumentsIdsUUIDStoreKey(testingRecipient, tt.storedDocument.UUID), []byte(tt.storedDocument.UUID)) // k.cdc.MustMarshalBinaryBare(tt.storedDocument.UUID))
 			}
 
 			if tt.newRecipient != "" {
@@ -93,8 +93,8 @@ func TestKeeper_ShareDocument(t *testing.T) {
 			require.NoError(t, err)
 
 			docsBz := store.Get(getDocumentStoreKey(tt.document.UUID))
-			sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(TestingSender, tt.document.UUID))
-			receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(TestingRecipient, tt.document.UUID))
+			sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(testingSender, tt.document.UUID))
+			receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(testingRecipient, tt.document.UUID))
 
 			if tt.newRecipient != "" {
 				recipientAddr, _ := sdk.AccAddressFromBech32(tt.newRecipient)
@@ -130,19 +130,19 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 		{
 			"lookup on non existing document, empty store",
 			types.Document{},
-			TestingDocument.UUID,
+			testingDocument.UUID,
 			true,
 		},
 		{
 			"lookup on non existing document, not empty store",
-			TestingDocument,
+			testingDocument,
 			"",
 			true,
 		},
 		{
 			"lookup on existing document",
-			TestingDocument,
-			TestingDocument.UUID,
+			testingDocument,
+			testingDocument.UUID,
 			false,
 		},
 	}
@@ -181,24 +181,24 @@ func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 		},
 		{
 			"one document in store",
-			TestingRecipient,
+			testingRecipient,
 			[]types.Document{
-				TestingDocument,
+				testingDocument,
 			},
 		},
 		{
 			"multiple documents in store",
-			TestingRecipient,
+			testingRecipient,
 			[]types.Document{
-				TestingDocument,
+				testingDocument,
 				{ // TestingDocument with different uuid
 					UUID:           "uuid-2",
-					Sender:         TestingDocument.Sender,
-					Recipients:     TestingDocument.Recipients,
-					Metadata:       TestingDocument.Metadata,
-					ContentURI:     TestingDocument.ContentURI,
-					Checksum:       TestingDocument.Checksum,
-					EncryptionData: TestingDocument.EncryptionData,
+					Sender:         testingDocument.Sender,
+					Recipients:     testingDocument.Recipients,
+					Metadata:       testingDocument.Metadata,
+					ContentURI:     testingDocument.ContentURI,
+					Checksum:       testingDocument.Checksum,
+					EncryptionData: testingDocument.EncryptionData,
 				},
 			},
 		},
@@ -243,29 +243,29 @@ func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 	}{
 		{
 			"no document in store",
-			TestingSender,
+			testingSender,
 			[]types.Document{},
 		},
 		{
 			"one document in store",
-			TestingSender,
+			testingSender,
 			[]types.Document{
-				TestingDocument,
+				testingDocument,
 			},
 		},
 		{
 			"multiple documents in store",
-			TestingSender,
+			testingSender,
 			[]types.Document{
-				TestingDocument,
+				testingDocument,
 				{ // TestingDocument with different uuid
 					UUID:           "uuid-2",
-					Sender:         TestingDocument.Sender,
-					Recipients:     TestingDocument.Recipients,
-					Metadata:       TestingDocument.Metadata,
-					ContentURI:     TestingDocument.ContentURI,
-					Checksum:       TestingDocument.Checksum,
-					EncryptionData: TestingDocument.EncryptionData,
+					Sender:         testingDocument.Sender,
+					Recipients:     testingDocument.Recipients,
+					Metadata:       testingDocument.Metadata,
+					ContentURI:     testingDocument.ContentURI,
+					Checksum:       testingDocument.Checksum,
+					EncryptionData: testingDocument.EncryptionData,
 				},
 			},
 		},
@@ -314,21 +314,21 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 		{
 			"one document in store",
 			[]types.Document{
-				TestingDocument,
+				testingDocument,
 			},
 		},
 		{
 			"multiple documents in store",
 			[]types.Document{
-				TestingDocument,
+				testingDocument,
 				{ // TestingDocument with different uuid
 					UUID:           "uuid-2",
-					Sender:         TestingDocument.Sender,
-					Recipients:     TestingDocument.Recipients,
-					Metadata:       TestingDocument.Metadata,
-					ContentURI:     TestingDocument.ContentURI,
-					Checksum:       TestingDocument.Checksum,
-					EncryptionData: TestingDocument.EncryptionData,
+					Sender:         testingDocument.Sender,
+					Recipients:     testingDocument.Recipients,
+					Metadata:       testingDocument.Metadata,
+					ContentURI:     testingDocument.ContentURI,
+					Checksum:       testingDocument.Checksum,
+					EncryptionData: testingDocument.EncryptionData,
 				},
 			},
 		},
@@ -374,34 +374,34 @@ func TestKeeper_SaveDocumentReceipt(t *testing.T) {
 	}{
 		{
 			"empty list",
-			TestingDocument,
-			TestingDocumentReceipt,
+			testingDocument,
+			testingDocumentReceipt,
 			types.DocumentReceipt{},
 		},
 		{
 			"sent receipt already present",
-			TestingDocument,
-			TestingDocumentReceipt,
+			testingDocument,
+			testingDocumentReceipt,
 			types.DocumentReceipt{
-				UUID:         TestingDocumentReceipt.UUID + "-new",
-				Sender:       TestingSender.String(),
-				Recipient:    TestingDocumentReceipt.Recipient,
-				TxHash:       TestingDocumentReceipt.TxHash,
-				DocumentUUID: TestingDocument.UUID,
-				Proof:        TestingDocumentReceipt.Proof,
+				UUID:         testingDocumentReceipt.UUID + "-new",
+				Sender:       testingSender.String(),
+				Recipient:    testingDocumentReceipt.Recipient,
+				TxHash:       testingDocumentReceipt.TxHash,
+				DocumentUUID: testingDocument.UUID,
+				Proof:        testingDocumentReceipt.Proof,
 			},
 		},
 		{
 			"received receipt already present",
-			TestingDocument,
-			TestingDocumentReceipt,
+			testingDocument,
+			testingDocumentReceipt,
 			types.DocumentReceipt{
-				UUID:         TestingDocumentReceipt.UUID + "-new",
-				Sender:       TestingSender2.String(),
-				Recipient:    TestingDocumentReceipt.Recipient,
-				TxHash:       TestingDocumentReceipt.TxHash,
-				DocumentUUID: TestingDocument.UUID,
-				Proof:        TestingDocumentReceipt.Proof,
+				UUID:         testingDocumentReceipt.UUID + "-new",
+				Sender:       testingSender2.String(),
+				Recipient:    testingDocumentReceipt.Recipient,
+				TxHash:       testingDocumentReceipt.TxHash,
+				DocumentUUID: testingDocument.UUID,
+				Proof:        testingDocumentReceipt.Proof,
 			},
 		},
 	}
@@ -471,7 +471,7 @@ func TestKeeper_SaveDocument(t *testing.T) {
 		},
 		{
 			"duplicated document",
-			TestingDocument,
+			testingDocument,
 			true,
 		},
 		{
@@ -497,8 +497,8 @@ func TestKeeper_SaveDocument(t *testing.T) {
 					Value:     "93dfcaf3d923ec47edb8580667473987",
 					Algorithm: "md5",
 				},
-				Sender:     TestingSender.String(),
-				Recipients: append([]string{}, TestingRecipient.String()),
+				Sender:     testingSender.String(),
+				Recipients: append([]string{}, testingRecipient.String()),
 			},
 			false,
 		},
@@ -508,7 +508,7 @@ func TestKeeper_SaveDocument(t *testing.T) {
 			k, ctx := setupKeeper(t)
 
 			store := ctx.KVStore(k.storeKey)
-			store.Set(getDocumentStoreKey(TestingDocument.UUID), k.cdc.MustMarshalBinaryBare(&TestingDocument))
+			store.Set(getDocumentStoreKey(testingDocument.UUID), k.cdc.MustMarshalBinaryBare(&testingDocument))
 
 			if tt.wantErr {
 				require.Error(t, k.SaveDocument(ctx, tt.document))
@@ -542,7 +542,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 		},
 		{
 			"duplicated receipt",
-			TestingDocumentReceipt,
+			testingDocumentReceipt,
 			true,
 		},
 		{
@@ -555,12 +555,12 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 		{
 			"receipt UUID not in store",
 			types.DocumentReceipt{
-				UUID:         TestingDocumentReceipt.UUID + "-new",
-				Sender:       TestingDocumentReceipt.Sender,
-				Recipient:    TestingDocumentReceipt.Recipient,
-				TxHash:       TestingDocumentReceipt.TxHash,
-				DocumentUUID: TestingDocument.UUID,
-				Proof:        TestingDocumentReceipt.Proof,
+				UUID:         testingDocumentReceipt.UUID + "-new",
+				Sender:       testingDocumentReceipt.Sender,
+				Recipient:    testingDocumentReceipt.Recipient,
+				TxHash:       testingDocumentReceipt.TxHash,
+				DocumentUUID: testingDocument.UUID,
+				Proof:        testingDocumentReceipt.Proof,
 			},
 			false,
 		},
@@ -570,9 +570,9 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			k, ctx := setupKeeper(t)
 
 			store := ctx.KVStore(k.storeKey)
-			store.Set(getDocumentStoreKey(TestingDocument.UUID), k.cdc.MustMarshalBinaryBare(&TestingDocument))
-			senderAccadrr, _ := sdk.AccAddressFromBech32(TestingDocumentReceipt.Sender)
-			store.Set(getSentReceiptsIdsUUIDStoreKey(senderAccadrr, TestingDocumentReceipt.UUID), k.cdc.MustMarshalBinaryBare(&TestingDocumentReceipt))
+			store.Set(getDocumentStoreKey(testingDocument.UUID), k.cdc.MustMarshalBinaryBare(&testingDocument))
+			senderAccadrr, _ := sdk.AccAddressFromBech32(testingDocumentReceipt.Sender)
+			store.Set(getSentReceiptsIdsUUIDStoreKey(senderAccadrr, testingDocumentReceipt.UUID), k.cdc.MustMarshalBinaryBare(&testingDocumentReceipt))
 
 			if tt.wantErr {
 				require.Error(t, k.SaveReceipt(ctx, tt.documentReceipt))
@@ -594,7 +594,7 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 		},
 		{
 			"Filled list",
-			[]types.DocumentReceipt{TestingDocumentReceipt},
+			[]types.DocumentReceipt{testingDocumentReceipt},
 		},
 	}
 	for _, tt := range tests {
@@ -608,7 +608,7 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 
 				store.Set(getReceiptStoreKey(tdr.UUID), k.cdc.MustMarshalBinaryBare(&tdr))
 			}
-			recipientAccAdrr, _ := sdk.AccAddressFromBech32(TestingDocumentReceipt.Recipient)
+			recipientAccAdrr, _ := sdk.AccAddressFromBech32(testingDocumentReceipt.Recipient)
 			urri := k.UserReceivedReceiptsIterator(ctx, recipientAccAdrr)
 			defer urri.Close()
 
@@ -638,8 +638,8 @@ func TestKeeper_ExtractDocument(t *testing.T) {
 	}{
 		{
 			"stored document",
-			TestingDocument,
-			TestingDocument.UUID,
+			testingDocument,
+			testingDocument.UUID,
 			false,
 		},
 	}
@@ -672,8 +672,8 @@ func TestKeeper_ExtractDocument(t *testing.T) {
 }
 
 func TestKeeper_ExtractReceipt(t *testing.T) {
-	r := TestingDocumentReceipt
-	r.DocumentUUID = TestingDocument.UUID
+	r := testingDocumentReceipt
+	r.DocumentUUID = testingDocument.UUID
 
 	tests := []struct {
 		name          string
@@ -684,7 +684,7 @@ func TestKeeper_ExtractReceipt(t *testing.T) {
 	}{
 		{
 			"stored receipt",
-			TestingDocument,
+			testingDocument,
 			r,
 			r.UUID,
 			false,
@@ -720,8 +720,8 @@ func TestKeeper_ExtractReceipt(t *testing.T) {
 }
 
 func TestKeeper_GetReceiptByID(t *testing.T) {
-	r := TestingDocumentReceipt
-	r.DocumentUUID = TestingDocument.UUID
+	r := testingDocumentReceipt
+	r.DocumentUUID = testingDocument.UUID
 
 	tests := []struct {
 		name           string
@@ -731,7 +731,7 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 	}{
 		{
 			"lookup on existing receipt",
-			TestingDocument,
+			testingDocument,
 			r,
 			false,
 		},
