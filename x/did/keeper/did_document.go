@@ -7,10 +7,7 @@ import (
 )
 
 // AppendId appends a didDocument in the store with given id
-func (k Keeper) AppendId(
-	ctx sdk.Context,
-	didDocument types.DidDocument,
-) string {
+func (k Keeper) AppendId(ctx sdk.Context, didDocument types.DidDocument) string {
 	// Create the Document
 	store := ctx.KVStore(k.storeKey)
 	store.Set(getIdentityStoreKey(sdk.AccAddress(didDocument.ID)), k.cdc.MustMarshalBinaryBare(&didDocument))
@@ -29,10 +26,7 @@ func (k Keeper) HasIdentity(ctx sdk.Context, ID string) bool {
 	store := ctx.KVStore(k.storeKey)
 
 	identityKey := getIdentityStoreKey(sdk.AccAddress(ID))
-	if !store.Has(identityKey) {
-		return false
-	}
-	return true
+	return store.Has(identityKey)
 }
 
 // GetAllDidDocument returns all didDocument
