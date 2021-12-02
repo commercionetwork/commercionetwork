@@ -7,13 +7,13 @@ import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 
-message DidDocument {
-  string context = 1;
-  string ID = 2;
-  repeated did.PubKey pubKeys = 3;
-  //did.Proof proof = 4;
-  repeated Service service = 4;
-}
+// message DidDocument {
+//   string context = 1;
+//   string ID = 2;
+//   repeated did.PubKey pubKeys = 3;
+//   //did.Proof proof = 4;
+//   repeated Service service = 4;
+// }
 
 message DidDocumentNew {
   repeated string context = 1;
@@ -25,9 +25,8 @@ message DidDocumentNew {
   repeated VerificationMethod capabilityDelegation = 7;
   repeated VerificationMethod capabilityInvocation = 8;
   repeated VerificationMethod keyAgreement = 9;
-  google.protobuf.Timestamp created = 10 [(gogoproto.stdtime) = true];
-  google.protobuf.Timestamp updated = 11 [(gogoproto.stdtime) = true];
-  
+  google.protobuf.Timestamp created = 10 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated = 11 [ (gogoproto.stdtime) = true ];
 }
 
 message VerificationMethod {
@@ -42,8 +41,9 @@ message VerificationMethod {
   bool relativeURL = 7;
 }
 
-// This usable for authentication, assertionMethod, capabilityDelegation, capabilityInvocation and keyAgreement
-// but at this moment limit to VerificationMethod
+// This usable for authentication, assertionMethod, capabilityDelegation,
+// capabilityInvocation and keyAgreement but at this moment limit to
+// VerificationMethod
 message Verification {
   VerificationMethod verificationMethod = 1;
   int32 relationship = 2;
@@ -64,11 +64,11 @@ message ServiceNew {
   bool relativeURL = 11;
 }
 
-message Service {
-  string ID = 1;
-  string type = 2;
-  string serviceEndpoint = 3;
-}
+// message Service {
+//   string ID = 1;
+//   string type = 2;
+//   string serviceEndpoint = 3;
+// }
 
 /*
 message Proof {

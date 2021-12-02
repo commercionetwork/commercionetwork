@@ -1,29 +1,22 @@
 package keeper
 
-import (
-	"context"
+// func (k msgServer) SetIdentity(goCtx context.Context, msg *types.MsgSetIdentity) (*types.MsgSetIdentityResponse, error) {
+// 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	"github.com/commercionetwork/commercionetwork/x/did/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+// 	var didDocument = types.DidDocument{
+// 		Context: msg.Context,
+// 		ID:      msg.ID,
+// 		PubKeys: msg.PubKeys,
+// 		//Proof:   msg.Proof,
+// 		Service: msg.Service,
+// 	}
 
-func (k msgServer) SetIdentity(goCtx context.Context, msg *types.MsgSetIdentity) (*types.MsgSetIdentityResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+// 	id := k.AppendId(
+// 		ctx,
+// 		didDocument,
+// 	)
 
-	var didDocument = types.DidDocument{
-		Context: msg.Context,
-		ID:      msg.ID,
-		PubKeys: msg.PubKeys,
-		//Proof:   msg.Proof,
-		Service: msg.Service,
-	}
-
-	id := k.AppendId(
-		ctx,
-		didDocument,
-	)
-
-	return &types.MsgSetIdentityResponse{
-		ID: id,
-	}, nil
-}
+// 	return &types.MsgSetIdentityResponse{
+// 		ID: id,
+// 	}, nil
+// }

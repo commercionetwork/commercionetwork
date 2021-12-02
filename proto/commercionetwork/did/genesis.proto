@@ -8,6 +8,6 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 
 // GenesisState defines the id module's genesis state.
 message GenesisState {
-    // this line is used by starport scaffolding # genesis/proto/state
-    repeated DidDocument did_documents = 1; 
+  // this line is used by starport scaffolding # genesis/proto/state
+  repeated DidDocumentNew did_documents = 1;
 }

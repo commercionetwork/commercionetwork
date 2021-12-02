@@ -7,6 +7,20 @@ import (
 	commons "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
+func NewMsgSetDid(context string, ID string) *MsgSetDid {
+	return &MsgSetDid{
+		Context: []string{context},
+		ID:      ID,
+		// VerificationMethod:   []*VerificationMethod{},
+		// Service:              []*ServiceNew{},
+		// Authentication:       []*VerificationMethod{},
+		// AssertionMethod:      []*VerificationMethod{},
+		// CapabilityDelegation: []*VerificationMethod{},
+		// CapabilityInvocation: []*VerificationMethod{},
+		// KeyAgreement:         []*VerificationMethod{},
+	}
+}
+
 func (msg *MsgSetDid) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.ID)
 	if err != nil {
@@ -29,14 +43,30 @@ func (msg *MsgSetDid) Type() string {
 }
 
 func (msg *MsgSetDid) ValidateBasic() error {
+	// validate ID
 	_, err := sdk.AccAddressFromBech32(msg.ID)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
+	// validate Context
 	if commons.Strings(msg.Context).Contains(ContextDidV1) {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Invalid context, must include %s", ContextDidV1)
 	}
+
+	// validate VerificationMethod
+
+	// validate Service
+
+	// validate Authentication
+
+	// validate AssertionMethod
+
+	// validate CapabilityDelegation
+
+	// validate CapabilityInvocation
+
+	// validate KeyAgreement
 
 	// controller, _ := sdk.AccAddressFromBech32(msg.ID)
 

@@ -10,7 +10,7 @@ import (
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 	for _, elem := range genState.DidDocuments {
-		k.AppendId(ctx, *elem)
+		k.AppendDid(ctx, *elem)
 	}
 
 	// this line is used by starport scaffolding # genesis/module/init

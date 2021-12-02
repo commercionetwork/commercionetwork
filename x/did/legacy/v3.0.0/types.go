@@ -8,9 +8,9 @@ const (
 	ModuleName = "did"
 )
 
-type DidDocuments []*types.DidDocument
+type DidDocuments []*types.DidDocumentNew
 
-func (didDocuments DidDocuments) AppendIfMissingID(i *types.DidDocument) DidDocuments {
+func (didDocuments DidDocuments) AppendIfMissingID(i *types.DidDocumentNew) DidDocuments {
 	for _, ele := range didDocuments {
 		if ele.ID == i.ID {
 			return didDocuments

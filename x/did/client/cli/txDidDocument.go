@@ -35,7 +35,7 @@ func CmdSetIdentity() *cobra.Command {
 				return err
 			}
 
-			var didDocument types.DidDocument
+			var didDocument types.DidDocumentNew
 			json.Unmarshal(ddoData, &didDocument)
 
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -69,7 +69,7 @@ func CmdSetIdentity() *cobra.Command {
 			}*/
 
 			//msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, proof, didDocument.Service)
-			msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, didDocument.Service)
+			msg := types.NewMsgSetDid(types.ContextDidV1, clientCtx.GetFromAddress().String())
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

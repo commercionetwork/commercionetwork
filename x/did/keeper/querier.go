@@ -38,7 +38,7 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper, legacyQ
 	var response ResolveIdentityResponse
 	response.Owner = address
 
-	didDocument, err := keeper.GetDidDocumentByOwner(ctx, address)
+	didDocument, err := keeper.GetDdoByOwner(ctx, address)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress, err.Error())
 	}
@@ -54,6 +54,6 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper, legacyQ
 }
 
 type ResolveIdentityResponse struct {
-	Owner       sdk.AccAddress     `json:"owner" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
-	DidDocument *types.DidDocument `json:"did_document"`
+	Owner       sdk.AccAddress        `json:"owner" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
+	DidDocument *types.DidDocumentNew `json:"did_document"`
 }

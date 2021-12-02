@@ -10,22 +10,16 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 
 // Query defines the gRPC querier service.
 service Query {
-	// Queries a DidDocument by id.
-	rpc Identity(QueryResolveDidRequest) returns (QueryResolveDidResponse) {
-		option (google.api.http).get = "/commercionetwork/did/identities/{ID}";
-	}
+  // Queries a DidDocument by id.
+  rpc Identity(QueryResolveDidRequest) returns (QueryResolveDidResponse) {
+    option (google.api.http).get = "/commercionetwork/did/identities/{ID}";
+  }
 
-    // this line is used by starport scaffolding # 2
-    
+  // this line is used by starport scaffolding # 2
 }
 
-message QueryResolveDidRequest {
-	string ID = 1;
-}
+message QueryResolveDidRequest { string ID = 1; }
 
-message QueryResolveDidResponse {
-	DidDocument DidDocument = 1;
-}
-
+message QueryResolveDidResponse { DidDocumentNew DidDocument = 1; }
 
 // this line is used by starport scaffolding # 3
