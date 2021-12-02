@@ -19,14 +19,6 @@ func NewQuerier(keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier 
 		switch path[0] {
 		case types.QueryResolveDid:
 			return queryResolveIdentity(ctx, path[1:], keeper, legacyQuerierCdc)
-		case types.QueryResolvePowerUpRequest:
-			return queryResolvePowerUpRequest(ctx, path[1:], keeper, legacyQuerierCdc)
-		case types.QueryGetApprovedPowerUpRequest:
-			return queryGetApprovedPowerUpRequest(ctx, keeper, legacyQuerierCdc)
-		case types.QueryGetRejectedPowerUpRequest:
-			return queryGetRejectedPowerUpRequests(ctx, keeper, legacyQuerierCdc)
-		case types.QueryGetPendingPowerUpRequest:
-			return queryGetPendingPowerUpRequests(ctx, keeper, legacyQuerierCdc)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
@@ -64,56 +56,4 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper, legacyQ
 type ResolveIdentityResponse struct {
 	Owner       sdk.AccAddress     `json:"owner" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
 	DidDocument *types.DidDocument `json:"did_document"`
-}
-
-// -------------------
-// --- Pairwise Did
-// --------------------
-func queryResolvePowerUpRequest(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
-
-	// Get the request
-	request, err := keeper.GetPowerUpRequestByID(ctx, path[0])
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
-	}
-
-	bz, sErr := codec.MarshalJSONIndent(legacyQuerierCdc, &request)
-	if sErr != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
-	}
-
-	return bz, nil
-}
-
-func queryGetApprovedPowerUpRequest(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
-	requests := keeper.GetApprovedPowerUpRequests(ctx)
-
-	bz, sErr := codec.MarshalJSONIndent(legacyQuerierCdc, &requests)
-	if sErr != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
-	}
-
-	return bz, nil
-}
-
-func queryGetRejectedPowerUpRequests(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
-	requests := keeper.GetRejectedPowerUpRequests(ctx)
-
-	bz, sErr := codec.MarshalJSONIndent(legacyQuerierCdc, &requests)
-	if sErr != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
-	}
-
-	return bz, nil
-}
-
-func queryGetPendingPowerUpRequests(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
-	requests := keeper.GetPendingPowerUpRequests(ctx)
-
-	bz, sErr := codec.MarshalJSONIndent(legacyQuerierCdc, &requests)
-	if sErr != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("could not marshal result to JSON: %s", sErr.Error()))
-	}
-
-	return bz, nil
 }
