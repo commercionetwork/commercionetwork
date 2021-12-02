@@ -1866,6 +1866,44 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
+  /commercionetwork/vbr/params:
+    get:
+      operationId: CommercionetworkCommercionetworkVbrGetVbrParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              vbrParams:
+                type: object
+                properties:
+                  distrEpochIdentifier:
+                    type: string
+                    title: distribution epoch identifier
+                  vbrEarnRate:
+                    type: string
+                title: Params holds parameters for the incentives module
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   /commercionetwork/vbr/reward_rate:
     get:
       operationId: CommercionetworkCommercionetworkVbrGetRewardRate
@@ -24775,6 +24813,17 @@ definitions:
     type: object
   commercionetwork.commercionetwork.vbr.MsgSetRewardRateResponse:
     type: object
+  commercionetwork.commercionetwork.vbr.MsgSetVbrParamsResponse:
+    type: object
+  commercionetwork.commercionetwork.vbr.Params:
+    type: object
+    properties:
+      distrEpochIdentifier:
+        type: string
+        title: distribution epoch identifier
+      vbrEarnRate:
+        type: string
+    title: Params holds parameters for the incentives module
   commercionetwork.commercionetwork.vbr.QueryGetAutomaticWithdrawResponse:
     type: object
     properties:
@@ -24802,6 +24851,18 @@ definitions:
     properties:
       rewardRate:
         type: string
+  commercionetwork.commercionetwork.vbr.QueryGetVbrParamsResponse:
+    type: object
+    properties:
+      vbrParams:
+        type: object
+        properties:
+          distrEpochIdentifier:
+            type: string
+            title: distribution epoch identifier
+          vbrEarnRate:
+            type: string
+        title: Params holds parameters for the incentives module
   cosmos.base.v1beta1.DecCoin:
     type: object
     properties:

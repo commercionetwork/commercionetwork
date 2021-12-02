@@ -416,6 +416,7 @@ func New(
 		app.governmentKeeper,
 		app.EpochsKeeper,
 		app.GetSubspace(vbrmoduletypes.ModuleName),
+		app.StakingKeeper,
 	)
 	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
 	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(

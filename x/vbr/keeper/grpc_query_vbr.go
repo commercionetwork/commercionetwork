@@ -44,3 +44,14 @@ func (k Keeper) GetAutomaticWithdraw(goCtx context.Context,  req *types.QueryGet
 
 	return &types.QueryGetAutomaticWithdrawResponse{AutoW: autoW}, nil
 }
+
+func (k Keeper) GetVbrParams(goCtx context.Context, req *types.QueryGetVbrParamsRequest) (*types.QueryGetVbrParamsResponse, error){
+	if req == nil {
+        return nil, status.Error(codes.InvalidArgument, "invalid request")
+    }
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	params := k.GetParams(ctx)
+	
+	return &types.QueryGetVbrParamsResponse{VbrParams: params}, nil
+}

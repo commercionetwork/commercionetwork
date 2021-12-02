@@ -98,3 +98,26 @@ func getAutomaticWithdrawFunc(cmd *cobra.Command) error {
 
 	return cliCtx.PrintProto(res)
 }
+
+func getVbrParams() *cobra.Command {
+	return &cobra.Command{
+		Use:   "get-params",
+		Short: "Get the actual params of vbr",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(cliCtx)
+		
+			req := &types.QueryGetVbrParamsRequest{}
+			res, err := queryClient.GetVbrParams(cmd.Context(), req)
+			if err != nil {
+				return fmt.Errorf("could not get total funds amount: %s", err)
+			}
+
+			return cliCtx.PrintProto(res)
+		},
+	}
+}

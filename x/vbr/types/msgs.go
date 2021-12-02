@@ -154,3 +154,48 @@ func (msg *MsgSetAutomaticWithdraw) ValidateBasic() error {
 	}
 	return nil
 }
+
+
+// -------------------------
+// --- MsgSetVbrParams
+// -------------------------
+
+var _ sdk.Msg = &MsgSetVbrParams{}
+
+func NewMsgSetVbrParams(government string, epochIdentifier string, vbrEarnRate sdk.Dec) *MsgSetVbrParams {
+	return &MsgSetVbrParams{
+		Government: government,
+		DistrEpochIdentifier: epochIdentifier,
+		VbrEarnRate: vbrEarnRate,
+	}
+}
+
+func (msg *MsgSetVbrParams) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSetVbrParams) Type() string {
+	return MsgTypeSetVbrParams
+}
+
+func (msg *MsgSetVbrParams) GetSigners() []sdk.AccAddress {
+	gov, err := sdk.AccAddressFromBech32(msg.Government)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{gov}
+}
+
+func (msg *MsgSetVbrParams) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgSetVbrParams) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Government)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
+	}
+	return nil
+}
+

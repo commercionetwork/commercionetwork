@@ -75,3 +75,23 @@ func (k msgServer) SetAutomaticWithdraw(goCtx context.Context, msg *types.MsgSet
 
 	return &types.MsgSetAutomaticWithdrawResponse{}, nil
 }
+
+func (k msgServer) SetVbrParams(goCtx context.Context, msg *types.MsgSetVbrParams) (*types.MsgSetVbrParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	gov := k.govKeeper.GetGovernmentAddress(ctx)
+	msgGovAddr, e := sdk.AccAddressFromBech32(msg.Government)
+	if e != nil {
+		return nil, e
+	}
+	if !(gov.Equals(msgGovAddr)) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
+	}
+	params := types.Params{
+			DistrEpochIdentifier: msg.DistrEpochIdentifier,
+			VbrEarnRate: msg.VbrEarnRate,
+		}
+	k.SetParams(ctx, params)
+	
+	return &types.MsgSetVbrParamsResponse{}, nil
+}

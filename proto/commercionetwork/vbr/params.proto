@@ -10,4 +10,7 @@ message Params {
   // distribution epoch identifier
   string distr_epoch_identifier = 1
       [ (gogoproto.moretags) = "yaml:\"distr_epoch_identifier\"" ];
+  string vbr_earn_rate = 2 [ (gogoproto.moretags) = "yaml:\"vbr_earn_rate\"",
+  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+  (gogoproto.nullable) = false];
 }

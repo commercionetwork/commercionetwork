@@ -3,6 +3,9 @@ package types
 import (
 	"errors"
 	"fmt"
+	
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // DefaultIndex is the default capability global index
@@ -14,6 +17,7 @@ func DefaultGenesis() *GenesisState {
 		AutomaticWithdraw: true,
 		Params: Params{
 			DistrEpochIdentifier: "day",
+			VbrEarnRate: sdk.NewDec(int64(50)),
 		},
 	}
 }
@@ -31,6 +35,10 @@ func (gs GenesisState) Validate() error {
 
 	if gs.Params.DistrEpochIdentifier == "" {
 		return errors.New("epoch identifier should NOT be empty")
+	}
+
+	if gs.Params.VbrEarnRate.IsNegative() || gs.Params.VbrEarnRate.IsZero() {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("VbrEarnRate: %d must be greater then 0", gs.Params.VbrEarnRate))
 	}
 
 	return ValidateRewardRate(gs.RewardRate)

@@ -32,6 +32,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		GetCmdRetrieveBlockRewardsPoolFunds(),
 		getRewardRate(),
 		getAutomaticWithdraw(),
+		getVbrParams(),
 	)
 
 	return cmd

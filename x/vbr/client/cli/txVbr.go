@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 )
 
@@ -86,7 +87,7 @@ func setRewardRateCmdFunc(cmd *cobra.Command, args []string) error {
 	return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 }
 
-func CmdMsgIncrementBlockRewardsPool() *cobra.Command {
+func CmdIncrementBlockRewardsPool() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [coin-denom] [amount]",
 		Short: "Increments the block rewards pool's liquidity by the given amount",
@@ -107,6 +108,37 @@ func CmdMsgIncrementBlockRewardsPool() *cobra.Command {
 			msg := types.NewMsgIncrementBlockRewardsPool(funder.String(), argAmount)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdSetVbrParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-params [epoch_identifier] [vbr_earn_rate]",
+		Short: "Set the vbr params with epoch identifier(i.e. \"day\" and the vbr earn rate percentage(Dec))", //todo
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			gov := clientCtx.GetFromAddress()
+			epochIdentifier := args[0]
+			vbrEarnRate, err := sdk.NewDecFromStr(args[1])
+			if err != nil {
+				return sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "invalid vbrEarnRate (%s)", err)
+			}
+
+			msg := types.NewMsgSetVbrParams(gov.String(), epochIdentifier, vbrEarnRate)
+			if err2 := msg.ValidateBasic(); err2 != nil {
+				return err2
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

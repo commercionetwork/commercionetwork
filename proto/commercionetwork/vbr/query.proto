@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 //import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
+import "commercionetwork/vbr/params.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 
@@ -22,6 +23,10 @@ service Query {
 
 	rpc GetAutomaticWithdraw(QueryGetAutomaticWithdrawRequest) returns (QueryGetAutomaticWithdrawResponse) {
 		option (google.api.http).get = "/commercionetwork/vbr/automatic_withdraw";
+	}
+
+	rpc GetVbrParams(QueryGetVbrParamsRequest) returns (QueryGetVbrParamsResponse){
+		option (google.api.http).get = "/commercionetwork/vbr/params";
 	}
 }
 
@@ -51,4 +56,10 @@ message QueryGetAutomaticWithdrawResponse {
 	bool autoW = 1 [(gogoproto.moretags) = "yaml:\"autoW\""] ;
 }
 
+message QueryGetVbrParamsRequest {
+}
 
+message QueryGetVbrParamsResponse{
+	Params vbrParams = 1 [(gogoproto.moretags) = "yaml:\"vbrParams\"",
+    (gogoproto.nullable) = false]; 
+}
