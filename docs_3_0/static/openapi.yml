@@ -24344,6 +24344,11 @@ definitions:
             serviceEndpoint:
               type: string
         title: did.Proof proof = 4;
+  commercionetwork.commercionetwork.did.MsgSetDidResponse:
+    type: object
+    properties:
+      ID:
+        type: string
   commercionetwork.commercionetwork.did.MsgSetIdentityResponse:
     type: object
     properties:

@@ -8,9 +8,9 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
-    rpc SetIdentity(MsgSetIdentity) returns (MsgSetIdentityResponse);
-
+  // this line is used by starport scaffolding # proto/tx/rpc
+  rpc SetIdentity(MsgSetIdentity) returns (MsgSetIdentityResponse);
+  rpc SetDid(MsgSetDid) returns (MsgSetDidResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
@@ -18,11 +18,15 @@ message MsgSetIdentity {
   string context = 1;
   string ID = 2;
   repeated PubKey pubKeys = 3;
-  //Proof proof = 4;
+  // Proof proof = 4;
   repeated Service service = 4;
 }
 
-message MsgSetIdentityResponse {
-  string ID = 1;
+message MsgSetIdentityResponse { string ID = 1; }
+
+message MsgSetDid {
+  string context = 1;
+  string ID = 2;
 }
 
+message MsgSetDidResponse { string ID = 1; }

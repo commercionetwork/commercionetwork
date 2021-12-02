@@ -39,10 +39,12 @@ const (
 
 	DidPowerUpRequestStorePrefix               = StoreKey + "powerUpRequest"
 	HandledPowerUpRequestsReferenceStorePrefix = StoreKey + "handledPowerUpRequestsReference"
-	
+
 	StatusApproved = "approved"
 	StatusRejected = "rejected"
 	StatusCanceled = "canceled"
+
+	MsgTypeSetDid = "MsgSetDid"
 
 	// --------------
 	// --- Queries
