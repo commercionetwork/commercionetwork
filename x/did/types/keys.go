@@ -37,9 +37,6 @@ const (
 	KeyTypeBls12381G1Key2020 = "Bls12381G1Key2020"
 	KeyTypeBls12381G2Key2020 = "Bls12381G2Key2020"
 
-	DidPowerUpRequestStorePrefix               = StoreKey + "powerUpRequest"
-	HandledPowerUpRequestsReferenceStorePrefix = StoreKey + "handledPowerUpRequestsReference"
-
 	MsgTypeSetDid = "MsgSetDid"
 
 	// --------------

@@ -6,6 +6,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {
@@ -13,12 +14,12 @@ func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {
 	return NewMsgServerImpl(*keeper), sdk.WrapSDKContext(ctx)
 }
 
-// func TestSetIdentityMsgServerCreate(t *testing.T) {
-// 	srv, ctx := setupMsgServer(t)
-// 	creator := "A"
-// 	for i := 0; i < 5; i++ {
-// 		_, err := srv.SetDid(ctx, &types.MsgSetDid{ID: creator})
-// 		require.NoError(t, err)
-// 		//assert.Equal(t, i, int(resp.UUID))
-// 	}
-// }
+func TestSetIdentityMsgServerCreate(t *testing.T) {
+	srv, ctx := setupMsgServer(t)
+	creator := "A"
+	for i := 0; i < 5; i++ {
+		_, err := srv.SetDid(ctx, &types.MsgSetDid{ID: creator})
+		require.NoError(t, err)
+		//assert.Equal(t, i, int(resp.UUID))
+	}
+}
