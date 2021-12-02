@@ -1,6 +1,11 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	commons "github.com/commercionetwork/commercionetwork/x/common/types"
+)
 
 func (msg *MsgSetDid) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.ID)
@@ -24,14 +29,14 @@ func (msg *MsgSetDid) Type() string {
 }
 
 func (msg *MsgSetDid) ValidateBasic() error {
-	// _, err := sdk.AccAddressFromBech32(msg.ID)
-	// if err != nil {
-	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
-	// }
+	_, err := sdk.AccAddressFromBech32(msg.ID)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
 
-	// if msg.Context != ContextDidV1 {
-	// 	return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Invalid context, must be https://www.w3.org/ns/did/v1")
-	// }
+	if commons.Strings(msg.Context).Contains(ContextDidV1) {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Invalid context, must include %s", ContextDidV1)
+	}
 
 	// controller, _ := sdk.AccAddressFromBech32(msg.ID)
 
