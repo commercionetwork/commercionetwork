@@ -15,7 +15,7 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidRequest) (
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var didDocumentNew types.DidDocumentNew
+	var didDocument types.DidDocument
 	ctx := sdk.UnwrapSDKContext(c)
 
 	if !k.HasIdentity(ctx, req.ID) {
@@ -23,7 +23,7 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidRequest) (
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get(getIdentityStoreKey(sdk.AccAddress(req.ID))), &didDocumentNew)
+	k.cdc.MustUnmarshalBinaryBare(store.Get(getIdentityStoreKey(sdk.AccAddress(req.ID))), &didDocument)
 
-	return &types.QueryResolveDidResponse{DidDocument: &didDocumentNew}, nil
+	return &types.QueryResolveDidResponse{DidDocument: &didDocument}, nil
 }

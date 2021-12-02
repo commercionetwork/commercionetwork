@@ -24,7 +24,7 @@ func Migrate(oldGenState v220did.GenesisState) *types.GenesisState {
 }
 
 // migrateDidDocuments migrates a single v2.2.0 document into a 3.0.0 document
-func migrateDidDocuments(didDoc v220did.DidDocument) *types.DidDocumentNew {
+func migrateDidDocuments(didDoc v220did.DidDocument) *types.DidDocument {
 	//TODO
 
 	// Convert the public keys
@@ -63,5 +63,5 @@ func migrateDidDocuments(didDoc v220did.DidDocument) *types.DidDocumentNew {
 	// 	Service: services,
 	// }
 
-	return &types.DidDocumentNew{}
+	return &types.DidDocument{}
 }

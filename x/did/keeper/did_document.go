@@ -30,14 +30,14 @@ func (k Keeper) HasIdentity(ctx sdk.Context, ID string) bool {
 }
 
 // GetAllDidDocument returns all didDocument
-func (k Keeper) GetAllDidDocument(ctx sdk.Context) (list []types.DidDocumentNew) {
+func (k Keeper) GetAllDidDocument(ctx sdk.Context) (list []types.DidDocument) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.IdentitiesStorePrefix))
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var val types.DidDocumentNew
+		var val types.DidDocument
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
 		list = append(list, val)
 	}

@@ -25,20 +25,20 @@ func (k msgServer) SetDid(goCtx context.Context, msg *types.MsgSetDid) (*types.M
 
 	t := ctx.BlockTime()
 
-	var didDocumentNew types.DidDocumentNew
+	var DidDocument types.DidDocument
 
 	if k.HasIdentity(ctx, msg.ID) {
-		didDocumentNew, _ = k.Keeper.GetDdoByOwner(ctx, sdk.AccAddress(msg.ID))
+		DidDocument, _ = k.Keeper.GetDdoByOwner(ctx, sdk.AccAddress(msg.ID))
 
 		// update fields
 		//
 		//
 
 		// update the timestamp for the fields that must be updated
-		didDocumentNew.Updated = &t // &ctx.BlockTime()
+		DidDocument.Updated = &t // &ctx.BlockTime()
 	}
 
-	didDocumentNew = types.DidDocumentNew{
+	DidDocument = types.DidDocument{
 		Context:              msg.Context,
 		ID:                   msg.ID,
 		VerificationMethod:   msg.VerificationMethod,
@@ -52,7 +52,7 @@ func (k msgServer) SetDid(goCtx context.Context, msg *types.MsgSetDid) (*types.M
 		Updated:              &t,
 	}
 
-	id := k.AppendDid(ctx, didDocumentNew)
+	id := k.AppendDid(ctx, DidDocument)
 
 	return &types.MsgSetDidResponse{
 		ID: id,
@@ -60,24 +60,24 @@ func (k msgServer) SetDid(goCtx context.Context, msg *types.MsgSetDid) (*types.M
 }
 
 // AppendDid appends a didDocument in the store with given id
-func (k Keeper) AppendDid(ctx sdk.Context, didDocumentNew types.DidDocumentNew) string {
+func (k Keeper) AppendDid(ctx sdk.Context, DidDocument types.DidDocument) string {
 	// Create the Document
 	store := ctx.KVStore(k.storeKey)
-	store.Set(getIdentityStoreKey(sdk.AccAddress(didDocumentNew.ID)), k.cdc.MustMarshalBinaryBare(&didDocumentNew))
-	return didDocumentNew.ID
+	store.Set(getIdentityStoreKey(sdk.AccAddress(DidDocument.ID)), k.cdc.MustMarshalBinaryBare(&DidDocument))
+	return DidDocument.ID
 }
 
 // GetDdoByOwner returns the DID Document reference associated to a given DID.
 // If the given DID has no DID Document reference associated, returns nil.
-func (k Keeper) GetDdoByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocumentNew, error) {
+func (k Keeper) GetDdoByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	identityKey := getIdentityStoreKey(owner)
 	if !store.Has(identityKey) {
-		return types.DidDocumentNew{}, fmt.Errorf("did document with owner %s not found", owner.String())
+		return types.DidDocument{}, fmt.Errorf("did document with owner %s not found", owner.String())
 	}
 
-	var didDocumentNew types.DidDocumentNew
-	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &didDocumentNew)
-	return didDocumentNew, nil
+	var DidDocument types.DidDocument
+	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &DidDocument)
+	return DidDocument, nil
 }

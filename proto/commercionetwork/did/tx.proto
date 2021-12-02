@@ -18,7 +18,7 @@ message MsgSetDid {
   repeated string context = 1;
   string ID = 2;
   repeated VerificationMethod verificationMethod = 3;
-  repeated ServiceNew service = 4;
+  repeated Service service = 4;
   repeated VerificationMethod authentication = 5;
   repeated VerificationMethod assertionMethod = 6;
   repeated VerificationMethod capabilityDelegation = 7;

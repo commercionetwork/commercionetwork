@@ -28,8 +28,8 @@ func TestNewDocumentExist(t *testing.T) {
 	}
 }
 
-func createNIdentityNew(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocumentNew {
-	items := make([]types.DidDocumentNew, n)
+func createNIdentityNew(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocument {
+	items := make([]types.DidDocument, n)
 	for i := range items {
 		_, _, addr := testdata.KeyTestPubAddr()
 		items[i].ID = string(addr)

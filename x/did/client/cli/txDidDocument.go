@@ -35,7 +35,7 @@ func CmdSetIdentity() *cobra.Command {
 				return err
 			}
 
-			var didDocument types.DidDocumentNew
+			var didDocument types.DidDocument
 			json.Unmarshal(ddoData, &didDocument)
 
 			clientCtx, err := client.GetClientTxContext(cmd)

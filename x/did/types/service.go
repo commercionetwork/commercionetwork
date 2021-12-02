@@ -4,7 +4,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (s ServiceNew) Validate() error {
+func (s Service) Validate() error {
 	if s.ID == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"id\" is required")
 	}

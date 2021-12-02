@@ -26730,7 +26730,7 @@ definitions:
                repeated Bar results = 1;
                PageResponse page = 2;
        }
-  commercionetwork.commercionetwork.did.DidDocumentNew:
+  commercionetwork.commercionetwork.did.DidDocument:
     type: object
     properties:
       context:
@@ -31482,7 +31482,7 @@ definitions:
           updated:
             type: string
             format: date-time
-  commercionetwork.commercionetwork.did.ServiceNew:
+  commercionetwork.commercionetwork.did.Service:
     type: object
     properties:
       ID:
