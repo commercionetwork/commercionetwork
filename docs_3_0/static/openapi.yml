@@ -29070,12 +29070,12 @@ definitions:
       updated:
         type: string
         format: date-time
-  commercionetwork.commercionetwork.did.MsgSetDidResponse:
+  commercionetwork.commercionetwork.did.MsgSetDidDocumentResponse:
     type: object
     properties:
       ID:
         type: string
-  commercionetwork.commercionetwork.did.QueryResolveDidResponse:
+  commercionetwork.commercionetwork.did.QueryResolveDidDocumentResponse:
     type: object
     properties:
       DidDocument:

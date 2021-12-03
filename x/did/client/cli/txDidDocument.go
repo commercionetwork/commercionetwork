@@ -69,7 +69,7 @@ func CmdSetIdentity() *cobra.Command {
 			}*/
 
 			//msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, proof, didDocument.Service)
-			msg := types.NewMsgSetDid(types.ContextDidV1, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgSetDidDocument(types.ContextDidV1, clientCtx.GetFromAddress().String())
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

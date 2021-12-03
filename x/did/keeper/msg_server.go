@@ -19,41 +19,46 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-func (k msgServer) SetDid(goCtx context.Context, msg *types.MsgSetDid) (*types.MsgSetDidResponse, error) {
+func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	t := ctx.BlockTime()
+	timestamp, err := getTimestamp(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	var DidDocument types.DidDocument
+	ddoProposal := msg.DidDocument
 
-	if k.HasIdentity(ctx, msg.ID) {
-		DidDocument, _ = k.Keeper.GetDdoByOwner(ctx, sdk.AccAddress(msg.ID))
+	var ddoChain types.DidDocument
+
+	if k.HasIdentity(ctx, msg.DidDocument.ID) {
+		ddoChain, _ = k.Keeper.GetDdoByOwner(ctx, sdk.AccAddress(msg.DidDocument.ID))
 
 		// update fields
 		//
 		//
 
 		// update the timestamp for the fields that must be updated
-		DidDocument.Updated = &t // &ctx.BlockTime()
+		ddoChain.Updated = timestamp
 	}
 
-	DidDocument = types.DidDocument{
-		Context:              msg.Context,
-		ID:                   msg.ID,
-		VerificationMethod:   msg.VerificationMethod,
-		Service:              msg.Service,
-		Authentication:       msg.Authentication,
-		AssertionMethod:      msg.AssertionMethod,
-		CapabilityDelegation: msg.CapabilityDelegation,
-		CapabilityInvocation: msg.CapabilityInvocation,
-		KeyAgreement:         msg.KeyAgreement,
-		Created:              &t,
-		Updated:              &t,
+	ddoChain = types.DidDocument{
+		Context:              ddoProposal.Context,
+		ID:                   ddoProposal.ID,
+		VerificationMethod:   ddoProposal.VerificationMethod,
+		Service:              ddoProposal.Service,
+		Authentication:       ddoProposal.Authentication,
+		AssertionMethod:      ddoProposal.AssertionMethod,
+		CapabilityDelegation: ddoProposal.CapabilityDelegation,
+		CapabilityInvocation: ddoProposal.CapabilityInvocation,
+		KeyAgreement:         ddoProposal.KeyAgreement,
+		Created:              timestamp,
+		Updated:              timestamp,
 	}
 
-	id := k.AppendDid(ctx, DidDocument)
+	id := k.AppendDid(ctx, ddoChain)
 
-	return &types.MsgSetDidResponse{
+	return &types.MsgSetDidDocumentResponse{
 		ID: id,
 	}, nil
 }

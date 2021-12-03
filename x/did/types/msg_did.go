@@ -7,50 +7,43 @@ import (
 	commons "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
-func NewMsgSetDid(context string, ID string) *MsgSetDid {
-	return &MsgSetDid{
-		Context: []string{context},
-		ID:      ID,
-		// VerificationMethod:   []*VerificationMethod{},
-		// Service:              []*ServiceNew{},
-		// Authentication:       []*VerificationMethod{},
-		// AssertionMethod:      []*VerificationMethod{},
-		// CapabilityDelegation: []*VerificationMethod{},
-		// CapabilityInvocation: []*VerificationMethod{},
-		// KeyAgreement:         []*VerificationMethod{},
+func NewMsgSetDidDocument(context string, ID string) *MsgSetDidDocument {
+	return &MsgSetDidDocument{
+		&DidDocument{Context: []string{context}, ID: ID},
 	}
+
 }
 
-func (msg *MsgSetDid) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.ID)
+func (msg *MsgSetDidDocument) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.DidDocument.ID)
 	if err != nil {
 		panic(err)
 	}
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgSetDid) GetSignBytes() []byte {
+func (msg *MsgSetDidDocument) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgSetDid) Route() string {
+func (msg *MsgSetDidDocument) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgSetDid) Type() string {
+func (msg *MsgSetDidDocument) Type() string {
 	return MsgTypeSetDid
 }
 
-func (msg *MsgSetDid) ValidateBasic() error {
+func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// validate ID
-	_, err := sdk.AccAddressFromBech32(msg.ID)
+	_, err := sdk.AccAddressFromBech32(msg.DidDocument.ID)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
 	// validate Context
-	if commons.Strings(msg.Context).Contains(ContextDidV1) {
+	if commons.Strings(msg.DidDocument.Context).Contains(ContextDidV1) {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Invalid context, must include %s", ContextDidV1)
 	}
 

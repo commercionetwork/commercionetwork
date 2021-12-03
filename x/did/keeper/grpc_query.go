@@ -14,7 +14,7 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidRequest) (*types.QueryResolveDidResponse, error) {
+func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidDocumentRequest) (*types.QueryResolveDidDocumentResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -29,5 +29,5 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidRequest) (
 	store := ctx.KVStore(k.storeKey)
 	k.cdc.MustUnmarshalBinaryBare(store.Get(getIdentityStoreKey(sdk.AccAddress(req.ID))), &didDocument)
 
-	return &types.QueryResolveDidResponse{DidDocument: &didDocument}, nil
+	return &types.QueryResolveDidDocumentResponse{DidDocument: &didDocument}, nil
 }
