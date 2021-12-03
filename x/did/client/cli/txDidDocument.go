@@ -17,8 +17,8 @@ import (
 
 func CmdSetIdentity() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setidentity document_path",
-		Short: "Sets the identity with document",
+		Use:   "setidentity [document_path]",
+		Short: "Sets the identity with DID document",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 

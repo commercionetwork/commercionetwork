@@ -12,7 +12,7 @@ import (
 func CmdShowIdentity() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show-identity [id]",
-		Short: "shows a did document",
+		Short: "shows a DID document",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
