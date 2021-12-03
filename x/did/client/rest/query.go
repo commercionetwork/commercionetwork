@@ -22,15 +22,15 @@ func RegisterRoutes(cliCtx client.Context, r *mux.Router, querierRoute string) {
 		Methods("GET")
 }
 
-// @Summary Get a user Did Document
-// @Description This endpoint returns a user Did Document, along with the height at which the resource was queried at
+// @Summary Get a user DID document
+// @Description This endpoint returns a user DID document, along with the height at which the resource was queried at
 // @ID id_resolveIdentityHandler
 // @Produce json
-// @Param did path string true "Address of the user for which to read the Did Document"
+// @Param did path string true "Address of the user for which to read the DID document"
 // @Success 200 {object} x.JSONResult{result=keeper.ResolveIdentityResponse}
 // @Failure 404
 // @Router /identities/{did} [get]
-// @Tags x/id
+// @Tags x/did
 func resolveIdentityHandler(cliCtx client.Context, querierRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)

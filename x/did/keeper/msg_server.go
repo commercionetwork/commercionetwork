@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -57,27 +56,4 @@ func (k msgServer) SetDid(goCtx context.Context, msg *types.MsgSetDid) (*types.M
 	return &types.MsgSetDidResponse{
 		ID: id,
 	}, nil
-}
-
-// AppendDid appends a didDocument in the store with given id
-func (k Keeper) AppendDid(ctx sdk.Context, DidDocument types.DidDocument) string {
-	// Create the Document
-	store := ctx.KVStore(k.storeKey)
-	store.Set(getIdentityStoreKey(sdk.AccAddress(DidDocument.ID)), k.cdc.MustMarshalBinaryBare(&DidDocument))
-	return DidDocument.ID
-}
-
-// GetDdoByOwner returns the DID Document reference associated to a given DID.
-// If the given DID has no DID Document reference associated, returns nil.
-func (k Keeper) GetDdoByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
-	store := ctx.KVStore(k.storeKey)
-
-	identityKey := getIdentityStoreKey(owner)
-	if !store.Has(identityKey) {
-		return types.DidDocument{}, fmt.Errorf("did document with owner %s not found", owner.String())
-	}
-
-	var DidDocument types.DidDocument
-	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &DidDocument)
-	return DidDocument, nil
 }
