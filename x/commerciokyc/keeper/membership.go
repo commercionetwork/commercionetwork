@@ -5,7 +5,6 @@ import (
 	"time"
 
 	mtypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -262,41 +261,6 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	return returnMethod
 }
 
-// GetTrustedServiceProviders returns the list of signers that are allowed to sign
-// transactions setting a specific accrediter for a user.
-// NOTE. Any user which is not present inside the returned list SHOULD NOT
-// be allowed to send a transaction setting an accrediter for another user.
-func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.TrustedServiceProviders) {
-	store := ctx.KVStore(k.StoreKey)
-
-	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.Cdc.UnmarshalBinaryBare(signersBz, &signers)
-
-	//k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
-	// Cannot use add govAddress: trust service provider doesn't work proprerly
-	//signers = append(signers, k.governmentKeeper.GetGovernmentAddress(ctx))
-	return signers
-}
-
-// IsTrustedServiceProvider tells if the given signer is a trusted one or not
-func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
-	var signers ctypes.Strings
-	signers = k.GetTrustedServiceProviders(ctx).Addresses
-	return signers.Contains(signer.String()) || signer.Equals(k.govKeeper.GetGovernmentAddress(ctx))
-}
-
-// TspIterator returns an Iterator for all the tsps stored.
-func (k Keeper) TspIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.StoreKey)
-	return sdk.KVStorePrefixIterator(store, []byte(types.TrustedSignersStoreKey))
-}
-
-// storageForAddr returns a string representing the KVStore storage key for an addr.
-func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
-	//return append([]byte(types.MembershipsStorageKey), k.Cdc.MustMarshalBinaryBare(&addr)...)
-	return append([]byte(types.MembershipsStorageKey), addr.Bytes()...)
-}
-
 // GetMembership allows to retrieve any existent membership for the specified user.
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
 	store := ctx.KVStore(k.StoreKey)
@@ -325,21 +289,6 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 	}
 
 	return ms
-}
-
-// GetPoolFunds returns the funds currently present inside the rewards pool
-func (k Keeper) GetPoolFunds(ctx sdk.Context) sdk.Coins {
-	moduleAccount := k.GetMembershipModuleAccount(ctx)
-	var coins sdk.Coins
-	for _, coin := range k.bankKeeper.GetAllBalances(ctx, moduleAccount.GetAddress()) {
-		coins = append(coins, coin)
-	}
-	return coins
-}
-
-// GetMembershipModuleAccount returns the module account for the commerciokyc module
-func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) accTypes.ModuleAccountI {
-	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // MembershipIterator returns an Iterator for all the memberships stored.
@@ -406,4 +355,15 @@ func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
 		}
 	}
 	return nil
+}
+
+// GetMembershipModuleAccount returns the module account for the commerciokyc module
+func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) accTypes.ModuleAccountI {
+	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
+// storageForAddr returns a string representing the KVStore storage key for an addr.
+func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
+	//return append([]byte(types.MembershipsStorageKey), k.Cdc.MustMarshalBinaryBare(&addr)...)
+	return append([]byte(types.MembershipsStorageKey), addr.Bytes()...)
 }

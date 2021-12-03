@@ -400,6 +400,14 @@ func New(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
+	// Government keeper must be set before other modules keeper that depend on it
+	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
+		appCodec,
+		keys[governmentmoduletypes.StoreKey],
+		keys[governmentmoduletypes.MemStoreKey],
+	)
+	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
+
 	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
 		appCodec,
 		keys[vbrmoduletypes.StoreKey],
@@ -410,12 +418,18 @@ func New(
 		app.governmentKeeper,
 	)
 	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
-	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
+
+	// CommercioMint keeper must be set before CommercioKyc
+	app.commercioMintKeeper = *commerciomintKeeper.NewKeeper(
 		appCodec,
-		keys[governmentmoduletypes.StoreKey],
-		keys[governmentmoduletypes.MemStoreKey],
+		keys[commerciomintTypes.StoreKey],
+		keys[commerciomintTypes.MemStoreKey],
+		app.BankKeeper,
+		app.AccountKeeper,
+		app.governmentKeeper,
 	)
-	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
+	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.commercioMintKeeper)
+
 	app.commercioKycKeeper = *commerciokycKeeper.NewKeeper(
 		appCodec,
 		keys[commerciokycTypes.StoreKey],
@@ -426,16 +440,6 @@ func New(
 		app.commercioMintKeeper,
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.commercioKycKeeper)
-
-	app.commercioMintKeeper = *commerciomintKeeper.NewKeeper(
-		appCodec,
-		keys[commerciomintTypes.StoreKey],
-		keys[commerciomintTypes.MemStoreKey],
-		app.BankKeeper,
-		app.AccountKeeper,
-		app.governmentKeeper,
-	)
-	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.commercioMintKeeper)
 
 	app.upgradeKeeper = *upgrademodulekeeper.NewKeeper(
 		appCodec,
