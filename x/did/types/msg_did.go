@@ -46,7 +46,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 
 	// validate Context
 	if commons.Strings(ddo.Context).Contains(ContextDidV1) {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Invalid context, must include %s", ContextDidV1)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid context, must include %s", ContextDidV1)
 	}
 
 	// validate VerificationMethod
@@ -55,6 +55,12 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// }
 
 	// validate Service
+	for _, s := range ddo.Service {
+		err = s.Validate()
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid service %s %e", s, err)
+		}
+	}
 
 	// validate Authentication
 
