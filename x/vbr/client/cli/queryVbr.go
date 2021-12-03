@@ -6,20 +6,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	//sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
-
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "pool-funds",
 		Short: "Get the actual block rewards pool's total funds amount",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
+			cliCtx := client.GetClientContextFromCmd(cmd)
+			
 			queryClient := types.NewQueryClient(cliCtx)
 			//route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryBlockRewardsPoolFunds)
 			params := &types.QueryGetBlockRewardsPoolFundsRequest{}
@@ -32,10 +30,14 @@ func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
 			return cliCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 func getRewardRate() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "get-reward-rate",
 		Short: "Get the actual reward rate of vbr",
 		Args:  cobra.NoArgs,
@@ -43,13 +45,14 @@ func getRewardRate() *cobra.Command {
 			return getRewardRateFunc(cmd)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 func getRewardRateFunc(cmd *cobra.Command) error {
-	cliCtx, e := client.GetClientTxContext(cmd)
-	if e != nil {
-		return e
-	}
+	cliCtx := client.GetClientContextFromCmd(cmd)
 
 	queryClient := types.NewQueryClient(cliCtx)
 	params := &types.QueryGetRewardRateRequest{}
@@ -68,7 +71,7 @@ func getRewardRateFunc(cmd *cobra.Command) error {
 }
 
 func getAutomaticWithdraw() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "get-automatic-withdraw",
 		Short: "Get if vbr module is in automatic withdraw state",
 		Args:  cobra.NoArgs,
@@ -76,13 +79,15 @@ func getAutomaticWithdraw() *cobra.Command {
 			return getAutomaticWithdrawFunc(cmd)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 func getAutomaticWithdrawFunc(cmd *cobra.Command) error {
-	cliCtx, e := client.GetClientTxContext(cmd)
-	if e != nil {
-		return e
-	}
+	cliCtx := client.GetClientContextFromCmd(cmd)
+
 	queryClient := types.NewQueryClient(cliCtx)
 	params := &types.QueryGetAutomaticWithdrawRequest{}
 
@@ -100,15 +105,13 @@ func getAutomaticWithdrawFunc(cmd *cobra.Command) error {
 }
 
 func getVbrParams() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "get-params",
 		Short: "Get the actual params of vbr",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
+			cliCtx:= client.GetClientContextFromCmd(cmd)
+
 			queryClient := types.NewQueryClient(cliCtx)
 		
 			req := &types.QueryGetVbrParamsRequest{}
@@ -120,4 +123,8 @@ func getVbrParams() *cobra.Command {
 			return cliCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }

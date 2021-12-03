@@ -405,6 +405,12 @@ func New(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
+	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
+		appCodec,
+		keys[governmentmoduletypes.StoreKey],
+		keys[governmentmoduletypes.MemStoreKey],
+	)
+	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
 
 	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
 		appCodec,
@@ -419,12 +425,6 @@ func New(
 		app.StakingKeeper,
 	)
 	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
-	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
-		appCodec,
-		keys[governmentmoduletypes.StoreKey],
-		keys[governmentmoduletypes.MemStoreKey],
-	)
-	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
 	app.commercioKycKeeper = *commerciokycKeeper.NewKeeper(
 		appCodec,
 		keys[commerciokycTypes.StoreKey],
