@@ -22,7 +22,7 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidDocumentRe
 	var didDocument types.DidDocument
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if !k.HasIdentity(ctx, req.ID) {
+	if !k.HasDidDocument(ctx, req.ID) {
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 

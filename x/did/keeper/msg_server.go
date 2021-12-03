@@ -31,8 +31,11 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 
 	var ddoChain types.DidDocument
 
-	if k.HasIdentity(ctx, msg.DidDocument.ID) {
-		ddoChain, _ = k.Keeper.GetDdoByOwner(ctx, sdk.AccAddress(msg.DidDocument.ID))
+	if k.HasDidDocument(ctx, msg.DidDocument.ID) {
+		ddoChain, err = k.Keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(msg.DidDocument.ID))
+		if err != nil {
+			return nil, err
+		}
 
 		// update fields
 		//
@@ -56,9 +59,7 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 		Updated:              timestamp,
 	}
 
-	id := k.AppendDid(ctx, ddoChain)
+	id := k.AppendDidDocument(ctx, ddoChain)
 
-	return &types.MsgSetDidDocumentResponse{
-		ID: id,
-	}, nil
+	return &types.MsgSetDidDocumentResponse{ID: id}, nil
 }

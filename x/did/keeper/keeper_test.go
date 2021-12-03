@@ -22,7 +22,7 @@ func TestIdentityGet(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createNIdentityNew(keeper, ctx, 10)
 	for _, item := range items {
-		a, err := keeper.GetDdoByOwner(ctx, sdk.AccAddress(item.ID))
+		a, err := keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(item.ID))
 		require.NoError(t, err)
 		assert.Equal(t, item, a)
 	}
@@ -32,7 +32,7 @@ func TestNewDocumentExist(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createNIdentityNew(keeper, ctx, 10)
 	for _, item := range items {
-		assert.True(t, keeper.HasIdentity(ctx, item.ID))
+		assert.True(t, keeper.HasDidDocument(ctx, item.ID))
 	}
 }
 
@@ -41,7 +41,7 @@ func createNIdentityNew(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocum
 	for i := range items {
 		_, _, addr := testdata.KeyTestPubAddr()
 		items[i].ID = string(addr)
-		_ = keeper.AppendDid(ctx, items[i])
+		_ = keeper.AppendDidDocument(ctx, items[i])
 	}
 	return items
 }

@@ -33,15 +33,6 @@ message VerificationMethod {
   bool relativeURL = 7;
 }
 
-// This usable for authentication, assertionMethod, capabilityDelegation,
-// capabilityInvocation and keyAgreement but at this moment limit to
-// VerificationMethod
-message Verification {
-  VerificationMethod verificationMethod = 1;
-  int32 relationship = 2;
-  bool embedded = 3;
-}
-
 message Service {
   string ID = 1;
   string type = 2;
@@ -54,11 +45,4 @@ message Service {
   map<string, bool> recipientKeysRelativeURL = 9;
   map<string, bool> routingKeysRelativeURL = 10;
   bool relativeURL = 11;
-}
-
-message PubKey {
-  string ID = 1;
-  string type = 2;
-  string controller = 3;
-  string publicKeyPem = 4;
 }

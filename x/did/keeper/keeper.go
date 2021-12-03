@@ -52,17 +52,16 @@ func getTimestamp(ctx sdk.Context) (*time.Time, error) {
 	return &t, nil
 }
 
-// AppendDid appends a DID document in the store with given id
-func (k Keeper) AppendDid(ctx sdk.Context, didDocument types.DidDocument) string {
-	// Create the Document
+// AppendDidDocument appends a DID document in the store, retruning the ID contained in the DID document
+func (k Keeper) AppendDidDocument(ctx sdk.Context, didDocument types.DidDocument) string {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(getIdentityStoreKey(sdk.AccAddress(didDocument.ID)), k.cdc.MustMarshalBinaryBare(&didDocument))
 	return didDocument.ID
 }
 
-// GetDdoByOwner returns the DID document reference associated to a given DID.
-// If the given DID has no DID document reference associated, returns nil.
-func (k Keeper) GetDdoByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
+// GetDidDocumentOfAddress returns the DID document reference associated to a given address.
+// If the given address has no DID document associated, returns nil.
+func (k Keeper) GetDidDocumentOfAddress(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	identityKey := getIdentityStoreKey(owner)
@@ -79,15 +78,15 @@ func getIdentityStoreKey(owner sdk.AccAddress) []byte {
 	return append([]byte(types.IdentitiesStorePrefix), owner...)
 }
 
-func (k Keeper) HasIdentity(ctx sdk.Context, ID string) bool {
+// HasDidDocument returns true if there is a DID document associated to a given ID.
+func (k Keeper) HasDidDocument(ctx sdk.Context, ID string) bool {
 	store := ctx.KVStore(k.storeKey)
-
 	identityKey := getIdentityStoreKey(sdk.AccAddress(ID))
 	return store.Has(identityKey)
 }
 
-// GetAllDidDocument returns all DID document
-func (k Keeper) GetAllDidDocument(ctx sdk.Context) (list []types.DidDocument) {
+// GetAllDidDocuments returns all the stored DID documents
+func (k Keeper) GetAllDidDocuments(ctx sdk.Context) (list []types.DidDocument) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.IdentitiesStorePrefix))
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 

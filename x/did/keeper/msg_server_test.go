@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"context"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
@@ -11,17 +10,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {
+func setupMsgServer(t testing.TB) (types.MsgServer, Keeper, sdk.Context) {
 	keeper, ctx := setupKeeper(t)
 
-	return NewMsgServerImpl(*keeper), sdk.WrapSDKContext(ctx)
+	return NewMsgServerImpl(*keeper), *keeper, ctx
 }
 
-func TestSetIdentityMsgServerCreate(t *testing.T) {
-	srv, ctx := setupMsgServer(t)
+func Test_SetDidDocument(t *testing.T) {
+	srv, k, ctx := setupMsgServer(t)
 	_, _, addr := testdata.KeyTestPubAddr()
-	resp, err := srv.SetDidDocument(ctx, &types.MsgSetDidDocument{DidDocument: &types.DidDocument{ID: addr.String()}})
+	ddoProposal := &types.DidDocument{ID: addr.String()}
+
+	sdkCtx := sdk.WrapSDKContext(ctx)
+
+	resp, err := srv.SetDidDocument(sdkCtx, &types.MsgSetDidDocument{DidDocument: ddoProposal})
 	require.NoError(t, err)
 	assert.Equal(t, addr.String(), resp.ID)
-	t.FailNow()
+
+	resp, err = srv.SetDidDocument(sdkCtx, &types.MsgSetDidDocument{DidDocument: ddoProposal})
+	require.NoError(t, err)
+	assert.Equal(t, addr.String(), resp.ID)
+
+	for _, d := range k.GetAllDidDocuments(ctx) {
+		assert.True(t, d.Created != d.Updated)
+	}
+
+	assert.True(t, k.HasDidDocument(ctx, ddoProposal.ID))
+
 }

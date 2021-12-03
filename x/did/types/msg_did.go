@@ -36,18 +36,23 @@ func (msg *MsgSetDidDocument) Type() string {
 }
 
 func (msg *MsgSetDidDocument) ValidateBasic() error {
+
+	ddo := msg.DidDocument
 	// validate ID
-	_, err := sdk.AccAddressFromBech32(msg.DidDocument.ID)
+	_, err := sdk.AccAddressFromBech32(ddo.ID)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid address (%s)", err)
 	}
 
 	// validate Context
-	if commons.Strings(msg.DidDocument.Context).Contains(ContextDidV1) {
+	if commons.Strings(ddo.Context).Contains(ContextDidV1) {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Invalid context, must include %s", ContextDidV1)
 	}
 
 	// validate VerificationMethod
+	// for _, vm := range ddo.VerificationMethod{
+	// 	if vm.ID == "" || vm == VerificationMethod{}
+	// }
 
 	// validate Service
 
