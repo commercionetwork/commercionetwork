@@ -13,10 +13,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 )
 
-func CmdSetIdentity() *cobra.Command {
+func CmdSetDidDocument() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setidentity [document_path]",
-		Short: "Sets the identity with DID document",
+		Use:   "set-DID-document [document_path]",
+		Short: "Sets the DID document for the requesting address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
@@ -40,6 +40,9 @@ func CmdSetIdentity() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			// TODO: check signer is the same as ID in DID document
+
 			// Calculate Proof
 			/*signature, err := signDidDocument(clientCtx, didDocument, keybase)
 

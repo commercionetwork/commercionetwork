@@ -14,8 +14,6 @@ func (ddo DidDocument) Validate() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s)", err)
 	}
 
-	// TODO: check signer is the same as ID
-
 	// validate Context
 	if commons.Strings(ddo.Context).Contains(ContextDidV1) {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Context, must include %s", ContextDidV1)
@@ -71,20 +69,6 @@ func (ddo DidDocument) Validate() error {
 			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid KeyAgreement %s %e", ka, err)
 		}
 	}
-
-	// var pubKeys PubKeys
-	// pubKeys = msg.PubKeys
-	// if err := pubKeys.noDuplicates(); err != nil {
-	// 	return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
-	// }
-
-	// if !pubKeys.HasVerificationAndSignatureKey() {
-	// 	return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "specified public keys are not in the correct format")
-	// }
-
-	// if err := msg.lengthLimits(); err != nil {
-	// 	return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
-	// }
 
 	return nil
 }

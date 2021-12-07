@@ -35,7 +35,7 @@ func (msg *MsgSetDidDocument) Type() string {
 
 func (msg *MsgSetDidDocument) ValidateBasic() error {
 	if err := msg.DidDocument.Validate(); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid didDocument", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid DID document", err)
 	}
 
 	return nil

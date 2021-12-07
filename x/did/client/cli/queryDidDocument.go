@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func CmdShowIdentity() *cobra.Command {
+func CmdGetDidDocument() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-identity [id]",
-		Short: "shows a DID document",
+		Use:   "get-DID-document [id]",
+		Short: "Resolves the DID document for the specified id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
