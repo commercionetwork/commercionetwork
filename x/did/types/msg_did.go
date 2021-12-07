@@ -38,51 +38,70 @@ func (msg *MsgSetDidDocument) Type() string {
 func (msg *MsgSetDidDocument) ValidateBasic() error {
 
 	ddo := msg.DidDocument
+
 	// validate ID
 	_, err := sdk.AccAddressFromBech32(ddo.ID)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid address (%s)", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s)", err)
 	}
+
+	// TODO: check signer is the same as ID
 
 	// validate Context
 	if commons.Strings(ddo.Context).Contains(ContextDidV1) {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid context, must include %s", ContextDidV1)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Context, must include %s", ContextDidV1)
 	}
 
 	// validate VerificationMethod
-	// for _, vm := range ddo.VerificationMethod{
-	// 	if vm.ID == "" || vm == VerificationMethod{}
-	// }
+	for _, vm := range ddo.VerificationMethod {
+		if err = vm.Validate(); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid VerificationMethod %s %e", vm, err)
+		}
+	}
 
 	// validate Service
 	for _, s := range ddo.Service {
 		err = s.Validate()
 		if err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid service %s %e", s, err)
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Service %s %e", s, err)
 		}
 	}
 
 	// validate Authentication
+	for _, a := range ddo.Authentication {
+		if err = a.Validate(); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Autentication %s %e", a, err)
+		}
+	}
 
 	// validate AssertionMethod
+	for _, am := range ddo.AssertionMethod {
+		err = am.Validate()
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Autentication %s %e", am, err)
+		}
+	}
 
 	// validate CapabilityDelegation
+	for _, cd := range ddo.CapabilityDelegation {
+		if err = cd.Validate(); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid CapabilityDelegation %s %e", cd, err)
+		}
+	}
 
 	// validate CapabilityInvocation
+	for _, ci := range ddo.CapabilityInvocation {
+		if err = ci.Validate(); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid CapabilityInvocation %s %e", ci, err)
+		}
+	}
 
 	// validate KeyAgreement
-
-	// controller, _ := sdk.AccAddressFromBech32(msg.ID)
-
-	// for _, key := range msg.PubKeys {
-	// 	if err := key.Validate(); err != nil {
-	// 		return err
-	// 	}
-	// 	keycontroller, _ := sdk.AccAddressFromBech32(key.Controller)
-	// 	if !controller.Equals(keycontroller) {
-	// 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Public key controller must match did document id")
-	// 	}
-	// }
+	for _, ka := range ddo.KeyAgreement {
+		if err = ka.Validate(); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid KeyAgreement %s %e", ka, err)
+		}
+	}
 
 	// var pubKeys PubKeys
 	// pubKeys = msg.PubKeys
@@ -93,28 +112,6 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// if !pubKeys.HasVerificationAndSignatureKey() {
 	// 	return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "specified public keys are not in the correct format")
 	// }
-	// /*
-	// 	if msg.Proof == nil {
-	// 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "proof not provided")
-	// 	}
-
-	// 	if err := msg.Proof.Validate(); err != nil {
-	// 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("proof validation error: %s", err.Error()))
-	// 	}
-	// */
-	// // we have some service, we should validate 'em
-	// if msg.Service != nil {
-	// 	for i, service := range msg.Service {
-	// 		err := service.Validate()
-	// 		if err != nil {
-	// 			return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("service %d validation failed: %s", i, err.Error()))
-	// 		}
-	// 	}
-	// }
-	// /*
-	// 	if err := msg.VerifyProof(); err != nil {
-	// 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, err.Error())
-	// 	}*/
 
 	// if err := msg.lengthLimits(); err != nil {
 	// 	return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
