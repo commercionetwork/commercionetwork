@@ -1,17 +1,15 @@
 package types
 
 import (
-	"strings"
-
 	commons "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-const didKeyPrefix = "did:com:"
+// const didKeyPrefix = "did:com:"
 
-func isValidDidCom(did string) error {
-	_, err := sdk.AccAddressFromBech32(strings.TrimPrefix(did, didKeyPrefix))
+func isValidDid(did string) error {
+	_, err := sdk.AccAddressFromBech32(did)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s)", did, err)
 	}
@@ -22,11 +20,12 @@ func isValidDidCom(did string) error {
 func (ddo DidDocument) Validate() error {
 
 	// validate ID
-	if err := isValidDidCom(ddo.ID); err != nil {
+	if err := isValidDid(ddo.ID); err != nil {
 		return err
 	}
 
 	// validate Context
+	// @context The JSON-LD Context is either a string or a list containing any combination of strings and/or ordered maps.
 	if commons.Strings(ddo.Context).Contains(ContextDidV1) {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Context, must include %s", ContextDidV1)
 	}
