@@ -69,12 +69,13 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 }
 
 func Test_getTimestamp(t *testing.T) {
-
 	_, ctx := setupKeeper(t)
 
-	timestamp, err := getTimestamp(ctx)
-	assert.NoError(t, err)
-	t.Log(timestamp)
-	t.FailNow()
+	tString := obtainTimestamp(ctx)
 
+	_, err := readTimestamp(tString)
+	if err != nil {
+		t.Log(tString)
+		t.FailNow()
+	}
 }

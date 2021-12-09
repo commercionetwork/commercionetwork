@@ -22,17 +22,14 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	timestamp, err := getTimestamp(ctx)
-	if err != nil {
-		return nil, err
-	}
+	timestamp := obtainTimestamp(ctx)
 
 	ddoProposal := msg.DidDocument
 
 	var ddoChain types.DidDocument
 
 	if k.HasDidDocument(ctx, msg.DidDocument.ID) {
-		ddoChain, err = k.Keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(msg.DidDocument.ID))
+		ddoChain, err := k.Keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(msg.DidDocument.ID))
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +53,7 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 		CapabilityInvocation: ddoProposal.CapabilityInvocation,
 		KeyAgreement:         ddoProposal.KeyAgreement,
 		Created:              timestamp,
-		Updated:              timestamp,
+		// Updated:              timestamp, // "The updated property is omitted if an Update operation has never been performed on the DID document"
 	}
 
 	id := k.AppendDidDocument(ctx, ddoChain)

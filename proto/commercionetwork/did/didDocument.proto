@@ -17,8 +17,8 @@ message DidDocument {
   repeated VerificationMethod capabilityDelegation = 7;
   repeated VerificationMethod capabilityInvocation = 8;
   repeated VerificationMethod keyAgreement = 9;
-  google.protobuf.Timestamp created = 10 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated = 11 [ (gogoproto.stdtime) = true ];
+  string created = 10;
+  string updated = 11;
 }
 
 message VerificationMethod {

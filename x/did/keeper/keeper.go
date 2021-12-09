@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -36,20 +35,6 @@ func NewKeeper(
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func getTimestamp(ctx sdk.Context) (*time.Time, error) {
-	// Following the W3C Decentralized Identifiers (DIDs) v1.0 for
-	// XML Datetime normalized to UTC 00:00:00 and without sub-second decimal precision
-	// format := "2020-12-20T19:17:47Z"
-
-	t := ctx.BlockTime()
-
-	// t, err := time.Parse(format, tString)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return &t, nil
 }
 
 // AppendDidDocument appends a DID document in the store, retruning the ID contained in the DID document
