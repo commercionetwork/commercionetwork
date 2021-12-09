@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"testing"
-	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -63,19 +62,5 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
 
-	ctx = ctx.WithBlockTime(time.Now())
-
 	return keeper, ctx
-}
-
-func Test_getTimestamp(t *testing.T) {
-	_, ctx := setupKeeper(t)
-
-	tString := obtainTimestamp(ctx)
-
-	_, err := readTimestamp(tString)
-	if err != nil {
-		t.Log(tString)
-		t.FailNow()
-	}
 }
