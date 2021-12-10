@@ -6,9 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// const didKeyPrefix = "did:com:"
-
-func isValidDid(did string) error {
+func isValidDidCom(did string) error {
 	_, err := sdk.AccAddressFromBech32(did)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s)", did, err)
@@ -20,14 +18,15 @@ func isValidDid(did string) error {
 func (ddo DidDocument) Validate() error {
 
 	// validate ID
-	if err := isValidDid(ddo.ID); err != nil {
+	if err := isValidDidCom(ddo.ID); err != nil {
 		return err
 	}
 
-	// validate Context
+	// validate @context
 	// @context The JSON-LD Context is either a string or a list containing any combination of strings and/or ordered maps.
+	// The serialized value of @context MUST be the JSON String https://www.w3.org/ns/did/v1, or a JSON Array where the first item is the JSON String https://www.w3.org/ns/did/v1 and the subsequent items are serialized according to the JSON representation production rules.
 	if commons.Strings(ddo.Context).Contains(ContextDidV1) {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Context, must include %s", ContextDidV1)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid @context, must include %s", ContextDidV1)
 	}
 
 	// validate VerificationMethod
@@ -37,7 +36,11 @@ func (ddo DidDocument) Validate() error {
 		}
 	}
 
-	// validate Service
+	// validate service
+	// OPTIONAL
+	// TODO
+	// If present, the associated value MUST be a set of services, where each service is described by a map.
+	// A conforming producer MUST NOT produce multiple service entries with the same id.
 	for _, s := range ddo.Service {
 		err := s.Validate()
 		if err != nil {
@@ -84,36 +87,80 @@ func (ddo DidDocument) Validate() error {
 	return nil
 }
 
-func (s Service) Validate() error {
-	if s.ID == "" {
+func (s *Service) Validate() error {
+	if s == nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service is not defined")
+	}
+
+	// validate id
+	// Required
+	// A string that conforms to the rules of RFC3986 for URIs.
+	if IsEmpty(s.ID) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"id\" is required")
 	}
-
-	if s.Type == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"type\" is required")
+	if !IsValidRFC3986Uri(s.ID) {
+		return sdkerrors.Wrapf(ErrInvalidRFC3986UriFormat, "service field \"id\" must conform to the rules of RFC3986 for URIs")
 	}
 
-	if s.ServiceEndpoint == "" {
+	// validate type
+	// Required
+	// A string.
+	// W3C recommendation: In order to maximize interoperability, the service type and its associated properties SHOULD be registered in the DID Specification Registries
+	if IsEmpty(s.Type) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"type\" is required")
+	}
+	if commons.Strings(serviceTypes).Contains(s.Type) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"type\" is not supported")
+	}
+
+	// validate serviceEndpoint
+	// Required
+	// A string that conforms to the rules of RFC3986 for URIs.
+	if IsEmpty(s.ServiceEndpoint) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"serviceEndpoint\" is required")
+	}
+	if !IsValidRFC3986Uri(s.ServiceEndpoint) {
+		return sdkerrors.Wrapf(ErrInvalidRFC3986UriFormat, "service field \"serviceEndpoint\" must conform to the rules of RFC3986 for URIs")
 	}
 
 	return nil
 }
 
-func (v VerificationMethod) Validate() error {
+func (v *VerificationMethod) Validate() error {
+	if v == nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod is not defined")
+	}
+
+	// validate ID
+	// Required
+	// A string that conforms to the rules for DID URL.
 	if v.ID == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"id\" is required")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"id\" is required")
+	}
+	if !IsValidDIDURL(v.ID) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"id\" must conform to the rules for DID URL")
 	}
 
-	if v.Type == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"type\" is required")
+	// validate type
+	// Required
+	// A string that references exactly one verification method type.
+	// W3C recommendation: In order to maximize global interoperability, the verification method type SHOULD be registered in the DID Specification Registries -> https://www.w3.org/TR/did-spec-registries/#verification-method-types
+	if IsEmpty(v.Type) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"type\" is required")
+	}
+	if commons.Strings(verificationMethodTypes).Contains(v.Controller) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"type\" is not supported")
 	}
 
-	if v.Controller == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"serviceEndpoint\" is required")
+	// validate controller
+	// Required
+	// A string that conforms to the rules of DID Syntax.
+	if IsEmpty(v.Controller) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" is required")
 	}
-
-	// TODO
+	if IsValidDID(v.Controller) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" must conform to the rules of DID Syntax")
+	}
 
 	return nil
 }
