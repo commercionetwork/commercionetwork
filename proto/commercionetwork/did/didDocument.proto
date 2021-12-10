@@ -27,7 +27,7 @@ message VerificationMethod {
   string Controller = 3;
   repeated google.protobuf.Any Value = 4;
   oneof verificationMaterial {
-    google.protobuf.Any jsonWebKey = 5;
+    google.protobuf.Any publicKeyJwk = 5;
     string publicKeyMultibase = 6;
   }
   bool relativeURL = 7;
