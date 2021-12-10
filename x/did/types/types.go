@@ -1,13 +1,6 @@
 package types
 
 var (
-
-	// https://www.w3.org/TR/did-spec-registries/#service-types
-	serviceTypes = []string{
-		"LinkedDomains",
-		"DIDCommMessaging",
-	}
-
 	// https://www.w3.org/TR/did-spec-registries/#verification-method-types
 	verificationMethodTypes = []string{
 		"Ed25519Signature2018",

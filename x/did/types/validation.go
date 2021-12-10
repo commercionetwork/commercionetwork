@@ -109,9 +109,6 @@ func (s *Service) Validate() error {
 	if IsEmpty(s.Type) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"type\" is required")
 	}
-	if commons.Strings(serviceTypes).Contains(s.Type) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"type\" is not supported")
-	}
 
 	// validate serviceEndpoint
 	// Required
