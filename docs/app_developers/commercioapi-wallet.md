@@ -140,7 +140,7 @@ Example
   "address": "did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx", 
   "coins": [
     {
-      "amount": "482380000", 
+      "amount": "482310000", 
       "denom": "uccc"
     }
   ], 
@@ -215,11 +215,52 @@ The Api  permit you to send tokens to another wallet address
 
 POST  `/wallet/transfers`
 
+
+### Specs 
+
+#### Permitted recipient 
+
+The API could be used only for a   `recipient` that exist in the chain 
+
+For example if I try to send to a NON exixting did   `did:com:1zzmq5v44zkx4v70lf858hkfzf96vfq65v30cru`
+
+API Reply
+
+```
+{
+  "error": "recipient address did:com:1zzmq5v44zkx4v70lf858hkfzf96vfq65v30cru not found in blockchain"
+}
+```
+
+Anyhow with SDK You can send token to a non existing address 
+
+
+#### Permitted denom 
+
+The Denom that can be used are 
+
+*ucommercio* 
+
+No restriction are present for using this demon 
+
+*uccc* 
+
+A restrictono on sending multiple of 10000 `uccc` are imposed 
+So if for example you ty to send `10003 uccc`
+
+The following error will occur 
+
+```
+{
+  "error": "amount transferred 10003uccc, is not a multiple of 10000uccc (0.01CCC) as required"
+}
+```
+
 ### Step by step example
 Let's create a new transaction.
 
 We try to send
-*  Amount = 1 ccc
+*  Amount = 1 CCC
 *  To the following wallet `did:com:1u35avnkvywzcxp2uty8u0y6xu3s22hycfgd2we`
 
 
