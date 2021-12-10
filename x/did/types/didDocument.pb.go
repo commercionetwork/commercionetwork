@@ -275,17 +275,9 @@ func (*VerificationMethod) XXX_OneofWrappers() []interface{} {
 }
 
 type Service struct {
-	ID                       string                `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	Type                     string                `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	Priority                 uint32                `protobuf:"varint,3,opt,name=Priority,proto3" json:"Priority,omitempty"`
-	RecipientKeys            []string              `protobuf:"bytes,4,rep,name=RecipientKeys,proto3" json:"RecipientKeys,omitempty"`
-	RoutingKeys              []string              `protobuf:"bytes,5,rep,name=RoutingKeys,proto3" json:"RoutingKeys,omitempty"`
-	ServiceEndpoint          string                `protobuf:"bytes,6,opt,name=serviceEndpoint,proto3" json:"serviceEndpoint,omitempty"`
-	Accept                   []string              `protobuf:"bytes,7,rep,name=Accept,proto3" json:"Accept,omitempty"`
-	Properties               map[string]*types.Any `protobuf:"bytes,8,rep,name=Properties,proto3" json:"Properties,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	RecipientKeysRelativeURL map[string]bool       `protobuf:"bytes,9,rep,name=recipientKeysRelativeURL,proto3" json:"recipientKeysRelativeURL,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
-	RoutingKeysRelativeURL   map[string]bool       `protobuf:"bytes,10,rep,name=routingKeysRelativeURL,proto3" json:"routingKeysRelativeURL,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
-	RelativeURL              bool                  `protobuf:"varint,11,opt,name=relativeURL,proto3" json:"relativeURL,omitempty"`
+	ID              string `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Type            string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	ServiceEndpoint string `protobuf:"bytes,3,opt,name=serviceEndpoint,proto3" json:"serviceEndpoint,omitempty"`
 }
 
 func (m *Service) Reset()         { *m = Service{} }
@@ -335,27 +327,6 @@ func (m *Service) GetType() string {
 	return ""
 }
 
-func (m *Service) GetPriority() uint32 {
-	if m != nil {
-		return m.Priority
-	}
-	return 0
-}
-
-func (m *Service) GetRecipientKeys() []string {
-	if m != nil {
-		return m.RecipientKeys
-	}
-	return nil
-}
-
-func (m *Service) GetRoutingKeys() []string {
-	if m != nil {
-		return m.RoutingKeys
-	}
-	return nil
-}
-
 func (m *Service) GetServiceEndpoint() string {
 	if m != nil {
 		return m.ServiceEndpoint
@@ -363,48 +334,10 @@ func (m *Service) GetServiceEndpoint() string {
 	return ""
 }
 
-func (m *Service) GetAccept() []string {
-	if m != nil {
-		return m.Accept
-	}
-	return nil
-}
-
-func (m *Service) GetProperties() map[string]*types.Any {
-	if m != nil {
-		return m.Properties
-	}
-	return nil
-}
-
-func (m *Service) GetRecipientKeysRelativeURL() map[string]bool {
-	if m != nil {
-		return m.RecipientKeysRelativeURL
-	}
-	return nil
-}
-
-func (m *Service) GetRoutingKeysRelativeURL() map[string]bool {
-	if m != nil {
-		return m.RoutingKeysRelativeURL
-	}
-	return nil
-}
-
-func (m *Service) GetRelativeURL() bool {
-	if m != nil {
-		return m.RelativeURL
-	}
-	return false
-}
-
 func init() {
 	proto.RegisterType((*DidDocument)(nil), "commercionetwork.commercionetwork.did.DidDocument")
 	proto.RegisterType((*VerificationMethod)(nil), "commercionetwork.commercionetwork.did.VerificationMethod")
 	proto.RegisterType((*Service)(nil), "commercionetwork.commercionetwork.did.Service")
-	proto.RegisterMapType((map[string]*types.Any)(nil), "commercionetwork.commercionetwork.did.Service.PropertiesEntry")
-	proto.RegisterMapType((map[string]bool)(nil), "commercionetwork.commercionetwork.did.Service.RecipientKeysRelativeURLEntry")
-	proto.RegisterMapType((map[string]bool)(nil), "commercionetwork.commercionetwork.did.Service.RoutingKeysRelativeURLEntry")
 }
 
 func init() {
@@ -412,55 +345,42 @@ func init() {
 }
 
 var fileDescriptor_bd464e9ab294857d = []byte{
-	// 758 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0x4b, 0x6b, 0xeb, 0x46,
-	0x14, 0xb6, 0xec, 0xf8, 0x75, 0x9c, 0x47, 0x19, 0x4c, 0x50, 0x5d, 0xea, 0x9a, 0xd0, 0x16, 0xd3,
-	0x85, 0x5c, 0xda, 0x4d, 0x9a, 0x45, 0x21, 0xa9, 0x03, 0x71, 0x1e, 0x10, 0x26, 0x6d, 0x16, 0x85,
-	0x16, 0x64, 0xe9, 0x44, 0x19, 0x2c, 0x6b, 0xc4, 0x68, 0xe4, 0x44, 0xdb, 0xae, 0xba, 0xbc, 0x7f,
-	0xe2, 0xee, 0xee, 0x0f, 0xb9, 0xcb, 0x70, 0x57, 0x77, 0x79, 0x49, 0xfe, 0xc8, 0x45, 0x23, 0x39,
-	0x96, 0x5f, 0x21, 0xc6, 0x77, 0x11, 0x98, 0xf3, 0x98, 0xef, 0x3b, 0xf3, 0xe5, 0x7c, 0x46, 0xf0,
-	0xa3, 0xc5, 0x87, 0x43, 0x14, 0x16, 0xe3, 0x1e, 0xca, 0x3b, 0x2e, 0x06, 0x1d, 0x9b, 0xd9, 0xf1,
-	0x5f, 0x97, 0x5b, 0xe1, 0x10, 0x3d, 0x69, 0xf8, 0x82, 0x4b, 0x4e, 0x7e, 0x98, 0xed, 0x33, 0xe6,
-	0x12, 0x36, 0xb3, 0x1b, 0x5f, 0x3b, 0x9c, 0x3b, 0x2e, 0x76, 0xd4, 0xa5, 0x7e, 0x78, 0xd3, 0x31,
-	0xbd, 0x28, 0x41, 0x68, 0x7c, 0x37, 0x5b, 0x92, 0x6c, 0x88, 0x81, 0x34, 0x87, 0x7e, 0xda, 0x50,
-	0x77, 0xb8, 0xc3, 0xd5, 0xb1, 0x13, 0x9f, 0x92, 0xec, 0xde, 0xdb, 0x12, 0xd4, 0xba, 0x93, 0x71,
-	0x88, 0x0e, 0x65, 0x8b, 0x7b, 0x12, 0xef, 0xa5, 0xae, 0xb5, 0x0a, 0xed, 0x2a, 0x1d, 0x87, 0x64,
-	0x1b, 0xf2, 0xbd, 0xae, 0x9e, 0x6f, 0x69, 0xed, 0x2a, 0xcd, 0xf7, 0xba, 0x84, 0x01, 0x19, 0xa1,
-	0x60, 0x37, 0xcc, 0x32, 0x25, 0xe3, 0xde, 0x05, 0xca, 0x5b, 0x6e, 0xeb, 0x85, 0x56, 0xa1, 0x5d,
-	0xfb, 0xe5, 0x37, 0xe3, 0x55, 0xef, 0x31, 0xae, 0xe7, 0x00, 0xe8, 0x02, 0x50, 0x72, 0x02, 0xe5,
-	0x00, 0xc5, 0x88, 0x59, 0xa8, 0x6f, 0x28, 0x7c, 0xe3, 0x95, 0xf8, 0x57, 0xc9, 0x2d, 0x3a, 0xbe,
-	0x4e, 0x4c, 0xd8, 0x36, 0x43, 0x79, 0x8b, 0x9e, 0x4c, 0x19, 0xf4, 0xe2, 0xba, 0x03, 0xcf, 0x00,
-	0x12, 0x0b, 0x76, 0xcc, 0x20, 0x40, 0x91, 0x11, 0xa5, 0xb4, 0x2e, 0xc7, 0x2c, 0x22, 0x19, 0x42,
-	0xdd, 0x32, 0x7d, 0xb3, 0xcf, 0x5c, 0x26, 0xa3, 0x2e, 0xba, 0xe8, 0x24, 0xaf, 0x29, 0xaf, 0xcb,
-	0xb4, 0x10, 0x76, 0x9a, 0xae, 0xe7, 0x8d, 0x78, 0x2a, 0x5e, 0xe5, 0x0b, 0xd2, 0x4d, 0x60, 0xc9,
-	0x3f, 0xb0, 0x39, 0xc0, 0xe8, 0xd0, 0x11, 0x88, 0xf1, 0x52, 0xea, 0xd5, 0x75, 0x69, 0xa6, 0xe0,
-	0xd4, 0x8e, 0x0b, 0x34, 0x25, 0xda, 0x3a, 0xa8, 0x75, 0x1e, 0x87, 0x71, 0x25, 0xf4, 0x6d, 0x55,
-	0xa9, 0x25, 0x95, 0x34, 0xdc, 0x7b, 0x97, 0x07, 0x32, 0x0f, 0x9c, 0x9a, 0x42, 0x7b, 0x36, 0x05,
-	0x81, 0x8d, 0x3f, 0x23, 0x1f, 0x53, 0x9b, 0xa8, 0x33, 0x69, 0x02, 0xfc, 0xc1, 0x3d, 0x29, 0xb8,
-	0xeb, 0xa2, 0xd0, 0x0b, 0xaa, 0x92, 0xc9, 0x90, 0x9f, 0xa0, 0x78, 0x6d, 0xba, 0xe1, 0x78, 0xb7,
-	0xeb, 0x46, 0xe2, 0x64, 0x63, 0xec, 0x64, 0xe3, 0xd0, 0x8b, 0x68, 0xd2, 0x42, 0x0e, 0x60, 0xd3,
-	0x0f, 0xfb, 0x2e, 0xb3, 0xce, 0x30, 0x3a, 0xbd, 0x1b, 0xe8, 0xc5, 0x96, 0xb6, 0xec, 0xca, 0x49,
-	0x8e, 0x4e, 0xf5, 0x92, 0x9f, 0x81, 0x3c, 0xc7, 0x17, 0xa1, 0x2b, 0x59, 0xdf, 0x0c, 0x50, 0x2f,
-	0xc5, 0xf3, 0x9c, 0xe4, 0xe8, 0x82, 0x1a, 0x69, 0x41, 0x4d, 0xa0, 0x6b, 0x4a, 0x36, 0xc2, 0xbf,
-	0xe8, 0xb9, 0x5e, 0x6e, 0x69, 0xed, 0x0a, 0xcd, 0xa6, 0x8e, 0x76, 0xa1, 0x3e, 0xe5, 0x57, 0x53,
-	0xa2, 0x60, 0xa6, 0xbb, 0xf7, 0xa1, 0x04, 0xe5, 0xd4, 0x7c, 0x8b, 0x34, 0x92, 0x19, 0x8d, 0xe2,
-	0x33, 0x69, 0x40, 0xe5, 0x52, 0x30, 0x2e, 0x98, 0x8c, 0x94, 0x42, 0x5b, 0xf4, 0x39, 0x26, 0xdf,
-	0xc3, 0x16, 0x45, 0x8b, 0xf9, 0x0c, 0x3d, 0x79, 0x86, 0x51, 0xa0, 0x74, 0xaa, 0xd2, 0xe9, 0x64,
-	0x3c, 0x2b, 0xe5, 0xa1, 0x64, 0x9e, 0xa3, 0x7a, 0x8a, 0xaa, 0x27, 0x9b, 0x22, 0x6d, 0xd8, 0x49,
-	0x7f, 0x06, 0x8e, 0x3d, 0xdb, 0xe7, 0xcc, 0x93, 0xc9, 0xe3, 0xe9, 0x6c, 0x9a, 0xec, 0x42, 0xe9,
-	0xd0, 0xb2, 0xd0, 0x97, 0xca, 0x4f, 0x55, 0x9a, 0x46, 0xe4, 0x5f, 0x80, 0x4b, 0xc1, 0xfd, 0xd8,
-	0x89, 0x18, 0xa4, 0xcb, 0xff, 0xfb, 0x6a, 0x3f, 0x45, 0xc6, 0x04, 0xe0, 0xd8, 0x93, 0x22, 0xa2,
-	0x19, 0x44, 0xf2, 0xbf, 0x06, 0xba, 0xc8, 0xbe, 0x8a, 0x66, 0xd4, 0x4f, 0x4c, 0x70, 0xbe, 0x22,
-	0x1d, 0x5d, 0x02, 0x97, 0x90, 0x2f, 0x65, 0x23, 0xff, 0x69, 0xb0, 0x2b, 0x26, 0xe2, 0x65, 0x07,
-	0x01, 0x35, 0xc8, 0xe9, 0xaa, 0x83, 0x2c, 0x04, 0x4b, 0xc6, 0x58, 0xc2, 0x34, 0xbb, 0x7f, 0xb5,
-	0xb9, 0xfd, 0x6b, 0x5c, 0xc1, 0xce, 0x8c, 0xa0, 0xe4, 0x2b, 0x28, 0x0c, 0x30, 0x4a, 0xf7, 0x2d,
-	0x3e, 0xc6, 0x06, 0x1b, 0x29, 0x83, 0xe5, 0x97, 0xbb, 0x85, 0x26, 0x2d, 0x07, 0xf9, 0x7d, 0xad,
-	0x71, 0x06, 0xdf, 0xbe, 0x28, 0xdb, 0x02, 0x8a, 0x7a, 0x96, 0xa2, 0x92, 0x05, 0xeb, 0xc1, 0x37,
-	0x2f, 0x3c, 0x7d, 0x15, 0xa8, 0x23, 0xfa, 0xfe, 0xb1, 0xa9, 0x3d, 0x3c, 0x36, 0xb5, 0x4f, 0x8f,
-	0x4d, 0xed, 0xcd, 0x53, 0x33, 0xf7, 0xf0, 0xd4, 0xcc, 0x7d, 0x7c, 0x6a, 0xe6, 0xfe, 0xde, 0x77,
-	0x98, 0xbc, 0x0d, 0xfb, 0xf1, 0x7f, 0xa0, 0x33, 0xf7, 0xc5, 0x31, 0x97, 0xb8, 0x57, 0x1f, 0x21,
-	0xb1, 0xef, 0x82, 0x7e, 0x49, 0x89, 0xf0, 0xeb, 0xe7, 0x00, 0x00, 0x00, 0xff, 0xff, 0x04, 0x08,
-	0x89, 0x23, 0xa9, 0x08, 0x00, 0x00,
+	// 560 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xcd, 0x6e, 0xd3, 0x40,
+	0x10, 0x8e, 0x93, 0x36, 0x69, 0x27, 0x55, 0x2b, 0xad, 0x22, 0xb4, 0xf4, 0x60, 0xac, 0x4a, 0xa0,
+	0x88, 0x83, 0x83, 0xe0, 0x02, 0xdc, 0x5a, 0x82, 0x94, 0x00, 0xbd, 0x18, 0x28, 0x12, 0x12, 0x87,
+	0xb5, 0x3d, 0x75, 0x56, 0xb1, 0x77, 0xad, 0xf5, 0x3a, 0xad, 0xdf, 0x82, 0x97, 0xe0, 0xc6, 0x83,
+	0x70, 0xec, 0x91, 0x23, 0x4a, 0x5e, 0x04, 0xf9, 0x27, 0x6d, 0xfe, 0x90, 0x2a, 0x85, 0x83, 0xa5,
+	0xf9, 0xfd, 0xbe, 0xf1, 0x68, 0xbe, 0x85, 0x27, 0x9e, 0x8c, 0x22, 0x54, 0x1e, 0x97, 0x02, 0xf5,
+	0x95, 0x54, 0xe3, 0x9e, 0xcf, 0xfd, 0xfc, 0xeb, 0x4b, 0x2f, 0x8d, 0x50, 0x68, 0x3b, 0x56, 0x52,
+	0x4b, 0xf2, 0x78, 0xb5, 0xce, 0x5e, 0x0b, 0xf8, 0xdc, 0x3f, 0x7e, 0x18, 0x48, 0x19, 0x84, 0xd8,
+	0x2b, 0x9a, 0xdc, 0xf4, 0xb2, 0xc7, 0x44, 0x56, 0x22, 0x1c, 0x3f, 0x5a, 0x4d, 0x69, 0x1e, 0x61,
+	0xa2, 0x59, 0x14, 0x57, 0x05, 0x9d, 0x40, 0x06, 0xb2, 0x30, 0x7b, 0xb9, 0x55, 0x46, 0x4f, 0x7e,
+	0x34, 0xa1, 0xdd, 0xbf, 0x1b, 0x87, 0x50, 0x68, 0x79, 0x52, 0x68, 0xbc, 0xd6, 0xd4, 0xb0, 0x1a,
+	0xdd, 0x7d, 0x67, 0xee, 0x92, 0x43, 0xa8, 0x0f, 0xfb, 0xb4, 0x6e, 0x19, 0xdd, 0x7d, 0xa7, 0x3e,
+	0xec, 0x13, 0x0e, 0x64, 0x82, 0x8a, 0x5f, 0x72, 0x8f, 0x69, 0x2e, 0xc5, 0x39, 0xea, 0x91, 0xf4,
+	0x69, 0xc3, 0x6a, 0x74, 0xdb, 0xcf, 0x5f, 0xd9, 0xf7, 0xfa, 0x1f, 0xfb, 0x62, 0x0d, 0xc0, 0xd9,
+	0x00, 0x4a, 0x06, 0xd0, 0x4a, 0x50, 0x4d, 0xb8, 0x87, 0x74, 0xa7, 0xc0, 0xb7, 0xef, 0x89, 0xff,
+	0xb1, 0xec, 0x72, 0xe6, 0xed, 0x84, 0xc1, 0x21, 0x4b, 0xf5, 0x08, 0x85, 0xae, 0x18, 0xe8, 0xee,
+	0xb6, 0x03, 0xaf, 0x00, 0x12, 0x0f, 0x8e, 0x58, 0x92, 0xa0, 0x5a, 0x58, 0x4a, 0x73, 0x5b, 0x8e,
+	0x55, 0x44, 0x12, 0x41, 0xc7, 0x63, 0x31, 0x73, 0x79, 0xc8, 0x75, 0xd6, 0xc7, 0x10, 0x83, 0xf2,
+	0x6f, 0x5a, 0xdb, 0x32, 0x6d, 0x84, 0x5d, 0xa6, 0x1b, 0x8a, 0x89, 0xac, 0x96, 0xb7, 0xf7, 0x1f,
+	0xe9, 0xee, 0x60, 0xc9, 0x37, 0x38, 0x18, 0x63, 0x76, 0x1a, 0x28, 0xc4, 0xfc, 0x28, 0xe9, 0xfe,
+	0xb6, 0x34, 0x4b, 0x70, 0xc5, 0x8d, 0x2b, 0x64, 0x1a, 0x7d, 0x0a, 0xc5, 0x39, 0xcf, 0xdd, 0x3c,
+	0x93, 0xc6, 0x7e, 0x91, 0x69, 0x97, 0x99, 0xca, 0x3d, 0xf9, 0x59, 0x07, 0xb2, 0x0e, 0x5c, 0x89,
+	0xc2, 0xb8, 0x15, 0x05, 0x81, 0x9d, 0x4f, 0x59, 0x8c, 0x95, 0x4c, 0x0a, 0x9b, 0x98, 0x00, 0x6f,
+	0xa4, 0xd0, 0x4a, 0x86, 0x21, 0x2a, 0xda, 0x28, 0x32, 0x0b, 0x11, 0xf2, 0x14, 0x76, 0x2f, 0x58,
+	0x98, 0xce, 0x6f, 0xbb, 0x63, 0x97, 0x4a, 0xb6, 0xe7, 0x4a, 0xb6, 0x4f, 0x45, 0xe6, 0x94, 0x25,
+	0xe4, 0x35, 0x1c, 0xc4, 0xa9, 0x1b, 0x72, 0xef, 0x3d, 0x66, 0xef, 0xae, 0xc6, 0x74, 0xd7, 0x32,
+	0xfe, 0xd5, 0x32, 0xa8, 0x39, 0x4b, 0xb5, 0xe4, 0x19, 0x90, 0x5b, 0xff, 0x3c, 0x0d, 0x35, 0x77,
+	0x59, 0x82, 0xb4, 0x99, 0xcf, 0x33, 0xa8, 0x39, 0x1b, 0x72, 0xc4, 0x82, 0xb6, 0xc2, 0x90, 0x69,
+	0x3e, 0xc1, 0xcf, 0xce, 0x07, 0xda, 0xb2, 0x8c, 0xee, 0x9e, 0xb3, 0x18, 0x3a, 0x7b, 0x00, 0x9d,
+	0x25, 0xbd, 0x32, 0x8d, 0x8a, 0xb3, 0xf0, 0xe4, 0x0b, 0xb4, 0x2a, 0xed, 0x6d, 0x5a, 0x91, 0x5e,
+	0x58, 0x51, 0x6e, 0x93, 0x2e, 0x1c, 0x55, 0x0a, 0x7d, 0x2b, 0xfc, 0x58, 0x72, 0xa1, 0xab, 0x3d,
+	0xad, 0x86, 0xcf, 0x9c, 0x5f, 0x53, 0xd3, 0xb8, 0x99, 0x9a, 0xc6, 0x9f, 0xa9, 0x69, 0x7c, 0x9f,
+	0x99, 0xb5, 0x9b, 0x99, 0x59, 0xfb, 0x3d, 0x33, 0x6b, 0x5f, 0x5f, 0x06, 0x5c, 0x8f, 0x52, 0x37,
+	0xbf, 0x89, 0xde, 0xda, 0xab, 0xbb, 0x16, 0xb8, 0x2e, 0x1e, 0xe2, 0x9c, 0x3c, 0x71, 0x9b, 0xc5,
+	0xda, 0x5e, 0xfc, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x66, 0xb8, 0xdd, 0xf8, 0xad, 0x05, 0x00, 0x00,
 }
 
 func (m *DidDocument) Marshal() (dAtA []byte, err error) {
@@ -746,124 +666,12 @@ func (m *Service) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.RelativeURL {
-		i--
-		if m.RelativeURL {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x58
-	}
-	if len(m.RoutingKeysRelativeURL) > 0 {
-		for k := range m.RoutingKeysRelativeURL {
-			v := m.RoutingKeysRelativeURL[k]
-			baseI := i
-			i--
-			if v {
-				dAtA[i] = 1
-			} else {
-				dAtA[i] = 0
-			}
-			i--
-			dAtA[i] = 0x10
-			i -= len(k)
-			copy(dAtA[i:], k)
-			i = encodeVarintDidDocument(dAtA, i, uint64(len(k)))
-			i--
-			dAtA[i] = 0xa
-			i = encodeVarintDidDocument(dAtA, i, uint64(baseI-i))
-			i--
-			dAtA[i] = 0x52
-		}
-	}
-	if len(m.RecipientKeysRelativeURL) > 0 {
-		for k := range m.RecipientKeysRelativeURL {
-			v := m.RecipientKeysRelativeURL[k]
-			baseI := i
-			i--
-			if v {
-				dAtA[i] = 1
-			} else {
-				dAtA[i] = 0
-			}
-			i--
-			dAtA[i] = 0x10
-			i -= len(k)
-			copy(dAtA[i:], k)
-			i = encodeVarintDidDocument(dAtA, i, uint64(len(k)))
-			i--
-			dAtA[i] = 0xa
-			i = encodeVarintDidDocument(dAtA, i, uint64(baseI-i))
-			i--
-			dAtA[i] = 0x4a
-		}
-	}
-	if len(m.Properties) > 0 {
-		for k := range m.Properties {
-			v := m.Properties[k]
-			baseI := i
-			if v != nil {
-				{
-					size, err := v.MarshalToSizedBuffer(dAtA[:i])
-					if err != nil {
-						return 0, err
-					}
-					i -= size
-					i = encodeVarintDidDocument(dAtA, i, uint64(size))
-				}
-				i--
-				dAtA[i] = 0x12
-			}
-			i -= len(k)
-			copy(dAtA[i:], k)
-			i = encodeVarintDidDocument(dAtA, i, uint64(len(k)))
-			i--
-			dAtA[i] = 0xa
-			i = encodeVarintDidDocument(dAtA, i, uint64(baseI-i))
-			i--
-			dAtA[i] = 0x42
-		}
-	}
-	if len(m.Accept) > 0 {
-		for iNdEx := len(m.Accept) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Accept[iNdEx])
-			copy(dAtA[i:], m.Accept[iNdEx])
-			i = encodeVarintDidDocument(dAtA, i, uint64(len(m.Accept[iNdEx])))
-			i--
-			dAtA[i] = 0x3a
-		}
-	}
 	if len(m.ServiceEndpoint) > 0 {
 		i -= len(m.ServiceEndpoint)
 		copy(dAtA[i:], m.ServiceEndpoint)
 		i = encodeVarintDidDocument(dAtA, i, uint64(len(m.ServiceEndpoint)))
 		i--
-		dAtA[i] = 0x32
-	}
-	if len(m.RoutingKeys) > 0 {
-		for iNdEx := len(m.RoutingKeys) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.RoutingKeys[iNdEx])
-			copy(dAtA[i:], m.RoutingKeys[iNdEx])
-			i = encodeVarintDidDocument(dAtA, i, uint64(len(m.RoutingKeys[iNdEx])))
-			i--
-			dAtA[i] = 0x2a
-		}
-	}
-	if len(m.RecipientKeys) > 0 {
-		for iNdEx := len(m.RecipientKeys) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.RecipientKeys[iNdEx])
-			copy(dAtA[i:], m.RecipientKeys[iNdEx])
-			i = encodeVarintDidDocument(dAtA, i, uint64(len(m.RecipientKeys[iNdEx])))
-			i--
-			dAtA[i] = 0x22
-		}
-	}
-	if m.Priority != 0 {
-		i = encodeVarintDidDocument(dAtA, i, uint64(m.Priority))
-		i--
-		dAtA[i] = 0x18
+		dAtA[i] = 0x1a
 	}
 	if len(m.Type) > 0 {
 		i -= len(m.Type)
@@ -1031,62 +839,9 @@ func (m *Service) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovDidDocument(uint64(l))
 	}
-	if m.Priority != 0 {
-		n += 1 + sovDidDocument(uint64(m.Priority))
-	}
-	if len(m.RecipientKeys) > 0 {
-		for _, s := range m.RecipientKeys {
-			l = len(s)
-			n += 1 + l + sovDidDocument(uint64(l))
-		}
-	}
-	if len(m.RoutingKeys) > 0 {
-		for _, s := range m.RoutingKeys {
-			l = len(s)
-			n += 1 + l + sovDidDocument(uint64(l))
-		}
-	}
 	l = len(m.ServiceEndpoint)
 	if l > 0 {
 		n += 1 + l + sovDidDocument(uint64(l))
-	}
-	if len(m.Accept) > 0 {
-		for _, s := range m.Accept {
-			l = len(s)
-			n += 1 + l + sovDidDocument(uint64(l))
-		}
-	}
-	if len(m.Properties) > 0 {
-		for k, v := range m.Properties {
-			_ = k
-			_ = v
-			l = 0
-			if v != nil {
-				l = v.Size()
-				l += 1 + sovDidDocument(uint64(l))
-			}
-			mapEntrySize := 1 + len(k) + sovDidDocument(uint64(len(k))) + l
-			n += mapEntrySize + 1 + sovDidDocument(uint64(mapEntrySize))
-		}
-	}
-	if len(m.RecipientKeysRelativeURL) > 0 {
-		for k, v := range m.RecipientKeysRelativeURL {
-			_ = k
-			_ = v
-			mapEntrySize := 1 + len(k) + sovDidDocument(uint64(len(k))) + 1 + 1
-			n += mapEntrySize + 1 + sovDidDocument(uint64(mapEntrySize))
-		}
-	}
-	if len(m.RoutingKeysRelativeURL) > 0 {
-		for k, v := range m.RoutingKeysRelativeURL {
-			_ = k
-			_ = v
-			mapEntrySize := 1 + len(k) + sovDidDocument(uint64(len(k))) + 1 + 1
-			n += mapEntrySize + 1 + sovDidDocument(uint64(mapEntrySize))
-		}
-	}
-	if m.RelativeURL {
-		n += 2
 	}
 	return n
 }
@@ -1874,89 +1629,6 @@ func (m *Service) Unmarshal(dAtA []byte) error {
 			m.Type = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Priority", wireType)
-			}
-			m.Priority = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Priority |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RecipientKeys", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.RecipientKeys = append(m.RecipientKeys, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RoutingKeys", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.RoutingKeys = append(m.RoutingKeys, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ServiceEndpoint", wireType)
 			}
@@ -1988,417 +1660,6 @@ func (m *Service) Unmarshal(dAtA []byte) error {
 			}
 			m.ServiceEndpoint = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Accept", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Accept = append(m.Accept, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 8:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Properties", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Properties == nil {
-				m.Properties = make(map[string]*types.Any)
-			}
-			var mapkey string
-			var mapvalue *types.Any
-			for iNdEx < postIndex {
-				entryPreIndex := iNdEx
-				var wire uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowDidDocument
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					wire |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				fieldNum := int32(wire >> 3)
-				if fieldNum == 1 {
-					var stringLenmapkey uint64
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowDidDocument
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						stringLenmapkey |= uint64(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					intStringLenmapkey := int(stringLenmapkey)
-					if intStringLenmapkey < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					postStringIndexmapkey := iNdEx + intStringLenmapkey
-					if postStringIndexmapkey < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					if postStringIndexmapkey > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
-					iNdEx = postStringIndexmapkey
-				} else if fieldNum == 2 {
-					var mapmsglen int
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowDidDocument
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						mapmsglen |= int(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					if mapmsglen < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					postmsgIndex := iNdEx + mapmsglen
-					if postmsgIndex < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					if postmsgIndex > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapvalue = &types.Any{}
-					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
-						return err
-					}
-					iNdEx = postmsgIndex
-				} else {
-					iNdEx = entryPreIndex
-					skippy, err := skipDidDocument(dAtA[iNdEx:])
-					if err != nil {
-						return err
-					}
-					if (skippy < 0) || (iNdEx+skippy) < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					if (iNdEx + skippy) > postIndex {
-						return io.ErrUnexpectedEOF
-					}
-					iNdEx += skippy
-				}
-			}
-			m.Properties[mapkey] = mapvalue
-			iNdEx = postIndex
-		case 9:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RecipientKeysRelativeURL", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.RecipientKeysRelativeURL == nil {
-				m.RecipientKeysRelativeURL = make(map[string]bool)
-			}
-			var mapkey string
-			var mapvalue bool
-			for iNdEx < postIndex {
-				entryPreIndex := iNdEx
-				var wire uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowDidDocument
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					wire |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				fieldNum := int32(wire >> 3)
-				if fieldNum == 1 {
-					var stringLenmapkey uint64
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowDidDocument
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						stringLenmapkey |= uint64(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					intStringLenmapkey := int(stringLenmapkey)
-					if intStringLenmapkey < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					postStringIndexmapkey := iNdEx + intStringLenmapkey
-					if postStringIndexmapkey < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					if postStringIndexmapkey > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
-					iNdEx = postStringIndexmapkey
-				} else if fieldNum == 2 {
-					var mapvaluetemp int
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowDidDocument
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						mapvaluetemp |= int(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					mapvalue = bool(mapvaluetemp != 0)
-				} else {
-					iNdEx = entryPreIndex
-					skippy, err := skipDidDocument(dAtA[iNdEx:])
-					if err != nil {
-						return err
-					}
-					if (skippy < 0) || (iNdEx+skippy) < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					if (iNdEx + skippy) > postIndex {
-						return io.ErrUnexpectedEOF
-					}
-					iNdEx += skippy
-				}
-			}
-			m.RecipientKeysRelativeURL[mapkey] = mapvalue
-			iNdEx = postIndex
-		case 10:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RoutingKeysRelativeURL", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthDidDocument
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.RoutingKeysRelativeURL == nil {
-				m.RoutingKeysRelativeURL = make(map[string]bool)
-			}
-			var mapkey string
-			var mapvalue bool
-			for iNdEx < postIndex {
-				entryPreIndex := iNdEx
-				var wire uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowDidDocument
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					wire |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				fieldNum := int32(wire >> 3)
-				if fieldNum == 1 {
-					var stringLenmapkey uint64
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowDidDocument
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						stringLenmapkey |= uint64(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					intStringLenmapkey := int(stringLenmapkey)
-					if intStringLenmapkey < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					postStringIndexmapkey := iNdEx + intStringLenmapkey
-					if postStringIndexmapkey < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					if postStringIndexmapkey > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
-					iNdEx = postStringIndexmapkey
-				} else if fieldNum == 2 {
-					var mapvaluetemp int
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowDidDocument
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						mapvaluetemp |= int(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					mapvalue = bool(mapvaluetemp != 0)
-				} else {
-					iNdEx = entryPreIndex
-					skippy, err := skipDidDocument(dAtA[iNdEx:])
-					if err != nil {
-						return err
-					}
-					if (skippy < 0) || (iNdEx+skippy) < 0 {
-						return ErrInvalidLengthDidDocument
-					}
-					if (iNdEx + skippy) > postIndex {
-						return io.ErrUnexpectedEOF
-					}
-					iNdEx += skippy
-				}
-			}
-			m.RoutingKeysRelativeURL[mapkey] = mapvalue
-			iNdEx = postIndex
-		case 11:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RelativeURL", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDidDocument
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.RelativeURL = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipDidDocument(dAtA[iNdEx:])

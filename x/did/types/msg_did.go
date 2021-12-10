@@ -2,18 +2,25 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 func NewMsgSetDidDocument(context string, ID string) *MsgSetDidDocument {
 	return &MsgSetDidDocument{
-		&DidDocument{Context: []string{context}, ID: ID},
+		Context:              []string{},
+		ID:                   "",
+		VerificationMethod:   []*VerificationMethod{},
+		Service:              []*Service{},
+		Authentication:       []*VerificationMethod{},
+		AssertionMethod:      []*VerificationMethod{},
+		CapabilityDelegation: []*VerificationMethod{},
+		CapabilityInvocation: []*VerificationMethod{},
+		KeyAgreement:         []*VerificationMethod{},
 	}
 
 }
 
 func (msg *MsgSetDidDocument) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.DidDocument.ID)
+	creator, err := sdk.AccAddressFromBech32(msg.ID)
 	if err != nil {
 		panic(err)
 	}
@@ -34,9 +41,11 @@ func (msg *MsgSetDidDocument) Type() string {
 }
 
 func (msg *MsgSetDidDocument) ValidateBasic() error {
-	if err := msg.DidDocument.Validate(); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid DID document", err)
-	}
+	// TODO
+
+	// if err := msg.DidDocument.Validate(); err != nil {
+	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid DID document", err)
+	// }
 
 	return nil
 }

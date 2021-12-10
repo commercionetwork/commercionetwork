@@ -14,6 +14,16 @@ service Msg {
 
 // this line is used by starport scaffolding # proto/tx/message
 
-message MsgSetDidDocument { DidDocument DidDocument = 1; }
+message MsgSetDidDocument {
+  repeated string context = 1;
+  string ID = 2;
+  repeated VerificationMethod verificationMethod = 3;
+  repeated Service service = 4;
+  repeated VerificationMethod authentication = 5;
+  repeated VerificationMethod assertionMethod = 6;
+  repeated VerificationMethod capabilityDelegation = 7;
+  repeated VerificationMethod capabilityInvocation = 8;
+  repeated VerificationMethod keyAgreement = 9;
+}
 
 message MsgSetDidDocumentResponse { string ID = 1; }

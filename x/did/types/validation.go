@@ -134,7 +134,7 @@ func (v *VerificationMethod) Validate() error {
 	// validate ID
 	// Required
 	// A string that conforms to the rules for DID URL.
-	if v.ID == "" {
+	if IsEmpty(v.ID) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"id\" is required")
 	}
 	if !IsValidDIDURL(v.ID) {
@@ -161,6 +161,9 @@ func (v *VerificationMethod) Validate() error {
 	if IsValidDID(v.Controller) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" must conform to the rules of DID Syntax")
 	}
+
+	// TODO
+	// A verification method MUST NOT contain multiple verification material properties for the same material. For example, expressing key material in a verification method using both publicKeyJwk and publicKeyMultibase at the same time is prohibited.
 
 	return nil
 }

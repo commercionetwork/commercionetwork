@@ -19,15 +19,14 @@ func setupMsgServer(t testing.TB) (types.MsgServer, Keeper, sdk.Context) {
 func Test_SetDidDocument(t *testing.T) {
 	srv, k, ctx := setupMsgServer(t)
 	_, _, addr := testdata.KeyTestPubAddr()
-	ddoProposal := &types.DidDocument{ID: addr.String()}
 
 	sdkCtx := sdk.WrapSDKContext(ctx)
 
-	resp, err := srv.SetDidDocument(sdkCtx, &types.MsgSetDidDocument{DidDocument: ddoProposal})
+	resp, err := srv.SetDidDocument(sdkCtx, &types.MsgSetDidDocument{ID: addr.String()})
 	require.NoError(t, err)
 	assert.Equal(t, addr.String(), resp.ID)
 
-	resp, err = srv.SetDidDocument(sdkCtx, &types.MsgSetDidDocument{DidDocument: ddoProposal})
+	resp, err = srv.SetDidDocument(sdkCtx, &types.MsgSetDidDocument{ID: addr.String()})
 	require.NoError(t, err)
 	assert.Equal(t, addr.String(), resp.ID)
 
@@ -35,6 +34,6 @@ func Test_SetDidDocument(t *testing.T) {
 		assert.True(t, d.Created != d.Updated)
 	}
 
-	assert.True(t, k.HasDidDocument(ctx, ddoProposal.ID))
+	assert.True(t, k.HasDidDocument(ctx, addr.String()))
 
 }
