@@ -42,13 +42,10 @@ func CmdSetDidDocument() *cobra.Command {
 			}
 
 			// TODO: check signer is the same as ID in DID document
+			// TODO: add parameters to msg
 
 			// Calculate Proof
 			/*signature, err := signDidDocument(clientCtx, didDocument, keybase)
-
-			if err != nil {
-				return err
-			}
 
 			fromAddressPubkey, err := keybase.KeyByAddress(clientCtx.GetFromAddress())
 			if err != nil {
@@ -70,11 +67,21 @@ func CmdSetDidDocument() *cobra.Command {
 			}*/
 
 			//msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, proof, didDocument.Service)
-			msg := types.NewMsgSetDidDocument(types.ContextDidV1, clientCtx.GetFromAddress().String())
+			msg := types.MsgSetDidDocument{
+				Context:              []string{},
+				ID:                   "",
+				VerificationMethod:   []*types.VerificationMethod{},
+				Service:              []*types.Service{},
+				Authentication:       []*types.VerificationMethod{},
+				AssertionMethod:      []*types.VerificationMethod{},
+				CapabilityDelegation: []*types.VerificationMethod{},
+				CapabilityInvocation: []*types.VerificationMethod{},
+				KeyAgreement:         []*types.VerificationMethod{},
+			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
 		},
 	}
 
