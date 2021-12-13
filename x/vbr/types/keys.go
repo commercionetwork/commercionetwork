@@ -20,6 +20,10 @@ const (
 	QueryRewardRate            = "reward_rate"
 	QueryAutomaticWithdraw     = "automatic_withdraw"
 	QueryVbrParams			   = "params"
+
+	EpochWeek	= "week"
+	EpochDay	= "day"
+	EpochMinute = "minute"
 )
 
 // this line is used by starport scaffolding # ibc/keys/port

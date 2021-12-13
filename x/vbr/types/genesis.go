@@ -16,7 +16,7 @@ func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		AutomaticWithdraw: true,
 		Params: Params{
-			DistrEpochIdentifier: "day",
+			DistrEpochIdentifier: /*EpochMinute*/EpochDay,
 			VbrEarnRate: sdk.NewDec(int64(50)),
 		},
 	}

@@ -42,8 +42,6 @@ var (
 	BPD = HPD.Mul(MPH).Mul(BPM)
 	// BPY is Blocks Per Year
 	BPY = DPY.Mul(BPD)
-	//50% 
-	vbr_earn_rate = sdk.NewDecWithPrec(50, 2);
 )
 
 type (
@@ -184,28 +182,31 @@ func GetCoins(k Keeper, ctx sdk.Context, macc accountTypes.ModuleAccountI) sdk.C
 	return coins
 }
 // ComputeProposerReward computes the final reward for the validator block's proposer
-func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator stakingTypes.ValidatorI, denom string, epochIdentifier string) sdk.DecCoins {
+func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator stakingTypes.ValidatorI, denom string, params types.Params) sdk.DecCoins {
 
 	// Get rewarded rate
 	//rewardRate := k.GetRewardRateKeeper(ctx)
 
 	// Calculate rewarded rate with validator percentage
 	//rewardRateVal := rewardRate.Mul(sdk.NewDec(vCount)).Quo(sdk.NewDec(100))
+	
 
 	// Get total bonded token of validator
 	validatorBonded := validator.GetBondedTokens()
 
-	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(vbr_earn_rate))
+	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.VbrEarnRate))
 	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100)) 
 	
 	//compute the annual distribution ((validator's token * 0.5)*(total_validators/100))
 	annualDistribution := sdk.NewDecCoinFromDec(denom, validatorBondedPerc.Amount.Mul(validatorsPerc))
 	var epochDuration sdk.Dec
-	switch (epochIdentifier){
-		case "day": 
+	switch (params.DistrEpochIdentifier){
+		case types.EpochDay: 
 			epochDuration = sdk.NewDec(365)
-		case "week":
+		case types.EpochWeek:
 			epochDuration = sdk.NewDec(365).Quo(sdk.NewDec(7))
+		case types.EpochMinute:
+			epochDuration = sdk.NewDec(365*24*60)
 		default:
 			return nil
 	}

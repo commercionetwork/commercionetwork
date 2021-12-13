@@ -21,7 +21,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 		for _, validator := range activeValidators {
 			// Compute the reward based on the number of validators, the validator's staked tokens and the total staked tokens
-			reward := k.ComputeProposerReward(ctx, valNumber, validator, k.stakingKeeper.BondDenom(ctx), epochIdentifier)
+			reward := k.ComputeProposerReward(ctx, valNumber, validator, k.stakingKeeper.BondDenom(ctx), params)
 
 			// Distribute the reward to the block proposer
 			if err := k.DistributeBlockRewards(ctx, validator, reward); err != nil {

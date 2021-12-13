@@ -87,6 +87,9 @@ func (k msgServer) SetVbrParams(goCtx context.Context, msg *types.MsgSetVbrParam
 	if !(gov.Equals(msgGovAddr)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
 	}
+	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute{
+		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
+	}
 	params := types.Params{
 			DistrEpochIdentifier: msg.DistrEpochIdentifier,
 			VbrEarnRate: msg.VbrEarnRate,
