@@ -33,16 +33,13 @@ func CmdSetDidDocument() *cobra.Command {
 				return err
 			}
 
-			var didDocument types.DidDocument
-			json.Unmarshal(ddoData, &didDocument)
+			var didDocumentProposal types.MsgSetDidDocument
+			json.Unmarshal(ddoData, &didDocumentProposal)
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
-
-			// TODO: check signer is the same as ID in DID document
-			// TODO: add parameters to msg
 
 			// Calculate Proof
 			/*signature, err := signDidDocument(clientCtx, didDocument, keybase)
@@ -66,22 +63,10 @@ func CmdSetDidDocument() *cobra.Command {
 				SignatureValue:     signature,
 			}*/
 
-			//msg := types.NewMsgSetIdentity(types.ContextDidV1, clientCtx.GetFromAddress().String(), didDocument.PubKeys, proof, didDocument.Service)
-			msg := types.MsgSetDidDocument{
-				Context:              []string{},
-				ID:                   "",
-				VerificationMethod:   []*types.VerificationMethod{},
-				Service:              []*types.Service{},
-				Authentication:       []*types.VerificationMethod{},
-				AssertionMethod:      []*types.VerificationMethod{},
-				CapabilityDelegation: []*types.VerificationMethod{},
-				CapabilityInvocation: []*types.VerificationMethod{},
-				KeyAgreement:         []*types.VerificationMethod{},
-			}
-			if err := msg.ValidateBasic(); err != nil {
+			if err := didDocumentProposal.ValidateBasic(); err != nil {
 				return err
 			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &didDocumentProposal)
 		},
 	}
 
