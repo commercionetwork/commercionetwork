@@ -105,7 +105,7 @@ func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.Trust
 func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
-	return signers.Contains(signer.String()) || signer.Equals(k.govKeeper.GetGovernmentAddress(ctx))
+	return signers.Contains(signer.String()) || signer.Equals(k.GovKeeper.GetGovernmentAddress(ctx))
 }
 
 // TspIterator returns an Iterator for all the tsps stored.

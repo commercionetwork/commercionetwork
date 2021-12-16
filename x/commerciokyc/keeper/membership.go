@@ -192,18 +192,19 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 			rewardAmount = poolAmount
 		}
 		// Calcute equivalent distribution in uccc
-		ucccConversionRate := k.mintKeeper.GetConversionRate(ctx)
+		ucccConversionRate := k.MintKeeper.GetConversionRate(ctx)
 		//kmintTypes.GetConv
 
 		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditDenom, rewardAmount))
 		// TODO check calculation mint amount. See calculation of mint
-		rewardStakeCoinAmount := sdk.NewDecFromInt(rewardCoins.AmountOf(stableCreditDenom)).Quo(ucccConversionRate).RoundInt()
+		// TODO check conversion rate not zero
+		rewardStakeCoinAmount := sdk.NewDecFromInt(rewardAmount).Mul(ucccConversionRate).Ceil().TruncateInt()
 		stakeEquivCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardStakeCoinAmount))
 
-		govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+		govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, govAddr, stakeEquivCoins); err != nil {
-			return err
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
 		// Create a mint position from
@@ -215,16 +216,16 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 			ID:         mintUUID,
 		}
 
-		err := k.mintKeeper.NewPosition(
+		err := k.MintKeeper.NewPosition(
 			ctx,
 			postion,
 		)
 		if err != nil {
 			// TODO find a way to fix nested errors
-			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, stakeEquivCoins); err != nil {
-				return err
+			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, rewardCoins); err != nil {
+				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 			}
-			return err
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
 		// Send the reward to the invite sender

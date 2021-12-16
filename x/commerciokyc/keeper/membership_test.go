@@ -168,59 +168,97 @@ func TestKeeper_DeleteMembership(t *testing.T) {
 	}
 }
 func TestKeeper_DistributeReward(t *testing.T) {
+	coins := sdk.Coins{}
 	tests := []struct {
 		name                 string
 		invite               types.Invite
 		pool                 sdk.Coins
+		expectedGovBalance   sdk.Coins
+		expectedUserBalance  sdk.Coins
 		expectedInviteStatus int64
 		mustError            bool
+		expectedError        error
 	}{
 		{
 			name:                 "Invite status is invalid",
-			invite:               types.Invite{},
+			invite:               types.Invite{Sender: testInviteSender.String(), SenderMembership: types.MembershipTypeGold, User: testUser.String(), Status: uint64(types.InviteStatusRewarded)},
 			expectedInviteStatus: int64(types.InviteStatusRewarded),
 			mustError:            false,
 		},
 		{
 			name:      "Invite sender does no have a membership",
-			invite:    types.Invite{},
+			invite:    types.Invite{Sender: testInviteSender.String(), SenderMembership: types.MembershipTypeGold, User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
 			mustError: true,
 		},
 		{
 			name:      "Invite recipient does not have a membership",
-			invite:    types.Invite{},
+			invite:    types.Invite{Sender: testUser2.String(), SenderMembership: types.MembershipTypeGold, User: testUser.String(), Status: uint64(types.InviteStatusPending)},
 			mustError: true,
 		},
-		{
-			name:      "Memberships matrix option reward not exists",
-			invite:    types.Invite{},
-			mustError: true,
-		},
+		/*{
+			name:          "Memberships matrix option reward not exists",
+			invite:        types.Invite{Sender: testTsp.String(), SenderMembership: "bold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			mustError:     true,
+			expectedError: sdkErr.Wrap(sdkErr.ErrInvalidRequest, "Invalid reward options"),
+		},*/
 		{
 			name:      "Pool has zero tokens",
-			invite:    types.Invite{},
-			pool:      sdk.Coins{},
-			mustError: false,
-		},
-		{
-			name:      "Account has not sufficient funds",
-			invite:    types.Invite{},
+			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			pool:      coins,
 			mustError: true,
+			//expectedError: sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens"),
 		},
 		{
-			name:      "Account has not sufficient funds",
-			invite:    types.Invite{},
+			name:      "Account has not sufficient funds (pool is small then expected reward)",
+			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			pool:      sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(100000000))),
 			mustError: true,
+			//expectedError: sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens"),
+			// could not move collateral amount to module account, 43478261ucommercio is smaller than 100000001ucommercio: insufficient funds
 		},
-		{
+		// TODO: correct reward fail on open position
+		/*{
 			name:                 "Account correctly rewarded",
-			invite:               types.Invite{},
-			pool:                 sdk.Coins{},
+			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			pool:                 sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000000000000))),
 			expectedInviteStatus: int64(types.InviteStatusRewarded),
 			mustError:            false,
-		},
+		},*/
 	}
-	_ = tests
+	for _, test := range tests {
+		ctx, bk, _, k := SetupTestInput()
+
+		err := k.AssignMembership(ctx, testUser2, types.MembershipTypeGold, testTsp, testExpiration)
+		require.NoError(t, err)
+		err = k.AssignMembership(ctx, testTsp, types.MembershipTypeBlack, testTsp, testExpiration)
+		require.NoError(t, err)
+		err = k.SetLiquidityPoolToAccount(ctx, test.pool)
+		require.NoError(t, err)
+		senderAccAddr, _ := sdk.AccAddressFromBech32(test.invite.Sender)
+		//userAccAddr, _ := sdk.AccAddressFromBech32(test.invite.User)
+		//senderMembershipType := test.invite.SenderMembership
+		senderBalance := bk.GetAllBalances(ctx, senderAccAddr)
+		//userBalance := bk.GetAllBalances(ctx, userAccAddr)
+
+		err = k.DistributeReward(ctx, test.invite)
+		if !test.mustError {
+			require.NoError(t, err)
+		} else {
+			require.Error(t, err)
+			if test.expectedError != nil {
+				require.Equal(t, test.expectedError, err)
+			}
+		}
+
+		if test.expectedInviteStatus > 0 {
+			require.Equal(t, test.expectedInviteStatus, int64(test.invite.Status))
+		}
+
+		if test.expectedUserBalance != nil {
+			require.Equal(t, test.expectedUserBalance, senderBalance)
+		}
+
+	}
 
 }
 

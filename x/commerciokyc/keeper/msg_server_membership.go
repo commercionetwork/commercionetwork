@@ -39,7 +39,7 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 	membershipPrice := membershipCosts[msg.MembershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(types.CreditsDenom, membershipPrice))
 
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	// TODO Not send coins but control if account has enough
 	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
 	if err := k.bankKeeper.SendCoins(ctx, msgTsp, govAddr, membershipCost); err != nil {
@@ -84,7 +84,7 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 // It checks that whoever sent the message is actually the government and remove membership
 func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveMembership) (*types.MsgRemoveMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	if !govAddr.Equals(msg.GetSigners()[0]) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
@@ -106,7 +106,7 @@ func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveM
 // If the user isn't invited already, an invite will be created.
 func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembership) (*types.MsgSetMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	if !govAddr.Equals(msg.GetSigners()[0]) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
@@ -155,7 +155,7 @@ func (k msgServer) ComputeExpiryHeight(blockTime time.Time) time.Time {
 // governmentInvitesUser makes government invite an user if it isn't already invited and validated.
 // This function is used when there's the need to assign an arbitrary membership to a given user.
 func (k msgServer) governmentInvitesUser(ctx sdk.Context, user sdk.AccAddress) (types.Invite, error) {
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 
 	// check the user has already been invited
 	// if there's an invite, save a credential for it,

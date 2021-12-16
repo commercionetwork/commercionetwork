@@ -31,9 +31,9 @@ type Keeper struct {
 	StoreKey      sdk.StoreKey
 	memKey        sdk.StoreKey
 	bankKeeper    bank.Keeper
-	govKeeper     government.Keeper
+	GovKeeper     government.Keeper
 	accountKeeper auth.AccountKeeper
-	mintKeeper    mint.Keeper
+	MintKeeper    mint.Keeper
 }
 
 func NewKeeper(
@@ -54,8 +54,16 @@ func NewKeeper(
 		StoreKey:      storeKey,
 		memKey:        memKey,
 		bankKeeper:    bankKeeper,
-		govKeeper:     govKeeper,
+		GovKeeper:     govKeeper,
 		accountKeeper: accountKeeper,
-		mintKeeper:    mintKeeper,
+		MintKeeper:    mintKeeper,
 	}
+}
+
+func (k Keeper) GetAccountKeeper() auth.AccountKeeper {
+	return k.accountKeeper
+}
+
+func (k Keeper) GetBankKeeper() bank.Keeper {
+	return k.bankKeeper
 }
