@@ -54,10 +54,12 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// If present, the associated value MUST be a set of services, where each service is described by a map.
 	// A conforming producer MUST NOT produce multiple service entries with the same id.
 	for _, s := range msg.Service {
-		err := s.Validate()
-		if err != nil {
+		if err := s.Validate(); err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Service %s %e", s, err)
 		}
+	}
+	if ServiceSlice(msg.Service).hasDuplicate() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid Service %s found services with the same ID", msg.Service)
 	}
 
 	// validate Authentication

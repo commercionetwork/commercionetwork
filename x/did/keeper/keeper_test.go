@@ -17,10 +17,10 @@ import (
 	tmdb "github.com/tendermint/tm-db"
 )
 
-func TestIdentityGet(t *testing.T) {
+func TestGetDidDocumentOfAddress(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createNIdentityNew(keeper, ctx, 10)
-	for _, item := range items {
+	ddos := createNIdentityNew(keeper, ctx, 10)
+	for _, item := range ddos {
 		a, err := keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(item.ID))
 		require.NoError(t, err)
 		assert.Equal(t, item, a)
@@ -29,20 +29,48 @@ func TestIdentityGet(t *testing.T) {
 
 func TestNewDocumentExist(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createNIdentityNew(keeper, ctx, 10)
-	for _, item := range items {
+	ddos := createNIdentityNew(keeper, ctx, 10)
+	for _, item := range ddos {
 		assert.True(t, keeper.HasDidDocument(ctx, item.ID))
 	}
 }
 
+// func TestIdentitySet(t *testing.T) {
+// 	keeper, ctx := setupKeeper(t)
+
+// 	_, _, addr := testdata.KeyTestPubAddr()
+
+// 	ddo := types.DidDocument{
+// 		Context:              []string{},
+// 		ID:                   addr.String(),
+// 		VerificationMethod:   []*types.VerificationMethod{},
+// 		Service:              []*types.Service{},
+// 		Authentication:       []*types.VerificationMethod{},
+// 		AssertionMethod:      []*types.VerificationMethod{},
+// 		CapabilityDelegation: []*types.VerificationMethod{},
+// 		CapabilityInvocation: []*types.VerificationMethod{},
+// 		KeyAgreement:         []*types.VerificationMethod{},
+// 		Created:              "",
+// 		Updated:              "",
+// 	}
+
+// 	resultAddr := keeper.AppendDidDocument(ctx, ddo)
+
+// 	assert.Equal(t, addr.String(), resultAddr)
+
+// 	resolvedDDO, err := keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(resultAddr))
+// 	require.NoError(t, err)
+// 	assert.Equal(t, ddo, resolvedDDO)
+// }
+
 func createNIdentityNew(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocument {
-	items := make([]types.DidDocument, n)
-	for i := range items {
+	ddos := make([]types.DidDocument, n)
+	for i := range ddos {
 		_, _, addr := testdata.KeyTestPubAddr()
-		items[i].ID = string(addr)
-		_ = keeper.AppendDidDocument(ctx, items[i])
+		ddos[i].ID = string(addr)
+		_ = keeper.AppendDidDocument(ctx, ddos[i])
 	}
-	return items
+	return ddos
 }
 
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
