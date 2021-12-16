@@ -5,6 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type msgServer struct {
@@ -19,6 +20,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
+// SetDidDocument
 func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
 
 	// TODO validate msg ?
@@ -43,6 +45,11 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 		ddo.Created = timestamp
 		// ddo.Updated = NO // "The updated property is omitted if an Update operation has never been performed on the DID document"
 	} else {
+		previousDDO, err := k.GetDidDocumentOfAddress(ctx, sdk.AccAddress(msg.ID))
+		if err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot update DDO: %e", err)
+		}
+		ddo.Created = previousDDO.Created
 		ddo.Updated = timestamp
 	}
 

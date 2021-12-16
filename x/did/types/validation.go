@@ -9,7 +9,7 @@ import (
 func isValidDidCom(did string) error {
 	_, err := sdk.AccAddressFromBech32(did)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s)", did, err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s), %e", did, err)
 	}
 
 	return nil
@@ -99,7 +99,7 @@ func (s *Service) Validate() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"id\" is required")
 	}
 	if !IsValidRFC3986Uri(s.ID) {
-		return sdkerrors.Wrapf(ErrInvalidRFC3986UriFormat, "service field \"id\" must conform to the rules of RFC3986 for URIs")
+		return sdkerrors.Wrap(ErrInvalidRFC3986UriFormat, "service field \"id\" must conform to the rules of RFC3986 for URIs")
 	}
 
 	// validate type
@@ -117,7 +117,7 @@ func (s *Service) Validate() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"serviceEndpoint\" is required")
 	}
 	if !IsValidRFC3986Uri(s.ServiceEndpoint) {
-		return sdkerrors.Wrapf(ErrInvalidRFC3986UriFormat, "service field \"serviceEndpoint\" must conform to the rules of RFC3986 for URIs")
+		return sdkerrors.Wrap(ErrInvalidRFC3986UriFormat, "service field \"serviceEndpoint\" must conform to the rules of RFC3986 for URIs")
 	}
 
 	return nil
