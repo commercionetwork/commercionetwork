@@ -72,8 +72,8 @@ func validateVbrEarnRate(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.IsNegative() || v.IsZero() {
-		return fmt.Errorf("invalid vbr earn rate(must be greater than 0): %+v", i)
+	if v.IsNegative() || v.GT(sdk.NewDec(1)) {
+		return fmt.Errorf("invalid vbr earn rate(must be between 0 and 1): %+v", i)
 	}
 
 	return nil

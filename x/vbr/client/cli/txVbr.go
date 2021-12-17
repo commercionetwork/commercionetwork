@@ -1,8 +1,9 @@
 package cli
 
 import (
-	"github.com/spf13/cobra"
 	"strconv"
+
+	"github.com/spf13/cobra"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -121,7 +122,8 @@ func CmdIncrementBlockRewardsPool() *cobra.Command {
 func CmdSetVbrParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-params [epoch_identifier] [vbr_earn_rate]",
-		Short: "Set the vbr params with epoch identifier(i.e. \"day\" and the vbr earn rate percentage(Dec))", //todo
+		Short: "Set the vbr params with epoch identifier(i.e. \"day\" and the vbr earn rate percentage(Dec))", 
+		Long: "Example usage:\n commercionetworkd tx vbr set-params day 0.500000000000000000 --from ",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
