@@ -25,11 +25,7 @@ message VerificationMethod {
   string ID = 1;
   string Type = 2;
   string Controller = 3;
-  repeated google.protobuf.Any Value = 4;
-  oneof verificationMaterial {
-    google.protobuf.Any publicKeyJwk = 5;
-    string publicKeyMultibase = 6;
-  }
+  string publicKeyMultibase = 6;
 }
 
 message Service {
