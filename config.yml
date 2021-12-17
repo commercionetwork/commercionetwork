@@ -46,6 +46,10 @@ genesis:
           membership_type: "black"
           owner: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
           tsp_address: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
+      liquidity_pool_amount:
+        -
+          amount: "1000000000000"
+          denom: "ucommercio"
     commerciomint:
       Positions:
         -
@@ -59,8 +63,5 @@ genesis:
           owner: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
       collateral_rate: "0.610000000000000000"
       freeze_period: "1814400s"
-      pool_amount:
-        -
-          amount: "5110007"
-          denom: "ucommercio"
+
 

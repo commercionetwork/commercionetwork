@@ -193,7 +193,7 @@ func (msg *MsgRemoveTsp) Route() string {
 }
 
 func (msg *MsgRemoveTsp) Type() string {
-	return MsgTypeAddTsp
+	return MsgTypeRemoveTsp
 }
 
 func (msg *MsgRemoveTsp) GetSigners() []sdk.AccAddress {

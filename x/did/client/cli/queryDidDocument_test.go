@@ -13,6 +13,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/testutil/network"
 	"github.com/commercionetwork/commercionetwork/x/did/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
+	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 )
 
@@ -30,7 +31,16 @@ func networkWithDocumentObjects(t *testing.T, n int) (*network.Network, []*types
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
+
+	stateGov := govTypes.GenesisState{}
+	require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[govTypes.ModuleName], &stateGov))
+	stateGov.GovernmentAddress = "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae"
+	bufGov, err := cfg.Codec.MarshalJSON(&stateGov)
+	require.NoError(t, err)
+
 	cfg.GenesisState[types.ModuleName] = buf
+	cfg.GenesisState[govTypes.ModuleName] = bufGov
+
 	return network.New(t, cfg), state.DidDocuments
 }
 

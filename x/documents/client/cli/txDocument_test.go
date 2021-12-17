@@ -11,10 +11,19 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/testutil/network"
 	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
+	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
 func TestShareDocument(t *testing.T) {
-	net := network.New(t)
+	cfg := network.DefaultConfig()
+
+	stateGov := govTypes.GenesisState{}
+	require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[govTypes.ModuleName], &stateGov))
+	stateGov.GovernmentAddress = "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae"
+	bufGov, _ := cfg.Codec.MarshalJSON(&stateGov)
+	cfg.GenesisState[govTypes.ModuleName] = bufGov
+
+	net := network.New(t, cfg)
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
