@@ -16,14 +16,14 @@ const (
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("/commerciomint/etp/{%s}", restuser),
+		fmt.Sprintf("/commercionetwork/{%s}/etp", restuser),
 		getEtpsHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
-		fmt.Sprintf("/commerciomint/owner/{%s}", restuser),
+		fmt.Sprintf("/commercionetwork/{%s}/owner", restuser),
 		getEtpsByOwnerHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/conversion_rate", getConversionRateHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/freeze_period", getFreezePeriodHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commercionetwork/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commercionetwork/conversion_rate", getConversionRateHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commercionetwork/freeze_period", getFreezePeriodHandler(cliCtx)).Methods("GET")
 }
 
 // ----------------------------------
@@ -35,10 +35,11 @@ func getEtpsHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars[restuser]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetEtp, id)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, id, types.QueryGetEtp)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
 		}
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
@@ -49,10 +50,11 @@ func getEtpsByOwnerHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		ownerAddr := vars[restuser]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetEtpsByOwner, ownerAddr)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, ownerAddr, types.QueryGetEtpsByOwner)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
 		}
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
@@ -63,6 +65,7 @@ func getAllEtpsHandler(cliCtx client.Context) http.HandlerFunc {
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
 		}
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
@@ -74,6 +77,7 @@ func getConversionRateHandler(cliCtx client.Context) http.HandlerFunc {
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return 
 		}
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
@@ -85,6 +89,7 @@ func getFreezePeriodHandler(cliCtx client.Context) http.HandlerFunc {
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return 
 		}
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}

@@ -13,6 +13,7 @@ service Msg {
   rpc SetAutomaticWithdraw(MsgSetAutomaticWithdraw) returns (MsgSetAutomaticWithdrawResponse);
   rpc SetRewardRate(MsgSetRewardRate) returns (MsgSetRewardRateResponse);
   rpc IncrementBlockRewardsPool(MsgIncrementBlockRewardsPool) returns (MsgIncrementBlockRewardsPoolResponse);
+  rpc SetVbrParams(MsgSetVbrParams) returns (MsgSetVbrParamsResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
@@ -42,4 +43,15 @@ message MsgSetAutomaticWithdraw {
 }
 
 message MsgSetAutomaticWithdrawResponse {
+}
+
+message MsgSetVbrParams{
+  string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
+  string distr_epoch_identifier = 2 [(gogoproto.moretags) = "yaml:\"distr_epoch_identifier\""];
+  string vbr_earn_rate = 3 [(gogoproto.moretags) = "yaml:\"vbr_earn_rate\"",
+  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+  (gogoproto.nullable) = false];
+}
+
+message MsgSetVbrParamsResponse{
 }

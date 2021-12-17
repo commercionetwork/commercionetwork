@@ -29,6 +29,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgIncrementBlockRewardsPool:
 			res, err := msgServer.IncrementBlockRewardsPool(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		
+		case *types.MsgSetVbrParams:
+			res, err := msgServer.SetVbrParams(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)

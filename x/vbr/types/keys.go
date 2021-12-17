@@ -11,6 +11,7 @@ const (
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 	MsgTypeSetRewardRate             = "setRewardRate"
 	MsgTypeSetAutomaticWithdraw      = "setAutomaticWithdraw"
+	MsgTypeSetVbrParams              = "setVbrParams"
 	PoolStoreKey                     = StoreKey + ":pool:"
 	RewardRateKey                    = StoreKey + ":rewardRate"
 	AutomaticWithdraw                = StoreKey + ":automaticWithdraw"
@@ -18,6 +19,11 @@ const (
 	QueryBlockRewardsPoolFunds = "funds"
 	QueryRewardRate            = "reward_rate"
 	QueryAutomaticWithdraw     = "automatic_withdraw"
+	QueryVbrParams			   = "params"
+
+	EpochWeek	= "week"
+	EpochDay	= "day"
+	EpochMinute = "minute"
 )
 
 // this line is used by starport scaffolding # ibc/keys/port

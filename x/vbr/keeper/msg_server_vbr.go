@@ -75,3 +75,29 @@ func (k msgServer) SetAutomaticWithdraw(goCtx context.Context, msg *types.MsgSet
 
 	return &types.MsgSetAutomaticWithdrawResponse{}, nil
 }
+
+func (k msgServer) SetVbrParams(goCtx context.Context, msg *types.MsgSetVbrParams) (*types.MsgSetVbrParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	gov := k.govKeeper.GetGovernmentAddress(ctx)
+	msgGovAddr, e := sdk.AccAddressFromBech32(msg.Government)
+	if e != nil {
+		return nil, e
+	}
+	if !(gov.Equals(msgGovAddr)) {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
+	}
+	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute{
+		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
+	}
+	if msg.VbrEarnRate.IsNegative() {
+		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.VbrEarnRate))
+	}
+	params := types.Params{
+			DistrEpochIdentifier: msg.DistrEpochIdentifier,
+			VbrEarnRate: msg.VbrEarnRate,
+		}
+	k.SetParams(ctx, params)
+	
+	return &types.MsgSetVbrParamsResponse{}, nil
+}

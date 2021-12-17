@@ -1,0 +1,16 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.vbr;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+// Params holds parameters for the incentives module
+message Params {
+  // distribution epoch identifier
+  string distr_epoch_identifier = 1
+      [ (gogoproto.moretags) = "yaml:\"distr_epoch_identifier\"" ];
+  string vbr_earn_rate = 2 [ (gogoproto.moretags) = "yaml:\"vbr_earn_rate\"",
+  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+  (gogoproto.nullable) = false];
+}

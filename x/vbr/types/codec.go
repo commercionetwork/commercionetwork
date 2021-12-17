@@ -15,6 +15,8 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterConcrete(&MsgIncrementBlockRewardsPool{}, "vbr/MsgIncrementBlockRewardsPool", nil)
 
+	cdc.RegisterConcrete(&MsgSetVbrParams{}, "vbr/SetVbrParams", nil)
+
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -27,6 +29,9 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	)
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgIncrementBlockRewardsPool{},
+	)
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgSetVbrParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
