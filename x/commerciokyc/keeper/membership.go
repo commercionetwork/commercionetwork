@@ -212,7 +212,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		mintUUID := uuid.NewV4().String()
 		var postion = mtypes.Position{
 			Owner:      govAddr.String(),
-			Collateral: rewardStakeCoinAmount.Int64(),
+			Collateral: rewardAmount.Int64(),
 			ID:         mintUUID,
 		}
 
@@ -222,7 +222,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		)
 		if err != nil {
 			// TODO find a way to fix nested errors
-			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, rewardCoins); err != nil {
+			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, stakeEquivCoins); err != nil {
 				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 			}
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
@@ -230,10 +230,9 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 
 		// Send the reward to the invite sender
 		inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, inviteSender, rewardCoins); err != nil {
+		if err := k.bankKeeper.SendCoins(ctx, govAddr, inviteSender, rewardCoins); err != nil {
 			return err
 		}
-
 		// Emits events
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			eventDistributeReward,
