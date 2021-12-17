@@ -50,7 +50,6 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 
 	// validate service
 	// OPTIONAL
-	// TODO
 	// If present, the associated value MUST be a set of services, where each service is described by a map.
 	// A conforming producer MUST NOT produce multiple service entries with the same id.
 	for _, s := range msg.Service {
