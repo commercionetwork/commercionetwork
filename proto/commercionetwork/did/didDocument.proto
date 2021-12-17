@@ -30,21 +30,10 @@ message VerificationMethod {
     google.protobuf.Any publicKeyJwk = 5;
     string publicKeyMultibase = 6;
   }
-  // aries-framework-go/pkg/doc/did/doc.go
-  // bool relativeURL = 7;
 }
 
 message Service {
   string ID = 1;
   string type = 2;
   string serviceEndpoint = 3;
-  // aries-framework-go/pkg/doc/did/doc.go
-  // uint32 Priority = 4;
-  // repeated string RecipientKeys = 5;
-  // repeated string RoutingKeys = 6;
-  // repeated string Accept = 7;
-  // map<string, google.protobuf.Any> Properties = 8;
-  // map<string, bool> recipientKeysRelativeURL = 9;
-  // map<string, bool> routingKeysRelativeURL = 10;
-  // bool relativeURL = 11;
 }

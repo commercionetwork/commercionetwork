@@ -159,8 +159,8 @@ func (v *VerificationMethod) Validate() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" must conform to the rules of DID Syntax")
 	}
 
-	// TODO
 	// A verification method MUST NOT contain multiple verification material properties for the same material. For example, expressing key material in a verification method using both publicKeyJwk and publicKeyMultibase at the same time is prohibited.
+	// -> oneof keyword in .proto file enforces this
 
 	return nil
 }
