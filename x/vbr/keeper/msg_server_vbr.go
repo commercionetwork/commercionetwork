@@ -90,7 +90,7 @@ func (k msgServer) SetVbrParams(goCtx context.Context, msg *types.MsgSetVbrParam
 	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute{
 		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
-	if msg.VbrEarnRate.IsNegative() || msg.VbrEarnRate.GT(sdk.NewDec(1)) {
+	if msg.VbrEarnRate.IsNegative() {
 		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.VbrEarnRate))
 	}
 	params := types.Params{

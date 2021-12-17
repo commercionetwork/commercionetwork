@@ -199,7 +199,7 @@ func (msg *MsgSetVbrParams) ValidateBasic() error {
 	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute{
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
-	if msg.VbrEarnRate.IsNegative() || msg.VbrEarnRate.GT(sdk.NewDec(1)) {
+	if msg.VbrEarnRate.IsNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.VbrEarnRate))
 	}
 	return nil

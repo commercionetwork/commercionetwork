@@ -17,7 +17,7 @@ func DefaultGenesis() *GenesisState {
 		AutomaticWithdraw: true,
 		Params: Params{
 			DistrEpochIdentifier: /*EpochMinute*/EpochDay,
-			VbrEarnRate: sdk.NewDec(int64(50)),
+			VbrEarnRate: sdk.NewDecWithPrec(050,2),
 		},
 	}
 }
@@ -37,8 +37,8 @@ func (gs GenesisState) Validate() error {
 		return errors.New("epoch identifier should NOT be empty")
 	}
 
-	if gs.Params.VbrEarnRate.IsNegative() || gs.Params.VbrEarnRate.IsZero() {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("VbrEarnRate: %d must be greater then 0", gs.Params.VbrEarnRate))
+	if gs.Params.VbrEarnRate.IsNegative() {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("VbrEarnRate: %d must be positive", gs.Params.VbrEarnRate))
 	}
 
 	return ValidateRewardRate(gs.RewardRate)
