@@ -30,11 +30,12 @@ func Test_SetDidDocument(t *testing.T) {
 
 	var context commons.Strings = []string{
 		types.ContextDidV1,
+		"https://w3id.org/security/suites/ed25519-2018/v1",
+		"https://w3id.org/security/suites/x25519-2019/v1",
 	}
 
-	assert.True(t, context.Contains(types.ContextDidV1))
-
 	did := "did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"
+	// check only did:com
 
 	msg := &types.MsgSetDidDocument{
 		Context: context,
@@ -44,21 +45,38 @@ func Test_SetDidDocument(t *testing.T) {
 				ID:                 fmt.Sprint(did, "#key-1"),
 				Type:               "Ed25519VerificationKey2020",
 				Controller:         did,
-				PublicKeyMultibase: "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+				PublicKeyMultibase: "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",
+			},
+			{
+				ID:                 fmt.Sprint(did, "#key-agreement-1"),
+				Type:               "X25519KeyAgreementKey2019",
+				Controller:         did,
+				PublicKeyMultibase: "FK2c4QudVyaodvX9LARDsbihkVBvWxe8oiJAiYQ2JpdC",
 			},
 		},
+		Authentication: []string{
+			fmt.Sprint(did, "#key-1"),
+		},
+		AssertionMethod: []string{
+			fmt.Sprint(did, "#key-1"),
+		},
+		KeyAgreement: []string{
+			fmt.Sprint(did, "#key-agreement-1"),
+		},
+		CapabilityInvocation: nil,
+		CapabilityDelegation: nil,
 		Service: []*types.Service{
 			{
-				ID:              "cfbff1f9-8b30-4223-9648-5d4f7fc0a159",
+				ID:              "A",
 				Type:            "agent",
 				ServiceEndpoint: "https://commerc.io/agent/serviceEndpoint/",
 			},
+			{
+				ID:              "B",
+				Type:            "xdi",
+				ServiceEndpoint: "https://commerc.io/xdi/serviceEndpoint/",
+			},
 		},
-		Authentication:       []*types.VerificationMethod{},
-		AssertionMethod:      []*types.VerificationMethod{},
-		CapabilityDelegation: []*types.VerificationMethod{},
-		CapabilityInvocation: []*types.VerificationMethod{},
-		KeyAgreement:         []*types.VerificationMethod{},
 	}
 
 	resp, err := srv.SetDidDocument(sdkCtx, msg)

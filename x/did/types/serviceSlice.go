@@ -7,8 +7,9 @@ func (slice ServiceSlice) hasDuplicate() bool {
 		return false
 	}
 
-	for _, s := range slice[:len(slice)-1] {
-		if contains(s.ID, slice[1:]) {
+	for i, s := range slice[:len(slice)-1] {
+		i++
+		if contains(s.ID, slice[i:]) {
 			return true
 		}
 	}
@@ -17,7 +18,7 @@ func (slice ServiceSlice) hasDuplicate() bool {
 }
 
 func contains(str string, slice []*Service) bool {
-	for _, c := range slice[1:] {
+	for _, c := range slice {
 		if str == c.ID {
 			return true
 		}

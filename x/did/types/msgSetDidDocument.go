@@ -43,6 +43,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	}
 
 	// validate VerificationMethod
+	// TODO check no duplicates id
 	for _, vm := range msg.VerificationMethod {
 		if err := vm.Validate(); err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid VerificationMethod %s %e", vm, err)
@@ -55,48 +56,56 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// A conforming producer MUST NOT produce multiple service entries with the same id.
 	for _, s := range msg.Service {
 		if err := s.Validate(); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Service %s %e", s, err)
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid Service %s %e", s, err)
 		}
 	}
 	if ServiceSlice(msg.Service).hasDuplicate() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid Service %s found services with the same ID", msg.Service)
 	}
 
-	// validate Authentication
+	// validate authentication
 	for _, a := range msg.Authentication {
-		if err := a.Validate(); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Autentication %s %e", a, err)
+		if !msg.HasVerificationMethod(a) {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication: %s is not among the verification methods", a)
 		}
 	}
 
-	// validate AssertionMethod
+	// validate assertionMethod
 	for _, am := range msg.AssertionMethod {
-		err := am.Validate()
-		if err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Autentication %s %e", am, err)
+		if !msg.HasVerificationMethod(am) {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod: %s is not among the verification methods", am)
 		}
 	}
 
-	// validate CapabilityDelegation
+	// validate capabilityDelegation
 	for _, cd := range msg.CapabilityDelegation {
-		if err := cd.Validate(); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid CapabilityDelegation %s %e", cd, err)
+		if !msg.HasVerificationMethod(cd) {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation: %s is not among the verification methods", cd)
 		}
 	}
 
-	// validate CapabilityInvocation
+	// validate capabilityInvocation
 	for _, ci := range msg.CapabilityInvocation {
-		if err := ci.Validate(); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid CapabilityInvocation %s %e", ci, err)
+		if !msg.HasVerificationMethod(ci) {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation: %s is not among the verification methods", ci)
 		}
 	}
 
-	// validate KeyAgreement
+	// validate keyAgreement
 	for _, ka := range msg.KeyAgreement {
-		if err := ka.Validate(); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid KeyAgreement %s %e", ka, err)
+		if !msg.HasVerificationMethod(ka) {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement: %s is not among the verification methods", ka)
 		}
 	}
 
 	return nil
+}
+
+func (msg MsgSetDidDocument) HasVerificationMethod(id string) bool {
+	for _, vm := range msg.VerificationMethod {
+		if id == vm.ID {
+			return true
+		}
+	}
+	return false
 }

@@ -1,0 +1,41 @@
+{
+    "@context": [
+        "https://www.w3.org/ns/did/v1",
+        "https://w3id.org/security/suites/ed25519-2018/v1",
+        "https://w3id.org/security/suites/x25519-2019/v1"
+    ],
+    "id": "did:com:1pyjlp5wnvevn7ual5ahsmsznvqznepalcnqgqj",
+    "verificationMethod": [
+        {
+            "type": "Ed25519VerificationKey2018",
+            "id": "did:com:1pyjlp5wnvevn7ual5ahsmsznvqznepalcnqgqj#key-1",
+            "publicKeyMultiBase": "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV"
+        },
+        {
+            "type": "X25519KeyAgreementKey2019",
+            "id": "did:com:1pyjlp5wnvevn7ual5ahsmsznvqznepalcnqgqjw#key-agreement-1",
+            "publicKeyMultiBase": "FK2c4QudVyaodvX9LARDsbihkVBvWxe8oiJAiYQ2JpdC"
+        }
+    ],
+    "authentication": [
+        "did:com:1pyjlp5wnvevn7ual5ahsmsznvqznepalcnqgqj#key-1"
+    ],
+    "assertionMethod": [
+        "did:com:1pyjlp5wnvevn7ual5ahsmsznvqznepalcnqgqj#key-1"
+    ],
+    "keyAgreement": [
+        "did:com:1pyjlp5wnvevn7ual5ahsmsznvqznepalcnqgqj#key-agreement-1"
+    ],
+    "service": [
+        {
+            "id": "A",
+            "type": "agent",
+            "serviceEndpoint": "https://commerc.io/agent/serviceEndpoint/"
+        },
+        {
+            "id": "B",
+            "type": "xdi",
+            "serviceEndpoint": "https://commerc.io/xdi/serviceEndpoint/"
+        }
+    ]
+}
