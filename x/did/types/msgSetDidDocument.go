@@ -37,8 +37,9 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// validate @context
 	// @context The JSON-LD Context is either a string or a list containing any combination of strings and/or ordered maps.
 	// The serialized value of @context MUST be the JSON String https://www.w3.org/ns/did/v1, or a JSON Array where the first item is the JSON String https://www.w3.org/ns/did/v1 and the subsequent items are serialized according to the JSON representation production rules.
-	if commons.Strings(msg.Context).Contains(ContextDidV1) {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid @context, must include %s", ContextDidV1)
+	var context commons.Strings = msg.Context
+	if !context.Contains(ContextDidV1) {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid @context, must include %s", ContextDidV1)
 	}
 
 	// validate VerificationMethod

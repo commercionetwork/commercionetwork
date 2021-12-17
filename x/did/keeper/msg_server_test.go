@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
+	commons "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,17 +28,23 @@ func Test_SetDidDocument(t *testing.T) {
 
 	sdkCtx := sdk.WrapSDKContext(ctx)
 
+	var context commons.Strings = []string{
+		types.ContextDidV1,
+	}
+
+	assert.True(t, context.Contains(types.ContextDidV1))
+
+	did := "did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"
+
 	msg := &types.MsgSetDidDocument{
-		Context: []string{
-			"https://www.w3.org/ns/did/v1",
-		},
-		ID: addr.String(),
+		Context: context,
+		ID:      addr.String(),
 		VerificationMethod: []*types.VerificationMethod{
 			{
-				ID:                 "",
-				Type:               "",
-				Controller:         "",
-				PublicKeyMultibase: "",
+				ID:                 fmt.Sprint(did, "#key-1"),
+				Type:               "Ed25519VerificationKey2020",
+				Controller:         did,
+				PublicKeyMultibase: "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
 			},
 		},
 		Service: []*types.Service{

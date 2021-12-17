@@ -155,12 +155,16 @@ func (v *VerificationMethod) Validate() error {
 	if IsEmpty(v.Controller) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" is required")
 	}
-	if IsValidDID(v.Controller) {
+	if !IsValidDID(v.Controller) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" must conform to the rules of DID Syntax")
 	}
 
+	// validate publicKeyMultibase
 	// A verification method MUST NOT contain multiple verification material properties for the same material. For example, expressing key material in a verification method using both publicKeyJwk and publicKeyMultibase at the same time is prohibited.
-	// -> oneof keyword in .proto file enforces this
+	// -> using only publicKeyMultibase
+	if IsEmpty(v.PublicKeyMultibase) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"publicKeyMultibase\" is required")
+	}
 
 	return nil
 }
