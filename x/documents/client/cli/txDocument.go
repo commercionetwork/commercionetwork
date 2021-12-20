@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -38,7 +39,7 @@ func CmdShareDocument() *cobra.Command {
 			"[metadata-schema-uri] [metadata-schema-version] " +
 			"[document-content-uri] " +
 			"[checksum-value] [checksum-algorithm] ",
-		Short: "Shares the document with the given recipient address",
+		Short: "Shares the document with the given recipient address (First 5 arguments are mandatory)",
 		Args:  cobra.RangeArgs(5, 8),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -54,12 +55,18 @@ func CmdShareDocument() *cobra.Command {
 
 			var checksum *types.DocumentChecksum
 			var contentURI string
-			if len(args) > 5 {
+			if len(args) == 8 {
 				contentURI = args[5]
 				checksum = &types.DocumentChecksum{
 					Value:     args[6],
 					Algorithm: args[7],
 				}
+			}else if len(args) == 6 {
+				contentURI = args[5]
+			}
+			
+			if len(args) == 7 {
+				return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Unauthorized number of arguments. If you specify [checksum-value] you have to specify [checksum-algorithm] too")
 			}
 
 			document := types.Document{
