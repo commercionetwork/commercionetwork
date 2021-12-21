@@ -19,6 +19,7 @@ func setupMsgServer(t testing.TB) (types.MsgServer, Keeper, sdk.Context) {
 	return NewMsgServerImpl(*keeper), *keeper, ctx
 }
 
+// TODO check side effects, test validate as unit tests
 func Test_SetDidDocument(t *testing.T) {
 	srv, k, ctx := setupMsgServer(t)
 	_, _, addr := testdata.KeyTestPubAddr()
@@ -35,7 +36,7 @@ func Test_SetDidDocument(t *testing.T) {
 	}
 
 	did := "did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"
-	// check only did:com
+	// TODO check only did:com
 
 	msg := &types.MsgSetDidDocument{
 		Context: context,
@@ -43,13 +44,13 @@ func Test_SetDidDocument(t *testing.T) {
 		VerificationMethod: []*types.VerificationMethod{
 			{
 				ID:                 fmt.Sprint(did, "#key-1"),
-				Type:               "Ed25519VerificationKey2020",
+				Type:               "RsaSignature2018",
 				Controller:         did,
 				PublicKeyMultibase: "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",
 			},
 			{
 				ID:                 fmt.Sprint(did, "#key-agreement-1"),
-				Type:               "X25519KeyAgreementKey2019",
+				Type:               "RsaVerificationKey2018",
 				Controller:         did,
 				PublicKeyMultibase: "FK2c4QudVyaodvX9LARDsbihkVBvWxe8oiJAiYQ2JpdC",
 			},

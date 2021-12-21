@@ -35,6 +35,12 @@ const (
 	// --------------
 
 	QueryResolveDid = "identities"
+
+	// --------------
+	// --- KeyTypes required for the Documents module
+	// --------------
+	RsaSignature2018       = "RsaSignature2018"
+	RsaVerificationKey2018 = "RsaVerificationKey2018"
 )
 
 var (
@@ -42,8 +48,8 @@ var (
 	verificationMethodTypes = []string{
 		"Ed25519Signature2018",
 		"Ed25519VerificationKey2018",
-		"RsaSignature2018",       // documents
-		"RsaVerificationKey2018", // documents
+		RsaSignature2018,       // documents
+		RsaVerificationKey2018, // documents
 		"EcdsaSecp256k1Signature2019",
 		"EcdsaSecp256k1VerificationKey2019",
 		"EcdsaSecp256k1RecoverySignature2020",

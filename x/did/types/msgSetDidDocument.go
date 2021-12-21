@@ -48,6 +48,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	}
 
 	// validate VerificationMethod
+	// TODO check the set contains "RsaSignature2018", "RsaVerificationKey2018"
 	isVerificationMethodSet := func() bool {
 		keys := []string{}
 		for _, s := range msg.VerificationMethod {
@@ -59,10 +60,20 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	if !isVerificationMethodSet() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s found elements with the same ID", msg.VerificationMethod)
 	}
+	var containsRsaSignature2018, containsRsaVerificationKey2018 bool
 	for _, vm := range msg.VerificationMethod {
 		if err := vm.Validate(); err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s %e", vm, err)
 		}
+		if vm.Type == RsaSignature2018 {
+			containsRsaSignature2018 = true
+		}
+		if vm.Type == RsaVerificationKey2018 {
+			containsRsaVerificationKey2018 = true
+		}
+	}
+	if !containsRsaSignature2018 || !containsRsaVerificationKey2018 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s types %s and %s are required", msg.VerificationMethod, RsaSignature2018, RsaVerificationKey2018)
 	}
 
 	// validate service
