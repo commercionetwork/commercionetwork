@@ -48,6 +48,10 @@ func CmdShareDocument() *cobra.Command {
 				return err
 			}
 
+			if len(args) == 7 {
+				return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Unauthorized number of arguments. If you specify [checksum-value] you have to specify [checksum-algorithm] too")
+			}
+
 			sender := cliCtx.GetFromAddress()
 
 			var recipient []string
@@ -55,18 +59,14 @@ func CmdShareDocument() *cobra.Command {
 
 			var checksum *types.DocumentChecksum
 			var contentURI string
-			if len(args) == 8 {
+			if len(args) > 5 {
 				contentURI = args[5]
-				checksum = &types.DocumentChecksum{
-					Value:     args[6],
-					Algorithm: args[7],
+ 				if len(args) > 6 {
+					checksum = &types.DocumentChecksum{
+						Value:     args[6],
+						Algorithm: args[7],
+					}
 				}
-			}else if len(args) == 6 {
-				contentURI = args[5]
-			}
-			
-			if len(args) == 7 {
-				return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Unauthorized number of arguments. If you specify [checksum-value] you have to specify [checksum-algorithm] too")
 			}
 
 			document := types.Document{
@@ -124,7 +124,7 @@ func CmdShareDocument() *cobra.Command {
 func CmdSendDocumentReceipt() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send-receipt [recipient] [tx-hash] [document-uuid] [proof]",
-		Short: "Send the document's receipt with the given recipient address",
+		Short: "Send the document's receipt with the given recipient address ([proof] is optional)",
 		Args:  cobra.RangeArgs(3, 4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
