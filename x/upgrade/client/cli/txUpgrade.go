@@ -66,7 +66,7 @@ func CmdScheduleUpgradeTime() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schedule-time [NAME] [TIME] [INFO]",
 		Short: fmt.Sprint("Schedule an upgrade with UTC time using format ", TimeFormat),
-		Long:  "Example usage:\n commercionetworkd tx upgrade schedule-time testUpgrade 2020-10-23T15:21:05Z this_is_just_a_test --from ",
+		Long:  fmt.Sprintf("Schedule an upgrade with UTC time using format %s \nExample usage:\ncommercionetworkd tx upgrade schedule-time testUpgrade 2020-10-23T15:21:05Z this_is_just_a_test --from ", TimeFormat),
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return scheduleUpgradeCmdFunc(cmd, args, false)
@@ -80,7 +80,7 @@ func CmdScheduleUpgradeHeight() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schedule-height [NAME] [HEIGHT] [INFO]",
 		Short: "Schedule an upgrade with block height",
-		Long:  "Example usage:\n commercionetworkd tx upgrade schedule-height testUpgrade 10 this_is_just_a_test --from ...",
+		Long:  "Schedule an upgrade with block height\nExample usage:\n commercionetworkd tx upgrade schedule-height testUpgrade 10 this_is_just_a_test --from ...",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return scheduleUpgradeCmdFunc(cmd, args, true)
@@ -95,7 +95,7 @@ func CmdDeleteUpgrade() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete any scheduled upgrade",
-		Long:  "Example usage:\n commercionetworkd tx upgrade delete --from ...",
+		Long:  "Delete any scheduled upgrade\nExample usage:\n commercionetworkd tx upgrade delete --from ...",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return deleteUpgradeCmdFunc(cmd, args)
