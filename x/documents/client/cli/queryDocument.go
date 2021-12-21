@@ -2,13 +2,15 @@ package cli
 
 import (
 	"context"
+	//"errors"
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/spf13/cobra"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // ----------------------------------
@@ -78,7 +80,7 @@ func CmdShowDocument() *cobra.Command {
 }
 
 func CmdSentDocuments() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "sent-documents [user-address]",
 		Short: "Get all documents sent by user",
 		Args:  cobra.ExactArgs(1),
@@ -103,16 +105,19 @@ func CmdSentDocuments() *cobra.Command {
 			//route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QuerySentDocuments, args[0])
 			res, err := queryClient.SentDocuments(context.Background(), params)
 			if err != nil {
-				fmt.Printf("Could not get sent documents by user: \n %s", err)
+				return sdkErr.Wrap(sdkErr.ErrLogic, fmt.Sprintf("Could not get sent documents by user: \n %s", err))
 			}
 
 			return clientCtx.PrintProto(res)
 		},
 	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 func CmdReceivedDocuments() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "received-documents [user-address]",
 		Short: "Get all documents received by user",
 		Args:  cobra.ExactArgs(1),
@@ -143,6 +148,9 @@ func CmdReceivedDocuments() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 // ----------------------------------
@@ -150,7 +158,7 @@ func CmdReceivedDocuments() *cobra.Command {
 // ----------------------------------
 
 func CmdSentReceipts() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "sent-receipts [user-address]",
 		Short: "Get all the receipts sent from the specified user",
 		Args:  cobra.ExactArgs(1),
@@ -181,10 +189,13 @@ func CmdSentReceipts() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 func CmdReceivedReceipts() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "received-receipts [user-address]",
 		Short: "Get the document receipt associated with given address",
 		Args: cobra.ExactArgs(1),
@@ -217,4 +228,7 @@ func CmdReceivedReceipts() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
