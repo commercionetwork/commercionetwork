@@ -1,16 +1,22 @@
 package types
 
 import (
+	"strings"
+
 	commons "github.com/commercionetwork/commercionetwork/x/common/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/pkg/errors"
 )
 
 func isValidDidCom(did string) error {
-	_, err := sdk.AccAddressFromBech32(did)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s), %e", did, err)
+
+	if !strings.HasPrefix(did, "did:com:") {
+		return errors.Errorf("invalid ID address (%s), must have 'did:com:' prefix", did)
 	}
+
+	// if _, err := sdk.AccAddressFromBech32(did); err != nil {
+	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s), %e", did, err)
+	// }
 
 	return nil
 }
@@ -73,7 +79,7 @@ func (v *VerificationMethod) isValid() error {
 	if IsEmpty(v.Type) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"type\" is required")
 	}
-	if commons.Strings(verificationMethodTypes).Contains(v.Controller) {
+	if !commons.Strings(verificationMethodTypes).Contains(v.Type) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"type\" is not supported")
 	}
 

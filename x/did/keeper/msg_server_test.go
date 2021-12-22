@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	commons "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,18 +28,16 @@ func Test_SetDidDocument(t *testing.T) {
 
 	sdkCtx := sdk.WrapSDKContext(ctx)
 
-	var context commons.Strings = []string{
-		types.ContextDidV1,
-		"https://w3id.org/security/suites/ed25519-2018/v1",
-		"https://w3id.org/security/suites/x25519-2019/v1",
-	}
-
 	did := "did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"
 	// TODO check only did:com
 
 	msg := &types.MsgSetDidDocument{
-		Context: context,
-		ID:      addr.String(),
+		Context: []string{
+			types.ContextDidV1,
+			"https://w3id.org/security/suites/ed25519-2018/v1",
+			"https://w3id.org/security/suites/x25519-2019/v1",
+		},
+		ID: addr.String(),
 		VerificationMethod: []*types.VerificationMethod{
 			{
 				ID:                 fmt.Sprint(did, "#key-1"),
