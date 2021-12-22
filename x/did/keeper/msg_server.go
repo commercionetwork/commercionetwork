@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,11 +22,6 @@ var _ types.MsgServer = msgServer{}
 
 // SetDidDocument
 func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
-
-	err := msg.ValidateBasic()
-	if err != nil {
-		return nil, fmt.Errorf("invalid message: %e", err)
-	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
