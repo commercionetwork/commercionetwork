@@ -86,7 +86,7 @@ func TestService_isValid(t *testing.T) {
 	}
 }
 
-var validVerificationMethod = VerificationMethod{
+var validVerificationMethodRsaVerificationKey2018 = VerificationMethod{
 	ID:                 validDid + "#key-1",
 	Type:               RsaVerificationKey2018,
 	Controller:         validDid,
@@ -103,7 +103,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"valid",
 			func() *VerificationMethod {
-				return &validVerificationMethod
+				return &validVerificationMethodRsaVerificationKey2018
 			},
 			false,
 		},
@@ -117,7 +117,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"{ID} empty",
 			func() *VerificationMethod {
-				verificationMethod := validVerificationMethod
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
 				verificationMethod.ID = ""
 				return &verificationMethod
 			},
@@ -126,8 +126,8 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"{ID} against the DID url specification",
 			func() *VerificationMethod {
-				verificationMethod := validVerificationMethod
-				verificationMethod.ID = "$" + validVerificationMethod.ID
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
+				verificationMethod.ID = "$" + validVerificationMethodRsaVerificationKey2018.ID
 				return &verificationMethod
 			},
 			true,
@@ -135,7 +135,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"{type} empty",
 			func() *VerificationMethod {
-				verificationMethod := validVerificationMethod
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
 				verificationMethod.Type = ""
 				return &verificationMethod
 			},
@@ -144,7 +144,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"{type} not supported",
 			func() *VerificationMethod {
-				verificationMethod := validVerificationMethod
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
 				verificationMethod.Type = "NotSupported2077"
 				return &verificationMethod
 			},
@@ -153,7 +153,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"{controller} empty",
 			func() *VerificationMethod {
-				verificationMethod := validVerificationMethod
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
 				verificationMethod.Controller = ""
 				return &verificationMethod
 			},
@@ -162,7 +162,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"{controller} against the DID specification",
 			func() *VerificationMethod {
-				verificationMethod := validVerificationMethod
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
 				verificationMethod.Controller = "$" + validDid
 				return &verificationMethod
 			},
@@ -171,7 +171,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		{
 			"{publicKeyMultibase} empty",
 			func() *VerificationMethod {
-				verificationMethod := validVerificationMethod
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
 				verificationMethod.PublicKeyMultibase = ""
 				return &verificationMethod
 			},

@@ -72,6 +72,27 @@ func validateVerificationMethod(verificationMethod []*VerificationMethod) error 
 	return nil
 }
 
+func validateService(service []*Service) error {
+	isServiceSet := func() bool {
+		keys := []string{}
+		for _, s := range service {
+			keys = append(keys, s.ID)
+		}
+
+		return commons.Strings(keys).IsSet()
+	}
+	if !isServiceSet() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid service %s found elements with the same ID", service)
+	}
+	for _, s := range service {
+		if err := s.isValid(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (msg *MsgSetDidDocument) ValidateBasic() error {
 
 	if msg == nil {
@@ -102,21 +123,8 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// OPTIONAL
 	// If present, the associated value MUST be a set of services, where each service is described by a map.
 	// A conforming producer MUST NOT produce multiple service entries with the same id.
-	isServiceSet := func() bool {
-		keys := []string{}
-		for _, s := range msg.Service {
-			keys = append(keys, s.ID)
-		}
-
-		return commons.Strings(keys).IsSet()
-	}
-	if !isServiceSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid service %s found elements with the same ID", msg.Service)
-	}
-	for _, s := range msg.Service {
-		if err := s.isValid(); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid service %s %e", s, err)
-		}
+	if err := validateService(msg.Service); err != nil {
+		return err
 	}
 
 	// validate authentication
@@ -174,7 +182,12 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 
 func (msg MsgSetDidDocument) HasVerificationMethod(id string) bool {
 	for _, vm := range msg.VerificationMethod {
+		// DID url
 		if id == vm.ID {
+			return true
+		}
+		// relative DID url
+		if msg.ID+id == vm.ID {
 			return true
 		}
 	}

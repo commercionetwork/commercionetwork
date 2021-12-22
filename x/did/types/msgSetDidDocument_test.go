@@ -4,37 +4,24 @@ import (
 	"testing"
 )
 
-var validMsgSetDidDocument = &MsgSetDidDocument{
-	Context: validContext,
-	ID:      validDid,
-	VerificationMethod: []*VerificationMethod{
-		&validVerificationMethod,
-		{
-			ID:                 validDid + "#key-agreement-1",
-			Type:               "RsaSignature2018",
-			Controller:         validDid,
-			PublicKeyMultibase: "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",
-		},
-	},
+var validMsgSetDidDocument = MsgSetDidDocument{
+	Context:            validContext,
+	ID:                 validDid,
+	VerificationMethod: validVerificationMethods,
 	Authentication: []string{
 		validDid + "#key-1",
 	},
 	AssertionMethod: []string{
-		validDid + "#key-1",
+		"#key-1",
 	},
 	KeyAgreement: []string{
 		validDid + "#key-agreement-1",
 	},
-	CapabilityInvocation: nil,
-	CapabilityDelegation: nil,
-	Service: []*Service{
-		&validService,
-		{
-			ID:              "https://foo.example.com",
-			Type:            "xdi",
-			ServiceEndpoint: "https://commerc.io/xdi/serviceEndpoint/",
-		},
+	CapabilityInvocation: []string{
+		"#key-agreement-1",
 	},
+	CapabilityDelegation: nil,
+	Service:              validServices,
 }
 
 func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
@@ -47,7 +34,7 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"valid",
 			func() *MsgSetDidDocument {
-				return validMsgSetDidDocument
+				return &validMsgSetDidDocument
 			},
 			false,
 		},
@@ -63,7 +50,158 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 			func() *MsgSetDidDocument {
 				msgSetDidDocument := validMsgSetDidDocument
 				msgSetDidDocument.Context = []string{}
-				return msgSetDidDocument
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{ID} empty",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.ID = ""
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{ID} invalid DID com",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.ID = "$" + validMsgSetDidDocument.ID
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{verificationMethod} invalid",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.VerificationMethod = []*VerificationMethod{}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{service} invalid",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.Service = []*Service{{}}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{authentication} not a set",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.Authentication = []string{
+					validVerificationMethodRsaSignature2018.ID,
+					validVerificationMethodRsaSignature2018.ID,
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{authentication} no reference",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.Authentication = []string{
+					"NoReference",
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{assertionMethod} not a set",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.AssertionMethod = []string{
+					validVerificationMethodRsaSignature2018.ID,
+					validVerificationMethodRsaSignature2018.ID,
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{assertionMethod} no reference",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.AssertionMethod = []string{
+					"NoReference",
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{capabilityDelegation} not a set",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.CapabilityDelegation = []string{
+					validVerificationMethodRsaSignature2018.ID,
+					validVerificationMethodRsaSignature2018.ID,
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{capabilityDelegation} no reference",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.CapabilityDelegation = []string{
+					"NoReference",
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{capabilityInvocation} not a set",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.CapabilityInvocation = []string{
+					validVerificationMethodRsaSignature2018.ID,
+					validVerificationMethodRsaSignature2018.ID,
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{capabilityInvocation} no reference",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.CapabilityInvocation = []string{
+					"NoReference",
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{keyAgreement} not a set",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.KeyAgreement = []string{
+					validVerificationMethodRsaSignature2018.ID,
+					validVerificationMethodRsaSignature2018.ID,
+				}
+				return &msgSetDidDocument
+			},
+			true,
+		},
+		{
+			"{keyAgreement} no reference",
+			func() *MsgSetDidDocument {
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.KeyAgreement = []string{
+					"NoReference",
+				}
+				return &msgSetDidDocument
 			},
 			true,
 		},
@@ -130,6 +268,131 @@ func Test_validateContext(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := validateContext(tt.context); (err != nil) != tt.wantErr {
 				t.Errorf("validateContext() for %s error = %v, wantErr %v", tt.context, err, tt.wantErr)
+			}
+		})
+	}
+}
+
+var validServices = []*Service{
+	&validService,
+	{
+		ID:              "https://foo.example.com",
+		Type:            "xdi",
+		ServiceEndpoint: "https://commerc.io/xdi/serviceEndpoint/",
+	},
+}
+
+func Test_validateService(t *testing.T) {
+
+	tests := []struct {
+		name     string
+		services []*Service
+		wantErr  bool
+	}{
+		{
+			"valid",
+			validServices,
+			false,
+		},
+		{
+			"empty",
+			[]*Service{},
+			false,
+		},
+		{
+			"not a set",
+			[]*Service{
+				&validService,
+				&validService,
+			},
+			true,
+		},
+		{
+			"contains invalid service",
+			[]*Service{
+				{},
+			},
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateService(tt.services); (err != nil) != tt.wantErr {
+				t.Errorf("validateContext() for %s error = %v, wantErr %v", tt.services, err, tt.wantErr)
+			}
+		})
+	}
+}
+
+var validVerificationMethods = []*VerificationMethod{
+	&validVerificationMethodRsaVerificationKey2018,
+	&validVerificationMethodRsaSignature2018,
+}
+
+var validVerificationMethodRsaSignature2018 = VerificationMethod{
+	ID:                 validDid + "#key-agreement-1",
+	Type:               "RsaSignature2018",
+	Controller:         validDid,
+	PublicKeyMultibase: "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",
+}
+
+func Test_validateVerificationMethod(t *testing.T) {
+
+	tests := []struct {
+		name                string
+		verificationMethods []*VerificationMethod
+		wantErr             bool
+	}{
+		{
+			"valid",
+			validVerificationMethods,
+			false,
+		},
+		{
+			"empty",
+			[]*VerificationMethod{},
+			true,
+		},
+		{
+			"not a set",
+			[]*VerificationMethod{
+				&validVerificationMethodRsaVerificationKey2018,
+				&validVerificationMethodRsaVerificationKey2018,
+			},
+			true,
+		},
+		{
+			"does not contain RsaSignature2018",
+			[]*VerificationMethod{
+				&validVerificationMethodRsaVerificationKey2018,
+			},
+			true,
+		},
+		{
+			"does not contain RsaVerificationKey2018",
+			[]*VerificationMethod{
+				&validVerificationMethodRsaSignature2018,
+			},
+			true,
+		},
+		{
+			"does not contain RsaSignature2018 and RsaVerificationKey2018",
+			[]*VerificationMethod{},
+			true,
+		},
+		{
+			"contains invalid",
+			[]*VerificationMethod{
+				{},
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateVerificationMethod(tt.verificationMethods); (err != nil) != tt.wantErr {
+				t.Errorf("validateVerificationMethod() for %s error = %v, wantErr %v", tt.verificationMethods, err, tt.wantErr)
 			}
 		})
 	}
