@@ -61,11 +61,11 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgSetVbrParams{}
 
-func NewMsgSetVbrParams(government string, epochIdentifier string, vbrEarnRate sdk.Dec) *MsgSetVbrParams {
+func NewMsgSetVbrParams(government string, epochIdentifier string, earnRate sdk.Dec) *MsgSetVbrParams {
 	return &MsgSetVbrParams{
 		Government: government,
 		DistrEpochIdentifier: epochIdentifier,
-		VbrEarnRate: vbrEarnRate,
+		EarnRate: earnRate,
 	}
 }
 
@@ -98,8 +98,8 @@ func (msg *MsgSetVbrParams) ValidateBasic() error {
 	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute{
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
-	if msg.VbrEarnRate.IsNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.VbrEarnRate))
+	if msg.EarnRate.IsNegative() {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
 	}
 	return nil
 }

@@ -128,7 +128,7 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 	// Get total bonded token of validator
 	validatorBonded := validator.GetBondedTokens()
 
-	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.VbrEarnRate))
+	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))
 	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100)) 
 	
 	//compute the annual distribution ((validator's token * 0.5)*(total_validators/100))

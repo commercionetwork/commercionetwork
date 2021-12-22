@@ -31,5 +31,5 @@ func (k Keeper) GetVbrParams(goCtx context.Context, req *types.QueryGetVbrParams
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.GetParams(ctx)
 	
-	return &types.QueryGetVbrParamsResponse{VbrParams: params}, nil
+	return &types.QueryGetVbrParamsResponse{Params: params}, nil
 }

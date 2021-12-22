@@ -1644,13 +1644,13 @@ paths:
           schema:
             type: object
             properties:
-              vbrParams:
+              params:
                 type: object
                 properties:
                   distrEpochIdentifier:
                     type: string
                     title: distribution epoch identifier
-                  vbrEarnRate:
+                  earnRate:
                     type: string
                 title: Params holds parameters for the incentives module
         default:
@@ -24598,7 +24598,7 @@ definitions:
       distrEpochIdentifier:
         type: string
         title: distribution epoch identifier
-      vbrEarnRate:
+      earnRate:
         type: string
     title: Params holds parameters for the incentives module
   commercionetwork.commercionetwork.vbr.QueryGetBlockRewardsPoolFundsResponse:
@@ -24621,13 +24621,13 @@ definitions:
   commercionetwork.commercionetwork.vbr.QueryGetVbrParamsResponse:
     type: object
     properties:
-      vbrParams:
+      params:
         type: object
         properties:
           distrEpochIdentifier:
             type: string
             title: distribution epoch identifier
-          vbrEarnRate:
+          earnRate:
             type: string
         title: Params holds parameters for the incentives module
   cosmos.base.v1beta1.DecCoin:

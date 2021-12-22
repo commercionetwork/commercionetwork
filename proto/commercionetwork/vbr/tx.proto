@@ -28,7 +28,7 @@ message MsgIncrementBlockRewardsPoolResponse {
 message MsgSetVbrParams{
   string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
   string distr_epoch_identifier = 2 [(gogoproto.moretags) = "yaml:\"distr_epoch_identifier\""];
-  string vbr_earn_rate = 3 [(gogoproto.moretags) = "yaml:\"vbr_earn_rate\"",
+  string earn_rate = 3 [(gogoproto.moretags) = "yaml:\"earn_rate\"",
   (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
   (gogoproto.nullable) = false];
 }

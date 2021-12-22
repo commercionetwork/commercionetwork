@@ -33,7 +33,7 @@ genesis:
           amount: "10000000.000000000000000000"
       params: 
         distr_epoch_identifier: "minute"
-        vbr_earn_rate: "0.500000000000000000"
+        earn_rate: "0.500000000000000000"
     staking:
       params:
         bond_denom: "ucommercio"

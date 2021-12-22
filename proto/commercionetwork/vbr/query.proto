@@ -36,6 +36,6 @@ message QueryGetVbrParamsRequest {
 }
 
 message QueryGetVbrParamsResponse{
-	Params vbrParams = 1 [(gogoproto.moretags) = "yaml:\"vbrParams\"",
+	Params params = 1 [(gogoproto.moretags) = "yaml:\"params\"",
     (gogoproto.nullable) = false]; 
 }

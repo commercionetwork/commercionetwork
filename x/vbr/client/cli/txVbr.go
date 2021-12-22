@@ -49,7 +49,7 @@ func CmdIncrementBlockRewardsPool() *cobra.Command {
 
 func CmdSetVbrParams() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-params [epoch_identifier] [vbr_earn_rate]",
+		Use:   "set-params [epoch_identifier] [earn_rate]",
 		Short: "Set the vbr params with epoch identifier(i.e. \"day\" and the vbr earn rate percentage(Dec))", 
 		Long: "Example usage:\n commercionetworkd tx vbr set-params day 0.500000000000000000 --from ",
 		Args:  cobra.ExactArgs(2),
@@ -61,12 +61,12 @@ func CmdSetVbrParams() *cobra.Command {
 
 			gov := clientCtx.GetFromAddress()
 			epochIdentifier := args[0]
-			vbrEarnRate, err := sdk.NewDecFromStr(args[1])
+			earnRate, err := sdk.NewDecFromStr(args[1])
 			if err != nil {
-				return sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "invalid vbrEarnRate (%s)", err)
+				return sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "invalid earnRate (%s)", err)
 			}
 
-			msg := types.NewMsgSetVbrParams(gov.String(), epochIdentifier, vbrEarnRate)
+			msg := types.NewMsgSetVbrParams(gov.String(), epochIdentifier, earnRate)
 			if err2 := msg.ValidateBasic(); err2 != nil {
 				return err2
 			}
