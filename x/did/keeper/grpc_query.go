@@ -27,7 +27,7 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidDocumentRe
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get(getIdentityStoreKey(sdk.AccAddress(req.ID))), &didDocument)
+	k.cdc.MustUnmarshalBinaryBare(store.Get(getIdentityStoreKey(req.ID)), &didDocument)
 
 	return &types.QueryResolveDidDocumentResponse{DidDocument: &didDocument}, nil
 }

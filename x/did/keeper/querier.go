@@ -30,15 +30,11 @@ func NewQuerier(keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier 
 // ------------------
 
 func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
-	address, err2 := sdk.AccAddressFromBech32(path[0])
-	if err2 != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, path[0])
-	}
 
 	var response ResolveIdentityResponse
-	response.Owner = address
+	response.Owner = path[0]
 
-	didDocument, err := keeper.GetDidDocumentOfAddress(ctx, address)
+	didDocument, err := keeper.GetDidDocumentOfAddress(ctx, path[0])
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress, err.Error())
 	}
@@ -54,6 +50,6 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper, legacyQ
 }
 
 type ResolveIdentityResponse struct {
-	Owner       sdk.AccAddress     `json:"owner" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
+	Owner       string             `json:"owner" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
 	DidDocument *types.DidDocument `json:"did_document"`
 }

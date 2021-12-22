@@ -21,7 +21,7 @@ func TestGetDidDocumentOfAddress(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	ddos := createNIdentityNew(keeper, ctx, 10)
 	for _, item := range ddos {
-		a, err := keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(item.ID))
+		a, err := keeper.GetDidDocumentOfAddress(ctx, item.ID)
 		require.NoError(t, err)
 		assert.Equal(t, item, a)
 	}
@@ -68,7 +68,7 @@ func createNIdentityNew(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocum
 	for i := range ddos {
 		_, _, addr := testdata.KeyTestPubAddr()
 		ddos[i].ID = string(addr)
-		_ = keeper.AppendDidDocument(ctx, ddos[i])
+		_ = keeper.UpdateDidDocument(ctx, ddos[i])
 	}
 	return ddos
 }

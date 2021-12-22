@@ -37,21 +37,21 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// AppendDidDocument appends a DID document in the store, retruning the ID contained in the DID document
-func (k Keeper) AppendDidDocument(ctx sdk.Context, didDocument types.DidDocument) string {
+// UpdateDidDocument appends a DID document in the store, retruning the ID contained in the DID document
+func (k Keeper) UpdateDidDocument(ctx sdk.Context, didDocument types.DidDocument) string {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(getIdentityStoreKey(sdk.AccAddress(didDocument.ID)), k.cdc.MustMarshalBinaryBare(&didDocument))
+	store.Set(getIdentityStoreKey(didDocument.ID), k.cdc.MustMarshalBinaryBare(&didDocument))
 	return didDocument.ID
 }
 
 // GetDidDocumentOfAddress returns the DID document reference associated to a given address.
-// If the given address has no DID document associated, returns nil.
-func (k Keeper) GetDidDocumentOfAddress(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
+// If the given address has no DID document associated, returns an error.
+func (k Keeper) GetDidDocumentOfAddress(ctx sdk.Context, address string) (types.DidDocument, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	identityKey := getIdentityStoreKey(owner)
+	identityKey := getIdentityStoreKey(address)
 	if !store.Has(identityKey) {
-		return types.DidDocument{}, fmt.Errorf("DID document with owner %s not found", owner.String())
+		return types.DidDocument{}, fmt.Errorf("DID document for %s not found", address)
 	}
 
 	var DidDocument types.DidDocument
@@ -59,14 +59,14 @@ func (k Keeper) GetDidDocumentOfAddress(ctx sdk.Context, owner sdk.AccAddress) (
 	return DidDocument, nil
 }
 
-func getIdentityStoreKey(owner sdk.AccAddress) []byte {
+func getIdentityStoreKey(owner string) []byte {
 	return append([]byte(types.IdentitiesStorePrefix), owner...)
 }
 
 // HasDidDocument returns true if there is a DID document associated to a given ID.
 func (k Keeper) HasDidDocument(ctx sdk.Context, ID string) bool {
 	store := ctx.KVStore(k.storeKey)
-	identityKey := getIdentityStoreKey(sdk.AccAddress(ID))
+	identityKey := getIdentityStoreKey(ID)
 	return store.Has(identityKey)
 }
 

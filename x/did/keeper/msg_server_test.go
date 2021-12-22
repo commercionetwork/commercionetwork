@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -21,7 +20,6 @@ func setupMsgServer(t testing.TB) (types.MsgServer, Keeper, sdk.Context) {
 // TODO check side effects, test validate as unit tests
 func Test_SetDidDocument(t *testing.T) {
 	srv, k, ctx := setupMsgServer(t)
-	_, _, addr := testdata.KeyTestPubAddr()
 
 	// creation
 	ctx = ctx.WithBlockTime(time.Now())
@@ -31,13 +29,13 @@ func Test_SetDidDocument(t *testing.T) {
 	did := "did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"
 	// TODO check only did:com
 
-	msg := &types.MsgSetDidDocument{
+	msg := types.MsgSetDidDocument{
 		Context: []string{
 			types.ContextDidV1,
 			"https://w3id.org/security/suites/ed25519-2018/v1",
 			"https://w3id.org/security/suites/x25519-2019/v1",
 		},
-		ID: addr.String(),
+		ID: did,
 		VerificationMethod: []*types.VerificationMethod{
 			{
 				ID:                 fmt.Sprint(did, "#key-1"),
@@ -77,9 +75,18 @@ func Test_SetDidDocument(t *testing.T) {
 		},
 	}
 
-	resp, err := srv.SetDidDocument(sdkCtx, msg)
+	_, err := k.GetDidDocumentOfAddress(ctx, did)
+	assert.Error(t, err)
+
+	resp, err := srv.SetDidDocument(sdkCtx, &msg)
 	require.NoError(t, err)
-	assert.Equal(t, addr.String(), resp.ID)
+	assert.Equal(t, did, resp.ID)
+
+	var ddo types.DidDocument
+
+	ddo, err = k.GetDidDocumentOfAddress(ctx, did)
+	assert.NoError(t, err)
+	requireEqualMsgSetDidDocumentWithDidDocument(t, msg, ddo)
 
 	// update
 	ctx = sdk.UnwrapSDKContext(sdkCtx)
@@ -87,15 +94,30 @@ func Test_SetDidDocument(t *testing.T) {
 
 	sdkCtx = sdk.WrapSDKContext(ctx)
 
-	resp, err = srv.SetDidDocument(sdkCtx, msg)
+	newMsg := msg
+	newMsg.AssertionMethod = []string{"#key-1"}
+
+	resp, err = srv.SetDidDocument(sdkCtx, &newMsg)
 	require.NoError(t, err)
-	assert.Equal(t, addr.String(), resp.ID)
+	assert.Equal(t, did, resp.ID)
 
-	for _, d := range k.GetAllDidDocuments(ctx) {
-		t.Log(d.Created, "VS", d.Updated)
-		assert.NotEqual(t, d.Created, d.Updated)
-	}
+	assert.True(t, k.HasDidDocument(ctx, did))
 
-	assert.True(t, k.HasDidDocument(ctx, addr.String()))
+	ddo, err = k.GetDidDocumentOfAddress(ctx, did)
+	assert.NoError(t, err)
+	requireEqualMsgSetDidDocumentWithDidDocument(t, newMsg, ddo)
+	// requireEqualMsgSetDidDocumentWithDidDocument(t, msg, ddo)
 
+}
+
+func requireEqualMsgSetDidDocumentWithDidDocument(t *testing.T, msg types.MsgSetDidDocument, ddo types.DidDocument) {
+	require.Equal(t, msg.ID, ddo.ID)
+	require.Equal(t, msg.Context, ddo.Context)
+	require.Equal(t, msg.AssertionMethod, ddo.AssertionMethod)
+	require.Equal(t, msg.Authentication, ddo.Authentication)
+	require.Equal(t, msg.CapabilityDelegation, ddo.CapabilityDelegation)
+	require.Equal(t, msg.CapabilityInvocation, ddo.CapabilityInvocation)
+	require.Equal(t, msg.KeyAgreement, ddo.KeyAgreement)
+	require.Equal(t, msg.Service, ddo.Service)
+	require.Equal(t, msg.VerificationMethod, ddo.VerificationMethod)
 }

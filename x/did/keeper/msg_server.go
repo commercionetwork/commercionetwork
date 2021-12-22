@@ -43,7 +43,7 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 		ddo.Created = timestamp
 		// ddo.Updated = NO // "The updated property is omitted if an Update operation has never been performed on the DID document"
 	} else {
-		previousDDO, err := k.GetDidDocumentOfAddress(ctx, sdk.AccAddress(msg.ID))
+		previousDDO, err := k.GetDidDocumentOfAddress(ctx, msg.ID)
 		if err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot update DDO: %e", err)
 		}
@@ -51,7 +51,7 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 		ddo.Updated = timestamp
 	}
 
-	id := k.AppendDidDocument(ctx, ddo)
+	id := k.UpdateDidDocument(ctx, ddo)
 
 	return &types.MsgSetDidDocumentResponse{ID: id}, nil
 }
