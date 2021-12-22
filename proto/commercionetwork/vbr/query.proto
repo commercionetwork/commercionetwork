@@ -17,14 +17,6 @@ service Query {
 		option (google.api.http).get = "/commercionetwork/vbr/funds";
 	}
 
-	rpc GetRewardRate(QueryGetRewardRateRequest) returns (QueryGetRewardRateResponse) {
-		option (google.api.http).get = "/commercionetwork/vbr/reward_rate";
-	}
-
-	rpc GetAutomaticWithdraw(QueryGetAutomaticWithdrawRequest) returns (QueryGetAutomaticWithdrawResponse) {
-		option (google.api.http).get = "/commercionetwork/vbr/automatic_withdraw";
-	}
-
 	rpc GetVbrParams(QueryGetVbrParamsRequest) returns (QueryGetVbrParamsResponse){
 		option (google.api.http).get = "/commercionetwork/vbr/params";
 	}
@@ -38,22 +30,6 @@ message QueryGetBlockRewardsPoolFundsResponse {
 	repeated cosmos.base.v1beta1.DecCoin funds = 1 [(gogoproto.moretags) = "yaml:\"funds\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable) = false] ;
-}
-
-message QueryGetRewardRateRequest {
-}
-
-message QueryGetRewardRateResponse {
-	string rewardRate = 1 [(gogoproto.moretags) = "yaml:\"rewardRate\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false] ;
-}
-
-message QueryGetAutomaticWithdrawRequest {
-}
-
-message QueryGetAutomaticWithdrawResponse {
-	bool autoW = 1 [(gogoproto.moretags) = "yaml:\"autoW\""] ;
 }
 
 message QueryGetVbrParamsRequest {

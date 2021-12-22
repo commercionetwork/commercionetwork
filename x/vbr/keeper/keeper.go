@@ -24,26 +24,6 @@ import (
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
-// --------------------
-// --- Blocks per day
-// --- Blocks per year
-// --------------------
-
-var (
-	// DPY is Days Per Year
-	DPY = sdk.NewDecWithPrec(36525, 2)
-	// HPD is Hours Per Day
-	HPD = sdk.NewDecWithPrec(24, 0)
-	// MPH  is Minutes Per Hour
-	MPH = sdk.NewDecWithPrec(60, 0)
-	// BPM is Blocks Per Minutes
-	BPM = sdk.NewDecWithPrec(9, 0)
-	// BPD is Blocks Per Day
-	BPD = HPD.Mul(MPH).Mul(BPM)
-	// BPY is Blocks Per Year
-	BPY = DPY.Mul(BPD)
-)
-
 type (
 	Keeper struct {
 		cdc      	codec.Marshaler
@@ -120,44 +100,6 @@ func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	return sdk.NewDecCoinsFromCoins(coins...)
 }
 
-// ---------------------------
-// --- Reward distribution
-// ---------------------------
-// SetRewardRate store the vbr reward rate.
-func (k Keeper) SetRewardRateKeeper(ctx sdk.Context, rate sdk.Dec) error {
-	if err := types.ValidateRewardRate(rate); err != nil {
-		return err
-	}
-	store := ctx.KVStore(k.storeKey)
-	rewardRate := types.VbrRewardrate{RewardRate: rate}
-	store.Set([]byte(types.RewardRateKey), k.cdc.MustMarshalBinaryBare(&rewardRate))
-	return nil
-}
-
-// GetRewardRate retrieve the vbr reward rate.
-func (k Keeper) GetRewardRateKeeper(ctx sdk.Context) sdk.Dec {
-	store := ctx.KVStore(k.storeKey)
-	var rate types.VbrRewardrate
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.RewardRateKey)), &rate)
-	return rate.RewardRate
-}
-
-// SetAutomaticWithdraw store the automatic withdraw flag.
-func (k Keeper) SetAutomaticWithdrawKeeper(ctx sdk.Context, autoW bool) error {
-	store := ctx.KVStore(k.storeKey)
-	autoWithdraw := types.VbrAutoW{AutoW: autoW}
-	store.Set([]byte(types.AutomaticWithdraw), k.cdc.MustMarshalBinaryBare(&autoWithdraw))
-	return nil
-}
-
-// GetAutomaticWithdraw retrieve automatic withdraw flag.
-func (k Keeper) GetAutomaticWithdrawKeeper(ctx sdk.Context) bool {
-	store := ctx.KVStore(k.storeKey)
-	var autoW types.VbrAutoW
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.AutomaticWithdraw)), &autoW)
-	return autoW.AutoW
-}
-
 // VbrAccount returns vbr's ModuleAccount
 func (k Keeper) VbrAccount(ctx sdk.Context) accountTypes.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
@@ -183,14 +125,6 @@ func GetCoins(k Keeper, ctx sdk.Context, macc accountTypes.ModuleAccountI) sdk.C
 }
 // ComputeProposerReward computes the final reward for the validator block's proposer
 func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator stakingTypes.ValidatorI, denom string, params types.Params) sdk.DecCoins {
-
-	// Get rewarded rate
-	//rewardRate := k.GetRewardRateKeeper(ctx)
-
-	// Calculate rewarded rate with validator percentage
-	//rewardRateVal := rewardRate.Mul(sdk.NewDec(vCount)).Quo(sdk.NewDec(100))
-	
-
 	// Get total bonded token of validator
 	validatorBonded := validator.GetBondedTokens()
 

@@ -29,8 +29,6 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	// this line is used by starport scaffolding # 1
-	cmd.AddCommand(CmdSetAutomaticWithdraw())
-	cmd.AddCommand(CmdSetRewardRate())
 	cmd.AddCommand(CmdIncrementBlockRewardsPool())
 	cmd.AddCommand(CmdSetVbrParams())
 

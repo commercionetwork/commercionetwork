@@ -103,7 +103,7 @@ func SetVbrPoolAmount(appState json.RawMessage, coins sdk.Coins) (map[string]jso
 	return genState, nil
 
 }
-
+/*
 // SetGenesisVbrRewardRate returns set-genesis-vbr-reward-rate cobra Command.
 func SetGenesisVbrRewardRate() *cobra.Command {
 	cmd := &cobra.Command{
@@ -170,3 +170,4 @@ func SetVbrRewardRate(appState json.RawMessage, value sdk.Dec) (map[string]json.
 	return genState, nil
 
 }
+*/

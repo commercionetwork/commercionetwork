@@ -119,175 +119,6 @@ func (m *MsgIncrementBlockRewardsPoolResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgIncrementBlockRewardsPoolResponse proto.InternalMessageInfo
 
-type MsgSetRewardRate struct {
-	Government string                                 `protobuf:"bytes,1,opt,name=Government,proto3" json:"Government,omitempty" yaml:"government"`
-	RewardRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=RewardRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"RewardRate" yaml:"reward_rate"`
-}
-
-func (m *MsgSetRewardRate) Reset()         { *m = MsgSetRewardRate{} }
-func (m *MsgSetRewardRate) String() string { return proto.CompactTextString(m) }
-func (*MsgSetRewardRate) ProtoMessage()    {}
-func (*MsgSetRewardRate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ec5dd532f6ad8352, []int{2}
-}
-func (m *MsgSetRewardRate) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetRewardRate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetRewardRate.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetRewardRate) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetRewardRate.Merge(m, src)
-}
-func (m *MsgSetRewardRate) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetRewardRate) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetRewardRate.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetRewardRate proto.InternalMessageInfo
-
-func (m *MsgSetRewardRate) GetGovernment() string {
-	if m != nil {
-		return m.Government
-	}
-	return ""
-}
-
-type MsgSetRewardRateResponse struct {
-}
-
-func (m *MsgSetRewardRateResponse) Reset()         { *m = MsgSetRewardRateResponse{} }
-func (m *MsgSetRewardRateResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgSetRewardRateResponse) ProtoMessage()    {}
-func (*MsgSetRewardRateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ec5dd532f6ad8352, []int{3}
-}
-func (m *MsgSetRewardRateResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetRewardRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetRewardRateResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetRewardRateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetRewardRateResponse.Merge(m, src)
-}
-func (m *MsgSetRewardRateResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetRewardRateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetRewardRateResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetRewardRateResponse proto.InternalMessageInfo
-
-type MsgSetAutomaticWithdraw struct {
-	Government        string `protobuf:"bytes,1,opt,name=Government,proto3" json:"Government,omitempty" yaml:"government"`
-	AutomaticWithdraw bool   `protobuf:"varint,2,opt,name=AutomaticWithdraw,proto3" json:"AutomaticWithdraw,omitempty" yaml:"automatic_withdraw"`
-}
-
-func (m *MsgSetAutomaticWithdraw) Reset()         { *m = MsgSetAutomaticWithdraw{} }
-func (m *MsgSetAutomaticWithdraw) String() string { return proto.CompactTextString(m) }
-func (*MsgSetAutomaticWithdraw) ProtoMessage()    {}
-func (*MsgSetAutomaticWithdraw) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ec5dd532f6ad8352, []int{4}
-}
-func (m *MsgSetAutomaticWithdraw) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetAutomaticWithdraw) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetAutomaticWithdraw.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetAutomaticWithdraw) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetAutomaticWithdraw.Merge(m, src)
-}
-func (m *MsgSetAutomaticWithdraw) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetAutomaticWithdraw) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetAutomaticWithdraw.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetAutomaticWithdraw proto.InternalMessageInfo
-
-func (m *MsgSetAutomaticWithdraw) GetGovernment() string {
-	if m != nil {
-		return m.Government
-	}
-	return ""
-}
-
-func (m *MsgSetAutomaticWithdraw) GetAutomaticWithdraw() bool {
-	if m != nil {
-		return m.AutomaticWithdraw
-	}
-	return false
-}
-
-type MsgSetAutomaticWithdrawResponse struct {
-}
-
-func (m *MsgSetAutomaticWithdrawResponse) Reset()         { *m = MsgSetAutomaticWithdrawResponse{} }
-func (m *MsgSetAutomaticWithdrawResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgSetAutomaticWithdrawResponse) ProtoMessage()    {}
-func (*MsgSetAutomaticWithdrawResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ec5dd532f6ad8352, []int{5}
-}
-func (m *MsgSetAutomaticWithdrawResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetAutomaticWithdrawResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetAutomaticWithdrawResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetAutomaticWithdrawResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetAutomaticWithdrawResponse.Merge(m, src)
-}
-func (m *MsgSetAutomaticWithdrawResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetAutomaticWithdrawResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetAutomaticWithdrawResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetAutomaticWithdrawResponse proto.InternalMessageInfo
-
 type MsgSetVbrParams struct {
 	Government           string                                 `protobuf:"bytes,1,opt,name=Government,proto3" json:"Government,omitempty" yaml:"government"`
 	DistrEpochIdentifier string                                 `protobuf:"bytes,2,opt,name=distr_epoch_identifier,json=distrEpochIdentifier,proto3" json:"distr_epoch_identifier,omitempty" yaml:"distr_epoch_identifier"`
@@ -298,7 +129,7 @@ func (m *MsgSetVbrParams) Reset()         { *m = MsgSetVbrParams{} }
 func (m *MsgSetVbrParams) String() string { return proto.CompactTextString(m) }
 func (*MsgSetVbrParams) ProtoMessage()    {}
 func (*MsgSetVbrParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ec5dd532f6ad8352, []int{6}
+	return fileDescriptor_ec5dd532f6ad8352, []int{2}
 }
 func (m *MsgSetVbrParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -348,7 +179,7 @@ func (m *MsgSetVbrParamsResponse) Reset()         { *m = MsgSetVbrParamsResponse
 func (m *MsgSetVbrParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgSetVbrParamsResponse) ProtoMessage()    {}
 func (*MsgSetVbrParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ec5dd532f6ad8352, []int{7}
+	return fileDescriptor_ec5dd532f6ad8352, []int{3}
 }
 func (m *MsgSetVbrParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -380,10 +211,6 @@ var xxx_messageInfo_MsgSetVbrParamsResponse proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*MsgIncrementBlockRewardsPool)(nil), "commercionetwork.commercionetwork.vbr.MsgIncrementBlockRewardsPool")
 	proto.RegisterType((*MsgIncrementBlockRewardsPoolResponse)(nil), "commercionetwork.commercionetwork.vbr.MsgIncrementBlockRewardsPoolResponse")
-	proto.RegisterType((*MsgSetRewardRate)(nil), "commercionetwork.commercionetwork.vbr.MsgSetRewardRate")
-	proto.RegisterType((*MsgSetRewardRateResponse)(nil), "commercionetwork.commercionetwork.vbr.MsgSetRewardRateResponse")
-	proto.RegisterType((*MsgSetAutomaticWithdraw)(nil), "commercionetwork.commercionetwork.vbr.MsgSetAutomaticWithdraw")
-	proto.RegisterType((*MsgSetAutomaticWithdrawResponse)(nil), "commercionetwork.commercionetwork.vbr.MsgSetAutomaticWithdrawResponse")
 	proto.RegisterType((*MsgSetVbrParams)(nil), "commercionetwork.commercionetwork.vbr.MsgSetVbrParams")
 	proto.RegisterType((*MsgSetVbrParamsResponse)(nil), "commercionetwork.commercionetwork.vbr.MsgSetVbrParamsResponse")
 }
@@ -391,48 +218,40 @@ func init() {
 func init() { proto.RegisterFile("commercionetwork/vbr/tx.proto", fileDescriptor_ec5dd532f6ad8352) }
 
 var fileDescriptor_ec5dd532f6ad8352 = []byte{
-	// 651 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0x4f, 0x4f, 0xd4, 0x4e,
-	0x18, 0xde, 0x81, 0x5f, 0xc8, 0xcf, 0x41, 0xa2, 0x34, 0xab, 0xee, 0x36, 0xd2, 0xc2, 0x44, 0x09,
-	0x1e, 0x6c, 0x03, 0xc6, 0x3f, 0xf1, 0x80, 0x61, 0xf9, 0x63, 0x08, 0x21, 0x21, 0x35, 0x91, 0xc4,
-	0xcb, 0x66, 0xda, 0x0e, 0xa5, 0x42, 0x67, 0x36, 0x33, 0xb3, 0x5d, 0xf8, 0x02, 0x26, 0x1e, 0x4c,
-	0xfc, 0x02, 0xfa, 0x01, 0x4c, 0x8c, 0x1f, 0xc1, 0x2b, 0x47, 0x8e, 0xc6, 0x43, 0x35, 0x70, 0xf4,
-	0xb6, 0x9f, 0xc0, 0xb4, 0xd3, 0x2d, 0x2c, 0xcb, 0x1a, 0x58, 0x3d, 0x41, 0xde, 0xf7, 0x7d, 0x9e,
-	0xf7, 0x79, 0xe6, 0xd9, 0xe9, 0xc0, 0x09, 0x8f, 0x45, 0x11, 0xe1, 0x5e, 0xc8, 0x28, 0x91, 0x2d,
-	0xc6, 0x77, 0xec, 0xd8, 0xe5, 0xb6, 0xdc, 0xb3, 0x1a, 0x9c, 0x49, 0xa6, 0xdd, 0x3d, 0xdb, 0xb6,
-	0x7a, 0x0a, 0xb1, 0xcb, 0xf5, 0x72, 0xc0, 0x02, 0x96, 0x21, 0xec, 0xf4, 0x3f, 0x05, 0xd6, 0x0d,
-	0x8f, 0x89, 0x88, 0x09, 0xdb, 0xc5, 0x82, 0xd8, 0xf1, 0xac, 0x4b, 0x24, 0x9e, 0xb5, 0x3d, 0x16,
-	0x52, 0xd5, 0x47, 0x5f, 0x01, 0xbc, 0xbd, 0x2e, 0x82, 0x55, 0xea, 0x71, 0x12, 0x11, 0x2a, 0x6b,
-	0xbb, 0xcc, 0xdb, 0x71, 0x48, 0x0b, 0x73, 0x5f, 0x6c, 0x30, 0xb6, 0xab, 0xdd, 0x83, 0x23, 0x5b,
-	0x4d, 0xea, 0x13, 0x5e, 0x01, 0x93, 0x60, 0xe6, 0x4a, 0x6d, 0xbc, 0x9d, 0x98, 0x63, 0xfb, 0x38,
-	0xda, 0x7d, 0x8a, 0x54, 0x1d, 0x39, 0xf9, 0x80, 0x26, 0xe1, 0x08, 0x8e, 0x58, 0x93, 0xca, 0xca,
-	0xd0, 0xe4, 0xf0, 0xcc, 0xe8, 0x5c, 0xd5, 0x52, 0xcb, 0xad, 0x74, 0xb9, 0x95, 0x2f, 0xb7, 0x16,
-	0x59, 0x48, 0x6b, 0x0b, 0x07, 0x89, 0x59, 0x3a, 0x61, 0x52, 0x30, 0xf4, 0xe9, 0x87, 0x39, 0x13,
-	0x84, 0x72, 0xbb, 0xe9, 0xa6, 0x16, 0xed, 0x5c, 0xba, 0xfa, 0x73, 0x5f, 0xf8, 0x3b, 0xb6, 0xdc,
-	0x6f, 0x10, 0x91, 0x31, 0x08, 0x27, 0xdf, 0x85, 0xa6, 0xe1, 0x9d, 0x3f, 0x19, 0x70, 0x88, 0x68,
-	0x30, 0x2a, 0x08, 0xfa, 0x02, 0xe0, 0xf5, 0x75, 0x11, 0xbc, 0x20, 0x52, 0x75, 0x1d, 0x2c, 0x89,
-	0xf6, 0x10, 0xc2, 0xe7, 0x2c, 0x26, 0x9c, 0xa6, 0xd0, 0xdc, 0xe1, 0x8d, 0x76, 0x62, 0x8e, 0x2b,
-	0x5d, 0x41, 0xd1, 0x43, 0xce, 0xa9, 0x41, 0xcd, 0x87, 0xf0, 0x84, 0xa4, 0x32, 0x94, 0xc1, 0x96,
-	0x52, 0x4b, 0xdf, 0x13, 0x73, 0xfa, 0x02, 0x0e, 0x96, 0x88, 0xd7, 0x4e, 0x4c, 0x4d, 0x2d, 0xe1,
-	0x19, 0x53, 0x9d, 0x63, 0x49, 0x90, 0x73, 0x8a, 0x17, 0xe9, 0xb0, 0x72, 0x56, 0x70, 0xe1, 0xe6,
-	0x03, 0x80, 0xb7, 0x54, 0x73, 0xa1, 0x29, 0x59, 0x84, 0x65, 0xe8, 0x6d, 0x86, 0x72, 0xdb, 0xe7,
-	0xb8, 0x35, 0xa8, 0xa9, 0x35, 0x38, 0xde, 0xc3, 0x95, 0x79, 0xfb, 0xbf, 0x36, 0xd1, 0x4e, 0xcc,
-	0x6a, 0x1e, 0x55, 0x67, 0xa4, 0xde, 0xca, 0x67, 0x90, 0xd3, 0x8b, 0x43, 0x53, 0xd0, 0xec, 0x23,
-	0xaf, 0xb0, 0xf0, 0x6e, 0x08, 0x5e, 0x53, 0x33, 0x2f, 0x5d, 0xbe, 0x81, 0x39, 0x8e, 0xc4, 0xa0,
-	0xd2, 0x37, 0xe1, 0x4d, 0x3f, 0x14, 0x92, 0xd7, 0x49, 0x83, 0x79, 0xdb, 0xf5, 0xd0, 0x27, 0x54,
-	0x86, 0x5b, 0x21, 0xe1, 0x79, 0x36, 0x53, 0xed, 0xc4, 0x9c, 0x50, 0x14, 0xe7, 0xcf, 0x21, 0xa7,
-	0x9c, 0x35, 0x96, 0xd3, 0xfa, 0x6a, 0x51, 0xd6, 0x5e, 0xc3, 0xb1, 0xd8, 0xe5, 0x75, 0x82, 0x39,
-	0xcd, 0x02, 0xaa, 0x0c, 0x67, 0x7c, 0x2b, 0x97, 0xce, 0xba, 0xac, 0xb6, 0x77, 0x91, 0x21, 0x67,
-	0x34, 0x76, 0xf9, 0x32, 0xe6, 0x34, 0x8b, 0xbb, 0xda, 0x49, 0xb4, 0x38, 0x8e, 0xce, 0x51, 0xcd,
-	0xfd, 0xfa, 0x0f, 0x0e, 0xaf, 0x8b, 0x40, 0xfb, 0x08, 0x60, 0xf9, 0xdc, 0xc8, 0xe7, 0xad, 0x0b,
-	0x7d, 0x24, 0xac, 0x3e, 0x99, 0xe8, 0x2b, 0x7f, 0x87, 0xef, 0x08, 0xd5, 0xde, 0x02, 0x38, 0xd6,
-	0x7d, 0xc3, 0x1e, 0x5f, 0x8a, 0xf9, 0x04, 0xa8, 0x3f, 0x1b, 0x10, 0x58, 0x68, 0xf9, 0x0c, 0x60,
-	0xb5, 0xff, 0x77, 0x6d, 0xf1, 0xe2, 0xf4, 0x7d, 0x49, 0xf4, 0xb5, 0x7f, 0x40, 0x52, 0xe8, 0x7d,
-	0x03, 0xe0, 0xd5, 0xae, 0xcb, 0xf0, 0xe8, 0x52, 0x27, 0x50, 0xe0, 0xf4, 0xf9, 0xc1, 0x70, 0x1d,
-	0x21, 0x35, 0xe7, 0xe0, 0xc8, 0x00, 0x87, 0x47, 0x06, 0xf8, 0x79, 0x64, 0x80, 0xf7, 0xc7, 0x46,
-	0xe9, 0xf0, 0xd8, 0x28, 0x7d, 0x3b, 0x36, 0x4a, 0xaf, 0x9e, 0x74, 0xfd, 0xde, 0xcf, 0x3c, 0x5a,
-	0x3d, 0x85, 0x3d, 0xf5, 0x8e, 0xa5, 0xb7, 0xc0, 0x1d, 0xc9, 0x9e, 0x9b, 0x07, 0xbf, 0x03, 0x00,
-	0x00, 0xff, 0xff, 0x17, 0x5f, 0x33, 0x01, 0xec, 0x06, 0x00, 0x00,
+	// 515 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xdf, 0x6a, 0xd3, 0x50,
+	0x18, 0x6f, 0x5a, 0x28, 0x78, 0xe6, 0x90, 0x85, 0xaa, 0x6d, 0x71, 0xc9, 0x0c, 0x3a, 0xea, 0x85,
+	0x09, 0x9b, 0x28, 0xe2, 0x85, 0x60, 0xe7, 0x94, 0x21, 0x85, 0x11, 0x41, 0xc1, 0x9b, 0x72, 0x92,
+	0x7c, 0xcb, 0x62, 0x9b, 0x73, 0xca, 0x77, 0x4e, 0xb3, 0xed, 0x05, 0xbc, 0x13, 0x7c, 0x0e, 0xc1,
+	0x57, 0xd0, 0xdb, 0x5d, 0xee, 0x52, 0xbc, 0x88, 0xd2, 0xbe, 0x41, 0x9f, 0x40, 0x92, 0x93, 0xce,
+	0xb5, 0xd3, 0x51, 0x64, 0x57, 0x49, 0x7e, 0xdf, 0xf7, 0xfb, 0xfd, 0xbe, 0x3f, 0xe7, 0x84, 0xac,
+	0xfa, 0x3c, 0x8e, 0x01, 0xfd, 0x88, 0x33, 0x90, 0x07, 0x1c, 0x7b, 0x4e, 0xe2, 0xa1, 0x23, 0x0f,
+	0xed, 0x01, 0x72, 0xc9, 0xf5, 0xbb, 0xf3, 0x61, 0xfb, 0x1c, 0x90, 0x78, 0xd8, 0xac, 0x85, 0x3c,
+	0xe4, 0x39, 0xc3, 0xc9, 0xde, 0x14, 0xb9, 0x69, 0xf8, 0x5c, 0xc4, 0x5c, 0x38, 0x1e, 0x15, 0xe0,
+	0x24, 0x1b, 0x1e, 0x48, 0xba, 0xe1, 0xf8, 0x3c, 0x62, 0x2a, 0x6e, 0x7d, 0xd3, 0xc8, 0xad, 0x8e,
+	0x08, 0x77, 0x98, 0x8f, 0x10, 0x03, 0x93, 0xed, 0x3e, 0xf7, 0x7b, 0x2e, 0x1c, 0x50, 0x0c, 0xc4,
+	0x2e, 0xe7, 0x7d, 0xfd, 0x1e, 0xa9, 0xee, 0x0d, 0x59, 0x00, 0x58, 0xd7, 0xd6, 0xb4, 0xd6, 0x95,
+	0xf6, 0xca, 0x24, 0x35, 0x97, 0x8f, 0x68, 0xdc, 0x7f, 0x62, 0x29, 0xdc, 0x72, 0x8b, 0x04, 0x5d,
+	0x92, 0x2a, 0x8d, 0xf9, 0x90, 0xc9, 0x7a, 0x79, 0xad, 0xd2, 0x5a, 0xda, 0x6c, 0xd8, 0xca, 0xdc,
+	0xce, 0xcc, 0xed, 0xc2, 0xdc, 0xde, 0xe2, 0x11, 0x6b, 0x3f, 0x3b, 0x4e, 0xcd, 0xd2, 0x1f, 0x25,
+	0x45, 0xb3, 0x3e, 0xff, 0x34, 0x5b, 0x61, 0x24, 0xf7, 0x87, 0x5e, 0xd6, 0xa2, 0x53, 0x94, 0xae,
+	0x1e, 0xf7, 0x45, 0xd0, 0x73, 0xe4, 0xd1, 0x00, 0x44, 0xae, 0x20, 0xdc, 0xc2, 0xcb, 0x5a, 0x27,
+	0x77, 0x2e, 0x6a, 0xc0, 0x05, 0x31, 0xe0, 0x4c, 0x80, 0xf5, 0xb1, 0x4c, 0xae, 0x75, 0x44, 0xf8,
+	0x1a, 0xe4, 0x1b, 0x0f, 0x77, 0x29, 0xd2, 0x58, 0xe8, 0x0f, 0x09, 0x79, 0xc9, 0x13, 0x40, 0x96,
+	0x31, 0x8b, 0x06, 0xaf, 0x4f, 0x52, 0x73, 0x45, 0x95, 0x15, 0x9e, 0xc6, 0x2c, 0xf7, 0x4c, 0xa2,
+	0xfe, 0x96, 0xdc, 0x08, 0x22, 0x21, 0xb1, 0x0b, 0x03, 0xee, 0xef, 0x77, 0xa3, 0x00, 0x98, 0x8c,
+	0xf6, 0x22, 0xc0, 0x7a, 0x39, 0x97, 0xb8, 0x3d, 0x49, 0xcd, 0x55, 0x25, 0xf1, 0xf7, 0x3c, 0xcb,
+	0xad, 0xe5, 0x81, 0xed, 0x0c, 0xdf, 0x39, 0x85, 0xf5, 0xf7, 0x64, 0x39, 0xf1, 0xb0, 0x0b, 0x14,
+	0x59, 0x17, 0xa9, 0x84, 0x7a, 0x25, 0xd7, 0x7b, 0x91, 0x4d, 0xeb, 0x47, 0x6a, 0xae, 0x2f, 0x30,
+	0x9c, 0xe7, 0xe0, 0x4f, 0x52, 0xb3, 0xa6, 0xdc, 0x67, 0xc4, 0x2c, 0x77, 0x29, 0xf1, 0x70, 0x9b,
+	0x22, 0x73, 0xb3, 0xaf, 0x06, 0xb9, 0x39, 0x37, 0x8e, 0xe9, 0xa8, 0x36, 0xbf, 0x96, 0x49, 0xa5,
+	0x23, 0x42, 0xfd, 0x8b, 0x46, 0x1a, 0xff, 0x3e, 0x19, 0x5b, 0xf6, 0x42, 0x07, 0xd3, 0xbe, 0x68,
+	0x3b, 0xcd, 0x57, 0x97, 0x20, 0x32, 0xad, 0x5b, 0xff, 0xa0, 0x91, 0xab, 0x33, 0xfb, 0x7d, 0xb4,
+	0xb8, 0xfa, 0x59, 0x5e, 0xf3, 0xe9, 0xff, 0xf1, 0xa6, 0x85, 0xb4, 0xdd, 0xe3, 0x91, 0xa1, 0x9d,
+	0x8c, 0x0c, 0xed, 0xd7, 0xc8, 0xd0, 0x3e, 0x8d, 0x8d, 0xd2, 0xc9, 0xd8, 0x28, 0x7d, 0x1f, 0x1b,
+	0xa5, 0x77, 0x8f, 0x67, 0x56, 0x38, 0x77, 0xed, 0xcf, 0x01, 0x87, 0xea, 0x4f, 0x90, 0x2d, 0xd6,
+	0xab, 0xe6, 0x17, 0xf6, 0xc1, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0x2a, 0x07, 0x4d, 0x11, 0x2e,
+	0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -448,8 +267,6 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
-	SetAutomaticWithdraw(ctx context.Context, in *MsgSetAutomaticWithdraw, opts ...grpc.CallOption) (*MsgSetAutomaticWithdrawResponse, error)
-	SetRewardRate(ctx context.Context, in *MsgSetRewardRate, opts ...grpc.CallOption) (*MsgSetRewardRateResponse, error)
 	IncrementBlockRewardsPool(ctx context.Context, in *MsgIncrementBlockRewardsPool, opts ...grpc.CallOption) (*MsgIncrementBlockRewardsPoolResponse, error)
 	SetVbrParams(ctx context.Context, in *MsgSetVbrParams, opts ...grpc.CallOption) (*MsgSetVbrParamsResponse, error)
 }
@@ -460,24 +277,6 @@ type msgClient struct {
 
 func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
-}
-
-func (c *msgClient) SetAutomaticWithdraw(ctx context.Context, in *MsgSetAutomaticWithdraw, opts ...grpc.CallOption) (*MsgSetAutomaticWithdrawResponse, error) {
-	out := new(MsgSetAutomaticWithdrawResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.vbr.Msg/SetAutomaticWithdraw", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *msgClient) SetRewardRate(ctx context.Context, in *MsgSetRewardRate, opts ...grpc.CallOption) (*MsgSetRewardRateResponse, error) {
-	out := new(MsgSetRewardRateResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.vbr.Msg/SetRewardRate", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *msgClient) IncrementBlockRewardsPool(ctx context.Context, in *MsgIncrementBlockRewardsPool, opts ...grpc.CallOption) (*MsgIncrementBlockRewardsPoolResponse, error) {
@@ -501,8 +300,6 @@ func (c *msgClient) SetVbrParams(ctx context.Context, in *MsgSetVbrParams, opts 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
-	SetAutomaticWithdraw(context.Context, *MsgSetAutomaticWithdraw) (*MsgSetAutomaticWithdrawResponse, error)
-	SetRewardRate(context.Context, *MsgSetRewardRate) (*MsgSetRewardRateResponse, error)
 	IncrementBlockRewardsPool(context.Context, *MsgIncrementBlockRewardsPool) (*MsgIncrementBlockRewardsPoolResponse, error)
 	SetVbrParams(context.Context, *MsgSetVbrParams) (*MsgSetVbrParamsResponse, error)
 }
@@ -511,12 +308,6 @@ type MsgServer interface {
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) SetAutomaticWithdraw(ctx context.Context, req *MsgSetAutomaticWithdraw) (*MsgSetAutomaticWithdrawResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetAutomaticWithdraw not implemented")
-}
-func (*UnimplementedMsgServer) SetRewardRate(ctx context.Context, req *MsgSetRewardRate) (*MsgSetRewardRateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetRewardRate not implemented")
-}
 func (*UnimplementedMsgServer) IncrementBlockRewardsPool(ctx context.Context, req *MsgIncrementBlockRewardsPool) (*MsgIncrementBlockRewardsPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IncrementBlockRewardsPool not implemented")
 }
@@ -526,42 +317,6 @@ func (*UnimplementedMsgServer) SetVbrParams(ctx context.Context, req *MsgSetVbrP
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
-}
-
-func _Msg_SetAutomaticWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSetAutomaticWithdraw)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).SetAutomaticWithdraw(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.vbr.Msg/SetAutomaticWithdraw",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SetAutomaticWithdraw(ctx, req.(*MsgSetAutomaticWithdraw))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Msg_SetRewardRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSetRewardRate)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).SetRewardRate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.vbr.Msg/SetRewardRate",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SetRewardRate(ctx, req.(*MsgSetRewardRate))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Msg_IncrementBlockRewardsPool_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -604,14 +359,6 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "commercionetwork.commercionetwork.vbr.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "SetAutomaticWithdraw",
-			Handler:    _Msg_SetAutomaticWithdraw_Handler,
-		},
-		{
-			MethodName: "SetRewardRate",
-			Handler:    _Msg_SetRewardRate_Handler,
-		},
 		{
 			MethodName: "IncrementBlockRewardsPool",
 			Handler:    _Msg_IncrementBlockRewardsPool_Handler,
@@ -685,132 +432,6 @@ func (m *MsgIncrementBlockRewardsPoolResponse) MarshalTo(dAtA []byte) (int, erro
 }
 
 func (m *MsgIncrementBlockRewardsPoolResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetRewardRate) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetRewardRate) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetRewardRate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size := m.RewardRate.Size()
-		i -= size
-		if _, err := m.RewardRate.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintTx(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x12
-	if len(m.Government) > 0 {
-		i -= len(m.Government)
-		copy(dAtA[i:], m.Government)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Government)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetRewardRateResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetRewardRateResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetRewardRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetAutomaticWithdraw) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetAutomaticWithdraw) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetAutomaticWithdraw) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.AutomaticWithdraw {
-		i--
-		if m.AutomaticWithdraw {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.Government) > 0 {
-		i -= len(m.Government)
-		copy(dAtA[i:], m.Government)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Government)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetAutomaticWithdrawResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetAutomaticWithdrawResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetAutomaticWithdrawResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -919,55 +540,6 @@ func (m *MsgIncrementBlockRewardsPool) Size() (n int) {
 }
 
 func (m *MsgIncrementBlockRewardsPoolResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *MsgSetRewardRate) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Government)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = m.RewardRate.Size()
-	n += 1 + l + sovTx(uint64(l))
-	return n
-}
-
-func (m *MsgSetRewardRateResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *MsgSetAutomaticWithdraw) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Government)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	if m.AutomaticWithdraw {
-		n += 2
-	}
-	return n
-}
-
-func (m *MsgSetAutomaticWithdrawResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1153,324 +725,6 @@ func (m *MsgIncrementBlockRewardsPoolResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgIncrementBlockRewardsPoolResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetRewardRate) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetRewardRate: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetRewardRate: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Government", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Government = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RewardRate", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.RewardRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetRewardRateResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetRewardRateResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetRewardRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetAutomaticWithdraw) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetAutomaticWithdraw: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetAutomaticWithdraw: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Government", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Government = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AutomaticWithdraw", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.AutomaticWithdraw = bool(v != 0)
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetAutomaticWithdrawResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetAutomaticWithdrawResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetAutomaticWithdrawResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
