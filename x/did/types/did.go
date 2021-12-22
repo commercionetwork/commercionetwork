@@ -13,7 +13,6 @@ const (
 	contextDIDBase            = "https://www.w3.org/ns/did/v1"
 	didValidationRegexpStr    = `^did\:[a-z0-9]+\:(([A-Z.a-z0-9]|\-|_|%[0-9A-Fa-f][0-9A-Fa-f])*\:)*([A-Z.a-z0-9]|\-|_|%[0-9A-Fa-f][0-9A-Fa-f])+$`
 	didURLValidationRegexpStr = `^did\:[a-z0-9]+\:(([A-Z.a-z0-9]|\-|_|%[0-9A-Fa-f][0-9A-Fa-f])*\:)*([A-Z.a-z0-9]|\-|_|%[0-9A-Fa-f][0-9A-Fa-f])+(/(([-A-Z._a-z0-9]|~)|%[0-9A-Fa-f][0-9A-Fa-f]|(\!|\$|&|'|\(|\)|\*|\+|,|;|\=)|\:|@)*)*(\?(((([-A-Z._a-z0-9]|~)|%[0-9A-Fa-f][0-9A-Fa-f]|(\!|\$|&|'|\(|\)|\*|\+|,|;|\=)|\:|@)|/|\?)*))?(#(((([-A-Z._a-z0-9]|~)|%[0-9A-Fa-f][0-9A-Fa-f]|(\!|\$|&|'|\(|\)|\*|\+|,|;|\=)|\:|@)|/|\?)*))?$`
-	rfc3986RegexpStr          = `^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?$`
 )
 
 var (
@@ -25,7 +24,6 @@ var (
 var (
 	didValidationRegexp    = regexp.MustCompile(didValidationRegexpStr)
 	didURLValidationRegexp = regexp.MustCompile(didURLValidationRegexpStr)
-	rfc3986Regexp          = regexp.MustCompile(rfc3986RegexpStr)
 )
 
 // IsValidDID validate the input string according to the
@@ -38,12 +36,6 @@ func IsValidDID(input string) bool {
 // did url specification (cfr. https://www.w3.org/TR/did-core/#did-url-syntax  ).
 func IsValidDIDURL(input string) bool {
 	return didURLValidationRegexp.MatchString(input)
-}
-
-// IsValidRFC3986Uri checks if the input string is a valid RFC3986 URI
-// (cfr https://datatracker.ietf.org/doc/html/rfc3986#page-50)
-func IsValidRFC3986Uri(input string) bool {
-	return rfc3986Regexp.MatchString(input)
 }
 
 // IsEmpty tells if the trimmed input is empty
