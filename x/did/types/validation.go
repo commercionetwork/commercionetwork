@@ -15,7 +15,7 @@ func isValidDidCom(did string) error {
 	return nil
 }
 
-func (s *Service) Validate() error {
+func (s *Service) isValid() error {
 	if s == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service is not defined")
 	}
@@ -51,7 +51,7 @@ func (s *Service) Validate() error {
 	return nil
 }
 
-func (v *VerificationMethod) Validate() error {
+func (v *VerificationMethod) isValid() error {
 	if v == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod is not defined")
 	}

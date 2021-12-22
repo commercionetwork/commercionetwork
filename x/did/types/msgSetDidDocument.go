@@ -62,7 +62,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	}
 	var containsRsaSignature2018, containsRsaVerificationKey2018 bool
 	for _, vm := range msg.VerificationMethod {
-		if err := vm.Validate(); err != nil {
+		if err := vm.isValid(); err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s %e", vm, err)
 		}
 		if vm.Type == RsaSignature2018 {
@@ -92,7 +92,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid service %s found elements with the same ID", msg.Service)
 	}
 	for _, s := range msg.Service {
-		if err := s.Validate(); err != nil {
+		if err := s.isValid(); err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid service %s %e", s, err)
 		}
 	}
