@@ -3,6 +3,7 @@ package commercionetwork.commercionetwork.did;
 
 // this line is used by starport scaffolding # proto/tx/import
 import "commercionetwork/did/didDocument.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 
@@ -15,7 +16,7 @@ service Msg {
 // this line is used by starport scaffolding # proto/tx/message
 
 message MsgSetDidDocument {
-  repeated string context = 1;
+  repeated string context = 1 [ (gogoproto.jsontag) = "@context,omitempty" ];
   string ID = 2;
   repeated VerificationMethod verificationMethod = 3;
   repeated string authentication = 5;

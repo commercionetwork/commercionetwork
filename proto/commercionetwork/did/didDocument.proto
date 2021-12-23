@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 
 message DidDocument {
-  repeated string context = 1;
+  repeated string context = 1 [ (gogoproto.jsontag) = "@context,omitempty" ];
   string ID = 2;
   repeated VerificationMethod verificationMethod = 3;
   repeated string authentication = 4;
