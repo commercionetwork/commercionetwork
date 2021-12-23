@@ -17,7 +17,7 @@ import (
 	tmdb "github.com/tendermint/tm-db"
 )
 
-func TestGetDidDocumentOfAddress(t *testing.T) {
+func Test_GetDidDocumentOfAddress(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	ddos := createNIdentityNew(keeper, ctx, 10)
 	for _, item := range ddos {
@@ -27,7 +27,7 @@ func TestGetDidDocumentOfAddress(t *testing.T) {
 	}
 }
 
-func TestNewDocumentExist(t *testing.T) {
+func Test_NewDocumentExist(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	ddos := createNIdentityNew(keeper, ctx, 10)
 	for _, item := range ddos {
@@ -35,33 +35,38 @@ func TestNewDocumentExist(t *testing.T) {
 	}
 }
 
-// func TestIdentitySet(t *testing.T) {
-// 	keeper, ctx := setupKeeper(t)
+func Test_UpdateDidDocument(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	ddos := createNIdentityNew(keeper, ctx, 10)
+	for _, item := range ddos {
+		ID := keeper.UpdateDidDocument(ctx, item)
 
-// 	_, _, addr := testdata.KeyTestPubAddr()
+		require.True(t, keeper.HasDidDocument(ctx, ID))
 
-// 	ddo := types.DidDocument{
-// 		Context:              []string{},
-// 		ID:                   addr.String(),
-// 		VerificationMethod:   []*types.VerificationMethod{},
-// 		Service:              []*types.Service{},
-// 		Authentication:       []*types.VerificationMethod{},
-// 		AssertionMethod:      []*types.VerificationMethod{},
-// 		CapabilityDelegation: []*types.VerificationMethod{},
-// 		CapabilityInvocation: []*types.VerificationMethod{},
-// 		KeyAgreement:         []*types.VerificationMethod{},
-// 		Created:              "",
-// 		Updated:              "",
-// 	}
+		created, err := keeper.GetDidDocumentOfAddress(ctx, ID)
+		require.NoError(t, err)
+		require.Equal(t, created, item)
+	}
+}
 
-// 	resultAddr := keeper.AppendDidDocument(ctx, ddo)
-
-// 	assert.Equal(t, addr.String(), resultAddr)
-
-// 	resolvedDDO, err := keeper.GetDidDocumentOfAddress(ctx, sdk.AccAddress(resultAddr))
-// 	require.NoError(t, err)
-// 	assert.Equal(t, ddo, resolvedDDO)
-// }
+func Test_GetAllDidDocuments(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	ddos := createNIdentityNew(keeper, ctx, 10)
+	for _, item := range ddos {
+		ID := keeper.UpdateDidDocument(ctx, item)
+		require.True(t, keeper.HasDidDocument(ctx, ID))
+	}
+	all := keeper.GetAllDidDocuments(ctx)
+	for _, item := range ddos {
+		var found bool
+		for _, a := range all {
+			if a.ID == item.ID {
+				found = true
+			}
+		}
+		require.True(t, found)
+	}
+}
 
 func createNIdentityNew(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocument {
 	ddos := make([]types.DidDocument, n)
