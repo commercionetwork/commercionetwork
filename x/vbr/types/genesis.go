@@ -15,8 +15,8 @@ const DefaultIndex uint64 = 1
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		Params: Params{
-			DistrEpochIdentifier: /*EpochMinute*/EpochDay,
-			EarnRate: sdk.NewDecWithPrec(050,2),
+			DistrEpochIdentifier: EpochDay,
+			EarnRate: sdk.NewDecWithPrec(5,1),
 		},
 	}
 }

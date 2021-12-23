@@ -28,7 +28,7 @@ func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		DistrEpochIdentifier: /*EpochMinute*/EpochDay,
+		DistrEpochIdentifier: EpochDay,
 		EarnRate: sdk.NewDec(int64(50)),
 	}
 }
