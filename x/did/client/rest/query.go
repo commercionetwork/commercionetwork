@@ -12,7 +12,6 @@ import (
 
 const (
 	identityParam = "identity"
-	proofParam    = "proof"
 )
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router, querierRoute string) {
