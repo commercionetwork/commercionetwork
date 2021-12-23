@@ -94,6 +94,14 @@ The validator tab should have the value **Operator**. That value is your `<desti
 
 If you are using the **Ledger device** you must first connect it to your computer, start the cosmos application and add `--ledger` flag to the command.
 
+## x% Loss of blocks
+
+What does an x% loss of blocks mean for a validator? 
+
+In order to create blocks and extend the blockchain, active validators are selected in proportion to their stake by a pseudo-random mechanism that assigns at a time t a proposer (block proposer) and a fixed pool of validators (committee). The block proposer is assigned the task of proposing the block Bt (block at time t) while the committee is given the task of voting whether the block is hung on the chain or not.
+
+Losing a block for a validator means that this validator was inactive at the time of the committee's choice or that it did not vote towards the execution of the block. Thus, having a validator with an x% loss of blocks means that the validator is only active (100 - x)% of the time when the Bt block is assigned.
+
 ## Common errors
 
 ### Account does not exists
