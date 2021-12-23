@@ -18,10 +18,6 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case types.QueryBlockRewardsPoolFunds:
 			return queryGetBlockRewardsPoolFunds(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryRewardRate:
-			return queryRewardRate(ctx, k, legacyQuerierCdc)
-		case types.QueryAutomaticWithdraw:
-			return queryAutomaticWithdraw(ctx, k, legacyQuerierCdc)
 		case types.QueryVbrParams:
 			return queryVbrParams(ctx, k, legacyQuerierCdc)
 		default:
@@ -39,14 +35,6 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, k Keeper, legacy
 	}
 
 	return fundsBz, nil
-}
-
-func queryRewardRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetRewardRateKeeper(ctx))
-}
-
-func queryAutomaticWithdraw(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetAutomaticWithdrawKeeper(ctx))
 }
 
 func queryVbrParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error){

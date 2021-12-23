@@ -12,8 +12,6 @@ import (
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc("/vbr/funds", getRetrieveBlockRewardsPoolFunds(cliCtx)).Methods("GET")
-	r.HandleFunc("/vbr/reward_rate", getRewardRateHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/vbr/automatic_withdraw", getAutomaticWithdrawHandler(cliCtx)).Methods("GET")
 	r.HandleFunc("/vbr/params", getVbrParamsHandler(cliCtx)).Methods("GET")
 }
 
@@ -37,27 +35,6 @@ func getRetrieveBlockRewardsPoolFunds(cliCtx client.Context) http.HandlerFunc {
 	}
 }
 
-func getRewardRateHandler(cliCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryRewardRate)
-		res, _, err := cliCtx.QueryWithData(route, nil)
-		if err != nil {
-			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-		}
-		restTypes.PostProcessResponse(w, cliCtx, res)
-	}
-}
-
-func getAutomaticWithdrawHandler(cliCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryAutomaticWithdraw)
-		res, _, err := cliCtx.QueryWithData(route, nil)
-		if err != nil {
-			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-		}
-		restTypes.PostProcessResponse(w, cliCtx, res)
-	}
-}
 
 func getVbrParamsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

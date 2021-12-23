@@ -15,12 +15,6 @@ message GenesisState {
     repeated cosmos.base.v1beta1.DecCoin poolAmount = 1 [(gogoproto.moretags) = "yaml:\"pool_amount\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable) = false] ;
-
-    string rewardRate = 2 [(gogoproto.moretags) = "yaml:\"reward_rate\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false] ;
-
-    bool AutomaticWithdraw = 3 [(gogoproto.moretags) = "yaml:\"automatic_withdraw\""] ;
    
     Params params = 4 [ (gogoproto.nullable) = false ];
 }

@@ -23,28 +23,6 @@ func (k Keeper) GetBlockRewardsPoolFunds(goCtx context.Context,  req *types.Quer
 	return &types.QueryGetBlockRewardsPoolFundsResponse{Funds: funds}, nil
 }
 
-func (k Keeper) GetRewardRate(goCtx context.Context,  req *types.QueryGetRewardRateRequest) (*types.QueryGetRewardRateResponse, error) {
-	if req == nil {
-        return nil, status.Error(codes.InvalidArgument, "invalid request")
-    }
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	rate := k.GetRewardRateKeeper(ctx)
-
-	return &types.QueryGetRewardRateResponse{RewardRate: rate}, nil
-}
-
-func (k Keeper) GetAutomaticWithdraw(goCtx context.Context,  req *types.QueryGetAutomaticWithdrawRequest) (*types.QueryGetAutomaticWithdrawResponse, error) {
-	if req == nil {
-        return nil, status.Error(codes.InvalidArgument, "invalid request")
-    }
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	autoW := k.GetAutomaticWithdrawKeeper(ctx)
-
-	return &types.QueryGetAutomaticWithdrawResponse{AutoW: autoW}, nil
-}
-
 func (k Keeper) GetVbrParams(goCtx context.Context, req *types.QueryGetVbrParamsRequest) (*types.QueryGetVbrParamsResponse, error){
 	if req == nil {
         return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -53,5 +31,5 @@ func (k Keeper) GetVbrParams(goCtx context.Context, req *types.QueryGetVbrParams
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.GetParams(ctx)
 	
-	return &types.QueryGetVbrParamsResponse{VbrParams: params}, nil
+	return &types.QueryGetVbrParamsResponse{Params: params}, nil
 }

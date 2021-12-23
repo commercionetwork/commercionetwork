@@ -14,10 +14,9 @@ const DefaultIndex uint64 = 1
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		AutomaticWithdraw: true,
 		Params: Params{
-			DistrEpochIdentifier: /*EpochMinute*/EpochDay,
-			VbrEarnRate: sdk.NewDecWithPrec(050,2),
+			DistrEpochIdentifier: EpochDay,
+			EarnRate: sdk.NewDecWithPrec(5,1),
 		},
 	}
 }
@@ -37,9 +36,9 @@ func (gs GenesisState) Validate() error {
 		return errors.New("epoch identifier should NOT be empty")
 	}
 
-	if gs.Params.VbrEarnRate.IsNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("VbrEarnRate: %d must be positive", gs.Params.VbrEarnRate))
+	if gs.Params.EarnRate.IsNegative() {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("EarnRate: %d must be positive", gs.Params.EarnRate))
 	}
 
-	return ValidateRewardRate(gs.RewardRate)
+	return nil
 }

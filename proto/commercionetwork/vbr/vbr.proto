@@ -13,13 +13,3 @@ message VbrPool {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable) = false] ;
 }
-
-message VbrAutoW {
-    bool autoW = 1 [(gogoproto.moretags) = "yaml:\"autoW\""] ;
-}
-
-message VbrRewardrate {
-    string rewardRate = 1 [(gogoproto.moretags) = "yaml:\"rewardRate\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false] ;
-}

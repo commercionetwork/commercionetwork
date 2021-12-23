@@ -10,8 +10,6 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 // Msg defines the Msg service.
 service Msg {
     // this line is used by starport scaffolding # proto/tx/rpc
-  rpc SetAutomaticWithdraw(MsgSetAutomaticWithdraw) returns (MsgSetAutomaticWithdrawResponse);
-  rpc SetRewardRate(MsgSetRewardRate) returns (MsgSetRewardRateResponse);
   rpc IncrementBlockRewardsPool(MsgIncrementBlockRewardsPool) returns (MsgIncrementBlockRewardsPoolResponse);
   rpc SetVbrParams(MsgSetVbrParams) returns (MsgSetVbrParamsResponse);
 }
@@ -27,28 +25,10 @@ message MsgIncrementBlockRewardsPool {
 message MsgIncrementBlockRewardsPoolResponse {
 }
 
-message MsgSetRewardRate {
-  string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
-  string RewardRate = 2 [(gogoproto.moretags) = "yaml:\"reward_rate\"", 
-  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-  (gogoproto.nullable) = false] ;        //sdk.Dec
-}
-
-message MsgSetRewardRateResponse {
-}
-
-message MsgSetAutomaticWithdraw {
-  string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
-  bool AutomaticWithdraw = 2 [(gogoproto.moretags) = "yaml:\"automatic_withdraw\""];
-}
-
-message MsgSetAutomaticWithdrawResponse {
-}
-
 message MsgSetVbrParams{
   string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
   string distr_epoch_identifier = 2 [(gogoproto.moretags) = "yaml:\"distr_epoch_identifier\""];
-  string vbr_earn_rate = 3 [(gogoproto.moretags) = "yaml:\"vbr_earn_rate\"",
+  string earn_rate = 3 [(gogoproto.moretags) = "yaml:\"earn_rate\"",
   (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
   (gogoproto.nullable) = false];
 }

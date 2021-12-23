@@ -15,7 +15,9 @@ func Migrate(genVbr v220vbr.GenesisState) *types.GenesisState {
 func migrateVbr(genVbr v220vbr.GenesisState) *types.GenesisState {
 	return &types.GenesisState{
 		PoolAmount:        genVbr.PoolAmount,
-		RewardRate:        sdk.NewDecWithPrec(1, 3),
-		AutomaticWithdraw: true,
+		Params: types.Params{
+					DistrEpochIdentifier: types.EpochDay,
+					EarnRate: sdk.NewDecWithPrec(5,1),
+				},
 	}
 }

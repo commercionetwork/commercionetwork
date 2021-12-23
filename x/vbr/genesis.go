@@ -26,8 +26,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 			panic(err) // could not mint tokens on chain start, fatal!
 		}
 	}
-	k.SetRewardRateKeeper(ctx, genState.RewardRate)
-	k.SetAutomaticWithdrawKeeper(ctx, genState.AutomaticWithdraw)
 	k.SetParams(ctx, genState.Params)
 }
 
@@ -36,8 +34,6 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	//return genesis
 	return &types.GenesisState{
 		PoolAmount:        k.GetTotalRewardPool(ctx),
-		RewardRate:        k.GetRewardRateKeeper(ctx),
-		AutomaticWithdraw: k.GetAutomaticWithdrawKeeper(ctx),
 		Params:            k.GetParams(ctx),
 	}
 }
