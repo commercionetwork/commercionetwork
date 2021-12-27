@@ -45,12 +45,12 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing recipient returns error",
 			msg:   missRecipient,
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address:  (empty address string is not allowed)"),
 		},
 		{
 			name:  "Missing sender returns error",
 			msg:   missSender,
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid sender address: "),
+			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid sender address:  (empty address string is not allowed)"),
 		},
 	}
 
@@ -334,8 +334,9 @@ var membership = types.Membership{
 	MembershipType: TestMembershipType,
 }
 
-//var msgBuyMembership = types.NewMsgBuyMembership(TestMembershipType, testBuyer, testTsp)
-var msgBuyMembership = types.NewMsgBuyMembership(membership)
+var msgBuyMembership = types.NewMsgBuyMembership(TestMembershipType, testBuyer, testTsp)
+
+//var msgBuyMembership = types.NewMsgBuyMembership(membership)
 
 func TestMsgBuyMembership_Route(t *testing.T) {
 	require.Equal(t, types.RouterKey, msgBuyMembership.Route())
@@ -356,7 +357,7 @@ func TestMsgBuyMembership_ValidateBasic(t *testing.T) {
 			msg:   *msgBuyMembership,
 			error: nil,
 		},
-		/*{
+		{
 			name:  "Missing buyer returns error",
 			msg:   *types.NewMsgBuyMembership(TestMembershipType, nil, testTsp),
 			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid buyer address: "),
@@ -370,7 +371,7 @@ func TestMsgBuyMembership_ValidateBasic(t *testing.T) {
 			name:  "Invalid membership returns error",
 			msg:   *types.NewMsgBuyMembership("grn", testBuyer, testTsp),
 			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
-		},*/
+		},
 	}
 
 	for _, test := range tests {

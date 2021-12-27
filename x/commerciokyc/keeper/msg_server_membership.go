@@ -10,27 +10,36 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const (
+	eventDistributeRewardFail = "distribute_reward_fail"
+)
+
+// BuyMembership handle message MsgBuyMembership
 func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembership) (*types.MsgBuyMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Verify invite exists
 	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
 	invite, found := k.GetInvite(ctx, msgBuyer)
 	if !found {
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited")
 	}
+
+	// Verify invite status
 	inviteStatus := types.InviteStatus(invite.Status)
 	if inviteStatus == types.InviteStatusInvalid {
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
 	}
 
+	// Forbidden black membership buying
 	if msg.MembershipType == types.MembershipTypeBlack {
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidAddress, "cannot buy black membership")
+		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot buy black membership")
 	}
 
 	membershipPrice := membershipCosts[msg.MembershipType] * 1000000 // Always multiply by one million
 	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(types.CreditsDenom, membershipPrice))
 
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	// TODO Not send coins but control if account has enough
 	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
 	if err := k.bankKeeper.SendCoins(ctx, msgTsp, govAddr, membershipCost); err != nil {
@@ -47,14 +56,23 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 		expirationAt,
 	)
 
-	// Give the reward to the invitee
-	if err := k.DistributeReward(ctx, invite); err != nil {
-		return nil, err
+	// If AssignMembership fail return coins to tsp
+	// TODO: Resolve nested error and potential no return funds to tsp
+	if err != nil {
+		if errRet := k.bankKeeper.SendCoins(ctx, govAddr, msgTsp, membershipCost); errRet != nil {
+			return &types.MsgBuyMembershipResponse{}, errRet
+		}
+		return &types.MsgBuyMembershipResponse{}, err
 	}
 
-	if err != nil {
-		// TODO RETURN COINS
-		return &types.MsgBuyMembershipResponse{}, err
+	// Give the reward to the invitee
+	// Emits events if error occours. No transaction error
+	if err := k.DistributeReward(ctx, invite); err != nil {
+		// Emits events
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			eventDistributeRewardFail,
+			sdk.NewAttribute("error", err.Error()),
+		))
 	}
 
 	return &types.MsgBuyMembershipResponse{
@@ -66,7 +84,7 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 // It checks that whoever sent the message is actually the government and remove membership
 func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveMembership) (*types.MsgRemoveMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	if !govAddr.Equals(msg.GetSigners()[0]) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
@@ -88,7 +106,7 @@ func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveM
 // If the user isn't invited already, an invite will be created.
 func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembership) (*types.MsgSetMembershipResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	if !govAddr.Equals(msg.GetSigners()[0]) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
@@ -137,7 +155,7 @@ func (k msgServer) ComputeExpiryHeight(blockTime time.Time) time.Time {
 // governmentInvitesUser makes government invite an user if it isn't already invited and validated.
 // This function is used when there's the need to assign an arbitrary membership to a given user.
 func (k msgServer) governmentInvitesUser(ctx sdk.Context, user sdk.AccAddress) (types.Invite, error) {
-	govAddr := k.govKeeper.GetGovernmentAddress(ctx)
+	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 
 	// check the user has already been invited
 	// if there's an invite, save a credential for it,

@@ -15,7 +15,7 @@ func (k msgServer) AddTsp(goCtx context.Context, msg *types.MsgAddTsp) (*types.M
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	msgGovernment, _ := sdk.AccAddressFromBech32(msg.Government)
-	if !k.govKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
+	if !k.GovKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 
@@ -44,7 +44,7 @@ func (k msgServer) RemoveTsp(goCtx context.Context, msg *types.MsgRemoveTsp) (*t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	msgGovernment, _ := sdk.AccAddressFromBech32(msg.Government)
-	if !k.govKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
+	if !k.GovKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 
