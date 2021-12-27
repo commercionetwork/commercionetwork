@@ -31,7 +31,9 @@ genesis:
         -
           denom: "ucommercio"
           amount: "10000000.000000000000000000"
-      rewardRate: "0.010000000000000000"
+      params: 
+        distr_epoch_identifier: "minute"
+        earn_rate: "0.500000000000000000"
     staking:
       params:
         bond_denom: "ucommercio"

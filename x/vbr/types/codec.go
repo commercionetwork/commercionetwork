@@ -9,24 +9,19 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
-	cdc.RegisterConcrete(&MsgSetAutomaticWithdraw{}, "vbr/SetAutomaticWithdraw", nil)
-
-	cdc.RegisterConcrete(&MsgSetRewardRate{}, "vbr/SetRewardRate", nil)
-
 	cdc.RegisterConcrete(&MsgIncrementBlockRewardsPool{}, "vbr/MsgIncrementBlockRewardsPool", nil)
+
+	cdc.RegisterConcrete(&MsgSetVbrParams{}, "vbr/SetVbrParams", nil)
 
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	// this line is used by starport scaffolding # 3
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgSetAutomaticWithdraw{},
-	)
-	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgSetRewardRate{},
-	)
-	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgIncrementBlockRewardsPool{},
+	)
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgSetVbrParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -57,7 +58,6 @@ func TestDocumentQuerySingle(t *testing.T) {
 	}
 }
 
-
 func TestDocumentQueryPaginated(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
@@ -65,7 +65,7 @@ func TestDocumentQueryPaginated(t *testing.T) {
 
 	request := func(next []byte, offset, limit uint64, total bool) *types.QueryGetSentDocumentsRequest {
 		return &types.QueryGetSentDocumentsRequest{
-			Address: string(TestingSender),
+			Address: testingSender.String(),
 			Pagination: &query.PageRequest{
 				Key:        next,
 				Offset:     offset,
@@ -75,15 +75,22 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		}
 	}
 	t.Run("ByOffset", func(t *testing.T) {
-		step := 2
-		for i := 0; i < len(msgs); i += step {
-			resp, err := keeper.SentDocuments(wctx, request(nil, uint64(i), uint64(step), false))
-			require.NoError(t, err)
-			/*for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.Document[j-i])
-			}*/
-			for _, respDocument := range resp.Document {
-				assert.Contains(t, msgs, *respDocument)
+		//  sort the msgs slice by UUID
+		sort.Slice(msgs, func(i, j int) bool {
+			return msgs[i].GetUUID() < msgs[j].GetUUID()
+		})
+
+		for step := 1; step < 5; step++ {
+			index := 0
+
+			for i := 0; i < len(msgs); i += step {
+				resp, err := keeper.SentDocuments(wctx, request(nil, uint64(i), uint64(step), false))
+				require.NoError(t, err)
+
+				for _, r := range resp.Document {
+					assert.Equal(t, msgs[index].UUID, r.UUID)
+					index++
+				}
 			}
 		}
 	})
@@ -103,7 +110,7 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		}
 	})
 	t.Run("Total", func(t *testing.T) {
-		resp, err := keeper.SentDocuments(wctx, request(nil, 0, 0, true))
+		resp, err := keeper.SentDocuments(wctx, request(nil, 2, 0, true))
 		require.NoError(t, err)
 		require.Equal(t, len(msgs), int(resp.Pagination.Total))
 	})
@@ -112,4 +119,3 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
 }
-

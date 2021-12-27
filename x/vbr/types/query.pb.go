@@ -112,21 +112,21 @@ func (m *QueryGetBlockRewardsPoolFundsResponse) GetFunds() github_com_cosmos_cos
 	return nil
 }
 
-type QueryGetRewardRateRequest struct {
+type QueryGetVbrParamsRequest struct {
 }
 
-func (m *QueryGetRewardRateRequest) Reset()         { *m = QueryGetRewardRateRequest{} }
-func (m *QueryGetRewardRateRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryGetRewardRateRequest) ProtoMessage()    {}
-func (*QueryGetRewardRateRequest) Descriptor() ([]byte, []int) {
+func (m *QueryGetVbrParamsRequest) Reset()         { *m = QueryGetVbrParamsRequest{} }
+func (m *QueryGetVbrParamsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryGetVbrParamsRequest) ProtoMessage()    {}
+func (*QueryGetVbrParamsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3130ad40f57f01ad, []int{2}
 }
-func (m *QueryGetRewardRateRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryGetVbrParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryGetRewardRateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryGetVbrParamsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryGetRewardRateRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryGetVbrParamsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -136,34 +136,34 @@ func (m *QueryGetRewardRateRequest) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
-func (m *QueryGetRewardRateRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetRewardRateRequest.Merge(m, src)
+func (m *QueryGetVbrParamsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryGetVbrParamsRequest.Merge(m, src)
 }
-func (m *QueryGetRewardRateRequest) XXX_Size() int {
+func (m *QueryGetVbrParamsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryGetRewardRateRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetRewardRateRequest.DiscardUnknown(m)
+func (m *QueryGetVbrParamsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryGetVbrParamsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryGetRewardRateRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryGetVbrParamsRequest proto.InternalMessageInfo
 
-type QueryGetRewardRateResponse struct {
-	RewardRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=rewardRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"rewardRate" yaml:"rewardRate"`
+type QueryGetVbrParamsResponse struct {
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params" yaml:"params"`
 }
 
-func (m *QueryGetRewardRateResponse) Reset()         { *m = QueryGetRewardRateResponse{} }
-func (m *QueryGetRewardRateResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryGetRewardRateResponse) ProtoMessage()    {}
-func (*QueryGetRewardRateResponse) Descriptor() ([]byte, []int) {
+func (m *QueryGetVbrParamsResponse) Reset()         { *m = QueryGetVbrParamsResponse{} }
+func (m *QueryGetVbrParamsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryGetVbrParamsResponse) ProtoMessage()    {}
+func (*QueryGetVbrParamsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3130ad40f57f01ad, []int{3}
 }
-func (m *QueryGetRewardRateResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryGetVbrParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryGetRewardRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryGetVbrParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryGetRewardRateResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryGetVbrParamsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -173,145 +173,65 @@ func (m *QueryGetRewardRateResponse) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *QueryGetRewardRateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetRewardRateResponse.Merge(m, src)
+func (m *QueryGetVbrParamsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryGetVbrParamsResponse.Merge(m, src)
 }
-func (m *QueryGetRewardRateResponse) XXX_Size() int {
+func (m *QueryGetVbrParamsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryGetRewardRateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetRewardRateResponse.DiscardUnknown(m)
+func (m *QueryGetVbrParamsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryGetVbrParamsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryGetRewardRateResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryGetVbrParamsResponse proto.InternalMessageInfo
 
-type QueryGetAutomaticWithdrawRequest struct {
-}
-
-func (m *QueryGetAutomaticWithdrawRequest) Reset()         { *m = QueryGetAutomaticWithdrawRequest{} }
-func (m *QueryGetAutomaticWithdrawRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryGetAutomaticWithdrawRequest) ProtoMessage()    {}
-func (*QueryGetAutomaticWithdrawRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3130ad40f57f01ad, []int{4}
-}
-func (m *QueryGetAutomaticWithdrawRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryGetAutomaticWithdrawRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryGetAutomaticWithdrawRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryGetAutomaticWithdrawRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetAutomaticWithdrawRequest.Merge(m, src)
-}
-func (m *QueryGetAutomaticWithdrawRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryGetAutomaticWithdrawRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetAutomaticWithdrawRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryGetAutomaticWithdrawRequest proto.InternalMessageInfo
-
-type QueryGetAutomaticWithdrawResponse struct {
-	AutoW bool `protobuf:"varint,1,opt,name=autoW,proto3" json:"autoW,omitempty" yaml:"autoW"`
-}
-
-func (m *QueryGetAutomaticWithdrawResponse) Reset()         { *m = QueryGetAutomaticWithdrawResponse{} }
-func (m *QueryGetAutomaticWithdrawResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryGetAutomaticWithdrawResponse) ProtoMessage()    {}
-func (*QueryGetAutomaticWithdrawResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3130ad40f57f01ad, []int{5}
-}
-func (m *QueryGetAutomaticWithdrawResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryGetAutomaticWithdrawResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryGetAutomaticWithdrawResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryGetAutomaticWithdrawResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetAutomaticWithdrawResponse.Merge(m, src)
-}
-func (m *QueryGetAutomaticWithdrawResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryGetAutomaticWithdrawResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetAutomaticWithdrawResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryGetAutomaticWithdrawResponse proto.InternalMessageInfo
-
-func (m *QueryGetAutomaticWithdrawResponse) GetAutoW() bool {
+func (m *QueryGetVbrParamsResponse) GetParams() Params {
 	if m != nil {
-		return m.AutoW
+		return m.Params
 	}
-	return false
+	return Params{}
 }
 
 func init() {
 	proto.RegisterType((*QueryGetBlockRewardsPoolFundsRequest)(nil), "commercionetwork.commercionetwork.vbr.QueryGetBlockRewardsPoolFundsRequest")
 	proto.RegisterType((*QueryGetBlockRewardsPoolFundsResponse)(nil), "commercionetwork.commercionetwork.vbr.QueryGetBlockRewardsPoolFundsResponse")
-	proto.RegisterType((*QueryGetRewardRateRequest)(nil), "commercionetwork.commercionetwork.vbr.QueryGetRewardRateRequest")
-	proto.RegisterType((*QueryGetRewardRateResponse)(nil), "commercionetwork.commercionetwork.vbr.QueryGetRewardRateResponse")
-	proto.RegisterType((*QueryGetAutomaticWithdrawRequest)(nil), "commercionetwork.commercionetwork.vbr.QueryGetAutomaticWithdrawRequest")
-	proto.RegisterType((*QueryGetAutomaticWithdrawResponse)(nil), "commercionetwork.commercionetwork.vbr.QueryGetAutomaticWithdrawResponse")
+	proto.RegisterType((*QueryGetVbrParamsRequest)(nil), "commercionetwork.commercionetwork.vbr.QueryGetVbrParamsRequest")
+	proto.RegisterType((*QueryGetVbrParamsResponse)(nil), "commercionetwork.commercionetwork.vbr.QueryGetVbrParamsResponse")
 }
 
 func init() { proto.RegisterFile("commercionetwork/vbr/query.proto", fileDescriptor_3130ad40f57f01ad) }
 
 var fileDescriptor_3130ad40f57f01ad = []byte{
-	// 540 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xc1, 0x6e, 0xd3, 0x30,
-	0x18, 0xc7, 0x6b, 0x50, 0x11, 0x18, 0x90, 0x20, 0xda, 0xa1, 0x64, 0x23, 0xed, 0x3c, 0x56, 0x15,
-	0x10, 0x31, 0x1b, 0x17, 0xc4, 0x89, 0x75, 0x88, 0x21, 0x8d, 0x03, 0xe4, 0x32, 0x89, 0xcb, 0xe4,
-	0xa4, 0xa6, 0x8b, 0xda, 0xe6, 0xeb, 0x6c, 0xa7, 0xa5, 0x47, 0x10, 0x0f, 0x80, 0xc4, 0x0b, 0x70,
-	0xe6, 0x25, 0xb8, 0xee, 0x38, 0x89, 0x0b, 0x1a, 0x52, 0x41, 0x2d, 0x4f, 0xb0, 0x27, 0x40, 0xb1,
-	0x13, 0xc6, 0xd6, 0x0c, 0x3a, 0x6d, 0xa7, 0x58, 0x7f, 0xdb, 0x7f, 0xff, 0xfe, 0xfe, 0x3e, 0x07,
-	0x57, 0x02, 0xe8, 0x74, 0xb8, 0x08, 0x42, 0x88, 0xb8, 0xea, 0x83, 0x68, 0xd1, 0x9e, 0x2f, 0xe8,
-	0x76, 0xcc, 0xc5, 0xc0, 0xed, 0x0a, 0x50, 0x60, 0x2d, 0x1e, 0x5d, 0xe1, 0x4e, 0x08, 0x3d, 0x5f,
-	0xd8, 0x73, 0x4d, 0x80, 0x66, 0x9b, 0x53, 0xd6, 0x0d, 0x29, 0x8b, 0x22, 0x50, 0x4c, 0x85, 0x10,
-	0x49, 0x63, 0x62, 0xcf, 0x34, 0xa1, 0x09, 0x7a, 0x48, 0x93, 0x51, 0xaa, 0x3a, 0x01, 0xc8, 0x0e,
-	0x48, 0xea, 0x33, 0xc9, 0x69, 0x6f, 0xc9, 0xe7, 0x8a, 0x2d, 0xd1, 0x00, 0xc2, 0xc8, 0xcc, 0x93,
-	0x2a, 0xbe, 0xf5, 0x32, 0x21, 0x59, 0xe3, 0xaa, 0xde, 0x86, 0xa0, 0xe5, 0xf1, 0x3e, 0x13, 0x0d,
-	0xf9, 0x02, 0xa0, 0xfd, 0x34, 0x8e, 0x1a, 0xd2, 0xe3, 0xdb, 0x31, 0x97, 0x8a, 0x7c, 0x42, 0x78,
-	0xf1, 0x3f, 0x0b, 0x65, 0x17, 0x22, 0xc9, 0xad, 0x3e, 0x2e, 0xbe, 0x4e, 0x84, 0x12, 0xaa, 0x9c,
-	0xaf, 0x5d, 0x5e, 0x9e, 0x73, 0x0d, 0x81, 0x9b, 0x10, 0xb8, 0x29, 0x81, 0xfb, 0x84, 0x07, 0xab,
-	0x10, 0x46, 0xf5, 0xd5, 0x9d, 0x61, 0xb9, 0xb0, 0x3f, 0x2c, 0x5f, 0x19, 0xb0, 0x4e, 0xfb, 0x11,
-	0xd1, 0x1b, 0xc9, 0xe7, 0x1f, 0xe5, 0xbb, 0xcd, 0x50, 0x6d, 0xc5, 0x7e, 0x72, 0x0f, 0x34, 0x4d,
-	0x60, 0x3e, 0xf7, 0x64, 0xa3, 0x45, 0xd5, 0xa0, 0xcb, 0x65, 0xe6, 0x21, 0x3d, 0x73, 0x1e, 0x99,
-	0xc5, 0x37, 0x32, 0x42, 0x03, 0xe7, 0x31, 0xc5, 0x33, 0xfe, 0xb7, 0x08, 0xdb, 0x79, 0xb3, 0x29,
-	0x74, 0x80, 0xb1, 0xf8, 0xa3, 0x96, 0x50, 0x05, 0xd5, 0x2e, 0x19, 0xb6, 0xbd, 0x61, 0xb9, 0x3a,
-	0x1d, 0xcb, 0xfe, 0xb0, 0x7c, 0xdd, 0xa4, 0x38, 0x70, 0x22, 0xde, 0x5f, 0xb6, 0x84, 0xe0, 0x4a,
-	0x86, 0xb0, 0x12, 0x2b, 0xe8, 0x30, 0x15, 0x06, 0x1b, 0xa1, 0xda, 0x6a, 0x08, 0xd6, 0xcf, 0x38,
-	0xd7, 0xf1, 0xfc, 0x3f, 0xd6, 0xa4, 0xb4, 0x55, 0x5c, 0x64, 0xb1, 0x82, 0x0d, 0x0d, 0x7a, 0xb1,
-	0x7e, 0xed, 0xe0, 0x02, 0xb5, 0x4c, 0x3c, 0x33, 0xbd, 0xfc, 0xbe, 0x88, 0x8b, 0xda, 0xcd, 0xda,
-	0x43, 0xb8, 0x74, 0x5c, 0xe5, 0xac, 0x75, 0x77, 0xaa, 0xfe, 0x73, 0xa7, 0x69, 0x14, 0xfb, 0xf9,
-	0xd9, 0x98, 0x99, 0xa4, 0x64, 0xe1, 0xdd, 0xd7, 0x5f, 0x1f, 0xcf, 0xdd, 0xb4, 0x66, 0x69, 0xee,
-	0x23, 0xd2, 0x85, 0xb7, 0xbe, 0x20, 0x7c, 0xf5, 0x50, 0x59, 0xad, 0xc7, 0x27, 0x84, 0x98, 0xe8,
-	0x17, 0x7b, 0xe5, 0x14, 0x0e, 0x29, 0xfb, 0x6d, 0xcd, 0xbe, 0x60, 0xcd, 0xe7, 0xb3, 0x9b, 0xc6,
-	0xd8, 0x14, 0x09, 0xef, 0x77, 0x84, 0x67, 0xf2, 0x2a, 0x6e, 0xad, 0x9d, 0x10, 0xe3, 0xb8, 0xbe,
-	0xb2, 0x9f, 0x9d, 0xde, 0x28, 0x8d, 0x75, 0x5f, 0xc7, 0xba, 0x63, 0xd5, 0xf2, 0x63, 0xb1, 0x6c,
-	0xe3, 0x66, 0x3f, 0xdd, 0x59, 0xf7, 0x76, 0x46, 0x0e, 0xda, 0x1d, 0x39, 0xe8, 0xe7, 0xc8, 0x41,
-	0x1f, 0xc6, 0x4e, 0x61, 0x77, 0xec, 0x14, 0xbe, 0x8d, 0x9d, 0xc2, 0xab, 0x87, 0x87, 0x9e, 0xd6,
-	0x11, 0xb7, 0x09, 0xe1, 0x8d, 0x3e, 0x40, 0x3f, 0x38, 0xff, 0x82, 0xfe, 0x7d, 0x3d, 0xf8, 0x1d,
-	0x00, 0x00, 0xff, 0xff, 0x72, 0x5d, 0xf2, 0x12, 0x5d, 0x05, 0x00, 0x00,
+	// 462 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0x31, 0x6f, 0x13, 0x31,
+	0x14, 0xc7, 0x63, 0xaa, 0x76, 0x70, 0xcb, 0x72, 0x02, 0x29, 0x1c, 0xc1, 0x09, 0x47, 0x8b, 0x2a,
+	0xa1, 0xda, 0x6a, 0x58, 0x10, 0x0b, 0x28, 0x45, 0x30, 0xc0, 0x50, 0x6e, 0x60, 0x40, 0x2c, 0xbe,
+	0x8b, 0x39, 0x4e, 0xc9, 0xf9, 0x5d, 0x6d, 0x27, 0x21, 0x2b, 0x9f, 0x00, 0x89, 0x1d, 0x31, 0xf3,
+	0x05, 0xf8, 0x0a, 0x1d, 0x2b, 0xb1, 0x20, 0x86, 0x82, 0x12, 0x3e, 0x01, 0x9f, 0x00, 0x9d, 0xed,
+	0x48, 0x90, 0x04, 0x08, 0xa8, 0xd3, 0x59, 0xcf, 0xbe, 0xff, 0xfb, 0xbd, 0xff, 0x7b, 0x0f, 0xb7,
+	0x52, 0x28, 0x0a, 0xa1, 0xd2, 0x1c, 0xa4, 0x30, 0x23, 0x50, 0x3d, 0x36, 0x4c, 0x14, 0x3b, 0x1a,
+	0x08, 0x35, 0xa6, 0xa5, 0x02, 0x03, 0xc1, 0xce, 0xfc, 0x0b, 0xba, 0x10, 0x18, 0x26, 0x2a, 0x6c,
+	0x64, 0x00, 0x59, 0x5f, 0x30, 0x5e, 0xe6, 0x8c, 0x4b, 0x09, 0x86, 0x9b, 0x1c, 0xa4, 0x76, 0x22,
+	0xe1, 0x85, 0x0c, 0x32, 0xb0, 0x47, 0x56, 0x9d, 0x7c, 0x94, 0xa4, 0xa0, 0x0b, 0xd0, 0x2c, 0xe1,
+	0x5a, 0xb0, 0xe1, 0x7e, 0x22, 0x0c, 0xdf, 0x67, 0x29, 0xe4, 0xd2, 0xdf, 0x5f, 0x5d, 0x0a, 0x57,
+	0x72, 0xc5, 0x0b, 0x2f, 0x1c, 0x5d, 0xc7, 0xdb, 0x8f, 0x2b, 0xd8, 0x07, 0xc2, 0x74, 0xfa, 0x90,
+	0xf6, 0x62, 0x31, 0xe2, 0xaa, 0xab, 0x0f, 0x01, 0xfa, 0xf7, 0x07, 0xb2, 0xab, 0x63, 0x71, 0x34,
+	0x10, 0xda, 0x44, 0xef, 0x10, 0xde, 0xf9, 0xcb, 0x43, 0x5d, 0x82, 0xd4, 0x22, 0x18, 0xe1, 0xf5,
+	0xe7, 0x55, 0xa0, 0x8e, 0x5a, 0x6b, 0xbb, 0x9b, 0xed, 0x06, 0x75, 0x90, 0xb4, 0x82, 0xa4, 0x1e,
+	0x92, 0xde, 0x13, 0xe9, 0x01, 0xe4, 0xb2, 0x73, 0x70, 0x7c, 0xda, 0xac, 0x7d, 0x3f, 0x6d, 0x6e,
+	0x8d, 0x79, 0xd1, 0xbf, 0x1d, 0xd9, 0x1f, 0xa3, 0xf7, 0x5f, 0x9a, 0x37, 0xb2, 0xdc, 0xbc, 0x18,
+	0x24, 0x95, 0x55, 0xcc, 0x17, 0xe9, 0x3e, 0x7b, 0xba, 0xdb, 0x63, 0x66, 0x5c, 0x0a, 0x3d, 0xd3,
+	0xd0, 0xb1, 0xcb, 0x17, 0x85, 0xb8, 0x3e, 0x23, 0x7c, 0x92, 0xa8, 0x43, 0x5b, 0xe5, 0x0c, 0x7f,
+	0x8c, 0x2f, 0x2d, 0xb9, 0xf3, 0xc4, 0xcf, 0xf0, 0x86, 0xf3, 0xa4, 0x8e, 0x5a, 0x68, 0x77, 0xb3,
+	0xbd, 0x47, 0x57, 0x6a, 0x19, 0x75, 0x32, 0x9d, 0x8b, 0xbe, 0x86, 0xf3, 0xae, 0x06, 0x27, 0x15,
+	0xc5, 0x5e, 0xb3, 0xfd, 0x76, 0x0d, 0xaf, 0xdb, 0xdc, 0xc1, 0x67, 0x84, 0xeb, 0xbf, 0xb3, 0x2f,
+	0x78, 0xb8, 0x62, 0xd2, 0x55, 0xba, 0x15, 0x3e, 0x3a, 0x1b, 0x31, 0xe7, 0x4f, 0x74, 0xed, 0xd5,
+	0xc7, 0x6f, 0x6f, 0xce, 0x5d, 0x09, 0x2e, 0xb3, 0xa5, 0xf3, 0x64, 0xdd, 0x0f, 0x3e, 0x20, 0xbc,
+	0xf5, 0xb3, 0xbb, 0xc1, 0x9d, 0x7f, 0x64, 0x98, 0xef, 0x59, 0x78, 0xf7, 0xff, 0x05, 0x3c, 0xf8,
+	0xb6, 0x05, 0x27, 0x41, 0x83, 0xfd, 0x61, 0x11, 0x3a, 0xf1, 0xf1, 0x84, 0xa0, 0x93, 0x09, 0x41,
+	0x5f, 0x27, 0x04, 0xbd, 0x9e, 0x92, 0xda, 0xc9, 0x94, 0xd4, 0x3e, 0x4d, 0x49, 0xed, 0xe9, 0xad,
+	0x5f, 0xa6, 0x70, 0x4e, 0x61, 0x21, 0xf0, 0xd2, 0x8a, 0xda, 0xd9, 0x4c, 0x36, 0xec, 0x76, 0xdd,
+	0xfc, 0x11, 0x00, 0x00, 0xff, 0xff, 0x5c, 0x89, 0x69, 0x0e, 0x1f, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -328,8 +248,7 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// this line is used by starport scaffolding # 2
 	GetBlockRewardsPoolFunds(ctx context.Context, in *QueryGetBlockRewardsPoolFundsRequest, opts ...grpc.CallOption) (*QueryGetBlockRewardsPoolFundsResponse, error)
-	GetRewardRate(ctx context.Context, in *QueryGetRewardRateRequest, opts ...grpc.CallOption) (*QueryGetRewardRateResponse, error)
-	GetAutomaticWithdraw(ctx context.Context, in *QueryGetAutomaticWithdrawRequest, opts ...grpc.CallOption) (*QueryGetAutomaticWithdrawResponse, error)
+	GetVbrParams(ctx context.Context, in *QueryGetVbrParamsRequest, opts ...grpc.CallOption) (*QueryGetVbrParamsResponse, error)
 }
 
 type queryClient struct {
@@ -349,18 +268,9 @@ func (c *queryClient) GetBlockRewardsPoolFunds(ctx context.Context, in *QueryGet
 	return out, nil
 }
 
-func (c *queryClient) GetRewardRate(ctx context.Context, in *QueryGetRewardRateRequest, opts ...grpc.CallOption) (*QueryGetRewardRateResponse, error) {
-	out := new(QueryGetRewardRateResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.vbr.Query/GetRewardRate", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) GetAutomaticWithdraw(ctx context.Context, in *QueryGetAutomaticWithdrawRequest, opts ...grpc.CallOption) (*QueryGetAutomaticWithdrawResponse, error) {
-	out := new(QueryGetAutomaticWithdrawResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.vbr.Query/GetAutomaticWithdraw", in, out, opts...)
+func (c *queryClient) GetVbrParams(ctx context.Context, in *QueryGetVbrParamsRequest, opts ...grpc.CallOption) (*QueryGetVbrParamsResponse, error) {
+	out := new(QueryGetVbrParamsResponse)
+	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.vbr.Query/GetVbrParams", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -371,8 +281,7 @@ func (c *queryClient) GetAutomaticWithdraw(ctx context.Context, in *QueryGetAuto
 type QueryServer interface {
 	// this line is used by starport scaffolding # 2
 	GetBlockRewardsPoolFunds(context.Context, *QueryGetBlockRewardsPoolFundsRequest) (*QueryGetBlockRewardsPoolFundsResponse, error)
-	GetRewardRate(context.Context, *QueryGetRewardRateRequest) (*QueryGetRewardRateResponse, error)
-	GetAutomaticWithdraw(context.Context, *QueryGetAutomaticWithdrawRequest) (*QueryGetAutomaticWithdrawResponse, error)
+	GetVbrParams(context.Context, *QueryGetVbrParamsRequest) (*QueryGetVbrParamsResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -382,11 +291,8 @@ type UnimplementedQueryServer struct {
 func (*UnimplementedQueryServer) GetBlockRewardsPoolFunds(ctx context.Context, req *QueryGetBlockRewardsPoolFundsRequest) (*QueryGetBlockRewardsPoolFundsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlockRewardsPoolFunds not implemented")
 }
-func (*UnimplementedQueryServer) GetRewardRate(ctx context.Context, req *QueryGetRewardRateRequest) (*QueryGetRewardRateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetRewardRate not implemented")
-}
-func (*UnimplementedQueryServer) GetAutomaticWithdraw(ctx context.Context, req *QueryGetAutomaticWithdrawRequest) (*QueryGetAutomaticWithdrawResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAutomaticWithdraw not implemented")
+func (*UnimplementedQueryServer) GetVbrParams(ctx context.Context, req *QueryGetVbrParamsRequest) (*QueryGetVbrParamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVbrParams not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -411,38 +317,20 @@ func _Query_GetBlockRewardsPoolFunds_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_GetRewardRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryGetRewardRateRequest)
+func _Query_GetVbrParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryGetVbrParamsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).GetRewardRate(ctx, in)
+		return srv.(QueryServer).GetVbrParams(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.vbr.Query/GetRewardRate",
+		FullMethod: "/commercionetwork.commercionetwork.vbr.Query/GetVbrParams",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).GetRewardRate(ctx, req.(*QueryGetRewardRateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_GetAutomaticWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryGetAutomaticWithdrawRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).GetAutomaticWithdraw(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.vbr.Query/GetAutomaticWithdraw",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).GetAutomaticWithdraw(ctx, req.(*QueryGetAutomaticWithdrawRequest))
+		return srv.(QueryServer).GetVbrParams(ctx, req.(*QueryGetVbrParamsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -456,12 +344,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_GetBlockRewardsPoolFunds_Handler,
 		},
 		{
-			MethodName: "GetRewardRate",
-			Handler:    _Query_GetRewardRate_Handler,
-		},
-		{
-			MethodName: "GetAutomaticWithdraw",
-			Handler:    _Query_GetAutomaticWithdraw_Handler,
+			MethodName: "GetVbrParams",
+			Handler:    _Query_GetVbrParams_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -528,7 +412,7 @@ func (m *QueryGetBlockRewardsPoolFundsResponse) MarshalToSizedBuffer(dAtA []byte
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryGetRewardRateRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryGetVbrParamsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -538,12 +422,12 @@ func (m *QueryGetRewardRateRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryGetRewardRateRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryGetVbrParamsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryGetRewardRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryGetVbrParamsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -551,7 +435,7 @@ func (m *QueryGetRewardRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryGetRewardRateResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryGetVbrParamsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -561,82 +445,26 @@ func (m *QueryGetRewardRateResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryGetRewardRateResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryGetVbrParamsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryGetRewardRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryGetVbrParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size := m.RewardRate.Size()
-		i -= size
-		if _, err := m.RewardRate.MarshalTo(dAtA[i:]); err != nil {
+		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
 			return 0, err
 		}
+		i -= size
 		i = encodeVarintQuery(dAtA, i, uint64(size))
 	}
 	i--
 	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryGetAutomaticWithdrawRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryGetAutomaticWithdrawRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryGetAutomaticWithdrawRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryGetAutomaticWithdrawResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryGetAutomaticWithdrawResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryGetAutomaticWithdrawResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.AutoW {
-		i--
-		if m.AutoW {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x8
-	}
 	return len(dAtA) - i, nil
 }
 
@@ -675,7 +503,7 @@ func (m *QueryGetBlockRewardsPoolFundsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryGetRewardRateRequest) Size() (n int) {
+func (m *QueryGetVbrParamsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -684,35 +512,14 @@ func (m *QueryGetRewardRateRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryGetRewardRateResponse) Size() (n int) {
+func (m *QueryGetVbrParamsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.RewardRate.Size()
+	l = m.Params.Size()
 	n += 1 + l + sovQuery(uint64(l))
-	return n
-}
-
-func (m *QueryGetAutomaticWithdrawRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *QueryGetAutomaticWithdrawResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.AutoW {
-		n += 2
-	}
 	return n
 }
 
@@ -856,7 +663,7 @@ func (m *QueryGetBlockRewardsPoolFundsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryGetRewardRateRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryGetVbrParamsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -879,10 +686,10 @@ func (m *QueryGetRewardRateRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetRewardRateRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryGetVbrParamsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetRewardRateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryGetVbrParamsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -906,7 +713,7 @@ func (m *QueryGetRewardRateRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryGetRewardRateResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryGetVbrParamsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -929,17 +736,17 @@ func (m *QueryGetRewardRateResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetRewardRateResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryGetVbrParamsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetRewardRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryGetVbrParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RewardRate", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowQuery
@@ -949,146 +756,25 @@ func (m *QueryGetRewardRateResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthQuery
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthQuery
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.RewardRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryGetAutomaticWithdrawRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetAutomaticWithdrawRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetAutomaticWithdrawRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryGetAutomaticWithdrawResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetAutomaticWithdrawResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetAutomaticWithdrawResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AutoW", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.AutoW = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipQuery(dAtA[iNdEx:])

@@ -54,28 +54,30 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 	return nil
 }
 
+
 // -------------------------
-// --- MsgSetRewardRate
+// --- MsgSetVbrParams
 // -------------------------
 
-var _ sdk.Msg = &MsgSetRewardRate{}
+var _ sdk.Msg = &MsgSetVbrParams{}
 
-func NewMsgSetRewardRate(government string, rewardRate sdk.Dec) *MsgSetRewardRate {
-	return &MsgSetRewardRate{
+func NewMsgSetVbrParams(government string, epochIdentifier string, earnRate sdk.Dec) *MsgSetVbrParams {
+	return &MsgSetVbrParams{
 		Government: government,
-		RewardRate: rewardRate,
+		DistrEpochIdentifier: epochIdentifier,
+		EarnRate: earnRate,
 	}
 }
 
-func (msg *MsgSetRewardRate) Route() string {
+func (msg *MsgSetVbrParams) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgSetRewardRate) Type() string {
-	return MsgTypeSetRewardRate
+func (msg *MsgSetVbrParams) Type() string {
+	return MsgTypeSetVbrParams
 }
 
-func (msg *MsgSetRewardRate) GetSigners() []sdk.AccAddress {
+func (msg *MsgSetVbrParams) GetSigners() []sdk.AccAddress {
 	gov, err := sdk.AccAddressFromBech32(msg.Government)
 	if err != nil {
 		panic(err)
@@ -83,74 +85,22 @@ func (msg *MsgSetRewardRate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{gov}
 }
 
-func (msg *MsgSetRewardRate) GetSignBytes() []byte {
+func (msg *MsgSetVbrParams) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgSetRewardRate) ValidateBasic() error {
+func (msg *MsgSetVbrParams) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Government)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
-
-	if err := ValidateRewardRate(msg.RewardRate); err != nil {
-		return err
+	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute{
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
-
-	return nil
-}
-
-// ValidateRewardRate validate reward rete.
-func ValidateRewardRate(rate sdk.Dec) error {
-	if rate.IsNil() {
-		return fmt.Errorf("reward rate must be not nil")
-	}
-	if !rate.IsPositive() {
-		return fmt.Errorf("reward rate must be positive: %s", rate)
+	if msg.EarnRate.IsNegative() {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
 	}
 	return nil
 }
 
-
-// -------------------------
-// --- MsgSetAutomaticWithdraw
-// -------------------------
-
-var _ sdk.Msg = &MsgSetAutomaticWithdraw{}
-
-func NewMsgSetAutomaticWithdraw(government string, automaticWithdraw bool) *MsgSetAutomaticWithdraw {
-	return &MsgSetAutomaticWithdraw{
-		Government: government,
-		AutomaticWithdraw: automaticWithdraw,
-	}
-}
-
-func (msg *MsgSetAutomaticWithdraw) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgSetAutomaticWithdraw) Type() string {
-	return MsgTypeSetAutomaticWithdraw
-}
-
-func (msg *MsgSetAutomaticWithdraw) GetSigners() []sdk.AccAddress {
-	gov, err := sdk.AccAddressFromBech32(msg.Government)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{gov}
-}
-
-func (msg *MsgSetAutomaticWithdraw) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
-}
-
-func (msg *MsgSetAutomaticWithdraw) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Government)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
-	}
-	return nil
-}

@@ -18,21 +18,30 @@ func (k Keeper) EtpByOwner(c context.Context, req *types.QueryEtpRequestByOwner)
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	var positions  []*types.Position
+	
+	owner, err := sdk.AccAddressFromBech32(req.Owner)
+	if err != nil {
+		return nil, errors.Wrap(errors.ErrInvalidAddress, fmt.Sprintf("Error while converting address: %s", err.Error()))
+	}
+	
 	ctx := sdk.UnwrapSDKContext(c)
 	
 	store := ctx.KVStore(k.storeKey)
-	owner, err := sdk.AccAddressFromBech32(req.Owner)
-	if err != nil {
-		return nil, errors.Wrap(errors.ErrInvalidAddress, err.Error())
-	}
+	//etpStore := prefix.NewStore(store, []byte(types.EtpStorePrefix))
 	etpStore := prefix.NewStore(store, getEtpByOwnerIdsStoreKey(owner))
 
 	//positions := k.GetAllPositionsOwnedBy(ctx, owner)
 	pageRes, err := query.Paginate(etpStore, req.Pagination, func(key []byte, value []byte) error {
-		//positions = k.GetAllPositionsOwnedBy(ctx, owner)
+		/*positions = k.GetAllPositionsOwnedBy(ctx, owner)
 		position, ok := k.GetPositionById(ctx, string(value))
 		if !ok {
 			return status.Error(codes.NotFound, fmt.Sprintf("Position with id %s not found!", string(value)))
+		}
+		positions = append(positions, &position)*/
+		var position types.Position
+		e := k.cdc.UnmarshalBinaryBare(value, &position)
+		if e != nil {
+			return e
 		}
 		positions = append(positions, &position)
 		return nil
@@ -71,22 +80,14 @@ func (k Keeper) Etp(c context.Context, req *types.QueryEtpRequest) (*types.Query
 	var position types.Position 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	store := ctx.KVStore(k.storeKey)
-	etpStore := prefix.NewStore(store, []byte(types.EtpStorePrefix))
-	pageRes, err := query.Paginate(etpStore, req.Pagination, func(key []byte, value []byte) error {
-		pos, ok := k.GetPositionById(ctx, req.ID)
-		if !ok {
-			return status.Error(codes.NotFound, fmt.Sprintf("Position with id %s not found!", req.ID))
-		}
-		position = pos
-		return nil
-	})
-	//positions := k.GetAllPositions(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+	position, ok := k.GetPositionById(ctx, req.ID)
+	if !ok {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Position with id %s not found!", req.ID))
 	}
 
-	return &types.QueryEtpResponse{Position: &position, Pagination: pageRes}, nil
+	//positions := k.GetAllPositions(ctx)
+
+	return &types.QueryEtpResponse{Position: &position}, nil
 }
 
 /*

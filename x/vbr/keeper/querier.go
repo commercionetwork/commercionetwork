@@ -18,12 +18,8 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case types.QueryBlockRewardsPoolFunds:
 			return queryGetBlockRewardsPoolFunds(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryRewardRate:
-			return queryRewardRate(ctx, k, legacyQuerierCdc)
-
-		case types.QueryAutomaticWithdraw:
-			return queryAutomaticWithdraw(ctx, k, legacyQuerierCdc)
-
+		case types.QueryVbrParams:
+			return queryVbrParams(ctx, k, legacyQuerierCdc)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint: %s", types.ModuleName, path[0]))
 		}
@@ -41,10 +37,13 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, k Keeper, legacy
 	return fundsBz, nil
 }
 
-func queryRewardRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetRewardRateKeeper(ctx))
-}
+func queryVbrParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error){
+	params := k.GetParams(ctx)
 
-func queryAutomaticWithdraw(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetAutomaticWithdrawKeeper(ctx))
+	paramsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, params)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+	}
+	
+	return paramsBz, nil
 }
