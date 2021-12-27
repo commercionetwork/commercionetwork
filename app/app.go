@@ -101,15 +101,15 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents"
 	documentskeeper "github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	documentstypes "github.com/commercionetwork/commercionetwork/x/documents/types"
+	"github.com/commercionetwork/commercionetwork/x/epochs"
+	epochskeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
 	governmentmodule "github.com/commercionetwork/commercionetwork/x/government"
 	governmentmodulekeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentmoduletypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
 	vbrmodulekeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
-	"github.com/commercionetwork/commercionetwork/x/epochs"
-	epochskeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
-	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
 )
 
 const Name = "commercionetwork"
@@ -276,8 +276,8 @@ type App struct {
 	//ScopedDocumentsKeeper capabilitykeeper.ScopedKeeper
 	DocumentsKeeper documentskeeper.Keeper
 	// the module manager
-	mm *module.Manager
-	EpochsKeeper         epochskeeper.Keeper
+	mm           *module.Manager
+	EpochsKeeper epochskeeper.Keeper
 }
 
 // New returns a reference to an initialized Gaia.
@@ -398,12 +398,6 @@ func New(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
-		appCodec,
-		keys[governmentmoduletypes.StoreKey],
-		keys[governmentmoduletypes.MemStoreKey],
-	)
-	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
 
 	// Government keeper must be set before other modules keeper that depend on it
 	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
@@ -438,7 +432,6 @@ func New(
 	)
 	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.commercioMintKeeper)
 
-
 	app.commercioKycKeeper = *commerciokycKeeper.NewKeeper(
 		appCodec,
 		keys[commerciokycTypes.StoreKey],
@@ -449,8 +442,6 @@ func New(
 		app.commercioMintKeeper,
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.commercioKycKeeper)
-
-
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
@@ -576,8 +567,8 @@ func New(
 	)
 
 	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
-	// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
-	epochstypes.ModuleName,
+		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
+		epochstypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
