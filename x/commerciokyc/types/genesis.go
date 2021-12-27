@@ -22,10 +22,6 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 
 	// this line is used by starport scaffolding # genesis/types/validate
-	/*coins := sdk.Coins{}
-	for _, coin := range gs.LiquidityPoolAmount {
-		coins = append(coins, *coin)
-	}*/
 	coins := gs.LiquidityPoolAmount
 
 	if coins.IsAnyNegative() {
