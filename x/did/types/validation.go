@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	commons "github.com/commercionetwork/commercionetwork/x/common/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/pkg/errors"
 )
@@ -14,9 +15,9 @@ func isValidDidCom(did string) error {
 		return errors.Errorf("invalid ID address (%s), must have 'did:com:' prefix", did)
 	}
 
-	// if _, err := sdk.AccAddressFromBech32(did); err != nil {
-	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s), %e", did, err)
-	// }
+	if _, err := sdk.AccAddressFromBech32(did); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid ID address (%s), %e", did, err)
+	}
 
 	return nil
 }

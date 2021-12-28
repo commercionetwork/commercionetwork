@@ -2,6 +2,8 @@ package types
 
 import (
 	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var validService = Service{
@@ -190,6 +192,18 @@ func TestVerificationMethod_isValid(t *testing.T) {
 const validDid = "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc"
 
 func Test_isValidDidCom(t *testing.T) {
+
+	AccountAddressPrefix := "did:com:"
+	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
+	ValidatorAddressPrefix := AccountAddressPrefix + "valoper"
+	ValidatorPubKeyPrefix := AccountAddressPrefix + "valoperpub"
+	ConsNodeAddressPrefix := AccountAddressPrefix + "valcons"
+	ConsNodePubKeyPrefix := AccountAddressPrefix + "valconspub"
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
+	config.SetBech32PrefixForValidator(ValidatorAddressPrefix, ValidatorPubKeyPrefix)
+	config.SetBech32PrefixForConsensusNode(ConsNodeAddressPrefix, ConsNodePubKeyPrefix)
+	config.Seal()
 
 	tests := []struct {
 		name    string
