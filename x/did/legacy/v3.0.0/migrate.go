@@ -3,6 +3,7 @@ package v3_0_0
 import (
 	"strings"
 
+	"github.com/commercionetwork/commercionetwork/x/did/keeper"
 	v220did "github.com/commercionetwork/commercionetwork/x/did/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 )
@@ -20,6 +21,7 @@ func Migrate(oldGenState v220did.GenesisState) *types.GenesisState {
 	return &types.GenesisState{DidDocuments: didDocuments}
 }
 
+// TODO check for regex for pem
 func publicKeyPemToMultiBase(pkPem string) (pkMultiBase string) {
 	pkMultiBase = pkPem
 	pkMultiBase = strings.ReplaceAll(pkMultiBase, "\n", "")
@@ -73,7 +75,8 @@ func convertDDO(ddo220 v220did.DidDocument) (ddo300 *types.DidDocument) {
 
 	ddo300.Service = convertService(ddo220.Service)
 
-	// created ?
+	ddo300.Created = ddo220.Proof.Created.Format(keeper.ComplaintW3CTime)
+	ddo300.Updated = ddo300.Created
 
 	return
 }

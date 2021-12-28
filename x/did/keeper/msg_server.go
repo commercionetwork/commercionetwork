@@ -41,7 +41,7 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 
 	if !k.HasDidDocument(ctx, msg.ID) {
 		ddo.Created = timestamp
-		// ddo.Updated = NO // "The updated property is omitted if an Update operation has never been performed on the DID document"
+		ddo.Updated = timestamp
 	} else {
 		previousDDO, err := k.GetDidDocumentOfAddress(ctx, msg.ID)
 		if err != nil {
