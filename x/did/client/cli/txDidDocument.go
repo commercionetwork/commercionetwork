@@ -15,7 +15,7 @@ import (
 
 func CmdSetDidDocument() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-DID-document [document_path]",
+		Use:   "set-DID-document [did_document_proposal_path]",
 		Short: "Sets the DID document for the requesting address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -41,31 +41,12 @@ func CmdSetDidDocument() *cobra.Command {
 				return err
 			}
 
-			// Calculate Proof
-			/*signature, err := signDidDocument(clientCtx, didDocument, keybase)
-
-			fromAddressPubkey, err := keybase.KeyByAddress(clientCtx.GetFromAddress())
-			if err != nil {
-				return fmt.Errorf("could not get keybase for address: %w", err)
-			}
-
-			verMeth, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, fromAddressPubkey.GetPubKey())
-			if err != nil {
-				return fmt.Errorf("could not derive address public key: %w", err)
-			}
-
-			proof := types.Proof{
-				Type:               types.KeyTypeSecp256k12019,
-				Created:            time.Now().String(),
-				ProofPurpose:       types.ProofPurposeAuthentication,
-				Controller:         clientCtx.GetFromAddress().String(),
-				VerificationMethod: verMeth,
-				SignatureValue:     signature,
-			}*/
-
 			if err := didDocumentProposal.ValidateBasic(); err != nil {
 				return err
 			}
+
+			// check requesting address equals to DID subject
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &didDocumentProposal)
 		},
 	}
@@ -90,3 +71,25 @@ func signDidDocument(cliCtx client.Context, unsignedDoc types.DidDocument, keyba
 	return base64.StdEncoding.EncodeToString(sign), nil
 }
 */
+
+// Calculate Proof
+/*signature, err := signDidDocument(clientCtx, didDocument, keybase)
+
+fromAddressPubkey, err := keybase.KeyByAddress(clientCtx.GetFromAddress())
+if err != nil {
+	return fmt.Errorf("could not get keybase for address: %w", err)
+}
+
+verMeth, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, fromAddressPubkey.GetPubKey())
+if err != nil {
+	return fmt.Errorf("could not derive address public key: %w", err)
+}
+
+proof := types.Proof{
+	Type:               types.KeyTypeSecp256k12019,
+	Created:            time.Now().String(),
+	ProofPurpose:       types.ProofPurposeAuthentication,
+	Controller:         clientCtx.GetFromAddress().String(),
+	VerificationMethod: verMeth,
+	SignatureValue:     signature,
+}*/

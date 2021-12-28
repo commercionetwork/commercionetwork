@@ -132,7 +132,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication %s found elements with the same ID", msg.Authentication)
 	}
 	for _, a := range msg.Authentication {
-		if !msg.HasVerificationMethod(a) {
+		if !msg.hasVerificationMethod(a) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication: %s is not among the verification methods", a)
 		}
 	}
@@ -142,7 +142,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod %s found elements with the same ID", msg.AssertionMethod)
 	}
 	for _, am := range msg.AssertionMethod {
-		if !msg.HasVerificationMethod(am) {
+		if !msg.hasVerificationMethod(am) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod: %s is not among the verification methods", am)
 		}
 	}
@@ -152,7 +152,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation %s found elements with the same ID", msg.CapabilityDelegation)
 	}
 	for _, cd := range msg.CapabilityDelegation {
-		if !msg.HasVerificationMethod(cd) {
+		if !msg.hasVerificationMethod(cd) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation: %s is not among the verification methods", cd)
 		}
 	}
@@ -162,7 +162,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation %s found elements with the same ID", msg.CapabilityInvocation)
 	}
 	for _, ci := range msg.CapabilityInvocation {
-		if !msg.HasVerificationMethod(ci) {
+		if !msg.hasVerificationMethod(ci) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation: %s is not among the verification methods", ci)
 		}
 	}
@@ -172,7 +172,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement %s found elements with the same ID", msg.KeyAgreement)
 	}
 	for _, ka := range msg.KeyAgreement {
-		if !msg.HasVerificationMethod(ka) {
+		if !msg.hasVerificationMethod(ka) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement: %s is not among the verification methods", ka)
 		}
 	}
@@ -180,7 +180,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	return nil
 }
 
-func (msg MsgSetDidDocument) HasVerificationMethod(id string) bool {
+func (msg MsgSetDidDocument) hasVerificationMethod(id string) bool {
 	for _, vm := range msg.VerificationMethod {
 		// DID url
 		if id == vm.ID {

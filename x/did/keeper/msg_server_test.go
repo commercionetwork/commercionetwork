@@ -27,7 +27,6 @@ func Test_SetDidDocument(t *testing.T) {
 	sdkCtx := sdk.WrapSDKContext(ctx)
 
 	did := "did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"
-	// TODO check only did:com
 
 	msg := types.MsgSetDidDocument{
 		Context: []string{
@@ -63,12 +62,12 @@ func Test_SetDidDocument(t *testing.T) {
 		CapabilityDelegation: nil,
 		Service: []*types.Service{
 			{
-				ID:              "A",
+				ID:              "https://bar.example.com",
 				Type:            "agent",
 				ServiceEndpoint: "https://commerc.io/agent/serviceEndpoint/",
 			},
 			{
-				ID:              "B",
+				ID:              "https://foo.example.com",
 				Type:            "xdi",
 				ServiceEndpoint: "https://commerc.io/xdi/serviceEndpoint/",
 			},
@@ -103,10 +102,12 @@ func Test_SetDidDocument(t *testing.T) {
 
 	assert.True(t, k.HasDidDocument(ctx, did))
 
-	ddo, err = k.GetDidDocumentOfAddress(ctx, did)
+	ddoUpdated, err := k.GetDidDocumentOfAddress(ctx, did)
 	assert.NoError(t, err)
-	requireEqualMsgSetDidDocumentWithDidDocument(t, newMsg, ddo)
-	// requireEqualMsgSetDidDocumentWithDidDocument(t, msg, ddo)
+	requireEqualMsgSetDidDocumentWithDidDocument(t, newMsg, ddoUpdated)
+
+	require.Equal(t, ddo.Created, ddoUpdated.Created)
+	require.NotEqual(t, ddo.Updated, ddoUpdated.Updated)
 
 }
 
