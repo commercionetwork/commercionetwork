@@ -9,11 +9,21 @@ import (
 
 func (suite *KeeperTestSuite) TestGRPCInvites() {
 
-	ctx, _, _, k := SetupTestInput()
 	queryClient := suite.queryClient
-	k.Invite(ctx, testInviteSender, testUser)
-	var inviteRes types.Invites
-	_ = inviteRes
+	app := suite.app
+	ctx := suite.ctx
+	// Setup membership before invite user
+	app.CommercioKycKeeper.AssignMembership(ctx, testUser, types.MembershipTypeGold, testTsp, testExpiration)
+	app.CommercioKycKeeper.Invite(ctx, testInviteSender, testUser)
+
+	invite := types.Invite{
+		Sender:           testUser.String(),
+		SenderMembership: types.MembershipTypeGold,
+		User:             testInviteSender.String(),
+		Status:           uint64(types.InviteStatusPending),
+	}
+	var expectedRes []*types.Invite
+	expectedRes = append(expectedRes, &invite)
 
 	var req *types.QueryInvitesRequest
 
@@ -40,6 +50,7 @@ func (suite *KeeperTestSuite) TestGRPCInvites() {
 			if testCase.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
+				suite.Require().Equal(expectedRes, res.Invites)
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)

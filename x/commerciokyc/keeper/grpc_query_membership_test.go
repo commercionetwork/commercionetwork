@@ -6,17 +6,23 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (suite *KeeperTestSuite) TestGRPCMemberships() {
 
-	ctx, _, _, k := SetupTestInput()
 	queryClient := suite.queryClient
+	app := suite.app
+	ctx := suite.ctx
 
-	k.AssignMembership(ctx, testInviteSender, types.MembershipTypeGold, testTsp, testExpiration)
-	var membershipsRes types.Memberships
-	_ = membershipsRes
+	app.CommercioKycKeeper.AssignMembership(ctx, testInviteSender, types.MembershipTypeGold, testTsp, testExpiration)
+	membership := types.Membership{
+		Owner:          testInviteSender.String(),
+		TspAddress:     testTsp.String(),
+		MembershipType: types.MembershipTypeGold,
+		ExpiryAt:       &testExpiration,
+	}
+	var expectedRes []*types.Membership
+	expectedRes = append(expectedRes, &membership)
 
 	var req *types.QueryMembershipsRequest
 
@@ -43,6 +49,8 @@ func (suite *KeeperTestSuite) TestGRPCMemberships() {
 			if testCase.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
+				suite.Require().Equal(expectedRes, res.Memberships)
+
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)
@@ -52,10 +60,21 @@ func (suite *KeeperTestSuite) TestGRPCMemberships() {
 }
 
 func (suite *KeeperTestSuite) TestGRPCQueryMembership() {
-	var (
-		req *types.QueryMembershipRequest
-	)
-	//_, _, addr := testdata.KeyTestPubAddr()
+	queryClient := suite.queryClient
+	app := suite.app
+	ctx := suite.ctx
+
+	app.CommercioKycKeeper.AssignMembership(ctx, testInviteSender, types.MembershipTypeGold, testTsp, testExpiration)
+	membership := types.Membership{
+		Owner:          testInviteSender.String(),
+		TspAddress:     testTsp.String(),
+		MembershipType: types.MembershipTypeGold,
+		ExpiryAt:       &testExpiration,
+	}
+	var expectedRes []*types.Membership
+	expectedRes = append(expectedRes, &membership)
+
+	var req *types.QueryMembershipRequest
 
 	testCases := []struct {
 		msg       string
@@ -87,32 +106,23 @@ func (suite *KeeperTestSuite) TestGRPCQueryMembership() {
 			false,
 			func(res *types.QueryMembershipResponse) {},
 		},
-		/*{
+		{
 			"success",
 			func() {
-				suite.app.AccountKeeper.SetAccount(suite.ctx,
-					suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr))
-				req = &types.QueryMembershipResponse{Address: addr.String()}
+				req = &types.QueryMembershipRequest{Address: testInviteSender.String()}
 			},
 			true,
 			func(res *types.QueryMembershipResponse) {
-				var newAccount types.AccountI
-				err := suite.app.InterfaceRegistry().UnpackAny(res.Account, &newAccount)
-				suite.Require().NoError(err)
-				suite.Require().NotNil(newAccount)
-				suite.Require().True(addr.Equals(newAccount.GetAddress()))
+				suite.Require().True(res.Membership.Equals(membership))
 			},
-		},*/
+		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
-
 			tc.malleate()
-			ctx := sdk.WrapSDKContext(suite.ctx)
 
-			res, err := suite.queryClient.Membership(ctx, req)
+			res, err := queryClient.Membership(gocontext.Background(), req)
 
 			if tc.expPass {
 				suite.Require().NoError(err)

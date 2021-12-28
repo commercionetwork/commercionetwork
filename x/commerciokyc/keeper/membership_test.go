@@ -611,10 +611,10 @@ func TestKeeper_RemoveExpiredMemberships(t *testing.T) {
 			storedMemberships: []*types.Membership{
 				&types.Membership{testUser.String(), testUser2.String(), types.MembershipTypeBronze, &testExpiration},
 				&types.Membership{testUser2.String(), testTsp.String(), types.MembershipTypeBronze, &testExpiration},
-				&types.Membership{testUser3.String(), testUser.String(), types.MembershipTypeGold, &curTime},
+				&types.Membership{testInviteSender.String(), testUser.String(), types.MembershipTypeGold, &curTime},
 			},
 			expectedMemberships: []*types.Membership{
-				&types.Membership{testUser3.String(), testUser.String(), types.MembershipTypeGold, &curTime},
+				&types.Membership{testInviteSender.String(), testUser.String(), types.MembershipTypeGold, &curTime},
 			},
 		},
 		{

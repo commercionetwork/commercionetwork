@@ -5,18 +5,19 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	//sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Tsps query tests
 func (suite *KeeperTestSuite) TestGRPCTsps() {
 
-	ctx, _, _, k := SetupTestInput()
 	queryClient := suite.queryClient
-	k.AddTrustedServiceProvider(ctx, testTsp)
-	var tspsRes ctypes.Strings
-	tspsRes.AppendIfMissing(testTsp.String())
+	app := suite.app
+	ctx := suite.ctx
+	app.CommercioKycKeeper.AddTrustedServiceProvider(ctx, testTsp)
+	var expectedRes []string
+	expectedRes = append(expectedRes, testTsp.String())
 
 	var req *types.QueryTspsRequest
 
@@ -38,15 +39,15 @@ func (suite *KeeperTestSuite) TestGRPCTsps() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			tspRes, err := queryClient.Tsps(gocontext.Background(), req)
+			res, err := queryClient.Tsps(gocontext.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(tspRes)
-				suite.Require().Equal(tspRes.Tsps, tspsRes)
+				suite.Require().NotNil(res)
+				suite.Require().Equal(expectedRes, res.Tsps)
 			} else {
 				suite.Require().Error(err)
-				suite.Require().Nil(tspRes)
+				suite.Require().Nil(res)
 			}
 		})
 	}
@@ -55,13 +56,12 @@ func (suite *KeeperTestSuite) TestGRPCTsps() {
 // Funds query tests
 func (suite *KeeperTestSuite) TestGRPCFunds() {
 
-	ctx, _, _, k := SetupTestInput()
 	queryClient := suite.queryClient
-	coins := sdk.NewCoins(sdk.NewCoin("somecoin", sdk.NewInt(1000)))
-	k.DepositIntoPool(ctx, testTsp, coins)
+	app := suite.app
+	ctx := suite.ctx
 
-	var tspsRes ctypes.Strings
-	tspsRes.AppendIfMissing(testTsp.String())
+	coins := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
+	app.CommercioKycKeeper.SetLiquidityPoolToAccount(ctx, coins)
 
 	var req *types.QueryFundsRequest
 
@@ -83,15 +83,15 @@ func (suite *KeeperTestSuite) TestGRPCFunds() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			fundsRes, err := queryClient.Funds(gocontext.Background(), req)
+			res, err := queryClient.Funds(gocontext.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(fundsRes)
-				suite.Require().Equal(fundsRes.Funds, coins)
+				suite.Require().NotNil(res)
+				suite.Require().Equal(coins, res.Funds)
 			} else {
 				suite.Require().Error(err)
-				suite.Require().Nil(fundsRes)
+				suite.Require().Nil(res)
 			}
 		})
 	}
