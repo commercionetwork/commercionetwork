@@ -19,7 +19,7 @@ import (
 
 func Test_GetDidDocumentOfAddress(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	ddos := createNIdentityNew(keeper, ctx, 10)
+	ddos := createNIdentity(keeper, ctx, 10)
 	for _, item := range ddos {
 		a, err := keeper.GetDidDocumentOfAddress(ctx, item.ID)
 		require.NoError(t, err)
@@ -29,7 +29,7 @@ func Test_GetDidDocumentOfAddress(t *testing.T) {
 
 func Test_NewDocumentExist(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	ddos := createNIdentityNew(keeper, ctx, 10)
+	ddos := createNIdentity(keeper, ctx, 10)
 	for _, item := range ddos {
 		assert.True(t, keeper.HasDidDocument(ctx, item.ID))
 	}
@@ -37,7 +37,7 @@ func Test_NewDocumentExist(t *testing.T) {
 
 func Test_UpdateDidDocument(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	ddos := createNIdentityNew(keeper, ctx, 10)
+	ddos := createNIdentity(keeper, ctx, 10)
 	for _, item := range ddos {
 		ID := keeper.UpdateDidDocument(ctx, item)
 
@@ -51,7 +51,7 @@ func Test_UpdateDidDocument(t *testing.T) {
 
 func Test_GetAllDidDocuments(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	ddos := createNIdentityNew(keeper, ctx, 10)
+	ddos := createNIdentity(keeper, ctx, 10)
 	for _, item := range ddos {
 		ID := keeper.UpdateDidDocument(ctx, item)
 		require.True(t, keeper.HasDidDocument(ctx, ID))
@@ -68,7 +68,7 @@ func Test_GetAllDidDocuments(t *testing.T) {
 	}
 }
 
-func createNIdentityNew(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocument {
+func createNIdentity(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocument {
 	ddos := make([]types.DidDocument, n)
 	for i := range ddos {
 		_, _, addr := testdata.KeyTestPubAddr()
