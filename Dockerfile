@@ -4,7 +4,8 @@
 FROM golang:latest as builder
 
 # Add Maintainer Info
-LABEL maintainer="Gianguido Sorà <me@gsora.xyz>"
+LABEL maintainer="Marco Ruaro <marco.ruaro@gmail.com>"
+LABEL creator="Gianguido Sorà <me@gsora.xyz>"
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -36,8 +37,7 @@ RUN mkdir -p ${CHAIN_DIR}
 RUN mkdir -p ${GENESIS_DIR}
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/build/Linux-AMD64/cncli .
-COPY --from=builder /app/build/Linux-AMD64/cnd .
+COPY --from=builder /app/build/Linux-AMD64/commercionetworkd .
 COPY container_exec.sh .
 RUN chmod +x container_exec.sh
 
