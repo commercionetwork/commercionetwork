@@ -38,16 +38,19 @@ var (
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	storeKeys := sdk.NewKVStoreKeys(
 		types.StoreKey,
+		paramsTypes.StoreKey,
 		distrTypes.StoreKey,
 		bankTypes.StoreKey,
 		accountTypes.StoreKey,
 		govTypes.StoreKey,
 		epochsTypes.StoreKey,
+		stakingTypes.StoreKey,
 	)
+	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
+	
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 	memStoreKeyGov := storetypes.NewMemoryStoreKey(govTypes.MemStoreKey)
 
-	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
 
 	db := tmdb.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db)
@@ -89,7 +92,6 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	dk := distrKeeper.NewKeeper(codec.NewProtoCodec(registry), storeKeys[distrTypes.StoreKey], pk.Subspace("distribution"),ak, bk, sk, accountTypes.FeeCollectorName, blacklistedAddrs)
 	sk.SetHooks(stakingTypes.NewMultiStakingHooks(dk.Hooks()))
 	ek := epochsKeeper.NewKeeper(codec.NewProtoCodec(registry), storeKeys[epochsTypes.StoreKey]) 
-	subspace, _ := pk.GetSubspace(types.ModuleName)
 	keeper := NewKeeper(
 		codec.NewProtoCodec(registry),
 		storeKeys[types.StoreKey],
@@ -99,44 +101,64 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 		ak,
 		*gk,
 		*ek,
-		subspace,
+		pk.Subspace("vbr"),
 		sk,
 	)
-	params := types.Params{
+	ek.SetHooks(epochsTypes.NewMultiEpochHooks(keeper.Hooks()))
+	/*params := types.Params{
 					DistrEpochIdentifier: types.EpochDay,
 					EarnRate: sdk.NewDecWithPrec(5,1),
 				}
-	keeper.SetParams(ctx, params)
+	keeper.SetParams(ctx, params)*/
+
 	return keeper, ctx
 }
 
 // ---------------------------
 // --- Reward distribution
 // ---------------------------
+var Params_test = types.Params{
+					DistrEpochIdentifier: types.EpochDay,
+					EarnRate: sdk.NewDecWithPrec(5,1),
+				}
 func TestKeeper_ComputeProposerReward(t *testing.T) {
 	tests := []struct {
 		name           string
 		bonded         sdk.Int
 		vNumber        int64
 		expectedReward string
+		params		   types.Params
 	}{
 		{
 			"Compute reward with 100 validators",
 			sdk.NewInt(100000000),
 			100,
-			"92.592592592592592593",
+			"136986.301369863013698630",
+			Params_test,
 		},
 		{
 			"Compute reward with 50 validators",
 			sdk.NewInt(100000000),
 			50,
-			"46.296296296296296296",
+			"68493.150684931506849315",
+			Params_test,
 		},
 		{
 			"Compute reward with small bonded",
 			sdk.NewInt(1),
 			100,
-			"0.000000925925925926",
+			"0.001369863013698630",
+			Params_test,
+		},
+		{
+			"Compute reward per minute",
+			sdk.NewInt(100000000),
+			50,
+			"47.564687975646879756",
+			types.Params{
+				DistrEpochIdentifier: types.EpochMinute,
+				EarnRate: sdk.NewDecWithPrec(5,1),
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -147,7 +169,8 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 			testVal := TestValidator.UpdateStatus(stakingTypes.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
 			//k.SetRewardRate(ctx, TestRewarRate)
-			params := k.GetParams(ctx)
+			//params := k.GetParams(ctx)
+			params := tt.params
 			reward := k.ComputeProposerReward(ctx, tt.vNumber, testVal, "ucommercio", params)
 
 			expectedDecReward, _ := sdk.NewDecFromStr(tt.expectedReward)
@@ -160,6 +183,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 	}
 }
 
+//Do not work
 func TestKeeper_DistributeBlockRewards(t *testing.T) {
 	tests := []struct {
 		name              string
@@ -214,7 +238,11 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 
 			validatorOutstandingRewards := distrTypes.ValidatorOutstandingRewards{}
 			k.distKeeper.SetValidatorOutstandingRewards(ctx, testVal.GetOperator(), validatorOutstandingRewards)
-			params := k.GetParams(ctx)
+			//params := k.GetParams(ctx)
+			params := types.Params{
+				DistrEpochIdentifier: types.EpochDay,
+				EarnRate: sdk.NewDecWithPrec(5,1),
+			}
 			reward := k.ComputeProposerReward(ctx, 1, testVal, "ucommercio", params)
 
 			err := k.DistributeBlockRewards(ctx, testVal, reward)
@@ -260,12 +288,18 @@ func TestKeeper_VbrAccount(t *testing.T) {
 			macc := k.VbrAccount(ctx)
 
 			require.Equal(t, macc.GetName(), tt.wantModName)
-			//require.True(t, macc.GetCoins().IsEqual(tt.wantModAccBalance))
-			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantModAccBalance) )
+			
+			if !tt.emptyPool{
+				coins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "ucommercio"})
+				k.bankKeeper.SetBalances(ctx, macc.GetAddress(), coins)
+			}
+			
+			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantModAccBalance))
 		})
 	}
 }
 
+//not working
 func TestKeeper_MintVBRTokens(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -284,6 +318,7 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeper(t)
+			k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: "ucommercio"})))
 			k.MintVBRTokens(ctx, tt.wantAmount)
 			macc := k.VbrAccount(ctx)
 			//require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
