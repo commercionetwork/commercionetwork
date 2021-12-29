@@ -193,18 +193,6 @@ const validDid = "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc"
 
 func Test_isValidDidCom(t *testing.T) {
 
-	AccountAddressPrefix := "did:com:"
-	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
-	ValidatorAddressPrefix := AccountAddressPrefix + "valoper"
-	ValidatorPubKeyPrefix := AccountAddressPrefix + "valoperpub"
-	ConsNodeAddressPrefix := AccountAddressPrefix + "valcons"
-	ConsNodePubKeyPrefix := AccountAddressPrefix + "valconspub"
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
-	config.SetBech32PrefixForValidator(ValidatorAddressPrefix, ValidatorPubKeyPrefix)
-	config.SetBech32PrefixForConsensusNode(ConsNodeAddressPrefix, ConsNodePubKeyPrefix)
-	config.Seal()
-
 	tests := []struct {
 		name    string
 		did     string
@@ -220,4 +208,19 @@ func Test_isValidDidCom(t *testing.T) {
 			}
 		})
 	}
+}
+
+// package initialization for correct validation of commercionetwork addresses
+func init() {
+	AccountAddressPrefix := "did:com:"
+	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
+	ValidatorAddressPrefix := AccountAddressPrefix + "valoper"
+	ValidatorPubKeyPrefix := AccountAddressPrefix + "valoperpub"
+	ConsNodeAddressPrefix := AccountAddressPrefix + "valcons"
+	ConsNodePubKeyPrefix := AccountAddressPrefix + "valconspub"
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
+	config.SetBech32PrefixForValidator(ValidatorAddressPrefix, ValidatorPubKeyPrefix)
+	config.SetBech32PrefixForConsensusNode(ConsNodeAddressPrefix, ConsNodePubKeyPrefix)
+	config.Seal()
 }
