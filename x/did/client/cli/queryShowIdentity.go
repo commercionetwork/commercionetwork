@@ -11,7 +11,7 @@ import (
 
 func CmdGetDidDocument() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get-DID-document [id]",
+		Use:   "show-identity [id]",
 		Short: "Resolves the DID document for the specified id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

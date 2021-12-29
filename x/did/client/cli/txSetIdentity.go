@@ -15,7 +15,7 @@ import (
 
 func CmdSetDidDocument() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-DID-document [did_document_proposal_path]",
+		Use:   "set-identity [did_document_proposal_path]",
 		Short: "Sets the DID document for the requesting address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
