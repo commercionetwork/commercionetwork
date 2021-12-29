@@ -39,8 +39,11 @@ const (
 	// --------------
 	// --- KeyTypes required for the Documents module
 	// --------------
-	RsaSignature2018       = "RsaSignature2018"
 	RsaVerificationKey2018 = "RsaVerificationKey2018"
+	RsaSignature2018       = "RsaSignature2018"
+
+	RsaVerificationKey2018NameSuffix = "#keys-1"
+	RsaSignature2018NameSuffix       = "#keys-2"
 )
 
 var (

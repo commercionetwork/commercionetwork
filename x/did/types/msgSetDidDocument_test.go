@@ -6,19 +6,19 @@ import (
 
 var ValidMsgSetDidDocument = MsgSetDidDocument{
 	Context:            validContext,
-	ID:                 validDid,
+	ID:                 didSubject,
 	VerificationMethod: validVerificationMethods,
 	Authentication: []string{
-		validDid + "#key-1",
+		didSubject + RsaVerificationKey2018NameSuffix,
 	},
 	AssertionMethod: []string{
-		"#key-1",
+		didSubject + RsaSignature2018NameSuffix,
 	},
 	KeyAgreement: []string{
-		validDid + "#key-agreement-1",
+		RsaVerificationKey2018NameSuffix,
 	},
 	CapabilityInvocation: []string{
-		"#key-agreement-1",
+		RsaSignature2018NameSuffix,
 	},
 	CapabilityDelegation: nil,
 	Service:              validServices,
@@ -330,13 +330,6 @@ var validVerificationMethods = []*VerificationMethod{
 	&validVerificationMethodRsaSignature2018,
 }
 
-var validVerificationMethodRsaSignature2018 = VerificationMethod{
-	ID:                 validDid + "#key-agreement-1",
-	Type:               "RsaSignature2018",
-	Controller:         validDid,
-	PublicKeyMultibase: "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",
-}
-
 func Test_validateVerificationMethod(t *testing.T) {
 
 	tests := []struct {
@@ -391,7 +384,7 @@ func Test_validateVerificationMethod(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateVerificationMethod(tt.verificationMethods); (err != nil) != tt.wantErr {
+			if err := validateVerificationMethod(tt.verificationMethods, didSubject); (err != nil) != tt.wantErr {
 				t.Errorf("validateVerificationMethod() for %s error = %v, wantErr %v", tt.verificationMethods, err, tt.wantErr)
 			}
 		})

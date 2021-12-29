@@ -58,7 +58,7 @@ func (s *Service) isValid() error {
 	return nil
 }
 
-func (v *VerificationMethod) isValid() error {
+func (v *VerificationMethod) isValid(subject string) error {
 	if v == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod is not defined")
 	}
@@ -87,11 +87,15 @@ func (v *VerificationMethod) isValid() error {
 	// validate controller
 	// Required
 	// A string that conforms to the rules of DID Syntax.
+	// commercionetwork: same as the subject i.e. the ID field of DID document
 	if IsEmpty(v.Controller) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" is required")
 	}
 	if !IsValidDID(v.Controller) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" must conform to the rules of DID Syntax")
+	}
+	if v.Controller != subject {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"controller\" must be equal to the subject i.e. the ID field of DID document")
 	}
 
 	// validate publicKeyMultibase
@@ -99,6 +103,20 @@ func (v *VerificationMethod) isValid() error {
 	// -> using only publicKeyMultibase
 	if IsEmpty(v.PublicKeyMultibase) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"publicKeyMultibase\" is required")
+	}
+
+	// commercionetwork: keys of type RsaVerificationKey2018 must be with suffix #keys-1, and must be a valid RSA PKIX public key
+	if v.Type == RsaVerificationKey2018 {
+		if !strings.HasSuffix(v.ID, RsaVerificationKey2018NameSuffix) {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid fields \"type\" and \"id\": keys of type "+RsaVerificationKey2018+" must be with suffix "+RsaVerificationKey2018NameSuffix)
+		}
+
+	}
+	// commercionetwork: keys of type RsaSignatureKey2018 must be with suffix #keys-2, and must be a valid RSA PKIX public key
+	if v.Type == RsaSignature2018 {
+		if !strings.HasSuffix(v.ID, RsaSignature2018NameSuffix) {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid fields \"type\" and \"id\": keys of type "+RsaSignature2018+" must be with suffix "+RsaSignature2018NameSuffix)
+		}
 	}
 
 	return nil

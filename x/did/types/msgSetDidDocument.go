@@ -41,7 +41,7 @@ func validateContext(context []string) error {
 	return nil
 }
 
-func validateVerificationMethod(verificationMethod []*VerificationMethod) error {
+func validateVerificationMethod(verificationMethod []*VerificationMethod, subject string) error {
 	isVerificationMethodSet := func() bool {
 		keys := []string{}
 		for _, s := range verificationMethod {
@@ -55,7 +55,7 @@ func validateVerificationMethod(verificationMethod []*VerificationMethod) error 
 	}
 	var containsRsaSignature2018, containsRsaVerificationKey2018 bool
 	for _, vm := range verificationMethod {
-		if err := vm.isValid(); err != nil {
+		if err := vm.isValid(subject); err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s %e", vm, err)
 		}
 		if vm.Type == RsaSignature2018 {
@@ -115,7 +115,7 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	}
 
 	// validate VerificationMethod
-	if err := validateVerificationMethod(msg.VerificationMethod); err != nil {
+	if err := validateVerificationMethod(msg.VerificationMethod, msg.ID); err != nil {
 		return err
 	}
 
