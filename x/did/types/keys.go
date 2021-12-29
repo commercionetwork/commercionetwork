@@ -46,6 +46,11 @@ const (
 
 	RsaVerificationKey2018NameSuffix = "#keys-1"
 	RsaSignature2018NameSuffix       = "#keys-2"
+
+	// Lenght Limits
+	serviceLenghtLimitID              = 56
+	serviceLenghtLimitType            = 56
+	serviceLenghtLimitServiceEndpoint = 256
 )
 
 var (

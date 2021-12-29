@@ -39,6 +39,9 @@ func (s *Service) isValid() error {
 	if !IsValidRFC3986Uri(s.ID) {
 		return sdkerrors.Wrap(ErrInvalidRFC3986UriFormat, "service field \"id\" must conform to the rules of RFC3986 for URIs")
 	}
+	if len(s.ID) > serviceLenghtLimitID {
+		return sdkerrors.Wrap(ErrInvalidRFC3986UriFormat, fmt.Sprint("service field \"id\" must be smaller than ", serviceLenghtLimitID, " characters"))
+	}
 
 	// validate type
 	// Required
@@ -46,6 +49,9 @@ func (s *Service) isValid() error {
 	// W3C recommendation: In order to maximize interoperability, the service type and its associated properties SHOULD be registered in the DID Specification Registries
 	if IsEmpty(s.Type) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service field \"type\" is required")
+	}
+	if len(s.Type) > serviceLenghtLimitType {
+		return sdkerrors.Wrap(ErrInvalidRFC3986UriFormat, fmt.Sprint("service field \"type\" must be smaller than ", serviceLenghtLimitType, " characters"))
 	}
 
 	// validate serviceEndpoint
@@ -56,6 +62,9 @@ func (s *Service) isValid() error {
 	}
 	if !IsValidRFC3986Uri(s.ServiceEndpoint) {
 		return sdkerrors.Wrap(ErrInvalidRFC3986UriFormat, "service field \"serviceEndpoint\" must conform to the rules of RFC3986 for URIs")
+	}
+	if len(s.ServiceEndpoint) > serviceLenghtLimitServiceEndpoint {
+		return sdkerrors.Wrap(ErrInvalidRFC3986UriFormat, fmt.Sprint("service field \"serviceEndpoint\" must be smaller than ", serviceLenghtLimitServiceEndpoint, " characters"))
 	}
 
 	return nil

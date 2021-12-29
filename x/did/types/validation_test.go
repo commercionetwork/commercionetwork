@@ -1,6 +1,7 @@
 package types
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,10 +47,28 @@ func TestService_isValid(t *testing.T) {
 			true,
 		},
 		{
+			"{ID} size too long",
+			func() *Service {
+				service := validServiceBar
+				service.ID = service.ID + strings.Repeat("c", 1+serviceLenghtLimitID)
+				return &service
+			},
+			true,
+		},
+		{
 			"{type} empty",
 			func() *Service {
 				service := validServiceBar
 				service.Type = ""
+				return &service
+			},
+			true,
+		},
+		{
+			"{type} size too long",
+			func() *Service {
+				service := validServiceBar
+				service.Type = strings.Repeat("c", 1+serviceLenghtLimitType)
 				return &service
 			},
 			true,
@@ -68,6 +87,15 @@ func TestService_isValid(t *testing.T) {
 			func() *Service {
 				service := validServiceBar
 				service.ServiceEndpoint = "$" + validServiceBar.ServiceEndpoint
+				return &service
+			},
+			true,
+		},
+		{
+			"{serviceEndpoint} size too long",
+			func() *Service {
+				service := validServiceBar
+				service.ServiceEndpoint = strings.Repeat("c", 1+serviceLenghtLimitServiceEndpoint)
 				return &service
 			},
 			true,
@@ -233,7 +261,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			"{publicKeyMultibase} invalid key for {type} " + RsaVerificationKey2018,
 			func() *VerificationMethod {
 				verificationMethod := validVerificationMethodRsaVerificationKey2018
-				verificationMethod.PublicKeyMultibase = verificationMethod.PublicKeyMultibase
+				verificationMethod.PublicKeyMultibase = string(MultibaseCodeBase64) + invalidBase64RSAKey
 				return &verificationMethod
 			},
 			true,
