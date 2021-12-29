@@ -39,6 +39,8 @@ const (
 	// --------------
 	// --- KeyTypes required for the Documents module
 	// --------------
+	MultibaseCodeBase64 = 'm'
+
 	RsaVerificationKey2018 = "RsaVerificationKey2018"
 	RsaSignature2018       = "RsaSignature2018"
 

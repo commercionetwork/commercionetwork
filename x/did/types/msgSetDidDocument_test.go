@@ -4,26 +4,6 @@ import (
 	"testing"
 )
 
-var ValidMsgSetDidDocument = MsgSetDidDocument{
-	Context:            validContext,
-	ID:                 didSubject,
-	VerificationMethod: validVerificationMethods,
-	Authentication: []string{
-		didSubject + RsaVerificationKey2018NameSuffix,
-	},
-	AssertionMethod: []string{
-		didSubject + RsaSignature2018NameSuffix,
-	},
-	KeyAgreement: []string{
-		RsaVerificationKey2018NameSuffix,
-	},
-	CapabilityInvocation: []string{
-		RsaSignature2018NameSuffix,
-	},
-	CapabilityDelegation: nil,
-	Service:              validServices,
-}
-
 func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 
 	tests := []struct {
@@ -215,12 +195,6 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 	}
 }
 
-var validContext = []string{
-	ContextDidV1,
-	"https://w3id.org/security/suites/ed25519-2018/v1",
-	"https://w3id.org/security/suites/x25519-2019/v1",
-}
-
 func Test_validateContext(t *testing.T) {
 
 	tests := []struct {
@@ -273,15 +247,6 @@ func Test_validateContext(t *testing.T) {
 	}
 }
 
-var validServices = []*Service{
-	&validService,
-	{
-		ID:              "https://foo.example.com",
-		Type:            "xdi",
-		ServiceEndpoint: "https://commerc.io/xdi/serviceEndpoint/",
-	},
-}
-
 func Test_validateService(t *testing.T) {
 
 	tests := []struct {
@@ -302,8 +267,8 @@ func Test_validateService(t *testing.T) {
 		{
 			"not a set",
 			[]*Service{
-				&validService,
-				&validService,
+				&validServiceBar,
+				&validServiceBar,
 			},
 			true,
 		},
@@ -323,11 +288,6 @@ func Test_validateService(t *testing.T) {
 			}
 		})
 	}
-}
-
-var validVerificationMethods = []*VerificationMethod{
-	&validVerificationMethodRsaVerificationKey2018,
-	&validVerificationMethodRsaSignature2018,
 }
 
 func Test_validateVerificationMethod(t *testing.T) {

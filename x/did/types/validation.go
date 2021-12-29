@@ -1,6 +1,9 @@
 package types
 
 import (
+	"crypto/x509"
+	"encoding/base64"
+	fmt "fmt"
 	"strings"
 
 	commons "github.com/commercionetwork/commercionetwork/x/common/types"
@@ -110,7 +113,6 @@ func (v *VerificationMethod) isValid(subject string) error {
 		if !strings.HasSuffix(v.ID, RsaVerificationKey2018NameSuffix) {
 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid fields \"type\" and \"id\": keys of type "+RsaVerificationKey2018+" must be with suffix "+RsaVerificationKey2018NameSuffix)
 		}
-
 	}
 	// commercionetwork: keys of type RsaSignatureKey2018 must be with suffix #keys-2, and must be a valid RSA PKIX public key
 	if v.Type == RsaSignature2018 {
@@ -119,5 +121,27 @@ func (v *VerificationMethod) isValid(subject string) error {
 		}
 	}
 
+	if v.Type == RsaVerificationKey2018 || v.Type == RsaSignature2018 {
+		if v.PublicKeyMultibase[0] != MultibaseCodeBase64 {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid field \"publicKeyMultibase\" must start with multibase code "+string(MultibaseCodeBase64))
+		}
+		if err := validateRSAPubkey([]byte(v.PublicKeyMultibase[1:])); err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("invalid field \"publicKeyMultibase\" must be a valid RSA public key: %e", err))
+		}
+	}
+
+	return nil
+}
+
+func validateRSAPubkey(key []byte) error {
+	pemBytes := make([]byte, base64.StdEncoding.DecodedLen(len(key)))
+	_, err := base64.StdEncoding.Decode(pemBytes, key)
+	if err != nil {
+		return err
+	}
+	_, err = x509.ParsePKIXPublicKey(pemBytes)
+	if err != nil {
+		return fmt.Errorf("invalid public key: %w", err)
+	}
 	return nil
 }

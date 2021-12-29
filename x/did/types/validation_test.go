@@ -3,15 +3,8 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
-
-var validService = Service{
-	ID:              "https://bar.example.com",
-	Type:            "agent",
-	ServiceEndpoint: "https://commerc.io/agent/serviceEndpoint/",
-}
 
 func TestService_isValid(t *testing.T) {
 
@@ -23,7 +16,7 @@ func TestService_isValid(t *testing.T) {
 		{
 			"valid",
 			func() *Service {
-				return &validService
+				return &validServiceBar
 			},
 			false,
 		},
@@ -37,7 +30,7 @@ func TestService_isValid(t *testing.T) {
 		{
 			"{ID} empty",
 			func() *Service {
-				service := validService
+				service := validServiceBar
 				service.ID = ""
 				return &service
 			},
@@ -46,8 +39,8 @@ func TestService_isValid(t *testing.T) {
 		{
 			"{ID} against the rules of RFC3986",
 			func() *Service {
-				service := validService
-				service.ID = "$" + validService.ID
+				service := validServiceBar
+				service.ID = "$" + validServiceBar.ID
 				return &service
 			},
 			true,
@@ -55,7 +48,7 @@ func TestService_isValid(t *testing.T) {
 		{
 			"{type} empty",
 			func() *Service {
-				service := validService
+				service := validServiceBar
 				service.Type = ""
 				return &service
 			},
@@ -64,7 +57,7 @@ func TestService_isValid(t *testing.T) {
 		{
 			"{serviceEndpoint} empty",
 			func() *Service {
-				service := validService
+				service := validServiceBar
 				service.ServiceEndpoint = ""
 				return &service
 			},
@@ -73,8 +66,8 @@ func TestService_isValid(t *testing.T) {
 		{
 			"{serviceEndpoint} against the rules of RFC3986",
 			func() *Service {
-				service := validService
-				service.ServiceEndpoint = "$" + validService.ServiceEndpoint
+				service := validServiceBar
+				service.ServiceEndpoint = "$" + validServiceBar.ServiceEndpoint
 				return &service
 			},
 			true,
@@ -87,20 +80,6 @@ func TestService_isValid(t *testing.T) {
 			}
 		})
 	}
-}
-
-var validVerificationMethodRsaVerificationKey2018 = VerificationMethod{
-	ID:                 didSubject + RsaVerificationKey2018NameSuffix,
-	Type:               RsaVerificationKey2018,
-	Controller:         didSubject,
-	PublicKeyMultibase: "m" + "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDMr3V+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCTvO3Ku3PJgZ9PO4qRw7QVvTkCbc91rT93/pD3/Ar8wqd4pNXtgbfbwJGviZ6kQIDAQAB",
-}
-
-var validVerificationMethodRsaSignature2018 = VerificationMethod{
-	ID:                 didSubject + RsaSignature2018NameSuffix,
-	Type:               RsaSignature2018,
-	Controller:         didSubject,
-	PublicKeyMultibase: "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",
 }
 
 func TestVerificationMethod_isValid(t *testing.T) {
@@ -214,6 +193,60 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			},
 			true,
 		},
+		{
+			"{publicKeyMultibase} invalid format for {type} " + RsaVerificationKey2018,
+			func() *VerificationMethod {
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
+				verificationMethod.PublicKeyMultibase = verificationMethod.PublicKeyMultibase[1:]
+				return &verificationMethod
+			},
+			true,
+		},
+		{
+			"{publicKeyMultibase} invalid format for {type} " + RsaSignature2018,
+			func() *VerificationMethod {
+				verificationMethod := validVerificationMethodRsaSignature2018
+				verificationMethod.PublicKeyMultibase = verificationMethod.PublicKeyMultibase[1:]
+				return &verificationMethod
+			},
+			true,
+		},
+		{
+			"{publicKeyMultibase} invalid base64 encoding for {type} " + RsaVerificationKey2018,
+			func() *VerificationMethod {
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
+				verificationMethod.PublicKeyMultibase = verificationMethod.PublicKeyMultibase + "-"
+				return &verificationMethod
+			},
+			true,
+		},
+		{
+			"{publicKeyMultibase} invalid base64 encoding for {type} " + RsaSignature2018,
+			func() *VerificationMethod {
+				verificationMethod := validVerificationMethodRsaSignature2018
+				verificationMethod.PublicKeyMultibase = verificationMethod.PublicKeyMultibase + "-"
+				return &verificationMethod
+			},
+			true,
+		},
+		{
+			"{publicKeyMultibase} invalid key for {type} " + RsaVerificationKey2018,
+			func() *VerificationMethod {
+				verificationMethod := validVerificationMethodRsaVerificationKey2018
+				verificationMethod.PublicKeyMultibase = verificationMethod.PublicKeyMultibase
+				return &verificationMethod
+			},
+			true,
+		},
+		{
+			"{publicKeyMultibase} invalid key for {type} " + RsaSignature2018,
+			func() *VerificationMethod {
+				verificationMethod := validVerificationMethodRsaSignature2018
+				verificationMethod.PublicKeyMultibase = string(MultibaseCodeBase64) + invalidBase64RSAKey
+				return &verificationMethod
+			},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -224,9 +257,6 @@ func TestVerificationMethod_isValid(t *testing.T) {
 		})
 	}
 }
-
-const didSubject = "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc"
-const didNoSubject = "did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"
 
 func Test_isValidDidCom(t *testing.T) {
 
@@ -247,19 +277,4 @@ func Test_isValidDidCom(t *testing.T) {
 			}
 		})
 	}
-}
-
-// package initialization for correct validation of commercionetwork addresses
-func init() {
-	AccountAddressPrefix := "did:com:"
-	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
-	ValidatorAddressPrefix := AccountAddressPrefix + "valoper"
-	ValidatorPubKeyPrefix := AccountAddressPrefix + "valoperpub"
-	ConsNodeAddressPrefix := AccountAddressPrefix + "valcons"
-	ConsNodePubKeyPrefix := AccountAddressPrefix + "valconspub"
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
-	config.SetBech32PrefixForValidator(ValidatorAddressPrefix, ValidatorPubKeyPrefix)
-	config.SetBech32PrefixForConsensusNode(ConsNodeAddressPrefix, ConsNodePubKeyPrefix)
-	config.Seal()
 }
