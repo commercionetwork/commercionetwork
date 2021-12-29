@@ -25,14 +25,10 @@ func NewQuerier(keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier 
 	}
 }
 
-// ------------------
-// --- Identities
-// ------------------
-
 func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
 
 	var response ResolveIdentityResponse
-	response.Owner = path[0]
+	response.Subject = path[0]
 
 	didDocument, err := keeper.GetDidDocumentOfAddress(ctx, path[0])
 	if err != nil {
@@ -50,6 +46,6 @@ func queryResolveIdentity(ctx sdk.Context, path []string, keeper Keeper, legacyQ
 }
 
 type ResolveIdentityResponse struct {
-	Owner       string             `json:"owner" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
+	Subject     string             `json:"subject" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
 	DidDocument *types.DidDocument `json:"did_document"`
 }

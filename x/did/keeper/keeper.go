@@ -37,7 +37,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// UpdateDidDocument appends a DID document in the store, retruning the ID contained in the DID document
+// UpdateDidDocument appends a DID document in the store, returning the ID contained in the DID document
 func (k Keeper) UpdateDidDocument(ctx sdk.Context, didDocument types.DidDocument) string {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(getIdentityStoreKey(didDocument.ID), k.cdc.MustMarshalBinaryBare(&didDocument))

@@ -15,7 +15,7 @@ func Migrate(oldGenState v220did.GenesisState) *types.GenesisState {
 	var didDocument *types.DidDocument
 	for _, v220didDocument := range oldGenState.DidDocuments {
 		didDocument = convertDDO(v220didDocument)
-		didDocuments = didDocuments.AppendIfMissingID(didDocument)
+		didDocuments = didDocuments.appendIfMissingID(didDocument)
 	}
 
 	return &types.GenesisState{DidDocuments: didDocuments}

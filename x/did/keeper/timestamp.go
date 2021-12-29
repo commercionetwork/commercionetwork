@@ -12,11 +12,5 @@ const (
 )
 
 func obtainTimestamp(ctx sdk.Context) string {
-	// Following the W3C Decentralized Identifiers (DIDs) v1.0 for
-
 	return ctx.BlockTime().Format(ComplaintW3CTime)
-}
-
-func readTimestamp(t string) (time.Time, error) {
-	return time.Parse(ComplaintW3CTime, t)
 }
