@@ -6,6 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// GetSigners implements "github.com/cosmos/cosmos-sdk/types".Msg
 func (msg *MsgSetDidDocument) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.ID)
 	if err != nil {
@@ -14,15 +15,18 @@ func (msg *MsgSetDidDocument) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
+// GetSignBytes implements "github.com/cosmos/cosmos-sdk/types".Msg
 func (msg *MsgSetDidDocument) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
+// Route implements "github.com/cosmos/cosmos-sdk/types".Msg
 func (msg *MsgSetDidDocument) Route() string {
 	return RouterKey
 }
 
+// Type implements "github.com/cosmos/cosmos-sdk/types".Msg
 func (msg *MsgSetDidDocument) Type() string {
 	return MsgTypeSetDid
 }
@@ -93,6 +97,7 @@ func validateService(service []*Service) error {
 	return nil
 }
 
+// ValidateBasic implements "github.com/cosmos/cosmos-sdk/types".Msg
 func (msg *MsgSetDidDocument) ValidateBasic() error {
 
 	if msg == nil {

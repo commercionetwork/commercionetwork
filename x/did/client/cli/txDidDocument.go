@@ -43,8 +43,6 @@ func CmdSetDidDocument() *cobra.Command {
 				return err
 			}
 
-			// check requesting address equals to DID subject
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &didDocumentProposal)
 		},
 	}
