@@ -17,7 +17,7 @@ func setupMsgServer(t testing.TB) (types.MsgServer, Keeper, sdk.Context) {
 	return NewMsgServerImpl(*keeper), *keeper, ctx
 }
 
-// TODO check side effects, test validate as unit tests
+// TODO use valid DID document content from the 'did.keeper.types' testing package
 func Test_SetDidDocument(t *testing.T) {
 	srv, k, ctx := setupMsgServer(t)
 
