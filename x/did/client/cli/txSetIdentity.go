@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 )
 
-func CmdSetDidDocument() *cobra.Command {
+func CmdSetIdentity() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-identity [did_document_proposal_path]",
 		Short: "Sets the DID document for the requesting address",
