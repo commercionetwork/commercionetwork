@@ -31,33 +31,8 @@ func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.M
 	return &types.MsgIncrementBlockRewardsPoolResponse{}, nil
 }
 
-func (k msgServer) SetRewardRate(goCtx context.Context, msg *types.MsgSetRewardRate) (*types.MsgSetRewardRateResponse, error) {
+func (k msgServer) SetVbrParams(goCtx context.Context, msg *types.MsgSetVbrParams) (*types.MsgSetVbrParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// TODO: Handling the message
-	//_ = ctx
-	gov := k.govKeeper.GetGovernmentAddress(ctx)
-	msgGovAddr, e := sdk.AccAddressFromBech32(msg.Government)
-	if e != nil {
-		return nil, e
-	}
-	if !(gov.Equals(msgGovAddr)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
-	}
-	err := k.SetRewardRateKeeper(ctx, msg.RewardRate)
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
-	}
-	//ctypes.EmitCommonEvents(ctx, msg.Government)
-
-	return &types.MsgSetRewardRateResponse{}, nil
-}
-
-func (k msgServer) SetAutomaticWithdraw(goCtx context.Context, msg *types.MsgSetAutomaticWithdraw) (*types.MsgSetAutomaticWithdrawResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// TODO: Handling the message
-	//_ = ctx
 
 	gov := k.govKeeper.GetGovernmentAddress(ctx)
 	msgGovAddr, e := sdk.AccAddressFromBech32(msg.Government)
@@ -67,11 +42,17 @@ func (k msgServer) SetAutomaticWithdraw(goCtx context.Context, msg *types.MsgSet
 	if !(gov.Equals(msgGovAddr)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
 	}
-	err := k.SetAutomaticWithdrawKeeper(ctx, msg.AutomaticWithdraw)
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute{
+		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
-	//ctypes.EmitCommonEvents(ctx, msg.Government)
-
-	return &types.MsgSetAutomaticWithdrawResponse{}, nil
+	if msg.EarnRate.IsNegative() {
+		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
+	}
+	params := types.Params{
+			DistrEpochIdentifier: msg.DistrEpochIdentifier,
+			EarnRate: msg.EarnRate,
+		}
+	k.SetParams(ctx, params)
+	
+	return &types.MsgSetVbrParamsResponse{}, nil
 }

@@ -39,7 +39,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			tsp:            testTsp,
 			expiredAt:      testExpirationNegative,
 			membershipType: types.MembershipTypeBronze,
-			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s", testExpirationNegative)),
+			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", testExpirationNegative)),
 		},
 		/*{
 			name:               "Invalid tsp",
@@ -115,30 +115,169 @@ func TestKeeper_AssignMembership(t *testing.T) {
 	}
 }
 
-func TestKeeper_ComputeExpiryHeight(t *testing.T) {
-	currentTime := time.Now()
+func TestKeeper_DeleteMembership(t *testing.T) {
 	tests := []struct {
-		name               string
-		expectedExpiration time.Time
-		curTime            time.Time
+		name       string
+		membership types.Membership
+		tsp        sdk.AccAddress
+		mustError  bool
 	}{
 		{
-			name:               "Compute expiry",
-			expectedExpiration: currentTime.Add(SecondsPerYear),
-			curTime:            currentTime,
+			name:       "Non existing membership throws an error",
+			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+			mustError:  true,
+		},
+		{
+			name:       "Existing membership is removed properly",
+			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+			mustError:  false,
+		},
+		{
+			name:       "Tsp membership cannot be removed",
+			membership: types.NewMembership(types.MembershipTypeBlack, testTsp, testUser, testExpiration),
+			tsp:        testUser,
+			mustError:  true,
 		},
 	}
 
 	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			_, _, _, k := SetupTestInput()
+		ctx, _, _, k := SetupTestInput()
 
-			computedHeight := k.ComputeExpiryHeight(test.curTime)
-			require.Equal(t, test.expectedExpiration, computedHeight)
+		// if the test should not throw an error when removing, we must add
+		// a membership first
+		membershipOwner, _ := sdk.AccAddressFromBech32(test.membership.Owner)
+		membershipTspAddress, _ := sdk.AccAddressFromBech32(test.membership.TspAddress)
 
-		})
+		if !test.mustError {
+			_ = k.AssignMembership(ctx, membershipOwner, test.membership.MembershipType, membershipTspAddress, *test.membership.ExpiryAt)
+		}
+
+		if test.tsp != nil {
+			k.AddTrustedServiceProvider(ctx, test.tsp)
+		}
+
+		err := k.DeleteMembership(ctx, membershipOwner)
+		if !test.mustError {
+			require.NoError(t, err)
+		} else {
+			require.Error(t, err)
+		}
+
+		_, err = k.GetMembership(ctx, membershipOwner)
+		require.Error(t, err)
 	}
+}
+func TestKeeper_DistributeReward(t *testing.T) {
+	coins := sdk.Coins{}
+	tests := []struct {
+		name                 string
+		invite               types.Invite
+		pool                 sdk.Coins
+		expectedGovBalance   sdk.Coins
+		expectedUserBalance  sdk.Coins
+		expectedPoolBalance  sdk.Coins
+		expectedInviteStatus int64
+		mustError            bool
+		expectedError        error
+	}{
+		{
+			name:                 "Invite status is invalid",
+			invite:               types.Invite{Sender: testInviteSender.String(), SenderMembership: types.MembershipTypeGold, User: testUser.String(), Status: uint64(types.InviteStatusRewarded)},
+			expectedInviteStatus: int64(types.InviteStatusRewarded),
+			mustError:            false,
+		},
+		{
+			name:      "Invite sender does no have a membership",
+			invite:    types.Invite{Sender: testInviteSender.String(), SenderMembership: types.MembershipTypeGold, User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			mustError: true,
+		},
+		{
+			name:      "Invite recipient does not have a membership",
+			invite:    types.Invite{Sender: testUser2.String(), SenderMembership: types.MembershipTypeGold, User: testUser.String(), Status: uint64(types.InviteStatusPending)},
+			mustError: true,
+		},
+		{
+			name:      "Memberships matrix option reward not exists",
+			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "bold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			mustError: true,
+			//expectedError: sdkErr.Wrap(sdkErr.ErrInvalidRequest, "Invalid reward options"),
+		},
+		{
+			name:      "Pool has zero tokens",
+			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			pool:      coins,
+			mustError: true,
+			//expectedError: sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens"),
+		},
+		// TODO reward return different amount then expected. Amount of current pool
+		/*{
+			name:      "Account has not sufficient funds (pool is small then expected reward)",
+			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			pool:      sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(10000000))),
+			mustError: true,
+			//expectedError: sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens"),
+			// could not move collateral amount to module account, 43478261ucommercio is smaller than 100000001ucommercio: insufficient funds
+		},*/
+		{
+			name:                 "Account correctly rewarded",
+			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
+			pool:                 sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000000000000))),
+			expectedInviteStatus: int64(types.InviteStatusRewarded),
+			expectedGovBalance:   sdk.Coins{},
+			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, sdk.NewInt(1750000000))),
+			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(998775000000))),
+			mustError:            false,
+		},
+	}
+	for _, test := range tests {
+		ctx, bk, _, k := SetupTestInput()
+
+		err := k.AssignMembership(ctx, testUser2, types.MembershipTypeGold, testTsp, testExpiration)
+		require.NoError(t, err)
+		err = k.AssignMembership(ctx, testTsp, types.MembershipTypeBlack, testTsp, testExpiration)
+		require.NoError(t, err)
+		err = k.SetLiquidityPoolToAccount(ctx, test.pool)
+		require.NoError(t, err)
+		senderAccAddr, _ := sdk.AccAddressFromBech32(test.invite.Sender)
+		userAccAddr, _ := sdk.AccAddressFromBech32(test.invite.User)
+		govAccAddr := k.GovKeeper.GetGovernmentAddress(ctx)
+		//senderMembershipType := test.invite.SenderMembership
+		//senderBalance := bk.GetAllBalances(ctx, senderAccAddr)
+		govBalance := bk.GetAllBalances(ctx, govAccAddr)
+		//userBalance := bk.GetAllBalances(ctx, userAccAddr)
+		k.SaveInvite(ctx, test.invite)
+
+		err = k.DistributeReward(ctx, test.invite)
+		if !test.mustError {
+			require.NoError(t, err)
+		} else {
+			require.Error(t, err)
+			if test.expectedError != nil {
+				require.Equal(t, test.expectedError, err)
+			}
+		}
+
+		if test.expectedInviteStatus > 0 {
+			inviteRet, _ := k.GetInvite(ctx, userAccAddr)
+			require.Equal(t, test.expectedInviteStatus, int64(inviteRet.Status))
+		}
+
+		if test.expectedUserBalance != nil {
+			senderBalance := bk.GetAllBalances(ctx, senderAccAddr)
+			require.Equal(t, test.expectedUserBalance, senderBalance)
+		}
+
+		if test.expectedGovBalance != nil {
+			require.Equal(t, test.expectedGovBalance, govBalance)
+		}
+
+		if test.expectedPoolBalance != nil {
+			currentPoolBalance := k.GetLiquidityPoolAmount(ctx)
+			require.Equal(t, test.expectedPoolBalance, currentPoolBalance)
+		}
+
+	}
+
 }
 
 func TestKeeper_GetMembership(t *testing.T) {
@@ -193,56 +332,40 @@ func TestKeeper_GetMembership(t *testing.T) {
 	}
 }
 
-func TestKeeper_RemoveMembership(t *testing.T) {
+func TestKeeper_GetMemberships(t *testing.T) {
 	tests := []struct {
-		name       string
-		membership types.Membership
-		tsp        sdk.AccAddress
-		mustError  bool
+		name              string
+		storedMemberships types.Memberships
 	}{
 		{
-			name:       "Non existing membership throws an error",
-			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
-			mustError:  true,
+			name:              "Empty set is returned properly",
+			storedMemberships: types.Memberships{},
 		},
 		{
-			name:       "Existing membership is removed properly",
-			membership: types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
-			mustError:  false,
-		},
-		{
-			name:       "Tsp membership cannot be removed",
-			membership: types.NewMembership(types.MembershipTypeBlack, testTsp, testUser, testExpiration),
-			tsp:        testUser,
-			mustError:  true,
+			name: "Existing set is returned properly",
+			storedMemberships: types.Memberships{
+				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
+			},
 		},
 	}
 
 	for _, test := range tests {
-		ctx, _, _, k := SetupTestInput()
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
 
-		// if the test should not throw an error when removing, we must add
-		// a membership first
-		membershipOwner, _ := sdk.AccAddressFromBech32(test.membership.Owner)
-		membershipTspAddress, _ := sdk.AccAddressFromBech32(test.membership.TspAddress)
-
-		if !test.mustError {
-			_ = k.AssignMembership(ctx, membershipOwner, test.membership.MembershipType, membershipTspAddress, *test.membership.ExpiryAt)
-		}
-
-		if test.tsp != nil {
-			k.AddTrustedServiceProvider(ctx, test.tsp)
-		}
-
-		err := k.RemoveMembership(ctx, membershipOwner)
-		if !test.mustError {
-			require.NoError(t, err)
-		} else {
-			require.Error(t, err)
-		}
-
-		_, err = k.GetMembership(ctx, membershipOwner)
-		require.Error(t, err)
+			for _, m := range test.storedMemberships {
+				mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
+				mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
+				err := k.AssignMembership(ctx, mOwner, m.MembershipType, mTspAddress, *m.ExpiryAt)
+				require.NoError(t, err)
+			}
+			ms := k.GetMemberships(ctx)
+			for _, mg := range ms {
+				require.Contains(t, test.storedMemberships, *mg)
+			}
+		})
 	}
 }
 
@@ -282,6 +405,32 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 				k.Cdc.MustUnmarshalBinaryBare(i.Value(), &m)
 				require.Contains(t, test.storedMemberships, m)
 			}
+		})
+	}
+}
+
+func TestKeeper_ComputeExpiryHeight(t *testing.T) {
+	currentTime := time.Now()
+	tests := []struct {
+		name               string
+		expectedExpiration time.Time
+		curTime            time.Time
+	}{
+		{
+			name:               "Compute expiry",
+			expectedExpiration: currentTime.Add(SecondsPerYear),
+			curTime:            currentTime,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			_, _, _, k := SetupTestInput()
+
+			computedHeight := k.ComputeExpiryHeight(test.curTime)
+			require.Equal(t, test.expectedExpiration, computedHeight)
+
 		})
 	}
 }
@@ -328,42 +477,6 @@ func TestKeeper_ExtractMembership(t *testing.T) {
 	}
 }
 */
-func TestKeeper_GetMemberships(t *testing.T) {
-	tests := []struct {
-		name              string
-		storedMemberships types.Memberships
-	}{
-		{
-			name:              "Empty set is returned properly",
-			storedMemberships: types.Memberships{},
-		},
-		{
-			name: "Existing set is returned properly",
-			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
-			},
-		},
-	}
-
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, k := SetupTestInput()
-
-			for _, m := range test.storedMemberships {
-				mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
-				mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
-				err := k.AssignMembership(ctx, mOwner, m.MembershipType, mTspAddress, *m.ExpiryAt)
-				require.NoError(t, err)
-			}
-			ms := k.GetMemberships(ctx)
-			for _, mg := range ms {
-				require.Contains(t, test.storedMemberships, *mg)
-			}
-		})
-	}
-}
 
 func TestKeeper_GetTspMemberships(t *testing.T) {
 	tests := []struct {

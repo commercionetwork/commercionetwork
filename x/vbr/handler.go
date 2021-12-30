@@ -18,16 +18,12 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 		switch msg := msg.(type) {
 		// this line is used by starport scaffolding # 1
-		case *types.MsgSetAutomaticWithdraw:
-			res, err := msgServer.SetAutomaticWithdraw(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
-
-		case *types.MsgSetRewardRate:
-			res, err := msgServer.SetRewardRate(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
-
 		case *types.MsgIncrementBlockRewardsPool:
 			res, err := msgServer.IncrementBlockRewardsPool(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+		
+		case *types.MsgSetVbrParams:
+			res, err := msgServer.SetVbrParams(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		default:

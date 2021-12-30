@@ -14,11 +14,11 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 service Query {
 	// Queries a Etp by id.
 	rpc Etp(QueryEtpRequest) returns (QueryEtpResponse) {
-		option (google.api.http).get = "/commercionetwork/commerciomint/etp/{ID}";
+		option (google.api.http).get = "/commercionetwork/commerciomint/{ID}/etp";
 	}
 
 	rpc EtpByOwner(QueryEtpRequestByOwner) returns (QueryEtpsResponse) {
-		option (google.api.http).get = "/commercionetwork/commerciomint/owner/{Owner}";
+		option (google.api.http).get = "/commercionetwork/commerciomint/{Owner}/owner";
 	}
 
 	rpc Etps(QueryEtpsRequest) returns (QueryEtpsResponse) {
@@ -39,7 +39,6 @@ service Query {
 
 message QueryEtpRequest {
 	string ID = 1;
-	cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 message QueryEtpRequestByOwner {
@@ -49,7 +48,6 @@ message QueryEtpRequestByOwner {
 
 message QueryEtpResponse {
 	commerciomint.Position Position = 1;
-	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 
