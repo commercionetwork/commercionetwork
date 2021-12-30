@@ -58,9 +58,6 @@ func TestKeeper_SetGovernmentAddress(t *testing.T) {
 
 func TestKeeper_GetGovernmentAddress(t *testing.T) {
 
-	governmentTestAddress, err := sdk.AccAddressFromBech32("did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm")
-	require.NoError(t, err)
-
 	tests := []struct {
 		name    string
 		address sdk.AccAddress
