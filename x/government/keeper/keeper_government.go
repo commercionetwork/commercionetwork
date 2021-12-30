@@ -11,6 +11,10 @@ import (
 // SetGovernmentAddress allows to set the given address as the one that
 // the government will use later
 func (k Keeper) SetGovernmentAddress(ctx sdk.Context, address sdk.AccAddress) error {
+	if address == nil {
+		return errors.New("address is not defined")
+	}
+
 	store := ctx.KVStore(k.storeKey)
 
 	if store.Has([]byte(types.GovernmentStoreKey)) {
