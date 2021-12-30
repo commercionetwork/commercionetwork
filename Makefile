@@ -142,7 +142,7 @@ build-docker-cndode:
 
 localnet-start: localnet-stop
 	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
-	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
+#	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 	docker-compose up
 
 localnet-reset: localnet-stop $(TARGET_BUILD)

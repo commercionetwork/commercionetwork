@@ -19,9 +19,7 @@ RUN wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz && \
      tar -xzf go1.17.5.linux-amd64.tar.gz -C /usr && \
      chmod +x /usr/go/bin/go && \
      export PATH=/usr/go/bin:$PATH && \
-     echo $PATH && echo $GOHOME && \
-     go mod download && \
-     go mod tidy
+     go mod download
 
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed

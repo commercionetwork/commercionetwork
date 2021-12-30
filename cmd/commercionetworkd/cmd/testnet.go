@@ -26,7 +26,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+
+	//"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/server"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -197,7 +198,16 @@ func InitTestnet(
 		memo := fmt.Sprintf("%s@%s:26656", nodeIDs[i], ip)
 		genFiles = append(genFiles, config.GenesisFile())
 
-		kb, err := keys.NewKeyring(
+		kb, err := keyring.New(
+			sdk.KeyringServiceName(),
+			viper.GetString(flags.FlagKeyringBackend),
+			clientDir,
+			inBuf)
+		if err != nil {
+			return err
+		}
+
+		/*kb, err := keys.NewKeyring(
 			sdk.KeyringServiceName(),
 			viper.GetString(flags.FlagKeyringBackend),
 			clientDir,
@@ -205,7 +215,7 @@ func InitTestnet(
 		)
 		if err != nil {
 			return err
-		}
+		}*/
 
 		keyringAlgos, _ := kb.SupportedAlgorithms()
 		algo, err := keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), keyringAlgos)
@@ -306,7 +316,7 @@ func InitTestnet(
 		srvconfig.WriteConfigFile(cndConfigFilePath, cndConfig)
 	}
 
-	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genFiles, numValidators); err != nil {
+	if err := initGenFiles(clientCtx, mbm, chainID, genBalances, genAccounts, genFiles, numValidators); err != nil {
 		return err
 	}
 
@@ -326,6 +336,7 @@ func initGenFiles(
 	clientCtx client.Context,
 	mbm module.BasicManager,
 	chainID string,
+	genBalances []bankTypes.Balance,
 	genAccounts []authTypes.GenesisAccount,
 	genFiles []string,
 	numValidators int,
@@ -346,10 +357,20 @@ func initGenFiles(
 	authGenState.Accounts = accounts
 	appGenState[authTypes.ModuleName] = cdc.MustMarshalJSON(&authGenState)
 
+	var bankGenState bankTypes.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[bankTypes.ModuleName], &bankGenState)
+
+	bankGenState.Balances = bankTypes.SanitizeGenesisBalances(genBalances)
+	for _, bal := range bankGenState.Balances {
+		bankGenState.Supply = bankGenState.Supply.Add(bal.Coins...)
+	}
+	appGenState[bankTypes.ModuleName] = cdc.MustMarshalJSON(&bankGenState)
+
 	// commercionetworkd set-genesis-government-address
 	var governmentState governmentTypes.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[governmentTypes.ModuleName], &authGenState)
+	cdc.MustUnmarshalJSON(appGenState[governmentTypes.ModuleName], &governmentState)
 	governmentState.GovernmentAddress = genAccounts[0].GetAddress().String()
+	appGenState[governmentTypes.ModuleName] = cdc.MustMarshalJSON(&governmentState)
 
 	// set-genesis-vbr-pool-amount 1000000000ucommercio
 	var vbrState vbrTypes.GenesisState
