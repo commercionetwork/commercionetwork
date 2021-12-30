@@ -25,7 +25,7 @@ func TestKeeper_GovernmentAddr(t *testing.T) {
 		{
 			"empty request",
 			nil,
-			governmentTestAddress,
+			nil,
 			true,
 		},
 	}
@@ -41,10 +41,10 @@ func TestKeeper_GovernmentAddr(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Keeper.GovernmentAddr() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			} else {
+			}
+			if !tt.wantErr {
 				require.Equal(t, &types.QueryGovernmentAddrResponse{GovernmentAddress: k.GetGovernmentAddress(ctx).String()}, got)
 			}
-
 		})
 	}
 }
