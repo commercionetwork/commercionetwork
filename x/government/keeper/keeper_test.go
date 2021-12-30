@@ -22,12 +22,6 @@ func TestKeeper_SetGovernmentAddress(t *testing.T) {
 			false,
 		},
 		{
-			"empty address",
-			nil,
-			nil,
-			true,
-		},
-		{
 			"same government already set",
 			governmentTestAddress,
 			governmentTestAddress,
@@ -47,19 +41,19 @@ func TestKeeper_SetGovernmentAddress(t *testing.T) {
 			if err := k.SetGovernmentAddress(ctx, tt.governmentToSet); (err != nil) != tt.wantErr {
 				t.Errorf("Keeper.SetGovernmentAddress() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			var expected sdk.AccAddress
 			if tt.wantErr {
-				require.Equal(t, tt.governmentOld, k.GetGovernmentAddress(ctx))
+				expected = tt.governmentOld
 			} else {
-				require.Equal(t, tt.governmentToSet, k.GetGovernmentAddress(ctx))
+				expected = tt.governmentToSet
 			}
+
+			require.Equal(t, expected, k.GetGovernmentAddress(ctx))
 		})
 	}
 }
 
 func TestKeeper_GetGovernmentAddress(t *testing.T) {
-
-	governmentTestAddress, err := sdk.AccAddressFromBech32("did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm")
-	require.NoError(t, err)
 
 	tests := []struct {
 		name    string

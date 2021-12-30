@@ -25,7 +25,7 @@ func TestKeeper_GovernmentAddr(t *testing.T) {
 		{
 			"empty request",
 			nil,
-			governmentTestAddress,
+			nil,
 			true,
 		},
 	}
@@ -33,16 +33,18 @@ func TestKeeper_GovernmentAddr(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeperWithGovernmentAddress(t, tt.government)
 
+			require.Equal(t, tt.government, k.GetGovernmentAddress(ctx))
+
 			c := sdk.WrapSDKContext(ctx)
 
 			got, err := k.GovernmentAddr(c, tt.request)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Keeper.GovernmentAddr() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			} else {
-				require.Equal(t, &types.QueryGovernmentAddrResponse{GovernmentAddress: tt.government.String()}, got)
 			}
-
+			if !tt.wantErr {
+				require.Equal(t, &types.QueryGovernmentAddrResponse{GovernmentAddress: k.GetGovernmentAddress(ctx).String()}, got)
+			}
 		})
 	}
 }

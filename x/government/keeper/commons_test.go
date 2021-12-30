@@ -15,27 +15,8 @@ import (
 	tmdb "github.com/tendermint/tm-db"
 )
 
-func init() {
-	configTestPrefixes()
-	governmentTestAddress, _ = sdk.AccAddressFromBech32("did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm")
-	notGovernmentAddress, _ = sdk.AccAddressFromBech32("did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd")
-}
-
-func configTestPrefixes() {
-	AccountAddressPrefix := "did:com:"
-	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
-	ValidatorAddressPrefix := AccountAddressPrefix + "valoper"
-	ValidatorPubKeyPrefix := AccountAddressPrefix + "valoperpub"
-	ConsNodeAddressPrefix := AccountAddressPrefix + "valcons"
-	ConsNodePubKeyPrefix := AccountAddressPrefix + "valconspub"
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
-	config.SetBech32PrefixForValidator(ValidatorAddressPrefix, ValidatorPubKeyPrefix)
-	config.SetBech32PrefixForConsensusNode(ConsNodeAddressPrefix, ConsNodePubKeyPrefix)
-	config.Seal()
-}
-
-var governmentTestAddress, notGovernmentAddress sdk.AccAddress
+var governmentTestAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var notGovernmentAddress, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 
 // This function creates an environment to test the government module
 // if address is defined it will be used to add the government address
