@@ -64,3 +64,15 @@ func (elements Strings) Equals(other Strings) bool {
 func (addresses Strings) Empty() bool {
 	return len(addresses) == 0
 }
+
+// IsSet returns true if this slice does not contain any duplicate value
+func (elements Strings) IsSet() bool {
+	appears := map[string]struct{}{}
+	for _, s := range elements {
+		if _, found := appears[s]; found {
+			return false
+		}
+		appears[s] = struct{}{}
+	}
+	return true
+}
