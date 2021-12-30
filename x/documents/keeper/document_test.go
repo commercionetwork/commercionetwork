@@ -12,9 +12,10 @@ import (
 func createNDocument(keeper *Keeper, ctx sdk.Context, n int) []types.Document {
 	items := make([]types.Document, n)
 	for i := range items {
-		items[i].Sender = "any"
+		items[i].Sender = testingSender.String()
 		items[i].UUID = uuid.NewV4().String()
-		_ = keeper.AppendDocument(ctx, items[i])
+		//_ = keeper.AppendDocument(ctx, items[i])
+		_ = keeper.SaveDocument(ctx, items[i])
 	}
 	return items
 }

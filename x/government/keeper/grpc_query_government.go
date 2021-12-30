@@ -14,7 +14,5 @@ func (k Keeper) GovernmentAddr(c context.Context, req *types.QueryGovernmentAddr
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	store := ctx.KVStore(k.storeKey)
-	govAddress := store.Get([]byte(types.GovernmentStoreKey))
-	return &types.QueryGovernmentAddrResponse{GovernmentAddress: string(govAddress)}, nil
+	return &types.QueryGovernmentAddrResponse{GovernmentAddress: k.GetGovernmentAddress(ctx).String()}, nil
 }

@@ -1,5 +1,5 @@
 package keeper
-
+/*
 import (
 	"testing"
 
@@ -97,3 +97,4 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 
 	return keeper, ctx
 }
+*/

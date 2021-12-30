@@ -33,12 +33,25 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 }
 
 func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	//TODO
-	return []byte{}, nil
+	id := path[0]
+	etp, ok := k.GetPositionById(ctx, id)
+	if !ok {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Posistion with id: %s not found!", id))
+	}
+
+	etpbz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etp)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+	}
+
+	return etpbz, nil
 }
 
 func queryGetEtpsByOwner(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	ownerAddr, _ := sdk.AccAddressFromBech32(path[0])
+	ownerAddr, e := sdk.AccAddressFromBech32(path[0])
+	if e != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("The given address: %s is not valid!", path[0]))
+	}
 	etps := k.GetAllPositionsOwnedBy(ctx, ownerAddr)
 	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
 	if err != nil {
