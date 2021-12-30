@@ -1,5 +1,19 @@
 package cli_test
 
+// import (
+// 	"fmt"
+// 	"testing"
+
+// 	"github.com/commercionetwork/commercionetwork/testutil/network"
+// 	"github.com/commercionetwork/commercionetwork/x/did/client/cli"
+// 	"github.com/commercionetwork/commercionetwork/x/did/types"
+// 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
+// 	"github.com/stretchr/testify/require"
+// 	tmcli "github.com/tendermint/tendermint/libs/cli"
+// 	"google.golang.org/grpc/codes"
+// 	"google.golang.org/grpc/status"
+// )
+
 // func networkWithDocumentObjects(t *testing.T, n int) (*network.Network, []*types.DidDocument) {
 // 	t.Helper()
 // 	cfg := network.DefaultConfig()
@@ -7,26 +21,18 @@ package cli_test
 // 	require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
 // 	for i := 0; i < n; i++ {
-// 		_, _, addr := testdata.KeyTestPubAddr()
-// 		pubkeys := []*types.PubKey{}
 // 		service := []*types.Service{}
-// 		state.DidDocuments = append(state.DidDocuments, &types.DidDocument{ID: addr.String(), PubKeys: pubkeys, Service: service})
+// 		state.DidDocuments = append(state.DidDocuments, &types.DidDocument{ID: "did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd", Service: service})
 // 	}
 // 	buf, err := cfg.Codec.MarshalJSON(&state)
 // 	require.NoError(t, err)
 
-// 	stateGov := govTypes.GenesisState{}
-// 	require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[govTypes.ModuleName], &stateGov))
-// 	stateGov.GovernmentAddress = "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae"
-// 	bufGov, err := cfg.Codec.MarshalJSON(&stateGov)
-// 	require.NoError(t, err)
-
 // 	cfg.GenesisState[types.ModuleName] = buf
-// 	cfg.GenesisState[govTypes.ModuleName] = bufGov
 
 // 	return network.New(t, cfg), state.DidDocuments
 // }
 
+// // TODO
 // func TestShowIdentity(t *testing.T) {
 // 	net, objs := networkWithDocumentObjects(t, 2)
 
@@ -43,7 +49,7 @@ package cli_test
 // 	}{
 // 		{
 // 			desc: "found",
-// 			id:   fmt.Sprintf("%s", objs[0].ID),
+// 			id:   objs[0].ID,
 // 			args: common,
 // 			obj:  objs[0],
 // 		},
@@ -65,7 +71,7 @@ package cli_test
 // 				require.ErrorIs(t, stat.Err(), tc.err)
 // 			} else {
 // 				require.NoError(t, err)
-// 				var resp types.QueryResolveDidResponse
+// 				var resp types.QueryResolveDidDocumentResponse
 // 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 // 				require.NotNil(t, resp.DidDocument)
 // 				require.Equal(t, tc.obj, resp.DidDocument)
