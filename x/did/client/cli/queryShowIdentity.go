@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func CmdGetDidDocument() *cobra.Command {
+func CmdShowIdentity() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show-identity [id]",
 		Short: "Resolves the DID document for the specified id",
