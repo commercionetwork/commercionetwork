@@ -1,14 +1,10 @@
 package keeper
 
 import (
-	//"fmt"
-	//"sort"
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-//	"github.com/cosmos/cosmos-sdk/types/query"
-	//"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,18 +20,17 @@ func setFunds (keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
 	keeper.SetTotalRewardPool(ctx, pool)
 	moduleAcc := keeper.VbrAccount(ctx)
 	keeper.accountKeeper.SetModuleAccount(ctx, moduleAcc)
-	/*if moduleAcc == nil {
+	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 	coins := GetCoins(*keeper, ctx, moduleAcc)
 	if coins.Empty() {
 		amount, _ := pool.TruncateDecimal()
 		keeper.bankKeeper.SetBalances(ctx,moduleAcc.GetAddress(), amount)
-	}*/
+	}
 }
 
 var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin("ucommercio",sdk.NewInt(1000)))
-var testFunds2 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin("ucommercio", sdk.NewInt(10)))
 func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
@@ -47,19 +42,9 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 		err      error
 	}{
 		{
-			desc:     "First",
+			desc:     "funds 1000ucommercio",
 			request:  &types.QueryGetBlockRewardsPoolFundsRequest{},
 			response: &types.QueryGetBlockRewardsPoolFundsResponse{Funds: testFunds1},
-		},
-		{
-			desc:     "Second",
-			request:  &types.QueryGetBlockRewardsPoolFundsRequest{},
-			response: &types.QueryGetBlockRewardsPoolFundsResponse{Funds: testFunds2},
-		},
-		{
-			desc:    "KeyNotFound",
-			request: &types.QueryGetBlockRewardsPoolFundsRequest{},
-			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{
 			desc: "InvalidRequest",
@@ -67,8 +52,8 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 		},
 	} {
 		tc := tc
+		setFunds(keeper, ctx, testFunds1)
 		t.Run(tc.desc, func(t *testing.T) {
-			setFunds(keeper, ctx, tc.response.Funds)
 			response, err := keeper.GetBlockRewardsPoolFunds(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
@@ -78,7 +63,41 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 		})
 	}
 }
+var params = types.Params{
+	DistrEpochIdentifier: types.EpochDay,
+	EarnRate: sdk.NewDecWithPrec(5,1),
+}
 
-func TesGetVbrParams(t *testing.T) {
-
+func Test_GetVbrParams(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	
+	for _, tc := range []struct {
+		desc     string
+		request  *types.QueryGetVbrParamsRequest
+		response *types.QueryGetVbrParamsResponse
+		err      error
+	}{
+		{
+			desc:     "daily epoch and 0.5 earn rate",
+			request:  &types.QueryGetVbrParamsRequest{},
+			response: &types.QueryGetVbrParamsResponse{Params: params},
+		},
+		{
+			desc: "InvalidRequest",
+			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+	} {
+		tc := tc
+		keeper.SetParams(ctx, params)
+		
+		t.Run(tc.desc, func(t *testing.T) {
+			response, err := keeper.GetVbrParams(wctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.Equal(t, tc.response, response)
+			}
+		})
+	}
 }

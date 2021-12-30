@@ -164,7 +164,6 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator stakingTypes.V
 		}
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))
 	} else {
-		// TODO this error continue when pool hasn't enough funds for all rewards. Find a method to avoid this
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
 	}
 
