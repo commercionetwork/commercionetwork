@@ -34,4 +34,5 @@ func IsMembershipTypeValid(membershipType string) bool {
 		membershipType == MembershipTypeBlack
 }
 
+// Memberships represents a slice of Membership objects
 type Memberships []Membership

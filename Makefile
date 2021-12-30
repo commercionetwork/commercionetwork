@@ -57,17 +57,17 @@ BUILD_FLAGS := -ldflags '$(ldflags)'
 
 all: install
 
-build-darwin: go.sum generate
+build-darwin: go.sum
 	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build-linux: go.sum generate
+build-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 
-build-local-linux: go.sum generate
+build-local-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build-windows: go.sum generate
+build-windows: go.sum
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/commercionetworkd.exe $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-all: go.sum
@@ -104,10 +104,6 @@ lint:
 
 
 
-generate:
-ifeq ($(GENERATE),1)
-	go generate ./...
-endif
 
 .PHONY: git-hooks
 
@@ -141,10 +137,10 @@ test:
 
 
 build-docker-cndode:
-	$(MAKE) -C contrib/localnet
+	docker build --tag commercionetwork/cndnode -f contrib/localnet/cndnode/Dockerfile .
 
 
-localnet-start: localnet-stop build-local-linux
+localnet-start: localnet-stop
 	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
 	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 	docker-compose up

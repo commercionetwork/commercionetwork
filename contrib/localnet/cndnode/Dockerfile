@@ -1,34 +1,38 @@
 # Dockerfile References: https://docs.docker.com/engine/reference/builder/
 
 # Start from the latest golang base image
-FROM golang:latest as builder
+FROM ubuntu:20.04
+RUN apt update && \
+    apt upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive apt install -y git gcc make unzip jq wget tar gzip zip curl file tzdata
 
 # Add Maintainer Info
 LABEL maintainer="Marco Ruaro <marco.ruaro@gmail.com>"
-LABEL creator="Gianguido Sorà <me@gsora.xyz>"
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
+#COPY go1.17.5.linux-amd64.tar.gz ./
+RUN wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz && \
+     tar -xzf go1.17.5.linux-amd64.tar.gz -C /usr && \
+     chmod +x /usr/go/bin/go && \
+     export PATH=/usr/go/bin:$PATH && \
+     echo $PATH && echo $GOHOME && \
+     go mod download && \
+     go mod tidy
+
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN go mod download
+
 
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
 # Build the Go app
-RUN make build-linux
-
-FROM ubuntu:20.04
-
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get -y install curl jq file tzdata
-    
-COPY --from=builder /app/build/Linux-AMD64/commercionetworkd .
+RUN export PATH=/usr/go/bin:$PATH && \
+    make install
 
 VOLUME /cnd
 WORKDIR /cnd

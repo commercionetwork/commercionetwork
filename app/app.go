@@ -122,8 +122,8 @@ var (
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
-	stakeDenom              = "ucommercio"
-	stableCreditDenom       = "uccc"
+	StakeDenom              = "ucommercio"
+	StableCreditDenom       = "uccc"
 )
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
@@ -619,8 +619,8 @@ func New(
 			app.governmentKeeper, app.commercioMintKeeper,
 			comosante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
-			stakeDenom,
-			stableCreditDenom,
+			StakeDenom,
+			StableCreditDenom,
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)

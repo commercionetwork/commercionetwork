@@ -58,29 +58,29 @@ services:
       localnet:
         ipv4_address: 192.168.10.5
 
-  cnclinode0:
-    container_name: cnclinode0
-    image: "commercionetwork/cnclirest"
-    environment:
-      - ID=0
-      - LOGCNCLI=${LOG:-cnd.cli.log}
-    ports:
-      - "1317:1317"
-    volumes:
-      - ./build:/cnd:Z
-    networks:
-      - localnet
+  # cnclinode0:
+  #   container_name: cnclinode0
+  #   image: "commercionetwork/cnclirest"
+  #   environment:
+  #     - ID=0
+  #     - LOGCNCLI=${LOG:-cnd.cli.log}
+  #   ports:
+  #     - "1317:1317"
+  #   volumes:
+  #     - ./build:/cnd:Z
+  #   networks:
+  #     - localnet
 
-  proxy-nginx:
-    container_name:   proxy-nginx
-    image: "nginx"
-    ports:
-      - "7123:7123"
-      - "7124:7124"
-    volumes:
-      - ./build/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - localnet
+  # proxy-nginx:
+  #   container_name:   proxy-nginx
+  #   image: "nginx"
+  #   ports:
+  #     - "7123:7123"
+  #     - "7124:7124"
+  #   volumes:
+  #     - ./build/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #   networks:
+  #     - localnet
 
 networks:
   localnet:
