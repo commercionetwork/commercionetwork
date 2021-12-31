@@ -29,14 +29,6 @@ func (k Keeper) SetDocument(ctx sdk.Context, document types.Document) {
 	b := k.cdc.MustMarshalBinaryBare(&document)
 	store.Set(getDocumentStoreKey(document.UUID), b)
 }*/
-/*
-// GetDocument returns a document from its id
-func (k Keeper) GetDocument(ctx sdk.Context, id string) types.Document {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
-	var document types.Document
-	k.cdc.MustUnmarshalBinaryBare(store.Get(getDocumentStoreKey(id)), &document)
-	return document
-}*/
 
 // GetDocumentByID returns the document having the given id
 func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, error) {
@@ -64,23 +56,6 @@ func (k Keeper) HasDocument(ctx sdk.Context, id string) bool {
 func (k Keeper) GetDocumentOwner(ctx sdk.Context, id string) string {
 	document, _ := k.GetDocumentByID(ctx, id)
 	return document.Sender
-}
-
-// GetAllDocument returns all document
-func (k Keeper) GetAllDocument(ctx sdk.Context) (list []types.Document) {
-	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
-
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var val types.Document
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
-		list = append(list, val)
-	}
-
-	return
 }
 
 // getSentDocumentsIdsUUIDStoreKey generates a SentDocumentID for a given user and document UUID

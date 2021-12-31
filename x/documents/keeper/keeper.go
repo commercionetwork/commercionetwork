@@ -10,8 +10,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//	bType "github.com/commercionetwork/commercionetwork/x/basic/types"
-	// this line is used by starport scaffolding # ibc/keeper/import
 )
 
 const (
@@ -26,9 +24,6 @@ type (
 		cdc      codec.Marshaler
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
-		/*channelKeeper types.ChannelKeeper
-		portKeeper    types.PortKeeper
-		scopedKeeper  types.ScopedKeeper*/
 	}
 )
 
@@ -36,17 +31,11 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	storeKey,
 	memKey sdk.StoreKey,
-	/*channelKeeper types.ChannelKeeper,
-	portKeeper types.PortKeeper,
-	scopedKeeper types.ScopedKeeper,*/
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
 		memKey:   memKey,
-		/*channelKeeper: channelKeeper,
-		portKeeper:    portKeeper,
-		scopedKeeper:  scopedKeeper,*/
 	}
 }
 
