@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	mint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +19,7 @@ const (
 )
 
 var membershipCosts = map[string]int64{
-	types.MembershipTypeGreen:  5,
+	types.MembershipTypeGreen:  1,
 	types.MembershipTypeBronze: 25,
 	types.MembershipTypeSilver: 250,
 	types.MembershipTypeGold:   2500,
@@ -30,8 +31,9 @@ type Keeper struct {
 	StoreKey      sdk.StoreKey
 	memKey        sdk.StoreKey
 	bankKeeper    bank.Keeper
-	govKeeper     government.Keeper
+	GovKeeper     government.Keeper
 	accountKeeper auth.AccountKeeper
+	MintKeeper    mint.Keeper
 }
 
 func NewKeeper(
@@ -41,6 +43,7 @@ func NewKeeper(
 	bankKeeper bank.Keeper,
 	govKeeper government.Keeper,
 	accountKeeper auth.AccountKeeper,
+	mintKeeper mint.Keeper,
 ) *Keeper {
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -51,7 +54,16 @@ func NewKeeper(
 		StoreKey:      storeKey,
 		memKey:        memKey,
 		bankKeeper:    bankKeeper,
-		govKeeper:     govKeeper,
+		GovKeeper:     govKeeper,
 		accountKeeper: accountKeeper,
+		MintKeeper:    mintKeeper,
 	}
+}
+
+func (k Keeper) GetAccountKeeper() auth.AccountKeeper {
+	return k.accountKeeper
+}
+
+func (k Keeper) GetBankKeeper() bank.Keeper {
+	return k.bankKeeper
 }

@@ -9,6 +9,11 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
+const (
+	eventInvite = "invite"
+)
+
+// getInviteStoreKey return store key of invate to given account address
 func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {
 	return []byte(types.InviteStorePrefix + user.String())
 }
@@ -16,30 +21,31 @@ func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {
 // InviteUser allows to set a given user as being invited by the given invite sender.
 func (k Keeper) Invite(ctx sdk.Context, recipient, sender sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
-	inviteKey := k.getInviteStoreKey(recipient)
 
+	// Check if the user has already been invited
+	inviteKey := k.getInviteStoreKey(recipient)
 	if store.Has(inviteKey) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", recipient))
 	}
 
+	// Verify that the user that is inviting has already a membership
 	inviterMembership, err := k.GetMembership(ctx, sender)
 	if err != nil {
-		return err
+		return sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Cannot send an invitation without having a membership: %s", err.Error()))
+
 	}
+
 	// Build and save the invite
 	accreditation := types.NewInvite(sender, recipient, inviterMembership.MembershipType)
 	store.Set(inviteKey, k.Cdc.MustMarshalBinaryBare(&accreditation))
 
-	// TODO emits events
-	/*
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			eventInvite,
-			sdk.NewAttribute("recipient", recipient.String()),
-			sdk.NewAttribute("sender", sender.String()),
-			sdk.NewAttribute("sender_membership_type", inviterMembership.MembershipType), // Maybe
-		))
-	*/
-
+	// Emits events
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventInvite,
+		sdk.NewAttribute("recipient", recipient.String()),
+		sdk.NewAttribute("sender", sender.String()),
+		sdk.NewAttribute("sender_membership_type", inviterMembership.MembershipType), // Maybe
+	))
 	return nil
 }
 
@@ -80,6 +86,6 @@ func (k Keeper) GetInvites(ctx sdk.Context) []*types.Invite {
 // SaveInvite allows to save the given invite inside the store
 func (k Keeper) SaveInvite(ctx sdk.Context, invite types.Invite) {
 	store := ctx.KVStore(k.StoreKey)
-	test_invite_User, _ := sdk.AccAddressFromBech32(invite.User)
-	store.Set(k.getInviteStoreKey(test_invite_User), k.Cdc.MustMarshalBinaryBare(&invite))
+	inviteUser, _ := sdk.AccAddressFromBech32(invite.User)
+	store.Set(k.getInviteStoreKey(inviteUser), k.Cdc.MustMarshalBinaryBare(&invite))
 }

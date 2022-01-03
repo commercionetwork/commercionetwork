@@ -11,14 +11,14 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
-	cdc.RegisterConcrete(&MsgSetIdentity{}, "id/setIdentity", nil)
+	cdc.RegisterConcrete(&MsgSetDidDocument{}, "id/setIdentity", nil)
 
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	// this line is used by starport scaffolding # 3
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgSetIdentity{},
+		&MsgSetDidDocument{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -3,13 +3,12 @@ package keeper
 import (
 	"testing"
 
+	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/commercionetwork/commercionetwork/x/did/types"
 )
 
 func TestIdentityQuerySingle(t *testing.T) {
@@ -18,23 +17,23 @@ func TestIdentityQuerySingle(t *testing.T) {
 	msgs := createNIdentity(keeper, ctx, 2)
 	for _, tc := range []struct {
 		desc     string
-		request  *types.QueryResolveDidRequest
-		response *types.QueryResolveDidResponse
+		request  *types.QueryResolveDidDocumentRequest
+		response *types.QueryResolveDidDocumentResponse
 		err      error
 	}{
 		{
 			desc:     "First",
-			request:  &types.QueryResolveDidRequest{ID: msgs[0].ID},
-			response: &types.QueryResolveDidResponse{DidDocument: &msgs[0]},
+			request:  &types.QueryResolveDidDocumentRequest{ID: msgs[0].ID},
+			response: &types.QueryResolveDidDocumentResponse{DidDocument: &msgs[0]},
 		},
 		{
 			desc:     "Second",
-			request:  &types.QueryResolveDidRequest{ID: msgs[1].ID},
-			response: &types.QueryResolveDidResponse{DidDocument: &msgs[1]},
+			request:  &types.QueryResolveDidDocumentRequest{ID: msgs[1].ID},
+			response: &types.QueryResolveDidDocumentResponse{DidDocument: &msgs[1]},
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.QueryResolveDidRequest{ID: "x"},
+			request: &types.QueryResolveDidDocumentRequest{ID: "x"},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{

@@ -12,7 +12,7 @@ import (
 func CmdShowIdentity() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show-identity [id]",
-		Short: "shows a did document",
+		Short: "Resolves the DID document for the specified id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -20,7 +20,7 @@ func CmdShowIdentity() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 			id := string(args[0])
 
-			params := &types.QueryResolveDidRequest{
+			params := &types.QueryResolveDidDocumentRequest{
 				ID: id,
 			}
 

@@ -61,3 +61,28 @@ func TestStrings_Equals(t *testing.T) {
 	require.False(t, types.Strings{"first", "second"}.Equals(types.Strings{"first"}))
 	require.False(t, types.Strings{"first"}.Equals(types.Strings{"first", "second"}))
 }
+
+func Test_IsSet(t *testing.T) {
+
+	tests := []struct {
+		name  string
+		slice []string
+		want  bool
+	}{
+		{"sliceEmpty", []string{}, true},
+		{"sliceNoDup", []string{"A"}, true},
+		{"sliceNoDup1", []string{"A", "B", "C"}, true},
+		{"sliceDup", []string{"A", "B", "A"}, false},
+		{"sliceDup1", []string{"A", "B", "A", ""}, false},
+		{"sliceDup3", []string{"B", "A", "A"}, false},
+		{"sliceDup4", []string{"A", "A"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if got := types.Strings(tt.slice).IsSet(); got != tt.want {
+				t.Errorf("isMap(%s) = %v, want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
