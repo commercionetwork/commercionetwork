@@ -12,9 +12,6 @@ import (
 func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.MsgIncrementBlockRewardsPool) (*types.MsgIncrementBlockRewardsPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: Handling the message
-	_ = ctx
-
 	//return &types.MsgIncrementBlockRewardsPoolResponse{}, nil
 	funderAddr, e := sdk.AccAddressFromBech32(msg.Funder)
 	if e != nil {

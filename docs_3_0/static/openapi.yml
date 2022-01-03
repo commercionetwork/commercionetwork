@@ -1526,11 +1526,150 @@ paths:
 
                             name "y.z".
 
+            is set.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /commercionetwork/government/governmentAddress:
+    get:
+      summary: Queries the government address.
+      operationId: CommercionetworkCommercionetworkGovernmentGovernmentAddr
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              governmentAddress:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /commercionetwork/vbr/funds:
+    get:
+      summary: 'this line is used by starport scaffolding # 2'
+      operationId: CommercionetworkCommercionetworkVbrGetBlockRewardsPoolFunds
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              funds:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
 
 
                             JSON
 
-                            ====
+                    signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /commercionetwork/vbr/params:
+    get:
+      operationId: CommercionetworkCommercionetworkVbrGetVbrParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                type: object
+                properties:
+                  distrEpochIdentifier:
+                    type: string
+                    title: distribution epoch identifier
+                  earnRate:
+                    type: string
+                title: Params holds parameters for the incentives module
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  '/cosmos/bank/v1beta1/balances/{address}':
+    get:
+      summary: AllBalances queries the balance of all coins for a single account.
+      operationId: CosmosBankV1Beta1AllBalances
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              balances:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
 
                             The JSON representation of an `Any` value uses the
                             regular
