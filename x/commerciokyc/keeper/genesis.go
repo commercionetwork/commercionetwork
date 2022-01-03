@@ -1,9 +1,8 @@
-package commerciokyc
+package keeper
 
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,21 +10,21 @@ import (
 
 // InitGenesis sets commerciokyc information for genesis.
 // TODO move all keeper invocation in keeper package
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 
 	// Get the module account
-	moduleAcc := keeper.GetMembershipModuleAccount(ctx)
+	moduleAcc := k.GetMembershipModuleAccount(ctx)
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	// Get the initial pool coins
 	// TODO RESOLVE POOL ISSUE
-	if keeper.GetModuleBalance(ctx, moduleAcc.GetAddress()).IsZero() {
-		if err := keeper.SetLiquidityPoolToAccount(ctx, data.LiquidityPoolAmount); err != nil {
+	if k.GetModuleBalance(ctx, moduleAcc.GetAddress()).IsZero() {
+		if err := k.SetLiquidityPoolToAccount(ctx, data.LiquidityPoolAmount); err != nil {
 			panic(err)
 		}
-		keeper.SetModuleAccount(ctx, moduleAcc)
+		k.SetModuleAccount(ctx, moduleAcc)
 	}
 
 	// Import the signers
@@ -34,19 +33,19 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 		if err != nil {
 			panic(err)
 		}
-		keeper.AddTrustedServiceProvider(ctx, tsp)
+		k.AddTrustedServiceProvider(ctx, tsp)
 	}
 
 	// Import all the invites
 	for _, invite := range data.Invites {
-		keeper.SaveInvite(ctx, *invite)
+		k.SaveInvite(ctx, *invite)
 	}
 
 	// Import the memberships
 	for _, membership := range data.Memberships {
 		mOwner, _ := sdk.AccAddressFromBech32(membership.Owner)
 		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
-		err := keeper.AssignMembership(ctx, mOwner, membership.MembershipType, mTsp, *membership.ExpiryAt)
+		err := k.AssignMembership(ctx, mOwner, membership.MembershipType, mTsp, *membership.ExpiryAt)
 		if err != nil {
 			panic(err)
 		}
@@ -55,7 +54,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	// create the Memberships set
 	/*var liquidityPoolAmount []*sdk.Coin
 	for _, coin := range k.GetPoolFunds(ctx) {

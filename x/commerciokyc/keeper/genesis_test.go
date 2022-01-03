@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	"github.com/stretchr/testify/require"
@@ -22,8 +21,8 @@ func TestInitGenesis(t *testing.T) {
 	defGen := types.DefaultGenesis()
 	ctx, _, _, k := SetupTestInput()
 	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite(nil), TrustedServiceProviders: nil, Memberships: []*types.Membership(nil)}, defGen)
-	commerciokyc.InitGenesis(ctx, k, *defGen)
-	export := commerciokyc.ExportGenesis(ctx, k)
+	k.InitGenesis(ctx, *defGen)
+	export := k.ExportGenesis(ctx)
 	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite{}, TrustedServiceProviders: nil, Memberships: []*types.Membership{}}, export)
 
 	var tsps []string
@@ -47,9 +46,9 @@ func TestInitGenesis(t *testing.T) {
 		Memberships:             memberships,
 		TrustedServiceProviders: tsps,
 	}
-	commerciokyc.InitGenesis(ctx, k, genStateWithData)
+	k.InitGenesis(ctx, genStateWithData)
 
-	export = commerciokyc.ExportGenesis(ctx, k)
+	export = k.ExportGenesis(ctx)
 
 	require.Equal(t, genStateWithData.Invites, export.Invites)
 	//require.Equal(t, genStateWithData.Memberships, export.Memberships) // TODO fix expiryAt

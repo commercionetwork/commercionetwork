@@ -15,12 +15,13 @@ import (
 )
 
 const (
-	stakeDenom        = "ucommercio"
-	stableCreditDenom = "uccc"
-	//eventBuyMembership    = "buy_membership"
+	stakeDenom            = "ucommercio"
+	stableCreditDenom     = "uccc"
+	eventBuyMembership    = "buy_membership"
 	eventAssignMembership = "assign_membership"
 	eventRemoveMembership = "remove_membership"
 	eventDistributeReward = "distribute_reward"
+	eventDeposit          = "deposit_into_pool"
 )
 
 var membershipRewards = map[string]map[string]sdk.Dec{
