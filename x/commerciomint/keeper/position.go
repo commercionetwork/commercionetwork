@@ -86,14 +86,14 @@ func (k Keeper) GetPositionOwnedBy(ctx sdk.Context, owner sdk.AccAddress){
 }*/
 
 // NewPosition creates a new minting position for the amount deposited, credited to depositor.
-//func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins, id string) error {
-func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
-	owner, err := sdk.AccAddressFromBech32(position.Owner)
+func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins, id string) error {
+	//func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
+	owner, err := sdk.AccAddressFromBech32(depositor)
 	if err != nil {
 		return err
 	}
-	depositor := owner
-	ucccRequested := sdk.NewInt(position.Collateral)
+	//depositor := owner
+	ucccRequested := deposit.AmountOf("uccc")
 	if ucccRequested.IsZero() {
 		//return errors.New("no uccc requested")
 		return fmt.Errorf("no %s requested", types.CreditsDenom)
@@ -111,14 +111,14 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	ucomAmount := sdk.NewCoin("ucommercio", ucommercioAmount)
 
 	// Create the ETP and validate it
-	/*position := types.NewPosition(
-		depositor,
+	position := types.NewPosition(
+		owner,
 		ucomAmount.Amount,
 		ucccEmitted,
 		id,
 		ctx.BlockTime(),
 		conversionRate,
-	)*/
+	)
 	createAt := ctx.BlockTime()
 	position.CreatedAt = &createAt
 	position.ExchangeRate = conversionRate
@@ -129,7 +129,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	}
 
 	// Send the deposit from the user to the commerciomint account
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, sdk.NewCoins(ucomAmount)); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, types.ModuleName, sdk.NewCoins(ucomAmount)); err != nil {
 		return fmt.Errorf("could not move collateral amount to module account, %w", err)
 	}
 
@@ -139,7 +139,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 		return fmt.Errorf("could not mint coins, %w", err)
 	}
 
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, creditsCoins); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, creditsCoins); err != nil {
 		return fmt.Errorf("could not send minted coins to account, %w", err)
 	}
 
@@ -147,7 +147,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	k.SetPosition(ctx, position)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventNewPosition,
-		sdk.NewAttribute("depositor", depositor.String()),
+		sdk.NewAttribute("depositor", owner.String()),
 		sdk.NewAttribute("amount_deposited", ucomAmount.String()),
 		sdk.NewAttribute("minted_coins", creditsCoins.String()),
 		sdk.NewAttribute("position_id", position.ID),

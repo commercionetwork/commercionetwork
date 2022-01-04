@@ -113,7 +113,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 			amount: sdk.NewInt(testEtp.Collateral),
 			owner:  testEtpOwner,
 			id:     testEtp.ID,
-			error: fmt.Errorf("insufficient funds: insufficient account funds;  < %s",
+			error: fmt.Errorf("0ucommercio is smaller than %s: insufficient funds",
 				sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)),
 			),
 		},
@@ -139,7 +139,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			position := types.Position{
+			/*position := types.Position{
 				Owner:      test.owner.String(),
 				Collateral: 0,
 				Credits: &sdk.Coin{
@@ -149,9 +149,12 @@ func TestKeeper_NewPosition(t *testing.T) {
 				CreatedAt:    &time.Time{},
 				ID:           test.id,
 				ExchangeRate: sdk.Dec{},
-			}
+			}*/
 
-			err := k.NewPosition(ctx, position)
+			err := k.NewPosition(ctx, test.owner.String(), sdk.Coins{sdk.Coin{
+				Denom:  "uccc",
+				Amount: test.amount,
+			}}, test.id)
 			if test.error != nil {
 				require.Error(t, err)
 				e := errors.Unwrap(err)
@@ -202,11 +205,12 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		ctx, bk, _, k := SetupTestInput()
 
 		k.SetPosition(ctx, testEtp)
+		_ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		// _ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.NoError(t, err)
-		require.Equal(t, testEtp.Collateral, bk.GetAllBalances(ctx, testEtpOwner).AmountOf("ucommercio"))
+		require.Equal(t, sdk.NewInt(testEtp.Collateral), bk.GetAllBalances(ctx, testEtpOwner).AmountOf("ucommercio"))
 	})
 
 	t.Run("Existing ETP return correct balance", func(t *testing.T) {
@@ -215,6 +219,7 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		k.SetPosition(ctx, testEtp)
 		baseUcccAccount := sdk.NewCoin("uccc", sdk.NewInt(50))
 		baseUcommercioAccount := sdk.NewCoin("ucommercio", sdk.NewInt(0))
+		_ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		// _ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(baseUcommercioAccount, baseUcccAccount))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, halfCoinSub)

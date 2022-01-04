@@ -65,11 +65,12 @@ func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 		return err
 	}
 	store := ctx.KVStore(k.storeKey)
-	setRate := types.ConversionRate{
+	/*setRate := types.ConversionRate{
 		Rate: rate,
-	}
+	}*/
 
-	store.Set([]byte(types.CollateralRateKey), k.cdc.MustMarshalBinaryBare(&setRate))
+	//store.Set([]byte(types.CollateralRateKey), k.cdc.MustMarshalBinaryBare(&setRate))
+	store.Set([]byte(types.CollateralRateKey), []byte(rate.String()))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventSetConversionRate,

@@ -10,25 +10,29 @@ import (
 
 func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types.MsgMintCCCResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	var depositAmount int64
+	var requestCoins sdk.Coins
+	//var depositAmount int64
 	for _, denom := range msg.DepositAmount {
-		if denom.Denom == types.CreditsDenom {
+		requestCoins = append(requestCoins, *denom)
+		/*if denom.Denom == types.CreditsDenom {
 			depositAmount = denom.Amount.Int64()
 			break
-		}
+		}*/
 	}
-	var postion = types.Position{
+	/*var postion = types.Position{
 		Owner:      msg.Depositor,
 		Collateral: depositAmount,
 		ID:         msg.ID,
-	}
+	}*/
 
 	err := k.NewPosition(
 		ctx,
-		postion,
+		msg.Depositor,
+		requestCoins,
+		msg.ID,
 	)
 	if err != nil {
-		return &types.MsgMintCCCResponse{},  errors.Wrap(errors.ErrInvalidRequest, err.Error())
+		return &types.MsgMintCCCResponse{}, errors.Wrap(errors.ErrInvalidRequest, err.Error())
 	}
 	return &types.MsgMintCCCResponse{
 		ID: msg.ID,
