@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	mtypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	//mtypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -210,15 +210,17 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		// Create a mint position from
 
 		mintUUID := uuid.NewV4().String()
-		var postion = mtypes.Position{
+		/*var postion = mtypes.Position{
 			Owner:      govAddr.String(),
 			Collateral: rewardAmount.Int64(),
 			ID:         mintUUID,
-		}
+		}*/
 
 		err := k.MintKeeper.NewPosition(
 			ctx,
-			postion,
+			govAddr.String(),
+			rewardCoins,
+			mintUUID,
 		)
 		if err != nil {
 			// TODO find a way to fix nested errors
