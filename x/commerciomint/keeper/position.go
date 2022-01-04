@@ -79,6 +79,7 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 	}
 	return positions
 }
+
 /*
 func (k Keeper) GetPositionOwnedBy(ctx sdk.Context, owner sdk.AccAddress){
 
@@ -169,7 +170,7 @@ func (k Keeper) GetAllPositions(ctx sdk.Context) []*types.Position {
 	return positions
 }
 
-// BurnCCC burns burnAmount to the conversion rate stored in the Position identified by id, and returns the
+// RemoveCCC burns burnAmount to the conversion rate stored in the Position identified by id, and returns the
 // resulting collateral amount to user.
 func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmount sdk.Coin) (sdk.Int, error) {
 	pos, found := k.GetPosition(ctx, user, id)
@@ -259,6 +260,7 @@ func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddres
 	prefix := append([]byte(types.EtpStorePrefix), owner...)
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
+
 // getSentDocumentsIdsStoreKey generates a ReceivedDocumentsID store key for a given user
 func getEtpByOwnerIdsStoreKey(user sdk.AccAddress) []byte {
 	return append([]byte(types.EtpStorePrefix), user...)

@@ -34,11 +34,12 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 
 	keys := sdk.NewKVStoreKeys(
 		authType.StoreKey,
+		bankTypes.StoreKey,
 		paramsType.StoreKey,
 		governmentTypes.StoreKey,
 		types.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramsType.QuerierRoute)
+	tkeys := sdk.NewTransientStoreKeys(paramsType.TStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
 	for _, key := range keys {
@@ -85,35 +86,35 @@ func SetupTestInput() (sdk.Context, bank.Keeper, government.Keeper, Keeper) {
 		panic(err)
 	}
 
-	/*ak := auth.NewAccountKeeper(cdc, keys[authType.StoreKey], pk.Subspace(authType.Subspace.Name()), authType.ProtoBaseAccount)
-	bk := bank.NewBaseKeeper(cdc, ak, pk.Subspace(bank.DefaultParamspace), nil)
-	maccPerms := map[string][]string{
-		types.ModuleName: {supply.Minter, supply.Burner},
-	}
-	sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
+	// ak = auth.NewAccountKeeper(cdc, keys[authType.StoreKey], pk.Subspace(authType.Subspace.Name()), authType.ProtoBaseAccount)
+	// bk := bank.NewBaseKeeper(cdc, ak, pk.Subspace(bank.DefaultParamspace), nil)
+	// maccPerms := map[string][]string{
+	// 	types.ModuleName: {supply.Minter, supply.Burner},
+	// }
+	// sk := supply.NewKeeper(cdc, keys[supply.StoreKey], ak, bk, maccPerms)
 
-	govkeeper := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
+	// govkeeper := government.NewKeeper(cdc, keys[governmentTypes.StoreKey])
 
-	mintK := NewKeeper(cdc, keys[types.StoreKey], sk, govkeeper)
+	// mintK := NewKeeper(cdc, keys[types.StoreKey], sk, govkeeper)
 
-	// Set initial supply
-	sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testEtp.Credits)))
+	// // Set initial supply
+	// sk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(testEtp.Credits)))
 
-	// Set module accounts
-	mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
-	mintK.supplyKeeper.SetModuleAccount(ctx, mintAcc)
+	// // Set module accounts
+	// mintAcc := supply.NewEmptyModuleAccount(types.ModuleName, supply.Minter, supply.Burner)
+	// mintK.supplyKeeper.SetModuleAccount(ctx, mintAcc)
 
-	// Set etp collateral rate
-	err := mintK.SetConversionRate(ctx, sdk.NewDec(2))
-	if err != nil {
-		panic(err)
-	}
+	// // Set etp collateral rate
+	// err := mintK.SetConversionRate(ctx, sdk.NewDec(2))
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// Set etp freeze period
-	err = mintK.SetFreezePeriod(ctx, 0)
-	if err != nil {
-		panic(err)
-	}*/
+	// // Set etp freeze period
+	// err = mintK.SetFreezePeriod(ctx, 0)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	return ctx, bk, *govkeeper, *mintK
 }
