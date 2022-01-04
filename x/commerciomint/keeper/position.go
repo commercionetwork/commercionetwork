@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -182,7 +181,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 	// Control if position is almost in freezing period
 	freezePeriod := k.GetFreezePeriod(ctx)
 	createdAt := *pos.CreatedAt // TODO CHECK FORMAT AND ERROR
-	if time.Now().Sub(createdAt) <= freezePeriod {
+	if ctx.BlockTime().Sub(createdAt) <= freezePeriod {
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
 	}
 
