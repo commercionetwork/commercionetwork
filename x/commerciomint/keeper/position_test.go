@@ -150,18 +150,6 @@ func TestKeeper_NewPosition(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			/*position := types.Position{
-				Owner:      test.owner.String(),
-				Collateral: 0,
-				Credits: &sdk.Coin{
-					Denom:  "uccc",
-					Amount: test.amount,
-				},
-				CreatedAt:    &time.Time{},
-				ID:           test.id,
-				ExchangeRate: sdk.Dec{},
-			}*/
-
 			err := k.NewPosition(ctx, test.owner, sdk.Coins{sdk.Coin{
 				Denom:  "uccc",
 				Amount: test.amount,
@@ -219,7 +207,6 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 
 		k.SetPosition(ctx, testEtp)
 		_ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
-		// _ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.NoError(t, err)
@@ -233,7 +220,6 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		baseUcccAccount := sdk.NewCoin("uccc", sdk.NewInt(50))
 		baseUcommercioAccount := sdk.NewCoin("ucommercio", sdk.NewInt(0))
 		_ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
-		// _ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(baseUcommercioAccount, baseUcccAccount))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, halfCoinSub)
 		require.NoError(t, err)
@@ -249,6 +235,9 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		ctx, bk, _, k := SetupTestInput()
 		_ = k.SetFreezePeriod(ctx, 3000000000) // 30 seconds
 		k.SetPosition(ctx, testEtp)
+
+		// should we mint coins for this test?
+		// _ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		// _ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
