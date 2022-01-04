@@ -66,7 +66,7 @@ func convertService(services220 v220did.Services) (services300 []*types.Service)
 }
 
 func convertDDO(ddo220 v220did.DidDocument) (ddo300 *types.DidDocument) {
-
+	ddo300 = &types.DidDocument{}
 	ddo300.Context = []string{ddo220.Context}
 
 	ddo300.ID = ddo220.ID.String()
