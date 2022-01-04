@@ -9,28 +9,12 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/stretchr/testify/require"
 )
 
-func setSupply(ctx sdk.Context, bk bankKeeper.Keeper) {
-	// questo codice equivale a quello commentato sotto?
-	// ovvero, prendo la supply esistente e ci aggiungo dei Coin, poi aggiorno
-	bk.SetSupply(ctx, bankTypes.NewSupply(
-		bk.GetSupply(ctx).GetTotal().Add(sdk.NewCoin("ucommercio", sdk.NewInt(testEtp.Collateral)))))
-	// _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName),
-	// 	sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(testEtp.Collateral))),
-	// )
-}
-
 func TestKeeper_SetPosition(t *testing.T) {
 	ctx, bk, _, k := SetupTestInput()
-
-	// _ = bk.AddCoins(ctx, k.supplyKeeper.GetModuleAddress(types.ModuleName),
-	// 	sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(testEtp.Collateral))),
-	// )
 
 	err := bk.SetBalance(ctx, testEtpOwner, *testEtp.Credits)
 	if err != nil {
@@ -43,6 +27,15 @@ func TestKeeper_SetPosition(t *testing.T) {
 	require.True(t, found)
 	require.Equal(t, testEtp.Owner, position.Owner)
 	require.True(t, testEtp.CreatedAt.Equal(*position.CreatedAt))
+
+	// a position with id already exists
+	err = k.SetPosition(ctx, testEtp)
+	require.Error(t, err)
+
+	invalidTestEtp := testEtp
+	invalidTestEtp.Owner = ""
+	err = k.SetPosition(ctx, invalidTestEtp)
+	require.Error(t, err)
 }
 
 // --------------
@@ -52,21 +45,31 @@ func TestKeeper_SetPosition(t *testing.T) {
 func TestKeeper_UpdatePositionBasic(t *testing.T) {
 	testData := []struct {
 		name            string
-		position        types.Position
-		insPostion      bool
+		position        func() types.Position
+		insPosition     bool
 		shouldBeUpdated bool
 	}{
 		{
+			name: "invalid owner",
+			position: func() types.Position {
+				pos := testEtp
+				pos.Owner = ""
+				return pos
+			},
+			insPosition:     false,
+			shouldBeUpdated: false,
+		},
+		{
 			name:            "Etp doesn't exists",
-			position:        fakeEtp,
-			insPostion:      false,
+			position:        func() types.Position { return fakeEtp },
+			insPosition:     false,
 			shouldBeUpdated: false,
 		},
 
 		{
 			name:            "Etp update properly",
-			position:        testEtp,
-			insPostion:      true,
+			position:        func() types.Position { return testEtp },
+			insPosition:     true,
 			shouldBeUpdated: true,
 		},
 	}
@@ -75,16 +78,15 @@ func TestKeeper_UpdatePositionBasic(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
-			if test.insPostion {
-				k.SetPosition(ctx, test.position)
+			if test.insPosition {
+				require.NoError(t, k.SetPosition(ctx, test.position()))
 			}
 			if test.shouldBeUpdated {
-				require.NoError(t, k.UpdatePosition(ctx, test.position))
+				require.NoError(t, k.UpdatePosition(ctx, test.position()))
 				return
-			}
-
-			if !test.shouldBeUpdated {
-				require.Error(t, k.UpdatePosition(ctx, test.position))
+			} else {
+				err := k.UpdatePosition(ctx, test.position())
+				require.Error(t, err)
 				return
 			}
 		})
@@ -94,7 +96,7 @@ func TestKeeper_UpdatePositionBasic(t *testing.T) {
 func TestKeeper_NewPosition(t *testing.T) {
 	testData := []struct {
 		name            string
-		owner           sdk.AccAddress
+		owner           string
 		id              string
 		amount          sdk.Int
 		userFunds       sdk.Coins
@@ -102,8 +104,15 @@ func TestKeeper_NewPosition(t *testing.T) {
 		returnedCredits sdk.Coins
 	}{
 		{
+			name:   "invalid owner",
+			owner:  "",
+			id:     testEtp.ID,
+			amount: sdk.NewInt(0),
+			error:  fmt.Errorf("empty address string is not allowed"),
+		},
+		{
 			name:   "invalid deposited amount",
-			owner:  testEtpOwner,
+			owner:  testEtpOwner.String(),
 			id:     testEtp.ID,
 			amount: sdk.NewInt(0),
 			error:  fmt.Errorf("no uccc requested"),
@@ -111,7 +120,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 		{
 			name:   "Not enough funds inside user wallet",
 			amount: sdk.NewInt(testEtp.Collateral),
-			owner:  testEtpOwner,
+			owner:  testEtpOwner.String(),
 			id:     testEtp.ID,
 			error: fmt.Errorf("0ucommercio is smaller than %s: insufficient funds",
 				sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)),
@@ -120,7 +129,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 		{
 			name:            "Successful opening",
 			amount:          sdk.NewInt(testEtp.Collateral),
-			owner:           testEtpOwner,
+			owner:           testEtpOwner.String(),
 			id:              testEtp.ID,
 			userFunds:       sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)),
 			returnedCredits: sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)),
@@ -135,7 +144,9 @@ func TestKeeper_NewPosition(t *testing.T) {
 
 			// Setup
 			if !test.userFunds.Empty() {
-				err := bk.AddCoins(ctx, test.owner, test.userFunds)
+				ownerAddr, err := sdk.AccAddressFromBech32(test.owner)
+				require.NoError(t, err)
+				err = bk.AddCoins(ctx, ownerAddr, test.userFunds)
 				require.NoError(t, err)
 			}
 
@@ -151,7 +162,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 				ExchangeRate: sdk.Dec{},
 			}*/
 
-			err := k.NewPosition(ctx, test.owner.String(), sdk.Coins{sdk.Coin{
+			err := k.NewPosition(ctx, test.owner, sdk.Coins{sdk.Coin{
 				Denom:  "uccc",
 				Amount: test.amount,
 			}}, test.id)
@@ -168,7 +179,9 @@ func TestKeeper_NewPosition(t *testing.T) {
 			}
 
 			if !test.returnedCredits.IsEqual(sdk.Coins{}) {
-				actual := bk.GetAllBalances(ctx, test.owner)
+				ownerAddr, err := sdk.AccAddressFromBech32(test.owner)
+				require.NoError(t, err)
+				actual := bk.GetAllBalances(ctx, ownerAddr)
 				require.Equal(t, test.returnedCredits, actual)
 			}
 		})

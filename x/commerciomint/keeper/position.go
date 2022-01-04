@@ -92,7 +92,6 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 	if err != nil {
 		return err
 	}
-	//depositor := owner
 	ucccRequested := deposit.AmountOf("uccc")
 	if ucccRequested.IsZero() {
 		//return errors.New("no uccc requested")
