@@ -19,11 +19,6 @@ func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types
 			break
 		}*/
 	}
-	/*var postion = types.Position{
-		Owner:      msg.Depositor,
-		Collateral: depositAmount,
-		ID:         msg.ID,
-	}*/
 
 	err := k.NewPosition(
 		ctx,

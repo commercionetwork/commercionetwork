@@ -86,14 +86,12 @@ func (k Keeper) GetPositionOwnedBy(ctx sdk.Context, owner sdk.AccAddress){
 
 // NewPosition creates a new minting position for the amount deposited, credited to depositor.
 func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins, id string) error {
-	//func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	owner, err := sdk.AccAddressFromBech32(depositor)
 	if err != nil {
 		return err
 	}
 	ucccRequested := deposit.AmountOf("uccc")
 	if ucccRequested.IsZero() {
-		//return errors.New("no uccc requested")
 		return fmt.Errorf("no %s requested", types.CreditsDenom)
 
 	}
@@ -185,7 +183,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
 	}
 
-	// Control if tokens request to burn are more then initially requested
+	// Control if tokens request to burn are more than initially requested
 	if pos.Credits.Amount.Sub(burnAmount.Amount).IsNegative() {
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn more tokens that those initially requested")
 	}

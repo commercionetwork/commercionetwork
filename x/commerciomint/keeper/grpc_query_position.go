@@ -17,15 +17,15 @@ func (k Keeper) EtpByOwner(c context.Context, req *types.QueryEtpRequestByOwner)
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-	var positions  []*types.Position
-	
+	var positions []*types.Position
+
 	owner, err := sdk.AccAddressFromBech32(req.Owner)
 	if err != nil {
 		return nil, errors.Wrap(errors.ErrInvalidAddress, fmt.Sprintf("Error while converting address: %s", err.Error()))
 	}
-	
+
 	ctx := sdk.UnwrapSDKContext(c)
-	
+
 	store := ctx.KVStore(k.storeKey)
 	//etpStore := prefix.NewStore(store, []byte(types.EtpStorePrefix))
 	etpStore := prefix.NewStore(store, getEtpByOwnerIdsStoreKey(owner))
@@ -77,7 +77,7 @@ func (k Keeper) Etp(c context.Context, req *types.QueryEtpRequest) (*types.Query
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-	var position types.Position 
+	var position types.Position
 	ctx := sdk.UnwrapSDKContext(c)
 
 	position, ok := k.GetPositionById(ctx, req.ID)

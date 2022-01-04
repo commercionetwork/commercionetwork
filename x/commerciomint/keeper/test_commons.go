@@ -26,7 +26,6 @@ import (
 
 func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper) {
 	memDB := db.NewMemDB()
-	//cdc := testCodec()
 	app := simapp.Setup(false)
 	cdc := app.AppCodec()
 

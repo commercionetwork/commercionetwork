@@ -52,9 +52,7 @@ func (k Keeper) UpdateFreezePeriod(ctx sdk.Context, freezePeriod time.Duration) 
 // GetFreezePeriod retrieves the freeze period.
 func (k Keeper) GetFreezePeriod(ctx sdk.Context) time.Duration {
 	store := ctx.KVStore(k.storeKey)
-	var freezePeriod string
-	//k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.FreezePeriodKey)), &freezePeriod)
-	freezePeriod = string(store.Get([]byte(types.FreezePeriodKey)))
+	freezePeriod := string(store.Get([]byte(types.FreezePeriodKey)))
 	freezePeriodDuration, _ := time.ParseDuration(freezePeriod) // Catch the error
 	return freezePeriodDuration
 }
@@ -65,11 +63,6 @@ func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
 		return err
 	}
 	store := ctx.KVStore(k.storeKey)
-	/*setRate := types.ConversionRate{
-		Rate: rate,
-	}*/
-
-	//store.Set([]byte(types.CollateralRateKey), k.cdc.MustMarshalBinaryBare(&setRate))
 	store.Set([]byte(types.CollateralRateKey), []byte(rate.String()))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
