@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
@@ -336,11 +335,6 @@ func TestKeeper_deletePosition(t *testing.T) {
 }
 
 func TestKeeper_GetPositionById(t *testing.T) {
-
-	testEtp1 := testEtp
-	testEtp1.ID = strings.Replace(testEtp1.ID, "0", "A", 1)
-	testEtp2 := testEtp
-	testEtp2.ID = strings.Replace(testEtp1.ID, "0", "B", 1)
 
 	tests := []struct {
 		name     string

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -92,6 +93,8 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 
 var testLiquidityDenom = "ucommercio"
 var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var ownerAnother, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
+
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
 var halfCoinSub = sdk.NewCoin("uccc", sdk.NewInt(10))
 
@@ -105,3 +108,15 @@ var testEtp = types.NewPosition(
 )
 
 var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))
+
+var testEtp1, testEtp2, testEtpAnotherOwner types.Position
+
+func init() {
+	testEtp1 = testEtp
+	testEtp1.ID = strings.Replace(testEtp1.ID, "0", "A", 1)
+	testEtp2 = testEtp
+	testEtp2.ID = strings.Replace(testEtp1.ID, "0", "B", 1)
+	testEtpAnotherOwner = testEtp
+	testEtpAnotherOwner.ID = strings.Replace(testEtp1.ID, "0", "C", 1)
+	testEtpAnotherOwner.Owner = ownerAnother.String()
+}

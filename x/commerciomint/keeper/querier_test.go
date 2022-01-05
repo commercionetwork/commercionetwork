@@ -4,10 +4,208 @@ import (
 	"testing"
 	"time"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
+
+func Test_queryGetEtp(t *testing.T) {
+
+	tests := []struct {
+		name              string
+		positionsToCreate []types.Position
+		shouldFind        bool
+	}{
+		{
+			name: "find among one",
+			positionsToCreate: []types.Position{
+				testEtp,
+			},
+			shouldFind: true,
+		},
+		{
+			name: "find among many",
+			positionsToCreate: []types.Position{
+				testEtp1,
+				testEtp,
+				testEtp2,
+				testEtpAnotherOwner,
+			},
+			shouldFind: true,
+		},
+		{
+			name:              "empty",
+			positionsToCreate: []types.Position{},
+			shouldFind:        false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
+
+			for _, p := range tt.positionsToCreate {
+				require.NoError(t, k.SetPosition(ctx, p))
+			}
+
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+
+			path := []string{testEtp.ID}
+
+			gotBz, err := queryGetEtp(ctx, path, k, legacyAmino)
+
+			var got types.Position
+
+			if tt.shouldFind {
+				legacyAmino.MustUnmarshalJSON(gotBz, &got)
+				require.NoError(t, err)
+				require.Equal(t, testEtp, got)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func Test_queryGetEtpsByOwner(t *testing.T) {
+
+	t.Run("invalid address", func(t *testing.T) {
+		ctx, _, _, k := SetupTestInput()
+
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+
+		path := []string{""}
+
+		_, err := queryGetEtpsByOwner(ctx, path, k, legacyAmino)
+		require.Error(t, err)
+
+	})
+
+	tests := []struct {
+		name              string
+		positionsToCreate []types.Position
+		expected          []types.Position
+	}{
+		{
+			name: "find none",
+			positionsToCreate: []types.Position{
+				testEtpAnotherOwner,
+			},
+			expected: []types.Position{},
+		},
+		{
+			name: "find among one",
+			positionsToCreate: []types.Position{
+				testEtp,
+			},
+			expected: []types.Position{
+				testEtp,
+			},
+		},
+		{
+			name: "find among it and another",
+			positionsToCreate: []types.Position{
+				testEtp,
+				testEtpAnotherOwner,
+			},
+			expected: []types.Position{
+				testEtp,
+			},
+		},
+		{
+			name: "find all by the same",
+			positionsToCreate: []types.Position{
+				testEtp,
+				testEtp1,
+				testEtp2,
+				testEtpAnotherOwner,
+			},
+			expected: []types.Position{
+				testEtp,
+				testEtp1,
+				testEtp2,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
+
+			for _, p := range tt.positionsToCreate {
+				require.NoError(t, k.SetPosition(ctx, p))
+			}
+
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+
+			path := []string{testEtp.Owner}
+
+			gotBz, err := queryGetEtpsByOwner(ctx, path, k, legacyAmino)
+
+			var got []types.Position
+
+			legacyAmino.MustUnmarshalJSON(gotBz, &got)
+			require.NoError(t, err)
+
+			for _, etp := range tt.expected {
+				require.Contains(t, got, etp)
+			}
+
+		})
+	}
+}
+
+func Test_queryGetAllEtp(t *testing.T) {
+
+	tests := []struct {
+		name              string
+		positionsToCreate []types.Position
+	}{
+		{
+			name:              "empty",
+			positionsToCreate: []types.Position{},
+		},
+		{
+			name: "find one",
+			positionsToCreate: []types.Position{
+				testEtp,
+			},
+		},
+		{
+			name: "find many",
+			positionsToCreate: []types.Position{
+				testEtp,
+				testEtpAnotherOwner,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
+
+			for _, p := range tt.positionsToCreate {
+				require.NoError(t, k.SetPosition(ctx, p))
+			}
+
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+
+			gotBz, err := queryGetAllEtp(ctx, k, legacyAmino)
+
+			var got []types.Position
+
+			legacyAmino.MustUnmarshalJSON(gotBz, &got)
+			require.NoError(t, err)
+
+			for _, etp := range tt.positionsToCreate {
+				require.Contains(t, got, etp)
+			}
+
+		})
+	}
+}
 
 func Test_queryConversionRate(t *testing.T) {
 	t.Run("expected sdk.NewDec(2)", func(t *testing.T) {

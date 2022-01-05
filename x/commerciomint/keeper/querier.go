@@ -36,7 +36,7 @@ func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *cod
 	id := path[0]
 	etp, ok := k.GetPositionById(ctx, id)
 	if !ok {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Posistion with id: %s not found!", id))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Position with id: %s not found!", id))
 	}
 
 	etpbz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etp)
@@ -50,7 +50,7 @@ func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *cod
 func queryGetEtpsByOwner(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	ownerAddr, e := sdk.AccAddressFromBech32(path[0])
 	if e != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("The given address: %s is not valid!", path[0]))
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("invalid address %s", path[0]))
 	}
 	etps := k.GetAllPositionsOwnedBy(ctx, ownerAddr)
 	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
