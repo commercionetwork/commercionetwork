@@ -5,6 +5,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -66,37 +67,80 @@ func TestPosition_Validate(t *testing.T) {
 }
 
 func TestPosition_Equals(t *testing.T) {
-	secondCreatedAt := testCreatedAt.AddDate(0, 0, 1)
 
 	testData := []struct {
 		name          string
-		first         Position
-		second        Position
+		etp           func() Position
 		shouldBeEqual bool
 	}{
 		{
-			name:          "etps are identical",
-			first:         testEtp,
-			second:        testEtp,
+			name:          "identical",
+			etp:           func() Position { return testEtp },
 			shouldBeEqual: true,
 		},
 		{
-			name:  "etps are different",
-			first: testEtp,
-			second: Position{
-				Owner:      testEtp.Owner,
-				Collateral: testEtp.Collateral,
-				Credits:    testEtp.Credits,
-				CreatedAt:  &secondCreatedAt, // TODO check correct test
+			name: "different Collateral",
+			etp: func() Position {
+				etp := testEtp
+				etp.Collateral = sdk.NewInt(150).ToDec().RoundInt64()
+				return etp
+			},
+			shouldBeEqual: false,
+		},
+		{
+			name: "different CreatedAt",
+			etp: func() Position {
+				etp := testEtp
+				t := testEtp.CreatedAt.Add(time.Second)
+				etp.CreatedAt = &t
+				return etp
+			},
+			shouldBeEqual: false,
+		},
+		{
+			name: "different Credits",
+			etp: func() Position {
+				etp := testEtp
+				assert.False(t, testEtp.Credits.IsZero())
+				credits := testEtp.Credits.Add(*testEtp.Credits)
+				etp.Credits = &credits
+				return etp
+			},
+			shouldBeEqual: false,
+		},
+		{
+			name: "different ExchangeRate",
+			etp: func() Position {
+				etp := testEtp
+				assert.False(t, testEtp.ExchangeRate.IsZero())
+				etp.ExchangeRate = testEtp.ExchangeRate.Add(testEtp.ExchangeRate)
+				return etp
+			},
+			shouldBeEqual: false,
+		},
+		{
+			name: "different ID",
+			etp: func() Position {
+				etp := testEtp
+				etp.ID = testEtp.ID + "A"
+				return etp
+			},
+			shouldBeEqual: false,
+		},
+		{
+			name: "different Owner",
+			etp: func() Position {
+				etp := testEtp
+				etp.Owner = ""
+				return etp
 			},
 			shouldBeEqual: false,
 		},
 	}
 
-	for _, test := range testData {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.shouldBeEqual, test.first.Equals(test.second))
+	for _, tt := range testData {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.shouldBeEqual, testEtp.Equals(tt.etp()))
 		})
 	}
 }
