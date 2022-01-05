@@ -257,7 +257,6 @@ func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddres
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
 
-// getSentDocumentsIdsStoreKey generates a ReceivedDocumentsID store key for a given user
 func getEtpByOwnerIdsStoreKey(user sdk.AccAddress) []byte {
 	return append([]byte(types.EtpStorePrefix), user...)
 }

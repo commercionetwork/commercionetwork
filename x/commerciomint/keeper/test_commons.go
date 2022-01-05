@@ -78,7 +78,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	if err != nil {
 		panic(err)
 	}
-	err = mintK.SetFreezePeriod(ctx, 0)
+	err = mintK.UpdateFreezePeriod(ctx, 0)
 	if err != nil {
 		panic(err)
 	}

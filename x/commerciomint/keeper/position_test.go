@@ -205,7 +205,7 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 
 	t.Run("Existing ETP can't be modified before freeze period passes", func(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
-		_ = k.SetFreezePeriod(ctx, 3000000000) // 30 seconds
+		_ = k.UpdateFreezePeriod(ctx, 3000000000) // 30 seconds
 		k.SetPosition(ctx, testEtp)
 
 		ctx = ctx.WithBlockTime(*testEtp.CreatedAt)
@@ -339,29 +339,6 @@ func TestKeeper_deletePosition(t *testing.T) {
 			}
 		})
 	}
-}
-
-// --------------
-// --- ConversionRate
-// --------------
-
-func TestKeeper_SetConversionRate(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(0)))
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(-1)))
-	require.NoError(t, k.SetConversionRate(ctx, sdk.NewDec(2)))
-	rate := sdk.NewDec(3)
-	require.NoError(t, k.SetConversionRate(ctx, rate))
-
-	got := k.GetConversionRate(ctx)
-	require.Equal(t, rate, got)
-}
-
-func TestKeeper_GetConversionRate(t *testing.T) {
-	ctx, _, _, k := SetupTestInput()
-	rate := sdk.NewDec(3)
-	require.NoError(t, k.SetConversionRate(ctx, rate))
-	require.Equal(t, rate, k.GetConversionRate(ctx))
 }
 
 func TestKeeper_GetPositionById(t *testing.T) {
