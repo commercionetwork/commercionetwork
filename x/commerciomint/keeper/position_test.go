@@ -207,12 +207,11 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		_ = k.UpdateFreezePeriod(ctx, 3000000000) // 30 seconds
 		k.SetPosition(ctx, testEtp)
 
-		ctx = ctx.WithBlockTime(*testEtp.CreatedAt)
-
-		require.NoError(t, k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool))
+		// require.NoError(t, k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool))
 
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.Error(t, err)
+		require.EqualError(t, err, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period").Error())
 	})
 
 	t.Run("Existing ETP but tokens requested to burn are more than initially requested", func(t *testing.T) {
@@ -236,10 +235,6 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		_ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.Error(t, err)
-	})
-
-	t.Run("Existing ETP but cannot burn coins", func(t *testing.T) {
-
 	})
 
 	t.Run("Existing ETP but cannot send collateral from module to sender", func(t *testing.T) {
