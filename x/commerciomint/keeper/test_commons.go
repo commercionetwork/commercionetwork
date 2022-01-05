@@ -74,7 +74,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 		keys[types.MemStoreKey],
 		bk, ak, *govkeeper)
 
-	err := mintK.SetConversionRate(ctx, sdk.NewDec(2))
+	err := mintK.UpdateConversionRate(ctx, sdk.NewDec(2))
 	if err != nil {
 		panic(err)
 	}

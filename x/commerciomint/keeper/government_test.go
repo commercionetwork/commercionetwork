@@ -11,17 +11,17 @@ import (
 func TestKeeper_GetConversionRate(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
 	rate := sdk.NewDec(3)
-	require.NoError(t, k.SetConversionRate(ctx, rate))
+	require.NoError(t, k.UpdateConversionRate(ctx, rate))
 	require.Equal(t, rate, k.GetConversionRate(ctx))
 }
 
-func TestKeeper_SetConversionRate(t *testing.T) {
+func TestKeeper_UpdateConversionRate(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(0)))
-	require.Error(t, k.SetConversionRate(ctx, sdk.NewDec(-1)))
-	require.NoError(t, k.SetConversionRate(ctx, sdk.NewDec(2)))
+	require.Error(t, k.UpdateConversionRate(ctx, sdk.NewDec(0)))
+	require.Error(t, k.UpdateConversionRate(ctx, sdk.NewDec(-1)))
+	require.NoError(t, k.UpdateConversionRate(ctx, sdk.NewDec(2)))
 	rate := sdk.NewDec(3)
-	require.NoError(t, k.SetConversionRate(ctx, rate))
+	require.NoError(t, k.UpdateConversionRate(ctx, rate))
 
 	got := k.GetConversionRate(ctx)
 	require.Equal(t, rate, got)

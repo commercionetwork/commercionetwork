@@ -57,21 +57,21 @@ func (k Keeper) GetFreezePeriod(ctx sdk.Context) time.Duration {
 	return freezePeriodDuration
 }
 
-// SetConversionRate stores the conversion rate.
-func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
-	if err := types.ValidateConversionRate(rate); err != nil {
-		return err
-	}
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.CollateralRateKey), []byte(rate.String()))
+// // SetConversionRate stores the conversion rate.
+// func (k Keeper) SetConversionRate(ctx sdk.Context, rate sdk.Dec) error {
+// 	if err := types.ValidateConversionRate(rate); err != nil {
+// 		return err
+// 	}
+// 	store := ctx.KVStore(k.storeKey)
+// 	store.Set([]byte(types.CollateralRateKey), []byte(rate.String()))
 
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventSetConversionRate,
-		sdk.NewAttribute("rate", rate.String()),
-	))
+// 	ctx.EventManager().EmitEvent(sdk.NewEvent(
+// 		eventSetConversionRate,
+// 		sdk.NewAttribute("rate", rate.String()),
+// 	))
 
-	return nil
-}
+// 	return nil
+// }
 
 // // SetFreezePeriod stores the freeze period in seconds.
 // func (k Keeper) SetFreezePeriod(ctx sdk.Context, freezePeriod time.Duration) error {
