@@ -231,13 +231,15 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		require.Equal(t, collateralAmount, bk.GetAllBalances(ctx, testEtpOwner).AmountOf("ucommercio"))
 	})
 
-	t.Run("Existing ETP can't modify before freeze period passes", func(t *testing.T) {
+	t.Run("Existing ETP can't be modified before freeze period passes", func(t *testing.T) {
 		ctx, bk, _, k := SetupTestInput()
 		_ = k.SetFreezePeriod(ctx, 3000000000) // 30 seconds
 		k.SetPosition(ctx, testEtp)
 
-		require.NoError(t, k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool))
-		require.NoError(t, bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits)))
+		ctx = ctx.WithBlockTime(*testEtp.CreatedAt)
+
+		require.NoError(t, bk.MintCoins(ctx, types.ModuleName, testLiquidityPool))
+
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.Error(t, err)
 	})
