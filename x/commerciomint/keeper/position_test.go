@@ -3,13 +3,14 @@ package keeper
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/stretchr/testify/require"
 )
 
@@ -361,4 +362,60 @@ func TestKeeper_GetConversionRate(t *testing.T) {
 	rate := sdk.NewDec(3)
 	require.NoError(t, k.SetConversionRate(ctx, rate))
 	require.Equal(t, rate, k.GetConversionRate(ctx))
+}
+
+func TestKeeper_GetPositionById(t *testing.T) {
+
+	testEtp1 := testEtp
+	testEtp1.ID = strings.Replace(testEtp1.ID, "0", "A", 1)
+	testEtp2 := testEtp
+	testEtp2.ID = strings.Replace(testEtp1.ID, "0", "B", 1)
+
+	tests := []struct {
+		name     string
+		id       string
+		inserted []types.Position
+		want     types.Position
+		want1    bool
+	}{
+		{
+			name:     "Find among only one",
+			id:       testEtp.ID,
+			inserted: []types.Position{testEtp},
+			want:     testEtp,
+			want1:    true,
+		},
+		{
+			name:     "Find among many",
+			id:       testEtp.ID,
+			inserted: []types.Position{testEtp1, testEtp, testEtp2},
+			want:     testEtp,
+			want1:    true,
+		},
+		{
+			name:     "Not inserted",
+			id:       testEtp.ID,
+			inserted: []types.Position{},
+			want:     types.Position{},
+			want1:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			ctx, _, _, k := SetupTestInput()
+
+			for _, p := range tt.inserted {
+				require.NoError(t, k.SetPosition(ctx, p))
+			}
+
+			got, got1 := k.GetPositionById(ctx, tt.id)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Keeper.GetPositionById() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("Keeper.GetPositionById() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
 }

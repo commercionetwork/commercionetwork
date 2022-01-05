@@ -183,7 +183,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
 	}
 
-	// Control if tokens request to burn are more than initially requested
+	// Control if tokens requested to burn are more than initially requested
 	if pos.Credits.Amount.Sub(burnAmount.Amount).IsNegative() {
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn more tokens that those initially requested")
 	}

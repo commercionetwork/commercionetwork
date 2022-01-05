@@ -101,7 +101,7 @@ var testEtp = types.NewPosition(
 	sdk.NewInt(100),
 	sdk.NewCoin("uccc", sdk.NewInt(50)),
 	testID,
-	time.Now(),
+	time.Now().UTC(),
 	sdk.NewDec(2),
 )
 
@@ -110,7 +110,7 @@ var fakeEtp = types.NewPosition(
 	sdk.NewInt(100),
 	sdk.NewCoin("uccc", sdk.NewInt(50)),
 	fakeID,
-	time.Now(),
+	time.Now().UTC(),
 	sdk.NewDec(2),
 )
 
