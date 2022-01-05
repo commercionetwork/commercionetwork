@@ -236,10 +236,8 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		_ = k.SetFreezePeriod(ctx, 3000000000) // 30 seconds
 		k.SetPosition(ctx, testEtp)
 
-		// should we mint coins for this test?
-		// _ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
-		// _ = k.supplyKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
-		_ = bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
+		require.NoError(t, k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool))
+		require.NoError(t, bk.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits)))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.Error(t, err)
 	})
