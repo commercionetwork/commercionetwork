@@ -93,7 +93,6 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 var testLiquidityDenom = "ucommercio"
 var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
-var fakeID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
 var halfCoinSub = sdk.NewCoin("uccc", sdk.NewInt(10))
 
 var testEtp = types.NewPosition(
