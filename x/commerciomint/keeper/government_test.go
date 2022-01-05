@@ -10,6 +10,7 @@ import (
 
 func TestKeeper_GetConversionRate(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
+
 	rate := sdk.NewDec(3)
 	require.NoError(t, k.UpdateConversionRate(ctx, rate))
 	require.Equal(t, rate, k.GetConversionRate(ctx))
@@ -17,6 +18,7 @@ func TestKeeper_GetConversionRate(t *testing.T) {
 
 func TestKeeper_UpdateConversionRate(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
+
 	require.Error(t, k.UpdateConversionRate(ctx, sdk.NewDec(0)))
 	require.Error(t, k.UpdateConversionRate(ctx, sdk.NewDec(-1)))
 	require.NoError(t, k.UpdateConversionRate(ctx, sdk.NewDec(2)))
@@ -49,4 +51,12 @@ func TestKeeper_SetFreezePeriod(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestKeeper_GetFreezePeriod(t *testing.T) {
+	ctx, _, _, k := SetupTestInput()
+
+	freeze := time.Minute
+	require.NoError(t, k.UpdateFreezePeriod(ctx, freeze))
+	require.Equal(t, freeze, k.GetFreezePeriod(ctx))
 }
