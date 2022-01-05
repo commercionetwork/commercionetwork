@@ -25,7 +25,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryConversionRateRest:
 			return queryConversionRate(ctx, k, legacyQuerierCdc)
 		case types.QueryFreezePeriodRest:
-			return queryFreezePeriod(ctx, k,legacyQuerierCdc)
+			return queryFreezePeriod(ctx, k, legacyQuerierCdc)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
