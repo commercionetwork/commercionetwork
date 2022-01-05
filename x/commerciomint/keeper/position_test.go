@@ -43,7 +43,7 @@ func TestKeeper_SetPosition(t *testing.T) {
 // --- etps
 // --------------
 
-func TestKeeper_UpdatePositionBasic(t *testing.T) {
+func TestKeeper_UpdatePosition(t *testing.T) {
 	testData := []struct {
 		name            string
 		position        func() types.Position
@@ -62,7 +62,7 @@ func TestKeeper_UpdatePositionBasic(t *testing.T) {
 		},
 		{
 			name:            "Etp doesn't exists",
-			position:        func() types.Position { return fakeEtp },
+			position:        func() types.Position { return testEtp },
 			insPosition:     false,
 			shouldBeUpdated: false,
 		},
@@ -86,8 +86,7 @@ func TestKeeper_UpdatePositionBasic(t *testing.T) {
 				require.NoError(t, k.UpdatePosition(ctx, test.position()))
 				return
 			} else {
-				err := k.UpdatePosition(ctx, test.position())
-				require.Error(t, err)
+				require.Error(t, k.UpdatePosition(ctx, test.position()))
 				return
 			}
 		})

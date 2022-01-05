@@ -105,13 +105,4 @@ var testEtp = types.NewPosition(
 	sdk.NewDec(2),
 )
 
-var fakeEtp = types.NewPosition(
-	testEtpOwner,
-	sdk.NewInt(100),
-	sdk.NewCoin("uccc", sdk.NewInt(50)),
-	fakeID,
-	time.Now().UTC(),
-	sdk.NewDec(2),
-)
-
 var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))
