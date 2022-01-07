@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -20,12 +21,12 @@ import (
 	db "github.com/tendermint/tm-db"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
-func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper) {
+func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, Keeper) {
 	memDB := db.NewMemDB()
 	app := simapp.Setup(false)
 	cdc := app.AppCodec()
@@ -62,7 +63,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
 
-	govkeeper := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
+	govkeeper := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
 
 	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(*testEtp.Credits)))
 
@@ -87,6 +88,14 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	return ctx, bk, *govkeeper, *mintK
 }
 
+func SetupMsgServer() (context.Context, bankKeeper.Keeper, governmentKeeper.Keeper, Keeper, types.MsgServer) {
+	ctx, bk, gk, k := SetupTestInput()
+
+	wctx := sdk.WrapSDKContext(ctx)
+
+	return wctx, bk, gk, k, NewMsgServerImpl(k)
+}
+
 // ----------------------
 // --- Test variables
 // ----------------------
@@ -94,6 +103,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 var testLiquidityDenom = "ucommercio"
 var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var ownerAnother, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
+var government = ownerAnother
 
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
 var halfCoinSub = sdk.NewCoin("uccc", sdk.NewInt(10))
@@ -106,6 +116,9 @@ var testEtp = types.NewPosition(
 	time.Now().UTC(),
 	sdk.NewDec(2),
 )
+
+var validFreezePeriod = time.Minute
+var invalidFreezePeriod = -time.Minute
 
 var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))
 

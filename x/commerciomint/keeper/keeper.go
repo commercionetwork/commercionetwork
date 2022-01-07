@@ -9,7 +9,7 @@ import (
 	bank "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 )
 
 const (
@@ -25,7 +25,7 @@ type Keeper struct {
 	memKey        sdk.StoreKey
 	accountKeeper auth.AccountKeeper
 	bankKeeper    bank.Keeper
-	govKeeper     government.Keeper
+	govKeeper     governmentKeeper.Keeper
 }
 
 func NewKeeper(
@@ -34,7 +34,7 @@ func NewKeeper(
 	memKey sdk.StoreKey,
 	bankKeeper bank.Keeper,
 	accountKeeper auth.AccountKeeper,
-	govKeeper government.Keeper,
+	govKeeper governmentKeeper.Keeper,
 ) *Keeper {
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))

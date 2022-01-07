@@ -36,8 +36,8 @@ func TestKeeper_SetFreezePeriod(t *testing.T) {
 		freezePeriod time.Duration
 		wantErr      bool
 	}{
-		{"correctly set freeze period", time.Minute, false},
-		{"invalid freeze period", -time.Second, true},
+		{"correctly set freeze period", validFreezePeriod, false},
+		{"invalid freeze period", invalidFreezePeriod, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -56,7 +56,6 @@ func TestKeeper_SetFreezePeriod(t *testing.T) {
 func TestKeeper_GetFreezePeriod(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
 
-	freeze := time.Minute
-	require.NoError(t, k.UpdateFreezePeriod(ctx, freeze))
-	require.Equal(t, freeze, k.GetFreezePeriod(ctx))
+	require.NoError(t, k.UpdateFreezePeriod(ctx, validFreezePeriod))
+	require.Equal(t, validFreezePeriod, k.GetFreezePeriod(ctx))
 }
