@@ -1,22 +1,13 @@
 package keeper
 
 import (
-	"context"
 	"reflect"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
-
-func setGovernment(wctx context.Context, gk governmentKeeper.Keeper) (context.Context, error) {
-	ctx := sdkTypes.UnwrapSDKContext(wctx)
-	err := gk.SetGovernmentAddress(ctx, government)
-	return sdkTypes.WrapSDKContext(ctx), err
-}
 
 func Test_msgServer_SetConversionRate(t *testing.T) {
 	type args struct {
@@ -33,7 +24,7 @@ func Test_msgServer_SetConversionRate(t *testing.T) {
 			args: args{
 				msg: &types.MsgSetCCCConversionRate{
 					Signer: "",
-					Rate:   sdkTypes.NewDec(2),
+					Rate:   sdk.NewDec(2),
 				},
 			},
 			wantErr: true,
@@ -43,7 +34,7 @@ func Test_msgServer_SetConversionRate(t *testing.T) {
 			args: args{
 				msg: &types.MsgSetCCCConversionRate{
 					Signer: testEtp.Owner,
-					Rate:   sdkTypes.NewDec(2),
+					Rate:   sdk.NewDec(2),
 				},
 			},
 			wantErr: true,
@@ -53,7 +44,7 @@ func Test_msgServer_SetConversionRate(t *testing.T) {
 			args: args{
 				msg: &types.MsgSetCCCConversionRate{
 					Signer: government.String(),
-					Rate:   sdkTypes.NewDec(0),
+					Rate:   sdk.NewDec(0),
 				},
 			},
 			wantErr: true,
@@ -63,17 +54,17 @@ func Test_msgServer_SetConversionRate(t *testing.T) {
 			args: args{
 				msg: &types.MsgSetCCCConversionRate{
 					Signer: government.String(),
-					Rate:   sdkTypes.NewDec(3),
+					Rate:   sdk.NewDec(3),
 				},
 			},
-			want: &types.MsgSetCCCConversionRateResponse{Rate: sdkTypes.NewDec(3)},
+			want: &types.MsgSetCCCConversionRateResponse{Rate: sdk.NewDec(3)},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			wctx, _, gk, k, msgServer := SetupMsgServer()
 
-			wctx, err := setGovernment(wctx, gk)
+			err := gk.SetGovernmentAddress(sdk.UnwrapSDKContext(wctx), government)
 			require.NoError(t, err)
 
 			got, err := msgServer.SetConversionRate(wctx, tt.args.msg)
@@ -161,7 +152,7 @@ func Test_msgServer_SetFreezePeriod(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			wctx, _, gk, k, msgServer := SetupMsgServer()
 
-			wctx, err := setGovernment(wctx, gk)
+			err := gk.SetGovernmentAddress(sdk.UnwrapSDKContext(wctx), government)
 			require.NoError(t, err)
 
 			got, err := msgServer.SetFreezePeriod(wctx, tt.args.msg)

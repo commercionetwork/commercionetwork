@@ -27,7 +27,7 @@ func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types
 		msg.ID,
 	)
 	if err != nil {
-		return &types.MsgMintCCCResponse{}, errors.Wrap(errors.ErrInvalidRequest, err.Error())
+		return nil, errors.Wrap(errors.ErrInvalidRequest, err.Error())
 	}
 	return &types.MsgMintCCCResponse{
 		ID: msg.ID,
@@ -48,7 +48,7 @@ func (k msgServer) BurnCCC(goCtx context.Context, msg *types.MsgBurnCCC) (*types
 		*msg.Amount,
 	)
 	if err != nil {
-		return &types.MsgBurnCCCResponse{}, err
+		return nil, err
 	}
 	residualCredits := sdk.NewCoin(types.CreditsDenom, residualAmount)
 

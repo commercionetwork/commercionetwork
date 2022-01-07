@@ -23,10 +23,11 @@ func (k msgServer) SetConversionRate(goCtx context.Context, msg *types.MsgSetCCC
 	if err := k.UpdateConversionRate(ctx, msg.Rate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	// TODO EMITS EVENTS CORRECTLY
-	/*ctypes.EmitCommonEvents(ctx, msg.Signer)
-	return &sdk.Result{Events: ctx.EventManager().Events(), Log: fmt.Sprintf("conversion rate changed successfully to %s", msg.Rate)}, nil
-	*/
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetConversionRate,
+		sdk.NewAttribute("rate", msg.Rate.String()),
+	))
 
 	return &types.MsgSetCCCConversionRateResponse{Rate: msg.Rate}, nil
 }
@@ -51,7 +52,11 @@ func (k msgServer) SetFreezePeriod(goCtx context.Context, msg *types.MsgSetCCCFr
 	if err := k.UpdateFreezePeriod(ctx, freezePeriod); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
-	// TODO EMITS EVENTS CORRECTLY
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetFreezePeriod,
+		sdk.NewAttribute("freeze_period", msg.FreezePeriod),
+	))
 
 	return &types.MsgSetCCCFreezePeriodResponse{FreezePeriod: msg.FreezePeriod}, nil
 }
