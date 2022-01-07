@@ -110,14 +110,14 @@ func TestKeeper_NewPosition(t *testing.T) {
 			error:  fmt.Errorf("empty address string is not allowed"),
 		},
 		{
-			name:   "invalid deposited amount",
+			name:   "no uccc requested",
 			owner:  testEtpOwner.String(),
 			id:     testEtp.ID,
 			amount: sdk.NewInt(0),
 			error:  fmt.Errorf("no uccc requested"),
 		},
 		{
-			name:   "Not enough funds inside user wallet",
+			name:   "not enough funds inside user wallet",
 			amount: sdk.NewInt(testEtp.Collateral),
 			owner:  testEtpOwner.String(),
 			id:     testEtp.ID,
@@ -126,7 +126,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 			),
 		},
 		{
-			name:            "Successful opening",
+			name:            "ok",
 			amount:          sdk.NewInt(testEtp.Collateral),
 			owner:           testEtpOwner.String(),
 			id:              testEtp.ID,

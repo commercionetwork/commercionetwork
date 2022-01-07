@@ -38,7 +38,7 @@ func (pos Position) Validate() error {
 	}
 
 	if pos.ExchangeRate.IsNegative() {
-		return fmt.Errorf("exchange rate cannot be zero")
+		return fmt.Errorf("exchange rate cannot be negative")
 	}
 
 	if *pos.CreatedAt == (time.Time{}) {

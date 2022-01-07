@@ -51,6 +51,16 @@ func TestPosition_Validate(t *testing.T) {
 			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, time.Time{}, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
+		{
+			name:          "Invalid exchange rate",
+			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, sdk.NewDec(-1)),
+			shouldBeValid: false,
+		},
+		{
+			name:          "ok",
+			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
+			shouldBeValid: true,
+		},
 	}
 
 	for _, test := range testData {
@@ -136,11 +146,61 @@ func TestPosition_Equals(t *testing.T) {
 			},
 			shouldBeEqual: false,
 		},
+		{
+			name: "different Owner",
+			etp: func() Position {
+				etp := testEtp
+				etp.Owner = ""
+				return etp
+			},
+			shouldBeEqual: false,
+		},
 	}
 
 	for _, tt := range testData {
 		t.Run(tt.name, func(t *testing.T) {
 			require.Equal(t, tt.shouldBeEqual, testEtp.Equals(tt.etp()))
+		})
+	}
+}
+
+var validDepositCoin = sdk.NewCoin("uccc", sdk.NewInt(50))
+var inValidDenomDepositCoin = sdk.NewCoin("ucommercio", sdk.NewInt(10))
+
+func TestValidateDeposit(t *testing.T) {
+	type args struct {
+		deposit sdk.Coins
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "ok",
+			args: args{
+				deposit: []sdk.Coin{validDepositCoin},
+			},
+			want: true,
+		},
+		{
+			name: "empty",
+			args: args{
+				deposit: []sdk.Coin{},
+			},
+		},
+		{
+			name: "contains invalid coin",
+			args: args{
+				deposit: []sdk.Coin{validDepositCoin, inValidDenomDepositCoin},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ValidateDeposit(tt.args.deposit); got != tt.want {
+				t.Errorf("ValidateDeposit() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

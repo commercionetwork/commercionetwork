@@ -111,11 +111,18 @@ var halfCoinSub = sdk.NewCoin("uccc", sdk.NewInt(10))
 var testEtp = types.NewPosition(
 	testEtpOwner,
 	sdk.NewInt(100),
-	sdk.NewCoin("uccc", sdk.NewInt(50)),
+	validDepositCoin,
 	testID,
 	time.Now().UTC(),
 	sdk.NewDec(2),
 )
+
+var validDepositCoin = sdk.NewCoin(types.CreditsDenom, sdk.NewInt(50))
+var inValidDepositCoin = sdk.NewCoin("ucommercio", sdk.NewInt(10))
+var validBurnCoin = inValidDepositCoin
+var inValidBurnCoin = validDepositCoin
+
+var zeroUCCC = sdk.NewCoin(types.CreditsDenom, sdk.ZeroInt())
 
 var validFreezePeriod = time.Minute
 var invalidFreezePeriod = -time.Minute

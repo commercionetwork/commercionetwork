@@ -93,7 +93,6 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 	ucccRequested := deposit.AmountOf("uccc")
 	if ucccRequested.IsZero() {
 		return fmt.Errorf("no %s requested", types.CreditsDenom)
-
 	}
 
 	conversionRate := k.GetConversionRate(ctx)

@@ -11,13 +11,8 @@ import (
 func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types.MsgMintCCCResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	var requestCoins sdk.Coins
-	//var depositAmount int64
-	for _, denom := range msg.DepositAmount {
-		requestCoins = append(requestCoins, *denom)
-		/*if denom.Denom == types.CreditsDenom {
-			depositAmount = denom.Amount.Int64()
-			break
-		}*/
+	for _, coin := range msg.DepositAmount {
+		requestCoins = append(requestCoins, *coin)
 	}
 
 	err := k.NewPosition(
@@ -34,7 +29,6 @@ func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types
 	}, nil
 }
 
-// TODO IMPLEMENTATION
 func (k msgServer) BurnCCC(goCtx context.Context, msg *types.MsgBurnCCC) (*types.MsgBurnCCCResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)

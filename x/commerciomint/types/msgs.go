@@ -59,7 +59,6 @@ func (msg *MsgMintCCC) ValidateBasic() error {
 	for _, coin := range msg.DepositAmount {
 		coins = append(coins, *coin)
 	}
-	sdk.NewCoins()
 	if !ValidateDeposit(coins) {
 		return errors.Wrap(errors.ErrInvalidCoins, coins.String())
 	}
