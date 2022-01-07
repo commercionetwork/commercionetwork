@@ -13,12 +13,12 @@ import (
 func (k msgServer) SetConversionRate(goCtx context.Context, msg *types.MsgSetCCCConversionRate) (*types.MsgSetCCCConversionRateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	gov := k.govKeeper.GetGovernmentAddress(ctx)
-	signerAccAddr, e := sdk.AccAddressFromBech32(msg.Signer)
-	if e != nil {
-		return nil, e
+	signerAccAddr, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return nil, err
 	}
 	if !(gov.Equals(signerAccAddr)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set conversion rate", msg.Signer))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("could not set conversion rate since %s is not the government", msg.Signer))
 	}
 	if err := k.UpdateConversionRate(ctx, msg.Rate); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
@@ -36,22 +36,22 @@ func (k msgServer) SetFreezePeriod(goCtx context.Context, msg *types.MsgSetCCCFr
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	gov := k.govKeeper.GetGovernmentAddress(ctx)
 	// TODO MOVE TO VALIDATION
-	signerAddr, e := sdk.AccAddressFromBech32(msg.Signer)
-	if e != nil {
-		return nil, e
+	signerAddr, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return nil, err
 	}
 	if !(gov.Equals(signerAddr)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set conversion rate", msg.Signer))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("could not set freeze period since %s is not the government", msg.Signer))
 	}
 	// TODO MOVE TO VALIDATION
-	freezDuration, err := time.ParseDuration(msg.FreezePeriod)
+	freezePeriod, err := time.ParseDuration(msg.FreezePeriod)
 	if err != nil {
-		return &types.MsgSetCCCFreezePeriodResponse{}, err
+		return nil, err
 	}
-	if err := k.UpdateFreezePeriod(ctx, freezDuration); err != nil {
+	if err := k.UpdateFreezePeriod(ctx, freezePeriod); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 	// TODO EMITS EVENTS CORRECTLY
 
-	return &types.MsgSetCCCFreezePeriodResponse{}, nil
+	return &types.MsgSetCCCFreezePeriodResponse{FreezePeriod: msg.FreezePeriod}, nil
 }
