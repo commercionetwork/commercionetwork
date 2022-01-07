@@ -8,9 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func Test_queryGetEtp(t *testing.T) {
+func Test_NewQuerier_queryGetEtp(t *testing.T) {
 
 	tests := []struct {
 		name              string
@@ -50,10 +51,9 @@ func Test_queryGetEtp(t *testing.T) {
 
 			app := simapp.Setup(false)
 			legacyAmino := app.LegacyAmino()
-
-			path := []string{testEtp.ID}
-
-			gotBz, err := queryGetEtp(ctx, path, k, legacyAmino)
+			querier := NewQuerier(k, legacyAmino)
+			path := []string{types.QueryGetEtpRest, testEtp.ID}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
 			var got types.Position
 
@@ -68,17 +68,17 @@ func Test_queryGetEtp(t *testing.T) {
 	}
 }
 
-func Test_queryGetEtpsByOwner(t *testing.T) {
+func Test_NewQuerier_queryGetEtpsByOwner(t *testing.T) {
 
 	t.Run("invalid address", func(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
 
 		app := simapp.Setup(false)
 		legacyAmino := app.LegacyAmino()
+		querier := NewQuerier(k, legacyAmino)
+		path := []string{types.QueryGetEtpsByOwnerRest, ""}
 
-		path := []string{""}
-
-		_, err := queryGetEtpsByOwner(ctx, path, k, legacyAmino)
+		_, err := querier(ctx, path, abci.RequestQuery{})
 		require.Error(t, err)
 
 	})
@@ -139,13 +139,11 @@ func Test_queryGetEtpsByOwner(t *testing.T) {
 
 			app := simapp.Setup(false)
 			legacyAmino := app.LegacyAmino()
-
-			path := []string{testEtp.Owner}
-
-			gotBz, err := queryGetEtpsByOwner(ctx, path, k, legacyAmino)
+			querier := NewQuerier(k, legacyAmino)
+			path := []string{types.QueryGetEtpsByOwnerRest, testEtp.Owner}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
 			var got []types.Position
-
 			legacyAmino.MustUnmarshalJSON(gotBz, &got)
 			require.NoError(t, err)
 
@@ -157,7 +155,7 @@ func Test_queryGetEtpsByOwner(t *testing.T) {
 	}
 }
 
-func Test_queryGetAllEtp(t *testing.T) {
+func Test_NewQuerier_queryGetAllEtp(t *testing.T) {
 
 	tests := []struct {
 		name              string
@@ -191,8 +189,9 @@ func Test_queryGetAllEtp(t *testing.T) {
 
 			app := simapp.Setup(false)
 			legacyAmino := app.LegacyAmino()
-
-			gotBz, err := queryGetAllEtp(ctx, k, legacyAmino)
+			querier := NewQuerier(k, legacyAmino)
+			path := []string{types.QueryGetallEtpsRest}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
 			var got []types.Position
 
@@ -207,7 +206,7 @@ func Test_queryGetAllEtp(t *testing.T) {
 	}
 }
 
-func Test_queryConversionRate(t *testing.T) {
+func Test_NewQuerier_queryConversionRate(t *testing.T) {
 	t.Run("expected sdk.NewDec(2)", func(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
 
@@ -215,18 +214,17 @@ func Test_queryConversionRate(t *testing.T) {
 
 		app := simapp.Setup(false)
 		legacyAmino := app.LegacyAmino()
-
-		gotBz, err := queryConversionRate(ctx, k, legacyAmino)
+		querier := NewQuerier(k, legacyAmino)
+		path := []string{types.QueryConversionRateRest}
+		gotBz, err := querier(ctx, path, abci.RequestQuery{})
 		require.NoError(t, err)
 
 		var got sdk.Dec
-
 		legacyAmino.MustUnmarshalJSON(gotBz, &got)
-
 		require.Equal(t, expected, got)
 	})
 }
-func Test_queryFreezePeriod(t *testing.T) {
+func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 
 	tests := []struct {
 		name            string
@@ -254,13 +252,27 @@ func Test_queryFreezePeriod(t *testing.T) {
 
 			app := simapp.Setup(false)
 			legacyAmino := app.LegacyAmino()
-
-			gotBz, err := queryFreezePeriod(ctx, k, legacyAmino)
+			querier := NewQuerier(k, legacyAmino)
+			path := []string{types.QueryFreezePeriodRest}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 			require.NoError(t, err)
 
 			legacyAmino.MustUnmarshalJSON(gotBz, &got)
-
 			require.Equal(t, expected, got)
 		})
 	}
+}
+
+func Test_NewQuerier_default(t *testing.T) {
+
+	t.Run("default request", func(t *testing.T) {
+		ctx, _, _, k := SetupTestInput()
+
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+		querier := NewQuerier(k, legacyAmino)
+		path := []string{"abcd"}
+		_, err := querier(ctx, path, abci.RequestQuery{})
+		require.Error(t, err)
+	})
 }
