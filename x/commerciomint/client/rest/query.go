@@ -35,7 +35,7 @@ func getEtpsHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars[restuser]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, id, types.QueryGetEtp)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, id, types.QueryGetEtpRest)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -50,7 +50,7 @@ func getEtpsByOwnerHandler(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		ownerAddr := vars[restuser]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, ownerAddr, types.QueryGetEtpsByOwner)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, ownerAddr, types.QueryGetEtpsByOwnerRest)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -61,7 +61,7 @@ func getEtpsByOwnerHandler(cliCtx client.Context) http.HandlerFunc {
 }
 func getAllEtpsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetallEtps)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetallEtpsRest)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -77,7 +77,7 @@ func getConversionRateHandler(cliCtx client.Context) http.HandlerFunc {
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return 
+			return
 		}
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
@@ -89,7 +89,7 @@ func getFreezePeriodHandler(cliCtx client.Context) http.HandlerFunc {
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return 
+			return
 		}
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}

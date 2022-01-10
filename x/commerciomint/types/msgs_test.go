@@ -72,8 +72,7 @@ func TestMsgBurnCCC_ValidateBasic(t *testing.T) {
 }
 
 func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
-	type fields struct {
-	}
+
 	tests := []struct {
 		name           string
 		signer         sdk.AccAddress
@@ -81,7 +80,7 @@ func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 		wantErr        bool
 	}{
 		{"empty signer", nil, sdk.NewDec(2), true},
-		//{"ok", []byte("test"), sdk.NewDec(2), false},
+		{"invalid signer", []byte("test"), sdk.NewDec(2), true},
 		{"ok", testOwner, sdk.NewDec(2), false},
 		{"zero collateral rate", []byte("test"), sdk.NewDec(0), true},
 		{"negative collateral rate", []byte("test"), sdk.NewDec(-1), true},
@@ -98,23 +97,22 @@ func TestMsgSetCCCConversionRate_ValidateBasic(t *testing.T) {
 }
 
 func TestMsgSetCCCFreezePeriod_ValidateBasic(t *testing.T) {
-	type fields struct {
-	}
+
 	tests := []struct {
 		name         string
 		signer       sdk.AccAddress
-		freezePeriod time.Duration
+		freezePeriod string
 		wantErr      bool
 	}{
-		//{"ok", []byte("test"), 60, false},
-		//{"Negative duration", []byte("test"), -60, true},
-		{"ok", testOwner, 60, false},
-		{"Negative duration", testOwner, -60, true},
+		{"invalid signer", []byte("test"), "1m", true},
+		{"negative duration", []byte("test"), "-1m", true},
+		{"ok", testOwner, "1m", false},
+		{"negative duration", testOwner, "A", true},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			msg := NewMsgSetCCCFreezePeriod(tt.signer, tt.freezePeriod.String()) // TODO control cast
+			msg := NewMsgSetCCCFreezePeriod(tt.signer, tt.freezePeriod)
 			require.Equal(t, "commerciomint", msg.Route())
 			require.Equal(t, "setEtpsFreezePeriod", msg.Type())
 			require.Equal(t, tt.wantErr, msg.ValidateBasic() != nil)

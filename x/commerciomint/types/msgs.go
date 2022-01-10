@@ -46,11 +46,8 @@ func (msg *MsgMintCCC) GetSignBytes() []byte {
 }
 
 func (msg *MsgMintCCC) ValidateBasic() error {
-	depositor, err := sdk.AccAddressFromBech32(msg.Depositor)
+	_, err := sdk.AccAddressFromBech32(msg.Depositor)
 	if err != nil {
-		return err
-	}
-	if depositor.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor)
 	}
 
@@ -62,7 +59,6 @@ func (msg *MsgMintCCC) ValidateBasic() error {
 	for _, coin := range msg.DepositAmount {
 		coins = append(coins, *coin)
 	}
-	sdk.NewCoins()
 	if !ValidateDeposit(coins) {
 		return errors.Wrap(errors.ErrInvalidCoins, coins.String())
 	}
@@ -103,11 +99,8 @@ func (msg *MsgBurnCCC) GetSignBytes() []byte {
 }
 
 func (msg *MsgBurnCCC) ValidateBasic() error {
-	signer, err := sdk.AccAddressFromBech32(msg.Signer)
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return err
-	}
-	if signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
 
@@ -152,16 +145,11 @@ func (msg *MsgSetCCCConversionRate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
-// TODO remove duplicate validation
 func (msg *MsgSetCCCConversionRate) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
-
-	/*if sdk.AccAddress(msg.Signer).Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
-	}*/
 	return ValidateConversionRate(msg.Rate)
 }
 
@@ -197,14 +185,10 @@ func (msg *MsgSetCCCFreezePeriod) GetSignBytes() []byte {
 }
 
 func (msg *MsgSetCCCFreezePeriod) ValidateBasic() error {
-	signer, err := sdk.AccAddressFromBech32(msg.Signer)
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return err
-	}
-	if signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
-	// TODO move all control into method ValidateFreezePeriod
 	freezePeriod, err := time.ParseDuration(msg.FreezePeriod)
 	if err != nil {
 		return errors.Wrap(errors.ErrInvalidRequest, err.Error())
