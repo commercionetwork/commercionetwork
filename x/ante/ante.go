@@ -52,7 +52,8 @@ func NewAnteHandler(
 // MinFeeDecorator checks that each transaction containing a MsgShareDocument
 // contains also a minimum fee amount corresponding to 0.01 euro per
 // MsgShareDocument included into the transaction itself.
-// The amount can be specified using stableCreditsDenom.
+// The amount can be specified using stableCreditsDenom or stakeDenom.
+// If stakeDenom used the cost of transaction is always 10000ucommercio
 type MinFeeDecorator struct {
 	govk               government.Keeper
 	mintk              commerciomintKeeper.Keeper
@@ -106,9 +107,6 @@ func checkMinimumFees(
 	stableCreditsDenom string,
 	requiredFees sdk.Dec,
 ) error {
-
-	// No Fees for the Tumbler.
-
 	fiatAmount := sdk.ZeroDec()
 	// Find required quantity of stable coin = number of msg * 10000
 	// Every message need 0.01 ccc
@@ -124,26 +122,21 @@ func checkMinimumFees(
 		// If amount of stable coin is enough return without error
 		return nil
 	}
+	// NB: if user pay insufficent fiat amount plus enough stake denom, fiat amount will be withdraw from the wallet anyway.
 
-	// Retrive stable coin conversion rate
-	ucccConversionRate := mintk.GetConversionRate(ctx)
-	// Retrive amount of commercio token and calculate equivalent in stable coin
-	if comAmount := feeTx.GetFee().AmountOf(stakeDenom); comAmount.IsPositive() {
-		//f := comAmount.ToDec().Mul(ucccConversionRate)
-		f := comAmount.ToDec().Quo(ucccConversionRate)
-		//realQty := f.QuoInt64(1000000)
-		//fiatAmount = fiatAmount.Add(realQty)
-		fiatAmount = fiatAmount.Add(f)
+	// stakeDenom must always equal 10000
+	comAmount := sdk.ZeroDec()
+	comRequiredQty := requiredFees.MulInt64(1000000)
+	comAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stakeDenom))
 
+	// Check if amount of stake coin is enough
+	if !comRequiredQty.IsZero() && comRequiredQty.LTE(comAmount) {
+		// If amount of stake coin is enough return without error
+		return nil
 	}
 
-	// Check if amount of stable coin plus equivalent amount of commercio token are enough
-	if !stableRequiredQty.LTE(fiatAmount) {
-		msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s", stableRequiredQty, fiatAmount)
-		return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
-	}
-
-	return nil
+	msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s, or %s stake denom amount, got %s", stableRequiredQty, fiatAmount, comRequiredQty, comAmount)
+	return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
 }
 
 // setGasMeter returns a new context with a gas meter set from a given context.
