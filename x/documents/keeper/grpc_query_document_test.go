@@ -100,9 +100,6 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		for i := 0; i < len(msgs); i += step {
 			resp, err := keeper.SentDocuments(wctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
-			/*for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.Document[j-i])
-			}*/
 			for _, respDocument := range resp.Document {
 				assert.Contains(t, msgs, respDocument)
 			}
@@ -173,7 +170,7 @@ func TestReceivedDocument(t *testing.T) {
 		err      error
 	}{
 		{
-			desc:     "One received document",
+			desc:     "All received documents",
 			request:  &types.QueryGetReceivedDocumentRequest{Address: msgs[0].Recipients[0]},
 			response: &types.QueryGetReceivedDocumentResponse{ReceivedDocument: msgs},
 		},

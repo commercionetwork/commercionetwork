@@ -101,7 +101,6 @@ func TestKeeper_ShareDocument(t *testing.T) {
 				newReceivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(recipientAddr, tt.document.UUID))
 
 				newReceivedDocs := string(newReceivedDocsBz)
-				//k.cdc.MustUnmarshalBinaryBare(newReceivedDocsBz, &newReceivedDocs)
 				require.Equal(t, tt.document.UUID, newReceivedDocs)
 			}
 
@@ -111,8 +110,6 @@ func TestKeeper_ShareDocument(t *testing.T) {
 
 			sentDocs := string(sentDocsBz)
 			receivedDocs := string(receivedDocsBz)
-			//k.cdc.MustUnmarshalBinaryBare(sentDocsBz, &sentDocs)
-			//k.cdc.MustUnmarshalBinaryBare(receivedDocsBz, &receivedDocs)
 			require.Equal(t, tt.document.UUID, sentDocs)
 			require.Equal(t, tt.document.UUID, receivedDocs)
 
@@ -152,7 +149,6 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 
 			if tt.storedDocument.UUID != "" {
 				store := ctx.KVStore(k.storeKey)
-				//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 				store.Set(getDocumentStoreKey(tt.storedDocument.UUID), k.cdc.MustMarshalBinaryBare(&tt.storedDocument))
 			}
 
@@ -210,7 +206,6 @@ func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 			store := ctx.KVStore(k.storeKey)
 			for _, document := range tt.docs {
 				store.Set(getDocumentStoreKey(document.UUID), k.cdc.MustMarshalBinaryBare(&document))
-				//store.Set(getReceivedDocumentsIdsUUIDStoreKey(tt.recipient, document.UUID), k.cdc.MustMarshalBinaryBare(document.UUID))
 				store.Set(getReceivedDocumentsIdsUUIDStoreKey(tt.recipient, document.UUID), []byte(document.UUID))
 			}
 
@@ -220,7 +215,6 @@ func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 			documents := []types.Document{}
 			for ; rdi.Valid(); rdi.Next() {
 				id := string(rdi.Value())
-				//k.cdc.MustUnmarshalBinaryBare(rdi.Value(), &id)
 				doc, err := k.GetDocumentByID(ctx, id)
 				require.NoError(t, err)
 
@@ -277,7 +271,6 @@ func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 			store := ctx.KVStore(k.storeKey)
 			for _, document := range tt.docs {
 				store.Set(getDocumentStoreKey(document.UUID), k.cdc.MustMarshalBinaryBare(&document))
-				//store.Set(getSentDocumentsIdsUUIDStoreKey(tt.sender, document.UUID), k.cdc.MustMarshalBinaryBare(document.UUID))
 				store.Set(getSentDocumentsIdsUUIDStoreKey(tt.sender, document.UUID), []byte(document.UUID))
 			}
 
@@ -287,7 +280,6 @@ func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 
 			for ; di.Valid(); di.Next() {
 				id := string(di.Value())
-				//k.cdc.MustUnmarshalBinaryBare(di.Value(), &id)
 				doc, err := k.GetDocumentByID(ctx, id)
 				require.NoError(t, err)
 
@@ -420,7 +412,6 @@ func TestKeeper_SaveDocumentReceipt(t *testing.T) {
 			senderAccadrr, _ := sdk.AccAddressFromBech32(tdr.Sender)
 			docReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(senderAccadrr, tdr.DocumentUUID))
 			storedID := string(docReceiptBz)
-			//k.cdc.MustUnmarshalBinaryBare(docReceiptBz, &storedID)
 
 			stored, err := k.GetReceiptByID(ctx, storedID)
 			require.NoError(t, err)
@@ -436,7 +427,6 @@ func TestKeeper_SaveDocumentReceipt(t *testing.T) {
 			defer si.Close()
 			for ; si.Valid(); si.Next() {
 				rid := string(si.Value())
-				//k.cdc.MustUnmarshalBinaryBare(si.Value(), &rid)
 
 				newReceipt, err := k.GetReceiptByID(ctx, rid)
 				require.NoError(t, err)
@@ -615,7 +605,6 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 			receipts := []types.DocumentReceipt{}
 			for ; urri.Valid(); urri.Next() {
 				rid := string(urri.Value())
-				//k.cdc.MustUnmarshalBinaryBare(urri.Value(), &rid)
 
 				r, err := k.GetReceiptByID(ctx, rid)
 				require.NoError(t, err)
