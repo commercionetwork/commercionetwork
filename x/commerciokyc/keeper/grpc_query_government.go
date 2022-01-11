@@ -17,6 +17,7 @@ func (k Keeper) Tsps(c context.Context, req *types.QueryTspsRequest) (*types.Que
 
 func (k Keeper) Funds(c context.Context, req *types.QueryFundsRequest) (*types.QueryFundsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	liquidityPoolAmount := k.GetPoolFunds(ctx)
+	// TODO check this Get functions
+	liquidityPoolAmount := k.GetLiquidityPoolAmountCoins(ctx)
 	return &types.QueryFundsResponse{Funds: liquidityPoolAmount}, nil
 }

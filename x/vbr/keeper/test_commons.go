@@ -122,7 +122,6 @@ func SetupTestInput(emptyPool bool) (ctx sdk.Context, keeper Keeper) {
 	if !emptyPool {
 		pool, _ := TestBlockRewardsPool.TruncateDecimal()
 		macc := k.VbrAccount(ctx)
-
 		k.bankKeeper.SetBalances(ctx, macc.GetAddress(), sdk.NewCoins(pool...))
 		k.accountKeeper.SetModuleAccount(ctx, macc)
 	}

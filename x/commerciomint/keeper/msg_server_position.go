@@ -10,32 +10,25 @@ import (
 
 func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types.MsgMintCCCResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	var depositAmount int64
-	for _, denom := range msg.DepositAmount {
-		if denom.Denom == types.CreditsDenom {
-			depositAmount = denom.Amount.Int64()
-			break
-		}
-	}
-	var postion = types.Position{
-		Owner:      msg.Depositor,
-		Collateral: depositAmount,
-		ID:         msg.ID,
+	var requestCoins sdk.Coins
+	for _, coin := range msg.DepositAmount {
+		requestCoins = append(requestCoins, *coin)
 	}
 
 	err := k.NewPosition(
 		ctx,
-		postion,
+		msg.Depositor,
+		requestCoins,
+		msg.ID,
 	)
 	if err != nil {
-		return &types.MsgMintCCCResponse{},  errors.Wrap(errors.ErrInvalidRequest, err.Error())
+		return nil, errors.Wrap(errors.ErrInvalidRequest, err.Error())
 	}
 	return &types.MsgMintCCCResponse{
 		ID: msg.ID,
 	}, nil
 }
 
-// TODO IMPLEMENTATION
 func (k msgServer) BurnCCC(goCtx context.Context, msg *types.MsgBurnCCC) (*types.MsgBurnCCCResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
@@ -49,7 +42,7 @@ func (k msgServer) BurnCCC(goCtx context.Context, msg *types.MsgBurnCCC) (*types
 		*msg.Amount,
 	)
 	if err != nil {
-		return &types.MsgBurnCCCResponse{}, err
+		return nil, err
 	}
 	residualCredits := sdk.NewCoin(types.CreditsDenom, residualAmount)
 

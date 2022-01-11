@@ -16,7 +16,7 @@ func (suite *KeeperTestSuite) TestQueryEpochInfos() {
 	// Invalid param
 	epochInfosResponse, err := queryClient.EpochInfos(gocontext.Background(), &types.QueryEpochsInfoRequest{})
 	suite.Require().NoError(err)
-	suite.Require().Len(epochInfosResponse.Epochs, 2)
+	suite.Require().Len(epochInfosResponse.Epochs, 5)
 
 	// check if EpochInfos are correct
 	suite.Require().Equal(epochInfosResponse.Epochs[0].Identifier, "day")
@@ -26,11 +26,11 @@ func (suite *KeeperTestSuite) TestQueryEpochInfos() {
 	suite.Require().Equal(epochInfosResponse.Epochs[0].CurrentEpochStartTime, chainStartTime)
 	suite.Require().Equal(epochInfosResponse.Epochs[0].EpochCountingStarted, false)
 	suite.Require().Equal(epochInfosResponse.Epochs[0].CurrentEpochEnded, true)
-	suite.Require().Equal(epochInfosResponse.Epochs[1].Identifier, "week")
-	suite.Require().Equal(epochInfosResponse.Epochs[1].StartTime, chainStartTime)
-	suite.Require().Equal(epochInfosResponse.Epochs[1].Duration, time.Hour*24*7)
-	suite.Require().Equal(epochInfosResponse.Epochs[1].CurrentEpoch, int64(0))
-	suite.Require().Equal(epochInfosResponse.Epochs[1].CurrentEpochStartTime, chainStartTime)
-	suite.Require().Equal(epochInfosResponse.Epochs[1].EpochCountingStarted, false)
-	suite.Require().Equal(epochInfosResponse.Epochs[1].CurrentEpochEnded, true)
+	suite.Require().Equal(epochInfosResponse.Epochs[4].Identifier, "week")
+	suite.Require().Equal(epochInfosResponse.Epochs[4].StartTime, chainStartTime)
+	suite.Require().Equal(epochInfosResponse.Epochs[4].Duration, time.Hour*24*7)
+	suite.Require().Equal(epochInfosResponse.Epochs[4].CurrentEpoch, int64(0))
+	suite.Require().Equal(epochInfosResponse.Epochs[4].CurrentEpochStartTime, chainStartTime)
+	suite.Require().Equal(epochInfosResponse.Epochs[4].EpochCountingStarted, false)
+	suite.Require().Equal(epochInfosResponse.Epochs[4].CurrentEpochEnded, true)
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	simapp "github.com/commercionetwork/commercionetwork/app"
+	simapp "github.com/commercionetwork/commercionetwork/testutil/simapp"
 	"github.com/commercionetwork/commercionetwork/x/epochs"
 	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 	"github.com/stretchr/testify/require"
@@ -12,13 +12,15 @@ import (
 )
 
 func TestEpochsExportGenesis(t *testing.T) {
-	app := simapp.Setup(false)
+	//app := simapp.Setup(false)
+	app := simapp.New("")
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	chainStartTime := ctx.BlockTime()
-
+	genState := types.DefaultGenesis()
+	epochs.InitGenesis(ctx, app.EpochsKeeper, *genState)
 	genesis := epochs.ExportGenesis(ctx, app.EpochsKeeper)
-	require.Len(t, genesis.Epochs, 2)
+	require.Len(t, genesis.Epochs, 5)
 
 	require.Equal(t, genesis.Epochs[0].Identifier, "day")
 	require.Equal(t, genesis.Epochs[0].StartTime, chainStartTime)
@@ -27,17 +29,19 @@ func TestEpochsExportGenesis(t *testing.T) {
 	require.Equal(t, genesis.Epochs[0].CurrentEpochStartTime, chainStartTime)
 	require.Equal(t, genesis.Epochs[0].EpochCountingStarted, false)
 	require.Equal(t, genesis.Epochs[0].CurrentEpochEnded, true)
-	require.Equal(t, genesis.Epochs[1].Identifier, "week")
-	require.Equal(t, genesis.Epochs[1].StartTime, chainStartTime)
-	require.Equal(t, genesis.Epochs[1].Duration, time.Hour*24*7)
-	require.Equal(t, genesis.Epochs[1].CurrentEpoch, int64(0))
-	require.Equal(t, genesis.Epochs[1].CurrentEpochStartTime, chainStartTime)
-	require.Equal(t, genesis.Epochs[1].EpochCountingStarted, false)
-	require.Equal(t, genesis.Epochs[1].CurrentEpochEnded, true)
+	require.Equal(t, genesis.Epochs[4].Identifier, "week")
+	require.Equal(t, genesis.Epochs[4].StartTime, chainStartTime)
+	require.Equal(t, genesis.Epochs[4].Duration, time.Hour*24*7)
+	require.Equal(t, genesis.Epochs[4].CurrentEpoch, int64(0))
+	require.Equal(t, genesis.Epochs[4].CurrentEpochStartTime, chainStartTime)
+	require.Equal(t, genesis.Epochs[4].EpochCountingStarted, false)
+	require.Equal(t, genesis.Epochs[4].CurrentEpochEnded, true)
 }
 
 func TestEpochsInitGenesis(t *testing.T) {
-	app := simapp.Setup(false)
+	//app := simapp.Setup(false)
+
+	app := simapp.New("")
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	// On init genesis, default epochs information is set

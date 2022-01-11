@@ -24,6 +24,15 @@ faucet:
   coins: ["5uccc", "100000ucommercio"]
 genesis:
   app_state:
+    gov:
+      deposit_params:
+        min_deposit:
+        -
+          denom: "ucommercio"
+          amount: "10000000"
+    crisis:
+      constant_fee:
+        denom: "ucommercio"
     government:
       governmentAddress: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
     vbr:

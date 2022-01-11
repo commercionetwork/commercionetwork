@@ -78,7 +78,6 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	ak.SetModuleAccount(ctx, mintAcc)
 
 	mk := mintKeeper.NewKeeper(cdc, keys[mintTypes.StoreKey], keys[mintTypes.StoreKey], bk, ak, *govk)
-	mk.UpdateConversionRate(ctx, sdk.NewDecWithPrec(23, 1))
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
 

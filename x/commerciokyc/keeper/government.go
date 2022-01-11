@@ -29,8 +29,7 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 
 	}
-
-	// TODO emits events
+	// TODO Emits only if add
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventAddTsp,
 		sdk.NewAttribute("tsp", tsp.String()),
@@ -74,13 +73,12 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amountCoins); err != nil {
 		return err
 	}
-	/*
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			eventDeposit,
-			sdk.NewAttribute("depositor", depositor.String()),
-			sdk.NewAttribute("amount", amount.String()),
-		))
-	*/
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventDeposit,
+		sdk.NewAttribute("depositor", depositor.String()),
+		sdk.NewAttribute("amount", amount.String()),
+	))
 
 	return nil
 }

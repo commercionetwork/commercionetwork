@@ -265,9 +265,9 @@ type App struct {
 	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
-	governmentKeeper    governmentmodulekeeper.Keeper
-	commercioMintKeeper commerciomintKeeper.Keeper
-	commercioKycKeeper  commerciokycKeeper.Keeper
+	GovernmentKeeper    governmentmodulekeeper.Keeper
+	CommercioMintKeeper commerciomintKeeper.Keeper
+	CommercioKycKeeper  commerciokycKeeper.Keeper
 
 	VbrKeeper vbrmodulekeeper.Keeper
 
@@ -280,7 +280,7 @@ type App struct {
 	EpochsKeeper epochskeeper.Keeper
 }
 
-// New returns a reference to an initialized Gaia.
+// New returns a reference to an initialized Commercionetwork.
 // NewSimApp returns a reference to an initialized SimApp.
 func New(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
@@ -400,12 +400,12 @@ func New(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// Government keeper must be set before other modules keeper that depend on it
-	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
+	app.GovernmentKeeper = *governmentmodulekeeper.NewKeeper(
 		appCodec,
 		keys[governmentmoduletypes.StoreKey],
 		keys[governmentmoduletypes.MemStoreKey],
 	)
-	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
+	governmentModule := governmentmodule.NewAppModule(appCodec, app.GovernmentKeeper)
 
 	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
 		appCodec,
@@ -414,7 +414,7 @@ func New(
 		app.DistrKeeper,
 		app.BankKeeper,
 		app.AccountKeeper,
-		app.governmentKeeper,
+		app.GovernmentKeeper,
 		app.EpochsKeeper,
 		app.GetSubspace(vbrmoduletypes.ModuleName),
 		app.StakingKeeper,
@@ -422,26 +422,26 @@ func New(
 	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
 
 	// CommercioMint keeper must be set before CommercioKyc
-	app.commercioMintKeeper = *commerciomintKeeper.NewKeeper(
+	app.CommercioMintKeeper = *commerciomintKeeper.NewKeeper(
 		appCodec,
 		keys[commerciomintTypes.StoreKey],
 		keys[commerciomintTypes.MemStoreKey],
 		app.BankKeeper,
 		app.AccountKeeper,
-		app.governmentKeeper,
+		app.GovernmentKeeper,
 	)
-	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.commercioMintKeeper)
+	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.CommercioMintKeeper)
 
-	app.commercioKycKeeper = *commerciokycKeeper.NewKeeper(
+	app.CommercioKycKeeper = *commerciokycKeeper.NewKeeper(
 		appCodec,
 		keys[commerciokycTypes.StoreKey],
 		keys[commerciokycTypes.MemStoreKey],
 		app.BankKeeper,
-		app.governmentKeeper,
+		app.GovernmentKeeper,
 		app.AccountKeeper,
-		app.commercioMintKeeper,
+		app.CommercioMintKeeper,
 	)
-	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.commercioKycKeeper)
+	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
@@ -616,7 +616,7 @@ func New(
 	app.SetAnteHandler(
 		ante.NewAnteHandler(
 			app.AccountKeeper, app.BankKeeper,
-			app.governmentKeeper, app.commercioMintKeeper,
+			app.GovernmentKeeper, app.CommercioMintKeeper,
 			comosante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
 			stakeDenom,
