@@ -74,7 +74,7 @@ func TestIncrementBlockRewardsPool(t *testing.T) {
 	}
 }
 
-func TestSetVbrParams(t *testing.T) {
+func TestSetParams(t *testing.T) {
 	cfg := network.DefaultConfig()
 
 	stateGov := govTypes.GenesisState{}
@@ -132,7 +132,7 @@ func TestSetVbrParams(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			args := []string{}
 			args = append(args, tc.args...)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdSetVbrParams(), args)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdSetParams(), args)
 			if tc.err  {
 				require.NotNil(t, err)
 			} else {

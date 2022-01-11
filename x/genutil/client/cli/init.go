@@ -35,9 +35,6 @@ const (
 
 	// FlagVbrPoolAmount defines a flag to initialize the vbr-pool-amount
 	FlagVbrPoolAmount = "vbr-pool-amount"
-
-	// FlagVbrRewardRate defines a flag to initialize the vbr-reward-rate
-	//FlagVbrRewardRate = "vbr-reward-rate"
 )
 
 type printInfo struct {
@@ -165,25 +162,6 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			}
 
-			/*// Verify vbr pool amount flag
-			vbrRewardRate, _ := cmd.Flags().GetString(FlagVbrRewardRate)
-			if vbrRewardRate != "" {
-				rawardRate, err := sdk.NewDecFromStr(vbrRewardRate)
-				if err != nil {
-					return err
-				}
-				if rawardRate.IsZero() || rawardRate.IsNegative() {
-					return errors.New("cannot have zero or negative value of reward rate")
-				}
-
-				genState, err := SetVbrRewardRate(appState, rawardRate)
-				if err != nil {
-					return err
-				}
-				appState, err = json.Marshal(genState)
-
-			}*/
-
 			genDoc.ChainID = chainID
 			genDoc.Validators = nil
 			genDoc.AppState = appState
@@ -204,7 +182,6 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(FlagGovAddr, "", "genesis government address, if left blank will need to set with set-government-address command")
 	cmd.Flags().String(FlagVbrPoolAmount, "", "genesis vbr pool amount, if left blank will need to set with set-genesis-vbr-pool-amount command")
-	//cmd.Flags().String(FlagVbrRewardRate, "", "genesis vbr reward reate, if left blank will need to set with set-genesis-vbr-reward-rate command")
 
 	return cmd
 }

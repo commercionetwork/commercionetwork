@@ -50,16 +50,16 @@ func TestIncrementBlockRewardsPool(t *testing.T) {
 	}
 }
 
-func TestSetVbrParams(t *testing.T) {
+func TestSetParams(t *testing.T) {
 	srv, ctx := setupMsgServer(t)
 	for _, tc := range []struct {
 		desc     	string
-		msg  		*types.MsgSetVbrParams
+		msg  		*types.MsgSetParams
 		err      	error
 	}{
 		{
 			desc:     	"regular params",
-			msg:  		&types.MsgSetVbrParams{
+			msg:  		&types.MsgSetParams{
 							Government: TestFunder.String(),
 							DistrEpochIdentifier: types.EpochDay,
 							EarnRate: sdk.NewDecWithPrec(5,1),
@@ -68,16 +68,16 @@ func TestSetVbrParams(t *testing.T) {
 		},
 		{
 			desc:     	"inavlid government address",
-			msg:  		&types.MsgSetVbrParams{
+			msg:  		&types.MsgSetParams{
 							Government: valDelAddr.String(),
 							DistrEpochIdentifier: types.EpochDay,
 							EarnRate: sdk.NewDecWithPrec(5,1),
 						},
-			err:		sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", valDelAddr.String())),
+			err:		sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set params", valDelAddr.String())),
 		},
 		{
 			desc:     	"invalid epoch identifier",
-			msg:  		&types.MsgSetVbrParams{
+			msg:  		&types.MsgSetParams{
 							Government: TestFunder.String(),
 							DistrEpochIdentifier: "",
 							EarnRate: sdk.NewDecWithPrec(5,1),
@@ -86,7 +86,7 @@ func TestSetVbrParams(t *testing.T) {
 		},
 		{
 			desc:     	"invalid earn rate",
-			msg:  		&types.MsgSetVbrParams{
+			msg:  		&types.MsgSetParams{
 							Government: TestFunder.String(),
 							DistrEpochIdentifier: types.EpochDay,
 							EarnRate: sdk.NewDec(-1),
@@ -96,7 +96,7 @@ func TestSetVbrParams(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			_, err := srv.SetVbrParams(ctx, tc.msg)
+			_, err := srv.SetParams(ctx, tc.msg)
 			if tc.err != nil{
 				require.ErrorIs(t, err, tc.err)
 			}  else{

@@ -11,7 +11,7 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
 	cdc.RegisterConcrete(&MsgIncrementBlockRewardsPool{}, "vbr/MsgIncrementBlockRewardsPool", nil)
 
-	cdc.RegisterConcrete(&MsgSetVbrParams{}, "vbr/SetVbrParams", nil)
+	cdc.RegisterConcrete(&MsgSetParams{}, "vbr/SetParams", nil)
 
 }
 
@@ -21,7 +21,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgIncrementBlockRewardsPool{},
 	)
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgSetVbrParams{},
+		&MsgSetParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

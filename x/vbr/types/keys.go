@@ -9,11 +9,11 @@ const (
 
 	// this line is used by starport scaffolding # ibc/keys/name
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
-	MsgTypeSetVbrParams              = "setVbrParams"
+	MsgTypeSetParams              = "setParams"
 	PoolStoreKey                     = StoreKey + ":pool:"
 
 	QueryBlockRewardsPoolFunds = "funds"
-	QueryVbrParams			   = "params"
+	QueryParams			   = "params"
 
 	EpochWeek	= "week"
 	EpochDay	= "day"

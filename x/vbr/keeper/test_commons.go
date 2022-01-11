@@ -2,8 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//"github.com/tendermint/tendermint/crypto/ed25519"
-	//cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -42,8 +40,6 @@ var (
 	valAddrVal, _    = sdk.ValAddressFromBech32("cosmosvaloper1tflk30mq5vgqjdly92kkhhq3raev2hnz6eete3")
 	valDelAddr, _    = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 	PKs =  simapp.CreateTestPubKeys(10)
-	//pubKey           = ed25519.GenPrivKey().PubKey()
-	//TestValidator        = staking.NewValidator(valAddr, pubKey, staking.Description{})
 	TestValidator, _        = stakingTypes.NewValidator(valAddrVal, PKs[0], stakingTypes.Description{})
 	TestAmount           = sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100)))
 	TestBlockRewardsPool = sdk.NewDecCoinsFromCoins(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})...)
@@ -103,15 +99,10 @@ func SetupTestInput(emptyPool bool) (ctx sdk.Context, keeper Keeper) {
 
 	pk := paramsKeeper.NewKeeper(codec.NewProtoCodec(registry), codec.NewLegacyAmino(), keys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
 	ak := accountKeeper.NewAccountKeeper(codec.NewProtoCodec(registry), keys[accountTypes.StoreKey], pk.Subspace("auth"), accountTypes.ProtoBaseAccount, maccPerms)
-//	bk := bankKeeper.NewBaseKeeper(ak, pk.Subspace(bankKeeper.DefaultParamspace), blacklistedAddrs)
 	bk := bankKeeper.NewBaseKeeper(codec.NewProtoCodec(registry), keys[bankTypes.StoreKey], ak, pk.Subspace("bank"), blacklistedAddrs)
-	//suk := supply.NewKeeper(codec.NewProtoCodec(registry), keys[supply.StoreKey], ak, bk, maccPerms)
-	//suk.SetSupply(ctx, supply.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
 	sk := stakingKeeper.NewKeeper(codec.NewProtoCodec(registry), keys[stakingTypes.StoreKey], ak, bk, pk.Subspace("staking"))
-	//sk.SetParams(ctx, stakingTypes.DefaultParams())
 	gk := govKeeper.NewKeeper(codec.NewProtoCodec(registry), keys[govTypes.StoreKey], memStoreKeyGov)
 	dk := distrKeeper.NewKeeper(codec.NewProtoCodec(registry), keys[distrTypes.StoreKey], pk.Subspace("distribution"),ak, bk, sk, accountTypes.FeeCollectorName, blacklistedAddrs)
-	// set the distribution hooks on staking
 	sk.SetHooks(dk.Hooks())
 	ek := epochsKeeper.NewKeeper(codec.NewProtoCodec(registry), keys[epochsTypes.StoreKey])
 	subspace, _ := pk.GetSubspace(types.ModuleName)
@@ -131,26 +122,10 @@ func SetupTestInput(emptyPool bool) (ctx sdk.Context, keeper Keeper) {
 	if !emptyPool {
 		pool, _ := TestBlockRewardsPool.TruncateDecimal()
 		macc := k.VbrAccount(ctx)
-		//_ = macc.SetCoins(sdk.NewCoins(pool...))
+
 		k.bankKeeper.SetBalances(ctx, macc.GetAddress(), sdk.NewCoins(pool...))
 		k.accountKeeper.SetModuleAccount(ctx, macc)
 	}
 
 	return ctx, *k
 }
-/*
-func testCodec() *codec.Codec {
-	var cdc = codec.New()
-	bank.RegisterCodec(cdc)
-	staking.RegisterCodec(cdc)
-	auth.RegisterCodec(cdc)
-	supply.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
-
-	types.RegisterCodec(cdc) // distr
-
-	cdc.Seal()
-
-	return cdc
-}*/
