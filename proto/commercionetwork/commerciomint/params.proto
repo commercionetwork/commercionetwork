@@ -8,7 +8,7 @@ import "google/protobuf/duration.proto";
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
 
 message Params {
-  string collateral_rate = 3 [
+  string conversion_rate = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
   ];

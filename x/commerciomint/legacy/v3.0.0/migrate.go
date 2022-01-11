@@ -31,7 +31,7 @@ func Migrate(oldGenState v220commerciomint.GenesisState) *types.GenesisState {
 		Positions:  postions,
 		PoolAmount: oldGenState.LiquidityPoolAmount,
 		Params: types.Params{
-			CollateralRate: oldGenState.CollateralRate,
+			ConversionRate: oldGenState.CollateralRate,
 			FreezePeriod:   &oldGenState.FreezePeriod,
 		},
 	}

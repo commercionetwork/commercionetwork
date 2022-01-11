@@ -30,7 +30,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 		keeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	if err := keeper.UpdateConversionRate(ctx, data.Params.CollateralRate); err != nil {
+	if err := keeper.UpdateConversionRate(ctx, data.Params.ConversionRate); err != nil {
 		panic(err)
 	}
 	freezePeriod := data.Params.FreezePeriod
@@ -54,7 +54,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 
 	// this line is used by starport scaffolding # genesis/module/export
 	collateralRate := k.GetConversionRate(ctx)
-	genesis.Params.CollateralRate = collateralRate
+	genesis.Params.ConversionRate = collateralRate
 
 	freezePeriod := k.GetFreezePeriod(ctx)
 	genesis.Params.FreezePeriod = &freezePeriod
@@ -84,5 +84,5 @@ func ValidateGenesis(state types.GenesisState) error {
 	if err != nil {
 		return err
 	}
-	return types.ValidateConversionRate(state.Params.CollateralRate)
+	return types.ValidateConversionRate(state.Params.ConversionRate)
 }
