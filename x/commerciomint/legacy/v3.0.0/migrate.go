@@ -28,10 +28,12 @@ func Migrate(oldGenState v220commerciomint.GenesisState) *types.GenesisState {
 	}*/
 
 	return &types.GenesisState{
-		Positions:      postions,
-		PoolAmount:     oldGenState.LiquidityPoolAmount,
-		CollateralRate: oldGenState.CollateralRate,
-		FreezePeriod:   &oldGenState.FreezePeriod,
+		Positions:  postions,
+		PoolAmount: oldGenState.LiquidityPoolAmount,
+		Params: types.Params{
+			CollateralRate: oldGenState.CollateralRate,
+			FreezePeriod:   &oldGenState.FreezePeriod,
+		},
 	}
 
 }

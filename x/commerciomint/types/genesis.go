@@ -19,10 +19,12 @@ func DefaultGenesis() *GenesisState {
 	freezePeriod := durationpb.New(DefaultFreezePeriod).AsDuration()
 	return &GenesisState{
 		// this line is used by starport scaffolding # genesis/types/default
-		Positions:      []*Position{},
-		PoolAmount:     sdk.Coins{},
-		CollateralRate: collateralRate,
-		FreezePeriod:   &freezePeriod, //TODO CONTROL CAST
+		Positions:  []*Position{},
+		PoolAmount: sdk.Coins{},
+		Params: Params{
+			CollateralRate: collateralRate,
+			FreezePeriod:   &freezePeriod, //TODO CONTROL CAST
+		},
 	}
 }
 
@@ -31,14 +33,14 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 
 	// this line is used by starport scaffolding # genesis/types/validate
-	if gs.CollateralRate.IsZero() {
+	if gs.Params.CollateralRate.IsZero() {
 		return fmt.Errorf("conversion rate cannot be zero")
 	}
-	if gs.CollateralRate.IsNegative() {
+	if gs.Params.CollateralRate.IsNegative() {
 		return fmt.Errorf("conversion rate must be positive")
 	}
 
-	if gs.FreezePeriod.Seconds() < 0 {
+	if gs.Params.FreezePeriod.Seconds() < 0 {
 		return fmt.Errorf("freeze period cannot be lower than zero")
 	}
 	for _, position := range gs.Positions {
