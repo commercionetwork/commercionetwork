@@ -24,7 +24,7 @@ func (gs GenesisState) Validate() error {
 
 	// this line is used by starport scaffolding # genesis/types/validate
 
-	if err := gs.Params.ValidateBasic(); err != nil {
+	if err := gs.Params.Validate(); err != nil {
 		return err
 	}
 

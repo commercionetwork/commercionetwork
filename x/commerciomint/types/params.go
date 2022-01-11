@@ -9,21 +9,37 @@ import (
 )
 
 var (
-	DefaultConversionRate = sdk.NewDec(1)
+	DefaultConversionRate               = sdk.NewDec(1)
+	DefaultFreezePeriod   time.Duration = time.Hour * 24 * 7 * 3
+	KeyConversionRate                   = []byte("ConversionRate")
+	KeyFreezePeriod                     = []byte("FreezePeriod")
 )
 
 const (
-	DefaultCreditsDenom               = "uccc"
-	DefaultFreezePeriod time.Duration = time.Hour * 24 * 7 * 3
+	DefaultCreditsDenom = "uccc"
 )
 
-// Parameter store keys
-var (
-	KeyConversionRate = []byte("CollateralRate")
-	KeyFreezePeriod   = []byte("FreezePeriod")
-)
+// ParamTable for commerciomint module.
+func ParamKeyTable() paramtypes.KeyTable {
+	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+}
 
-func (p *Params) ValidateBasic() error {
+func NewParams(conversionRate sdk.Dec, freezePeriod *time.Duration) Params {
+	return Params{
+		ConversionRate: conversionRate,
+		FreezePeriod:   freezePeriod,
+	}
+}
+
+// default minting module parameters
+func DefaultParams() Params {
+	return Params{
+		ConversionRate: DefaultConversionRate,
+		FreezePeriod:   &DefaultFreezePeriod,
+	}
+}
+
+func (p *Params) Validate() error {
 
 	if err := ValidateConversionRate(p.ConversionRate); err != nil {
 		return err
@@ -59,4 +75,21 @@ func validateFreezePeriodParamSetPairs(i interface{}) error {
 	}
 
 	return ValidateFreezePeriod(fp)
+}
+
+func ValidateConversionRate(rate sdk.Dec) error {
+	if rate.IsZero() {
+		return fmt.Errorf("conversion rate cannot be zero")
+	}
+	if rate.IsNegative() {
+		return fmt.Errorf("conversion rate must be positive")
+	}
+	return nil
+}
+
+func ValidateFreezePeriod(freezePeriod time.Duration) error {
+	if freezePeriod.Seconds() < 0 {
+		return fmt.Errorf("freeze rate cannot be lower than zero")
+	}
+	return nil
 }

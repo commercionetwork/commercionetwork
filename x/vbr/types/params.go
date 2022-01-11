@@ -10,7 +10,7 @@ import (
 // Parameter store keys
 var (
 	KeyDistrEpochIdentifier = []byte("DistrEpochIdentifier")
-	KeyEarnRate = []byte("EarnRate")
+	KeyEarnRate             = []byte("EarnRate")
 )
 
 // ParamTable for minting module.
@@ -21,7 +21,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
 	return Params{
 		DistrEpochIdentifier: distrEpochIdentifier,
-		EarnRate: earnRate,
+		EarnRate:             earnRate,
 	}
 }
 
@@ -29,7 +29,7 @@ func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
 func DefaultParams() Params {
 	return Params{
 		DistrEpochIdentifier: EpochDay,
-		EarnRate: sdk.NewDec(int64(50)),
+		EarnRate:             sdk.NewDec(int64(50)),
 	}
 }
 

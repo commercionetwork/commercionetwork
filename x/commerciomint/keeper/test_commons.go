@@ -74,7 +74,9 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
-		bk, ak, *govkeeper)
+		bk, ak, *govkeeper,
+		app.GetSubspace(types.ModuleName),
+	)
 
 	err := mintK.UpdateConversionRate(ctx, sdk.NewDec(2))
 	if err != nil {

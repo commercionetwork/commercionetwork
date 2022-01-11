@@ -19,6 +19,7 @@ const (
 	QueryGetEtpsByOwnerRest = "owner"
 	QueryConversionRateRest = "conversion_rate"
 	QueryFreezePeriodRest   = "freeze_period"
+	QueryGetParamsRest      = "params"
 
 	MsgTypeMintCCC              = "mintCCC"
 	MsgTypeBurnCCC              = "burnCCC"
