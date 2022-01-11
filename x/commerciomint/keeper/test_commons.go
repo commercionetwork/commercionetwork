@@ -13,8 +13,8 @@ import (
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	params "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	paramsType "github.com/cosmos/cosmos-sdk/x/params/types"
+	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -34,11 +34,11 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 	keys := sdk.NewKVStoreKeys(
 		authTypes.StoreKey,
 		bankTypes.StoreKey,
-		paramsType.StoreKey,
+		paramsTypes.StoreKey,
 		governmentTypes.StoreKey,
 		types.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramsType.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
 	for _, key := range keys {
@@ -54,12 +54,13 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 
 	ctx := sdk.NewContext(ms, header, false, log.NewNopLogger()).WithBlockTime(time.Now())
 
-	legacyCodec := codec.NewLegacyAmino()
+	// legacyCodec := codec.NewLegacyAmino()
 	maccPerms := map[string][]string{
 		types.ModuleName: {authTypes.Minter, authTypes.Burner},
 	}
 
-	pk := params.NewKeeper(cdc, legacyCodec, keys[paramsType.StoreKey], tkeys[paramsType.TStoreKey])
+	pk := paramsKeeper.NewKeeper(cdc, codec.NewLegacyAmino(), keys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
+
 	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
 
@@ -75,17 +76,19 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
 		bk, ak, *govkeeper,
-		app.GetSubspace(types.ModuleName),
+		pk.Subspace(types.ModuleName),
 	)
 
-	err := mintK.UpdateConversionRate(ctx, sdk.NewDec(2))
-	if err != nil {
-		panic(err)
-	}
-	err = mintK.UpdateFreezePeriod(ctx, 0)
-	if err != nil {
-		panic(err)
-	}
+	mintK.UpdateParams(ctx, validParams)
+
+	// err := mintK.UpdateConversionRate(ctx, sdk.NewDec(2))
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// err = mintK.UpdateFreezePeriod(ctx, 0)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	return ctx, bk, *govkeeper, *mintK
 }
@@ -119,14 +122,21 @@ var testEtp = types.NewPosition(
 	sdk.NewDec(2),
 )
 
+var validParams = types.Params{
+	ConversionRate: validConversionRate,
+	FreezePeriod:   validFreezePeriod,
+}
+
 var validDepositCoin = sdk.NewCoin(types.CreditsDenom, sdk.NewInt(50))
 var inValidDepositCoin = sdk.NewCoin("ucommercio", sdk.NewInt(10))
 var validBurnCoin = inValidDepositCoin
 var inValidBurnCoin = validDepositCoin
+var validConversionRate = sdk.NewDec(2)
+var invalidConversionRate = sdk.NewDec(-1)
 
 var zeroUCCC = sdk.NewCoin(types.CreditsDenom, sdk.ZeroInt())
 
-var validFreezePeriod = time.Minute
+var validFreezePeriod time.Duration = 0
 var invalidFreezePeriod = -time.Minute
 
 var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))

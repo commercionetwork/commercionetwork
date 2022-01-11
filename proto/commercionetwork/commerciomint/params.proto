@@ -8,9 +8,12 @@ import "google/protobuf/duration.proto";
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
 
 message Params {
-  string conversion_rate = 3 [
+  option (gogoproto.equal) = true;
+
+  string conversion_rate = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
   ];
-  google.protobuf.Duration freeze_period = 4 [ (gogoproto.stdduration) = true ];
+  google.protobuf.Duration freeze_period = 2
+      [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
 }

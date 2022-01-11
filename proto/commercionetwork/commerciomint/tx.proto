@@ -3,21 +3,21 @@ package commercionetwork.commercionetwork.commerciomint;
 
 // this line is used by starport scaffolding # proto/tx/import
 import "gogoproto/gogo.proto";
-//import "commercionetwork/commerciomint/position.proto";
+import "commercionetwork/commerciomint/params.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
 
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
-    rpc MintCCC(MsgMintCCC) returns (MsgMintCCCResponse);
-    rpc BurnCCC(MsgBurnCCC) returns (MsgBurnCCCResponse);
-    rpc SetConversionRate(MsgSetCCCConversionRate) returns (MsgSetCCCConversionRateResponse);
-    rpc SetFreezePeriod(MsgSetCCCFreezePeriod) returns (MsgSetCCCFreezePeriodResponse);
-
-
-    
+  // this line is used by starport scaffolding # proto/tx/rpc
+  rpc MintCCC(MsgMintCCC) returns (MsgMintCCCResponse);
+  rpc BurnCCC(MsgBurnCCC) returns (MsgBurnCCCResponse);
+  rpc SetConversionRate(MsgSetCCCConversionRate)
+      returns (MsgSetCCCConversionRateResponse);
+  rpc SetFreezePeriod(MsgSetCCCFreezePeriod)
+      returns (MsgSetCCCFreezePeriodResponse);
+  rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
@@ -27,10 +27,7 @@ message MsgMintCCC {
   string ID = 3;
 }
 
-
-message MsgMintCCCResponse {
-  string ID = 1;
-}
+message MsgMintCCCResponse { string ID = 1; }
 
 message MsgBurnCCC {
   string signer = 1;
@@ -45,21 +42,29 @@ message MsgBurnCCCResponse {
 
 message MsgSetCCCConversionRate {
   string signer = 1;
-  string rate = 2
-  [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
+  string rate = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+  ];
 }
 
 message MsgSetCCCConversionRateResponse {
-  string rate = 1
-  [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
+  string rate = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+  ];
 }
-
 
 message MsgSetCCCFreezePeriod {
   string signer = 1;
   string freeze_period = 2;
 }
 
-message MsgSetCCCFreezePeriodResponse {
-  string freeze_period = 1;
+message MsgSetCCCFreezePeriodResponse { string freeze_period = 1; }
+
+message MsgSetParams {
+  string signer = 1;
+  Params params = 2;
 }
+
+message MsgSetParamsResponse {}

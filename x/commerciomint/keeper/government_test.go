@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -58,4 +59,15 @@ func TestKeeper_GetFreezePeriod(t *testing.T) {
 
 	require.NoError(t, k.UpdateFreezePeriod(ctx, validFreezePeriod))
 	require.Equal(t, validFreezePeriod, k.GetFreezePeriod(ctx))
+}
+
+func TestKeeper_GetParams(t *testing.T) {
+	ctx, _, _, k := SetupTestInput()
+
+	k.UpdateParams(ctx, types.Params{
+		ConversionRate: types.DefaultConversionRate,
+		FreezePeriod:   types.DefaultFreezePeriod,
+	})
+	require.Equal(t, types.Params{ConversionRate: types.DefaultConversionRate,
+		FreezePeriod: types.DefaultFreezePeriod}, k.GetParams(ctx))
 }

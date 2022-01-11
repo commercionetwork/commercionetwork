@@ -14,7 +14,7 @@ func DefaultGenesis() *GenesisState {
 		PoolAmount: sdk.Coins{},
 		Params: Params{
 			ConversionRate: DefaultConversionRate,
-			FreezePeriod:   &freezePeriod, //TODO CONTROL CAST
+			FreezePeriod:   freezePeriod, //TODO CONTROL CAST
 		},
 	}
 }

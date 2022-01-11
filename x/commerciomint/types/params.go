@@ -24,7 +24,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-func NewParams(conversionRate sdk.Dec, freezePeriod *time.Duration) Params {
+func NewParams(conversionRate sdk.Dec, freezePeriod time.Duration) Params {
 	return Params{
 		ConversionRate: conversionRate,
 		FreezePeriod:   freezePeriod,
@@ -35,18 +35,18 @@ func NewParams(conversionRate sdk.Dec, freezePeriod *time.Duration) Params {
 func DefaultParams() Params {
 	return Params{
 		ConversionRate: DefaultConversionRate,
-		FreezePeriod:   &DefaultFreezePeriod,
+		FreezePeriod:   DefaultFreezePeriod,
 	}
 }
 
 func (p *Params) Validate() error {
 
 	if err := ValidateConversionRate(p.ConversionRate); err != nil {
-		return err
+		return fmt.Errorf("invalid params: %e", err)
 	}
 
-	if err := ValidateFreezePeriod(*p.FreezePeriod); err != nil {
-		return err
+	if err := ValidateFreezePeriod(p.FreezePeriod); err != nil {
+		return fmt.Errorf("invalid params: %e", err)
 	}
 
 	return nil

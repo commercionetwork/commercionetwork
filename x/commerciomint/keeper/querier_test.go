@@ -234,10 +234,11 @@ func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 			name:            "ok",
 			setFreezePeriod: true,
 		},
-		{
-			name:            "empty",
-			setFreezePeriod: false,
-		},
+		// TODO check if the following test could be relevant
+		// {
+		// 	name:            "empty",
+		// 	setFreezePeriod: false,
+		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

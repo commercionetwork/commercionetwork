@@ -18,6 +18,7 @@ const (
 	eventBurnCCC           = "burned_ccc"
 	eventSetConversionRate = "new_conversion_rate"
 	eventSetFreezePeriod   = "new_freeze_period"
+	eventSetParams         = "new_params"
 )
 
 type Keeper struct {
@@ -55,5 +56,6 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		govKeeper:     govKeeper,
+		paramSpace:    paramSpace,
 	}
 }

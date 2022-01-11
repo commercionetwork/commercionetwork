@@ -35,7 +35,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 	}
 	freezePeriod := data.Params.FreezePeriod
 
-	if err := keeper.UpdateFreezePeriod(ctx, *freezePeriod); err != nil {
+	if err := keeper.UpdateFreezePeriod(ctx, freezePeriod); err != nil {
 		panic(err)
 	}
 
@@ -57,7 +57,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis.Params.ConversionRate = collateralRate
 
 	freezePeriod := k.GetFreezePeriod(ctx)
-	genesis.Params.FreezePeriod = &freezePeriod
+	genesis.Params.FreezePeriod = freezePeriod
 
 	genesis.PoolAmount = k.GetLiquidityPoolAmount(ctx)
 
@@ -80,7 +80,7 @@ func ValidateGenesis(state types.GenesisState) error {
 	// PoolAmount
 
 	freezePeriod := state.Params.FreezePeriod
-	err := types.ValidateFreezePeriod(*freezePeriod)
+	err := types.ValidateFreezePeriod(freezePeriod)
 	if err != nil {
 		return err
 	}
