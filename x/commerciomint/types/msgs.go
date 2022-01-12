@@ -195,3 +195,56 @@ func (msg *MsgSetCCCFreezePeriod) ValidateBasic() error {
 	}
 	return ValidateFreezePeriod(freezePeriod)
 }
+
+// -------------------------
+// --- MsgSetParams
+// -------------------------
+
+var _ sdk.Msg = &MsgSetParams{}
+
+func NewMsgSetParams(government string, conversionRate sdk.Dec, freezePeriod time.Duration) *MsgSetParams {
+	params := Params{
+		ConversionRate: conversionRate,
+		FreezePeriod:   freezePeriod,
+	}
+
+	return &MsgSetParams{
+		Signer: government,
+		Params: &params,
+	}
+}
+
+func (msg *MsgSetParams) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSetParams) Type() string {
+	return MsgTypeSetParams
+}
+
+func (msg *MsgSetParams) GetSigners() []sdk.AccAddress {
+	gov, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{gov}
+}
+
+func (msg *MsgSetParams) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgSetParams) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return errors.Wrapf(errors.ErrInvalidAddress, "invalid government address (%s)", err)
+	}
+	/*
+		err = msg.Params.Validate()
+		if err != nil {
+			return errors.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
+		}
+	*/
+	return nil
+}

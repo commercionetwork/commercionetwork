@@ -37,10 +37,10 @@ service Query {
         "/commercionetwork/commerciomint/freeze_period";
   }
 
-  // rpc Params(QueryGetParams) returns (QueryGetParamsResponse) {
-  //   option (google.api.http).get =
-  //       "/commercionetwork/commerciomint/freeze_period";
-  // }
+  rpc Params(QueryGetParams) returns (QueryGetParamsResponse) {
+     option (google.api.http).get =
+         "/commercionetwork/commerciomint/params";
+  }
 
   // this line is used by starport scaffolding # 2
 }
@@ -78,6 +78,9 @@ message QueryFreezePeriodResponse { string freeze_period = 1; }
 
 message QueryGetParams {}
 
-message QueryGetParamsResponse { string freeze_period = 1; }
+message QueryGetParamsResponse { 
+  string rate = 1; 
+  string freeze_period = 2; 
+}
 
 // this line is used by starport scaffolding # 3

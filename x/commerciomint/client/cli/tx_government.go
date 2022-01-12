@@ -1,5 +1,6 @@
 package cli
 
+/*
 import (
 	"fmt"
 	"strings"
@@ -13,9 +14,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
+*/
 const ()
 
+/*
 func CmdSetConversionRate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-conversion-rate [rate]",
@@ -77,3 +79,4 @@ func setFreezePeriodCmdFunc(cmd *cobra.Command, args []string) error {
 
 	return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 }
+*/

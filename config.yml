@@ -69,7 +69,8 @@ genesis:
             denom: "uccc"
           exchange_rate: "0.610000000000000000"
           owner: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
-      collateral_rate: "0.610000000000000000"
-      freeze_period: "1814400s"
+      params:
+        conversion_rate: "0.610000000000000000"
+        freeze_period: "1814400s"
 
 

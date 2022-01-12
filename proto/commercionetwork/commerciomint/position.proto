@@ -18,7 +18,7 @@ message Position {
   string exchange_rate = 6
     [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
 }
-
+/*
 message ConversionRate {
   string rate = 1
   [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
@@ -27,4 +27,4 @@ message ConversionRate {
 
 message FreezePeriod {
   google.protobuf.Duration freeze_period = 1 [(gogoproto.stdduration) = true];
-}
+}*/

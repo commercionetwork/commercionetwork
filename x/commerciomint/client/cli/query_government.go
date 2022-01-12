@@ -1,5 +1,6 @@
 package cli
 
+/*
 import (
 	"context"
 
@@ -60,3 +61,4 @@ func CmdGetFreezePeriod() *cobra.Command {
 
 	return cmd
 }
+*/

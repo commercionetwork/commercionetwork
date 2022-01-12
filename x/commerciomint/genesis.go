@@ -30,12 +30,22 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 		keeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	if err := keeper.UpdateConversionRate(ctx, data.Params.ConversionRate); err != nil {
+	// Can't use separate Update params: panic error.
+	/*if err := keeper.UpdateConversionRate(ctx, data.Params.ConversionRate); err != nil {
 		panic(err)
 	}
 	freezePeriod := data.Params.FreezePeriod
 
 	if err := keeper.UpdateFreezePeriod(ctx, freezePeriod); err != nil {
+		panic(err)
+	}*/
+
+	params := types.Params{
+		ConversionRate: data.Params.ConversionRate,
+		FreezePeriod:   data.Params.FreezePeriod,
+	}
+
+	if err := keeper.UpdateParams(ctx, params); err != nil {
 		panic(err)
 	}
 

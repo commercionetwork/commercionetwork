@@ -25,4 +25,5 @@ const (
 	MsgTypeBurnCCC              = "burnCCC"
 	MsgTypeSetCCCConversionRate = "setEtpsConversionRate"
 	MsgTypeSetCCCFreezePeriod   = "setEtpsFreezePeriod"
+	MsgTypeSetParams            = "setParams"
 )

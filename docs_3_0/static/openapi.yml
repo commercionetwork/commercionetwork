@@ -419,6 +419,39 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
+  /commercionetwork/commerciomint/params:
+    get:
+      operationId: CommercionetworkCommercionetworkCommerciomintParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              rate:
+                type: string
+              freezePeriod:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   '/commercionetwork/commerciomint/{ID}/etp':
     get:
       summary: Queries a Etp by id.
@@ -23817,6 +23850,15 @@ definitions:
     properties:
       freezePeriod:
         type: string
+  commercionetwork.commercionetwork.commerciomint.MsgSetParamsResponse:
+    type: object
+  commercionetwork.commercionetwork.commerciomint.Params:
+    type: object
+    properties:
+      conversionRate:
+        type: string
+      freezePeriod:
+        type: string
   commercionetwork.commercionetwork.commerciomint.Position:
     type: object
     properties:
@@ -23945,6 +23987,13 @@ definitions:
   commercionetwork.commercionetwork.commerciomint.QueryFreezePeriodResponse:
     type: object
     properties:
+      freezePeriod:
+        type: string
+  commercionetwork.commercionetwork.commerciomint.QueryGetParamsResponse:
+    type: object
+    properties:
+      rate:
+        type: string
       freezePeriod:
         type: string
   cosmos.base.query.v1beta1.PageRequest:
