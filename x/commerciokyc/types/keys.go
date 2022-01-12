@@ -29,4 +29,5 @@ const (
 	QueryGetTspMemberships          = "sold"
 
 	CreditsDenom = "uccc"
+	EpochDay     = "day"
 )
