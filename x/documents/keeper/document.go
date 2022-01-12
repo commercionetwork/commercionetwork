@@ -4,31 +4,13 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
-	//	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
-// AppendDocument appends a document in the store with a new id and update the count
-func (k Keeper) AppendDocument(ctx sdk.Context, document types.Document) string {
-	// Create the Document
-	store := ctx.KVStore(k.storeKey)
-	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
-	store.Set(getDocumentStoreKey(document.UUID), k.cdc.MustMarshalBinaryBare(&document))
-	return document.UUID
-}
 
 // getDocumentStoreKey generates an unique store key for a Document UUID
 func getDocumentStoreKey(uuid string) []byte {
 	return []byte(types.DocumentStorePrefix + uuid)
 }
-
-/*
-// SetDocument set a specific document in the store
-func (k Keeper) SetDocument(ctx sdk.Context, document types.Document) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
-	b := k.cdc.MustMarshalBinaryBare(&document)
-	store.Set(getDocumentStoreKey(document.UUID), b)
-}*/
 
 // GetDocumentByID returns the document having the given id
 func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, error) {

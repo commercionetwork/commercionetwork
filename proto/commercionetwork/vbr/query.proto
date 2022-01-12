@@ -17,7 +17,7 @@ service Query {
 		option (google.api.http).get = "/commercionetwork/vbr/funds";
 	}
 
-	rpc GetVbrParams(QueryGetVbrParamsRequest) returns (QueryGetVbrParamsResponse){
+	rpc GetParams(QueryGetParamsRequest) returns (QueryGetParamsResponse){
 		option (google.api.http).get = "/commercionetwork/vbr/params";
 	}
 }
@@ -32,10 +32,10 @@ message QueryGetBlockRewardsPoolFundsResponse {
     (gogoproto.nullable) = false] ;
 }
 
-message QueryGetVbrParamsRequest {
+message QueryGetParamsRequest {
 }
 
-message QueryGetVbrParamsResponse{
+message QueryGetParamsResponse{
 	Params params = 1 [(gogoproto.moretags) = "yaml:\"params\"",
     (gogoproto.nullable) = false]; 
 }

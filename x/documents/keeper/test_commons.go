@@ -1,20 +1,10 @@
 package keeper
 
 import (
-	/*"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store"*/
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	/*"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/params"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/libs/log"
-	db "github.com/tendermint/tm-db"
-
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/documents/types"
-	government "github.com/commercionetwork/commercionetwork/x/government/keeper"*/)
+	uuid "github.com/satori/go.uuid"
+)
 
 // Testing variables
 
@@ -47,4 +37,37 @@ var testingDocumentReceipt = types.DocumentReceipt{
 	TxHash:       "txHash",
 	DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	Proof:        "proof",
+}
+
+func createNDocument(keeper *Keeper, ctx sdk.Context, n int) []*types.Document {
+	items := []*types.Document{}
+	for i := 0; i < n; i++ {
+		item := &types.Document{
+			Sender: testingSender.String(),
+			Recipients: []string{testingRecipient.String()},
+			UUID: uuid.NewV4().String(),
+		}
+		items = append(items, item)
+
+		_ = keeper.SaveDocument(ctx, *items[i])
+	}
+	return items
+}
+
+func createNDocumentReceipt(keeper *Keeper, ctx sdk.Context, n int) []*types.DocumentReceipt {
+	docs := createNDocument(keeper, ctx, n)
+
+	items := []*types.DocumentReceipt{}
+	for i := range docs {
+		item := &types.DocumentReceipt{
+					Sender: docs[i].Recipients[0],
+					DocumentUUID: docs[i].UUID,
+					Recipient: docs[i].Sender,
+					UUID: uuid.NewV4().String(),
+				}
+		items = append(items, item)
+
+		_ = keeper.SaveReceipt(ctx, *items[i])
+	}
+	return items
 }

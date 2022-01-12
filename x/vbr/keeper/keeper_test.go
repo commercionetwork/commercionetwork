@@ -160,8 +160,6 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 
 			testVal := TestValidator.UpdateStatus(stakingTypes.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
-			//k.SetRewardRate(ctx, TestRewarRate)
-			//params := k.GetParams(ctx)
 			params := tt.params
 			reward := k.ComputeProposerReward(ctx, tt.vNumber, testVal, "ucommercio", params)
 
@@ -243,7 +241,6 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 			}
 
 			valCurReward := k.distKeeper.GetValidatorCurrentRewards(ctx, testVal.GetOperator())
-			//rewardedVal := valCurReward.Rewards
 			rewardPool := k.GetTotalRewardPool(ctx)
 
 			require.Equal(t, tt.expectedRemaining, rewardPool)

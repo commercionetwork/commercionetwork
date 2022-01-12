@@ -1662,7 +1662,7 @@ paths:
         - Query
   /commercionetwork/vbr/params:
     get:
-      operationId: CommercionetworkCommercionetworkVbrGetVbrParams
+      operationId: CommercionetworkCommercionetworkVbrGetParams
       responses:
         '200':
           description: A successful response.
@@ -24665,7 +24665,7 @@ definitions:
         type: string
   commercionetwork.commercionetwork.vbr.MsgIncrementBlockRewardsPoolResponse:
     type: object
-  commercionetwork.commercionetwork.vbr.MsgSetVbrParamsResponse:
+  commercionetwork.commercionetwork.vbr.MsgSetParamsResponse:
     type: object
   commercionetwork.commercionetwork.vbr.Params:
     type: object
@@ -24693,7 +24693,7 @@ definitions:
 
             NOTE: The amount field is an Dec which implements the custom method
             signatures required by gogoproto.
-  commercionetwork.commercionetwork.vbr.QueryGetVbrParamsResponse:
+  commercionetwork.commercionetwork.vbr.QueryGetParamsResponse:
     type: object
     properties:
       params:

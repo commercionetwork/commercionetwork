@@ -72,60 +72,60 @@ func TestMsgIncrementBlockRewardsPool_GetSigners(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 // -------------------------
-// --- MsgSetVbrParams
+// --- MsgSetParams
 // -------------------------
 var TestGov, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestEarnRate = sdk.NewDecWithPrec(5,1)
 
-var msgSetVbrParams = MsgSetVbrParams{
+var msgSetParams = MsgSetParams{
 	Government: TestGov.String(),
 	DistrEpochIdentifier: EpochDay,
 	EarnRate: TestEarnRate,
 }
 
-var msgSetVbrParamsNoEpochIdentifier = MsgSetVbrParams{
+var msgSetParamsNoEpochIdentifier = MsgSetParams{
 	Government: TestGov.String(),
 	DistrEpochIdentifier: "",
 	EarnRate: TestEarnRate,
 }
 
-func TestMsgSetVbrParams_Route(t *testing.T) {
-	actual := msgSetVbrParams.Route()
+func TestMsgSetParams_Route(t *testing.T) {
+	actual := msgSetParams.Route()
 	expected := ModuleName
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgSetVbrParams_Type(t *testing.T) {
-	actual := msgSetVbrParams.Type()
-	expected := MsgTypeSetVbrParams
+func TestMsgSetParams_Type(t *testing.T) {
+	actual := msgSetParams.Type()
+	expected := MsgTypeSetParams
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgSetVbrParams_valid(t *testing.T) {
-	actual := msgSetVbrParams.ValidateBasic()
+func TestMsgSetParams_valid(t *testing.T) {
+	actual := msgSetParams.ValidateBasic()
 
 	require.Nil(t, actual)
 }
 
-func TestMsgSetVbrParams_ValidateBasic_noEpochIdentifier(t *testing.T) {
-	actual := msgSetVbrParamsNoEpochIdentifier.ValidateBasic()
-	expected := sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msgSetVbrParamsNoEpochIdentifier.DistrEpochIdentifier))
+func TestMsgSetParams_ValidateBasic_noEpochIdentifier(t *testing.T) {
+	actual := msgSetParamsNoEpochIdentifier.ValidateBasic()
+	expected := sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msgSetParamsNoEpochIdentifier.DistrEpochIdentifier))
 
 	require.Equal(t, expected.Error(), actual.Error())
 }
 
-func TestMsgSetVbrParams_GetSignBytes(t *testing.T) {
-	actual := msgSetVbrParams.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msgSetVbrParams))
+func TestMsgSetParams_GetSignBytes(t *testing.T) {
+	actual := msgSetParams.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msgSetParams))
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgSetVbrParams_GetSigners(t *testing.T) {
-	actual := msgSetVbrParams.GetSigners()
-	govAddr, _ := sdk.AccAddressFromBech32(msgSetVbrParams.Government)
+func TestMsgSetParams_GetSigners(t *testing.T) {
+	actual := msgSetParams.GetSigners()
+	govAddr, _ := sdk.AccAddressFromBech32(msgSetParams.Government)
 	expected := []sdk.AccAddress{govAddr}
 
 	require.Equal(t, expected, actual)

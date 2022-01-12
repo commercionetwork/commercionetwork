@@ -13,8 +13,8 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 // Msg defines the Msg service.
 service Msg {
     // this line is used by starport scaffolding # proto/tx/rpc
-  rpc CreateDocument(MsgShareDocument) returns (MsgShareDocumentResponse);
-  rpc SendDocument(MsgSendDocumentReceipt) returns (MsgSendDocumentReceiptResponse);
+  rpc ShareDocument(MsgShareDocument) returns (MsgShareDocumentResponse);
+  rpc SendDocumentReceipt(MsgSendDocumentReceipt) returns (MsgSendDocumentReceiptResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message

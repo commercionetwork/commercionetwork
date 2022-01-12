@@ -56,28 +56,28 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 
 
 // -------------------------
-// --- MsgSetVbrParams
+// --- MsgSetParams
 // -------------------------
 
-var _ sdk.Msg = &MsgSetVbrParams{}
+var _ sdk.Msg = &MsgSetParams{}
 
-func NewMsgSetVbrParams(government string, epochIdentifier string, earnRate sdk.Dec) *MsgSetVbrParams {
-	return &MsgSetVbrParams{
+func NewMsgSetParams(government string, epochIdentifier string, earnRate sdk.Dec) *MsgSetParams {
+	return &MsgSetParams{
 		Government: government,
 		DistrEpochIdentifier: epochIdentifier,
 		EarnRate: earnRate,
 	}
 }
 
-func (msg *MsgSetVbrParams) Route() string {
+func (msg *MsgSetParams) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgSetVbrParams) Type() string {
-	return MsgTypeSetVbrParams
+func (msg *MsgSetParams) Type() string {
+	return MsgTypeSetParams
 }
 
-func (msg *MsgSetVbrParams) GetSigners() []sdk.AccAddress {
+func (msg *MsgSetParams) GetSigners() []sdk.AccAddress {
 	gov, err := sdk.AccAddressFromBech32(msg.Government)
 	if err != nil {
 		panic(err)
@@ -85,12 +85,12 @@ func (msg *MsgSetVbrParams) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{gov}
 }
 
-func (msg *MsgSetVbrParams) GetSignBytes() []byte {
+func (msg *MsgSetParams) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgSetVbrParams) ValidateBasic() error {
+func (msg *MsgSetParams) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Government)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)

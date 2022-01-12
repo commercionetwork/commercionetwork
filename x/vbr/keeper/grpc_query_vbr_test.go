@@ -68,20 +68,20 @@ var params = types.Params{
 	EarnRate: sdk.NewDecWithPrec(5,1),
 }
 
-func Test_GetVbrParams(t *testing.T) {
+func Test_GetParams(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	
 	for _, tc := range []struct {
 		desc     string
-		request  *types.QueryGetVbrParamsRequest
-		response *types.QueryGetVbrParamsResponse
+		request  *types.QueryGetParamsRequest
+		response *types.QueryGetParamsResponse
 		err      error
 	}{
 		{
 			desc:     "daily epoch and 0.5 earn rate",
-			request:  &types.QueryGetVbrParamsRequest{},
-			response: &types.QueryGetVbrParamsResponse{Params: params},
+			request:  &types.QueryGetParamsRequest{},
+			response: &types.QueryGetParamsResponse{Params: params},
 		},
 		{
 			desc: "InvalidRequest",
@@ -89,10 +89,10 @@ func Test_GetVbrParams(t *testing.T) {
 		},
 	} {
 		tc := tc
-		keeper.SetParams(ctx, params)
+		keeper.SetParamSet(ctx, params)
 		
 		t.Run(tc.desc, func(t *testing.T) {
-			response, err := keeper.GetVbrParams(wctx, tc.request)
+			response, err := keeper.GetParams(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
