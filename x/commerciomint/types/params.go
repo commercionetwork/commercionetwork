@@ -19,7 +19,7 @@ const (
 	DefaultCreditsDenom = "uccc"
 )
 
-// ParamTable for commerciomint module.
+// ParamKeyTable for commerciomint module.
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
@@ -31,7 +31,7 @@ func NewParams(conversionRate sdk.Dec, freezePeriod time.Duration) Params {
 	}
 }
 
-// default minting module parameters
+// default commerciomint module parameters
 func DefaultParams() Params {
 	return Params{
 		ConversionRate: DefaultConversionRate,
@@ -42,11 +42,11 @@ func DefaultParams() Params {
 func (p *Params) Validate() error {
 
 	if err := ValidateConversionRate(p.ConversionRate); err != nil {
-		return fmt.Errorf("invalid params: %e", err)
+		return fmt.Errorf("invalid conversion rate: %e", err)
 	}
 
 	if err := ValidateFreezePeriod(p.FreezePeriod); err != nil {
-		return fmt.Errorf("invalid params: %e", err)
+		return fmt.Errorf("invalid freeze period: %e", err)
 	}
 
 	return nil
@@ -77,19 +77,17 @@ func validateFreezePeriodParamSetPairs(i interface{}) error {
 	return ValidateFreezePeriod(fp)
 }
 
-func ValidateConversionRate(rate sdk.Dec) error {
-	if rate.IsZero() {
-		return fmt.Errorf("conversion rate cannot be zero")
-	}
-	if rate.IsNegative() {
+func ValidateConversionRate(conversionRate sdk.Dec) error {
+	if !conversionRate.IsPositive() {
 		return fmt.Errorf("conversion rate must be positive")
 	}
+
 	return nil
 }
 
 func ValidateFreezePeriod(freezePeriod time.Duration) error {
 	if freezePeriod.Seconds() < 0 {
-		return fmt.Errorf("freeze rate cannot be lower than zero")
+		return fmt.Errorf("freeze rate cannot be lower than zero seconds")
 	}
 	return nil
 }
