@@ -79,7 +79,7 @@ message QueryFreezePeriodResponse { string freeze_period = 1; }
 message QueryGetParams {}
 
 message QueryGetParamsResponse { 
-  string rate = 1; 
+  string conversion_rate = 1; 
   string freeze_period = 2; 
 }
 

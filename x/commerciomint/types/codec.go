@@ -13,6 +13,7 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgBurnCCC{}, "commerciomint/BurnCCC", nil)
 	cdc.RegisterConcrete(&MsgSetCCCConversionRate{}, "commerciomint/MsgSetCCCConversionRate", nil)
 	cdc.RegisterConcrete(&MsgSetCCCFreezePeriod{}, "commerciomint/MsgSetCCCFreezePeriod", nil)
+	cdc.RegisterConcrete(&MsgSetParams{}, "commerciomint/MsgSetParams", nil)
 
 }
 
@@ -23,6 +24,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgBurnCCC{},
 		&MsgSetCCCConversionRate{},
 		&MsgSetCCCFreezePeriod{},
+		&MsgSetParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

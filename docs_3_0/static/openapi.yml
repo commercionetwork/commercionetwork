@@ -428,7 +428,7 @@ paths:
           schema:
             type: object
             properties:
-              rate:
+              conversionRate:
                 type: string
               freezePeriod:
                 type: string
@@ -23992,7 +23992,7 @@ definitions:
   commercionetwork.commercionetwork.commerciomint.QueryGetParamsResponse:
     type: object
     properties:
-      rate:
+      conversionRate:
         type: string
       freezePeriod:
         type: string

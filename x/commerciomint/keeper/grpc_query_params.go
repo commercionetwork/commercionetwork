@@ -11,5 +11,5 @@ func (k Keeper) Params(c context.Context, req *types.QueryGetParams) (*types.Que
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
 
-	return &types.QueryGetParamsResponse{Rate: params.ConversionRate.String(), FreezePeriod: params.FreezePeriod.String()}, nil
+	return &types.QueryGetParamsResponse{ConversionRate: params.ConversionRate.String(), FreezePeriod: params.FreezePeriod.String()}, nil
 }
