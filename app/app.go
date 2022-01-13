@@ -440,6 +440,7 @@ func New(
 		app.GovernmentKeeper,
 		app.AccountKeeper,
 		app.CommercioMintKeeper,
+		app.GetSubspace(commerciokycTypes.ModuleName),
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
 

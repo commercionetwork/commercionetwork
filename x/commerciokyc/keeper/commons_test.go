@@ -69,7 +69,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
 
-	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("stake", 1))))
+	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 1))))
 
 	//ak.SetModuleAccount(ctx, authTypes.NewEmptyModuleAccount(types.ModuleName))
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
@@ -85,7 +85,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
-		bk, *govk, ak, *mk)
+		bk, *govk, ak, *mk, pk.Subspace(types.ModuleName))
 
 	k.MintKeeper.UpdateConversionRate(ctx, sdk.NewDecWithPrec(7, 1))
 	k.GovKeeper.SetGovernmentAddress(ctx, testUser3)

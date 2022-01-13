@@ -12,6 +12,15 @@ import (
 // TODO move all keeper invocation in keeper package
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 
+	// Setup params
+	params := types.Params{
+		CheckMembershipsEpochIdentifier: data.Params.CheckMembershipsEpochIdentifier,
+	}
+
+	if err := k.UpdateParams(ctx, params); err != nil {
+		panic(err)
+	}
+
 	// Get the module account
 	moduleAcc := k.GetMembershipModuleAccount(ctx)
 	if moduleAcc == nil {
@@ -70,6 +79,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		Invites:                 k.GetInvites(ctx),
 		TrustedServiceProviders: trustedServiceProviders,
 		Memberships:             k.GetMemberships(ctx),
+		Params:                  k.GetParams(ctx),
 	}
 }
 
