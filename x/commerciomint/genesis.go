@@ -52,17 +52,11 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
 	// this line is used by starport scaffolding # genesis/module/export
-	collateralRate := k.GetConversionRate(ctx)
-	genesis.Params.ConversionRate = collateralRate
-
-	freezePeriod := k.GetFreezePeriod(ctx)
-	genesis.Params.FreezePeriod = freezePeriod
+	genesis.Params = k.GetParams(ctx)
 
 	genesis.PoolAmount = k.GetLiquidityPoolAmount(ctx)
 
-	for _, position := range k.GetAllPositions(ctx) {
-		genesis.Positions = append(genesis.Positions, position)
-	}
+	genesis.Positions = append(genesis.Positions, k.GetAllPositions(ctx)...)
 
 	return genesis
 }
