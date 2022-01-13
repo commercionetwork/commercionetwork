@@ -17,7 +17,6 @@ func (k Keeper) EtpsByOwner(c context.Context, req *types.QueryEtpsByOwnerReques
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-	positions := []*types.Position{}
 
 	owner, err := sdk.AccAddressFromBech32(req.Owner)
 	if err != nil {
@@ -26,18 +25,12 @@ func (k Keeper) EtpsByOwner(c context.Context, req *types.QueryEtpsByOwnerReques
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	store := ctx.KVStore(k.storeKey)
-	//etpStore := prefix.NewStore(store, []byte(types.EtpStorePrefix))
-	etpStore := prefix.NewStore(store, getEtpByOwnerIdsStoreKey(owner))
+	positions := []*types.Position{}
 
-	//positions := k.GetAllPositionsOwnedBy(ctx, owner)
-	pageRes, err := query.Paginate(etpStore, req.Pagination, func(key []byte, value []byte) error {
-		/*positions = k.GetAllPositionsOwnedBy(ctx, owner)
-		position, ok := k.GetPositionById(ctx, string(value))
-		if !ok {
-			return status.Error(codes.NotFound, fmt.Sprintf("position with id %s not found!", string(value)))
-		}
-		positions = append(positions, &position)*/
+	store := ctx.KVStore(k.storeKey)
+	etpsByOwnerStore := prefix.NewStore(store, getEtpsByOwnerStoreKey(owner))
+
+	pageRes, err := query.Paginate(etpsByOwnerStore, req.Pagination, func(key []byte, value []byte) error {
 		var position types.Position
 		e := k.cdc.UnmarshalBinaryBare(value, &position)
 		if e != nil {
@@ -63,7 +56,12 @@ func (k Keeper) Etps(c context.Context, req *types.QueryEtpsRequest) (*types.Que
 	store := ctx.KVStore(k.storeKey)
 	etpStore := prefix.NewStore(store, []byte(types.EtpStorePrefix))
 	pageRes, err := query.Paginate(etpStore, req.Pagination, func(key []byte, value []byte) error {
-		positions = k.GetAllPositions(ctx)
+		var position types.Position
+		e := k.cdc.UnmarshalBinaryBare(value, &position)
+		if e != nil {
+			return e
+		}
+		positions = append(positions, &position)
 		return nil
 	})
 

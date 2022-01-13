@@ -251,7 +251,7 @@ func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddres
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
 
-func getEtpByOwnerIdsStoreKey(user sdk.AccAddress) []byte {
+func getEtpsByOwnerStoreKey(user sdk.AccAddress) []byte {
 	return append([]byte(types.EtpStorePrefix), user...)
 }
 
