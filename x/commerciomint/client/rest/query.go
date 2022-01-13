@@ -15,6 +15,7 @@ const (
 )
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
+	// TODO check the following
 	r.HandleFunc(
 		fmt.Sprintf("/commercionetwork/{%s}/etp", restuser),
 		getEtpsHandler(cliCtx)).Methods("GET")
@@ -22,8 +23,7 @@ func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 		fmt.Sprintf("/commercionetwork/{%s}/owner", restuser),
 		getEtpsByOwnerHandler(cliCtx)).Methods("GET")
 	r.HandleFunc("/commercionetwork/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commercionetwork/conversion_rate", getConversionRateHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commercionetwork/freeze_period", getFreezePeriodHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commercionetwork/params", getParamsHandler(cliCtx)).Methods("GET")
 }
 
 // ----------------------------------
@@ -70,22 +70,9 @@ func getAllEtpsHandler(cliCtx client.Context) http.HandlerFunc {
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
-
-func getConversionRateHandler(cliCtx client.Context) http.HandlerFunc {
+func getParamsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryConversionRateRest)
-		res, _, err := cliCtx.QueryWithData(route, nil)
-		if err != nil {
-			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		restTypes.PostProcessResponse(w, cliCtx, res)
-	}
-}
-
-func getFreezePeriodHandler(cliCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryFreezePeriodRest)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetParamsRest)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())

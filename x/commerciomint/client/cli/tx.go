@@ -25,8 +25,6 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(
 		CmdMintCCC(),
 		CmdBurnCCC(),
-		//CmdSetConversionRate(), // TODO DELETE COMMAND
-		//CmdSetFreezePeriod(),   // TODO DELETE COMMAND
 		CmdSetParams(),
 	)
 

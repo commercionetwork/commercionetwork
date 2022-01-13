@@ -14,9 +14,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const ()
-
-// TODO should be better use flag instead args
 func CmdSetParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-params [conversion-rate] [freeze-period]",

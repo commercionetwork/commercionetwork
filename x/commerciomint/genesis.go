@@ -30,16 +30,6 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 		keeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	// Can't use separate Update params: panic error.
-	/*if err := keeper.UpdateConversionRate(ctx, data.Params.ConversionRate); err != nil {
-		panic(err)
-	}
-	freezePeriod := data.Params.FreezePeriod
-
-	if err := keeper.UpdateFreezePeriod(ctx, freezePeriod); err != nil {
-		panic(err)
-	}*/
-
 	params := types.Params{
 		ConversionRate: data.Params.ConversionRate,
 		FreezePeriod:   data.Params.FreezePeriod,
@@ -58,7 +48,6 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 }
 
 // ExportGenesis returns the capability module's exported genesis.
-// TODO move all keeper invocation in keeper package
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
@@ -94,5 +83,11 @@ func ValidateGenesis(state types.GenesisState) error {
 	if err != nil {
 		return err
 	}
-	return types.ValidateConversionRate(state.Params.ConversionRate)
+
+	err = types.ValidateConversionRate(state.Params.ConversionRate)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

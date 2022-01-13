@@ -8,7 +8,7 @@ import (
 // Migrate accepts exported genesis state from v2.2.0 and migrates it to v3.0.0
 func Migrate(oldGenState v220commerciomint.GenesisState) *types.GenesisState {
 
-	var postions []*types.Position
+	var positions []*types.Position
 	for _, oldPosition := range oldGenState.Positions {
 		var position types.Position
 
@@ -19,7 +19,7 @@ func Migrate(oldGenState v220commerciomint.GenesisState) *types.GenesisState {
 		position.ExchangeRate = oldPosition.ExchangeRate
 		position.ID = oldPosition.ID
 
-		postions = append(postions, &position)
+		positions = append(positions, &position)
 	}
 
 	/*var coins []*sdk.Coin
@@ -28,7 +28,7 @@ func Migrate(oldGenState v220commerciomint.GenesisState) *types.GenesisState {
 	}*/
 
 	return &types.GenesisState{
-		Positions:  postions,
+		Positions:  positions,
 		PoolAmount: oldGenState.LiquidityPoolAmount,
 		Params: types.Params{
 			ConversionRate: oldGenState.CollateralRate,
