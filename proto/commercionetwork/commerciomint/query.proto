@@ -17,7 +17,7 @@ service Query {
     option (google.api.http).get = "/commercionetwork/commerciomint/{ID}/etp";
   }
 
-  rpc EtpsByOwner(QueryEtpRequestByOwner) returns (QueryEtpsResponse) {
+  rpc EtpsByOwner(QueryEtpsByOwnerRequest) returns (QueryEtpsResponse) {
     option (google.api.http).get =
         "/commercionetwork/commerciomint/{Owner}/owner";
   }
@@ -35,7 +35,7 @@ service Query {
 
 message QueryEtpRequest { string ID = 1; }
 
-message QueryEtpRequestByOwner {
+message QueryEtpsByOwnerRequest {
   string Owner = 1;
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }

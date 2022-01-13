@@ -153,7 +153,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 }
 
 func (k Keeper) GetAllPositions(ctx sdk.Context) []*types.Position {
-	var positions []*types.Position
+	positions := []*types.Position{}
 	iterator := k.newPositionsIterator(ctx)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
