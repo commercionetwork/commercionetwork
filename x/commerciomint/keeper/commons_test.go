@@ -81,15 +81,6 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 
 	mintK.UpdateParams(ctx, validParams)
 
-	// err := mintK.UpdateConversionRate(ctx, sdk.NewDec(2))
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = mintK.UpdateFreezePeriod(ctx, 0)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	return ctx, bk, *govkeeper, *mintK
 }
 

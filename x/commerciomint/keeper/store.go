@@ -7,7 +7,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
-// GetLiquidityPoolAmount returns the current liquidity pool amount
 func (k Keeper) GetModuleAccount(ctx sdk.Context) accType.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
@@ -22,6 +21,7 @@ func (k Keeper) GetLiquidityPoolAmount(ctx sdk.Context) sdk.Coins {
 
 }
 
+// unused
 func (k Keeper) GetLiquidityPoolAmountCoins(ctx sdk.Context) sdk.Coins {
 
 	moduleAccount := k.GetModuleAccount(ctx)

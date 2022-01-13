@@ -394,10 +394,6 @@ type MsgClient interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
 	MintCCC(ctx context.Context, in *MsgMintCCC, opts ...grpc.CallOption) (*MsgMintCCCResponse, error)
 	BurnCCC(ctx context.Context, in *MsgBurnCCC, opts ...grpc.CallOption) (*MsgBurnCCCResponse, error)
-	// rpc SetConversionRate(MsgSetCCCConversionRate)
-	//     returns (MsgSetCCCConversionRateResponse);
-	// rpc SetFreezePeriod(MsgSetCCCFreezePeriod)
-	//     returns (MsgSetCCCFreezePeriodResponse);
 	SetParams(ctx context.Context, in *MsgSetParams, opts ...grpc.CallOption) (*MsgSetParamsResponse, error)
 }
 
@@ -441,10 +437,6 @@ type MsgServer interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
 	MintCCC(context.Context, *MsgMintCCC) (*MsgMintCCCResponse, error)
 	BurnCCC(context.Context, *MsgBurnCCC) (*MsgBurnCCCResponse, error)
-	// rpc SetConversionRate(MsgSetCCCConversionRate)
-	//     returns (MsgSetCCCConversionRateResponse);
-	// rpc SetFreezePeriod(MsgSetCCCFreezePeriod)
-	//     returns (MsgSetCCCFreezePeriodResponse);
 	SetParams(context.Context, *MsgSetParams) (*MsgSetParamsResponse, error)
 }
 

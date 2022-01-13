@@ -264,6 +264,25 @@ func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 	}
 }
 
+func Test_NewQuerier_queryGetParams(t *testing.T) {
+
+	t.Run("ok", func(t *testing.T) {
+		ctx, _, _, k := SetupTestInput()
+
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+		querier := NewQuerier(k, legacyAmino)
+		path := []string{types.QueryGetParamsRest}
+		gotBz, err := querier(ctx, path, abci.RequestQuery{})
+		require.NoError(t, err)
+
+		var got types.Params
+		legacyAmino.MustUnmarshalJSON(gotBz, &got)
+		require.Equal(t, validParams, got)
+	})
+
+}
+
 func Test_NewQuerier_default(t *testing.T) {
 
 	t.Run("default request", func(t *testing.T) {
