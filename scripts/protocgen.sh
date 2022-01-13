@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-set -eo pipefail
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Darwin*)    set -eo pipefail;;
+    *)          set -e pipefail
+esac
 
 # get protoc executions
 go get github.com/regen-network/cosmos-proto/protoc-gen-gocosmos 2>/dev/null
