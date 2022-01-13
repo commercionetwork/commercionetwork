@@ -19,7 +19,7 @@ func CmdGetParams() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryGetParams{}
+			req := &types.QueryParams{}
 
 			res, err := queryClient.Params(context.Background(), req)
 			if err != nil {

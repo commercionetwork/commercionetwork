@@ -6,7 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
@@ -267,21 +266,21 @@ func (m *QueryEtpsResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
-type QueryConversionRate struct {
+type QueryParams struct {
 }
 
-func (m *QueryConversionRate) Reset()         { *m = QueryConversionRate{} }
-func (m *QueryConversionRate) String() string { return proto.CompactTextString(m) }
-func (*QueryConversionRate) ProtoMessage()    {}
-func (*QueryConversionRate) Descriptor() ([]byte, []int) {
+func (m *QueryParams) Reset()         { *m = QueryParams{} }
+func (m *QueryParams) String() string { return proto.CompactTextString(m) }
+func (*QueryParams) ProtoMessage()    {}
+func (*QueryParams) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ad254ae0ff13a4bf, []int{5}
 }
-func (m *QueryConversionRate) XXX_Unmarshal(b []byte) error {
+func (m *QueryParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryConversionRate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryConversionRate.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryParams.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -291,34 +290,34 @@ func (m *QueryConversionRate) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *QueryConversionRate) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryConversionRate.Merge(m, src)
+func (m *QueryParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryParams.Merge(m, src)
 }
-func (m *QueryConversionRate) XXX_Size() int {
+func (m *QueryParams) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryConversionRate) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryConversionRate.DiscardUnknown(m)
+func (m *QueryParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryParams.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryConversionRate proto.InternalMessageInfo
+var xxx_messageInfo_QueryParams proto.InternalMessageInfo
 
-type QueryConversionRateResponse struct {
-	Rate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=rate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"rate"`
+type QueryParamsResponse struct {
+	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
 }
 
-func (m *QueryConversionRateResponse) Reset()         { *m = QueryConversionRateResponse{} }
-func (m *QueryConversionRateResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryConversionRateResponse) ProtoMessage()    {}
-func (*QueryConversionRateResponse) Descriptor() ([]byte, []int) {
+func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
+func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryParamsResponse) ProtoMessage()    {}
+func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ad254ae0ff13a4bf, []int{6}
 }
-func (m *QueryConversionRateResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryConversionRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryConversionRateResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryParamsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -328,184 +327,23 @@ func (m *QueryConversionRateResponse) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-func (m *QueryConversionRateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryConversionRateResponse.Merge(m, src)
+func (m *QueryParamsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryParamsResponse.Merge(m, src)
 }
-func (m *QueryConversionRateResponse) XXX_Size() int {
+func (m *QueryParamsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryConversionRateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryConversionRateResponse.DiscardUnknown(m)
+func (m *QueryParamsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryParamsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryConversionRateResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryParamsResponse proto.InternalMessageInfo
 
-type QueryFreezePeriod struct {
-}
-
-func (m *QueryFreezePeriod) Reset()         { *m = QueryFreezePeriod{} }
-func (m *QueryFreezePeriod) String() string { return proto.CompactTextString(m) }
-func (*QueryFreezePeriod) ProtoMessage()    {}
-func (*QueryFreezePeriod) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad254ae0ff13a4bf, []int{7}
-}
-func (m *QueryFreezePeriod) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryFreezePeriod) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryFreezePeriod.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryFreezePeriod) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFreezePeriod.Merge(m, src)
-}
-func (m *QueryFreezePeriod) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryFreezePeriod) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFreezePeriod.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryFreezePeriod proto.InternalMessageInfo
-
-type QueryFreezePeriodResponse struct {
-	FreezePeriod string `protobuf:"bytes,1,opt,name=freeze_period,json=freezePeriod,proto3" json:"freeze_period,omitempty"`
-}
-
-func (m *QueryFreezePeriodResponse) Reset()         { *m = QueryFreezePeriodResponse{} }
-func (m *QueryFreezePeriodResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryFreezePeriodResponse) ProtoMessage()    {}
-func (*QueryFreezePeriodResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad254ae0ff13a4bf, []int{8}
-}
-func (m *QueryFreezePeriodResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryFreezePeriodResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryFreezePeriodResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryFreezePeriodResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFreezePeriodResponse.Merge(m, src)
-}
-func (m *QueryFreezePeriodResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryFreezePeriodResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFreezePeriodResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryFreezePeriodResponse proto.InternalMessageInfo
-
-func (m *QueryFreezePeriodResponse) GetFreezePeriod() string {
+func (m *QueryParamsResponse) GetParams() *Params {
 	if m != nil {
-		return m.FreezePeriod
+		return m.Params
 	}
-	return ""
-}
-
-type QueryGetParams struct {
-}
-
-func (m *QueryGetParams) Reset()         { *m = QueryGetParams{} }
-func (m *QueryGetParams) String() string { return proto.CompactTextString(m) }
-func (*QueryGetParams) ProtoMessage()    {}
-func (*QueryGetParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad254ae0ff13a4bf, []int{9}
-}
-func (m *QueryGetParams) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryGetParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryGetParams.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryGetParams) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetParams.Merge(m, src)
-}
-func (m *QueryGetParams) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryGetParams) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetParams.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryGetParams proto.InternalMessageInfo
-
-type QueryGetParamsResponse struct {
-	ConversionRate string `protobuf:"bytes,1,opt,name=conversion_rate,json=conversionRate,proto3" json:"conversion_rate,omitempty"`
-	FreezePeriod   string `protobuf:"bytes,2,opt,name=freeze_period,json=freezePeriod,proto3" json:"freeze_period,omitempty"`
-}
-
-func (m *QueryGetParamsResponse) Reset()         { *m = QueryGetParamsResponse{} }
-func (m *QueryGetParamsResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryGetParamsResponse) ProtoMessage()    {}
-func (*QueryGetParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad254ae0ff13a4bf, []int{10}
-}
-func (m *QueryGetParamsResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryGetParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryGetParamsResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryGetParamsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetParamsResponse.Merge(m, src)
-}
-func (m *QueryGetParamsResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryGetParamsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetParamsResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryGetParamsResponse proto.InternalMessageInfo
-
-func (m *QueryGetParamsResponse) GetConversionRate() string {
-	if m != nil {
-		return m.ConversionRate
-	}
-	return ""
-}
-
-func (m *QueryGetParamsResponse) GetFreezePeriod() string {
-	if m != nil {
-		return m.FreezePeriod
-	}
-	return ""
+	return nil
 }
 
 func init() {
@@ -514,12 +352,8 @@ func init() {
 	proto.RegisterType((*QueryEtpResponse)(nil), "commercionetwork.commercionetwork.commerciomint.QueryEtpResponse")
 	proto.RegisterType((*QueryEtpsRequest)(nil), "commercionetwork.commercionetwork.commerciomint.QueryEtpsRequest")
 	proto.RegisterType((*QueryEtpsResponse)(nil), "commercionetwork.commercionetwork.commerciomint.QueryEtpsResponse")
-	proto.RegisterType((*QueryConversionRate)(nil), "commercionetwork.commercionetwork.commerciomint.QueryConversionRate")
-	proto.RegisterType((*QueryConversionRateResponse)(nil), "commercionetwork.commercionetwork.commerciomint.QueryConversionRateResponse")
-	proto.RegisterType((*QueryFreezePeriod)(nil), "commercionetwork.commercionetwork.commerciomint.QueryFreezePeriod")
-	proto.RegisterType((*QueryFreezePeriodResponse)(nil), "commercionetwork.commercionetwork.commerciomint.QueryFreezePeriodResponse")
-	proto.RegisterType((*QueryGetParams)(nil), "commercionetwork.commercionetwork.commerciomint.QueryGetParams")
-	proto.RegisterType((*QueryGetParamsResponse)(nil), "commercionetwork.commercionetwork.commerciomint.QueryGetParamsResponse")
+	proto.RegisterType((*QueryParams)(nil), "commercionetwork.commercionetwork.commerciomint.QueryParams")
+	proto.RegisterType((*QueryParamsResponse)(nil), "commercionetwork.commercionetwork.commerciomint.QueryParamsResponse")
 }
 
 func init() {
@@ -527,52 +361,42 @@ func init() {
 }
 
 var fileDescriptor_ad254ae0ff13a4bf = []byte{
-	// 712 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x96, 0xdd, 0x4e, 0x13, 0x4f,
-	0x18, 0xc6, 0x3b, 0xe5, 0x23, 0x7f, 0x5e, 0xf8, 0x17, 0x1c, 0xd0, 0xe0, 0x6a, 0x0a, 0xae, 0xa6,
-	0x34, 0x44, 0x76, 0x04, 0x63, 0x8c, 0x47, 0x42, 0x2d, 0x34, 0x18, 0x13, 0x6b, 0x13, 0x63, 0x42,
-	0x4c, 0xc8, 0xb6, 0x0c, 0xeb, 0x06, 0xbb, 0x33, 0xec, 0x0c, 0x20, 0x1a, 0x4e, 0xbc, 0x02, 0x13,
-	0xaf, 0xc5, 0x23, 0x3d, 0xf2, 0x88, 0x43, 0x12, 0x35, 0x31, 0x26, 0x12, 0x03, 0x5e, 0x88, 0xd9,
-	0xd9, 0xe9, 0xb6, 0x5b, 0x20, 0x1b, 0x5a, 0x8e, 0xba, 0x7d, 0xf7, 0x9d, 0xe7, 0x79, 0x7e, 0xf3,
-	0xd5, 0xc2, 0x74, 0x8d, 0xd5, 0xeb, 0xd4, 0xaf, 0xb9, 0xcc, 0xa3, 0x72, 0x87, 0xf9, 0x1b, 0x24,
-	0x2a, 0xd4, 0x5d, 0x4f, 0x92, 0xcd, 0x2d, 0xea, 0xef, 0x5a, 0xdc, 0x67, 0x92, 0x61, 0xd2, 0xde,
-	0x6b, 0x9d, 0x5d, 0x08, 0x06, 0x1b, 0x63, 0x0e, 0x73, 0x98, 0x1a, 0x4b, 0x82, 0xa7, 0x50, 0xc6,
-	0xb8, 0xee, 0x30, 0xe6, 0xbc, 0xa6, 0xc4, 0xe6, 0x2e, 0xb1, 0x3d, 0x8f, 0x49, 0x5b, 0xba, 0xcc,
-	0x13, 0xfa, 0xed, 0x74, 0x8d, 0x89, 0x3a, 0x13, 0xa4, 0x6a, 0x0b, 0x1a, 0xba, 0x93, 0xed, 0xd9,
-	0x2a, 0x95, 0xf6, 0x2c, 0xe1, 0xb6, 0xe3, 0x7a, 0xaa, 0x59, 0xf7, 0xce, 0x24, 0x84, 0xe7, 0x4c,
-	0xb8, 0xcd, 0x76, 0xf3, 0x06, 0x0c, 0x3f, 0x0b, 0x04, 0x17, 0x25, 0xaf, 0xd0, 0xcd, 0x2d, 0x2a,
-	0x24, 0xce, 0x40, 0x7a, 0xb9, 0x38, 0x8e, 0x26, 0x51, 0x7e, 0xa0, 0x92, 0x5e, 0x2e, 0x9a, 0xdb,
-	0x70, 0xa5, 0xad, 0xa5, 0xb0, 0xfb, 0x74, 0xc7, 0xa3, 0x3e, 0x1e, 0x83, 0x3e, 0xf5, 0xa0, 0x9b,
-	0xc3, 0x2f, 0x78, 0x09, 0xa0, 0x99, 0x6a, 0x3c, 0x3d, 0x89, 0xf2, 0x83, 0x73, 0x39, 0x2b, 0x44,
-	0xb0, 0x02, 0x04, 0x2b, 0x9c, 0x40, 0x8d, 0x60, 0x95, 0x6d, 0x87, 0x6a, 0xe1, 0x4a, 0xcb, 0x48,
-	0xd3, 0x85, 0x91, 0xa6, 0xaf, 0xe0, 0xcc, 0x13, 0x14, 0x3f, 0x87, 0xff, 0xca, 0x1a, 0x40, 0x99,
-	0x0e, 0xce, 0x3d, 0xb0, 0xce, 0xb9, 0x02, 0x56, 0x43, 0xa0, 0x12, 0x49, 0x99, 0x2b, 0x4d, 0x2b,
-	0xd1, 0x98, 0x86, 0x38, 0x06, 0xea, 0x18, 0xe3, 0x13, 0x82, 0x4b, 0x2d, 0xe2, 0x1a, 0xe4, 0x05,
-	0x0c, 0x34, 0xdc, 0xc5, 0x38, 0x9a, 0xec, 0xe9, 0x8e, 0xa4, 0xa9, 0x85, 0x4b, 0xa7, 0xcc, 0xfe,
-	0x54, 0x62, 0xec, 0x30, 0x55, 0x2c, 0xf7, 0x65, 0x18, 0x55, 0xb1, 0x1f, 0x31, 0x6f, 0x9b, 0xfa,
-	0x22, 0xb0, 0xb1, 0x25, 0x35, 0x6d, 0xb8, 0x76, 0x4a, 0x39, 0xe2, 0x2a, 0x40, 0xaf, 0x6f, 0x4b,
-	0x1a, 0xee, 0x88, 0x82, 0xb5, 0x7f, 0x38, 0x91, 0xfa, 0x75, 0x38, 0x91, 0x73, 0x5c, 0xf9, 0x6a,
-	0xab, 0x1a, 0xc4, 0x27, 0x7a, 0x2f, 0x87, 0x1f, 0x33, 0x62, 0x6d, 0x83, 0xc8, 0x5d, 0x4e, 0x85,
-	0x55, 0xa4, 0xb5, 0x8a, 0x1a, 0x6b, 0x8e, 0xea, 0x09, 0x5b, 0xf2, 0x29, 0x7d, 0x4b, 0xcb, 0xd4,
-	0x77, 0xd9, 0x9a, 0x39, 0x0f, 0x57, 0x4f, 0x14, 0x23, 0xd7, 0x9b, 0xf0, 0xff, 0xba, 0xaa, 0xaf,
-	0x72, 0xf5, 0x42, 0x6f, 0xc8, 0xa1, 0xf5, 0x56, 0x85, 0x11, 0xc8, 0x28, 0x85, 0x12, 0x95, 0x65,
-	0xdb, 0xb7, 0xeb, 0xc2, 0x5c, 0xd7, 0x3b, 0x3b, 0xaa, 0x44, 0x82, 0x53, 0x30, 0x5c, 0x8b, 0x00,
-	0x57, 0x9b, 0x44, 0x95, 0x4c, 0x2d, 0xc6, 0x7d, 0xd2, 0x39, 0x7d, 0xd2, 0x79, 0xee, 0xfb, 0x00,
-	0xf4, 0x29, 0x23, 0xfc, 0x05, 0x41, 0xcf, 0xa2, 0xe4, 0x78, 0xfe, 0xdc, 0x6b, 0xdd, 0x76, 0x04,
-	0x8d, 0x85, 0x2e, 0x14, 0x42, 0x48, 0xf3, 0xce, 0xfb, 0x6f, 0x7f, 0x3f, 0xa6, 0xa7, 0x71, 0x9e,
-	0x24, 0xdc, 0x19, 0xef, 0x96, 0x8b, 0x7b, 0x84, 0x4a, 0x8e, 0x0f, 0x10, 0xc0, 0xa2, 0xe4, 0x8d,
-	0xf3, 0x5f, 0xea, 0x96, 0x42, 0x0b, 0x19, 0x85, 0x8e, 0x85, 0xa2, 0x25, 0x33, 0xef, 0x29, 0x1a,
-	0x82, 0x67, 0x12, 0x69, 0x94, 0xe7, 0x1e, 0x61, 0x8a, 0xe1, 0x33, 0x82, 0xde, 0x40, 0x07, 0x2f,
-	0x74, 0x93, 0x21, 0x5c, 0x93, 0x8b, 0xc0, 0xb8, 0xad, 0x30, 0x72, 0xf8, 0x56, 0x12, 0x06, 0x0d,
-	0x42, 0xff, 0x46, 0x90, 0x89, 0x9f, 0x44, 0x5c, 0xec, 0x2c, 0x44, 0x5c, 0xc5, 0x78, 0x72, 0x11,
-	0x2a, 0x11, 0xd4, 0x7d, 0x05, 0x35, 0x8b, 0x49, 0x12, 0x54, 0xdb, 0xa1, 0xc3, 0x3f, 0x10, 0x0c,
-	0xb5, 0x9e, 0x78, 0xdc, 0xe1, 0x14, 0xb7, 0x6a, 0x18, 0x8f, 0xbb, 0xd7, 0x38, 0xff, 0xae, 0x8b,
-	0xdd, 0x12, 0xf8, 0x2b, 0x82, 0xfe, 0xf0, 0xca, 0xc1, 0x0f, 0x3b, 0x4b, 0x13, 0xdd, 0x59, 0x46,
-	0xa9, 0x4b, 0x81, 0x88, 0xc5, 0x52, 0x2c, 0x79, 0x9c, 0x4b, 0x62, 0xe1, 0x6a, 0x5c, 0xe1, 0xe5,
-	0xfe, 0x51, 0x16, 0x1d, 0x1c, 0x65, 0xd1, 0x9f, 0xa3, 0x2c, 0xfa, 0x70, 0x9c, 0x4d, 0x1d, 0x1c,
-	0x67, 0x53, 0x3f, 0x8f, 0xb3, 0xa9, 0x95, 0x42, 0xec, 0xbe, 0x3f, 0x4b, 0xab, 0x51, 0x78, 0xd3,
-	0x26, 0xaf, 0x7e, 0x0f, 0xaa, 0xfd, 0xea, 0x0f, 0xca, 0xdd, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff,
-	0x26, 0x58, 0x6e, 0xa8, 0x8e, 0x09, 0x00, 0x00,
+	// 559 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x95, 0x4f, 0x6b, 0x13, 0x41,
+	0x18, 0xc6, 0x3b, 0xa9, 0x0d, 0xf6, 0x0d, 0xfe, 0x1b, 0x8b, 0x84, 0x20, 0x4b, 0x5c, 0x24, 0x86,
+	0x68, 0x77, 0x6c, 0x44, 0x44, 0xf0, 0x60, 0x43, 0x62, 0xc9, 0xa9, 0x31, 0x20, 0x42, 0xf1, 0xb2,
+	0x09, 0xe3, 0xba, 0x68, 0x76, 0xa6, 0x3b, 0x93, 0xd6, 0x20, 0xbd, 0xf8, 0x09, 0x04, 0xc1, 0x6f,
+	0xe2, 0xc9, 0x7e, 0x00, 0x8f, 0x01, 0x2f, 0x1e, 0x25, 0xf1, 0x83, 0xc8, 0xce, 0xcc, 0x6e, 0xd2,
+	0xa0, 0xae, 0xc9, 0x7a, 0xdb, 0x9d, 0xbc, 0xef, 0xf3, 0x3c, 0xbf, 0x99, 0x77, 0xb2, 0x50, 0xeb,
+	0xb3, 0xc1, 0x80, 0x86, 0x7d, 0x9f, 0x05, 0x54, 0x1e, 0xb3, 0xf0, 0x35, 0x49, 0x16, 0x06, 0x7e,
+	0x20, 0xc9, 0xe1, 0x90, 0x86, 0x23, 0x87, 0x87, 0x4c, 0x32, 0x4c, 0x16, 0x6b, 0x9d, 0x3f, 0x2f,
+	0x44, 0xcd, 0xa5, 0x2d, 0x8f, 0x79, 0x4c, 0xf5, 0x92, 0xe8, 0x49, 0xcb, 0x94, 0xae, 0x7b, 0x8c,
+	0x79, 0x6f, 0x28, 0x71, 0xb9, 0x4f, 0xdc, 0x20, 0x60, 0xd2, 0x95, 0x3e, 0x0b, 0x84, 0xf9, 0xb5,
+	0xd6, 0x67, 0x62, 0xc0, 0x04, 0xe9, 0xb9, 0x82, 0x6a, 0x77, 0x72, 0xb4, 0xd3, 0xa3, 0xd2, 0xdd,
+	0x21, 0xdc, 0xf5, 0xfc, 0x40, 0x15, 0x9b, 0xda, 0xed, 0x94, 0xf0, 0x9c, 0x09, 0x7f, 0xae, 0xfc,
+	0x76, 0x5a, 0xb9, 0x1b, 0xba, 0x03, 0x93, 0xc3, 0xbe, 0x01, 0x97, 0x9e, 0x46, 0xee, 0x2d, 0xc9,
+	0xbb, 0xf4, 0x70, 0x48, 0x85, 0xc4, 0x17, 0x21, 0xd7, 0x6e, 0x16, 0x51, 0x19, 0x55, 0x37, 0xbb,
+	0xb9, 0x76, 0xd3, 0x3e, 0x82, 0x6b, 0x0b, 0x25, 0x8d, 0xd1, 0xfe, 0x71, 0x40, 0x43, 0xbc, 0x05,
+	0x1b, 0xea, 0xc1, 0x14, 0xeb, 0x17, 0xfc, 0x04, 0x60, 0x86, 0x50, 0xcc, 0x95, 0x51, 0xb5, 0x50,
+	0xaf, 0x38, 0x9a, 0xd7, 0x89, 0x78, 0x1d, 0xbd, 0xdb, 0x86, 0xd7, 0xe9, 0xb8, 0x1e, 0x35, 0xc2,
+	0xdd, 0xb9, 0x4e, 0xdb, 0x87, 0xcb, 0x33, 0x5f, 0xc1, 0x59, 0x20, 0x28, 0x7e, 0x06, 0xe7, 0x3b,
+	0x86, 0x56, 0x99, 0x16, 0xea, 0x0f, 0x9d, 0x25, 0x8f, 0xcb, 0x89, 0x05, 0xba, 0x89, 0x94, 0x7d,
+	0x30, 0xb3, 0x12, 0xf1, 0x36, 0x9c, 0xc5, 0x40, 0x2b, 0x63, 0x7c, 0x46, 0x70, 0x65, 0x4e, 0xdc,
+	0x80, 0x3c, 0x87, 0xcd, 0xd8, 0x5d, 0x14, 0x51, 0x79, 0x3d, 0x1b, 0xc9, 0x4c, 0x0b, 0xef, 0xfd,
+	0x66, 0xf7, 0x6f, 0xa5, 0xc6, 0xd6, 0xa9, 0xce, 0xe4, 0xbe, 0x00, 0x05, 0x15, 0xbb, 0xa3, 0xc6,
+	0xc5, 0x7e, 0x09, 0x57, 0xe7, 0x5e, 0x13, 0x8e, 0x7d, 0xc8, 0xeb, 0x79, 0x32, 0x3b, 0xf4, 0x60,
+	0x79, 0x08, 0x2d, 0x68, 0x64, 0xea, 0x9f, 0xf2, 0xb0, 0xa1, 0x8c, 0xf0, 0x29, 0x82, 0xf5, 0x96,
+	0xe4, 0xf8, 0xf1, 0xd2, 0x92, 0x0b, 0xe3, 0x5a, 0xda, 0xcd, 0xa0, 0xa0, 0x39, 0xed, 0xbb, 0xef,
+	0xbf, 0xfd, 0xfc, 0x98, 0xab, 0xe1, 0x2a, 0x49, 0xb9, 0x5d, 0xef, 0xda, 0xcd, 0x13, 0x42, 0x25,
+	0xc7, 0x63, 0x04, 0xd0, 0x92, 0x3c, 0xbe, 0x2b, 0x7b, 0x59, 0x29, 0x8c, 0x50, 0xa9, 0xb1, 0xb2,
+	0x50, 0x72, 0x6a, 0xf6, 0x7d, 0x45, 0x43, 0xf0, 0x76, 0x2a, 0x8d, 0xf2, 0x3c, 0x21, 0x4c, 0x31,
+	0x7c, 0x41, 0x70, 0x2e, 0xd2, 0xc1, 0xbb, 0x59, 0x32, 0xe8, 0x33, 0xf9, 0x1f, 0x18, 0x77, 0x14,
+	0x46, 0x05, 0xdf, 0x4c, 0xc3, 0xa0, 0x51, 0xe8, 0x53, 0x04, 0x79, 0x3d, 0x6c, 0xf8, 0xd1, 0x6a,
+	0xe6, 0xba, 0xbb, 0xd4, 0xcc, 0xd2, 0x9d, 0x84, 0x77, 0x54, 0xf8, 0x2a, 0xae, 0x90, 0x7f, 0xfa,
+	0xbf, 0x6e, 0xbc, 0xf8, 0x3a, 0xb1, 0xd0, 0x78, 0x62, 0xa1, 0x1f, 0x13, 0x0b, 0x7d, 0x98, 0x5a,
+	0x6b, 0xe3, 0xa9, 0xb5, 0xf6, 0x7d, 0x6a, 0xad, 0x1d, 0x34, 0x3c, 0x5f, 0xbe, 0x1a, 0xf6, 0x22,
+	0xcf, 0xbf, 0x68, 0xc5, 0x0b, 0x6f, 0x17, 0xe4, 0xe5, 0x88, 0x53, 0xd1, 0xcb, 0xab, 0xcf, 0xc1,
+	0xbd, 0x5f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x20, 0x0a, 0xed, 0x48, 0x29, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -591,9 +415,7 @@ type QueryClient interface {
 	Etp(ctx context.Context, in *QueryEtpRequest, opts ...grpc.CallOption) (*QueryEtpResponse, error)
 	EtpByOwner(ctx context.Context, in *QueryEtpRequestByOwner, opts ...grpc.CallOption) (*QueryEtpsResponse, error)
 	Etps(ctx context.Context, in *QueryEtpsRequest, opts ...grpc.CallOption) (*QueryEtpsResponse, error)
-	ConversionRate(ctx context.Context, in *QueryConversionRate, opts ...grpc.CallOption) (*QueryConversionRateResponse, error)
-	FreezePeriod(ctx context.Context, in *QueryFreezePeriod, opts ...grpc.CallOption) (*QueryFreezePeriodResponse, error)
-	Params(ctx context.Context, in *QueryGetParams, opts ...grpc.CallOption) (*QueryGetParamsResponse, error)
+	Params(ctx context.Context, in *QueryParams, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
 type queryClient struct {
@@ -631,26 +453,8 @@ func (c *queryClient) Etps(ctx context.Context, in *QueryEtpsRequest, opts ...gr
 	return out, nil
 }
 
-func (c *queryClient) ConversionRate(ctx context.Context, in *QueryConversionRate, opts ...grpc.CallOption) (*QueryConversionRateResponse, error) {
-	out := new(QueryConversionRateResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.commerciomint.Query/ConversionRate", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) FreezePeriod(ctx context.Context, in *QueryFreezePeriod, opts ...grpc.CallOption) (*QueryFreezePeriodResponse, error) {
-	out := new(QueryFreezePeriodResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.commerciomint.Query/FreezePeriod", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) Params(ctx context.Context, in *QueryGetParams, opts ...grpc.CallOption) (*QueryGetParamsResponse, error) {
-	out := new(QueryGetParamsResponse)
+func (c *queryClient) Params(ctx context.Context, in *QueryParams, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
+	out := new(QueryParamsResponse)
 	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.commerciomint.Query/Params", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -664,9 +468,7 @@ type QueryServer interface {
 	Etp(context.Context, *QueryEtpRequest) (*QueryEtpResponse, error)
 	EtpByOwner(context.Context, *QueryEtpRequestByOwner) (*QueryEtpsResponse, error)
 	Etps(context.Context, *QueryEtpsRequest) (*QueryEtpsResponse, error)
-	ConversionRate(context.Context, *QueryConversionRate) (*QueryConversionRateResponse, error)
-	FreezePeriod(context.Context, *QueryFreezePeriod) (*QueryFreezePeriodResponse, error)
-	Params(context.Context, *QueryGetParams) (*QueryGetParamsResponse, error)
+	Params(context.Context, *QueryParams) (*QueryParamsResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -682,13 +484,7 @@ func (*UnimplementedQueryServer) EtpByOwner(ctx context.Context, req *QueryEtpRe
 func (*UnimplementedQueryServer) Etps(ctx context.Context, req *QueryEtpsRequest) (*QueryEtpsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Etps not implemented")
 }
-func (*UnimplementedQueryServer) ConversionRate(ctx context.Context, req *QueryConversionRate) (*QueryConversionRateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConversionRate not implemented")
-}
-func (*UnimplementedQueryServer) FreezePeriod(ctx context.Context, req *QueryFreezePeriod) (*QueryFreezePeriodResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FreezePeriod not implemented")
-}
-func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryGetParams) (*QueryGetParamsResponse, error) {
+func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParams) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
 
@@ -750,44 +546,8 @@ func _Query_Etps_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_ConversionRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryConversionRate)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).ConversionRate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.commerciomint.Query/ConversionRate",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).ConversionRate(ctx, req.(*QueryConversionRate))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_FreezePeriod_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFreezePeriod)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).FreezePeriod(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.commerciomint.Query/FreezePeriod",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FreezePeriod(ctx, req.(*QueryFreezePeriod))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryGetParams)
+	in := new(QueryParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -799,7 +559,7 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/commercionetwork.commercionetwork.commerciomint.Query/Params",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Params(ctx, req.(*QueryGetParams))
+		return srv.(QueryServer).Params(ctx, req.(*QueryParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -819,14 +579,6 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Etps",
 			Handler:    _Query_Etps_Handler,
-		},
-		{
-			MethodName: "ConversionRate",
-			Handler:    _Query_ConversionRate_Handler,
-		},
-		{
-			MethodName: "FreezePeriod",
-			Handler:    _Query_FreezePeriod_Handler,
 		},
 		{
 			MethodName: "Params",
@@ -1028,7 +780,7 @@ func (m *QueryEtpsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryConversionRate) Marshal() (dAtA []byte, err error) {
+func (m *QueryParams) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1038,12 +790,12 @@ func (m *QueryConversionRate) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryConversionRate) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryParams) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryConversionRate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1051,7 +803,7 @@ func (m *QueryConversionRate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryConversionRateResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryParamsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1061,136 +813,25 @@ func (m *QueryConversionRateResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryConversionRateResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryParamsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryConversionRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	{
-		size := m.Rate.Size()
-		i -= size
-		if _, err := m.Rate.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
+	if m.Params != nil {
+		{
+			size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
 		}
-		i = encodeVarintQuery(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryFreezePeriod) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryFreezePeriod) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryFreezePeriod) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryFreezePeriodResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryFreezePeriodResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryFreezePeriodResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.FreezePeriod) > 0 {
-		i -= len(m.FreezePeriod)
-		copy(dAtA[i:], m.FreezePeriod)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.FreezePeriod)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryGetParams) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryGetParams) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryGetParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryGetParamsResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryGetParamsResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryGetParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.FreezePeriod) > 0 {
-		i -= len(m.FreezePeriod)
-		copy(dAtA[i:], m.FreezePeriod)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.FreezePeriod)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.ConversionRate) > 0 {
-		i -= len(m.ConversionRate)
-		copy(dAtA[i:], m.ConversionRate)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.ConversionRate)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1283,7 +924,7 @@ func (m *QueryEtpsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryConversionRate) Size() (n int) {
+func (m *QueryParams) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1292,60 +933,14 @@ func (m *QueryConversionRate) Size() (n int) {
 	return n
 }
 
-func (m *QueryConversionRateResponse) Size() (n int) {
+func (m *QueryParamsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.Rate.Size()
-	n += 1 + l + sovQuery(uint64(l))
-	return n
-}
-
-func (m *QueryFreezePeriod) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *QueryFreezePeriodResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.FreezePeriod)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *QueryGetParams) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *QueryGetParamsResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.ConversionRate)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.FreezePeriod)
-	if l > 0 {
+	if m.Params != nil {
+		l = m.Params.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
@@ -1849,7 +1444,7 @@ func (m *QueryEtpsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryConversionRate) Unmarshal(dAtA []byte) error {
+func (m *QueryParams) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1872,10 +1467,10 @@ func (m *QueryConversionRate) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryConversionRate: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryParams: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryConversionRate: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryParams: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -1899,7 +1494,7 @@ func (m *QueryConversionRate) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryConversionRateResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1922,17 +1517,17 @@ func (m *QueryConversionRateResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryConversionRateResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryParamsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryConversionRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Rate", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowQuery
@@ -1942,321 +1537,27 @@ func (m *QueryConversionRateResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthQuery
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthQuery
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Rate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if m.Params == nil {
+				m.Params = &Params{}
+			}
+			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryFreezePeriod) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFreezePeriod: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFreezePeriod: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryFreezePeriodResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFreezePeriodResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFreezePeriodResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FreezePeriod", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FreezePeriod = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryGetParams) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetParams: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetParams: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryGetParamsResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetParamsResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ConversionRate", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ConversionRate = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FreezePeriod", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FreezePeriod = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciomint/position.proto";
-// import "cosmos/base/v1beta1/coin.proto";
+import "commercionetwork/commerciomint/params.proto";
 // this line is used by starport scaffolding # 1
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
@@ -26,20 +26,8 @@ service Query {
     option (google.api.http).get = "/commercionetwork/commerciomint/etps";
   }
 
-  rpc ConversionRate(QueryConversionRate)
-      returns (QueryConversionRateResponse) {
-    option (google.api.http).get =
-        "/commercionetwork/commerciomint/conversion_rate";
-  }
-
-  rpc FreezePeriod(QueryFreezePeriod) returns (QueryFreezePeriodResponse) {
-    option (google.api.http).get =
-        "/commercionetwork/commerciomint/freeze_period";
-  }
-
-  rpc Params(QueryGetParams) returns (QueryGetParamsResponse) {
-     option (google.api.http).get =
-         "/commercionetwork/commerciomint/params";
+  rpc Params(QueryParams) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/commercionetwork/commerciomint/params";
   }
 
   // this line is used by starport scaffolding # 2
@@ -63,24 +51,8 @@ message QueryEtpsResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-message QueryConversionRate {}
+message QueryParams {}
 
-message QueryConversionRateResponse {
-  string rate = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
-  ];
-}
-
-message QueryFreezePeriod {}
-
-message QueryFreezePeriodResponse { string freeze_period = 1; }
-
-message QueryGetParams {}
-
-message QueryGetParamsResponse { 
-  string conversion_rate = 1; 
-  string freeze_period = 2; 
-}
+message QueryParamsResponse { Params params = 1; }
 
 // this line is used by starport scaffolding # 3
