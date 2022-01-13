@@ -87,7 +87,10 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		keys[types.MemStoreKey],
 		bk, *govk, ak, *mk)
 
-	k.MintKeeper.UpdateConversionRate(ctx, sdk.NewDecWithPrec(7, 1))
+	// TODO shall we drop the following?
+	k.MintKeeper.UpdateParams(ctx, validCommercioMintParams)
+	// k.MintKeeper.UpdateConversionRate(ctx, sdk.NewDecWithPrec(7, 1))
+
 	k.GovKeeper.SetGovernmentAddress(ctx, testUser3)
 	return ctx, bk, *govk, *k
 }
@@ -120,3 +123,10 @@ var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))
 var yearBlocks = int64(4733640)
 
 var testInviteSender, _ = sdk.AccAddressFromBech32("cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my")
+
+var validConversionRate = sdk.NewDecWithPrec(7, 1)
+var validFreezePeriod time.Duration = 0
+var validCommercioMintParams = commerciomintTypes.Params{
+	ConversionRate: validConversionRate,
+	FreezePeriod:   validFreezePeriod,
+}

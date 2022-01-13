@@ -10,7 +10,9 @@ import (
 
 var _ sdk.Msg = &MsgMintCCC{}
 
+// -------------------------
 // MsgMintCCC
+// -------------------------
 
 func NewMsgMintCCC(position Position) *MsgMintCCC {
 	var depositAmount []*sdk.Coin
@@ -66,7 +68,11 @@ func (msg *MsgMintCCC) ValidateBasic() error {
 	return nil
 }
 
+// -------------------------
 // MsgBurnCCC
+// -------------------------
+
+var _ sdk.Msg = &MsgBurnCCC{}
 
 // TODO REVIEW MESSAGES CREATOR
 func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) *MsgBurnCCC {
@@ -112,88 +118,6 @@ func (msg *MsgBurnCCC) ValidateBasic() error {
 		return errors.Wrap(errors.ErrInvalidRequest, "id must be a well-defined UUID")
 	}
 	return nil
-}
-
-// NewMsgSetCCCConversionRate
-
-// TODO REVIEW MESSAGES CREATOR
-func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Dec) *MsgSetCCCConversionRate {
-	return &MsgSetCCCConversionRate{
-		Signer: signer.String(),
-		Rate:   rate,
-	}
-}
-
-func (msg *MsgSetCCCConversionRate) Route() string {
-	return ModuleName
-}
-
-func (msg *MsgSetCCCConversionRate) Type() string {
-	return MsgTypeSetCCCConversionRate
-}
-
-func (msg *MsgSetCCCConversionRate) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.Signer)
-	if err != nil {
-		return nil
-	}
-	return []sdk.AccAddress{creator}
-}
-
-func (msg *MsgSetCCCConversionRate) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
-}
-
-func (msg *MsgSetCCCConversionRate) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Signer)
-	if err != nil {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
-	}
-	return ValidateConversionRate(msg.Rate)
-}
-
-// NewMsgSetCCCFreezePeriod
-
-// TODO REVIEW MESSAGES CREATOR
-func NewMsgSetCCCFreezePeriod(signer sdk.AccAddress, freezePeriod string) *MsgSetCCCFreezePeriod {
-	return &MsgSetCCCFreezePeriod{
-		Signer:       signer.String(),
-		FreezePeriod: freezePeriod,
-	}
-}
-
-func (msg *MsgSetCCCFreezePeriod) Route() string {
-	return ModuleName
-}
-
-func (msg *MsgSetCCCFreezePeriod) Type() string {
-	return MsgTypeSetCCCFreezePeriod
-}
-
-func (msg *MsgSetCCCFreezePeriod) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.Signer)
-	if err != nil {
-		return nil
-	}
-	return []sdk.AccAddress{creator}
-}
-
-func (msg *MsgSetCCCFreezePeriod) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
-}
-
-func (msg *MsgSetCCCFreezePeriod) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Signer)
-	if err != nil {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
-	}
-	freezePeriod, err := time.ParseDuration(msg.FreezePeriod)
-	if err != nil {
-		return errors.Wrap(errors.ErrInvalidRequest, err.Error())
-	}
-	return ValidateFreezePeriod(freezePeriod)
 }
 
 // -------------------------

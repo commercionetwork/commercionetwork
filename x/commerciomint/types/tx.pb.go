@@ -6,7 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
@@ -247,184 +246,6 @@ func (m *MsgBurnCCCResponse) GetResidual() *types.Coin {
 	return nil
 }
 
-type MsgSetCCCConversionRate struct {
-	Signer string                                 `protobuf:"bytes,1,opt,name=signer,proto3" json:"signer,omitempty"`
-	Rate   github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=rate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"rate"`
-}
-
-func (m *MsgSetCCCConversionRate) Reset()         { *m = MsgSetCCCConversionRate{} }
-func (m *MsgSetCCCConversionRate) String() string { return proto.CompactTextString(m) }
-func (*MsgSetCCCConversionRate) ProtoMessage()    {}
-func (*MsgSetCCCConversionRate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e7b201e062d5e4bc, []int{4}
-}
-func (m *MsgSetCCCConversionRate) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetCCCConversionRate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetCCCConversionRate.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetCCCConversionRate) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetCCCConversionRate.Merge(m, src)
-}
-func (m *MsgSetCCCConversionRate) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetCCCConversionRate) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetCCCConversionRate.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetCCCConversionRate proto.InternalMessageInfo
-
-func (m *MsgSetCCCConversionRate) GetSigner() string {
-	if m != nil {
-		return m.Signer
-	}
-	return ""
-}
-
-type MsgSetCCCConversionRateResponse struct {
-	Rate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=rate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"rate"`
-}
-
-func (m *MsgSetCCCConversionRateResponse) Reset()         { *m = MsgSetCCCConversionRateResponse{} }
-func (m *MsgSetCCCConversionRateResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgSetCCCConversionRateResponse) ProtoMessage()    {}
-func (*MsgSetCCCConversionRateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e7b201e062d5e4bc, []int{5}
-}
-func (m *MsgSetCCCConversionRateResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetCCCConversionRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetCCCConversionRateResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetCCCConversionRateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetCCCConversionRateResponse.Merge(m, src)
-}
-func (m *MsgSetCCCConversionRateResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetCCCConversionRateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetCCCConversionRateResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetCCCConversionRateResponse proto.InternalMessageInfo
-
-type MsgSetCCCFreezePeriod struct {
-	Signer       string `protobuf:"bytes,1,opt,name=signer,proto3" json:"signer,omitempty"`
-	FreezePeriod string `protobuf:"bytes,2,opt,name=freeze_period,json=freezePeriod,proto3" json:"freeze_period,omitempty"`
-}
-
-func (m *MsgSetCCCFreezePeriod) Reset()         { *m = MsgSetCCCFreezePeriod{} }
-func (m *MsgSetCCCFreezePeriod) String() string { return proto.CompactTextString(m) }
-func (*MsgSetCCCFreezePeriod) ProtoMessage()    {}
-func (*MsgSetCCCFreezePeriod) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e7b201e062d5e4bc, []int{6}
-}
-func (m *MsgSetCCCFreezePeriod) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetCCCFreezePeriod) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetCCCFreezePeriod.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetCCCFreezePeriod) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetCCCFreezePeriod.Merge(m, src)
-}
-func (m *MsgSetCCCFreezePeriod) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetCCCFreezePeriod) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetCCCFreezePeriod.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetCCCFreezePeriod proto.InternalMessageInfo
-
-func (m *MsgSetCCCFreezePeriod) GetSigner() string {
-	if m != nil {
-		return m.Signer
-	}
-	return ""
-}
-
-func (m *MsgSetCCCFreezePeriod) GetFreezePeriod() string {
-	if m != nil {
-		return m.FreezePeriod
-	}
-	return ""
-}
-
-type MsgSetCCCFreezePeriodResponse struct {
-	FreezePeriod string `protobuf:"bytes,1,opt,name=freeze_period,json=freezePeriod,proto3" json:"freeze_period,omitempty"`
-}
-
-func (m *MsgSetCCCFreezePeriodResponse) Reset()         { *m = MsgSetCCCFreezePeriodResponse{} }
-func (m *MsgSetCCCFreezePeriodResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgSetCCCFreezePeriodResponse) ProtoMessage()    {}
-func (*MsgSetCCCFreezePeriodResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e7b201e062d5e4bc, []int{7}
-}
-func (m *MsgSetCCCFreezePeriodResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetCCCFreezePeriodResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetCCCFreezePeriodResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetCCCFreezePeriodResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetCCCFreezePeriodResponse.Merge(m, src)
-}
-func (m *MsgSetCCCFreezePeriodResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetCCCFreezePeriodResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetCCCFreezePeriodResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetCCCFreezePeriodResponse proto.InternalMessageInfo
-
-func (m *MsgSetCCCFreezePeriodResponse) GetFreezePeriod() string {
-	if m != nil {
-		return m.FreezePeriod
-	}
-	return ""
-}
-
 type MsgSetParams struct {
 	Signer string  `protobuf:"bytes,1,opt,name=signer,proto3" json:"signer,omitempty"`
 	Params *Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params,omitempty"`
@@ -434,7 +255,7 @@ func (m *MsgSetParams) Reset()         { *m = MsgSetParams{} }
 func (m *MsgSetParams) String() string { return proto.CompactTextString(m) }
 func (*MsgSetParams) ProtoMessage()    {}
 func (*MsgSetParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e7b201e062d5e4bc, []int{8}
+	return fileDescriptor_e7b201e062d5e4bc, []int{4}
 }
 func (m *MsgSetParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -484,7 +305,7 @@ func (m *MsgSetParamsResponse) Reset()         { *m = MsgSetParamsResponse{} }
 func (m *MsgSetParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgSetParamsResponse) ProtoMessage()    {}
 func (*MsgSetParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e7b201e062d5e4bc, []int{9}
+	return fileDescriptor_e7b201e062d5e4bc, []int{5}
 }
 func (m *MsgSetParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -518,10 +339,6 @@ func init() {
 	proto.RegisterType((*MsgMintCCCResponse)(nil), "commercionetwork.commercionetwork.commerciomint.MsgMintCCCResponse")
 	proto.RegisterType((*MsgBurnCCC)(nil), "commercionetwork.commercionetwork.commerciomint.MsgBurnCCC")
 	proto.RegisterType((*MsgBurnCCCResponse)(nil), "commercionetwork.commercionetwork.commerciomint.MsgBurnCCCResponse")
-	proto.RegisterType((*MsgSetCCCConversionRate)(nil), "commercionetwork.commercionetwork.commerciomint.MsgSetCCCConversionRate")
-	proto.RegisterType((*MsgSetCCCConversionRateResponse)(nil), "commercionetwork.commercionetwork.commerciomint.MsgSetCCCConversionRateResponse")
-	proto.RegisterType((*MsgSetCCCFreezePeriod)(nil), "commercionetwork.commercionetwork.commerciomint.MsgSetCCCFreezePeriod")
-	proto.RegisterType((*MsgSetCCCFreezePeriodResponse)(nil), "commercionetwork.commercionetwork.commerciomint.MsgSetCCCFreezePeriodResponse")
 	proto.RegisterType((*MsgSetParams)(nil), "commercionetwork.commercionetwork.commerciomint.MsgSetParams")
 	proto.RegisterType((*MsgSetParamsResponse)(nil), "commercionetwork.commercionetwork.commerciomint.MsgSetParamsResponse")
 }
@@ -531,45 +348,35 @@ func init() {
 }
 
 var fileDescriptor_e7b201e062d5e4bc = []byte{
-	// 602 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0xcd, 0x6e, 0xd3, 0x30,
-	0x1c, 0xaf, 0x37, 0x54, 0xe8, 0x9f, 0x6d, 0x88, 0x68, 0x8c, 0x12, 0x41, 0x3a, 0x05, 0x04, 0x93,
-	0x10, 0x89, 0x3a, 0x84, 0x38, 0x20, 0x24, 0x68, 0xca, 0xc4, 0x0e, 0x85, 0x2a, 0xe3, 0x04, 0x48,
-	0x53, 0xda, 0x7a, 0x21, 0x1a, 0xb1, 0x23, 0xdb, 0xdd, 0x06, 0xe2, 0x0d, 0xb8, 0x80, 0x78, 0x0a,
-	0x4e, 0xbc, 0xc6, 0x8e, 0x3b, 0x22, 0x0e, 0x13, 0x6a, 0x5f, 0x04, 0xc5, 0x71, 0xd2, 0x8f, 0x35,
-	0x4c, 0x6b, 0x77, 0x6a, 0xe3, 0xfe, 0xbe, 0xfe, 0xb5, 0x7f, 0x31, 0xdc, 0x6b, 0xd3, 0x30, 0xc4,
-	0xac, 0x1d, 0x50, 0x82, 0xc5, 0x3e, 0x65, 0xbb, 0x76, 0xb6, 0x10, 0x06, 0x44, 0xd8, 0xe2, 0xc0,
-	0x8a, 0x18, 0x15, 0x54, 0xb3, 0xc7, 0x81, 0x56, 0xfe, 0x42, 0xcc, 0xd4, 0x97, 0x7d, 0xea, 0x53,
-	0xc9, 0xb5, 0xe3, 0x6f, 0x89, 0x8c, 0x7e, 0xff, 0x14, 0xbf, 0xc8, 0x63, 0x5e, 0xc8, 0x15, 0xd8,
-	0x68, 0x53, 0x1e, 0x52, 0x6e, 0xb7, 0x3c, 0x8e, 0xed, 0xbd, 0x6a, 0x0b, 0x0b, 0xaf, 0x6a, 0xb7,
-	0x69, 0x40, 0x92, 0xdf, 0xcd, 0x2f, 0x00, 0x0d, 0xee, 0x37, 0x02, 0x22, 0x1c, 0xc7, 0xd1, 0x6e,
-	0x42, 0xa9, 0x83, 0x23, 0xca, 0x03, 0x41, 0x59, 0x19, 0xad, 0xa2, 0xb5, 0x92, 0x3b, 0x58, 0xd0,
-	0x9e, 0xc1, 0x92, 0x7a, 0xd8, 0xf6, 0x42, 0xda, 0x25, 0xa2, 0x3c, 0xb7, 0x3a, 0xbf, 0x76, 0x79,
-	0xfd, 0x86, 0x95, 0x98, 0x58, 0xb1, 0x89, 0xa5, 0x4c, 0x2c, 0x87, 0x06, 0xc4, 0x5d, 0x54, 0x84,
-	0xe7, 0x12, 0xaf, 0x2d, 0xc1, 0xdc, 0x66, 0xbd, 0x3c, 0x2f, 0x85, 0xe7, 0x36, 0xeb, 0xe6, 0x1d,
-	0xd0, 0x06, 0xee, 0x2e, 0xe6, 0x11, 0x25, 0x1c, 0x2b, 0x14, 0xca, 0x50, 0xbe, 0xcc, 0x58, 0xeb,
-	0x32, 0x12, 0x67, 0x5c, 0x81, 0x22, 0x0f, 0x7c, 0x82, 0xd3, 0x80, 0xea, 0x49, 0xab, 0x42, 0x31,
-	0x4b, 0x85, 0xfe, 0x9f, 0x4a, 0x01, 0x4f, 0xc4, 0x79, 0x27, 0xe3, 0x28, 0xa3, 0xbc, 0x38, 0xda,
-	0x23, 0xb8, 0xc4, 0x30, 0x0f, 0x3a, 0x5d, 0xef, 0xe3, 0xe9, 0x56, 0x19, 0xd4, 0xec, 0xc2, 0xf5,
-	0x06, 0xf7, 0xb7, 0x70, 0x3c, 0xaa, 0x43, 0xc9, 0x1e, 0x66, 0x3c, 0xa0, 0xc4, 0xf5, 0x04, 0xce,
-	0x1d, 0xa9, 0x06, 0x17, 0x98, 0x27, 0xb0, 0x74, 0x29, 0xd5, 0xac, 0xc3, 0xe3, 0x4a, 0xe1, 0xcf,
-	0x71, 0xe5, 0xae, 0x1f, 0x88, 0x0f, 0xdd, 0x56, 0x7c, 0x56, 0x6c, 0xb5, 0xbb, 0xc9, 0xc7, 0x03,
-	0xde, 0xd9, 0xb5, 0xc5, 0xa7, 0x08, 0x73, 0xab, 0x8e, 0xdb, 0xae, 0xe4, 0x9a, 0x18, 0x2a, 0x39,
-	0xb6, 0xd9, 0x80, 0xa9, 0x0d, 0x9a, 0xc1, 0xe6, 0x0d, 0x5c, 0xcb, 0x6c, 0x36, 0x18, 0xc6, 0x9f,
-	0x71, 0x13, 0xb3, 0x80, 0x76, 0x72, 0x67, 0xbb, 0x0d, 0x8b, 0x3b, 0x12, 0xb7, 0x1d, 0x49, 0x60,
-	0x32, 0xa4, 0xbb, 0xb0, 0x33, 0x44, 0x36, 0xeb, 0x70, 0x6b, 0xa2, 0x6a, 0x16, 0xfd, 0x84, 0x0a,
-	0x9a, 0xa0, 0xb2, 0x0f, 0x0b, 0x89, 0x4a, 0x53, 0x36, 0x23, 0x37, 0xd2, 0x6b, 0x28, 0x26, 0xdd,
-	0x51, 0xdb, 0xfa, 0xd8, 0x3a, 0x63, 0x61, 0xad, 0xc4, 0xc0, 0x55, 0x32, 0xe6, 0x0a, 0x2c, 0x0f,
-	0x1b, 0xa7, 0xa9, 0xd7, 0x7f, 0x14, 0x61, 0xbe, 0xc1, 0x7d, 0xed, 0x2b, 0x82, 0x8b, 0x69, 0xf5,
-	0x9e, 0x9c, 0xd9, 0x6c, 0xd0, 0x1c, 0xdd, 0x99, 0x81, 0x9c, 0xfd, 0x97, 0x71, 0x9a, 0xb4, 0x64,
-	0x53, 0xa5, 0x51, 0xe4, 0xe9, 0xd2, 0x8c, 0xb7, 0xee, 0x17, 0x82, 0xab, 0xf1, 0xc6, 0x8f, 0x36,
-	0xe5, 0xe5, 0x34, 0xd2, 0x93, 0x0e, 0xbf, 0xde, 0x3c, 0x2f, 0xa5, 0x2c, 0xf1, 0x4f, 0x04, 0x57,
-	0xb6, 0xb0, 0x18, 0x39, 0xfd, 0x1b, 0xd3, 0xbb, 0x0c, 0xeb, 0xe8, 0xaf, 0xce, 0x47, 0x27, 0xcb,
-	0xfa, 0x1d, 0x41, 0x69, 0x50, 0x88, 0xa7, 0x53, 0xaa, 0x27, 0x74, 0xfd, 0xc5, 0x4c, 0xf4, 0x34,
-	0x53, 0xed, 0xfd, 0x61, 0xcf, 0x40, 0x47, 0x3d, 0x03, 0xfd, 0xed, 0x19, 0xe8, 0x5b, 0xdf, 0x28,
-	0x1c, 0xf5, 0x8d, 0xc2, 0xef, 0xbe, 0x51, 0x78, 0x5b, 0x1b, 0x79, 0x15, 0xe5, 0x5d, 0x7e, 0xe9,
-	0xc2, 0xc1, 0xf8, 0xfd, 0x1b, 0xbf, 0xaa, 0x5a, 0x45, 0x79, 0xdf, 0x3d, 0xfc, 0x17, 0x00, 0x00,
-	0xff, 0xff, 0x88, 0xb3, 0x24, 0x5f, 0xae, 0x07, 0x00, 0x00,
+	// 443 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x94, 0x41, 0x6b, 0xd4, 0x40,
+	0x14, 0xc7, 0x77, 0x36, 0x10, 0xdd, 0xa7, 0xf6, 0x30, 0x94, 0xb2, 0x06, 0x09, 0x25, 0x08, 0x16,
+	0x84, 0x19, 0xb6, 0x22, 0x1e, 0x44, 0xd0, 0x4d, 0x3d, 0xf4, 0x10, 0x94, 0x78, 0x53, 0x41, 0x92,
+	0x74, 0x18, 0x07, 0xcd, 0x4c, 0xc8, 0x4c, 0x6c, 0x05, 0xbf, 0x81, 0x17, 0xfd, 0x30, 0x7e, 0x07,
+	0x8f, 0x3d, 0x7a, 0x94, 0xdd, 0x2f, 0x22, 0x49, 0x26, 0x89, 0xac, 0xc4, 0xd2, 0xed, 0x6d, 0xe7,
+	0xed, 0xff, 0xff, 0xfe, 0xbf, 0xc9, 0x1b, 0x1e, 0xdc, 0xcb, 0x54, 0x9e, 0xb3, 0x32, 0x13, 0x4a,
+	0x32, 0x73, 0xaa, 0xca, 0x0f, 0xb4, 0x2f, 0xe4, 0x42, 0x1a, 0x6a, 0xce, 0x48, 0x51, 0x2a, 0xa3,
+	0x30, 0xdd, 0x14, 0x92, 0xf1, 0x42, 0xed, 0xf4, 0x76, 0xb9, 0xe2, 0xaa, 0xf1, 0xd2, 0xfa, 0x57,
+	0xdb, 0xc6, 0xbb, 0x7f, 0x41, 0x5e, 0x91, 0x94, 0x49, 0xae, 0xad, 0xd8, 0xcf, 0x94, 0xce, 0x95,
+	0xa6, 0x69, 0xa2, 0x19, 0xfd, 0xb4, 0x48, 0x99, 0x49, 0x16, 0x34, 0x53, 0x42, 0xb6, 0xff, 0x07,
+	0x5f, 0x00, 0x22, 0xcd, 0x23, 0x21, 0x4d, 0x18, 0x86, 0xf8, 0x0e, 0xcc, 0x4e, 0x58, 0xa1, 0xb4,
+	0x30, 0xaa, 0x9c, 0xa3, 0x7d, 0x74, 0x30, 0x8b, 0x87, 0x02, 0x7e, 0x0a, 0x3b, 0xf6, 0xf0, 0x2e,
+	0xc9, 0x55, 0x25, 0xcd, 0x7c, 0xba, 0xef, 0x1c, 0xdc, 0x38, 0xbc, 0x4d, 0xda, 0x10, 0x52, 0x87,
+	0x10, 0x1b, 0x42, 0x42, 0x25, 0x64, 0x7c, 0xcb, 0x1a, 0x9e, 0x35, 0x7a, 0xbc, 0x03, 0xd3, 0xe3,
+	0xa3, 0xb9, 0xd3, 0x34, 0x9e, 0x1e, 0x1f, 0x05, 0x77, 0x01, 0x0f, 0xe9, 0x31, 0xd3, 0x85, 0x92,
+	0x9a, 0x59, 0x15, 0xea, 0x55, 0xbc, 0x61, 0x5c, 0x56, 0xa5, 0xac, 0x19, 0xf7, 0xc0, 0xd5, 0x82,
+	0x4b, 0xd6, 0x01, 0xda, 0x13, 0x5e, 0x80, 0xdb, 0x53, 0xa1, 0xff, 0x53, 0x59, 0xe1, 0x3f, 0x38,
+	0x6f, 0x1a, 0x1c, 0x1b, 0x34, 0x86, 0x83, 0x1f, 0xc2, 0xf5, 0x92, 0x69, 0x71, 0x52, 0x25, 0x1f,
+	0x2f, 0x8e, 0xea, 0xa5, 0xc1, 0x29, 0xdc, 0x8c, 0x34, 0x7f, 0xc5, 0xcc, 0xcb, 0x66, 0x3e, 0xa3,
+	0xf7, 0x78, 0x01, 0x6e, 0x3b, 0x41, 0xdb, 0xfc, 0x11, 0xb9, 0xe4, 0xb3, 0x21, 0x6d, 0x40, 0x6c,
+	0xdb, 0x04, 0x7b, 0xb0, 0xfb, 0x77, 0x70, 0x77, 0xaf, 0xc3, 0x1f, 0x0e, 0x38, 0x91, 0xe6, 0xf8,
+	0x2b, 0x82, 0x6b, 0xdd, 0x03, 0x78, 0x7c, 0xe9, 0xb0, 0x61, 0x7e, 0x5e, 0x78, 0x05, 0x73, 0xff,
+	0xb5, 0x6b, 0x9a, 0x6e, 0xd4, 0x5b, 0xd1, 0x58, 0xf3, 0x76, 0x34, 0x9b, 0xb3, 0xff, 0x8e, 0x60,
+	0x36, 0x8c, 0xec, 0xc9, 0x36, 0x2d, 0x7b, 0xbb, 0xf7, 0xfc, 0x4a, 0xf6, 0x8e, 0x69, 0xf9, 0xf6,
+	0xe7, 0xca, 0x47, 0xe7, 0x2b, 0x1f, 0xfd, 0x5e, 0xf9, 0xe8, 0xdb, 0xda, 0x9f, 0x9c, 0xaf, 0xfd,
+	0xc9, 0xaf, 0xb5, 0x3f, 0x79, 0xbd, 0xe4, 0xc2, 0xbc, 0xaf, 0xd2, 0xba, 0x09, 0x1d, 0x5f, 0x12,
+	0x5d, 0xe1, 0x6c, 0x73, 0x4f, 0x7d, 0x2e, 0x98, 0x4e, 0xdd, 0x66, 0x2f, 0x3c, 0xf8, 0x13, 0x00,
+	0x00, 0xff, 0xff, 0x0b, 0x08, 0xbe, 0xf3, 0xd6, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -587,8 +394,10 @@ type MsgClient interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
 	MintCCC(ctx context.Context, in *MsgMintCCC, opts ...grpc.CallOption) (*MsgMintCCCResponse, error)
 	BurnCCC(ctx context.Context, in *MsgBurnCCC, opts ...grpc.CallOption) (*MsgBurnCCCResponse, error)
-	SetConversionRate(ctx context.Context, in *MsgSetCCCConversionRate, opts ...grpc.CallOption) (*MsgSetCCCConversionRateResponse, error)
-	SetFreezePeriod(ctx context.Context, in *MsgSetCCCFreezePeriod, opts ...grpc.CallOption) (*MsgSetCCCFreezePeriodResponse, error)
+	// rpc SetConversionRate(MsgSetCCCConversionRate)
+	//     returns (MsgSetCCCConversionRateResponse);
+	// rpc SetFreezePeriod(MsgSetCCCFreezePeriod)
+	//     returns (MsgSetCCCFreezePeriodResponse);
 	SetParams(ctx context.Context, in *MsgSetParams, opts ...grpc.CallOption) (*MsgSetParamsResponse, error)
 }
 
@@ -618,24 +427,6 @@ func (c *msgClient) BurnCCC(ctx context.Context, in *MsgBurnCCC, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *msgClient) SetConversionRate(ctx context.Context, in *MsgSetCCCConversionRate, opts ...grpc.CallOption) (*MsgSetCCCConversionRateResponse, error) {
-	out := new(MsgSetCCCConversionRateResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.commerciomint.Msg/SetConversionRate", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *msgClient) SetFreezePeriod(ctx context.Context, in *MsgSetCCCFreezePeriod, opts ...grpc.CallOption) (*MsgSetCCCFreezePeriodResponse, error) {
-	out := new(MsgSetCCCFreezePeriodResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.commerciomint.Msg/SetFreezePeriod", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *msgClient) SetParams(ctx context.Context, in *MsgSetParams, opts ...grpc.CallOption) (*MsgSetParamsResponse, error) {
 	out := new(MsgSetParamsResponse)
 	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.commerciomint.Msg/SetParams", in, out, opts...)
@@ -650,8 +441,10 @@ type MsgServer interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
 	MintCCC(context.Context, *MsgMintCCC) (*MsgMintCCCResponse, error)
 	BurnCCC(context.Context, *MsgBurnCCC) (*MsgBurnCCCResponse, error)
-	SetConversionRate(context.Context, *MsgSetCCCConversionRate) (*MsgSetCCCConversionRateResponse, error)
-	SetFreezePeriod(context.Context, *MsgSetCCCFreezePeriod) (*MsgSetCCCFreezePeriodResponse, error)
+	// rpc SetConversionRate(MsgSetCCCConversionRate)
+	//     returns (MsgSetCCCConversionRateResponse);
+	// rpc SetFreezePeriod(MsgSetCCCFreezePeriod)
+	//     returns (MsgSetCCCFreezePeriodResponse);
 	SetParams(context.Context, *MsgSetParams) (*MsgSetParamsResponse, error)
 }
 
@@ -664,12 +457,6 @@ func (*UnimplementedMsgServer) MintCCC(ctx context.Context, req *MsgMintCCC) (*M
 }
 func (*UnimplementedMsgServer) BurnCCC(ctx context.Context, req *MsgBurnCCC) (*MsgBurnCCCResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BurnCCC not implemented")
-}
-func (*UnimplementedMsgServer) SetConversionRate(ctx context.Context, req *MsgSetCCCConversionRate) (*MsgSetCCCConversionRateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetConversionRate not implemented")
-}
-func (*UnimplementedMsgServer) SetFreezePeriod(ctx context.Context, req *MsgSetCCCFreezePeriod) (*MsgSetCCCFreezePeriodResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetFreezePeriod not implemented")
 }
 func (*UnimplementedMsgServer) SetParams(ctx context.Context, req *MsgSetParams) (*MsgSetParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetParams not implemented")
@@ -715,42 +502,6 @@ func _Msg_BurnCCC_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_SetConversionRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSetCCCConversionRate)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).SetConversionRate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.commerciomint.Msg/SetConversionRate",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SetConversionRate(ctx, req.(*MsgSetCCCConversionRate))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Msg_SetFreezePeriod_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSetCCCFreezePeriod)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).SetFreezePeriod(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.commerciomint.Msg/SetFreezePeriod",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SetFreezePeriod(ctx, req.(*MsgSetCCCFreezePeriod))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Msg_SetParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MsgSetParams)
 	if err := dec(in); err != nil {
@@ -780,14 +531,6 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BurnCCC",
 			Handler:    _Msg_BurnCCC_Handler,
-		},
-		{
-			MethodName: "SetConversionRate",
-			Handler:    _Msg_SetConversionRate_Handler,
-		},
-		{
-			MethodName: "SetFreezePeriod",
-			Handler:    _Msg_SetFreezePeriod_Handler,
 		},
 		{
 			MethodName: "SetParams",
@@ -970,146 +713,6 @@ func (m *MsgBurnCCCResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgSetCCCConversionRate) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetCCCConversionRate) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetCCCConversionRate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size := m.Rate.Size()
-		i -= size
-		if _, err := m.Rate.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintTx(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x12
-	if len(m.Signer) > 0 {
-		i -= len(m.Signer)
-		copy(dAtA[i:], m.Signer)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetCCCConversionRateResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetCCCConversionRateResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetCCCConversionRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size := m.Rate.Size()
-		i -= size
-		if _, err := m.Rate.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintTx(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetCCCFreezePeriod) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetCCCFreezePeriod) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetCCCFreezePeriod) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.FreezePeriod) > 0 {
-		i -= len(m.FreezePeriod)
-		copy(dAtA[i:], m.FreezePeriod)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.FreezePeriod)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Signer) > 0 {
-		i -= len(m.Signer)
-		copy(dAtA[i:], m.Signer)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetCCCFreezePeriodResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetCCCFreezePeriodResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetCCCFreezePeriodResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.FreezePeriod) > 0 {
-		i -= len(m.FreezePeriod)
-		copy(dAtA[i:], m.FreezePeriod)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.FreezePeriod)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *MsgSetParams) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1255,62 +858,6 @@ func (m *MsgBurnCCCResponse) Size() (n int) {
 	}
 	if m.Residual != nil {
 		l = m.Residual.Size()
-		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgSetCCCConversionRate) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Signer)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = m.Rate.Size()
-	n += 1 + l + sovTx(uint64(l))
-	return n
-}
-
-func (m *MsgSetCCCConversionRateResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = m.Rate.Size()
-	n += 1 + l + sovTx(uint64(l))
-	return n
-}
-
-func (m *MsgSetCCCFreezePeriod) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Signer)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.FreezePeriod)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgSetCCCFreezePeriodResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.FreezePeriod)
-	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
 	return n
@@ -1824,402 +1371,6 @@ func (m *MsgBurnCCCResponse) Unmarshal(dAtA []byte) error {
 			if err := m.Residual.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetCCCConversionRate) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetCCCConversionRate: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetCCCConversionRate: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Signer = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Rate", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Rate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetCCCConversionRateResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetCCCConversionRateResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetCCCConversionRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Rate", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Rate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetCCCFreezePeriod) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetCCCFreezePeriod: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetCCCFreezePeriod: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Signer = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FreezePeriod", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FreezePeriod = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetCCCFreezePeriodResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetCCCFreezePeriodResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetCCCFreezePeriodResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FreezePeriod", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FreezePeriod = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

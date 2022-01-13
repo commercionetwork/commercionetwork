@@ -11,8 +11,8 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
 	cdc.RegisterConcrete(&MsgMintCCC{}, "commerciomint/MintCCC", nil)
 	cdc.RegisterConcrete(&MsgBurnCCC{}, "commerciomint/BurnCCC", nil)
-	cdc.RegisterConcrete(&MsgSetCCCConversionRate{}, "commerciomint/MsgSetCCCConversionRate", nil)
-	cdc.RegisterConcrete(&MsgSetCCCFreezePeriod{}, "commerciomint/MsgSetCCCFreezePeriod", nil)
+	// cdc.RegisterConcrete(&MsgSetCCCConversionRate{}, "commerciomint/MsgSetCCCConversionRate", nil)
+	// cdc.RegisterConcrete(&MsgSetCCCFreezePeriod{}, "commerciomint/MsgSetCCCFreezePeriod", nil)
 	cdc.RegisterConcrete(&MsgSetParams{}, "commerciomint/MsgSetParams", nil)
 
 }
@@ -22,8 +22,8 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgMintCCC{},
 		&MsgBurnCCC{},
-		&MsgSetCCCConversionRate{},
-		&MsgSetCCCFreezePeriod{},
+		// &MsgSetCCCConversionRate{},
+		// &MsgSetCCCFreezePeriod{},
 		&MsgSetParams{},
 	)
 

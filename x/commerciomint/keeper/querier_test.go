@@ -7,6 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -234,11 +235,6 @@ func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 			name:            "ok",
 			setFreezePeriod: true,
 		},
-		// TODO check if the following test could be relevant
-		// {
-		// 	name:            "empty",
-		// 	setFreezePeriod: false,
-		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -248,7 +244,11 @@ func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 
 			if tt.setFreezePeriod {
 				expected = time.Minute
-				require.NoError(t, k.UpdateFreezePeriod(ctx, expected))
+
+				params := validParams
+				params.FreezePeriod = time.Minute
+				assert.NotEqual(t, params.FreezePeriod, validParams.FreezePeriod)
+				require.NoError(t, k.UpdateParams(ctx, params))
 			}
 
 			app := simapp.Setup(false)

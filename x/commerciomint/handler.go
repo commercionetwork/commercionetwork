@@ -24,12 +24,6 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgBurnCCC:
 			res, err := msgServer.BurnCCC(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgSetCCCConversionRate:
-			res, err := msgServer.SetConversionRate(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgSetCCCFreezePeriod:
-			res, err := msgServer.SetFreezePeriod(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgSetParams:
 			res, err := msgServer.SetParams(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)

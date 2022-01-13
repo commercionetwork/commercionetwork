@@ -10,6 +10,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -203,7 +204,12 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 
 	t.Run("Existing ETP can't be modified before freeze period passes", func(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
-		_ = k.UpdateFreezePeriod(ctx, 3000000000) // 30 seconds
+
+		params := validParams
+		params.FreezePeriod = time.Minute
+		assert.NotEqual(t, params.FreezePeriod, validParams.FreezePeriod)
+		require.NoError(t, k.UpdateParams(ctx, params))
+
 		k.SetPosition(ctx, testEtp)
 
 		// require.NoError(t, k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool))

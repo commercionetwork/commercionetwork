@@ -13,10 +13,10 @@ service Msg {
   // this line is used by starport scaffolding # proto/tx/rpc
   rpc MintCCC(MsgMintCCC) returns (MsgMintCCCResponse);
   rpc BurnCCC(MsgBurnCCC) returns (MsgBurnCCCResponse);
-  rpc SetConversionRate(MsgSetCCCConversionRate)
-      returns (MsgSetCCCConversionRateResponse);
-  rpc SetFreezePeriod(MsgSetCCCFreezePeriod)
-      returns (MsgSetCCCFreezePeriodResponse);
+  // rpc SetConversionRate(MsgSetCCCConversionRate)
+  //     returns (MsgSetCCCConversionRateResponse);
+  // rpc SetFreezePeriod(MsgSetCCCFreezePeriod)
+  //     returns (MsgSetCCCFreezePeriodResponse);
   rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
 }
 
@@ -40,27 +40,27 @@ message MsgBurnCCCResponse {
   cosmos.base.v1beta1.Coin residual = 2;
 }
 
-message MsgSetCCCConversionRate {
-  string signer = 1;
-  string rate = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
-  ];
-}
+// message MsgSetCCCConversionRate {
+//   string signer = 1;
+//   string rate = 2 [
+//     (gogoproto.nullable) = false,
+//     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+//   ];
+// }
 
-message MsgSetCCCConversionRateResponse {
-  string rate = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
-  ];
-}
+// message MsgSetCCCConversionRateResponse {
+//   string rate = 1 [
+//     (gogoproto.nullable) = false,
+//     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+//   ];
+// }
 
-message MsgSetCCCFreezePeriod {
-  string signer = 1;
-  string freeze_period = 2;
-}
+// message MsgSetCCCFreezePeriod {
+//   string signer = 1;
+//   string freeze_period = 2;
+// }
 
-message MsgSetCCCFreezePeriodResponse { string freeze_period = 1; }
+// message MsgSetCCCFreezePeriodResponse { string freeze_period = 1; }
 
 message MsgSetParams {
   string signer = 1;
