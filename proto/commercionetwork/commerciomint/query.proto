@@ -17,7 +17,7 @@ service Query {
     option (google.api.http).get = "/commercionetwork/commerciomint/{ID}/etp";
   }
 
-  rpc EtpByOwner(QueryEtpRequestByOwner) returns (QueryEtpsResponse) {
+  rpc EtpsByOwner(QueryEtpRequestByOwner) returns (QueryEtpsResponse) {
     option (google.api.http).get =
         "/commercionetwork/commerciomint/{Owner}/owner";
   }

@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) EtpByOwner(c context.Context, req *types.QueryEtpRequestByOwner) (*types.QueryEtpsResponse, error) {
+func (k Keeper) EtpsByOwner(c context.Context, req *types.QueryEtpRequestByOwner) (*types.QueryEtpsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
