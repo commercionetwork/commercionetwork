@@ -29,4 +29,8 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 	suite.Require().Equal(allEpochs[2].Identifier, "minute")
 	suite.Require().Equal(allEpochs[3].Identifier, "monthly")
 	suite.Require().Equal(allEpochs[4].Identifier, "week")
+
+	suite.app.EpochsKeeper.DeleteEpochInfo(suite.ctx, "monthly")
+	epochInfoMonthly := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "monthly")
+	suite.Require().Equal(types.EpochInfo{}, epochInfoMonthly)
 }

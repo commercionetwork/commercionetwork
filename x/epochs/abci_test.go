@@ -10,10 +10,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	vbrtypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
-	//var app *simapp.App
 	app := simapp.New("")
 	var epochInfo types.EpochInfo
 
@@ -21,6 +21,7 @@ func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
 	header.Height = 1
 	ctx := app.BaseApp.NewContext(false, header)
 	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
+	app.VbrKeeper.SetParamSet(ctx, vbrtypes.DefaultParams())
 
 	now := time.Now()
 
@@ -72,7 +73,7 @@ func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
 				epochInfo = app.EpochsKeeper.GetEpochInfo(ctx, "monthly")
 			},
 		},
-		/*{
+		{
 			expCurrentEpochStartTime: now.Add(time.Second),
 			expCurrentEpoch:          1,
 			expCurrentEpochEnded:     true,
@@ -118,7 +119,7 @@ func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
 				epochs.EndBlocker(ctx, app.EpochsKeeper)
 				epochInfo = app.EpochsKeeper.GetEpochInfo(ctx, "monthly")
 			},
-		},*/
+		},
 	}
 
 	for _, test := range tests {
@@ -139,7 +140,7 @@ func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
 				{
 					Identifier:            "monthly",
 					StartTime:             time.Time{},
-					Duration:              time.Hour * 24,
+					Duration:              time.Hour * 24 * 30,
 					CurrentEpoch:          0,
 					CurrentEpochStartTime: time.Time{},
 					EpochCountingStarted:  true,
@@ -152,7 +153,7 @@ func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
 
 		require.Equal(t, epochInfo.Identifier, "monthly")
 		require.Equal(t, epochInfo.StartTime.UTC().String(), now.UTC().String())
-		require.Equal(t, epochInfo.Duration, time.Hour*24)
+		require.Equal(t, epochInfo.Duration, time.Hour*24*30)
 		require.Equal(t, epochInfo.CurrentEpoch, test.expCurrentEpoch)
 		require.Equal(t, epochInfo.CurrentEpochStartTime.UTC().String(), test.expCurrentEpochStartTime.UTC().String())
 		require.Equal(t, epochInfo.EpochCountingStarted, true)
@@ -161,7 +162,6 @@ func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
 }
 
 func TestEpochStartingOneMonthAfterInitGenesis(t *testing.T) {
-	//app := simapp.Setup(false)
 	app := simapp.New("")
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 

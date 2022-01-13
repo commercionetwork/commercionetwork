@@ -18,7 +18,7 @@ func DefaultGenesis() *GenesisState {
 		{
 			Identifier:            "monthly",
 			StartTime:             time.Time{},
-			Duration:              time.Hour * 24 * 31,
+			Duration:              time.Hour * 24 * 30,
 			CurrentEpoch:          0,
 			CurrentEpochStartTime: time.Time{},
 			EpochCountingStarted:  false,
