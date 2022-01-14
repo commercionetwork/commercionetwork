@@ -7,6 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -141,6 +142,124 @@ func TestKeeper_Etps(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestKeeper_Pagination(t *testing.T) {
+	ctx, _, _, k := SetupTestInput()
+	wctx := sdk.WrapSDKContext(ctx)
+
+	etps := []types.Position{testEtp, testEtp1, testEtpAnotherOwner}
+	for _, etp := range etps {
+		require.NoError(t, k.SetPosition(ctx, etp))
+	}
+
+	t.Run("Etps ByOffset with limit 1", func(t *testing.T) {
+		req := &types.QueryEtpsRequest{
+			Pagination: &query.PageRequest{
+				Limit: 1,
+			},
+		}
+
+		var result []types.Position
+		for i := 1; i <= len(etps); i++ {
+			got, err := k.Etps(wctx, req)
+			require.NoError(t, err)
+			for _, p := range got.Positions {
+				result = append(result, *p)
+			}
+			req.Pagination.Offset = uint64(i)
+		}
+
+		expected := k.GetAllPositions(ctx)
+
+		assert.Len(t, result, len(expected))
+		for _, want := range expected {
+			assert.Contains(t, result, *want)
+		}
+	})
+
+	t.Run("Etps ByKey with limit 1", func(t *testing.T) {
+
+		var next []byte
+
+		req := &types.QueryEtpsRequest{
+			Pagination: &query.PageRequest{
+				Key:   next,
+				Limit: 1,
+			},
+		}
+
+		var result []types.Position
+		for i := 1; i <= len(etps); i++ {
+			got, err := k.Etps(wctx, req)
+			require.NoError(t, err)
+			for _, p := range got.Positions {
+				result = append(result, *p)
+			}
+
+			req.Pagination.Key = got.Pagination.NextKey
+		}
+
+		expected := k.GetAllPositions(ctx)
+
+		assert.Len(t, result, len(expected))
+		for _, want := range expected {
+			assert.Contains(t, result, *want)
+		}
+	})
+
+	t.Run("EtpsByOwner ByOffset with limit 1", func(t *testing.T) {
+		req := &types.QueryEtpsByOwnerRequest{
+			Owner:      testEtpOwner.String(),
+			Pagination: &query.PageRequest{Limit: 1},
+		}
+
+		expected := k.GetAllPositionsOwnedBy(ctx, testEtpOwner)
+
+		var result []types.Position
+		for i := 1; i <= len(expected); i++ {
+			got, err := k.EtpsByOwner(wctx, req)
+			require.NoError(t, err)
+			for _, p := range got.Positions {
+				result = append(result, *p)
+			}
+			req.Pagination.Offset = uint64(i)
+		}
+
+		assert.Len(t, result, len(expected))
+		for _, want := range expected {
+			assert.Contains(t, result, *want)
+		}
+	})
+
+	t.Run("Etps ByKey with limit 1", func(t *testing.T) {
+
+		var next []byte
+
+		req := &types.QueryEtpsByOwnerRequest{
+			Owner:      testEtpOwner.String(),
+			Pagination: &query.PageRequest{Key: next, Limit: 1},
+		}
+
+		expected := k.GetAllPositionsOwnedBy(ctx, testEtpOwner)
+
+		var result []types.Position
+		for i := 1; i <= len(expected); i++ {
+			got, err := k.EtpsByOwner(wctx, req)
+			require.NoError(t, err)
+			for _, p := range got.Positions {
+				result = append(result, *p)
+			}
+
+			req.Pagination.Key = got.Pagination.NextKey
+		}
+
+		assert.Len(t, result, len(expected))
+		for _, want := range expected {
+			assert.Contains(t, result, *want)
+		}
+	})
+
 }
 
 func TestKeeper_EtpsByOwner(t *testing.T) {
