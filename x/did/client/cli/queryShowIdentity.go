@@ -29,7 +29,11 @@ func CmdShowIdentity() *cobra.Command {
 				return err
 			}
 
-			return clientCtx.PrintProto(res)
+			return clientCtx.PrintObjectLegacy(res)
+
+			// the following does not print "@context" field
+			//   but prints "context" instead
+			// return clientCtx.PrintProto(res)
 		},
 	}
 
