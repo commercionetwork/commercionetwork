@@ -222,37 +222,6 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /commercionetwork/commerciomint/conversion_rate:
-    get:
-      operationId: CommercionetworkCommercionetworkCommerciomintConversionRate
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              rate:
-                type: string
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
   /commercionetwork/commerciomint/etps:
     get:
       operationId: CommercionetworkCommercionetworkCommerciomintEtps
@@ -388,37 +357,6 @@ paths:
           type: boolean
       tags:
         - Query
-  /commercionetwork/commerciomint/freeze_period:
-    get:
-      operationId: CommercionetworkCommercionetworkCommerciomintFreezePeriod
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              freezePeriod:
-                type: string
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
   /commercionetwork/commerciomint/params:
     get:
       operationId: CommercionetworkCommercionetworkCommerciomintParams
@@ -428,10 +366,13 @@ paths:
           schema:
             type: object
             properties:
-              conversionRate:
-                type: string
-              freezePeriod:
-                type: string
+              params:
+                type: object
+                properties:
+                  conversionRate:
+                    type: string
+                  freezePeriod:
+                    type: string
         default:
           description: An unexpected error response.
           schema:
@@ -519,7 +460,7 @@ paths:
         - Query
   '/commercionetwork/commerciomint/{Owner}/owner':
     get:
-      operationId: CommercionetworkCommercionetworkCommerciomintEtpByOwner
+      operationId: CommercionetworkCommercionetworkCommerciomintEtpsByOwner
       responses:
         '200':
           description: A successful response.
@@ -23840,16 +23781,6 @@ definitions:
     properties:
       ID:
         type: string
-  commercionetwork.commercionetwork.commerciomint.MsgSetCCCConversionRateResponse:
-    type: object
-    properties:
-      rate:
-        type: string
-  commercionetwork.commercionetwork.commerciomint.MsgSetCCCFreezePeriodResponse:
-    type: object
-    properties:
-      freezePeriod:
-        type: string
   commercionetwork.commercionetwork.commerciomint.MsgSetParamsResponse:
     type: object
   commercionetwork.commercionetwork.commerciomint.Params:
@@ -23885,11 +23816,6 @@ definitions:
       ID:
         type: string
       exchangeRate:
-        type: string
-  commercionetwork.commercionetwork.commerciomint.QueryConversionRateResponse:
-    type: object
-    properties:
-      rate:
         type: string
   commercionetwork.commercionetwork.commerciomint.QueryEtpResponse:
     type: object
@@ -23984,18 +23910,16 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
-  commercionetwork.commercionetwork.commerciomint.QueryFreezePeriodResponse:
+  commercionetwork.commercionetwork.commerciomint.QueryParamsResponse:
     type: object
     properties:
-      freezePeriod:
-        type: string
-  commercionetwork.commercionetwork.commerciomint.QueryGetParamsResponse:
-    type: object
-    properties:
-      conversionRate:
-        type: string
-      freezePeriod:
-        type: string
+      params:
+        type: object
+        properties:
+          conversionRate:
+            type: string
+          freezePeriod:
+            type: string
   cosmos.base.query.v1beta1.PageRequest:
     type: object
     properties:
