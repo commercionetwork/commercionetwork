@@ -429,6 +429,7 @@ func New(
 		app.BankKeeper,
 		app.AccountKeeper,
 		app.GovernmentKeeper,
+		app.GetSubspace(commerciomintTypes.ModuleName),
 	)
 	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.CommercioMintKeeper)
 

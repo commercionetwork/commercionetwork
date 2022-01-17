@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "commercionetwork/commerciomint/position.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "commercionetwork/commerciomint/params.proto";
 
 // this line is used by starport scaffolding # genesis/proto/import
 
@@ -12,12 +13,12 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 
 // GenesisState defines the id module's genesis state.
 message GenesisState {
-    // this line is used by starport scaffolding # genesis/proto/state
-    repeated Position Positions = 1;
-    repeated cosmos.base.v1beta1.Coin pool_amount = 2
-        [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
-    string collateral_rate = 3 
-        [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
-    google.protobuf.Duration freeze_period = 4 [(gogoproto.stdduration) = true]; // convert to time duration
-}
+  // this line is used by starport scaffolding # genesis/proto/state
+  repeated Position Positions = 1;
+  repeated cosmos.base.v1beta1.Coin pool_amount = 2 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
 
+  Params params = 4 [ (gogoproto.nullable) = false ];
+}

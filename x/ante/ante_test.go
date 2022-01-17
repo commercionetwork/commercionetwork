@@ -3,12 +3,13 @@ package ante_test
 import (
 	"errors"
 	"testing"
+	"time"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
+	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	ptx "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -352,7 +353,17 @@ func createTestApp(isCheckTx bool, isBlockZero bool) (*app.App, sdk.Context) {
 
 	ctx := app.BaseApp.NewContext(isCheckTx, header)
 	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
-	app.CommercioMintKeeper.UpdateConversionRate(ctx, sdk.NewDec(2))
+
+	// TODO shall we drop the following?
+	app.CommercioMintKeeper.UpdateParams(ctx, validCommercioMintParams)
+	// app.CommercioMintKeeper.UpdateConversionRate(ctx, sdk.NewDec(2))
 
 	return app, ctx
+}
+
+var validConversionRate = sdk.NewDec(2)
+var validFreezePeriod time.Duration = 0
+var validCommercioMintParams = commerciomintTypes.Params{
+	ConversionRate: validConversionRate,
+	FreezePeriod:   validFreezePeriod,
 }

@@ -23,9 +23,11 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryGetallEtpsRest:
 			return queryGetAllEtps(ctx, k, legacyQuerierCdc)
 		case types.QueryConversionRateRest:
-			return queryConversionRate(ctx, k, legacyQuerierCdc)
+			return queryGetConversionRate(ctx, k, legacyQuerierCdc)
 		case types.QueryFreezePeriodRest:
-			return queryFreezePeriod(ctx, k, legacyQuerierCdc)
+			return queryGetFreezePeriod(ctx, k, legacyQuerierCdc)
+		case types.QueryGetParamsRest:
+			return queryGetParams(ctx, k, legacyQuerierCdc)
 		default:
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint", types.ModuleName))
 		}
@@ -71,10 +73,21 @@ func queryGetAllEtps(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAm
 	return etpsBz, nil
 }
 
-func queryConversionRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryGetConversionRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetConversionRate(ctx))
 }
 
-func queryFreezePeriod(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryGetFreezePeriod(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetFreezePeriod(ctx))
+}
+
+func queryGetParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	params := k.GetParams(ctx)
+
+	paramsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, params)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+	}
+
+	return paramsBz, nil
 }

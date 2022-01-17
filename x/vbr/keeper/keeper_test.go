@@ -1,4 +1,5 @@
 package keeper
+
 import (
 	"testing"
 
@@ -8,27 +9,27 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
@@ -43,10 +44,9 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 		stakingTypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
-	
+
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 	memStoreKeyGov := storetypes.NewMemoryStoreKey(govTypes.MemStoreKey)
-
 
 	db := tmdb.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db)
@@ -75,12 +75,12 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 	maccPerms := map[string][]string{
-		accountTypes.FeeCollectorName:     nil,
+		accountTypes.FeeCollectorName:  nil,
 		distrTypes.ModuleName:          nil,
 		stakingTypes.BondedPoolName:    {accountTypes.Burner, accountTypes.Staking},
 		stakingTypes.NotBondedPoolName: {accountTypes.Burner, accountTypes.Staking},
-		types.ModuleName:          {accountTypes.Minter},
-		govTypes.ModuleName:              {accountTypes.Burner},
+		types.ModuleName:               {accountTypes.Minter},
+		govTypes.ModuleName:            {accountTypes.Burner},
 	}
 
 	pk := paramsKeeper.NewKeeper(cdc, codec.NewLegacyAmino(), storeKeys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
@@ -89,9 +89,9 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	sk := stakingKeeper.NewKeeper(cdc, storeKeys[stakingTypes.StoreKey], ak, bk, pk.Subspace("staking"))
 	sk.SetParams(ctx, stakingTypes.DefaultParams())
 	gk := govKeeper.NewKeeper(cdc, storeKeys[govTypes.StoreKey], memStoreKeyGov)
-	dk := distrKeeper.NewKeeper(cdc, storeKeys[distrTypes.StoreKey], pk.Subspace("distribution"),ak, bk, sk, accountTypes.FeeCollectorName, blacklistedAddrs)
+	dk := distrKeeper.NewKeeper(cdc, storeKeys[distrTypes.StoreKey], pk.Subspace("distribution"), ak, bk, sk, accountTypes.FeeCollectorName, blacklistedAddrs)
 	sk.SetHooks(stakingTypes.NewMultiStakingHooks(dk.Hooks()))
-	ek := epochsKeeper.NewKeeper(cdc, storeKeys[epochsTypes.StoreKey]) 
+	ek := epochsKeeper.NewKeeper(cdc, storeKeys[epochsTypes.StoreKey])
 	keeper := NewKeeper(
 		cdc,
 		storeKeys[types.StoreKey],
@@ -101,25 +101,26 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 		ak,
 		*gk,
 		*ek,
-		pk.Subspace("vbr"),
+		pk.Subspace(types.ModuleName),
 		sk,
 	)
 	ek.SetHooks(epochsTypes.NewMultiEpochHooks(keeper.Hooks()))
-	
+
 	return keeper, ctx
 }
 
 var params_test = types.Params{
-					DistrEpochIdentifier: types.EpochDay,
-					EarnRate: sdk.NewDecWithPrec(5,1),
-				}
+	DistrEpochIdentifier: types.EpochDay,
+	EarnRate:             sdk.NewDecWithPrec(5, 1),
+}
+
 func TestKeeper_ComputeProposerReward(t *testing.T) {
 	tests := []struct {
 		name           string
 		bonded         sdk.Int
 		vNumber        int64
 		expectedReward string
-		params		   types.Params
+		params         types.Params
 	}{
 		{
 			"Compute reward with 100 validators",
@@ -149,7 +150,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 			"47.564687975646879756",
 			types.Params{
 				DistrEpochIdentifier: types.EpochMinute,
-				EarnRate: sdk.NewDecWithPrec(5,1),
+				EarnRate:             sdk.NewDecWithPrec(5, 1),
 			},
 		},
 	}
@@ -172,7 +173,6 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 		})
 	}
 }
-
 
 func TestKeeper_DistributeBlockRewards(t *testing.T) {
 	tests := []struct {
@@ -230,7 +230,7 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 
 			params := types.Params{
 				DistrEpochIdentifier: types.EpochDay,
-				EarnRate: sdk.NewDecWithPrec(5,1),
+				EarnRate:             sdk.NewDecWithPrec(5, 1),
 			}
 			reward := k.ComputeProposerReward(ctx, 1, testVal, "ucommercio", params)
 			rewardInt, _ := reward.TruncateDecimal()
@@ -277,12 +277,12 @@ func TestKeeper_VbrAccount(t *testing.T) {
 			macc := k.VbrAccount(ctx)
 
 			require.Equal(t, macc.GetName(), tt.wantModName)
-			
-			if !tt.emptyPool{
+
+			if !tt.emptyPool {
 				coins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "ucommercio"})
 				k.bankKeeper.SetBalances(ctx, macc.GetAddress(), coins)
 			}
-			
+
 			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantModAccBalance))
 		})
 	}

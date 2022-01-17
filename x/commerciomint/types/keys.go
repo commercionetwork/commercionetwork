@@ -7,21 +7,18 @@ const (
 	QuerierRoute = ModuleName
 	MemStoreKey  = "mem_" + ModuleName
 
-	EtpStorePrefix       = StoreKey + ":etp:"
-	CreditsDenomStoreKey = "CreditsDenom"
-	CollateralRateKey    = StoreKey + ":collateralRate"
-	FreezePeriodKey      = StoreKey + ":freezePeriod"
-	CreditsDenom         = "uccc"
-	BondDenom            = "ucommercio"
+	EtpStorePrefix = StoreKey + ":etp:"
+	CreditsDenom   = "uccc"
+	BondDenom      = "ucommercio"
 
 	QueryGetEtpRest         = "etp"
 	QueryGetallEtpsRest     = "etps"
 	QueryGetEtpsByOwnerRest = "owner"
 	QueryConversionRateRest = "conversion_rate"
 	QueryFreezePeriodRest   = "freeze_period"
+	QueryGetParamsRest      = "params"
 
-	MsgTypeMintCCC              = "mintCCC"
-	MsgTypeBurnCCC              = "burnCCC"
-	MsgTypeSetCCCConversionRate = "setEtpsConversionRate"
-	MsgTypeSetCCCFreezePeriod   = "setEtpsFreezePeriod"
+	MsgTypeMintCCC   = "mintCCC"
+	MsgTypeBurnCCC   = "burnCCC"
+	MsgTypeSetParams = "setParams"
 )

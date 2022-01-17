@@ -7,6 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -234,10 +235,6 @@ func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 			name:            "ok",
 			setFreezePeriod: true,
 		},
-		{
-			name:            "empty",
-			setFreezePeriod: false,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -247,7 +244,11 @@ func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 
 			if tt.setFreezePeriod {
 				expected = time.Minute
-				require.NoError(t, k.UpdateFreezePeriod(ctx, expected))
+
+				params := validParams
+				params.FreezePeriod = time.Minute
+				assert.NotEqual(t, params.FreezePeriod, validParams.FreezePeriod)
+				require.NoError(t, k.UpdateParams(ctx, params))
 			}
 
 			app := simapp.Setup(false)
@@ -261,6 +262,25 @@ func Test_NewQuerier_queryFreezePeriod(t *testing.T) {
 			require.Equal(t, expected, got)
 		})
 	}
+}
+
+func Test_NewQuerier_queryGetParams(t *testing.T) {
+
+	t.Run("ok", func(t *testing.T) {
+		ctx, _, _, k := SetupTestInput()
+
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+		querier := NewQuerier(k, legacyAmino)
+		path := []string{types.QueryGetParamsRest}
+		gotBz, err := querier(ctx, path, abci.RequestQuery{})
+		require.NoError(t, err)
+
+		var got types.Params
+		legacyAmino.MustUnmarshalJSON(gotBz, &got)
+		require.Equal(t, validParams, got)
+	})
+
 }
 
 func Test_NewQuerier_default(t *testing.T) {

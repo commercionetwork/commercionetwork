@@ -79,11 +79,6 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 	return positions
 }
 
-/*
-func (k Keeper) GetPositionOwnedBy(ctx sdk.Context, owner sdk.AccAddress){
-
-}*/
-
 // NewPosition creates a new minting position for the amount deposited, credited to depositor.
 func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins, id string) error {
 	owner, err := sdk.AccAddressFromBech32(depositor)
@@ -153,7 +148,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 }
 
 func (k Keeper) GetAllPositions(ctx sdk.Context) []*types.Position {
-	var positions []*types.Position
+	positions := []*types.Position{}
 	iterator := k.newPositionsIterator(ctx)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -256,7 +251,7 @@ func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddres
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
 
-func getEtpByOwnerIdsStoreKey(user sdk.AccAddress) []byte {
+func getEtpsByOwnerStoreKey(user sdk.AccAddress) []byte {
 	return append([]byte(types.EtpStorePrefix), user...)
 }
 
