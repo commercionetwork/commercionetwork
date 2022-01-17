@@ -16,10 +16,6 @@ func (k Keeper) GetBlockRewardsPoolFunds(goCtx context.Context,  req *types.Quer
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	funds := k.GetTotalRewardPool(ctx)
 
-	/*fundsBz, err2 := codec.MarshalJSONIndent(keeper.cdc, funds)
-	if err2 != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
-	}*/
 	return &types.QueryGetBlockRewardsPoolFundsResponse{Funds: funds}, nil
 }
 

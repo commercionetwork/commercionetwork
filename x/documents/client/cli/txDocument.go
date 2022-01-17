@@ -172,7 +172,7 @@ var validSdnData = map[string]struct{}{
 	SdnDataCountry:      {},
 }
 
-// NewSdnDataFromString generates a SdnData struct based on the input string.
+// NewSdnDataFromString generates a SdnData slice based on the input string.
 // The input string expects a comma-separated value as:
 // "common_name,surname,serial_number"
 // If empty string is provided, a SdnData with default value will be provided. Default : "serial_number".

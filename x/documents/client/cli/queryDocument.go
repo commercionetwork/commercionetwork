@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	//"errors"
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"

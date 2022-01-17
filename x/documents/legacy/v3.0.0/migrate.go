@@ -22,7 +22,6 @@ func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 		err := v220document.Validate()
 		if err == nil {
 			document = migrateDocument(v220document)
-			//documents =  append(documents, d"ocument)
 			documents = documents.AppendIfMissingID(document)
 		} else {
 			documentsDeleted[v220document.UUID] = v220document.UUID

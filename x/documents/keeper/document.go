@@ -15,7 +15,6 @@ func getDocumentStoreKey(uuid string) []byte {
 // GetDocumentByID returns the document having the given id
 func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, error) {
 	store := ctx.KVStore(k.storeKey)
-	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 	documentKey := getDocumentStoreKey(id)
 	if !store.Has(documentKey) {
 		return types.Document{}, fmt.Errorf("cannot find document with uuid %s", id)
@@ -28,7 +27,6 @@ func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, err
 
 // HasDocument checks if the Document exists in the store
 func (k Keeper) HasDocument(ctx sdk.Context, id string) bool {
-	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 	store := ctx.KVStore(k.storeKey)
 	documentKey := getDocumentStoreKey(id)
 	return store.Has(documentKey)

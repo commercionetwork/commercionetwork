@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	//sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
@@ -25,7 +24,6 @@ func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
 				return fmt.Errorf("could not get total funds amount: %s", err)
 			}
 
-			//cmd.Println(string(res))
 			return cliCtx.PrintProto(res)
 		},
 	}

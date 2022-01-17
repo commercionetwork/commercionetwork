@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
-	//"github.com/commercionetwork/commercionetwork/x/common/types"
+	commonTypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // Equals returns true when doc equals other, false otherwise.
@@ -145,18 +145,19 @@ func (doc Document) Validate() error {
 				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 			}
 		}
-		/*
-			// check that there are no spurious encryption data recipients not present
-			// in the document recipient list
-			for _, encAdd := range doc.EncryptionData.Keys {
-				if !doc.Recipients.Contains(encAdd.Recipient) {
-					errMsg := fmt.Sprintf(
-						"%s is a recipient inside encryption data but not inside the message",
-						encAdd.Recipient,
-					)
-					return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
-				}
-			}*/
+		
+		// check that there are no spurious encryption data recipients not present
+		// in the document recipient list
+		var t commonTypes.Strings = doc.Recipients
+		for _, encAdd := range doc.EncryptionData.Keys {
+			if !t.Contains(encAdd.Recipient) {
+				errMsg := fmt.Sprintf(
+					"%s is a recipient inside encryption data but not inside the message",
+					encAdd.Recipient,
+				)
+				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
+			}
+		}
 
 		// Check that the `encrypted_data' field name is actually present in doc
 		fNotPresent := func(s string) error {
@@ -194,14 +195,14 @@ func (doc Document) Validate() error {
 				"field \"content_uri\" not present in document, but required when using do_sign",
 			)
 		}
-		/*
-			err := *(doc.DoSign).SdnData.Validate()
-			if err != nil {
-				return sdkErr.Wrap(
-					sdkErr.ErrUnknownRequest,
-					err.Error(),
-				)
-			}*/
+		var s SdnData = doc.DoSign.SdnData
+		err := s.Validate()
+		if err != nil {
+			return sdkErr.Wrap(
+				sdkErr.ErrUnknownRequest,
+				err.Error(),
+			)
+		}
 	}
 
 	if err := doc.lengthLimits(); err != nil {

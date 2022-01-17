@@ -3,8 +3,7 @@ package types
 import (
 	"fmt"
 	"testing"
-
-	//"github.com/commercionetwork/commercionetwork/x/vbr/types"
+	
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

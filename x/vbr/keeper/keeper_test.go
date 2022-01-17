@@ -59,7 +59,6 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	stateStore.MountStoreWithDB(tkeys[paramsTypes.TStoreKey], sdk.StoreTypeTransient, db)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
-	//registry := codectypes.NewInterfaceRegistry()
 	app := simapp.Setup(false)
 	cdc := app.AppCodec()
 
@@ -309,7 +308,6 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 			k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: "ucommercio"})))
 			k.MintVBRTokens(ctx, tt.wantAmount)
 			macc := k.VbrAccount(ctx)
-			//require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
 			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantAmount))
 		})
 	}
