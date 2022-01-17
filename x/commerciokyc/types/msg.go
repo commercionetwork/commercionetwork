@@ -341,8 +341,8 @@ func (msg *MsgSetMembership) ValidateBasic() error {
 var _ sdk.Msg = &MsgSetParams{}
 
 var ValidEpoch = ctypes.Strings{
-	EpochDay,
 	EpochMinute,
+	EpochHour,
 	EpochDay,
 }
 

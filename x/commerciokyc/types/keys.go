@@ -30,7 +30,7 @@ const (
 	QueryGetTspMemberships          = "sold"
 
 	CreditsDenom = "uccc"
-	EpochWeek    = "week"
 	EpochDay     = "day"
+	EpochHour    = "hour"
 	EpochMinute  = "minute"
 )
