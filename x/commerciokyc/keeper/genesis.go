@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
@@ -54,6 +55,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	for _, membership := range data.Memberships {
 		mOwner, _ := sdk.AccAddressFromBech32(membership.Owner)
 		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
+		// TODO need remove membership before init
+		if time.Now().After(*membership.ExpiryAt) {
+			continue
+		}
 		err := k.AssignMembership(ctx, mOwner, membership.MembershipType, mTsp, *membership.ExpiryAt)
 		if err != nil {
 			panic(err)
@@ -64,11 +69,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
-	// create the Memberships set
-	/*var liquidityPoolAmount []*sdk.Coin
-	for _, coin := range k.GetPoolFunds(ctx) {
-		liquidityPoolAmount = append(liquidityPoolAmount, &coin)
-	}*/
 	var trustedServiceProviders []string
 	for _, tsp := range k.GetTrustedServiceProviders(ctx).Addresses {
 		trustedServiceProviders = append(trustedServiceProviders, tsp)

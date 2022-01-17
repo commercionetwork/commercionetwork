@@ -466,9 +466,8 @@ func New(
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
-			//app.IncentivesKeeper.Hooks(),
-			//app.MintKeeper.Hooks(),
 			app.VbrKeeper.Hooks(),
+			app.CommercioKycKeeper.Hooks(),
 		),
 	)
 
