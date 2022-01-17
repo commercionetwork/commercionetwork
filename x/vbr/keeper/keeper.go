@@ -26,30 +26,30 @@ import (
 
 type (
 	Keeper struct {
-		cdc      	codec.Marshaler
-		storeKey	sdk.StoreKey
-		memKey   sdk.StoreKey
-		distKeeper  distKeeper.Keeper
-		bankKeeper	bankKeeper.Keeper
-		accountKeeper accountKeeper.AccountKeeper
-		govKeeper   govKeeper.Keeper
-		epochsKeeper epochsKeeper.Keeper
-		paramSpace       paramtypes.Subspace
-		stakingKeeper stakingKeeper.Keeper
+		cdc      			codec.Marshaler
+		storeKey			sdk.StoreKey
+		memKey   			sdk.StoreKey
+		distKeeper  		distKeeper.Keeper
+		bankKeeper			bankKeeper.Keeper
+		accountKeeper 		accountKeeper.AccountKeeper
+		govKeeper   		govKeeper.Keeper
+		epochsKeeper 		epochsKeeper.Keeper
+		paramSpace       	paramtypes.Subspace
+		stakingKeeper		stakingKeeper.Keeper
 	}
 )
 
 func NewKeeper(
-	cdc codec.Marshaler,
-	storeKey sdk.StoreKey,
-	memKey sdk.StoreKey,
-	distKeeper   distKeeper.Keeper,
-	bankKeeper	bankKeeper.Keeper,
-	accountKeeper accountKeeper.AccountKeeper,
-	govKeeper    govKeeper.Keeper,
-	epochsKeeper epochsKeeper.Keeper,
-	paramSpace paramtypes.Subspace,
-	stakingKeeper stakingKeeper.Keeper,
+	cdc 				codec.Marshaler,
+	storeKey 			sdk.StoreKey,
+	memKey 				sdk.StoreKey,
+	distKeeper   		distKeeper.Keeper,
+	bankKeeper			bankKeeper.Keeper,
+	accountKeeper 		accountKeeper.AccountKeeper,
+	govKeeper    		govKeeper.Keeper,
+	epochsKeeper	 	epochsKeeper.Keeper,
+	paramSpace 			paramtypes.Subspace,
+	stakingKeeper 		stakingKeeper.Keeper,
 
 ) *Keeper {
 
@@ -141,9 +141,12 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 			epochDuration = sdk.NewDec(365).Quo(sdk.NewDec(7))
 		case types.EpochMinute:
 			epochDuration = sdk.NewDec(365*24*60)
+		case types.EpochMonthly:
+			epochDuration = sdk.NewDec(12)
 		default:
 			return nil
 	}
+	
 	// Compute reward
 	return sdk.NewDecCoins(sdk.NewDecCoinFromDec(denom, annualDistribution.Amount.Quo(epochDuration)))
 }
