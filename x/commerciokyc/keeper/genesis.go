@@ -12,6 +12,15 @@ import (
 // TODO move all keeper invocation in keeper package
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 
+	// Setup params
+	params := types.Params{
+		CheckMembershipsEpochIdentifier: data.Params.CheckMembershipsEpochIdentifier,
+	}
+
+	if err := k.UpdateParams(ctx, params); err != nil {
+		panic(err)
+	}
+
 	// Get the module account
 	moduleAcc := k.GetMembershipModuleAccount(ctx)
 	if moduleAcc == nil {
@@ -45,6 +54,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	for _, membership := range data.Memberships {
 		mOwner, _ := sdk.AccAddressFromBech32(membership.Owner)
 		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
+		// TODO need remove membership before init
+		if ctx.BlockTime().After(*membership.ExpiryAt) {
+			continue
+		}
 		err := k.AssignMembership(ctx, mOwner, membership.MembershipType, mTsp, *membership.ExpiryAt)
 		if err != nil {
 			panic(err)
@@ -55,11 +68,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
-	// create the Memberships set
-	/*var liquidityPoolAmount []*sdk.Coin
-	for _, coin := range k.GetPoolFunds(ctx) {
-		liquidityPoolAmount = append(liquidityPoolAmount, &coin)
-	}*/
 	var trustedServiceProviders []string
 	for _, tsp := range k.GetTrustedServiceProviders(ctx).Addresses {
 		trustedServiceProviders = append(trustedServiceProviders, tsp)
@@ -70,6 +78,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		Invites:                 k.GetInvites(ctx),
 		TrustedServiceProviders: trustedServiceProviders,
 		Memberships:             k.GetMemberships(ctx),
+		Params:                  k.GetParams(ctx),
 	}
 }
 

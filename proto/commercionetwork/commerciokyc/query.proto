@@ -8,6 +8,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciokyc/membership.proto";
+import "commercionetwork/commerciokyc/params.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
@@ -35,7 +36,11 @@ service Query {
 		option (google.api.http).get = "/commercionetwork/commerciokyc/funds";
 	}
     // this line is used by starport scaffolding # 2
-    
+	rpc Params(QueryParams) returns (QueryParamsResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/params";
+	}
+	
+
 }
 
 
@@ -82,6 +87,10 @@ message QueryFundsResponse {
 	repeated cosmos.base.v1beta1.Coin funds = 1
 		[(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
+
+message QueryParams {}
+
+message QueryParamsResponse { Params params = 1; }
 
 
 // this line is used by starport scaffolding # 3

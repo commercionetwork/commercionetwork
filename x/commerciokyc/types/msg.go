@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -329,6 +330,62 @@ func (msg *MsgSetMembership) ValidateBasic() error {
 
 	if msg.NewMembership == "" {
 		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "new membership must not be empty")
+	}
+
+	return nil
+}
+
+// ------------------
+// MsgSetParams
+// ------------------
+var _ sdk.Msg = &MsgSetParams{}
+
+var ValidEpoch = ctypes.Strings{
+	EpochMinute,
+	EpochHour,
+	EpochDay,
+}
+
+func NewMsgSetParams(signer string, checkMembershipsEpochIdentifier string) *MsgSetParams {
+
+	params := NewParams(checkMembershipsEpochIdentifier)
+
+	return &MsgSetParams{
+		Signer: signer,
+		Params: &params,
+	}
+}
+
+func (msg *MsgSetParams) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSetParams) Type() string {
+	return MsgTypeSetParams
+}
+
+func (msg *MsgSetParams) GetSigners() []sdk.AccAddress {
+	gov, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{gov}
+}
+
+func (msg *MsgSetParams) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgSetParams) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return sdkErr.Wrapf(sdkErr.ErrInvalidAddress, "invalid government address (%s)", err)
+	}
+	checkMembershipsEpochIdentifier := msg.Params.CheckMembershipsEpochIdentifier
+
+	if !ValidEpoch.Contains(checkMembershipsEpochIdentifier) {
+		return sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", checkMembershipsEpochIdentifier))
 	}
 
 	return nil
