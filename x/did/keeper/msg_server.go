@@ -24,7 +24,7 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	timestamp := obtainTimestamp(ctx)
+	timestamp := ctx.BlockTime().Format(types.ComplaintW3CTime)
 
 	ddo := types.DidDocument{
 		Context:              msg.Context,
@@ -42,7 +42,6 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 	if err != nil {
 		ddo.Created = timestamp
 	} else {
-
 		ddo.Created = previousDDO.Created
 	}
 	ddo.Updated = timestamp

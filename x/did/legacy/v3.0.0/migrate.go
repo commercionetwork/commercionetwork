@@ -3,7 +3,6 @@ package v3_0_0
 import (
 	"strings"
 
-	"github.com/commercionetwork/commercionetwork/x/did/keeper"
 	v220did "github.com/commercionetwork/commercionetwork/x/did/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 )
@@ -75,7 +74,7 @@ func convertDDO(ddo220 v220did.DidDocument) (ddo300 *types.DidDocument) {
 
 	ddo300.Service = convertService(ddo220.Service)
 
-	ddo300.Created = ddo220.Proof.Created.Format(keeper.ComplaintW3CTime)
+	ddo300.Created = ddo220.Proof.Created.Format(types.ComplaintW3CTime)
 	ddo300.Updated = ddo300.Created
 
 	return

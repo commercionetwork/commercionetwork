@@ -22,7 +22,9 @@ func Test_SetDidDocument(t *testing.T) {
 	srv, k, ctx := setupMsgServer(t)
 
 	// creation
-	ctx = ctx.WithBlockTime(time.Now())
+	createdTimestamp, err := time.Parse(types.ComplaintW3CTime, "2019-03-23T06:35:22Z")
+	require.NoError(t, err)
+	ctx = ctx.WithBlockTime(createdTimestamp.UTC())
 
 	sdkCtx := sdk.WrapSDKContext(ctx)
 
@@ -74,7 +76,7 @@ func Test_SetDidDocument(t *testing.T) {
 		},
 	}
 
-	_, err := k.GetDidDocumentOfAddress(ctx, did)
+	_, err = k.GetDidDocumentOfAddress(ctx, did)
 	assert.Error(t, err)
 
 	resp, err := srv.SetDidDocument(sdkCtx, &msg)
@@ -89,7 +91,7 @@ func Test_SetDidDocument(t *testing.T) {
 
 	// update
 	ctx = sdk.UnwrapSDKContext(sdkCtx)
-	ctx = ctx.WithBlockTime(time.Now().Add(time.Hour))
+	ctx = ctx.WithBlockTime(createdTimestamp.Add(time.Hour))
 
 	sdkCtx = sdk.WrapSDKContext(ctx)
 

@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 const (
 	// ModuleName defines the module name
 	ModuleName = "did"
@@ -54,6 +56,10 @@ const (
 )
 
 var (
+
+	// XML Datetime normalized to UTC 00:00:00 and without sub-second decimal precision
+	ComplaintW3CTime = time.RFC3339
+
 	// https://www.w3.org/TR/did-spec-registries/#verification-method-types
 	verificationMethodTypes = []string{
 		"Ed25519Signature2018",
