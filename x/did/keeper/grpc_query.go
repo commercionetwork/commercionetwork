@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -19,15 +18,12 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidDocumentRe
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var didDocument types.DidDocument
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if !k.HasDidDocument(ctx, req.ID) {
-		return nil, sdkerrors.ErrKeyNotFound
+	didDocument, err := k.GetDidDocumentOfAddress(ctx, req.ID)
+	if err != nil {
+		return nil, err
 	}
-
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get(getIdentityStoreKey(req.ID)), &didDocument)
 
 	return &types.QueryResolveDidDocumentResponse{DidDocument: &didDocument}, nil
 }

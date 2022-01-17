@@ -1,11 +1,11 @@
 package keeper
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -34,7 +34,7 @@ func TestIdentityQuerySingle(t *testing.T) {
 		{
 			desc:    "KeyNotFound",
 			request: &types.QueryResolveDidDocumentRequest{ID: "x"},
-			err:     sdkerrors.ErrKeyNotFound,
+			err:     fmt.Errorf("DID document for %s not found", "x"),
 		},
 		{
 			desc: "InvalidRequest",
@@ -45,7 +45,7 @@ func TestIdentityQuerySingle(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			response, err := keeper.Identity(wctx, tc.request)
 			if tc.err != nil {
-				require.ErrorIs(t, err, tc.err)
+				require.Equal(t, tc.err, err)
 			} else {
 				require.Equal(t, tc.response, response)
 			}

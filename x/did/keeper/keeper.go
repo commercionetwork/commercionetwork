@@ -41,16 +41,15 @@ func (k Keeper) UpdateDidDocument(ctx sdk.Context, didDocument types.DidDocument
 // GetDidDocumentOfAddress returns the DID document reference associated to a given address.
 // If the given address has no DID document associated, returns an error.
 func (k Keeper) GetDidDocumentOfAddress(ctx sdk.Context, address string) (types.DidDocument, error) {
-	store := ctx.KVStore(k.storeKey)
-
-	identityKey := getIdentityStoreKey(address)
-	if !store.Has(identityKey) {
+	if !k.HasDidDocument(ctx, address) {
 		return types.DidDocument{}, fmt.Errorf("DID document for %s not found", address)
 	}
 
-	var DidDocument types.DidDocument
-	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &DidDocument)
-	return DidDocument, nil
+	identityKey := getIdentityStoreKey(address)
+	store := ctx.KVStore(k.storeKey)
+	var didDocument types.DidDocument
+	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &didDocument)
+	return didDocument, nil
 }
 
 func getIdentityStoreKey(owner string) []byte {
