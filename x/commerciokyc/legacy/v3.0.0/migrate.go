@@ -37,16 +37,14 @@ func Migrate(oldGenState v220commerciokyc.GenesisState) *types.GenesisState {
 		tsps = append(tsps, oldTsp.String())
 	}
 
-	/*var coins []*sdk.Coin
-	for _, coin := range oldGenState.LiquidityPoolAmount {
-		coins = append(coins, &coin)
-	}*/
+	params := types.NewParams("day")
 
 	return &types.GenesisState{
 		LiquidityPoolAmount:     oldGenState.LiquidityPoolAmount,
 		TrustedServiceProviders: tsps,
 		Invites:                 invites,
 		Memberships:             memberships,
+		Params:                  params,
 	}
 
 }
