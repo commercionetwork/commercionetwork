@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,14 +32,6 @@ func IsMembershipTypeValid(membershipType string) bool {
 		membershipType == MembershipTypeSilver ||
 		membershipType == MembershipTypeGold ||
 		membershipType == MembershipTypeBlack
-}
-
-// ValidateBasic returns error if Membership type is not valid
-func (m Membership) ValidateBasic() error {
-	if !IsMembershipTypeValid(m.MembershipType) {
-		return fmt.Errorf("membership has invalid type: %s", m.MembershipType)
-	}
-	return nil
 }
 
 type Memberships []Membership
