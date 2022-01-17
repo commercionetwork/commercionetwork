@@ -3,8 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/tendermint/tendermint/libs/log"
-
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -31,10 +29,6 @@ func NewKeeper(
 		storeKey: storeKey,
 		memKey:   memKey,
 	}
-}
-
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 // UpdateDidDocument appends a DID document in the store, returning the ID contained in the DID document
