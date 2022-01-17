@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
@@ -56,7 +55,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		mOwner, _ := sdk.AccAddressFromBech32(membership.Owner)
 		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
 		// TODO need remove membership before init
-		if time.Now().After(*membership.ExpiryAt) {
+		if ctx.BlockTime().After(*membership.ExpiryAt) {
 			continue
 		}
 		err := k.AssignMembership(ctx, mOwner, membership.MembershipType, mTsp, *membership.ExpiryAt)
