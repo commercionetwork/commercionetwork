@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
+// TODO
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
 	cdc.RegisterConcrete(&MsgSetDidDocument{}, "id/setIdentity", nil)
