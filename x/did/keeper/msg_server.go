@@ -5,7 +5,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type msgServer struct {
@@ -39,17 +38,14 @@ func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDoc
 		KeyAgreement:         msg.KeyAgreement,
 	}
 
-	if !k.HasDidDocument(ctx, msg.ID) {
+	previousDDO, err := k.GetDidDocumentOfAddress(ctx, msg.ID)
+	if err != nil {
 		ddo.Created = timestamp
-		ddo.Updated = timestamp
 	} else {
-		previousDDO, err := k.GetDidDocumentOfAddress(ctx, msg.ID)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot update DDO: %e", err)
-		}
+
 		ddo.Created = previousDDO.Created
-		ddo.Updated = timestamp
 	}
+	ddo.Updated = timestamp
 
 	id := k.UpdateDidDocument(ctx, ddo)
 
