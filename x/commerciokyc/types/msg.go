@@ -385,7 +385,6 @@ func (msg *MsgSetParams) ValidateBasic() error {
 	checkMembershipsEpochIdentifier := msg.Params.CheckMembershipsEpochIdentifier
 
 	if !ValidEpoch.Contains(checkMembershipsEpochIdentifier) {
-		//if checkMembershipsEpochIdentifier != EpochDay && checkMembershipsEpochIdentifier != EpochWeek && checkMembershipsEpochIdentifier != EpochMinute {
 		return sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", checkMembershipsEpochIdentifier))
 	}
 

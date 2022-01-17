@@ -13,7 +13,7 @@ const ()
 
 func CmdSetParams() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-params []",
+		Use:   "set-params [epoch identifier]",
 		Short: "Set the commerciokyc params with check epoch remove membership identifier",
 		Long:  "Example usage:\n commercionetworkd tx commerciomint set-params day --from ",
 		Args:  cobra.ExactArgs(1),
