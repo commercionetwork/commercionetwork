@@ -53,12 +53,12 @@ const (
 	serviceLenghtLimitID              = 56
 	serviceLenghtLimitType            = 56
 	serviceLenghtLimitServiceEndpoint = 256
-)
-
-var (
 
 	// XML Datetime normalized to UTC 00:00:00 and without sub-second decimal precision
 	ComplaintW3CTime = time.RFC3339
+)
+
+var (
 
 	// https://www.w3.org/TR/did-spec-registries/#verification-method-types
 	verificationMethodTypes = []string{

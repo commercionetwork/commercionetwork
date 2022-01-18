@@ -37,7 +37,6 @@ func (k Keeper) HasDocument(ctx sdk.Context, id string) bool {
 // GetDocumentOwner returns the creator of the document
 func (k Keeper) GetDocumentOwner(ctx sdk.Context, id string) string {
 	document, _ := k.GetDocumentByID(ctx, id)
-	// TODO nil pointer risk, avoidable in case of error
 	return document.Sender
 }
 
