@@ -13,17 +13,17 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidDocumentRequest) (*types.QueryResolveDidDocumentResponse, error) {
+func (k Keeper) Identity(c context.Context, req *types.QueryResolveIdentityRequest) (*types.QueryResolveIdentityResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	didDocument, err := k.GetDidDocumentOfAddress(ctx, req.ID)
+	identity, err := k.GetLastIdentityOfAddress(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.QueryResolveDidDocumentResponse{DidDocument: &didDocument}, nil
+	return &types.QueryResolveIdentityResponse{Identity: identity}, nil
 }

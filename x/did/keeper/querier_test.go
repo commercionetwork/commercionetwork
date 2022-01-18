@@ -5,39 +5,28 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 func TestNewQuerier(t *testing.T) {
-
-	_, _, addr := testdata.KeyTestPubAddr()
-	didDocument := types.DidDocument{
-		ID: addr.String(),
-		Context: []string{
-			types.ContextDidV1,
-			"https://w3id.org/security/suites/ed25519-2018/v1",
-			"https://w3id.org/security/suites/x25519-2019/v1",
-		}}
-
 	tests := []struct {
 		name       string
-		want       types.QueryResolveDidDocumentResponse
+		want       types.QueryResolveIdentityResponse
 		shouldFind bool
 	}{
 		// {
 		// 	name:       "empty",
-		// 	want:       types.QueryResolveDidDocumentResponse{},
+		// 	want:       types.QueryResolveIdentityResponse{},
 		// 	shouldFind: false,
 		// },
-		// {
-		// 	name: "ok",
-		// 	want: types.QueryResolveDidDocumentResponse{
-		// 		DidDocument: &didDocument,
-		// 	},
-		// 	shouldFind: true,
-		// },
+		{
+			name: "ok",
+			want: types.QueryResolveIdentityResponse{
+				Identity: &types.ValidIdentity,
+			},
+			shouldFind: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -47,20 +36,20 @@ func TestNewQuerier(t *testing.T) {
 			legacyAmino := app.LegacyAmino()
 			querier := NewQuerier(*k, legacyAmino)
 
-			id := k.UpdateDidDocument(ctx, didDocument)
+			k.UpdateIdentity(ctx, &types.ValidIdentity)
 
-			path := []string{types.QueryResolveDid, id}
+			path := []string{types.QueryResolveDid, types.ValidIdentity.DidDocument.ID}
 			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
-			var got *types.DidDocument
+			var got types.QueryResolveIdentityResponse
 
 			if tt.shouldFind {
-				// t.Log(string(gotBz))
 				// TODO check legacyAmino problem, this cannot unmarshal the DDO
+
 				legacyAmino.MustUnmarshalJSON(gotBz, &got)
 				t.Log(got)
 				require.NoError(t, err)
-				require.Equal(t, tt.want.DidDocument, got)
+				require.Equal(t, tt.want, got)
 			} else {
 				require.Error(t, err)
 			}

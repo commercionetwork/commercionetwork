@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,34 +20,33 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// SetDidDocument
-func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
+// SetIdentity
+func (k msgServer) SetIdentity(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	timestamp := ctx.BlockTime().Format(types.ComplaintW3CTime)
 
-	ddo := types.DidDocument{
-		Context:              msg.Context,
-		ID:                   msg.ID,
-		VerificationMethod:   msg.VerificationMethod,
-		Service:              msg.Service,
-		Authentication:       msg.Authentication,
-		AssertionMethod:      msg.AssertionMethod,
-		CapabilityDelegation: msg.CapabilityDelegation,
-		CapabilityInvocation: msg.CapabilityInvocation,
-		KeyAgreement:         msg.KeyAgreement,
+	identity := types.Identity{
+		DidDocument: msg.DidDocument,
+		Metadata: &types.Metadata{
+			Updated: timestamp,
+		},
 	}
 
-	previousDDO, err := k.GetDidDocumentOfAddress(ctx, msg.ID)
+	previousIdentity, err := k.GetLastIdentityOfAddress(ctx, msg.DidDocument.ID)
 	if err != nil {
-		ddo.Created = timestamp
+		// create new identity
+		identity.Metadata.Created = timestamp
 	} else {
-		ddo.Created = previousDDO.Created
+		// use last identity info
+		if msg.DidDocument.Equal(previousIdentity.DidDocument) {
+			return nil, fmt.Errorf("cannot update an identity with the same DID document")
+		}
+		identity.Metadata.Created = previousIdentity.Metadata.Created
 	}
-	ddo.Updated = timestamp
 
-	id := k.UpdateDidDocument(ctx, ddo)
+	k.UpdateIdentity(ctx, &identity)
 
-	return &types.MsgSetDidDocumentResponse{ID: id}, nil
+	return &types.MsgSetDidDocumentResponse{}, nil
 }

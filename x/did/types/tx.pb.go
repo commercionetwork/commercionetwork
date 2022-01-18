@@ -29,15 +29,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type MsgSetDidDocument struct {
-	Context              []string              `protobuf:"bytes,1,rep,name=context,proto3" json:"@context,omitempty"`
-	ID                   string                `protobuf:"bytes,2,opt,name=ID,proto3" json:"ID,omitempty"`
-	VerificationMethod   []*VerificationMethod `protobuf:"bytes,3,rep,name=verificationMethod,proto3" json:"verificationMethod,omitempty"`
-	Authentication       []string              `protobuf:"bytes,5,rep,name=authentication,proto3" json:"authentication,omitempty"`
-	AssertionMethod      []string              `protobuf:"bytes,6,rep,name=assertionMethod,proto3" json:"assertionMethod,omitempty"`
-	KeyAgreement         []string              `protobuf:"bytes,9,rep,name=keyAgreement,proto3" json:"keyAgreement,omitempty"`
-	CapabilityInvocation []string              `protobuf:"bytes,8,rep,name=capabilityInvocation,proto3" json:"capabilityInvocation,omitempty"`
-	CapabilityDelegation []string              `protobuf:"bytes,7,rep,name=capabilityDelegation,proto3" json:"capabilityDelegation,omitempty"`
-	Service              []*Service            `protobuf:"bytes,4,rep,name=service,proto3" json:"service,omitempty"`
+	DidDocument *DidDocument `protobuf:"bytes,1,opt,name=didDocument,proto3" json:"didDocument,omitempty"`
 }
 
 func (m *MsgSetDidDocument) Reset()         { *m = MsgSetDidDocument{} }
@@ -73,71 +65,14 @@ func (m *MsgSetDidDocument) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSetDidDocument proto.InternalMessageInfo
 
-func (m *MsgSetDidDocument) GetContext() []string {
+func (m *MsgSetDidDocument) GetDidDocument() *DidDocument {
 	if m != nil {
-		return m.Context
-	}
-	return nil
-}
-
-func (m *MsgSetDidDocument) GetID() string {
-	if m != nil {
-		return m.ID
-	}
-	return ""
-}
-
-func (m *MsgSetDidDocument) GetVerificationMethod() []*VerificationMethod {
-	if m != nil {
-		return m.VerificationMethod
-	}
-	return nil
-}
-
-func (m *MsgSetDidDocument) GetAuthentication() []string {
-	if m != nil {
-		return m.Authentication
-	}
-	return nil
-}
-
-func (m *MsgSetDidDocument) GetAssertionMethod() []string {
-	if m != nil {
-		return m.AssertionMethod
-	}
-	return nil
-}
-
-func (m *MsgSetDidDocument) GetKeyAgreement() []string {
-	if m != nil {
-		return m.KeyAgreement
-	}
-	return nil
-}
-
-func (m *MsgSetDidDocument) GetCapabilityInvocation() []string {
-	if m != nil {
-		return m.CapabilityInvocation
-	}
-	return nil
-}
-
-func (m *MsgSetDidDocument) GetCapabilityDelegation() []string {
-	if m != nil {
-		return m.CapabilityDelegation
-	}
-	return nil
-}
-
-func (m *MsgSetDidDocument) GetService() []*Service {
-	if m != nil {
-		return m.Service
+		return m.DidDocument
 	}
 	return nil
 }
 
 type MsgSetDidDocumentResponse struct {
-	ID string `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
 }
 
 func (m *MsgSetDidDocumentResponse) Reset()         { *m = MsgSetDidDocumentResponse{} }
@@ -173,13 +108,6 @@ func (m *MsgSetDidDocumentResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSetDidDocumentResponse proto.InternalMessageInfo
 
-func (m *MsgSetDidDocumentResponse) GetID() string {
-	if m != nil {
-		return m.ID
-	}
-	return ""
-}
-
 func init() {
 	proto.RegisterType((*MsgSetDidDocument)(nil), "commercionetwork.commercionetwork.did.MsgSetDidDocument")
 	proto.RegisterType((*MsgSetDidDocumentResponse)(nil), "commercionetwork.commercionetwork.did.MsgSetDidDocumentResponse")
@@ -188,34 +116,23 @@ func init() {
 func init() { proto.RegisterFile("commercionetwork/did/tx.proto", fileDescriptor_db840dd81353defe) }
 
 var fileDescriptor_db840dd81353defe = []byte{
-	// 422 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xbf, 0x8e, 0xda, 0x40,
-	0x10, 0xc6, 0x59, 0x9c, 0x40, 0xd8, 0x44, 0x44, 0x59, 0xa1, 0xc8, 0x41, 0x8a, 0x83, 0x90, 0x82,
-	0x2c, 0x25, 0xb2, 0x23, 0xd2, 0x90, 0x8e, 0x20, 0x17, 0xa1, 0xa0, 0x31, 0x52, 0x8a, 0x74, 0xc6,
-	0x9e, 0x98, 0x15, 0xd8, 0x6b, 0x79, 0x17, 0x0e, 0xbf, 0xc3, 0x15, 0x57, 0xdc, 0x43, 0x5d, 0x49,
-	0x79, 0xd5, 0xe9, 0x04, 0xcd, 0xe9, 0x9e, 0xe2, 0xe4, 0x7f, 0xe2, 0xb0, 0x29, 0xd0, 0x75, 0xab,
-	0xdf, 0xcc, 0xf7, 0xcd, 0x78, 0xc6, 0x83, 0x3f, 0xdb, 0xcc, 0xf3, 0x20, 0xb4, 0x29, 0xf3, 0x41,
-	0x5c, 0xb0, 0x70, 0xa1, 0x3b, 0xd4, 0xd1, 0xc5, 0x46, 0x0b, 0x42, 0x26, 0x18, 0xf9, 0x5a, 0x0c,
-	0x6b, 0x25, 0xe0, 0x50, 0xa7, 0xdd, 0x3b, 0xe9, 0xe2, 0x50, 0xc7, 0x60, 0xf6, 0xca, 0x03, 0x5f,
-	0xa4, 0x76, 0xed, 0x96, 0xcb, 0x5c, 0x96, 0x3c, 0xf5, 0xf8, 0x95, 0xd2, 0xee, 0x83, 0x84, 0x3f,
-	0x4c, 0xb8, 0x3b, 0x05, 0x61, 0x1c, 0x14, 0xe4, 0x07, 0xae, 0xdb, 0xcc, 0x17, 0xb0, 0x11, 0x32,
-	0xea, 0x48, 0x6a, 0x63, 0xf4, 0xf1, 0xf1, 0xee, 0x0b, 0x19, 0x66, 0xec, 0x3b, 0xf3, 0xa8, 0x00,
-	0x2f, 0x10, 0x91, 0x99, 0xa7, 0x91, 0x26, 0xae, 0x8e, 0x0d, 0xb9, 0xda, 0x41, 0x6a, 0xc3, 0xac,
-	0x8e, 0x0d, 0x42, 0x31, 0x59, 0x43, 0x48, 0xff, 0x53, 0xdb, 0x12, 0x94, 0xf9, 0x13, 0x10, 0x73,
-	0xe6, 0xc8, 0x52, 0x47, 0x52, 0xdf, 0xf6, 0x7f, 0x69, 0x67, 0x7d, 0x99, 0xf6, 0xb7, 0x64, 0x60,
-	0x9e, 0x30, 0x25, 0x3d, 0xdc, 0xb4, 0x56, 0x62, 0x0e, 0xbe, 0xc8, 0xb8, 0xfc, 0x3a, 0xee, 0xd9,
-	0x2c, 0x50, 0xa2, 0xe2, 0xf7, 0x16, 0xe7, 0x10, 0x3e, 0xeb, 0xa7, 0x96, 0x24, 0x16, 0x31, 0xe9,
-	0xe2, 0x77, 0x0b, 0x88, 0x7e, 0xbb, 0x21, 0x40, 0x3c, 0x0e, 0xb9, 0x91, 0xa4, 0x1d, 0x31, 0xd2,
-	0xc7, 0x2d, 0xdb, 0x0a, 0xac, 0x19, 0x5d, 0x52, 0x11, 0x8d, 0xfd, 0x35, 0xcb, 0x6a, 0xbf, 0x49,
-	0x72, 0x4f, 0xc6, 0x8e, 0x35, 0x06, 0x2c, 0xc1, 0x4d, 0x35, 0xf5, 0xa2, 0xe6, 0x10, 0x23, 0x7f,
-	0x70, 0x9d, 0x43, 0xb8, 0xa6, 0x36, 0xc8, 0xaf, 0x92, 0xe9, 0x69, 0x67, 0x4e, 0x6f, 0x9a, 0xaa,
-	0xcc, 0x5c, 0xde, 0xfd, 0x86, 0x3f, 0x95, 0x36, 0x6d, 0x02, 0x0f, 0x98, 0xcf, 0x21, 0xdb, 0x1f,
-	0xca, 0xf7, 0xd7, 0xbf, 0x46, 0x58, 0x9a, 0x70, 0x97, 0x5c, 0x22, 0xdc, 0x2c, 0xfc, 0x1c, 0x83,
-	0x33, 0x1b, 0x28, 0x15, 0x6b, 0x0f, 0x5f, 0xaa, 0xcc, 0xdb, 0x1c, 0x99, 0x37, 0x3b, 0x05, 0x6d,
-	0x77, 0x0a, 0xba, 0xdf, 0x29, 0xe8, 0x6a, 0xaf, 0x54, 0xb6, 0x7b, 0xa5, 0x72, 0xbb, 0x57, 0x2a,
-	0xff, 0x06, 0x2e, 0x15, 0xf3, 0xd5, 0x2c, 0x36, 0xd4, 0x4b, 0x17, 0x51, 0x02, 0x9b, 0xf4, 0xd4,
-	0xa2, 0x00, 0xf8, 0xac, 0x96, 0x5c, 0xc2, 0xcf, 0xa7, 0x00, 0x00, 0x00, 0xff, 0xff, 0x3d, 0x5f,
-	0x8a, 0x53, 0x8f, 0x03, 0x00, 0x00,
+	// 241 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0xce, 0xcf, 0xcd,
+	0x4d, 0x2d, 0x4a, 0xce, 0xcc, 0xcf, 0x4b, 0x2d, 0x29, 0xcf, 0x2f, 0xca, 0xd6, 0x4f, 0xc9, 0x4c,
+	0xd1, 0x2f, 0xa9, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x52, 0x45, 0x97, 0xd6, 0xc3, 0x10,
+	0x48, 0xc9, 0x4c, 0x91, 0x52, 0xc6, 0x6a, 0x4a, 0x66, 0x4a, 0x6a, 0x5e, 0x49, 0x66, 0x49, 0x25,
+	0xc4, 0x2c, 0x29, 0x91, 0xf4, 0xfc, 0xf4, 0x7c, 0x30, 0x53, 0x1f, 0xc4, 0x82, 0x88, 0x2a, 0x65,
+	0x72, 0x09, 0xfa, 0x16, 0xa7, 0x07, 0xa7, 0x96, 0xb8, 0x64, 0xa6, 0xb8, 0xe4, 0x27, 0x97, 0xe6,
+	0xa6, 0xe6, 0x95, 0x08, 0x85, 0x70, 0x71, 0xa7, 0x20, 0xb8, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0xdc,
+	0x46, 0x46, 0x7a, 0x44, 0x39, 0x46, 0x0f, 0xc9, 0xa0, 0x20, 0x64, 0x63, 0x94, 0xa4, 0xb9, 0x24,
+	0x31, 0xac, 0x0a, 0x4a, 0x2d, 0x2e, 0xc8, 0xcf, 0x2b, 0x4e, 0x35, 0x9a, 0xc8, 0xc8, 0xc5, 0xec,
+	0x5b, 0x9c, 0x2e, 0xd4, 0xc9, 0xc8, 0xc5, 0x1d, 0x9c, 0x5a, 0xe2, 0x09, 0x75, 0xbb, 0x90, 0x05,
+	0x91, 0xb6, 0x62, 0x98, 0x2c, 0xe5, 0x40, 0xae, 0x4e, 0x98, 0x9b, 0x9c, 0x82, 0x4e, 0x3c, 0x92,
+	0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e, 0x3c,
+	0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0xca, 0x22, 0x3d, 0xb3, 0x24, 0xa3, 0x34, 0x09, 0x64,
+	0xa0, 0x3e, 0x46, 0xd8, 0x63, 0x08, 0x54, 0x40, 0x22, 0xb5, 0xb2, 0x20, 0xb5, 0x38, 0x89, 0x0d,
+	0x1c, 0xec, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xfc, 0xaa, 0xc2, 0xe7, 0xf9, 0x01, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -231,7 +148,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
-	SetDidDocument(ctx context.Context, in *MsgSetDidDocument, opts ...grpc.CallOption) (*MsgSetDidDocumentResponse, error)
+	SetIdentity(ctx context.Context, in *MsgSetDidDocument, opts ...grpc.CallOption) (*MsgSetDidDocumentResponse, error)
 }
 
 type msgClient struct {
@@ -242,9 +159,9 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) SetDidDocument(ctx context.Context, in *MsgSetDidDocument, opts ...grpc.CallOption) (*MsgSetDidDocumentResponse, error) {
+func (c *msgClient) SetIdentity(ctx context.Context, in *MsgSetDidDocument, opts ...grpc.CallOption) (*MsgSetDidDocumentResponse, error) {
 	out := new(MsgSetDidDocumentResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.did.Msg/SetDidDocument", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.did.Msg/SetIdentity", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -254,35 +171,35 @@ func (c *msgClient) SetDidDocument(ctx context.Context, in *MsgSetDidDocument, o
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
-	SetDidDocument(context.Context, *MsgSetDidDocument) (*MsgSetDidDocumentResponse, error)
+	SetIdentity(context.Context, *MsgSetDidDocument) (*MsgSetDidDocumentResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) SetDidDocument(ctx context.Context, req *MsgSetDidDocument) (*MsgSetDidDocumentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetDidDocument not implemented")
+func (*UnimplementedMsgServer) SetIdentity(ctx context.Context, req *MsgSetDidDocument) (*MsgSetDidDocumentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetIdentity not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
-func _Msg_SetDidDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Msg_SetIdentity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MsgSetDidDocument)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).SetDidDocument(ctx, in)
+		return srv.(MsgServer).SetIdentity(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.did.Msg/SetDidDocument",
+		FullMethod: "/commercionetwork.commercionetwork.did.Msg/SetIdentity",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SetDidDocument(ctx, req.(*MsgSetDidDocument))
+		return srv.(MsgServer).SetIdentity(ctx, req.(*MsgSetDidDocument))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -292,8 +209,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SetDidDocument",
-			Handler:    _Msg_SetDidDocument_Handler,
+			MethodName: "SetIdentity",
+			Handler:    _Msg_SetIdentity_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -320,94 +237,17 @@ func (m *MsgSetDidDocument) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.KeyAgreement) > 0 {
-		for iNdEx := len(m.KeyAgreement) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.KeyAgreement[iNdEx])
-			copy(dAtA[i:], m.KeyAgreement[iNdEx])
-			i = encodeVarintTx(dAtA, i, uint64(len(m.KeyAgreement[iNdEx])))
-			i--
-			dAtA[i] = 0x4a
-		}
-	}
-	if len(m.CapabilityInvocation) > 0 {
-		for iNdEx := len(m.CapabilityInvocation) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.CapabilityInvocation[iNdEx])
-			copy(dAtA[i:], m.CapabilityInvocation[iNdEx])
-			i = encodeVarintTx(dAtA, i, uint64(len(m.CapabilityInvocation[iNdEx])))
-			i--
-			dAtA[i] = 0x42
-		}
-	}
-	if len(m.CapabilityDelegation) > 0 {
-		for iNdEx := len(m.CapabilityDelegation) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.CapabilityDelegation[iNdEx])
-			copy(dAtA[i:], m.CapabilityDelegation[iNdEx])
-			i = encodeVarintTx(dAtA, i, uint64(len(m.CapabilityDelegation[iNdEx])))
-			i--
-			dAtA[i] = 0x3a
-		}
-	}
-	if len(m.AssertionMethod) > 0 {
-		for iNdEx := len(m.AssertionMethod) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.AssertionMethod[iNdEx])
-			copy(dAtA[i:], m.AssertionMethod[iNdEx])
-			i = encodeVarintTx(dAtA, i, uint64(len(m.AssertionMethod[iNdEx])))
-			i--
-			dAtA[i] = 0x32
-		}
-	}
-	if len(m.Authentication) > 0 {
-		for iNdEx := len(m.Authentication) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Authentication[iNdEx])
-			copy(dAtA[i:], m.Authentication[iNdEx])
-			i = encodeVarintTx(dAtA, i, uint64(len(m.Authentication[iNdEx])))
-			i--
-			dAtA[i] = 0x2a
-		}
-	}
-	if len(m.Service) > 0 {
-		for iNdEx := len(m.Service) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Service[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTx(dAtA, i, uint64(size))
+	if m.DidDocument != nil {
+		{
+			size, err := m.DidDocument.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
 			}
-			i--
-			dAtA[i] = 0x22
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
 		}
-	}
-	if len(m.VerificationMethod) > 0 {
-		for iNdEx := len(m.VerificationMethod) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.VerificationMethod[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTx(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
-	if len(m.ID) > 0 {
-		i -= len(m.ID)
-		copy(dAtA[i:], m.ID)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.ID)))
 		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Context) > 0 {
-		for iNdEx := len(m.Context) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Context[iNdEx])
-			copy(dAtA[i:], m.Context[iNdEx])
-			i = encodeVarintTx(dAtA, i, uint64(len(m.Context[iNdEx])))
-			i--
-			dAtA[i] = 0xa
-		}
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -432,13 +272,6 @@ func (m *MsgSetDidDocumentResponse) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	_ = i
 	var l int
 	_ = l
-	if len(m.ID) > 0 {
-		i -= len(m.ID)
-		copy(dAtA[i:], m.ID)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.ID)))
-		i--
-		dAtA[i] = 0xa
-	}
 	return len(dAtA) - i, nil
 }
 
@@ -459,57 +292,9 @@ func (m *MsgSetDidDocument) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.Context) > 0 {
-		for _, s := range m.Context {
-			l = len(s)
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	l = len(m.ID)
-	if l > 0 {
+	if m.DidDocument != nil {
+		l = m.DidDocument.Size()
 		n += 1 + l + sovTx(uint64(l))
-	}
-	if len(m.VerificationMethod) > 0 {
-		for _, e := range m.VerificationMethod {
-			l = e.Size()
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	if len(m.Service) > 0 {
-		for _, e := range m.Service {
-			l = e.Size()
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	if len(m.Authentication) > 0 {
-		for _, s := range m.Authentication {
-			l = len(s)
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	if len(m.AssertionMethod) > 0 {
-		for _, s := range m.AssertionMethod {
-			l = len(s)
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	if len(m.CapabilityDelegation) > 0 {
-		for _, s := range m.CapabilityDelegation {
-			l = len(s)
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	if len(m.CapabilityInvocation) > 0 {
-		for _, s := range m.CapabilityInvocation {
-			l = len(s)
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	if len(m.KeyAgreement) > 0 {
-		for _, s := range m.KeyAgreement {
-			l = len(s)
-			n += 1 + l + sovTx(uint64(l))
-		}
 	}
 	return n
 }
@@ -520,10 +305,6 @@ func (m *MsgSetDidDocumentResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ID)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
 	return n
 }
 
@@ -564,71 +345,7 @@ func (m *MsgSetDidDocument) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Context", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Context = append(m.Context, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field VerificationMethod", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field DidDocument", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -655,204 +372,12 @@ func (m *MsgSetDidDocument) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.VerificationMethod = append(m.VerificationMethod, &VerificationMethod{})
-			if err := m.VerificationMethod[len(m.VerificationMethod)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if m.DidDocument == nil {
+				m.DidDocument = &DidDocument{}
+			}
+			if err := m.DidDocument.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Service", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Service = append(m.Service, &Service{})
-			if err := m.Service[len(m.Service)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Authentication", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Authentication = append(m.Authentication, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AssertionMethod", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.AssertionMethod = append(m.AssertionMethod, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CapabilityDelegation", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CapabilityDelegation = append(m.CapabilityDelegation, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 8:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CapabilityInvocation", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CapabilityInvocation = append(m.CapabilityInvocation, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 9:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field KeyAgreement", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.KeyAgreement = append(m.KeyAgreement, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -904,38 +429,6 @@ func (m *MsgSetDidDocumentResponse) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: MsgSetDidDocumentResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])

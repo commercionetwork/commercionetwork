@@ -8,7 +8,7 @@ import (
 
 // GetSigners implements "github.com/cosmos/cosmos-sdk/types".Msg
 func (msg *MsgSetDidDocument) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.ID)
+	creator, err := sdk.AccAddressFromBech32(msg.DidDocument.ID)
 	if err != nil {
 		panic(err)
 	}
@@ -107,20 +107,20 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// validate @context
 	// @context The JSON-LD Context is either a string or a list containing any combination of strings and/or ordered maps.
 	// The serialized value of @context MUST be the JSON String https://www.w3.org/ns/did/v1, or a JSON Array where the first item is the JSON String https://www.w3.org/ns/did/v1 and the subsequent items are serialized according to the JSON representation production rules.
-	if err := validateContext(msg.Context); err != nil {
+	if err := validateContext(msg.DidDocument.Context); err != nil {
 		return err
 	}
 
 	// validate ID
-	if IsEmpty(msg.ID) {
+	if IsEmpty(msg.DidDocument.ID) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"id\" is required")
 	}
-	if err := isValidDidCom(msg.ID); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid ID %s: %e", msg.ID, err)
+	if err := isValidDidCom(msg.DidDocument.ID); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid ID %s: %e", msg.DidDocument.ID, err)
 	}
 
 	// validate VerificationMethod
-	if err := validateVerificationMethod(msg.VerificationMethod, msg.ID); err != nil {
+	if err := validateVerificationMethod(msg.DidDocument.VerificationMethod, msg.DidDocument.ID); err != nil {
 		return err
 	}
 
@@ -128,55 +128,55 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 	// OPTIONAL
 	// If present, the associated value MUST be a set of services, where each service is described by a map.
 	// A conforming producer MUST NOT produce multiple service entries with the same id.
-	if err := validateService(msg.Service); err != nil {
+	if err := validateService(msg.DidDocument.Service); err != nil {
 		return err
 	}
 
 	// validate authentication
-	if !commons.Strings(msg.Authentication).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication %s found elements with the same ID", msg.Authentication)
+	if !commons.Strings(msg.DidDocument.Authentication).IsSet() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication %s found elements with the same ID", msg.DidDocument.Authentication)
 	}
-	for _, a := range msg.Authentication {
+	for _, a := range msg.DidDocument.Authentication {
 		if !msg.hasVerificationMethod(a) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication: %s is not among the verification methods", a)
 		}
 	}
 
 	// validate assertionMethod
-	if !commons.Strings(msg.AssertionMethod).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod %s found elements with the same ID", msg.AssertionMethod)
+	if !commons.Strings(msg.DidDocument.AssertionMethod).IsSet() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod %s found elements with the same ID", msg.DidDocument.AssertionMethod)
 	}
-	for _, am := range msg.AssertionMethod {
+	for _, am := range msg.DidDocument.AssertionMethod {
 		if !msg.hasVerificationMethod(am) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod: %s is not among the verification methods", am)
 		}
 	}
 
 	// validate capabilityDelegation
-	if !commons.Strings(msg.CapabilityDelegation).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation %s found elements with the same ID", msg.CapabilityDelegation)
+	if !commons.Strings(msg.DidDocument.CapabilityDelegation).IsSet() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation %s found elements with the same ID", msg.DidDocument.CapabilityDelegation)
 	}
-	for _, cd := range msg.CapabilityDelegation {
+	for _, cd := range msg.DidDocument.CapabilityDelegation {
 		if !msg.hasVerificationMethod(cd) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation: %s is not among the verification methods", cd)
 		}
 	}
 
 	// validate capabilityInvocation
-	if !commons.Strings(msg.CapabilityInvocation).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation %s found elements with the same ID", msg.CapabilityInvocation)
+	if !commons.Strings(msg.DidDocument.CapabilityInvocation).IsSet() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation %s found elements with the same ID", msg.DidDocument.CapabilityInvocation)
 	}
-	for _, ci := range msg.CapabilityInvocation {
+	for _, ci := range msg.DidDocument.CapabilityInvocation {
 		if !msg.hasVerificationMethod(ci) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation: %s is not among the verification methods", ci)
 		}
 	}
 
 	// validate keyAgreement
-	if !commons.Strings(msg.KeyAgreement).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement %s found elements with the same ID", msg.KeyAgreement)
+	if !commons.Strings(msg.DidDocument.KeyAgreement).IsSet() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement %s found elements with the same ID", msg.DidDocument.KeyAgreement)
 	}
-	for _, ka := range msg.KeyAgreement {
+	for _, ka := range msg.DidDocument.KeyAgreement {
 		if !msg.hasVerificationMethod(ka) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement: %s is not among the verification methods", ka)
 		}
@@ -186,13 +186,13 @@ func (msg *MsgSetDidDocument) ValidateBasic() error {
 }
 
 func (msg MsgSetDidDocument) hasVerificationMethod(id string) bool {
-	for _, vm := range msg.VerificationMethod {
+	for _, vm := range msg.DidDocument.VerificationMethod {
 		// DID url
 		if id == vm.ID {
 			return true
 		}
 		// relative DID url
-		if msg.ID+id == vm.ID {
+		if msg.DidDocument.ID+id == vm.ID {
 			return true
 		}
 	}

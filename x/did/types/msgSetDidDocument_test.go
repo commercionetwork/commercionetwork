@@ -14,7 +14,7 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"valid",
 			func() *MsgSetDidDocument {
-				return &ValidMsgSetDidDocument
+				return &validMsgSetDidDocument
 			},
 			false,
 		},
@@ -28,8 +28,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{context} invalid",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.Context = []string{}
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.Context = []string{}
 				return &msgSetDidDocument
 			},
 			true,
@@ -37,8 +37,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{ID} empty",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.ID = ""
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.ID = ""
 				return &msgSetDidDocument
 			},
 			true,
@@ -46,8 +46,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{ID} invalid DID com",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.ID = "$" + ValidMsgSetDidDocument.ID
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.ID = "$" + validMsgSetDidDocument.DidDocument.ID
 				return &msgSetDidDocument
 			},
 			true,
@@ -55,8 +55,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{verificationMethod} invalid",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.VerificationMethod = []*VerificationMethod{}
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.VerificationMethod = []*VerificationMethod{}
 				return &msgSetDidDocument
 			},
 			true,
@@ -64,8 +64,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{service} invalid",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.Service = []*Service{{}}
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.Service = []*Service{{}}
 				return &msgSetDidDocument
 			},
 			true,
@@ -73,8 +73,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{authentication} not a set",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.Authentication = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.Authentication = []string{
 					validVerificationMethodRsaSignature2018.ID,
 					validVerificationMethodRsaSignature2018.ID,
 				}
@@ -85,8 +85,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{authentication} no reference",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.Authentication = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.Authentication = []string{
 					"NoReference",
 				}
 				return &msgSetDidDocument
@@ -96,8 +96,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{assertionMethod} not a set",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.AssertionMethod = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.AssertionMethod = []string{
 					validVerificationMethodRsaSignature2018.ID,
 					validVerificationMethodRsaSignature2018.ID,
 				}
@@ -108,8 +108,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{assertionMethod} no reference",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.AssertionMethod = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.AssertionMethod = []string{
 					"NoReference",
 				}
 				return &msgSetDidDocument
@@ -119,8 +119,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{capabilityDelegation} not a set",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.CapabilityDelegation = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.CapabilityDelegation = []string{
 					validVerificationMethodRsaSignature2018.ID,
 					validVerificationMethodRsaSignature2018.ID,
 				}
@@ -131,8 +131,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{capabilityDelegation} no reference",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.CapabilityDelegation = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.CapabilityDelegation = []string{
 					"NoReference",
 				}
 				return &msgSetDidDocument
@@ -142,8 +142,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{capabilityInvocation} not a set",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.CapabilityInvocation = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.CapabilityInvocation = []string{
 					validVerificationMethodRsaSignature2018.ID,
 					validVerificationMethodRsaSignature2018.ID,
 				}
@@ -154,8 +154,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{capabilityInvocation} no reference",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.CapabilityInvocation = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.CapabilityInvocation = []string{
 					"NoReference",
 				}
 				return &msgSetDidDocument
@@ -165,8 +165,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{keyAgreement} not a set",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.KeyAgreement = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.KeyAgreement = []string{
 					validVerificationMethodRsaSignature2018.ID,
 					validVerificationMethodRsaSignature2018.ID,
 				}
@@ -177,8 +177,8 @@ func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
 		{
 			"{keyAgreement} no reference",
 			func() *MsgSetDidDocument {
-				msgSetDidDocument := ValidMsgSetDidDocument
-				msgSetDidDocument.KeyAgreement = []string{
+				msgSetDidDocument := validMsgSetDidDocument
+				msgSetDidDocument.DidDocument.KeyAgreement = []string{
 					"NoReference",
 				}
 				return &msgSetDidDocument
@@ -344,7 +344,7 @@ func Test_validateVerificationMethod(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateVerificationMethod(tt.verificationMethods, didSubject); (err != nil) != tt.wantErr {
+			if err := validateVerificationMethod(tt.verificationMethods, validDidSubject); (err != nil) != tt.wantErr {
 				t.Errorf("validateVerificationMethod() for %s error = %v, wantErr %v", tt.verificationMethods, err, tt.wantErr)
 			}
 		})
