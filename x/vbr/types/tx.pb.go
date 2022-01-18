@@ -119,24 +119,24 @@ func (m *MsgIncrementBlockRewardsPoolResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgIncrementBlockRewardsPoolResponse proto.InternalMessageInfo
 
-type MsgSetVbrParams struct {
+type MsgSetParams struct {
 	Government           string                                 `protobuf:"bytes,1,opt,name=Government,proto3" json:"Government,omitempty" yaml:"government"`
 	DistrEpochIdentifier string                                 `protobuf:"bytes,2,opt,name=distr_epoch_identifier,json=distrEpochIdentifier,proto3" json:"distr_epoch_identifier,omitempty" yaml:"distr_epoch_identifier"`
 	EarnRate             github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=earn_rate,json=earnRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"earn_rate" yaml:"earn_rate"`
 }
 
-func (m *MsgSetVbrParams) Reset()         { *m = MsgSetVbrParams{} }
-func (m *MsgSetVbrParams) String() string { return proto.CompactTextString(m) }
-func (*MsgSetVbrParams) ProtoMessage()    {}
-func (*MsgSetVbrParams) Descriptor() ([]byte, []int) {
+func (m *MsgSetParams) Reset()         { *m = MsgSetParams{} }
+func (m *MsgSetParams) String() string { return proto.CompactTextString(m) }
+func (*MsgSetParams) ProtoMessage()    {}
+func (*MsgSetParams) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ec5dd532f6ad8352, []int{2}
 }
-func (m *MsgSetVbrParams) XXX_Unmarshal(b []byte) error {
+func (m *MsgSetParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgSetVbrParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgSetParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgSetVbrParams.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgSetParams.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -146,47 +146,47 @@ func (m *MsgSetVbrParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *MsgSetVbrParams) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetVbrParams.Merge(m, src)
+func (m *MsgSetParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSetParams.Merge(m, src)
 }
-func (m *MsgSetVbrParams) XXX_Size() int {
+func (m *MsgSetParams) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgSetVbrParams) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetVbrParams.DiscardUnknown(m)
+func (m *MsgSetParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSetParams.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgSetVbrParams proto.InternalMessageInfo
+var xxx_messageInfo_MsgSetParams proto.InternalMessageInfo
 
-func (m *MsgSetVbrParams) GetGovernment() string {
+func (m *MsgSetParams) GetGovernment() string {
 	if m != nil {
 		return m.Government
 	}
 	return ""
 }
 
-func (m *MsgSetVbrParams) GetDistrEpochIdentifier() string {
+func (m *MsgSetParams) GetDistrEpochIdentifier() string {
 	if m != nil {
 		return m.DistrEpochIdentifier
 	}
 	return ""
 }
 
-type MsgSetVbrParamsResponse struct {
+type MsgSetParamsResponse struct {
 }
 
-func (m *MsgSetVbrParamsResponse) Reset()         { *m = MsgSetVbrParamsResponse{} }
-func (m *MsgSetVbrParamsResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgSetVbrParamsResponse) ProtoMessage()    {}
-func (*MsgSetVbrParamsResponse) Descriptor() ([]byte, []int) {
+func (m *MsgSetParamsResponse) Reset()         { *m = MsgSetParamsResponse{} }
+func (m *MsgSetParamsResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgSetParamsResponse) ProtoMessage()    {}
+func (*MsgSetParamsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ec5dd532f6ad8352, []int{3}
 }
-func (m *MsgSetVbrParamsResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgSetParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgSetVbrParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgSetParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgSetVbrParamsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgSetParamsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -196,61 +196,61 @@ func (m *MsgSetVbrParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *MsgSetVbrParamsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetVbrParamsResponse.Merge(m, src)
+func (m *MsgSetParamsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSetParamsResponse.Merge(m, src)
 }
-func (m *MsgSetVbrParamsResponse) XXX_Size() int {
+func (m *MsgSetParamsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgSetVbrParamsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetVbrParamsResponse.DiscardUnknown(m)
+func (m *MsgSetParamsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSetParamsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgSetVbrParamsResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgSetParamsResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*MsgIncrementBlockRewardsPool)(nil), "commercionetwork.commercionetwork.vbr.MsgIncrementBlockRewardsPool")
 	proto.RegisterType((*MsgIncrementBlockRewardsPoolResponse)(nil), "commercionetwork.commercionetwork.vbr.MsgIncrementBlockRewardsPoolResponse")
-	proto.RegisterType((*MsgSetVbrParams)(nil), "commercionetwork.commercionetwork.vbr.MsgSetVbrParams")
-	proto.RegisterType((*MsgSetVbrParamsResponse)(nil), "commercionetwork.commercionetwork.vbr.MsgSetVbrParamsResponse")
+	proto.RegisterType((*MsgSetParams)(nil), "commercionetwork.commercionetwork.vbr.MsgSetParams")
+	proto.RegisterType((*MsgSetParamsResponse)(nil), "commercionetwork.commercionetwork.vbr.MsgSetParamsResponse")
 }
 
 func init() { proto.RegisterFile("commercionetwork/vbr/tx.proto", fileDescriptor_ec5dd532f6ad8352) }
 
 var fileDescriptor_ec5dd532f6ad8352 = []byte{
-	// 506 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x53, 0x4f, 0x6b, 0x13, 0x41,
-	0x14, 0xcf, 0x26, 0x10, 0xec, 0xa8, 0x68, 0x97, 0xaa, 0x49, 0xb0, 0xbb, 0x75, 0xd1, 0x12, 0x0f,
-	0xee, 0xd2, 0x8a, 0x22, 0x1e, 0x04, 0x53, 0x45, 0x8a, 0x04, 0xca, 0x0a, 0x0a, 0x5e, 0xc2, 0xec,
-	0xee, 0xeb, 0x76, 0x49, 0x76, 0x5e, 0x98, 0x99, 0xa4, 0xed, 0xd5, 0x83, 0x67, 0x3f, 0x87, 0xe0,
-	0x57, 0xd0, 0x6b, 0x8f, 0x3d, 0x8a, 0x87, 0x55, 0x92, 0x6f, 0x90, 0x4f, 0x20, 0xb3, 0xb3, 0x89,
-	0x6d, 0xaa, 0x25, 0x48, 0x4f, 0xf3, 0x78, 0xef, 0xfd, 0x7e, 0xbf, 0xf7, 0x67, 0x1e, 0x59, 0x0d,
-	0x31, 0x4d, 0x81, 0x87, 0x09, 0x32, 0x90, 0xfb, 0xc8, 0xbb, 0xde, 0x30, 0xe0, 0x9e, 0x3c, 0x70,
-	0xfb, 0x1c, 0x25, 0x9a, 0xf7, 0xe6, 0xc3, 0xee, 0x19, 0xc7, 0x30, 0xe0, 0x8d, 0x95, 0x18, 0x63,
-	0xcc, 0x11, 0x9e, 0xb2, 0x34, 0xb8, 0x61, 0x85, 0x28, 0x52, 0x14, 0x5e, 0x40, 0x05, 0x78, 0xc3,
-	0x8d, 0x00, 0x24, 0xdd, 0xf0, 0x42, 0x4c, 0x98, 0x8e, 0x3b, 0xdf, 0x0c, 0x72, 0xbb, 0x2d, 0xe2,
-	0x6d, 0x16, 0x72, 0x48, 0x81, 0xc9, 0x56, 0x0f, 0xc3, 0xae, 0x0f, 0xfb, 0x94, 0x47, 0x62, 0x07,
-	0xb1, 0x67, 0xde, 0x27, 0xd5, 0xdd, 0x01, 0x8b, 0x80, 0xd7, 0x8c, 0x35, 0xa3, 0xb9, 0xd4, 0x5a,
-	0x9e, 0x64, 0xf6, 0xd5, 0x43, 0x9a, 0xf6, 0x9e, 0x3a, 0xda, 0xef, 0xf8, 0x45, 0x82, 0x29, 0x49,
-	0x95, 0xa6, 0x38, 0x60, 0xb2, 0x56, 0x5e, 0xab, 0x34, 0x2f, 0x6f, 0xd6, 0x5d, 0x2d, 0xee, 0x2a,
-	0x71, 0xb7, 0x10, 0x77, 0xb7, 0x30, 0x61, 0xad, 0xe7, 0x47, 0x99, 0x5d, 0xfa, 0xc3, 0xa4, 0x61,
-	0xce, 0xe7, 0x9f, 0x76, 0x33, 0x4e, 0xe4, 0xde, 0x20, 0x50, 0x2d, 0x7a, 0x45, 0xe9, 0xfa, 0x79,
-	0x20, 0xa2, 0xae, 0x27, 0x0f, 0xfb, 0x20, 0x72, 0x06, 0xe1, 0x17, 0x5a, 0xce, 0x3a, 0xb9, 0x7b,
-	0x5e, 0x03, 0x3e, 0x88, 0x3e, 0x32, 0x01, 0xce, 0x87, 0x32, 0xb9, 0xd6, 0x16, 0xf1, 0x1b, 0x90,
-	0x6f, 0x03, 0xbe, 0x43, 0x39, 0x4d, 0x85, 0xf9, 0x88, 0x90, 0x57, 0x38, 0x04, 0xce, 0x14, 0xb2,
-	0x68, 0xf0, 0xc6, 0x24, 0xb3, 0x97, 0x75, 0x59, 0xf1, 0x2c, 0xe6, 0xf8, 0x27, 0x12, 0xcd, 0x77,
-	0xe4, 0x66, 0x94, 0x08, 0xc9, 0x3b, 0xd0, 0xc7, 0x70, 0xaf, 0x93, 0x44, 0xc0, 0x64, 0xb2, 0x9b,
-	0x00, 0xaf, 0x95, 0x73, 0x8a, 0x3b, 0x93, 0xcc, 0x5e, 0xd5, 0x14, 0x7f, 0xcf, 0x73, 0xfc, 0x95,
-	0x3c, 0xf0, 0x52, 0xf9, 0xb7, 0x67, 0x6e, 0xb3, 0x43, 0x96, 0x80, 0x72, 0xd6, 0xe1, 0x54, 0x42,
-	0xad, 0x92, 0x73, 0xb5, 0xd4, 0xa4, 0x7e, 0x64, 0xf6, 0xfa, 0x02, 0x83, 0x79, 0x01, 0xe1, 0x24,
-	0xb3, 0xaf, 0x6b, 0xe5, 0x19, 0x91, 0xe3, 0x5f, 0x52, 0xb6, 0xaf, 0xcc, 0x3a, 0xb9, 0x35, 0x37,
-	0x83, 0xe9, 0x7c, 0x36, 0xbf, 0x96, 0x49, 0xa5, 0x2d, 0x62, 0xf3, 0x8b, 0x41, 0xea, 0xff, 0xfe,
-	0x0e, 0x5b, 0xee, 0x42, 0xbf, 0xd1, 0x3d, 0x6f, 0x25, 0x8d, 0xd7, 0x17, 0x40, 0x32, 0xad, 0xdb,
-	0xfc, 0x68, 0x90, 0x2b, 0xa7, 0x96, 0xfa, 0x78, 0x71, 0xf6, 0x93, 0xb8, 0xc6, 0xb3, 0xff, 0xc3,
-	0x4d, 0x0b, 0x69, 0xf9, 0x47, 0x23, 0xcb, 0x38, 0x1e, 0x59, 0xc6, 0xaf, 0x91, 0x65, 0x7c, 0x1a,
-	0x5b, 0xa5, 0xe3, 0xb1, 0x55, 0xfa, 0x3e, 0xb6, 0x4a, 0xef, 0x9f, 0x9c, 0xda, 0xdd, 0xdc, 0xad,
-	0x9f, 0x71, 0x1c, 0xe8, 0xf3, 0x57, 0x1b, 0x0d, 0xaa, 0xf9, 0x95, 0x3e, 0xfc, 0x1d, 0x00, 0x00,
-	0xff, 0xff, 0x3d, 0x7e, 0x22, 0x15, 0x23, 0x04, 0x00, 0x00,
+	// 503 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x53, 0xcf, 0x6a, 0x13, 0x5f,
+	0x14, 0xce, 0x24, 0x10, 0x7e, 0xb9, 0x3f, 0x05, 0x3b, 0xc4, 0x92, 0x06, 0x3b, 0x53, 0x07, 0x2d,
+	0x71, 0xe1, 0x0c, 0x6d, 0x11, 0x44, 0x57, 0x4e, 0x15, 0x29, 0x12, 0x28, 0xe3, 0x42, 0x70, 0x13,
+	0xee, 0xcc, 0x9c, 0x4e, 0x87, 0x64, 0xee, 0x09, 0xf7, 0xde, 0xa4, 0xed, 0xc2, 0x77, 0xf0, 0x39,
+	0x04, 0x77, 0xee, 0xdd, 0x76, 0xd9, 0xa5, 0xb8, 0x18, 0x25, 0x79, 0x83, 0xbc, 0x80, 0x72, 0xe7,
+	0x4e, 0xd2, 0xda, 0x6a, 0x09, 0xe2, 0xea, 0x1e, 0xce, 0x39, 0xdf, 0xf7, 0x9d, 0x3f, 0xf7, 0x90,
+	0xf5, 0x08, 0xb3, 0x0c, 0x78, 0x94, 0x22, 0x03, 0x79, 0x84, 0xbc, 0xef, 0x8d, 0x43, 0xee, 0xc9,
+	0x63, 0x77, 0xc8, 0x51, 0xa2, 0x79, 0xff, 0x72, 0xd8, 0xbd, 0xe2, 0x18, 0x87, 0xbc, 0xdd, 0x4c,
+	0x30, 0xc1, 0x02, 0xe1, 0x29, 0x4b, 0x83, 0xdb, 0x56, 0x84, 0x22, 0x43, 0xe1, 0x85, 0x54, 0x80,
+	0x37, 0xde, 0x0a, 0x41, 0xd2, 0x2d, 0x2f, 0xc2, 0x94, 0xe9, 0xb8, 0xf3, 0xd9, 0x20, 0x77, 0xba,
+	0x22, 0xd9, 0x63, 0x11, 0x87, 0x0c, 0x98, 0xf4, 0x07, 0x18, 0xf5, 0x03, 0x38, 0xa2, 0x3c, 0x16,
+	0xfb, 0x88, 0x03, 0xf3, 0x01, 0xa9, 0x1f, 0x8c, 0x58, 0x0c, 0xbc, 0x65, 0x6c, 0x18, 0x9d, 0x86,
+	0xbf, 0x32, 0xcb, 0xed, 0x9b, 0x27, 0x34, 0x1b, 0x3c, 0x71, 0xb4, 0xdf, 0x09, 0xca, 0x04, 0x53,
+	0x92, 0x3a, 0xcd, 0x70, 0xc4, 0x64, 0xab, 0xba, 0x51, 0xeb, 0xfc, 0xbf, 0xbd, 0xe6, 0x6a, 0x71,
+	0x57, 0x89, 0xbb, 0xa5, 0xb8, 0xbb, 0x8b, 0x29, 0xf3, 0x9f, 0x9d, 0xe6, 0x76, 0xe5, 0x9c, 0x49,
+	0xc3, 0x9c, 0x0f, 0xdf, 0xec, 0x4e, 0x92, 0xca, 0xc3, 0x51, 0xa8, 0x5a, 0xf4, 0xca, 0xd2, 0xf5,
+	0xf3, 0x50, 0xc4, 0x7d, 0x4f, 0x9e, 0x0c, 0x41, 0x14, 0x0c, 0x22, 0x28, 0xb5, 0x9c, 0x4d, 0x72,
+	0xef, 0xba, 0x06, 0x02, 0x10, 0x43, 0x64, 0x02, 0x9c, 0x1f, 0x06, 0xb9, 0xd1, 0x15, 0xc9, 0x6b,
+	0x90, 0xfb, 0x94, 0xd3, 0x4c, 0x98, 0x8f, 0x08, 0x79, 0x89, 0x63, 0xe0, 0x4c, 0xc1, 0xca, 0xee,
+	0x6e, 0xcf, 0x72, 0x7b, 0x45, 0xd7, 0x94, 0x2c, 0x62, 0x4e, 0x70, 0x21, 0xd1, 0x7c, 0x43, 0x56,
+	0xe3, 0x54, 0x48, 0xde, 0x83, 0x21, 0x46, 0x87, 0xbd, 0x34, 0x06, 0x26, 0xd3, 0x83, 0x14, 0x78,
+	0xab, 0x5a, 0x50, 0xdc, 0x9d, 0xe5, 0xf6, 0xba, 0xa6, 0xf8, 0x7d, 0x9e, 0x13, 0x34, 0x8b, 0xc0,
+	0x0b, 0xe5, 0xdf, 0x5b, 0xb8, 0xcd, 0x1e, 0x69, 0x00, 0xe5, 0xac, 0xc7, 0xa9, 0x84, 0x56, 0xad,
+	0xe0, 0xf2, 0xd5, 0x98, 0xbe, 0xe6, 0xf6, 0xe6, 0x12, 0x53, 0x79, 0x0e, 0xd1, 0x2c, 0xb7, 0x6f,
+	0x69, 0xe5, 0x05, 0x91, 0x13, 0xfc, 0xa7, 0xec, 0x40, 0x99, 0xab, 0xa4, 0x79, 0x71, 0x00, 0xf3,
+	0xc9, 0x6c, 0x7f, 0xaa, 0x92, 0x5a, 0x57, 0x24, 0xe6, 0x47, 0x83, 0xac, 0xfd, 0xf9, 0x23, 0xec,
+	0xba, 0x4b, 0xfd, 0x43, 0xf7, 0xba, 0x65, 0xb4, 0x5f, 0xfd, 0x03, 0x92, 0x79, 0xdd, 0xe6, 0x3b,
+	0xd2, 0x38, 0xdf, 0xe6, 0xce, 0xf2, 0xcc, 0x0b, 0x50, 0xfb, 0xe9, 0x5f, 0x80, 0xe6, 0xf2, 0x7e,
+	0x70, 0x3a, 0xb1, 0x8c, 0xb3, 0x89, 0x65, 0x7c, 0x9f, 0x58, 0xc6, 0xfb, 0xa9, 0x55, 0x39, 0x9b,
+	0x5a, 0x95, 0x2f, 0x53, 0xab, 0xf2, 0xf6, 0xf1, 0x2f, 0xeb, 0xba, 0x74, 0xdb, 0x57, 0x1c, 0xc7,
+	0xfa, 0xdc, 0xd5, 0x12, 0xc3, 0x7a, 0x71, 0x95, 0x3b, 0x3f, 0x03, 0x00, 0x00, 0xff, 0xff, 0x57,
+	0xff, 0x67, 0x6a, 0x13, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -267,7 +267,7 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
 	IncrementBlockRewardsPool(ctx context.Context, in *MsgIncrementBlockRewardsPool, opts ...grpc.CallOption) (*MsgIncrementBlockRewardsPoolResponse, error)
-	SetVbrParams(ctx context.Context, in *MsgSetVbrParams, opts ...grpc.CallOption) (*MsgSetVbrParamsResponse, error)
+	SetParams(ctx context.Context, in *MsgSetParams, opts ...grpc.CallOption) (*MsgSetParamsResponse, error)
 }
 
 type msgClient struct {
@@ -287,9 +287,9 @@ func (c *msgClient) IncrementBlockRewardsPool(ctx context.Context, in *MsgIncrem
 	return out, nil
 }
 
-func (c *msgClient) SetVbrParams(ctx context.Context, in *MsgSetVbrParams, opts ...grpc.CallOption) (*MsgSetVbrParamsResponse, error) {
-	out := new(MsgSetVbrParamsResponse)
-	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.vbr.Msg/SetVbrParams", in, out, opts...)
+func (c *msgClient) SetParams(ctx context.Context, in *MsgSetParams, opts ...grpc.CallOption) (*MsgSetParamsResponse, error) {
+	out := new(MsgSetParamsResponse)
+	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.vbr.Msg/SetParams", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +300,7 @@ func (c *msgClient) SetVbrParams(ctx context.Context, in *MsgSetVbrParams, opts 
 type MsgServer interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
 	IncrementBlockRewardsPool(context.Context, *MsgIncrementBlockRewardsPool) (*MsgIncrementBlockRewardsPoolResponse, error)
-	SetVbrParams(context.Context, *MsgSetVbrParams) (*MsgSetVbrParamsResponse, error)
+	SetParams(context.Context, *MsgSetParams) (*MsgSetParamsResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -310,8 +310,8 @@ type UnimplementedMsgServer struct {
 func (*UnimplementedMsgServer) IncrementBlockRewardsPool(ctx context.Context, req *MsgIncrementBlockRewardsPool) (*MsgIncrementBlockRewardsPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IncrementBlockRewardsPool not implemented")
 }
-func (*UnimplementedMsgServer) SetVbrParams(ctx context.Context, req *MsgSetVbrParams) (*MsgSetVbrParamsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetVbrParams not implemented")
+func (*UnimplementedMsgServer) SetParams(ctx context.Context, req *MsgSetParams) (*MsgSetParamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetParams not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -336,20 +336,20 @@ func _Msg_IncrementBlockRewardsPool_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_SetVbrParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSetVbrParams)
+func _Msg_SetParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSetParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).SetVbrParams(ctx, in)
+		return srv.(MsgServer).SetParams(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/commercionetwork.commercionetwork.vbr.Msg/SetVbrParams",
+		FullMethod: "/commercionetwork.commercionetwork.vbr.Msg/SetParams",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SetVbrParams(ctx, req.(*MsgSetVbrParams))
+		return srv.(MsgServer).SetParams(ctx, req.(*MsgSetParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -363,8 +363,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_IncrementBlockRewardsPool_Handler,
 		},
 		{
-			MethodName: "SetVbrParams",
-			Handler:    _Msg_SetVbrParams_Handler,
+			MethodName: "SetParams",
+			Handler:    _Msg_SetParams_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -438,7 +438,7 @@ func (m *MsgIncrementBlockRewardsPoolResponse) MarshalToSizedBuffer(dAtA []byte)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgSetVbrParams) Marshal() (dAtA []byte, err error) {
+func (m *MsgSetParams) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -448,12 +448,12 @@ func (m *MsgSetVbrParams) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgSetVbrParams) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgSetParams) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgSetVbrParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgSetParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -485,7 +485,7 @@ func (m *MsgSetVbrParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgSetVbrParamsResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgSetParamsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -495,12 +495,12 @@ func (m *MsgSetVbrParamsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgSetVbrParamsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgSetParamsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgSetVbrParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgSetParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -547,7 +547,7 @@ func (m *MsgIncrementBlockRewardsPoolResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgSetVbrParams) Size() (n int) {
+func (m *MsgSetParams) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -566,7 +566,7 @@ func (m *MsgSetVbrParams) Size() (n int) {
 	return n
 }
 
-func (m *MsgSetVbrParamsResponse) Size() (n int) {
+func (m *MsgSetParamsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -747,7 +747,7 @@ func (m *MsgIncrementBlockRewardsPoolResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgSetVbrParams) Unmarshal(dAtA []byte) error {
+func (m *MsgSetParams) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -770,10 +770,10 @@ func (m *MsgSetVbrParams) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetVbrParams: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgSetParams: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetVbrParams: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgSetParams: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -895,7 +895,7 @@ func (m *MsgSetVbrParams) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgSetVbrParamsResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgSetParamsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -918,10 +918,10 @@ func (m *MsgSetVbrParamsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetVbrParamsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgSetParamsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetVbrParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgSetParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

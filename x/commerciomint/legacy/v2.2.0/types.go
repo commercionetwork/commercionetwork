@@ -3,11 +3,12 @@ package v2_2_0
 import (
 	"time"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
-	ModuleName = "commerciomint"
+	ModuleName = types.ModuleName
 )
 
 type Position struct {
@@ -19,7 +20,7 @@ type Position struct {
 	ExchangeRate sdk.Dec        `json:"exchange_rate"`
 }
 
-// GenesisState - government genesis state
+// GenesisState - commerciomint genesis state
 type GenesisState struct {
 	Positions           []Position    `json:"positions"`
 	LiquidityPoolAmount sdk.Coins     `json:"pool_amount"`

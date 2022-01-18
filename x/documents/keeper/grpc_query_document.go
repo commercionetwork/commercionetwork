@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -12,35 +13,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-/*
-func (k Keeper) DocumentAll(c context.Context, req *types.QueryAllDocumentRequest) (*types.QueryAllDocumentResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
-	}
-
-	var documents []*types.Document
-	ctx := sdk.UnwrapSDKContext(c)
-
-	store := ctx.KVStore(k.storeKey)
-	documentStore := prefix.NewStore(store, types.KeyPrefix(types.DocumentKey))
-
-	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
-		var document types.Document
-		if err := k.cdc.UnmarshalBinaryBare(value, &document); err != nil {
-			return err
-		}
-
-		documents = append(documents, &document)
-		return nil
-	})
-
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &types.QueryAllDocumentResponse{Document: documents, Pagination: pageRes}, nil
-}
-*/
 func (k Keeper) Document(c context.Context, req *types.QueryGetDocumentRequest) (*types.QueryGetDocumentResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -53,7 +25,6 @@ func (k Keeper) Document(c context.Context, req *types.QueryGetDocumentRequest) 
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 	store := ctx.KVStore(k.storeKey)
-	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DocumentKey))
 	k.cdc.MustUnmarshalBinaryBare(store.Get(getDocumentStoreKey(req.UUID)), &document)
 
 	return &types.QueryGetDocumentResponse{Document: &document}, nil
@@ -70,12 +41,10 @@ func (k Keeper) SentDocuments(c context.Context, req *types.QueryGetSentDocument
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, e
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
 	}
 	documentStore := prefix.NewStore(store, getSentDocumentsIdsStoreKey(userAddress))
 
-	//setPaginationLimit(req.Pagination)
-	//req.Pagination.Limit = uint64(10)
 	pageRes, err := query.Paginate(
 		documentStore,
 		req.Pagination,
@@ -111,12 +80,10 @@ func (k Keeper) ReceivedDocument(c context.Context, req *types.QueryGetReceivedD
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, e
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
 	}
 	documentStore := prefix.NewStore(store, getReceivedDocumentsIdsStoreKey(userAddress))
 
-	//setPaginationLimit(req.Pagination)
-	//req.Pagination.Limit = uint64(10)
 	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
 		receivedDocument, err := k.GetDocumentByID(ctx, string(value))
 		if err != nil {
@@ -145,12 +112,10 @@ func (k Keeper) SentDocumentsReceipts(c context.Context, req *types.QueryGetSent
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, e
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", e))
 	}
 	documentStore := prefix.NewStore(store, getSentReceiptsIdsStoreKey(userAddress))
 
-	//setPaginationLimit(req.Pagination)
-	//req.Pagination.Limit = uint64(10)
 	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
 		sentReceipt, err := k.GetReceiptByID(ctx, string(value))
 		if err != nil {
@@ -173,21 +138,16 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	/*if req.Pagination.Limit == uint64(0) {
-		setPaginationLimit(req.Pagination)
-	}*/
-
 	var receivedReceipts []*types.DocumentReceipt
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, e
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
 	}
 	documentStore := prefix.NewStore(store, getReceivedReceiptsIdsStoreKey(userAddress))
 
-	//req.Pagination.Limit = uint64(10)
 	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
 		receivedReceipt, err := k.GetReceiptByID(ctx, string(value))
 		if err != nil {
@@ -204,8 +164,3 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 
 	return &types.QueryGetReceivedDocumentsReceiptsResponse{ReceiptReceived: receivedReceipts, Pagination: pageRes}, nil
 }
-
-/*
-func setPaginationLimit(pageRequest *query.PageRequest) {
-	pageRequest.Limit = uint64(3)
-}*/

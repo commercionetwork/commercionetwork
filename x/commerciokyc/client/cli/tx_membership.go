@@ -14,7 +14,7 @@ func CmdBuy() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "buy [subscriber] [membership-type]",
 		Short: "Tsp buy a membership for subscriber",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return buyMembershipFunc(cmd, args)
 		},
@@ -38,16 +38,7 @@ func buyMembershipFunc(cmd *cobra.Command, args []string) error {
 	}
 	membershipType := args[1]
 
-	// TODO MODIFY THIS: better to implement NewMsgBuyMembership with data entry and not with membership struct
-	// ------
-	membership := types.Membership{
-		MembershipType: membershipType,
-		Owner:          buyer.String(),
-		TspAddress:     tsp.String(),
-	}
-	msg := types.NewMsgBuyMembership(membership)
-	// ------
-
+	msg := types.NewMsgBuyMembership(membershipType, buyer, tsp)
 	err = msg.ValidateBasic()
 	if err != nil {
 		return err

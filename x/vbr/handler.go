@@ -22,8 +22,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			res, err := msgServer.IncrementBlockRewardsPool(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		
-		case *types.MsgSetVbrParams:
-			res, err := msgServer.SetVbrParams(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgSetParams:
+			res, err := msgServer.SetParams(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		default:

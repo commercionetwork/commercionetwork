@@ -10,8 +10,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//	bType "github.com/commercionetwork/commercionetwork/x/basic/types"
-	// this line is used by starport scaffolding # ibc/keeper/import
 )
 
 const (
@@ -26,9 +24,6 @@ type (
 		cdc      codec.Marshaler
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
-		/*channelKeeper types.ChannelKeeper
-		portKeeper    types.PortKeeper
-		scopedKeeper  types.ScopedKeeper*/
 	}
 )
 
@@ -36,17 +31,11 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	storeKey,
 	memKey sdk.StoreKey,
-	/*channelKeeper types.ChannelKeeper,
-	portKeeper types.PortKeeper,
-	scopedKeeper types.ScopedKeeper,*/
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
 		memKey:   memKey,
-		/*channelKeeper: channelKeeper,
-		portKeeper:    portKeeper,
-		scopedKeeper:  scopedKeeper,*/
 	}
 }
 
@@ -72,7 +61,6 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	}
 
 	// Store the document object
-	//store := prefix.NewStore(ctx.KVStore(keeper.storeKey), types.KeyPrefix(types.DocumentKey))
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshalBinaryBare(&document))
 
@@ -139,9 +127,7 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	store := ctx.KVStore(keeper.storeKey)
 	senderAccadrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
 	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccadrr, receipt.DocumentUUID)
-	//sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(sdk.AccAddress(receipt.Sender), receipt.DocumentUUID)
 	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
-	//receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(sdk.AccAddress(receipt.Recipient), receipt.DocumentUUID)
 	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.DocumentUUID)
 
 	marshaledRecepit := keeper.cdc.MustMarshalBinaryBare(&receipt)
@@ -189,8 +175,6 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 
 // ExtractReceipt returns a DocumentReceipt slice instance and its UUID given an iterator byte stream value.
 func (keeper Keeper) ExtractReceipt(ctx sdk.Context, iterVal []byte) (types.DocumentReceipt, string, error) {
-	/*var rid bType.StringContainer
-	keeper.cdc.MustUnmarshalBinaryBare(iterVal, &rid)*/
 	rid := string(iterVal)
 
 	newReceipt, err := keeper.GetReceiptByID(ctx, rid)

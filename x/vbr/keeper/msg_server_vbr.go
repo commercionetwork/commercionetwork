@@ -12,9 +12,6 @@ import (
 func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.MsgIncrementBlockRewardsPool) (*types.MsgIncrementBlockRewardsPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: Handling the message
-	_ = ctx
-
 	//return &types.MsgIncrementBlockRewardsPoolResponse{}, nil
 	funderAddr, e := sdk.AccAddressFromBech32(msg.Funder)
 	if e != nil {
@@ -31,7 +28,7 @@ func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.M
 	return &types.MsgIncrementBlockRewardsPoolResponse{}, nil
 }
 
-func (k msgServer) SetVbrParams(goCtx context.Context, msg *types.MsgSetVbrParams) (*types.MsgSetVbrParamsResponse, error) {
+func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*types.MsgSetParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	gov := k.govKeeper.GetGovernmentAddress(ctx)
@@ -40,19 +37,19 @@ func (k msgServer) SetVbrParams(goCtx context.Context, msg *types.MsgSetVbrParam
 		return nil, e
 	}
 	if !(gov.Equals(msgGovAddr)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set reward rate", msg.Government))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set params", msg.Government))
 	}
 	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute{
-		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
+		return &types.MsgSetParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
 	if msg.EarnRate.IsNegative() {
-		return &types.MsgSetVbrParamsResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
+		return &types.MsgSetParamsResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
 	}
 	params := types.Params{
 			DistrEpochIdentifier: msg.DistrEpochIdentifier,
 			EarnRate: msg.EarnRate,
 		}
-	k.SetParams(ctx, params)
+	k.SetParamSet(ctx, params)
 	
-	return &types.MsgSetVbrParamsResponse{}, nil
+	return &types.MsgSetParamsResponse{}, nil
 }

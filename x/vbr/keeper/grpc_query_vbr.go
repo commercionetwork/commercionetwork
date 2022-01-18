@@ -23,13 +23,13 @@ func (k Keeper) GetBlockRewardsPoolFunds(goCtx context.Context,  req *types.Quer
 	return &types.QueryGetBlockRewardsPoolFundsResponse{Funds: funds}, nil
 }
 
-func (k Keeper) GetVbrParams(goCtx context.Context, req *types.QueryGetVbrParamsRequest) (*types.QueryGetVbrParamsResponse, error){
+func (k Keeper) GetParams(goCtx context.Context, req *types.QueryGetParamsRequest) (*types.QueryGetParamsResponse, error){
 	if req == nil {
         return nil, status.Error(codes.InvalidArgument, "invalid request")
     }
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	params := k.GetParams(ctx)
+	params := k.GetParamSet(ctx)
 	
-	return &types.QueryGetVbrParamsResponse{Params: params}, nil
+	return &types.QueryGetParamsResponse{Params: params}, nil
 }

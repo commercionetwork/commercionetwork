@@ -41,12 +41,12 @@ func getEtpsFunc(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	params := &types.QueryEtpRequestByOwner{
-		Owner: sender.String(),
+	params := &types.QueryEtpsByOwnerRequest{
+		Owner:      sender.String(),
 		Pagination: pageReq,
 	}
 
-	res, err := queryClient.EtpByOwner(context.Background(), params)
+	res, err := queryClient.EtpsByOwner(context.Background(), params)
 	if err != nil {
 		return err
 	}

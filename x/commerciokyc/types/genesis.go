@@ -14,6 +14,7 @@ func DefaultGenesis() *GenesisState {
 		LiquidityPoolAmount: sdk.Coins(nil),
 		Invites:             []*Invite(nil),
 		Memberships:         []*Membership(nil),
+		Params:              Params{CheckMembershipsEpochIdentifier: "day"},
 	}
 }
 
@@ -22,14 +23,15 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 
 	// this line is used by starport scaffolding # genesis/types/validate
-	/*coins := sdk.Coins{}
-	for _, coin := range gs.LiquidityPoolAmount {
-		coins = append(coins, *coin)
-	}*/
 	coins := gs.LiquidityPoolAmount
 
 	if coins.IsAnyNegative() {
 		return errors.New("liquidity pool amount cannot contain negative values")
+	}
+
+	err := gs.Params.Validate()
+	if err != nil {
+		return err
 	}
 
 	return nil

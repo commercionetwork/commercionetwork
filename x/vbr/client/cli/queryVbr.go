@@ -19,7 +19,6 @@ func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
 			cliCtx := client.GetClientContextFromCmd(cmd)
 			
 			queryClient := types.NewQueryClient(cliCtx)
-			//route := fmt.Sprintf("custom/%s/%s", querierRoute, types.QueryBlockRewardsPoolFunds)
 			params := &types.QueryGetBlockRewardsPoolFundsRequest{}
 			res, err := queryClient.GetBlockRewardsPoolFunds(cmd.Context(), params)
 			if err != nil {
@@ -36,7 +35,7 @@ func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
 	return cmd
 }
 
-func getVbrParams() *cobra.Command {
+func getParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-params",
 		Short: "Get the actual params of vbr",
@@ -46,8 +45,8 @@ func getVbrParams() *cobra.Command {
 
 			queryClient := types.NewQueryClient(cliCtx)
 		
-			req := &types.QueryGetVbrParamsRequest{}
-			res, err := queryClient.GetVbrParams(cmd.Context(), req)
+			req := &types.QueryGetParamsRequest{}
+			res, err := queryClient.GetParams(cmd.Context(), req)
 			if err != nil {
 				return fmt.Errorf("could not get total funds amount: %s", err)
 			}

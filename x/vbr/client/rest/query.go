@@ -12,7 +12,7 @@ import (
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc("/vbr/funds", getRetrieveBlockRewardsPoolFunds(cliCtx)).Methods("GET")
-	r.HandleFunc("/vbr/params", getVbrParamsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/vbr/params", getParamsHandler(cliCtx)).Methods("GET")
 }
 
 
@@ -36,9 +36,9 @@ func getRetrieveBlockRewardsPoolFunds(cliCtx client.Context) http.HandlerFunc {
 }
 
 
-func getVbrParamsHandler(cliCtx client.Context) http.HandlerFunc {
+func getParamsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryVbrParams)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryParams)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())

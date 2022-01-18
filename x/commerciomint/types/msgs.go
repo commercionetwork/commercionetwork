@@ -10,7 +10,9 @@ import (
 
 var _ sdk.Msg = &MsgMintCCC{}
 
+// -------------------------
 // MsgMintCCC
+// -------------------------
 
 func NewMsgMintCCC(position Position) *MsgMintCCC {
 	var depositAmount []*sdk.Coin
@@ -46,11 +48,8 @@ func (msg *MsgMintCCC) GetSignBytes() []byte {
 }
 
 func (msg *MsgMintCCC) ValidateBasic() error {
-	depositor, err := sdk.AccAddressFromBech32(msg.Depositor)
+	_, err := sdk.AccAddressFromBech32(msg.Depositor)
 	if err != nil {
-		return err
-	}
-	if depositor.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor)
 	}
 
@@ -62,7 +61,6 @@ func (msg *MsgMintCCC) ValidateBasic() error {
 	for _, coin := range msg.DepositAmount {
 		coins = append(coins, *coin)
 	}
-	sdk.NewCoins()
 	if !ValidateDeposit(coins) {
 		return errors.Wrap(errors.ErrInvalidCoins, coins.String())
 	}
@@ -70,7 +68,11 @@ func (msg *MsgMintCCC) ValidateBasic() error {
 	return nil
 }
 
+// -------------------------
 // MsgBurnCCC
+// -------------------------
+
+var _ sdk.Msg = &MsgBurnCCC{}
 
 // TODO REVIEW MESSAGES CREATOR
 func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) *MsgBurnCCC {
@@ -103,11 +105,8 @@ func (msg *MsgBurnCCC) GetSignBytes() []byte {
 }
 
 func (msg *MsgBurnCCC) ValidateBasic() error {
-	signer, err := sdk.AccAddressFromBech32(msg.Signer)
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return err
-	}
-	if signer.Empty() {
 		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
 
@@ -121,93 +120,55 @@ func (msg *MsgBurnCCC) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgSetCCCConversionRate
+// -------------------------
+// --- MsgSetParams
+// -------------------------
 
-// TODO REVIEW MESSAGES CREATOR
-func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Dec) *MsgSetCCCConversionRate {
-	return &MsgSetCCCConversionRate{
-		Signer: signer.String(),
-		Rate:   rate,
+var _ sdk.Msg = &MsgSetParams{}
+
+func NewMsgSetParams(government string, conversionRate sdk.Dec, freezePeriod time.Duration) *MsgSetParams {
+	params := Params{
+		ConversionRate: conversionRate,
+		FreezePeriod:   freezePeriod,
+	}
+
+	return &MsgSetParams{
+		Signer: government,
+		Params: &params,
 	}
 }
 
-func (msg *MsgSetCCCConversionRate) Route() string {
-	return ModuleName
+func (msg *MsgSetParams) Route() string {
+	return RouterKey
 }
 
-func (msg *MsgSetCCCConversionRate) Type() string {
-	return MsgTypeSetCCCConversionRate
+func (msg *MsgSetParams) Type() string {
+	return MsgTypeSetParams
 }
 
-func (msg *MsgSetCCCConversionRate) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.Signer)
+func (msg *MsgSetParams) GetSigners() []sdk.AccAddress {
+	gov, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return nil
+		panic(err)
 	}
-	return []sdk.AccAddress{creator}
+	return []sdk.AccAddress{gov}
 }
 
-func (msg *MsgSetCCCConversionRate) GetSignBytes() []byte {
+func (msg *MsgSetParams) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-// TODO remove duplicate validation
-func (msg *MsgSetCCCConversionRate) ValidateBasic() error {
+func (msg *MsgSetParams) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
+		return errors.Wrapf(errors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
-
-	/*if sdk.AccAddress(msg.Signer).Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
-	}*/
-	return ValidateConversionRate(msg.Rate)
-}
-
-// NewMsgSetCCCFreezePeriod
-
-// TODO REVIEW MESSAGES CREATOR
-func NewMsgSetCCCFreezePeriod(signer sdk.AccAddress, freezePeriod string) *MsgSetCCCFreezePeriod {
-	return &MsgSetCCCFreezePeriod{
-		Signer:       signer.String(),
-		FreezePeriod: freezePeriod,
-	}
-}
-
-func (msg *MsgSetCCCFreezePeriod) Route() string {
-	return ModuleName
-}
-
-func (msg *MsgSetCCCFreezePeriod) Type() string {
-	return MsgTypeSetCCCFreezePeriod
-}
-
-func (msg *MsgSetCCCFreezePeriod) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.Signer)
-	if err != nil {
-		return nil
-	}
-	return []sdk.AccAddress{creator}
-}
-
-func (msg *MsgSetCCCFreezePeriod) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
-}
-
-func (msg *MsgSetCCCFreezePeriod) ValidateBasic() error {
-	signer, err := sdk.AccAddressFromBech32(msg.Signer)
-	if err != nil {
-		return err
-	}
-	if signer.Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
-	}
-	// TODO move all control into method ValidateFreezePeriod
-	freezePeriod, err := time.ParseDuration(msg.FreezePeriod)
-	if err != nil {
-		return errors.Wrap(errors.ErrInvalidRequest, err.Error())
-	}
-	return ValidateFreezePeriod(freezePeriod)
+	/*
+		err = msg.Params.Validate()
+		if err != nil {
+			return errors.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
+		}
+	*/
+	return nil
 }

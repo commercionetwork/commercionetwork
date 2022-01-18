@@ -14,7 +14,7 @@ const (
 	QuerierRoute = ModuleName
 
 	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "mem_id"
+	MemStoreKey = "mem_did"
 
 	// Version defines the current version the IBC module supports
 	Version = "did-1"
@@ -28,21 +28,7 @@ const (
 	// Context
 	ContextDidV1 = "https://www.w3.org/ns/did/v1"
 
-	// key types
-	KeyTypeRsaVerification   = "RsaVerificationKey2018"
-	KeyTypeRsaSignature      = "RsaSignatureKey2018"
-	KeyTypeSecp256k1         = "Secp256k1VerificationKey2018"
-	KeyTypeSecp256k12019     = "EcdsaSecp256k1VerificationKey2019"
-	KeyTypeEd25519           = "Ed25519VerificationKey2018"
-	KeyTypeBls12381G1Key2020 = "Bls12381G1Key2020"
-	KeyTypeBls12381G2Key2020 = "Bls12381G2Key2020"
-
-	DidPowerUpRequestStorePrefix               = StoreKey + "powerUpRequest"
-	HandledPowerUpRequestsReferenceStorePrefix = StoreKey + "handledPowerUpRequestsReference"
-	
-	StatusApproved = "approved"
-	StatusRejected = "rejected"
-	StatusCanceled = "canceled"
+	MsgTypeSetDid = "MsgSetDid"
 
 	// --------------
 	// --- Queries
@@ -50,15 +36,50 @@ const (
 
 	QueryResolveDid = "identities"
 
-	QueryResolvePowerUpRequest     = "powerUpRequest"
-	QueryGetApprovedPowerUpRequest = "approvedPowerUpRequest"
-	QueryGetRejectedPowerUpRequest = "rejectedPowerUpRequest"
-	QueryGetPendingPowerUpRequest  = "pendingPowerUpRequest"
+	// --------------
+	// --- KeyTypes required for the Documents module
+	// --------------
+	MultibaseCodeBase64 = 'm'
+
+	RsaVerificationKey2018 = "RsaVerificationKey2018"
+	RsaSignature2018       = "RsaSignature2018"
+
+	RsaVerificationKey2018NameSuffix = "#keys-1"
+	RsaSignature2018NameSuffix       = "#keys-2"
+
+	// Lenght Limits
+	serviceLenghtLimitID              = 56
+	serviceLenghtLimitType            = 56
+	serviceLenghtLimitServiceEndpoint = 256
+)
+
+var (
+	// https://www.w3.org/TR/did-spec-registries/#verification-method-types
+	verificationMethodTypes = []string{
+		"Ed25519Signature2018",
+		"Ed25519VerificationKey2018",
+		RsaSignature2018,       // documents
+		RsaVerificationKey2018, // documents
+		"EcdsaSecp256k1Signature2019",
+		"EcdsaSecp256k1VerificationKey2019",
+		"EcdsaSecp256k1RecoverySignature2020",
+		"EcdsaSecp256k1RecoveryMethod2020",
+		"JsonWebSignature2020",
+		"JwsVerificationKey2020",
+		"GpgSignature2020",
+		"GpgVerificationKey2020",
+		"JcsEd25519Signature2020",
+		"JcsEd25519Key2020",
+		"BbsBlsSignature2020",      // vca
+		"BbsBlsSignatureProof2020", // vca
+		"Bls12381G1Key2020",
+		"Bls12381G2Key2020",
+	}
 )
 
 var (
 	// PortKey defines the key to store the port ID in store
-	PortKey = KeyPrefix("id-port-")
+	PortKey = KeyPrefix("did-port-")
 )
 
 func KeyPrefix(p string) []byte {

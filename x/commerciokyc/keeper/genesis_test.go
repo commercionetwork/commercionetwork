@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	"github.com/stretchr/testify/require"
@@ -14,17 +13,19 @@ import (
 
 // TODO: fail test
 func TestDefaultGenesisState(t *testing.T) {
-	expted := types.GenesisState{}
+	expted := types.GenesisState{
+		Params: types.DefaultParams(),
+	}
 	require.Equal(t, expted, *types.DefaultGenesis())
 }
 
 func TestInitGenesis(t *testing.T) {
 	defGen := types.DefaultGenesis()
 	ctx, _, _, k := SetupTestInput()
-	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite(nil), TrustedServiceProviders: nil, Memberships: []*types.Membership(nil)}, defGen)
-	commerciokyc.InitGenesis(ctx, k, *defGen)
-	export := commerciokyc.ExportGenesis(ctx, k)
-	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite{}, TrustedServiceProviders: nil, Memberships: []*types.Membership{}}, export)
+	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite(nil), TrustedServiceProviders: nil, Memberships: []*types.Membership(nil), Params: types.DefaultParams()}, defGen)
+	k.InitGenesis(ctx, *defGen)
+	export := k.ExportGenesis(ctx)
+	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite{}, TrustedServiceProviders: nil, Memberships: []*types.Membership{}, Params: types.DefaultParams()}, export)
 
 	var tsps []string
 	tsps = append(tsps, "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
@@ -46,10 +47,11 @@ func TestInitGenesis(t *testing.T) {
 		Invites:                 invites,
 		Memberships:             memberships,
 		TrustedServiceProviders: tsps,
+		Params:                  types.DefaultParams(),
 	}
-	commerciokyc.InitGenesis(ctx, k, genStateWithData)
+	k.InitGenesis(ctx, genStateWithData)
 
-	export = commerciokyc.ExportGenesis(ctx, k)
+	export = k.ExportGenesis(ctx)
 
 	require.Equal(t, genStateWithData.Invites, export.Invites)
 	//require.Equal(t, genStateWithData.Memberships, export.Memberships) // TODO fix expiryAt

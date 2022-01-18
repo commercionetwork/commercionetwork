@@ -16,18 +16,20 @@ import (
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryGetEtp:
+		case types.QueryGetEtpRest:
 			return queryGetEtp(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetEtpsByOwner:
+		case types.QueryGetEtpsByOwnerRest:
 			return queryGetEtpsByOwner(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetallEtps:
-			return queryGetAllEtp(ctx, k, legacyQuerierCdc)
+		case types.QueryGetallEtpsRest:
+			return queryGetAllEtps(ctx, k, legacyQuerierCdc)
 		case types.QueryConversionRateRest:
-			return queryConversionRate(ctx, k, legacyQuerierCdc)
+			return queryGetConversionRate(ctx, k, legacyQuerierCdc)
 		case types.QueryFreezePeriodRest:
-			return queryFreezePeriod(ctx, k,legacyQuerierCdc)
+			return queryGetFreezePeriod(ctx, k, legacyQuerierCdc)
+		case types.QueryGetParamsRest:
+			return queryGetParams(ctx, k, legacyQuerierCdc)
 		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -36,7 +38,7 @@ func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *cod
 	id := path[0]
 	etp, ok := k.GetPositionById(ctx, id)
 	if !ok {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Posistion with id: %s not found!", id))
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("position with id: %s not found!", id))
 	}
 
 	etpbz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etp)
@@ -50,7 +52,7 @@ func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *cod
 func queryGetEtpsByOwner(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	ownerAddr, e := sdk.AccAddressFromBech32(path[0])
 	if e != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("The given address: %s is not valid!", path[0]))
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("invalid address %s", path[0]))
 	}
 	etps := k.GetAllPositionsOwnedBy(ctx, ownerAddr)
 	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
@@ -61,7 +63,7 @@ func queryGetEtpsByOwner(ctx sdk.Context, path []string, k Keeper, legacyQuerier
 	return etpsBz, nil
 }
 
-func queryGetAllEtp(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryGetAllEtps(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	etps := k.GetAllPositions(ctx)
 	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
 	if err != nil {
@@ -71,10 +73,21 @@ func queryGetAllEtp(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmi
 	return etpsBz, nil
 }
 
-func queryConversionRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryGetConversionRate(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetConversionRate(ctx))
 }
 
-func queryFreezePeriod(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryGetFreezePeriod(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	return codec.MarshalJSONIndent(legacyQuerierCdc, k.GetFreezePeriod(ctx))
+}
+
+func queryGetParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	params := k.GetParams(ctx)
+
+	paramsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, params)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+	}
+
+	return paramsBz, nil
 }

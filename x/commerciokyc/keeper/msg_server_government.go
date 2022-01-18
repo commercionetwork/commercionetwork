@@ -15,7 +15,7 @@ func (k msgServer) AddTsp(goCtx context.Context, msg *types.MsgAddTsp) (*types.M
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	msgGovernment, _ := sdk.AccAddressFromBech32(msg.Government)
-	if !k.govKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
+	if !k.GovKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 
@@ -30,10 +30,10 @@ func (k msgServer) AddTsp(goCtx context.Context, msg *types.MsgAddTsp) (*types.M
 	}
 
 	k.AddTrustedServiceProvider(ctx, msgTsp)
-
-	//TODO emits events
-	//ctypes.EmitCommonEvents(ctx, msg.Government)
-
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventAddTsp,
+		sdk.NewAttribute("tsp", msg.Tsp),
+	))
 	return &types.MsgAddTspResponse{
 		Tsp: msg.Tsp,
 	}, nil
@@ -44,12 +44,16 @@ func (k msgServer) RemoveTsp(goCtx context.Context, msg *types.MsgRemoveTsp) (*t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	msgGovernment, _ := sdk.AccAddressFromBech32(msg.Government)
-	if !k.govKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
+	if !k.GovKeeper.GetGovernmentAddress(ctx).Equals(msgGovernment) {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("Invalid government address: %s", msg.Government))
 	}
 
 	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
 	k.RemoveTrustedServiceProvider(ctx, msgTsp)
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventRemoveTsp,
+		sdk.NewAttribute("tsp", msg.Tsp),
+	))
 	return &types.MsgRemoveTspResponse{
 		Tsp: msg.Tsp,
 	}, nil
@@ -61,8 +65,9 @@ func (k msgServer) DepositIntoLiquidityPool(goCtx context.Context, msg *types.Ms
 	if err := k.DepositIntoPool(ctx, msgDepositor, msg.Amount); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
+	coins := k.GetLiquidityPoolAmount(ctx)
 	return &types.MsgDepositIntoLiquidityPoolResponse{
-		AmountPool: msg.Amount, // TODO response with total pool amount
+		AmountPool: coins,
 	}, nil
 
 }

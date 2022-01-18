@@ -3,6 +3,7 @@ package commercionetwork.commercionetwork.commerciokyc;
 
 // this line is used by starport scaffolding # proto/tx/import
 import "commercionetwork/commerciokyc/membership.proto";
+import "commercionetwork/commerciokyc/params.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
@@ -19,9 +20,7 @@ service Msg {
     rpc DepositIntoLiquidityPool(MsgDepositIntoLiquidityPool) returns (MsgDepositIntoLiquidityPoolResponse);
     rpc AddTsp(MsgAddTsp) returns (MsgAddTspResponse);
     rpc RemoveTsp(MsgRemoveTsp) returns (MsgRemoveTspResponse);
-    
-
-    
+    rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
@@ -94,3 +93,11 @@ message MsgSetMembershipResponse {
   string expiry_at = 1;
 }
 
+
+message MsgSetParams {
+  string signer = 1;
+  Params params = 2;
+}
+
+message MsgSetParamsResponse {
+}

@@ -29,8 +29,7 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 
 	}
-
-	// TODO emits events
+	// TODO Emits only if add
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventAddTsp,
 		sdk.NewAttribute("tsp", tsp.String()),
@@ -74,13 +73,51 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, amountCoins); err != nil {
 		return err
 	}
-	/*
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			eventDeposit,
-			sdk.NewAttribute("depositor", depositor.String()),
-			sdk.NewAttribute("amount", amount.String()),
-		))
-	*/
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventDeposit,
+		sdk.NewAttribute("depositor", depositor.String()),
+		sdk.NewAttribute("amount", amount.String()),
+	))
 
 	return nil
+}
+
+// GetTrustedServiceProviders returns the list of signers that are allowed to sign
+// transactions setting a specific accrediter for a user.
+// NOTE. Any user which is not present inside the returned list SHOULD NOT
+// be allowed to send a transaction setting an accrediter for another user.
+func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.TrustedServiceProviders) {
+	store := ctx.KVStore(k.StoreKey)
+
+	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
+	k.Cdc.UnmarshalBinaryBare(signersBz, &signers)
+
+	//k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
+	// Cannot use add govAddress: trust service provider doesn't work proprerly
+	//signers = append(signers, k.governmentKeeper.GetGovernmentAddress(ctx))
+	return signers
+}
+
+// IsTrustedServiceProvider tells if the given signer is a trusted one or not
+func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
+	var signers ctypes.Strings
+	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	return signers.Contains(signer.String()) || signer.Equals(k.GovKeeper.GetGovernmentAddress(ctx))
+}
+
+// TspIterator returns an Iterator for all the tsps stored.
+func (k Keeper) TspIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.StoreKey)
+	return sdk.KVStorePrefixIterator(store, []byte(types.TrustedSignersStoreKey))
+}
+
+// GetPoolFunds returns the funds currently present inside the rewards pool
+func (k Keeper) GetPoolFunds(ctx sdk.Context) sdk.Coins {
+	moduleAccount := k.GetMembershipModuleAccount(ctx)
+	var coins sdk.Coins
+	for _, coin := range k.bankKeeper.GetAllBalances(ctx, moduleAccount.GetAddress()) {
+		coins = append(coins, coin)
+	}
+	return coins
 }

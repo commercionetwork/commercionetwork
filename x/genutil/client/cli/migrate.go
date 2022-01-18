@@ -25,8 +25,9 @@ var migrationMap = map[string][]extypes.MigrationCallback{
 }
 
 const (
-	flagGenesisTime = "genesis-time"
-	flagChainID     = "chain-id"
+	flagGenesisTime   = "genesis-time"
+	flagChainID       = "chain-id"
+	flagInitialHeight = "initial-height"
 )
 
 func MigrationsListCmd() *cobra.Command {
@@ -73,7 +74,7 @@ If you want to migrate from version v2.0.0 to v3.0.0, you need to execute two mi
 To see get a full list of available migrations, use the migrations-list command.
 
 Example:
-$ %s migrate v3.0.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --genesis-time=2019-04-22T17:00:00Z
+$ %s migrate v3.0.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --genesis-time=2019-04-22T17:00:00Z --initial-height 1234
 `, version.AppName, version.AppName),
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -125,6 +126,9 @@ $ %s migrate v3.0.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --gen
 				genDoc.ChainID = chainID
 			}
 
+			initialHeight, _ := cmd.Flags().GetInt(flagInitialHeight)
+			genDoc.InitialHeight = int64(initialHeight)
+
 			bz, err := tmjson.Marshal(genDoc)
 			if err != nil {
 				return errors.Wrap(err, "failed to marshal genesis doc")
@@ -142,6 +146,7 @@ $ %s migrate v3.0.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --gen
 
 	cmd.Flags().String(flagGenesisTime, "", "Override genesis_time with this flag")
 	cmd.Flags().String(flagChainID, "", "Override chain_id with this flag")
+	cmd.Flags().Int(flagInitialHeight, 0, "Override intial height with this flag")
 
 	return cmd
 }

@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"time"
 
+	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
+	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/store"
@@ -39,6 +41,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		paramsTypes.StoreKey,
 		governmentTypes.StoreKey,
 		types.StoreKey,
+		commerciomintTypes.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
 
@@ -58,18 +61,23 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	ctx = ctx.WithBlockTime(time.Now())
 
 	maccPerms := map[string][]string{
-		types.ModuleName: {authTypes.Minter, authTypes.Burner},
+		types.ModuleName:              {authTypes.Minter, authTypes.Burner},
+		commerciomintTypes.ModuleName: {authTypes.Minter, authTypes.Burner},
 	}
 
 	pk := paramsKeeper.NewKeeper(cdc, legacyAmino, keys[paramsTypes.StoreKey], tKeys[paramsTypes.TStoreKey])
 	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
 
-	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("stake", 1))))
+	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 1))))
 
 	//ak.SetModuleAccount(ctx, authTypes.NewEmptyModuleAccount(types.ModuleName))
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
 
+	mintAcc := authTypes.NewEmptyModuleAccount(commerciomintTypes.ModuleName, authTypes.Minter, authTypes.Burner)
+	ak.SetModuleAccount(ctx, mintAcc)
+
+	mk := commerciomintKeeper.NewKeeper(cdc, keys[commerciomintTypes.StoreKey], keys[commerciomintTypes.StoreKey], bk, ak, *govk, app.GetSubspace(commerciomintTypes.ModuleName))
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
 
@@ -77,8 +85,13 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
-		bk, *govk, ak)
+		bk, *govk, ak, *mk, pk.Subspace(types.ModuleName))
 
+	// TODO shall we drop the following?
+	k.MintKeeper.UpdateParams(ctx, validCommercioMintParams)
+	// k.MintKeeper.UpdateConversionRate(ctx, sdk.NewDecWithPrec(7, 1))
+
+	k.GovKeeper.SetGovernmentAddress(ctx, testUser3)
 	return ctx, bk, *govk, *k
 }
 
@@ -110,3 +123,10 @@ var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))
 var yearBlocks = int64(4733640)
 
 var testInviteSender, _ = sdk.AccAddressFromBech32("cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my")
+
+var validConversionRate = sdk.NewDecWithPrec(7, 1)
+var validFreezePeriod time.Duration = 0
+var validCommercioMintParams = commerciomintTypes.Params{
+	ConversionRate: validConversionRate,
+	FreezePeriod:   validFreezePeriod,
+}

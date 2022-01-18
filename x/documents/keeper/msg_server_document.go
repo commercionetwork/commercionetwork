@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (k msgServer) CreateDocument(goCtx context.Context, msg *types.MsgShareDocument) (*types.MsgShareDocumentResponse, error) {
+func (k msgServer) ShareDocument(goCtx context.Context, msg *types.MsgShareDocument) (*types.MsgShareDocumentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	var document = types.Document{
@@ -20,11 +20,7 @@ func (k msgServer) CreateDocument(goCtx context.Context, msg *types.MsgShareDocu
 		EncryptionData: msg.EncryptionData,
 		DoSign:         msg.DoSign,
 	}
-	/*
-	id := k.AppendDocument(
-		ctx,
-		document,
-	)*/
+
 	err := k.SaveDocument(ctx, document)
 	if err != nil {
 		return nil, err
@@ -33,7 +29,7 @@ func (k msgServer) CreateDocument(goCtx context.Context, msg *types.MsgShareDocu
 	return &types.MsgShareDocumentResponse{UUID: document.UUID}, nil
 }
 
-func (k msgServer) SendDocument(goCtx context.Context, msg *types.MsgSendDocumentReceipt) (*types.MsgSendDocumentReceiptResponse, error) {
+func (k msgServer) SendDocumentReceipt(goCtx context.Context, msg *types.MsgSendDocumentReceipt) (*types.MsgSendDocumentReceiptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if err := k.SaveReceipt(ctx, types.DocumentReceipt(*msg)); err != nil {

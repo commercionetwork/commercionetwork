@@ -51,16 +51,6 @@ func (msg *MsgShareDocument) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
-/*
-func (msg *MsgShareDocument) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return sdkErr.Wrapf(sdkErr.ErrInvalidAddress, "invalid creator address (%s)", err)
-	}
-
-	return nil
-}*/
-
 func (msg *MsgShareDocument) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Sender)

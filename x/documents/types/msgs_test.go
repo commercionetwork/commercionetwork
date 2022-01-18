@@ -34,6 +34,41 @@ var msgShareDocumentSchema = MsgShareDocument(Document{
 // --- MsgShareDocument
 // ----------------------
 
+func TestNewMsgShareDocument(t *testing.T) {
+	tests := []struct {
+		name     string
+		document Document
+		want     MsgShareDocument
+	}{
+		{
+			"document creation",
+			Document{
+				UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				ContentURI: "http://www.contentUri.com",
+				Metadata: &DocumentMetadata{
+					ContentURI: "http://www.contentUri.com",
+					Schema: &DocumentMetadataSchema{
+						URI:     "http://www.contentUri.com",
+						Version: "test",
+					},
+				},
+				Checksum: &DocumentChecksum{
+					Value:     "48656c6c6f20476f7068657221234567",
+					Algorithm: "md5",
+				},
+				Sender:     sender.String(),
+				Recipients: append([]string{}, recipient.String()),
+			},
+			msgShareDocumentSchema,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, *NewMsgShareDocument(tt.document))
+		})
+	}
+}
 func TestMsgShareDocument_Route(t *testing.T) {
 	actual := msgShareDocumentSchema.Route()
 	require.Equal(t, QuerierRoute, actual)
@@ -115,10 +150,8 @@ func TestMsgShareDocument_GetSigners(t *testing.T) {
 	require.Equal(t, msgShareDocumentSchema.Sender, actual[0].String())
 }
 
-//controllare
 
 func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
-	/*json := `{"type":"commercio/MsgShareDocument","value":{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0","recipients":["cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"], "uuid":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22","content_uri":"http://www.contentUri.com", "metadata":{"content_uri":"http://www.contentUri.com", "schema":{"uri":"http://www.contentUri.com", "version":"test"},"proof":"proof"},"checksum":{"value":"48656c6c6f20476f7068657221234567","algorithm":"md5"}}}`*/
 	json := `{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0",
 			"recipients":["cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0"], 
 			"UUID":"6a2f41a3-c54c-fce8-32d2-0324e1c32e22", 
@@ -150,6 +183,34 @@ var msgDocumentReceipt = MsgSendDocumentReceipt{
 	TxHash:       "txHash",
 	DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	Proof:        "proof",
+}
+
+func TestNewMsgSendDocumentReceipt(t *testing.T) {
+	tests := []struct {
+		name     string
+		document DocumentReceipt
+		want     MsgSendDocumentReceipt
+	}{
+		{
+			"document receipt creation",
+			DocumentReceipt{
+				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Sender:       sender.String(),
+				Recipient:    recipient.String(),
+				TxHash:       "txHash",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			msgDocumentReceipt,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			actual := NewMsgSendDocumentReceipt(tt.document.UUID, tt.document.Sender, tt.document.Recipient, tt.document.TxHash, tt.document.DocumentUUID, tt.document.Proof)
+			require.Equal(t, tt.want, *actual)
+		})
+	}
 }
 
 func TestMsgDocumentReceipt_Route(t *testing.T) {
@@ -254,66 +315,3 @@ func TestMsgDocumentReceipt_GetSigners(t *testing.T) {
 	require.Equal(t, msgDocumentReceipt.Sender, actual[0].String())
 }
 
-func TestNewMsgShareDocument(t *testing.T) {
-	tests := []struct {
-		name     string
-		document Document
-		want     MsgShareDocument
-	}{
-		{
-			"document creation",
-			Document{
-				UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-				ContentURI: "http://www.contentUri.com",
-				Metadata: &DocumentMetadata{
-					ContentURI: "http://www.contentUri.com",
-					Schema: &DocumentMetadataSchema{
-						URI:     "http://www.contentUri.com",
-						Version: "test",
-					},
-				},
-				Checksum: &DocumentChecksum{
-					Value:     "48656c6c6f20476f7068657221234567",
-					Algorithm: "md5",
-				},
-				Sender:     sender.String(),
-				Recipients: append([]string{}, recipient.String()),
-			},
-			msgShareDocumentSchema,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.want, *NewMsgShareDocument(tt.document))
-		})
-	}
-}
-
-func TestNewMsgSendDocumentReceipt(t *testing.T) {
-	tests := []struct {
-		name     string
-		document DocumentReceipt
-		want     MsgSendDocumentReceipt
-	}{
-		{
-			"document receipt creation",
-			DocumentReceipt{
-				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
-				Sender:       sender.String(),
-				Recipient:    recipient.String(),
-				TxHash:       "txHash",
-				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-				Proof:        "proof",
-			},
-			msgDocumentReceipt,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			actual := NewMsgSendDocumentReceipt(tt.document.UUID, tt.document.Sender, tt.document.Recipient, tt.document.TxHash, tt.document.DocumentUUID, tt.document.Proof)
-			require.Equal(t, tt.want, *actual)
-		})
-	}
-}

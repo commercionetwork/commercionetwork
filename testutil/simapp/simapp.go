@@ -35,6 +35,7 @@ func New(dir string) *app.App {
 	a.InitChain(abci.RequestInitChain{
 		ConsensusParams: defaultConsensusParams,
 		AppStateBytes:   []byte("{}"),
+		ChainId:         "commercionetwork",
 	})
 	return a
 }

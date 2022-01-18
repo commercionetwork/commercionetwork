@@ -30,12 +30,12 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 		keeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	if err := keeper.UpdateConversionRate(ctx, data.CollateralRate); err != nil {
-		panic(err)
+	params := types.Params{
+		ConversionRate: data.Params.ConversionRate,
+		FreezePeriod:   data.Params.FreezePeriod,
 	}
-	freezePeriod := data.FreezePeriod
 
-	if err := keeper.UpdateFreezePeriod(ctx, *freezePeriod); err != nil {
+	if err := keeper.UpdateParams(ctx, params); err != nil {
 		panic(err)
 	}
 
@@ -48,22 +48,15 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 }
 
 // ExportGenesis returns the capability module's exported genesis.
-// TODO move all keeper invocation in keeper package
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
 	// this line is used by starport scaffolding # genesis/module/export
-	collateralRate := k.GetConversionRate(ctx)
-	genesis.CollateralRate = collateralRate
-
-	freezePeriod := k.GetFreezePeriod(ctx)
-	genesis.FreezePeriod = &freezePeriod
+	genesis.Params = k.GetParams(ctx)
 
 	genesis.PoolAmount = k.GetLiquidityPoolAmount(ctx)
 
-	for _, position := range k.GetAllPositions(ctx) {
-		genesis.Positions = append(genesis.Positions, position)
-	}
+	genesis.Positions = append(genesis.Positions, k.GetAllPositions(ctx)...)
 
 	return genesis
 }
@@ -79,10 +72,16 @@ func ValidateGenesis(state types.GenesisState) error {
 	}
 	// PoolAmount
 
-	freezePeriod := state.FreezePeriod
-	err := types.ValidateFreezePeriod(*freezePeriod)
+	freezePeriod := state.Params.FreezePeriod
+	err := types.ValidateFreezePeriod(freezePeriod)
 	if err != nil {
 		return err
 	}
-	return types.ValidateConversionRate(state.CollateralRate)
+
+	err = types.ValidateConversionRate(state.Params.ConversionRate)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

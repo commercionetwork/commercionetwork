@@ -1,12 +1,12 @@
 package cli_test
-/*
+
 import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/stretchr/testify/suite"
 
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
-	"github.com/commercionetwork/commercionetwork/app"
+	//"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/epochs/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 )
@@ -21,7 +21,7 @@ type IntegrationTestSuite struct {
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
-	s.cfg = app.DefaultConfig()
+	s.cfg = network.DefaultConfig()
 
 	s.network = network.New(s.T(), s.cfg)
 
@@ -110,4 +110,3 @@ func (s *IntegrationTestSuite) TestGetCmdEpochsInfos() {
 		})
 	}
 }
-*/

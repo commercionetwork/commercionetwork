@@ -29,22 +29,22 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type QueryResolveDidRequest struct {
+type QueryResolveDidDocumentRequest struct {
 	ID string `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
 }
 
-func (m *QueryResolveDidRequest) Reset()         { *m = QueryResolveDidRequest{} }
-func (m *QueryResolveDidRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryResolveDidRequest) ProtoMessage()    {}
-func (*QueryResolveDidRequest) Descriptor() ([]byte, []int) {
+func (m *QueryResolveDidDocumentRequest) Reset()         { *m = QueryResolveDidDocumentRequest{} }
+func (m *QueryResolveDidDocumentRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryResolveDidDocumentRequest) ProtoMessage()    {}
+func (*QueryResolveDidDocumentRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82b34d99399b1471, []int{0}
 }
-func (m *QueryResolveDidRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryResolveDidDocumentRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryResolveDidRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryResolveDidDocumentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryResolveDidRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryResolveDidDocumentRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -54,41 +54,41 @@ func (m *QueryResolveDidRequest) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *QueryResolveDidRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryResolveDidRequest.Merge(m, src)
+func (m *QueryResolveDidDocumentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryResolveDidDocumentRequest.Merge(m, src)
 }
-func (m *QueryResolveDidRequest) XXX_Size() int {
+func (m *QueryResolveDidDocumentRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryResolveDidRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryResolveDidRequest.DiscardUnknown(m)
+func (m *QueryResolveDidDocumentRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryResolveDidDocumentRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryResolveDidRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryResolveDidDocumentRequest proto.InternalMessageInfo
 
-func (m *QueryResolveDidRequest) GetID() string {
+func (m *QueryResolveDidDocumentRequest) GetID() string {
 	if m != nil {
 		return m.ID
 	}
 	return ""
 }
 
-type QueryResolveDidResponse struct {
+type QueryResolveDidDocumentResponse struct {
 	DidDocument *DidDocument `protobuf:"bytes,1,opt,name=DidDocument,proto3" json:"DidDocument,omitempty"`
 }
 
-func (m *QueryResolveDidResponse) Reset()         { *m = QueryResolveDidResponse{} }
-func (m *QueryResolveDidResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryResolveDidResponse) ProtoMessage()    {}
-func (*QueryResolveDidResponse) Descriptor() ([]byte, []int) {
+func (m *QueryResolveDidDocumentResponse) Reset()         { *m = QueryResolveDidDocumentResponse{} }
+func (m *QueryResolveDidDocumentResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryResolveDidDocumentResponse) ProtoMessage()    {}
+func (*QueryResolveDidDocumentResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82b34d99399b1471, []int{1}
 }
-func (m *QueryResolveDidResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryResolveDidDocumentResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryResolveDidResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryResolveDidDocumentResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryResolveDidResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryResolveDidDocumentResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -98,19 +98,19 @@ func (m *QueryResolveDidResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *QueryResolveDidResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryResolveDidResponse.Merge(m, src)
+func (m *QueryResolveDidDocumentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryResolveDidDocumentResponse.Merge(m, src)
 }
-func (m *QueryResolveDidResponse) XXX_Size() int {
+func (m *QueryResolveDidDocumentResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryResolveDidResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryResolveDidResponse.DiscardUnknown(m)
+func (m *QueryResolveDidDocumentResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryResolveDidDocumentResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryResolveDidResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryResolveDidDocumentResponse proto.InternalMessageInfo
 
-func (m *QueryResolveDidResponse) GetDidDocument() *DidDocument {
+func (m *QueryResolveDidDocumentResponse) GetDidDocument() *DidDocument {
 	if m != nil {
 		return m.DidDocument
 	}
@@ -118,35 +118,35 @@ func (m *QueryResolveDidResponse) GetDidDocument() *DidDocument {
 }
 
 func init() {
-	proto.RegisterType((*QueryResolveDidRequest)(nil), "commercionetwork.commercionetwork.did.QueryResolveDidRequest")
-	proto.RegisterType((*QueryResolveDidResponse)(nil), "commercionetwork.commercionetwork.did.QueryResolveDidResponse")
+	proto.RegisterType((*QueryResolveDidDocumentRequest)(nil), "commercionetwork.commercionetwork.did.QueryResolveDidDocumentRequest")
+	proto.RegisterType((*QueryResolveDidDocumentResponse)(nil), "commercionetwork.commercionetwork.did.QueryResolveDidDocumentResponse")
 }
 
 func init() { proto.RegisterFile("commercionetwork/did/query.proto", fileDescriptor_82b34d99399b1471) }
 
 var fileDescriptor_82b34d99399b1471 = []byte{
-	// 327 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x91, 0x31, 0x4b, 0xc3, 0x40,
-	0x14, 0xc7, 0x7b, 0x05, 0x45, 0xaf, 0xe0, 0x90, 0x41, 0xa5, 0x48, 0x28, 0x85, 0x6a, 0x11, 0xcc,
-	0xd1, 0xba, 0xb8, 0xe8, 0x20, 0x59, 0x32, 0x1a, 0x9c, 0xdc, 0x92, 0xdc, 0x23, 0x3e, 0x6c, 0xee,
-	0xa5, 0xb9, 0x4b, 0xb5, 0x88, 0x8b, 0x9f, 0x40, 0xf0, 0xcb, 0x38, 0x3b, 0x39, 0x16, 0x5c, 0x1c,
-	0xa5, 0xf5, 0x83, 0x48, 0x13, 0xc1, 0x62, 0x3a, 0x14, 0xd7, 0xc7, 0xef, 0xff, 0x7b, 0xef, 0x7f,
-	0xc7, 0x5b, 0x11, 0x25, 0x09, 0x64, 0x11, 0x92, 0x02, 0x73, 0x4b, 0xd9, 0x8d, 0x90, 0x28, 0xc5,
-	0x30, 0x87, 0x6c, 0xec, 0xa4, 0x19, 0x19, 0xb2, 0x3a, 0x7f, 0x09, 0xa7, 0x32, 0x90, 0x28, 0x9b,
-	0x7b, 0x31, 0x51, 0x3c, 0x00, 0x11, 0xa4, 0x28, 0x02, 0xa5, 0xc8, 0x04, 0x06, 0x49, 0xe9, 0x52,
-	0xd2, 0x3c, 0x8c, 0x48, 0x27, 0xa4, 0x45, 0x18, 0x68, 0x28, 0xed, 0x62, 0xd4, 0x0b, 0xc1, 0x04,
-	0x3d, 0x91, 0x06, 0x31, 0xaa, 0x02, 0xfe, 0x61, 0xf7, 0x97, 0x9e, 0x24, 0x51, 0xba, 0x14, 0xe5,
-	0x09, 0x28, 0x53, 0x72, 0xed, 0x2e, 0xdf, 0xbe, 0x98, 0x9b, 0x7c, 0xd0, 0x34, 0x18, 0x81, 0x8b,
-	0xd2, 0x87, 0x61, 0x0e, 0xda, 0x58, 0x5b, 0xbc, 0xee, 0xb9, 0xbb, 0xac, 0xc5, 0xba, 0x9b, 0x7e,
-	0xdd, 0x73, 0xdb, 0xc4, 0x77, 0x2a, 0xa4, 0x4e, 0x49, 0x69, 0xb0, 0x2e, 0x79, 0xc3, 0xfd, 0x35,
-	0x17, 0x99, 0x46, 0xbf, 0xef, 0xac, 0xd4, 0xd9, 0x59, 0x48, 0xfa, 0x8b, 0x9a, 0xfe, 0x2b, 0xe3,
-	0x6b, 0xc5, 0x46, 0xeb, 0x85, 0xf1, 0x0d, 0x4f, 0x82, 0x32, 0x68, 0xc6, 0xd6, 0xe9, 0x8a, 0xde,
-	0xe5, 0xb5, 0x9a, 0x67, 0xff, 0x8d, 0x97, 0x5d, 0xdb, 0x47, 0x8f, 0xef, 0x5f, 0xcf, 0xf5, 0x03,
-	0xab, 0x23, 0x96, 0xbe, 0x30, 0x96, 0x67, 0x22, 0x68, 0x71, 0xef, 0xb9, 0x0f, 0xe7, 0xfe, 0xdb,
-	0xd4, 0x66, 0x93, 0xa9, 0xcd, 0x3e, 0xa7, 0x36, 0x7b, 0x9a, 0xd9, 0xb5, 0xc9, 0xcc, 0xae, 0x7d,
-	0xcc, 0xec, 0xda, 0xd5, 0x49, 0x8c, 0xe6, 0x3a, 0x0f, 0xe7, 0xdb, 0xab, 0xaa, 0xca, 0xe0, 0xae,
-	0xb0, 0x9b, 0x71, 0x0a, 0x3a, 0x5c, 0x2f, 0xbe, 0xee, 0xf8, 0x3b, 0x00, 0x00, 0xff, 0xff, 0x1b,
-	0xe9, 0x13, 0xfa, 0x77, 0x02, 0x00, 0x00,
+	// 324 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x91, 0x31, 0x4b, 0xc3, 0x40,
+	0x14, 0xc7, 0x7b, 0x05, 0x45, 0xaf, 0xe0, 0x90, 0x49, 0x8a, 0x9c, 0xa5, 0x50, 0x15, 0xc1, 0x9c,
+	0xad, 0x8b, 0xb3, 0x44, 0x21, 0xa3, 0xc1, 0xc9, 0xed, 0x92, 0x7b, 0xc4, 0xc3, 0xe6, 0x5e, 0x9a,
+	0xbb, 0xb4, 0x16, 0x71, 0xf1, 0x13, 0x08, 0x7e, 0xa9, 0x8e, 0x45, 0x17, 0x47, 0x69, 0xfd, 0x20,
+	0xd2, 0x44, 0xb0, 0xd8, 0x2a, 0x05, 0xd7, 0x3f, 0xbf, 0xf7, 0xbb, 0xff, 0xbb, 0x47, 0x1b, 0x11,
+	0x26, 0x09, 0x64, 0x91, 0x42, 0x0d, 0x76, 0x80, 0xd9, 0x2d, 0x97, 0x4a, 0xf2, 0x5e, 0x0e, 0xd9,
+	0xd0, 0x4d, 0x33, 0xb4, 0xe8, 0xb4, 0x7e, 0x12, 0xee, 0x42, 0x20, 0x95, 0xac, 0xef, 0xc4, 0x88,
+	0x71, 0x17, 0xb8, 0x48, 0x15, 0x17, 0x5a, 0xa3, 0x15, 0x56, 0xa1, 0x36, 0xa5, 0xa4, 0x7e, 0x18,
+	0xa1, 0x49, 0xd0, 0xf0, 0x50, 0x18, 0x28, 0xed, 0xbc, 0xdf, 0x0e, 0xc1, 0x8a, 0x36, 0x4f, 0x45,
+	0xac, 0x74, 0x01, 0x7f, 0xb1, 0x7b, 0x4b, 0x2b, 0x49, 0x25, 0x3d, 0x8c, 0xf2, 0x04, 0xb4, 0x2d,
+	0xb9, 0xe6, 0x31, 0x65, 0x97, 0x33, 0x53, 0x00, 0x06, 0xbb, 0x7d, 0xf0, 0xbe, 0x81, 0x00, 0x7a,
+	0x39, 0x18, 0xeb, 0x6c, 0xd1, 0xaa, 0xef, 0x6d, 0x93, 0x06, 0x39, 0xd8, 0x0c, 0xaa, 0xbe, 0xd7,
+	0x1c, 0xd0, 0xdd, 0x5f, 0x27, 0x4c, 0x8a, 0xda, 0x80, 0x73, 0x45, 0x6b, 0x73, 0x71, 0x31, 0x5b,
+	0xeb, 0x74, 0xdc, 0x95, 0xfe, 0xc0, 0x9d, 0x17, 0xce, 0x6b, 0x3a, 0x2f, 0x84, 0xae, 0x15, 0x2f,
+	0x3b, 0x23, 0x42, 0x37, 0x7c, 0x09, 0xda, 0x2a, 0x3b, 0x74, 0xce, 0x57, 0xf4, 0xfe, 0xbd, 0x66,
+	0xfd, 0xe2, 0xbf, 0x9a, 0x72, 0xf7, 0xe6, 0xd1, 0xe3, 0xeb, 0xc7, 0x73, 0x75, 0xdf, 0x69, 0xf1,
+	0xa5, 0x17, 0x50, 0x65, 0x6d, 0x05, 0x86, 0xdf, 0xfb, 0xde, 0xc3, 0x59, 0x30, 0x9a, 0x30, 0x32,
+	0x9e, 0x30, 0xf2, 0x3e, 0x61, 0xe4, 0x69, 0xca, 0x2a, 0xe3, 0x29, 0xab, 0xbc, 0x4d, 0x59, 0xe5,
+	0xfa, 0x34, 0x56, 0xf6, 0x26, 0x0f, 0x67, 0x2d, 0x16, 0x55, 0x0b, 0xc1, 0x5d, 0x61, 0xb7, 0xc3,
+	0x14, 0x4c, 0xb8, 0x5e, 0x9c, 0xf6, 0xe4, 0x33, 0x00, 0x00, 0xff, 0xff, 0x1d, 0x48, 0xc8, 0xdd,
+	0x97, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -162,7 +162,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
 	// Queries a DidDocument by id.
-	Identity(ctx context.Context, in *QueryResolveDidRequest, opts ...grpc.CallOption) (*QueryResolveDidResponse, error)
+	Identity(ctx context.Context, in *QueryResolveDidDocumentRequest, opts ...grpc.CallOption) (*QueryResolveDidDocumentResponse, error)
 }
 
 type queryClient struct {
@@ -173,8 +173,8 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) Identity(ctx context.Context, in *QueryResolveDidRequest, opts ...grpc.CallOption) (*QueryResolveDidResponse, error) {
-	out := new(QueryResolveDidResponse)
+func (c *queryClient) Identity(ctx context.Context, in *QueryResolveDidDocumentRequest, opts ...grpc.CallOption) (*QueryResolveDidDocumentResponse, error) {
+	out := new(QueryResolveDidDocumentResponse)
 	err := c.cc.Invoke(ctx, "/commercionetwork.commercionetwork.did.Query/Identity", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -185,14 +185,14 @@ func (c *queryClient) Identity(ctx context.Context, in *QueryResolveDidRequest, 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Queries a DidDocument by id.
-	Identity(context.Context, *QueryResolveDidRequest) (*QueryResolveDidResponse, error)
+	Identity(context.Context, *QueryResolveDidDocumentRequest) (*QueryResolveDidDocumentResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) Identity(ctx context.Context, req *QueryResolveDidRequest) (*QueryResolveDidResponse, error) {
+func (*UnimplementedQueryServer) Identity(ctx context.Context, req *QueryResolveDidDocumentRequest) (*QueryResolveDidDocumentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Identity not implemented")
 }
 
@@ -201,7 +201,7 @@ func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 }
 
 func _Query_Identity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryResolveDidRequest)
+	in := new(QueryResolveDidDocumentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func _Query_Identity_Handler(srv interface{}, ctx context.Context, dec func(inte
 		FullMethod: "/commercionetwork.commercionetwork.did.Query/Identity",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Identity(ctx, req.(*QueryResolveDidRequest))
+		return srv.(QueryServer).Identity(ctx, req.(*QueryResolveDidDocumentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -231,7 +231,7 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	Metadata: "commercionetwork/did/query.proto",
 }
 
-func (m *QueryResolveDidRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryResolveDidDocumentRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -241,12 +241,12 @@ func (m *QueryResolveDidRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryResolveDidRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryResolveDidDocumentRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryResolveDidRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryResolveDidDocumentRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -261,7 +261,7 @@ func (m *QueryResolveDidRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryResolveDidResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryResolveDidDocumentResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -271,12 +271,12 @@ func (m *QueryResolveDidResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryResolveDidResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryResolveDidDocumentResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryResolveDidResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryResolveDidDocumentResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -307,7 +307,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryResolveDidRequest) Size() (n int) {
+func (m *QueryResolveDidDocumentRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -320,7 +320,7 @@ func (m *QueryResolveDidRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryResolveDidResponse) Size() (n int) {
+func (m *QueryResolveDidDocumentResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -339,7 +339,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryResolveDidRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryResolveDidDocumentRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -362,10 +362,10 @@ func (m *QueryResolveDidRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryResolveDidRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryResolveDidDocumentRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryResolveDidRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryResolveDidDocumentRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -421,7 +421,7 @@ func (m *QueryResolveDidRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryResolveDidResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryResolveDidDocumentResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -444,10 +444,10 @@ func (m *QueryResolveDidResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryResolveDidResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryResolveDidDocumentResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryResolveDidResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryResolveDidDocumentResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

@@ -29,12 +29,12 @@ func TestDocumentQuerySingle(t *testing.T) {
 		{
 			desc:     "First",
 			request:  &types.QueryGetDocumentRequest{UUID: msgs[0].UUID},
-			response: &types.QueryGetDocumentResponse{Document: &msgs[0]},
+			response: &types.QueryGetDocumentResponse{Document: msgs[0]},
 		},
 		{
 			desc:     "Second",
 			request:  &types.QueryGetDocumentRequest{UUID: msgs[1].UUID},
-			response: &types.QueryGetDocumentResponse{Document: &msgs[1]},
+			response: &types.QueryGetDocumentResponse{Document: msgs[1]},
 		},
 		{
 			desc:    "KeyNotFound",
@@ -100,11 +100,8 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		for i := 0; i < len(msgs); i += step {
 			resp, err := keeper.SentDocuments(wctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
-			/*for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.Document[j-i])
-			}*/
 			for _, respDocument := range resp.Document {
-				assert.Contains(t, msgs, *respDocument)
+				assert.Contains(t, msgs, respDocument)
 			}
 			next = resp.Pagination.NextKey
 		}
@@ -118,4 +115,168 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		_, err := keeper.SentDocuments(wctx, nil)
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
+}
+
+func TestSentDocuments(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	msgs := createNDocument(keeper, ctx, 5)
+
+	for _, tc := range []struct {
+		desc     string
+		request  *types.QueryGetSentDocumentsRequest
+		response *types.QueryGetSentDocumentsResponse
+		err      error
+	}{
+		{
+			desc:     "First",
+			request:  &types.QueryGetSentDocumentsRequest{Address: msgs[0].Sender},
+			response: &types.QueryGetSentDocumentsResponse{Document: msgs},
+		},
+		{
+			desc:    "Invalid address",
+			request: &types.QueryGetSentDocumentsRequest{},
+			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+		},
+		{
+			desc: "InvalidRequest",
+			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			response, err := keeper.SentDocuments(wctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.Len(t, tc.response.Document, len(response.Document))
+				for i := range tc.response.Document {
+					require.Contains(t, response.Document, tc.response.Document[i])
+				}
+			}
+		})
+	}
+}
+
+func TestReceivedDocument(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	msgs := createNDocument(keeper, ctx, 5)
+	
+	for _, tc := range []struct {
+		desc     string
+		request  *types.QueryGetReceivedDocumentRequest
+		response *types.QueryGetReceivedDocumentResponse
+		err      error
+	}{
+		{
+			desc:     "All received documents",
+			request:  &types.QueryGetReceivedDocumentRequest{Address: msgs[0].Recipients[0]},
+			response: &types.QueryGetReceivedDocumentResponse{ReceivedDocument: msgs},
+		},
+		{
+			desc:    "Invalid address",
+			request: &types.QueryGetReceivedDocumentRequest{},
+			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+		},
+		{
+			desc: "InvalidRequest",
+			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			response, err := keeper.ReceivedDocument(wctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.Len(t, tc.response.ReceivedDocument, len(response.ReceivedDocument))
+				for i := range tc.response.ReceivedDocument {
+					require.Contains(t, response.ReceivedDocument, tc.response.ReceivedDocument[i])
+				}
+			}
+		})
+	}
+}
+
+func TestSentDocumentsReceipts(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	msgs := createNDocumentReceipt(keeper, ctx, 5)
+
+	for _, tc := range []struct {
+		desc     string
+		request  *types.QueryGetSentDocumentsReceiptsRequest
+		response *types.QueryGetSentDocumentsReceiptsResponse
+		err      error
+	}{
+		{
+			desc:     "All sent receipt by user",
+			request:  &types.QueryGetSentDocumentsReceiptsRequest{Address: msgs[0].Sender},
+			response: &types.QueryGetSentDocumentsReceiptsResponse{Receipt: msgs},
+		},
+		{
+			desc:    "Invalid address",
+			request: &types.QueryGetSentDocumentsReceiptsRequest{},
+			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+		},
+		{
+			desc: "InvalidRequest",
+			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			response, err := keeper.SentDocumentsReceipts(wctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.Len(t, tc.response.Receipt, len(response.Receipt))
+				for i := range tc.response.Receipt {
+					require.Contains(t, response.Receipt, tc.response.Receipt[i])
+				}
+			}
+		})
+	}
+}
+
+func TestReceivedDocumentsReceipts(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	msgs := createNDocumentReceipt(keeper, ctx, 5)
+
+	for _, tc := range []struct {
+		desc     string
+		request  *types.QueryGetReceivedDocumentsReceiptsRequest
+		response *types.QueryGetReceivedDocumentsReceiptsResponse
+		err      error
+	}{
+		{
+			desc:     "All received receipt by user",
+			request:  &types.QueryGetReceivedDocumentsReceiptsRequest{Address: msgs[0].Recipient},
+			response: &types.QueryGetReceivedDocumentsReceiptsResponse{ReceiptReceived: msgs},
+		},
+		{
+			desc:    "Invalid address",
+			request: &types.QueryGetReceivedDocumentsReceiptsRequest{},
+			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+		},
+		{
+			desc: "InvalidRequest",
+			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			response, err := keeper.ReceivedDocumentsReceipts(wctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.Len(t, tc.response.ReceiptReceived, len(response.ReceiptReceived))
+				for i := range tc.response.ReceiptReceived {
+					require.Contains(t, response.ReceiptReceived, tc.response.ReceiptReceived[i])
+				}
+			}
+		})
+	}
 }

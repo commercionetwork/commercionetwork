@@ -3,26 +3,28 @@ package commercionetwork.commercionetwork.did;
 
 // this line is used by starport scaffolding # proto/tx/import
 import "commercionetwork/did/didDocument.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
-    rpc SetIdentity(MsgSetIdentity) returns (MsgSetIdentityResponse);
-
+  // this line is used by starport scaffolding # proto/tx/rpc
+  rpc SetDidDocument(MsgSetDidDocument) returns (MsgSetDidDocumentResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
-message MsgSetIdentity {
-  string context = 1;
+
+message MsgSetDidDocument {
+  repeated string context = 1 [ (gogoproto.jsontag) = "@context,omitempty" ];
   string ID = 2;
-  repeated PubKey pubKeys = 3;
-  //Proof proof = 4;
+  repeated VerificationMethod verificationMethod = 3;
+  repeated string authentication = 5;
+  repeated string assertionMethod = 6;
+  repeated string keyAgreement = 9;
+  repeated string capabilityInvocation = 8;
+  repeated string capabilityDelegation = 7;
   repeated Service service = 4;
 }
 
-message MsgSetIdentityResponse {
-  string ID = 1;
-}
-
+message MsgSetDidDocumentResponse { string ID = 1; }

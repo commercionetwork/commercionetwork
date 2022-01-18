@@ -8,81 +8,28 @@ import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 
 message DidDocument {
-  string context = 1;
-  string ID = 2;
-  repeated did.PubKey pubKeys = 3;
-  //did.Proof proof = 4;
-  repeated Service service = 4;
-}
-
-message DidDocumentNew {
-  repeated string context = 1;
+  repeated string context = 1 [ (gogoproto.jsontag) = "@context,omitempty" ];
   string ID = 2;
   repeated VerificationMethod verificationMethod = 3;
-  repeated ServiceNew service = 4;
-  repeated VerificationMethod authentication = 5;
-  repeated VerificationMethod assertionMethod = 6;
-  repeated VerificationMethod capabilityDelegation = 7;
-  repeated VerificationMethod capabilityInvocation = 8;
-  repeated VerificationMethod keyAgreement = 9;
-  google.protobuf.Timestamp created = 10 [(gogoproto.stdtime) = true];
-  google.protobuf.Timestamp updated = 11 [(gogoproto.stdtime) = true];
-  
+  repeated string authentication = 4;
+  repeated string assertionMethod = 5;
+  repeated string keyAgreement = 6;
+  repeated string capabilityInvocation = 7;
+  repeated string capabilityDelegation = 8;
+  repeated Service service = 9;
+  string created = 10;
+  string updated = 11;
 }
 
 message VerificationMethod {
   string ID = 1;
   string Type = 2;
   string Controller = 3;
-  repeated google.protobuf.Any Value = 4;
-  oneof verificationMaterial {
-    google.protobuf.Any jsonWebKey = 5;
-    string publicKeyMultibase = 6;
-  }
-  bool relativeURL = 7;
-}
-
-// This usable for authentication, assertionMethod, capabilityDelegation, capabilityInvocation and keyAgreement
-// but at this moment limit to VerificationMethod
-message Verification {
-  VerificationMethod verificationMethod = 1;
-  int32 relationship = 2;
-  bool embedded = 3;
-}
-
-message ServiceNew {
-  string ID = 1;
-  string type = 2;
-  uint32 Priority = 3;
-  repeated string RecipientKeys = 4;
-  repeated string RoutingKeys = 5;
-  string serviceEndpoint = 6;
-  repeated string Accept = 7;
-  map<string, google.protobuf.Any> Properties = 8;
-  map<string, bool> recipientKeysRelativeURL = 9;
-  map<string, bool> routingKeysRelativeURL = 10;
-  bool relativeURL = 11;
+  string publicKeyMultibase = 6;
 }
 
 message Service {
   string ID = 1;
   string type = 2;
   string serviceEndpoint = 3;
-}
-
-/*
-message Proof {
-  string type = 1;
-  string created = 2;
-  string proofPurpose = 3;
-  string controller = 4;
-  string verificationMethod = 5;
-  string signatureValue = 6;
-}*/
-
-message PubKey {
-  string ID = 1;
-  string type = 2;
-  string controller = 3;
-  string publicKeyPem = 4;
 }

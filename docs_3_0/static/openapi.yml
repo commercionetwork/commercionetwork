@@ -186,22 +186,22 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /commercionetwork/commerciokyc/tsps:
+  /commercionetwork/commerciokyc/params:
     get:
-      summary: |-
-        Queries a ivite by id.
-        Queries all Tsp.
-      operationId: CommercionetworkCommercionetworkCommerciokycTsps
+      summary: 'this line is used by starport scaffolding # 2'
+      operationId: CommercionetworkCommercionetworkCommerciokycParams
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              tsps:
-                type: array
-                items:
-                  type: string
+              params:
+                type: object
+                properties:
+                  checkMembershipsEpochIdentifier:
+                    type: string
+                    title: check_memberships epoch identifier
         default:
           description: An unexpected error response.
           schema:
@@ -222,17 +222,22 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /commercionetwork/commerciomint/conversion_rate:
+  /commercionetwork/commerciokyc/tsps:
     get:
-      operationId: CommercionetworkCommercionetworkCommerciomintConversionRate
+      summary: |-
+        Queries a ivite by id.
+        Queries all Tsp.
+      operationId: CommercionetworkCommercionetworkCommerciokycTsps
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              rate:
-                type: string
+              tsps:
+                type: array
+                items:
+                  type: string
         default:
           description: An unexpected error response.
           schema:
@@ -388,17 +393,22 @@ paths:
           type: boolean
       tags:
         - Query
-  /commercionetwork/commerciomint/freeze_period:
+  /commercionetwork/commerciomint/params:
     get:
-      operationId: CommercionetworkCommercionetworkCommerciomintFreezePeriod
+      operationId: CommercionetworkCommercionetworkCommerciomintParams
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              freezePeriod:
-                type: string
+              params:
+                type: object
+                properties:
+                  conversionRate:
+                    type: string
+                  freezePeriod:
+                    type: string
         default:
           description: An unexpected error response.
           schema:
@@ -486,7 +496,7 @@ paths:
         - Query
   '/commercionetwork/commerciomint/{Owner}/owner':
     get:
-      operationId: CommercionetworkCommercionetworkCommerciomintEtpByOwner
+      operationId: CommercionetworkCommercionetworkCommerciomintEtpsByOwner
       responses:
         '200':
           description: A successful response.
@@ -637,22 +647,44 @@ paths:
                 type: object
                 properties:
                   context:
-                    type: string
+                    type: array
+                    items:
+                      type: string
                   ID:
                     type: string
-                  pubKeys:
+                  verificationMethod:
                     type: array
                     items:
                       type: object
                       properties:
                         ID:
                           type: string
-                        type:
+                        Type:
                           type: string
-                        controller:
+                        Controller:
                           type: string
-                        publicKeyPem:
+                        publicKeyMultibase:
                           type: string
+                  authentication:
+                    type: array
+                    items:
+                      type: string
+                  assertionMethod:
+                    type: array
+                    items:
+                      type: string
+                  keyAgreement:
+                    type: array
+                    items:
+                      type: string
+                  capabilityInvocation:
+                    type: array
+                    items:
+                      type: string
+                  capabilityDelegation:
+                    type: array
+                    items:
+                      type: string
                   service:
                     type: array
                     items:
@@ -664,7 +696,10 @@ paths:
                           type: string
                         serviceEndpoint:
                           type: string
-                    title: did.Proof proof = 4;
+                  created:
+                    type: string
+                  updated:
+                    type: string
         default:
           description: An unexpected error response.
           schema:
@@ -1637,7 +1672,7 @@ paths:
         - Query
   /commercionetwork/vbr/params:
     get:
-      operationId: CommercionetworkCommercionetworkVbrGetVbrParams
+      operationId: CommercionetworkCommercionetworkVbrGetParams
       responses:
         '200':
           description: A successful response.
@@ -23352,6 +23387,14 @@ definitions:
     properties:
       expiryAt:
         type: string
+  commercionetwork.commercionetwork.commerciokyc.MsgSetParamsResponse:
+    type: object
+  commercionetwork.commercionetwork.commerciokyc.Params:
+    type: object
+    properties:
+      checkMembershipsEpochIdentifier:
+        type: string
+        title: check_memberships epoch identifier
   commercionetwork.commercionetwork.commerciokyc.QueryFundsResponse:
     type: object
     properties:
@@ -23418,6 +23461,15 @@ definitions:
             expiryAt:
               type: string
               format: date-time
+  commercionetwork.commercionetwork.commerciokyc.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        type: object
+        properties:
+          checkMembershipsEpochIdentifier:
+            type: string
+            title: check_memberships epoch identifier
   commercionetwork.commercionetwork.commerciokyc.QueryTspsResponse:
     type: object
     properties:
@@ -23782,14 +23834,13 @@ definitions:
     properties:
       ID:
         type: string
-  commercionetwork.commercionetwork.commerciomint.MsgSetCCCConversionRateResponse:
+  commercionetwork.commercionetwork.commerciomint.MsgSetParamsResponse:
+    type: object
+  commercionetwork.commercionetwork.commerciomint.Params:
     type: object
     properties:
-      rate:
+      conversionRate:
         type: string
-  commercionetwork.commercionetwork.commerciomint.MsgSetCCCFreezePeriodResponse:
-    type: object
-    properties:
       freezePeriod:
         type: string
   commercionetwork.commercionetwork.commerciomint.Position:
@@ -23818,11 +23869,6 @@ definitions:
       ID:
         type: string
       exchangeRate:
-        type: string
-  commercionetwork.commercionetwork.commerciomint.QueryConversionRateResponse:
-    type: object
-    properties:
-      rate:
         type: string
   commercionetwork.commercionetwork.commerciomint.QueryEtpResponse:
     type: object
@@ -23917,11 +23963,16 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
-  commercionetwork.commercionetwork.commerciomint.QueryFreezePeriodResponse:
+  commercionetwork.commercionetwork.commerciomint.QueryParamsResponse:
     type: object
     properties:
-      freezePeriod:
-        type: string
+      params:
+        type: object
+        properties:
+          conversionRate:
+            type: string
+          freezePeriod:
+            type: string
   cosmos.base.query.v1beta1.PageRequest:
     type: object
     properties:
@@ -23994,22 +24045,44 @@ definitions:
     type: object
     properties:
       context:
-        type: string
+        type: array
+        items:
+          type: string
       ID:
         type: string
-      pubKeys:
+      verificationMethod:
         type: array
         items:
           type: object
           properties:
             ID:
               type: string
-            type:
+            Type:
               type: string
-            controller:
+            Controller:
               type: string
-            publicKeyPem:
+            publicKeyMultibase:
               type: string
+      authentication:
+        type: array
+        items:
+          type: string
+      assertionMethod:
+        type: array
+        items:
+          type: string
+      keyAgreement:
+        type: array
+        items:
+          type: string
+      capabilityInvocation:
+        type: array
+        items:
+          type: string
+      capabilityDelegation:
+        type: array
+        items:
+          type: string
       service:
         type: array
         items:
@@ -24021,46 +24094,60 @@ definitions:
               type: string
             serviceEndpoint:
               type: string
-        title: did.Proof proof = 4;
-  commercionetwork.commercionetwork.did.MsgSetIdentityResponse:
+      created:
+        type: string
+      updated:
+        type: string
+  commercionetwork.commercionetwork.did.MsgSetDidDocumentResponse:
     type: object
     properties:
       ID:
         type: string
-  commercionetwork.commercionetwork.did.PubKey:
-    type: object
-    properties:
-      ID:
-        type: string
-      type:
-        type: string
-      controller:
-        type: string
-      publicKeyPem:
-        type: string
-  commercionetwork.commercionetwork.did.QueryResolveDidResponse:
+  commercionetwork.commercionetwork.did.QueryResolveDidDocumentResponse:
     type: object
     properties:
       DidDocument:
         type: object
         properties:
           context:
-            type: string
+            type: array
+            items:
+              type: string
           ID:
             type: string
-          pubKeys:
+          verificationMethod:
             type: array
             items:
               type: object
               properties:
                 ID:
                   type: string
-                type:
+                Type:
                   type: string
-                controller:
+                Controller:
                   type: string
-                publicKeyPem:
+                publicKeyMultibase:
                   type: string
+          authentication:
+            type: array
+            items:
+              type: string
+          assertionMethod:
+            type: array
+            items:
+              type: string
+          keyAgreement:
+            type: array
+            items:
+              type: string
+          capabilityInvocation:
+            type: array
+            items:
+              type: string
+          capabilityDelegation:
+            type: array
+            items:
+              type: string
           service:
             type: array
             items:
@@ -24072,7 +24159,10 @@ definitions:
                   type: string
                 serviceEndpoint:
                   type: string
-            title: did.Proof proof = 4;
+          created:
+            type: string
+          updated:
+            type: string
   commercionetwork.commercionetwork.did.Service:
     type: object
     properties:
@@ -24081,6 +24171,17 @@ definitions:
       type:
         type: string
       serviceEndpoint:
+        type: string
+  commercionetwork.commercionetwork.did.VerificationMethod:
+    type: object
+    properties:
+      ID:
+        type: string
+      Type:
+        type: string
+      Controller:
+        type: string
+      publicKeyMultibase:
         type: string
   commercionetwork.commercionetwork.documents.Document:
     type: object
@@ -24590,7 +24691,7 @@ definitions:
         type: string
   commercionetwork.commercionetwork.vbr.MsgIncrementBlockRewardsPoolResponse:
     type: object
-  commercionetwork.commercionetwork.vbr.MsgSetVbrParamsResponse:
+  commercionetwork.commercionetwork.vbr.MsgSetParamsResponse:
     type: object
   commercionetwork.commercionetwork.vbr.Params:
     type: object
@@ -24618,7 +24719,7 @@ definitions:
 
             NOTE: The amount field is an Dec which implements the custom method
             signatures required by gogoproto.
-  commercionetwork.commercionetwork.vbr.QueryGetVbrParamsResponse:
+  commercionetwork.commercionetwork.vbr.QueryGetParamsResponse:
     type: object
     properties:
       params:

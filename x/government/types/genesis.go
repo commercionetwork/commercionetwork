@@ -17,7 +17,6 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 
 	// this line is used by starport scaffolding # genesis/types/validate
-	// Check for duplicated ID in Document
 	if gs.GovernmentAddress == "" {
 		return fmt.Errorf("government address cannot be empty. Use the set-genesis-government-address command to set one")
 	}

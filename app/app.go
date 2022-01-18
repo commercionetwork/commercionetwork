@@ -101,15 +101,15 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents"
 	documentskeeper "github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	documentstypes "github.com/commercionetwork/commercionetwork/x/documents/types"
+	"github.com/commercionetwork/commercionetwork/x/epochs"
+	epochskeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
 	governmentmodule "github.com/commercionetwork/commercionetwork/x/government"
 	governmentmodulekeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentmoduletypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
 	vbrmodulekeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
-	"github.com/commercionetwork/commercionetwork/x/epochs"
-	epochskeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
-	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
 )
 
 const Name = "commercionetwork"
@@ -265,9 +265,9 @@ type App struct {
 	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
-	governmentKeeper    governmentmodulekeeper.Keeper
-	commercioMintKeeper commerciomintKeeper.Keeper
-	commercioKycKeeper  commerciokycKeeper.Keeper
+	GovernmentKeeper    governmentmodulekeeper.Keeper
+	CommercioMintKeeper commerciomintKeeper.Keeper
+	CommercioKycKeeper  commerciokycKeeper.Keeper
 
 	VbrKeeper vbrmodulekeeper.Keeper
 
@@ -276,11 +276,11 @@ type App struct {
 	//ScopedDocumentsKeeper capabilitykeeper.ScopedKeeper
 	DocumentsKeeper documentskeeper.Keeper
 	// the module manager
-	mm *module.Manager
-	EpochsKeeper         epochskeeper.Keeper
+	mm           *module.Manager
+	EpochsKeeper epochskeeper.Keeper
 }
 
-// New returns a reference to an initialized Gaia.
+// New returns a reference to an initialized Commercionetwork.
 // NewSimApp returns a reference to an initialized SimApp.
 func New(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
@@ -398,12 +398,14 @@ func New(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-	app.governmentKeeper = *governmentmodulekeeper.NewKeeper(
+
+	// Government keeper must be set before other modules keeper that depend on it
+	app.GovernmentKeeper = *governmentmodulekeeper.NewKeeper(
 		appCodec,
 		keys[governmentmoduletypes.StoreKey],
 		keys[governmentmoduletypes.MemStoreKey],
 	)
-	governmentModule := governmentmodule.NewAppModule(appCodec, app.governmentKeeper)
+	governmentModule := governmentmodule.NewAppModule(appCodec, app.GovernmentKeeper)
 
 	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
 		appCodec,
@@ -412,32 +414,36 @@ func New(
 		app.DistrKeeper,
 		app.BankKeeper,
 		app.AccountKeeper,
-		app.governmentKeeper,
+		app.GovernmentKeeper,
 		app.EpochsKeeper,
 		app.GetSubspace(vbrmoduletypes.ModuleName),
 		app.StakingKeeper,
 	)
 	vbrModule := vbrmodule.NewAppModule(appCodec, app.VbrKeeper)
-	app.commercioKycKeeper = *commerciokycKeeper.NewKeeper(
-		appCodec,
-		keys[commerciokycTypes.StoreKey],
-		keys[commerciokycTypes.MemStoreKey],
-		app.BankKeeper,
-		app.governmentKeeper,
-		app.AccountKeeper,
-	)
-	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.commercioKycKeeper)
 
-	app.commercioMintKeeper = *commerciomintKeeper.NewKeeper(
+	// CommercioMint keeper must be set before CommercioKyc
+	app.CommercioMintKeeper = *commerciomintKeeper.NewKeeper(
 		appCodec,
 		keys[commerciomintTypes.StoreKey],
 		keys[commerciomintTypes.MemStoreKey],
 		app.BankKeeper,
 		app.AccountKeeper,
-		app.governmentKeeper,
+		app.GovernmentKeeper,
+		app.GetSubspace(commerciomintTypes.ModuleName),
 	)
-	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.commercioMintKeeper)
+	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.CommercioMintKeeper)
 
+	app.CommercioKycKeeper = *commerciokycKeeper.NewKeeper(
+		appCodec,
+		keys[commerciokycTypes.StoreKey],
+		keys[commerciokycTypes.MemStoreKey],
+		app.BankKeeper,
+		app.GovernmentKeeper,
+		app.AccountKeeper,
+		app.CommercioMintKeeper,
+		app.GetSubspace(commerciokycTypes.ModuleName),
+	)
+	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
@@ -461,9 +467,8 @@ func New(
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
-			//app.IncentivesKeeper.Hooks(),
-			//app.MintKeeper.Hooks(),
 			app.VbrKeeper.Hooks(),
+			app.CommercioKycKeeper.Hooks(),
 		),
 	)
 
@@ -563,8 +568,8 @@ func New(
 	)
 
 	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
-	// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
-	epochstypes.ModuleName,
+		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
+		epochstypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -612,7 +617,7 @@ func New(
 	app.SetAnteHandler(
 		ante.NewAnteHandler(
 			app.AccountKeeper, app.BankKeeper,
-			app.governmentKeeper, app.commercioMintKeeper,
+			app.GovernmentKeeper, app.CommercioMintKeeper,
 			comosante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
 			stakeDenom,

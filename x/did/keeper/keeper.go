@@ -6,7 +6,9 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	// this line is used by starport scaffolding # ibc/keeper/import
 )
@@ -35,83 +37,51 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// GetIdentity returns the Did Document reference associated to a given Did.
-// If the given Did has no Did Document reference associated, returns nil.
-func (k Keeper) GetDidDocumentByOwner(ctx sdk.Context, owner sdk.AccAddress) (types.DidDocument, error) {
+// UpdateDidDocument appends a DID document in the store, returning the ID contained in the DID document
+func (k Keeper) UpdateDidDocument(ctx sdk.Context, didDocument types.DidDocument) string {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(getIdentityStoreKey(didDocument.ID), k.cdc.MustMarshalBinaryBare(&didDocument))
+	return didDocument.ID
+}
+
+// GetDidDocumentOfAddress returns the DID document reference associated to a given address.
+// If the given address has no DID document associated, returns an error.
+func (k Keeper) GetDidDocumentOfAddress(ctx sdk.Context, address string) (types.DidDocument, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	identityKey := getIdentityStoreKey(owner)
+	identityKey := getIdentityStoreKey(address)
 	if !store.Has(identityKey) {
-		return types.DidDocument{}, fmt.Errorf("did document with owner %s not found", owner.String())
+		return types.DidDocument{}, fmt.Errorf("DID document for %s not found", address)
 	}
 
-	var didDocument types.DidDocument
-	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &didDocument)
-	return didDocument, nil
+	var DidDocument types.DidDocument
+	k.cdc.MustUnmarshalBinaryBare(store.Get(identityKey), &DidDocument)
+	return DidDocument, nil
 }
 
-// GetDidDepositRequestByProof returns the request having the same proof.
-func (k Keeper) GetPowerUpRequestByID(ctx sdk.Context, id string) (types.DidPowerUpRequest, error) {
+func getIdentityStoreKey(owner string) []byte {
+	return append([]byte(types.IdentitiesStorePrefix), owner...)
+}
+
+// HasDidDocument returns true if there is a DID document associated to a given ID.
+func (k Keeper) HasDidDocument(ctx sdk.Context, ID string) bool {
 	store := ctx.KVStore(k.storeKey)
-
-	requestStoreKey := getDidPowerUpRequestStoreKey(id)
-	if !store.Has(requestStoreKey) {
-		return types.DidPowerUpRequest{}, fmt.Errorf("power-up request with id %s not found", id)
-	}
-
-	request := types.DidPowerUpRequest{}
-	k.cdc.MustUnmarshalBinaryBare(store.Get(requestStoreKey), &request)
-	return request, nil
+	identityKey := getIdentityStoreKey(ID)
+	return store.Has(identityKey)
 }
 
-// GetApprovedPowerUpRequests returns the list of handled requests saved inside the given context
-func (k Keeper) GetApprovedPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
-	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
-		if r.Status != nil {
-			if r.Status.Type == types.StatusApproved {
-				return true
-			}
-		}
-
-		return false
-	})
-}
-
-// GetRejectedPowerUpRequests returns the list of rejected (canceled, invalid) requests saved inside the given context
-func (k Keeper) GetRejectedPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
-	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
-		if r.Status != nil {
-			if r.Status.Type != types.StatusApproved {
-				return true
-			}
-		}
-
-		return false
-	})
-}
-
-// GetPendingPowerUpRequests returns the list of pending requests saved inside the given context
-func (k Keeper) GetPendingPowerUpRequests(ctx sdk.Context) (requests []types.DidPowerUpRequest) {
-	return k.iterRequestsWithFunc(ctx, func(r types.DidPowerUpRequest) bool {
-		return r.Status == nil
-	})
-}
-
-// iterRequestsWithFunc returns a slice of requests, based on the logic of rationale.
-// If rationale() returns true, r will be added to requests.
-func (k Keeper) iterRequestsWithFunc(ctx sdk.Context, rationale func(r types.DidPowerUpRequest) bool) (requests []types.DidPowerUpRequest) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DidPowerUpRequestStorePrefix))
+// GetAllDidDocuments returns all the stored DID documents
+func (k Keeper) GetAllDidDocuments(ctx sdk.Context) (list []types.DidDocument) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.IdentitiesStorePrefix))
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var request types.DidPowerUpRequest
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &request)
 
-		if rationale(request) {
-			requests = append(requests, request)
-		}
+	for ; iterator.Valid(); iterator.Next() {
+		var val types.DidDocument
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		list = append(list, val)
 	}
 
-	return requests
+	return
 }

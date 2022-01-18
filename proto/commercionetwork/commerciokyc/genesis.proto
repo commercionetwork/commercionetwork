@@ -7,6 +7,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc
 // Import section
 import "gogoproto/gogo.proto";
 import "commercionetwork/commerciokyc/membership.proto";
+import "commercionetwork/commerciokyc/params.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 
@@ -18,4 +19,6 @@ message GenesisState {
     repeated string trusted_service_providers = 2;
     repeated Invite invites = 3;
     repeated Membership memberships = 4; // convert to time duration
+    Params params = 5 [ (gogoproto.nullable) = false ];
+
 }

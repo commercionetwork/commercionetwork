@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -79,24 +78,16 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 	}
 	return positions
 }
-/*
-func (k Keeper) GetPositionOwnedBy(ctx sdk.Context, owner sdk.AccAddress){
-
-}*/
 
 // NewPosition creates a new minting position for the amount deposited, credited to depositor.
-//func (k Keeper) NewPosition(ctx sdk.Context, depositor sdk.AccAddress, deposit sdk.Coins, id string) error {
-func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
-	owner, err := sdk.AccAddressFromBech32(position.Owner)
+func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins, id string) error {
+	owner, err := sdk.AccAddressFromBech32(depositor)
 	if err != nil {
 		return err
 	}
-	depositor := owner
-	ucccRequested := sdk.NewInt(position.Collateral)
+	ucccRequested := deposit.AmountOf("uccc")
 	if ucccRequested.IsZero() {
-		//return errors.New("no uccc requested")
 		return fmt.Errorf("no %s requested", types.CreditsDenom)
-
 	}
 
 	conversionRate := k.GetConversionRate(ctx)
@@ -110,14 +101,14 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	ucomAmount := sdk.NewCoin("ucommercio", ucommercioAmount)
 
 	// Create the ETP and validate it
-	/*position := types.NewPosition(
-		depositor,
+	position := types.NewPosition(
+		owner,
 		ucomAmount.Amount,
 		ucccEmitted,
 		id,
 		ctx.BlockTime(),
 		conversionRate,
-	)*/
+	)
 	createAt := ctx.BlockTime()
 	position.CreatedAt = &createAt
 	position.ExchangeRate = conversionRate
@@ -128,7 +119,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	}
 
 	// Send the deposit from the user to the commerciomint account
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, sdk.NewCoins(ucomAmount)); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, types.ModuleName, sdk.NewCoins(ucomAmount)); err != nil {
 		return fmt.Errorf("could not move collateral amount to module account, %w", err)
 	}
 
@@ -138,7 +129,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 		return fmt.Errorf("could not mint coins, %w", err)
 	}
 
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, creditsCoins); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, creditsCoins); err != nil {
 		return fmt.Errorf("could not send minted coins to account, %w", err)
 	}
 
@@ -146,7 +137,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 	k.SetPosition(ctx, position)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventNewPosition,
-		sdk.NewAttribute("depositor", depositor.String()),
+		sdk.NewAttribute("depositor", owner.String()),
 		sdk.NewAttribute("amount_deposited", ucomAmount.String()),
 		sdk.NewAttribute("minted_coins", creditsCoins.String()),
 		sdk.NewAttribute("position_id", position.ID),
@@ -157,7 +148,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, position types.Position) error {
 }
 
 func (k Keeper) GetAllPositions(ctx sdk.Context) []*types.Position {
-	var positions []*types.Position
+	positions := []*types.Position{}
 	iterator := k.newPositionsIterator(ctx)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -169,7 +160,7 @@ func (k Keeper) GetAllPositions(ctx sdk.Context) []*types.Position {
 	return positions
 }
 
-// BurnCCC burns burnAmount to the conversion rate stored in the Position identified by id, and returns the
+// RemoveCCC burns burnAmount to the conversion rate stored in the Position identified by id, and returns the
 // resulting collateral amount to user.
 func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmount sdk.Coin) (sdk.Int, error) {
 	pos, found := k.GetPosition(ctx, user, id)
@@ -182,11 +173,11 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 	// Control if position is almost in freezing period
 	freezePeriod := k.GetFreezePeriod(ctx)
 	createdAt := *pos.CreatedAt // TODO CHECK FORMAT AND ERROR
-	if time.Now().Sub(createdAt) <= freezePeriod {
+	if ctx.BlockTime().Sub(createdAt) <= freezePeriod {
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
 	}
 
-	// Control if tokens request to burn are more then initially requested
+	// Control if tokens requested to burn are more than initially requested
 	if pos.Credits.Amount.Sub(burnAmount.Amount).IsNegative() {
 		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn more tokens that those initially requested")
 	}
@@ -259,8 +250,8 @@ func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddres
 	prefix := append([]byte(types.EtpStorePrefix), owner...)
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
-// getSentDocumentsIdsStoreKey generates a ReceivedDocumentsID store key for a given user
-func getEtpByOwnerIdsStoreKey(user sdk.AccAddress) []byte {
+
+func getEtpsByOwnerStoreKey(user sdk.AccAddress) []byte {
 	return append([]byte(types.EtpStorePrefix), user...)
 }
 
