@@ -27,3 +27,15 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveIdentityReque
 
 	return &types.QueryResolveIdentityResponse{Identity: identity}, nil
 }
+
+func (k Keeper) IdentityHistory(c context.Context, req *types.QueryResolveIdentityHistoryRequest) (*types.QueryResolveIdentityHistoryResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	identities := k.GetIdentityHistoryOfAddress(ctx, req.ID)
+
+	return &types.QueryResolveIdentityHistoryResponse{Identities: identities}, nil
+}

@@ -16,11 +16,23 @@ service Query {
     option (google.api.http).get = "/commercionetwork/did/identities/{ID}";
   }
 
+  rpc IdentityHistory(QueryResolveIdentityHistoryRequest)
+      returns (QueryResolveIdentityHistoryResponse) {
+    option (google.api.http).get =
+        "/commercionetwork/did/identities/history/{ID}";
+  }
+
   // this line is used by starport scaffolding # 2
 }
 
 message QueryResolveIdentityRequest { string ID = 1; }
 
 message QueryResolveIdentityResponse { Identity identity = 1; }
+
+message QueryResolveIdentityHistoryRequest { string ID = 1; }
+
+message QueryResolveIdentityHistoryResponse {
+  repeated Identity identities = 1;
+}
 
 // this line is used by starport scaffolding # 3
