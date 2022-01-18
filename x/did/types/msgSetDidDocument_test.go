@@ -4,198 +4,7 @@ import (
 	"testing"
 )
 
-func TestMsgSetDidDocument_ValidateBasic(t *testing.T) {
-
-	tests := []struct {
-		name              string
-		msgSetDidDocument func() *MsgSetDidDocument
-		wantErr           bool
-	}{
-		{
-			"valid",
-			func() *MsgSetDidDocument {
-				return &validMsgSetDidDocument
-			},
-			false,
-		},
-		{
-			"not defined",
-			func() *MsgSetDidDocument {
-				return nil
-			},
-			true,
-		},
-		{
-			"{context} invalid",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.Context = []string{}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{ID} empty",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.ID = ""
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{ID} invalid DID com",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.ID = "$" + validMsgSetDidDocument.DidDocument.ID
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{verificationMethod} invalid",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.VerificationMethod = []*VerificationMethod{}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{service} invalid",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.Service = []*Service{{}}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{authentication} not a set",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.Authentication = []string{
-					validVerificationMethodRsaSignature2018.ID,
-					validVerificationMethodRsaSignature2018.ID,
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{authentication} no reference",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.Authentication = []string{
-					"NoReference",
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{assertionMethod} not a set",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.AssertionMethod = []string{
-					validVerificationMethodRsaSignature2018.ID,
-					validVerificationMethodRsaSignature2018.ID,
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{assertionMethod} no reference",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.AssertionMethod = []string{
-					"NoReference",
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{capabilityDelegation} not a set",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.CapabilityDelegation = []string{
-					validVerificationMethodRsaSignature2018.ID,
-					validVerificationMethodRsaSignature2018.ID,
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{capabilityDelegation} no reference",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.CapabilityDelegation = []string{
-					"NoReference",
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{capabilityInvocation} not a set",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.CapabilityInvocation = []string{
-					validVerificationMethodRsaSignature2018.ID,
-					validVerificationMethodRsaSignature2018.ID,
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{capabilityInvocation} no reference",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.CapabilityInvocation = []string{
-					"NoReference",
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{keyAgreement} not a set",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.KeyAgreement = []string{
-					validVerificationMethodRsaSignature2018.ID,
-					validVerificationMethodRsaSignature2018.ID,
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-		{
-			"{keyAgreement} no reference",
-			func() *MsgSetDidDocument {
-				msgSetDidDocument := validMsgSetDidDocument
-				msgSetDidDocument.DidDocument.KeyAgreement = []string{
-					"NoReference",
-				}
-				return &msgSetDidDocument
-			},
-			true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.msgSetDidDocument().ValidateBasic(); (err != nil) != tt.wantErr {
-				t.Errorf("MsgSetDidDocument.ValidateBasic() for %s error = %v, wantErr %v", tt.msgSetDidDocument(), err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func Test_validateContext(t *testing.T) {
+func Test_validateContextSlice(t *testing.T) {
 
 	tests := []struct {
 		name    string
@@ -240,14 +49,14 @@ func Test_validateContext(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateContext(tt.context); (err != nil) != tt.wantErr {
+			if err := validateContextSlice(tt.context); (err != nil) != tt.wantErr {
 				t.Errorf("validateContext() for %s error = %v, wantErr %v", tt.context, err, tt.wantErr)
 			}
 		})
 	}
 }
 
-func Test_validateService(t *testing.T) {
+func Test_validateServiceSlice(t *testing.T) {
 
 	tests := []struct {
 		name     string
@@ -283,14 +92,14 @@ func Test_validateService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateService(tt.services); (err != nil) != tt.wantErr {
+			if err := validateServiceSlice(tt.services); (err != nil) != tt.wantErr {
 				t.Errorf("validateContext() for %s error = %v, wantErr %v", tt.services, err, tt.wantErr)
 			}
 		})
 	}
 }
 
-func Test_validateVerificationMethod(t *testing.T) {
+func Test_validateVerificationMethodSlice(t *testing.T) {
 
 	tests := []struct {
 		name                string
@@ -344,7 +153,7 @@ func Test_validateVerificationMethod(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateVerificationMethod(tt.verificationMethods, validDidSubject); (err != nil) != tt.wantErr {
+			if err := validateVerificationMethodSlice(tt.verificationMethods, validDidSubject); (err != nil) != tt.wantErr {
 				t.Errorf("validateVerificationMethod() for %s error = %v, wantErr %v", tt.verificationMethods, err, tt.wantErr)
 			}
 		})

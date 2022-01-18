@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
@@ -14,57 +15,6 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 )
-
-// func Test_GetDidDocumentOfAddress(t *testing.T) {
-// 	keeper, ctx := setupKeeper(t)
-// 	ddos := createNDidDocuments(keeper, ctx, 10)
-// 	for _, item := range ddos {
-// 		a, err := keeper.GetDidDocumentOfAddress(ctx, item.ID)
-// 		require.NoError(t, err)
-// 		assert.Equal(t, item, a)
-// 	}
-// }
-
-// func Test_NewDocumentExist(t *testing.T) {
-// 	keeper, ctx := setupKeeper(t)
-// 	ddos := createNDidDocuments(keeper, ctx, 10)
-// 	for _, item := range ddos {
-// 		assert.True(t, keeper.HasDidDocument(ctx, item.ID))
-// 	}
-// }
-
-// func Test_UpdateDidDocument(t *testing.T) {
-// 	keeper, ctx := setupKeeper(t)
-// 	ddos := createNDidDocuments(keeper, ctx, 10)
-// 	for _, item := range ddos {
-// 		ID := keeper.UpdateDidDocument(ctx, item)
-
-// 		require.True(t, keeper.HasDidDocument(ctx, ID))
-
-// 		created, err := keeper.GetDidDocumentOfAddress(ctx, ID)
-// 		require.NoError(t, err)
-// 		require.Equal(t, created, item)
-// 	}
-// }
-
-// func Test_GetAllDidDocuments(t *testing.T) {
-// 	keeper, ctx := setupKeeper(t)
-// 	ddos := createNDidDocuments(keeper, ctx, 10)
-// 	for _, item := range ddos {
-// 		ID := keeper.UpdateDidDocument(ctx, item)
-// 		require.True(t, keeper.HasDidDocument(ctx, ID))
-// 	}
-// 	all := keeper.GetAllDidDocuments(ctx)
-// 	for _, item := range ddos {
-// 		var found bool
-// 		for _, a := range all {
-// 			if a.ID == item.ID {
-// 				found = true
-// 			}
-// 		}
-// 		require.True(t, found)
-// 	}
-// }
 
 // func createNDidDocuments(keeper *Keeper, ctx sdk.Context, n int) []types.DidDocument {
 // 	ddos := make([]types.DidDocument, n)
@@ -117,7 +67,7 @@ func TestKeeper_UpdateIdentity(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeper(t)
-			k.UpdateIdentity(ctx, &types.ValidIdentity)
+			k.UpdateIdentity(ctx, types.ValidIdentity)
 
 			identity, err := k.GetLastIdentityOfAddress(ctx, types.ValidIdentity.DidDocument.ID)
 			require.NoError(t, err)
@@ -126,45 +76,96 @@ func TestKeeper_UpdateIdentity(t *testing.T) {
 	}
 }
 
+var identitiesOnlyOne = []*types.Identity{&types.ValidIdentity}
+
 func TestKeeper_GetIdentityHistoryOfAddress(t *testing.T) {
 	type args struct {
-		identity types.Identity
+		ID string
 	}
 	tests := []struct {
-		name string
-		args args
+		name       string
+		args       args
+		identities []*types.Identity
 	}{
 		{
 			name: "empty store",
-			args: args{},
+			args: args{
+				ID: types.ValidIdentity.DidDocument.ID,
+			},
+			identities: []*types.Identity{},
+		},
+		{
+			name: "one",
+			args: args{
+				ID: types.ValidIdentity.DidDocument.ID,
+			},
+			identities: identitiesOnlyOne,
 		},
 		// {
-		// 	name: "append over existing",
-		// 	args: args{},
+		// 	name: "one among identities with different ID",
+		// 	args: args{
+		// 		ID: types.ValidIdentity.DidDocument.ID,
+		// 	},
+		// 	identities: ,
 		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeper(t)
-			k.UpdateIdentity(ctx, &types.ValidIdentity)
 
-			identity, err := k.GetLastIdentityOfAddress(ctx, types.ValidIdentity.DidDocument.ID)
-			require.NoError(t, err)
-			require.Equal(t, types.ValidIdentity, *identity)
-
-			expected := []types.Identity{*identity}
+			expected := []*types.Identity{}
+			for _, identity := range tt.identities {
+				k.UpdateIdentity(ctx, *identity)
+				if identity.DidDocument.ID == tt.args.ID {
+					expected = append(expected, identity)
+				}
+			}
 
 			result := k.GetIdentityHistoryOfAddress(ctx, types.ValidIdentity.DidDocument.ID)
 			require.Equal(t, expected, result)
 
-			newIdentity := &types.ValidIdentity
-			newIdentity.Metadata.Updated = "abc"
+			// newIdentity := &types.ValidIdentity
+			// newIdentity.Metadata.Updated = "abc"
 
-			k.UpdateIdentity(ctx, newIdentity)
+			// k.UpdateIdentity(ctx, newIdentity)
 
-			result = k.GetIdentityHistoryOfAddress(ctx, types.ValidIdentity.DidDocument.ID)
-			require.Len(t, result, 2)
+			// result = k.GetIdentityHistoryOfAddress(ctx, types.ValidIdentity.DidDocument.ID)
+			// require.Len(t, result, 2)
 
+		})
+	}
+}
+
+func TestKeeper_GetAllIdentities(t *testing.T) {
+
+	tests := []struct {
+		name string
+		want []*types.Identity
+	}{
+		{
+			name: "empty",
+			want: []*types.Identity{},
+		},
+		{
+			name: "one",
+			want: []*types.Identity{&types.ValidIdentity},
+		},
+		{
+			name: "more",
+			want: []*types.Identity{&types.ValidIdentity},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
+
+			for _, identity := range tt.want {
+				k.UpdateIdentity(ctx, *identity)
+			}
+
+			if got := k.GetAllIdentities(ctx); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Keeper.GetAllIdentities() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

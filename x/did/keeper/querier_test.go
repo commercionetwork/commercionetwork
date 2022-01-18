@@ -11,49 +11,44 @@ import (
 
 func TestNewQuerier(t *testing.T) {
 	tests := []struct {
-		name       string
-		want       types.QueryResolveIdentityResponse
-		shouldFind bool
+		name string
+		want types.QueryResolveIdentityResponse
 	}{
-		// {
-		// 	name:       "empty",
-		// 	want:       types.QueryResolveIdentityResponse{},
-		// 	shouldFind: false,
-		// },
+		{
+			name: "empty",
+			want: types.QueryResolveIdentityResponse{},
+		},
 		{
 			name: "ok",
 			want: types.QueryResolveIdentityResponse{
 				Identity: &types.ValidIdentity,
 			},
-			shouldFind: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeper(t)
 
+			if tt.want.Identity != nil {
+				k.UpdateIdentity(ctx, types.ValidIdentity)
+			}
+
 			app := simapp.Setup(false)
 			legacyAmino := app.LegacyAmino()
 			querier := NewQuerier(*k, legacyAmino)
-
-			k.UpdateIdentity(ctx, &types.ValidIdentity)
-
 			path := []string{types.QueryResolveDid, types.ValidIdentity.DidDocument.ID}
 			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
-			var got types.QueryResolveIdentityResponse
-
-			if tt.shouldFind {
-				// TODO check legacyAmino problem, this cannot unmarshal the DDO
-
-				legacyAmino.MustUnmarshalJSON(gotBz, &got)
-				t.Log(got)
-				require.NoError(t, err)
-				require.Equal(t, tt.want, got)
-			} else {
+			if tt.want.Identity == nil {
 				require.Error(t, err)
+				return
 			}
 
+			var got types.QueryResolveIdentityResponse
+
+			legacyAmino.MustUnmarshalJSON(gotBz, &got)
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

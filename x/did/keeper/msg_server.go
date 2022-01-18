@@ -46,7 +46,7 @@ func (k msgServer) SetIdentity(goCtx context.Context, msg *types.MsgSetDidDocume
 		identity.Metadata.Created = previousIdentity.Metadata.Created
 	}
 
-	k.UpdateIdentity(ctx, &identity)
+	k.UpdateIdentity(ctx, identity)
 
 	return &types.MsgSetDidDocumentResponse{}, nil
 }

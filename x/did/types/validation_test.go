@@ -103,7 +103,7 @@ func TestService_isValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.service().isValid(); (err != nil) != tt.wantErr {
+			if err := tt.service().Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Service.isValid() for service %s error = %v, wantErr %v", tt.service(), err, tt.wantErr)
 			}
 		})
@@ -279,7 +279,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.NotEqual(t, validDidSubject, validDidNoSubject)
-			if err := tt.verificationMethod().isValid(validDidSubject); (err != nil) != tt.wantErr {
+			if err := tt.verificationMethod().Validate(validDidSubject); (err != nil) != tt.wantErr {
 				t.Errorf("VerificationMethod.isValid() for verificationMethod %s error = %v, wantErr %v", tt.verificationMethod(), err, tt.wantErr)
 			}
 		})
@@ -300,7 +300,7 @@ func Test_isValidDidCom(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := isValidDidCom(tt.did); (err != nil) != tt.wantErr {
+			if err := Validate(tt.did); (err != nil) != tt.wantErr {
 				t.Errorf("isValidDidCom() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

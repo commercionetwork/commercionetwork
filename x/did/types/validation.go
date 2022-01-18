@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func isValidDidCom(did string) error {
+func Validate(did string) error {
 
 	if !strings.HasPrefix(did, "did:com:") {
 		return errors.Errorf("invalid ID address (%s), must have 'did:com:' prefix", did)
@@ -25,7 +25,7 @@ func isValidDidCom(did string) error {
 	return nil
 }
 
-func (s *Service) isValid() error {
+func (s *Service) Validate() error {
 	if s == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "service is not defined")
 	}
@@ -70,7 +70,7 @@ func (s *Service) isValid() error {
 	return nil
 }
 
-func (v *VerificationMethod) isValid(subject string) error {
+func (v *VerificationMethod) Validate(subject string) error {
 	if v == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod is not defined")
 	}
