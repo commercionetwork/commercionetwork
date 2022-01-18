@@ -77,7 +77,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	mintAcc := authTypes.NewEmptyModuleAccount(commerciomintTypes.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, mintAcc)
 
-	mk := commerciomintKeeper.NewKeeper(cdc, keys[commerciomintTypes.StoreKey], keys[commerciomintTypes.StoreKey], bk, ak, *govk, app.GetSubspace(commerciomintTypes.ModuleName))
+	mk := commerciomintKeeper.NewKeeper(cdc, keys[commerciomintTypes.StoreKey], keys[commerciomintTypes.StoreKey], bk, ak, *govk, pk.Subspace(commerciomintTypes.ModuleName))
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
 

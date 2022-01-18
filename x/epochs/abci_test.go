@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	vbrtypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+	commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
 func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
@@ -22,6 +23,7 @@ func TestEpochInfoChangesBeginEndBlockersAndInitGenesis(t *testing.T) {
 	ctx := app.BaseApp.NewContext(false, header)
 	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
 	app.VbrKeeper.SetParamSet(ctx, vbrtypes.DefaultParams())
+	app.CommercioKycKeeper.UpdateParams(ctx, commerciokyc.DefaultParams())
 
 	now := time.Now()
 
