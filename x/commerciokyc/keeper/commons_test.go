@@ -85,7 +85,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
-		bk, *govk, ak, *mk, pk.Subspace(types.ModuleName))
+		bk, *govk, ak, *mk)
 
 	// TODO shall we drop the following?
 	k.MintKeeper.UpdateParams(ctx, validCommercioMintParams)

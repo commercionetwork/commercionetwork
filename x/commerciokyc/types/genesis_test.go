@@ -10,8 +10,7 @@ import (
 )
 
 func TestDefaultGenesisState(t *testing.T) {
-	params := types.NewParams(types.EpochDay)
-	expted := &types.GenesisState{Params: params}
+	expted := &types.GenesisState{}
 	require.Equal(t, expted, types.DefaultGenesis())
 }
 

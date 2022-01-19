@@ -264,6 +264,13 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	return returnMethod
 }
 
+func IsValidMembership(ctx sdk.Context, expiredAt time.Time, mt string) bool {
+	if expiredAt.Before(ctx.BlockTime()) && mt != types.MembershipTypeBlack {
+		return false
+	}
+	return true
+}
+
 // GetMembership allows to retrieve any existent membership for the specified user.
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
 	store := ctx.KVStore(k.StoreKey)
@@ -277,6 +284,11 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
 	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
+	if IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
+		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			fmt.Sprintf("membership not found for user \"%s\" has expired", user.String()),
+		)
+	}
 	return ms, nil
 }
 
@@ -288,6 +300,10 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 	for ; im.Valid(); im.Next() {
 		var m types.Membership
 		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		// Returns only valid memberships
+		if IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
+			continue
+		}
 		ms = append(ms, &m)
 	}
 
@@ -331,33 +347,13 @@ func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
 		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		// Returns only valid memberships
+		if IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
+			continue
+		}
 		ms = append(ms, m)
 	}
 	return ms
-}
-
-// RemoveExpiredMemberships delete all expired memberships
-func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
-	blockTime := ctx.BlockTime()
-	for _, m := range k.GetMemberships(ctx) {
-		if blockTime.After(*m.ExpiryAt) {
-			mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
-			mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
-			if m.MembershipType == types.MembershipTypeBlack {
-				expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
-				membership := types.NewMembership(types.MembershipTypeBlack, mOwner, mTspAddress, expiredAt)
-				store := ctx.KVStore(k.StoreKey)
-				staddr := k.storageForAddr(mOwner)
-				store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
-			} else {
-				err := k.DeleteMembership(ctx, mOwner)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-	}
-	return nil
 }
 
 // GetMembershipModuleAccount returns the module account for the commerciokyc module

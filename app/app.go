@@ -441,7 +441,6 @@ func New(
 		app.GovernmentKeeper,
 		app.AccountKeeper,
 		app.CommercioMintKeeper,
-		app.GetSubspace(commerciokycTypes.ModuleName),
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
 
@@ -468,7 +467,6 @@ func New(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
 			app.VbrKeeper.Hooks(),
-			app.CommercioKycKeeper.Hooks(),
 		),
 	)
 
