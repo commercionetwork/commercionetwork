@@ -186,42 +186,6 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /commercionetwork/commerciokyc/params:
-    get:
-      summary: 'this line is used by starport scaffolding # 2'
-      operationId: CommercionetworkCommercionetworkCommerciokycParams
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              params:
-                type: object
-                properties:
-                  checkMembershipsEpochIdentifier:
-                    type: string
-                    title: check_memberships epoch identifier
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
   /commercionetwork/commerciokyc/tsps:
     get:
       summary: |-
@@ -23387,14 +23351,6 @@ definitions:
     properties:
       expiryAt:
         type: string
-  commercionetwork.commercionetwork.commerciokyc.MsgSetParamsResponse:
-    type: object
-  commercionetwork.commercionetwork.commerciokyc.Params:
-    type: object
-    properties:
-      checkMembershipsEpochIdentifier:
-        type: string
-        title: check_memberships epoch identifier
   commercionetwork.commercionetwork.commerciokyc.QueryFundsResponse:
     type: object
     properties:
@@ -23461,15 +23417,6 @@ definitions:
             expiryAt:
               type: string
               format: date-time
-  commercionetwork.commercionetwork.commerciokyc.QueryParamsResponse:
-    type: object
-    properties:
-      params:
-        type: object
-        properties:
-          checkMembershipsEpochIdentifier:
-            type: string
-            title: check_memberships epoch identifier
   commercionetwork.commercionetwork.commerciokyc.QueryTspsResponse:
     type: object
     properties:

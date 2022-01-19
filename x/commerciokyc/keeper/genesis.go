@@ -6,6 +6,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // InitGenesis sets commerciokyc information for genesis.
@@ -45,14 +46,32 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	for _, membership := range data.Memberships {
 		mOwner, _ := sdk.AccAddressFromBech32(membership.Owner)
 		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
-		// TODO need remove membership before init
-		if ctx.BlockTime().After(*membership.ExpiryAt) {
-			continue
+		// Need use sigle keeper methods in AssignMembership to assign membership avoid expired issue
+		if !types.IsMembershipTypeValid(membership.MembershipType) {
+			panic(sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membership.MembershipType)))
 		}
-		err := k.AssignMembership(ctx, mOwner, membership.MembershipType, mTsp, *membership.ExpiryAt)
-		if err != nil {
-			panic(err)
+		if k.IsTrustedServiceProvider(ctx, mOwner) && membership.MembershipType != types.MembershipTypeBlack {
+			panic(sdkErr.Wrap(sdkErr.ErrUnauthorized,
+				fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", mOwner),
+			))
 		}
+		// Delete membership if exists
+		_ = k.DeleteMembership(ctx, mOwner)
+
+		store := ctx.KVStore(k.StoreKey)
+		staddr := k.storageForAddr(mOwner)
+		if store.Has(staddr) {
+			panic(sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				fmt.Sprintf(
+					"cannot add membership \"%s\" for address %s: user already has a membership",
+					membership.MembershipType,
+					mOwner,
+				),
+			))
+		}
+		// Save membership
+		membership := types.NewMembership(membership.MembershipType, mOwner, mTsp, membership.ExpiryAt.UTC())
+		store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
 	}
 
 }
