@@ -284,7 +284,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
 	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
-	if IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
+	if !IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
 		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("membership not found for user \"%s\" has expired", user.String()),
 		)
@@ -301,7 +301,7 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 		var m types.Membership
 		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
 		// Returns only valid memberships
-		if IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
+		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
 			continue
 		}
 		ms = append(ms, &m)
@@ -348,7 +348,7 @@ func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
 	for ; im.Valid(); im.Next() {
 		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
 		// Returns only valid memberships
-		if IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
+		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
 			continue
 		}
 		ms = append(ms, m)

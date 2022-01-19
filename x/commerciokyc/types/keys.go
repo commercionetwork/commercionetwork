@@ -20,7 +20,6 @@ const (
 	MsgTypeBuyMembership             = "buyMembership"
 	MsgTypeSetMembership             = "setMembership"
 	MsgTypeRemoveMembership          = "removeMembership"
-	MsgTypeSetParams                 = "setParams"
 
 	QueryGetInvites                 = "invites"
 	QueryGetTrustedServiceProviders = "tsps"
@@ -30,7 +29,4 @@ const (
 	QueryGetTspMemberships          = "sold"
 
 	CreditsDenom = "uccc"
-	EpochDay     = "day"
-	EpochHour    = "hour"
-	EpochMinute  = "minute"
 )

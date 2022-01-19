@@ -59,6 +59,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 
 	ctx := sdk.NewContext(ms, tmproto.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 	ctx = ctx.WithBlockTime(time.Now())
+	//ctx = ctx.WithBlockTime(time.Now().Add(time.Hour * 1))
 
 	maccPerms := map[string][]string{
 		types.ModuleName:              {authTypes.Minter, authTypes.Burner},
@@ -77,7 +78,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	mintAcc := authTypes.NewEmptyModuleAccount(commerciomintTypes.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, mintAcc)
 
-	mk := commerciomintKeeper.NewKeeper(cdc, keys[commerciomintTypes.StoreKey], keys[commerciomintTypes.StoreKey], bk, ak, *govk, app.GetSubspace(commerciomintTypes.ModuleName))
+	mk := commerciomintKeeper.NewKeeper(cdc, keys[commerciomintTypes.StoreKey], keys[commerciomintTypes.StoreKey], bk, ak, *govk, pk.Subspace(commerciomintTypes.ModuleName))
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
 
@@ -116,7 +117,7 @@ var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testDenom = "ucommercio"
 var stableCreditDenom = "uccc"
-var testExpiration = time.Now().Add(SecondsPerYear).UTC()
+var testExpiration = time.Now().Add(time.Hour * 24 * 365).UTC()
 var testExpirationNegative = time.Now()
 var depositStableCoin = sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 50000000))
 var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))
