@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -135,5 +136,174 @@ func Test_queryGetSigners(t *testing.T) {
 				require.Contains(t, actual.Addresses, tsp.String())
 			}
 		})
+	}
+}
+
+func Test_queryGetMembership(t *testing.T) {
+	tests := []struct {
+		name               string
+		existingMembership types.Membership
+		expected           types.Membership
+		mustErr            bool
+	}{
+		{
+			name:               "Existing membership is returned properly",
+			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+			expected:           types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+			mustErr:            false,
+		},
+		{
+			name:               "Not found membership returns correctly",
+			existingMembership: types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
+			mustErr:            true,
+		},
+		{
+			name:               "Not found membership on empty set returns correctly",
+			existingMembership: types.Membership{ExpiryAt: &testExpiration},
+			mustErr:            true,
+		},
+	}
+
+	for _, test := range tests {
+		ctx, _, _, k := SetupTestInput()
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+		owner, _ := sdk.AccAddressFromBech32(test.existingMembership.Owner)
+		tsp, _ := sdk.AccAddressFromBech32(test.existingMembership.TspAddress)
+		curTime := time.Now()
+		emptyMembership := types.Membership{ExpiryAt: &curTime}
+		if !emptyMembership.Equals(test.existingMembership) {
+			_ = k.AssignMembership(ctx, owner, test.existingMembership.MembershipType, tsp, *test.existingMembership.ExpiryAt)
+		}
+
+		querier := keeper.NewQuerier(k, legacyAmino)
+
+		path := []string{types.QueryGetMembership, testUser.String()}
+		actualBz, err := querier(ctx, path, request)
+
+		if !test.mustErr {
+			require.NoError(t, err)
+			var actual types.Membership
+			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			require.Equal(t, test.expected, actual)
+		} else {
+			require.Error(t, err)
+		}
+	}
+}
+
+func Test_queryGetMemberships(t *testing.T) {
+	tests := []struct {
+		name                string
+		existingMemberships types.Memberships
+		expected            types.Memberships
+		mustErr             bool
+	}{
+		{
+			name: "Existing memberships is returned properly",
+			existingMemberships: types.Memberships{
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
+			},
+			expected: types.Memberships{
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
+			},
+		},
+		{
+			name:                "Not found membership returns correctly",
+			existingMemberships: types.Memberships{},
+			expected:            types.Memberships(nil), //TODO FIX THIS: should be types.Memberships{}
+		},
+	}
+
+	for _, test := range tests {
+		ctx, _, _, k := SetupTestInput()
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+
+		for _, m := range test.existingMemberships {
+			owner, _ := sdk.AccAddressFromBech32(m.Owner)
+			tsp, _ := sdk.AccAddressFromBech32(m.TspAddress)
+
+			_ = k.AssignMembership(ctx, owner, m.MembershipType, tsp, *m.ExpiryAt)
+		}
+
+		querier := keeper.NewQuerier(k, legacyAmino)
+		request := abci.RequestQuery{}
+
+		path := []string{types.QueryGetMemberships}
+		actualBz, _ := querier(ctx, path, request)
+
+		var actual types.Memberships
+		legacyAmino.MustUnmarshalJSON(actualBz, &actual)
+		require.Equal(t, test.expected, actual)
+
+	}
+}
+
+func Test_queryGetTspMemberships(t *testing.T) {
+	tests := []struct {
+		name                string
+		existingMemberships types.Memberships
+		tsp                 sdk.AccAddress
+		expected            types.Memberships
+		mustErr             bool
+	}{
+		{
+			name: "All memberships for tsp is returned properly",
+			existingMemberships: types.Memberships{
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
+			},
+			tsp: testTsp,
+			expected: types.Memberships{
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testTsp, testExpiration),
+			},
+		},
+		{
+			name: "Existing memberships for tsp is returned properly",
+			existingMemberships: types.Memberships{
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testUser, testExpiration),
+			},
+			tsp: testTsp,
+			expected: types.Memberships{
+				types.NewMembership(types.MembershipTypeGold, testUser, testTsp, testExpiration),
+			},
+		},
+		{
+			name: "Not found memberships for tsp returns correctly",
+			existingMemberships: types.Memberships{
+				types.NewMembership(types.MembershipTypeGold, testUser, testUser2, testExpiration),
+				types.NewMembership(types.MembershipTypeBronze, testUser2, testUser, testExpiration),
+			},
+			tsp:      testTsp,
+			expected: types.Memberships(nil), //TODO FIX THIS: should be types.Memberships{}
+		},
+	}
+
+	for _, test := range tests {
+		ctx, _, _, k := SetupTestInput()
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+
+		for _, m := range test.existingMemberships {
+			owner, _ := sdk.AccAddressFromBech32(m.Owner)
+			tsp, _ := sdk.AccAddressFromBech32(m.TspAddress)
+
+			_ = k.AssignMembership(ctx, owner, m.MembershipType, tsp, *m.ExpiryAt)
+		}
+		k.AddTrustedServiceProvider(ctx, test.tsp)
+		querier := keeper.NewQuerier(k, legacyAmino)
+
+		path := []string{types.QueryGetTspMemberships, test.tsp.String()}
+		actualBz, _ := querier(ctx, path, request)
+
+		var actual types.Memberships
+		legacyAmino.MustUnmarshalJSON(actualBz, &actual)
+		require.Equal(t, test.expected, actual)
+
 	}
 }

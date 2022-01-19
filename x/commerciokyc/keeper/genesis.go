@@ -90,9 +90,3 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		Memberships:             k.GetMemberships(ctx),
 	}
 }
-
-// ValidateGenesis performs basic validation of genesis data returning an
-// error for any failed validation criteria.
-func ValidateGenesis(state types.GenesisState) error {
-	return state.Validate()
-}

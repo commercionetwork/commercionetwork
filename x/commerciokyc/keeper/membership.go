@@ -211,11 +211,6 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		// Create a mint position from
 
 		mintUUID := uuid.NewV4().String()
-		/*var postion = mtypes.Position{
-			Owner:      govAddr.String(),
-			Collateral: rewardAmount.Int64(),
-			ID:         mintUUID,
-		}*/
 
 		err := k.MintKeeper.NewPosition(
 			ctx,

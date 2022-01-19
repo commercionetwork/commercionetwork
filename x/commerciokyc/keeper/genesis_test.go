@@ -4,10 +4,8 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -61,7 +59,3 @@ func TestInitGenesis(t *testing.T) {
 /*func TestExportGenesis(t *testing.T) {
 
 }*/
-
-func TestValidateGenesis(t *testing.T) {
-
-}

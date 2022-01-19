@@ -60,10 +60,6 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) GetAccountKeeper() auth.AccountKeeper {
-	return k.accountKeeper
-}
-
 func (k Keeper) GetBankKeeper() bank.Keeper {
 	return k.bankKeeper
 }
