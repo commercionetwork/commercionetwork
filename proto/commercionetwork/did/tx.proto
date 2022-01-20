@@ -10,7 +10,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 // Msg defines the Msg service.
 service Msg {
   // this line is used by starport scaffolding # proto/tx/rpc
-  rpc SetIdentity(MsgSetDidDocument) returns (MsgSetDidDocumentResponse);
+  rpc UpdateIdentity(MsgSetDidDocument) returns (MsgSetDidDocumentResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message

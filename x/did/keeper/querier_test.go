@@ -30,7 +30,7 @@ func TestNewQuerier(t *testing.T) {
 			k, ctx := setupKeeper(t)
 
 			if tt.want.Identity != nil {
-				k.UpdateIdentity(ctx, types.ValidIdentity)
+				k.SetIdentity(ctx, types.ValidIdentity)
 			}
 
 			app := simapp.Setup(false)

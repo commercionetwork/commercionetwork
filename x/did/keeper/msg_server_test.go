@@ -36,7 +36,7 @@ func Test_SetDidDocument(t *testing.T) {
 	_, err = k.GetLastIdentityOfAddress(ctx, did)
 	assert.Error(t, err)
 
-	resp, err := srv.SetIdentity(sdkCtx, &msg)
+	resp, err := srv.UpdateIdentity(sdkCtx, &msg)
 	require.NoError(t, err)
 	assert.Equal(t, &types.MsgSetDidDocumentResponse{}, resp)
 
@@ -62,7 +62,7 @@ func Test_SetDidDocument(t *testing.T) {
 	newMsg := msg
 	newMsg.DidDocument.AssertionMethod = []string{"#key-1"}
 
-	resp, err = srv.SetIdentity(sdkCtx, &newMsg)
+	resp, err = srv.UpdateIdentity(sdkCtx, &newMsg)
 	require.NoError(t, err)
 	assert.Equal(t, &types.MsgSetDidDocumentResponse{}, resp)
 

@@ -21,7 +21,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 var _ types.MsgServer = msgServer{}
 
 // SetIdentity
-func (k msgServer) SetIdentity(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
+func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -46,7 +46,7 @@ func (k msgServer) SetIdentity(goCtx context.Context, msg *types.MsgSetDidDocume
 		identity.Metadata.Created = previousIdentity.Metadata.Created
 	}
 
-	k.UpdateIdentity(ctx, identity)
+	k.SetIdentity(ctx, identity)
 
 	return &types.MsgSetDidDocumentResponse{}, nil
 }

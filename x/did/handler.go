@@ -19,7 +19,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *types.MsgSetDidDocument:
-			res, err := msgServer.SetIdentity(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.UpdateIdentity(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		// this line is used by starport scaffolding # 1
