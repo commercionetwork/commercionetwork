@@ -41,7 +41,7 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetDidDoc
 	} else {
 		// use last identity info
 		if msg.DidDocument.Equal(previousIdentity.DidDocument) {
-			return nil, fmt.Errorf("cannot update an identity with the same DID document")
+			return nil, fmt.Errorf("cannot update the identity with the same DID document as the last one stored")
 		}
 		identity.Metadata.Created = previousIdentity.Metadata.Created
 	}

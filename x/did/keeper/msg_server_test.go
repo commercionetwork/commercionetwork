@@ -20,7 +20,7 @@ func Test_SetDidDocument(t *testing.T) {
 	srv, k, ctx := setupMsgServer(t)
 
 	// create
-	dateString := "2019-03-23T06:35:22Z"
+	dateString := types.ValidIdentity.Metadata.Created
 	createdTimestamp, err := time.Parse(types.ComplaintW3CTime, dateString)
 	require.NoError(t, err)
 	ctx = ctx.WithBlockTime(createdTimestamp.UTC())
@@ -40,6 +40,10 @@ func Test_SetDidDocument(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, &types.MsgSetDidDocumentResponse{}, resp)
 
+	// try to update the identity with the same DDO as the previous one
+	_, err = srv.UpdateIdentity(sdkCtx, &msg)
+	require.Error(t, err)
+
 	firstIdentity, err := k.GetLastIdentityOfAddress(ctx, did)
 	assert.NoError(t, err)
 	require.Equal(t, msg.DidDocument, firstIdentity.DidDocument)
@@ -51,10 +55,7 @@ func Test_SetDidDocument(t *testing.T) {
 
 	// update
 	ctx = sdk.UnwrapSDKContext(sdkCtx)
-	dateUpdated := "2023-08-10T13:40:06Z"
-	assert.True(t, dateUpdated > dateString)
-	updatedTimestamp, err := time.Parse(types.ComplaintW3CTime, dateUpdated)
-	require.NoError(t, err)
+	updatedTimestamp := createdTimestamp.Add(time.Hour)
 	ctx = ctx.WithBlockTime(updatedTimestamp)
 
 	sdkCtx = sdk.WrapSDKContext(ctx)
