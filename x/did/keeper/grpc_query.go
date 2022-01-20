@@ -22,7 +22,7 @@ func (k Keeper) Identity(c context.Context, req *types.QueryResolveIdentityReque
 
 	identity, err := k.GetLastIdentityOfAddress(ctx, req.ID)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	return &types.QueryResolveIdentityResponse{Identity: identity}, nil
