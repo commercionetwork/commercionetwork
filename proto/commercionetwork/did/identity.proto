@@ -8,8 +8,8 @@ import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 
 message Identity {
-  DidDocument didDocument = 2;
-  Metadata metadata = 3;
+  DidDocument didDocument = 1;
+  Metadata metadata = 2;
 }
 
 message DidDocument {
