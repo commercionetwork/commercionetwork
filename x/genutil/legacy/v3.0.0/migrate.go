@@ -30,7 +30,8 @@ import (
 	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
 	v300vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v3.0.0"
 
-	v300epochs "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	//v300epochs "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	//v300epochs "github.com/osmosis-labs/osmosis/x/epochs/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -82,9 +83,9 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 		appState[v300vbr.ModuleName] = v040Codec.MustMarshalJSON(v300vbr.Migrate(vbrGenState))
 	}
 
-	if appState[v300epochs.ModuleName] == nil {
+	/*if appState[v300epochs.ModuleName] == nil {
 		appState[v300epochs.ModuleName] = v040Codec.MustMarshalJSON(v300epochs.DefaultGenesis())
-	}
+	}*/
 
 	//appState[wasm.ModuleName] = wasmKeeper.InitGenesis()
 	wasmModule := &wasmTypes.GenesisState{}

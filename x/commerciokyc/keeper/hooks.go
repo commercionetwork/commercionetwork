@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	epochstypes "github.com/osmosis-labs/osmosis/x/epochs/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -16,7 +16,7 @@ import (
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	// this line is used by starport scaffolding # ibc/keeper/import
-	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	epochsKeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"

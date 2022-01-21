@@ -15,7 +15,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 
-	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	epochsTypes "github.com/osmosis-labs/osmosis/x/epochs/types"
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -23,7 +23,7 @@ import (
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	epochsKeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
