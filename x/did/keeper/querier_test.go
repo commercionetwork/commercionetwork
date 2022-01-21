@@ -9,7 +9,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func TestNewQuerier(t *testing.T) {
+func TestNewQuerier_queryGetLastIdentityOfAddress(t *testing.T) {
 	tests := []struct {
 		name string
 		want types.QueryResolveIdentityResponse
@@ -36,7 +36,7 @@ func TestNewQuerier(t *testing.T) {
 			app := simapp.Setup(false)
 			legacyAmino := app.LegacyAmino()
 			querier := NewQuerier(*k, legacyAmino)
-			path := []string{types.QueryResolveDid, types.ValidIdentity.DidDocument.ID}
+			path := []string{types.QueryResolveIdentity, types.ValidIdentity.DidDocument.ID}
 			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
 			if tt.want.Identity == nil {
@@ -49,6 +49,54 @@ func TestNewQuerier(t *testing.T) {
 			legacyAmino.MustUnmarshalJSON(gotBz, &got)
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestNewQuerier_GetIdentityHistoryOfAddress(t *testing.T) {
+	tests := []struct {
+		name string
+		want types.QueryResolveIdentityHistoryResponse
+	}{
+		// TODO: consider changing proto of query and keeper methods to return a slice of values, no pointers
+		// then, want.Identities can be []types.Identity
+		{
+			name: "empty",
+			want: types.QueryResolveIdentityHistoryResponse{
+				Identities: nil,
+			},
+		},
+		{
+			name: "ok",
+			want: types.QueryResolveIdentityHistoryResponse{
+				Identities: identitiesAtIncreasingMoments(2, 0),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
+
+			for _, identity := range tt.want.Identities {
+				k.SetIdentity(ctx, *identity)
+			}
+
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+			querier := NewQuerier(*k, legacyAmino)
+			path := []string{types.QueryResolveIdentityHistory, types.ValidIdentity.DidDocument.ID}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
+			require.NoError(t, err)
+
+			var got types.QueryResolveIdentityHistoryResponse
+
+			legacyAmino.MustUnmarshalJSON(gotBz, &got)
+
+			expected := types.QueryResolveIdentityHistoryResponse{
+				Identities: tt.want.Identities,
+			}
+			require.NoError(t, err)
+			require.Equal(t, expected, got)
 		})
 	}
 }

@@ -35,7 +35,7 @@ func resolveIdentityHandler(cliCtx client.Context, querierRoute string) http.Han
 		vars := mux.Vars(r)
 		paramType := vars[identityParam]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", querierRoute, types.QueryResolveDid, paramType)
+		route := fmt.Sprintf("custom/%s/%s/%s", querierRoute, types.QueryResolveIdentity, paramType)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())

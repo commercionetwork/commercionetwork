@@ -36,7 +36,8 @@ const (
 	// --- Queries
 	// --------------
 
-	QueryResolveDid = "identities"
+	QueryResolveIdentity        = "identities"
+	QueryResolveIdentityHistory = "identities-history"
 
 	// --------------
 	// --- KeyTypes required for the Documents module
