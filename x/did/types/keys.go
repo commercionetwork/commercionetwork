@@ -27,10 +27,7 @@ const (
 	// Identity prefix
 	IdentitiesStorePrefix = StoreKey + ":identities:"
 
-	// Context
-	ContextDidV1 = "https://www.w3.org/ns/did/v1"
-
-	MsgTypeSetDid = "MsgSetDid"
+	MsgTypeSetIdentity = "MsgSetIdentity"
 
 	// --------------
 	// --- Queries
@@ -38,6 +35,9 @@ const (
 
 	QueryResolveIdentity        = "identities"
 	QueryResolveIdentityHistory = "identities-history"
+
+	// W3C DID document context
+	ContextDidV1 = "https://www.w3.org/ns/did/v1"
 
 	// --------------
 	// --- KeyTypes required for the Documents module
