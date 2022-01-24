@@ -79,7 +79,7 @@ func (k Keeper) GetIdentityHistoryOfAddress(ctx sdk.Context, address string) []*
 // GetAllIdentities returns all the stored Identities
 func (k Keeper) GetAllIdentities(ctx sdk.Context) []*types.Identity {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
 
 	defer iterator.Close()
 

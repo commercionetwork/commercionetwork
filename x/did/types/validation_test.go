@@ -4,8 +4,22 @@ import (
 	"strings"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
+
+// package initialization for correct validation of commercionetwork addresses
+func init() {
+	configTestPrefixes()
+}
+
+func configTestPrefixes() {
+	AccountAddressPrefix := "did:com:"
+	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
+	config.Seal()
+}
 
 func TestService_isValid(t *testing.T) {
 

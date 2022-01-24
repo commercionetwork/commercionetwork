@@ -1,20 +1,5 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
-
-// package initialization for correct validation of commercionetwork addresses
-func init() {
-	configTestPrefixes()
-}
-
-func configTestPrefixes() {
-	AccountAddressPrefix := "did:com:"
-	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
-	config.Seal()
-}
-
 const (
 	validDidSubject   = "did:com:14zk9u8894eg7fhgw0dsesnqzmlrx85ga9rvnjc"
 	validDidNoSubject = "did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"
