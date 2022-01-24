@@ -63,3 +63,11 @@ func NewKeeper(
 func (k Keeper) GetBankKeeper() bank.Keeper {
 	return k.bankKeeper
 }
+
+func (k Keeper) GetMintKeeper() mint.Keeper {
+	return k.MintKeeper
+}
+
+func (k Keeper) GetGovKeeper() government.Keeper {
+	return k.GovKeeper
+}

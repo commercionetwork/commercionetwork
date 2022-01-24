@@ -1,24 +1,25 @@
-package keeper
+package keeper_test
 
 import (
 	"context"
 	"reflect"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
 func Test_msgServer_BuyMembership(t *testing.T) {
-	type fields struct {
-		Keeper Keeper
-	}
+
 	type args struct {
 		goCtx context.Context
 		msg   *types.MsgBuyMembership
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		want    *types.MsgBuyMembershipResponse
 		wantErr bool
@@ -27,10 +28,12 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			k := msgServer{
-				Keeper: tt.fields.Keeper,
-			}
-			got, err := k.BuyMembership(tt.args.goCtx, tt.args.msg)
+			ctx, bk, _, k := SetupTestInput()
+
+			msg := keeper.NewMsgServerImpl(k)
+			_ = bk
+
+			got, err := msg.BuyMembership(sdk.WrapSDKContext(ctx), tt.args.msg)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("msgServer.BuyMembership() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -43,28 +46,51 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 }
 
 func Test_msgServer_RemoveMembership(t *testing.T) {
-	type fields struct {
-		Keeper Keeper
-	}
+
 	type args struct {
 		goCtx context.Context
 		msg   *types.MsgRemoveMembership
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		want    *types.MsgRemoveMembershipResponse
 		wantErr bool
 	}{
 		// TODO: Add test cases.
+		{
+			name: "Invalid membership type returns error",
+		},
+		{
+			name: "Invalid message returns error",
+		},
+		{
+			name: "Valid membership allows buying",
+		},
+		{
+			name: "Buying without invite returns error",
+		},
+		{
+			name: "Buying with invalid invite returns error",
+		},
+		{
+			name: "Valid upgrade works properly",
+		},
+		{
+			name: "Valid downgrade works properly",
+		},
+		{
+			name: "Invalid buying memebership with diffrent denom",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			k := msgServer{
-				Keeper: tt.fields.Keeper,
-			}
-			got, err := k.RemoveMembership(tt.args.goCtx, tt.args.msg)
+			ctx, bk, _, k := SetupTestInput()
+
+			msg := keeper.NewMsgServerImpl(k)
+			_ = bk
+
+			got, err := msg.RemoveMembership(sdk.WrapSDKContext(ctx), tt.args.msg)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("msgServer.RemoveMembership() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -77,16 +103,13 @@ func Test_msgServer_RemoveMembership(t *testing.T) {
 }
 
 func Test_msgServer_SetMembership(t *testing.T) {
-	type fields struct {
-		Keeper Keeper
-	}
+
 	type args struct {
 		goCtx context.Context
 		msg   *types.MsgSetMembership
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		want    *types.MsgSetMembershipResponse
 		wantErr bool
@@ -95,10 +118,11 @@ func Test_msgServer_SetMembership(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			k := msgServer{
-				Keeper: tt.fields.Keeper,
-			}
-			got, err := k.SetMembership(tt.args.goCtx, tt.args.msg)
+			ctx, bk, _, k := SetupTestInput()
+
+			msg := keeper.NewMsgServerImpl(k)
+			_ = bk
+			got, err := msg.SetMembership(sdk.WrapSDKContext(ctx), tt.args.msg)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("msgServer.SetMembership() error = %v, wantErr %v", err, tt.wantErr)
 				return
