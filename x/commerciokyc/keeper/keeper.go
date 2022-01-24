@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -35,7 +34,6 @@ type Keeper struct {
 	GovKeeper     government.Keeper
 	accountKeeper auth.AccountKeeper
 	MintKeeper    mint.Keeper
-	paramSpace    paramtypes.Subspace
 }
 
 func NewKeeper(
@@ -46,15 +44,9 @@ func NewKeeper(
 	govKeeper government.Keeper,
 	accountKeeper auth.AccountKeeper,
 	mintKeeper mint.Keeper,
-	paramSpace paramtypes.Subspace,
 ) *Keeper {
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
-	}
-
-	// set KeyTable if it has not already been set
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
 	}
 
 	return &Keeper{
@@ -65,14 +57,17 @@ func NewKeeper(
 		GovKeeper:     govKeeper,
 		accountKeeper: accountKeeper,
 		MintKeeper:    mintKeeper,
-		paramSpace:    paramSpace,
 	}
-}
-
-func (k Keeper) GetAccountKeeper() auth.AccountKeeper {
-	return k.accountKeeper
 }
 
 func (k Keeper) GetBankKeeper() bank.Keeper {
 	return k.bankKeeper
+}
+
+func (k Keeper) GetMintKeeper() mint.Keeper {
+	return k.MintKeeper
+}
+
+func (k Keeper) GetGovKeeper() government.Keeper {
+	return k.GovKeeper
 }

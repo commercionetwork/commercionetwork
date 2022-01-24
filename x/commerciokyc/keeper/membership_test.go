@@ -173,7 +173,6 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		name                 string
 		invite               types.Invite
 		pool                 sdk.Coins
-		expectedGovBalance   sdk.Coins
 		expectedUserBalance  sdk.Coins
 		expectedPoolBalance  sdk.Coins
 		expectedInviteStatus int64
@@ -223,7 +222,6 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
 			pool:                 sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000000000000))),
 			expectedInviteStatus: int64(types.InviteStatusRewarded),
-			expectedGovBalance:   sdk.Coins{},
 			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, sdk.NewInt(1750000000))),
 			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(998775000000))),
 			mustError:            false,
@@ -240,10 +238,8 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		require.NoError(t, err)
 		senderAccAddr, _ := sdk.AccAddressFromBech32(test.invite.Sender)
 		userAccAddr, _ := sdk.AccAddressFromBech32(test.invite.User)
-		govAccAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 		//senderMembershipType := test.invite.SenderMembership
 		//senderBalance := bk.GetAllBalances(ctx, senderAccAddr)
-		govBalance := bk.GetAllBalances(ctx, govAccAddr)
 		//userBalance := bk.GetAllBalances(ctx, userAccAddr)
 		k.SaveInvite(ctx, test.invite)
 
@@ -265,10 +261,6 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		if test.expectedUserBalance != nil {
 			senderBalance := bk.GetAllBalances(ctx, senderAccAddr)
 			require.Equal(t, test.expectedUserBalance, senderBalance)
-		}
-
-		if test.expectedGovBalance != nil {
-			require.Equal(t, test.expectedGovBalance, govBalance)
 		}
 
 		if test.expectedPoolBalance != nil {
@@ -579,82 +571,6 @@ func TestKeeper_ExportMemberships(t *testing.T) {
 				require.NoError(t, err)
 			}
 			ms := k.ExportMemberships(ctx)
-			require.Equal(t, test.expectedMemberships, ms)
-		})
-	}
-}
-
-func TestKeeper_RemoveExpiredMemberships(t *testing.T) {
-	curRemoveTime := time.Now().AddDate(1, 0, 1)
-	curTime := testExpiration.AddDate(1, 0, 0)
-	curTimePlusYear := curRemoveTime.UTC().Add(SecondsPerYear)
-	tests := []struct {
-		name                string
-		storedMemberships   []*types.Membership
-		expectedMemberships []*types.Membership
-	}{
-		{
-			name:                "Empty set is properly stored",
-			storedMemberships:   []*types.Membership{},
-			expectedMemberships: []*types.Membership{},
-		},
-		{
-			name: "All expired memberships are properly removed",
-			storedMemberships: []*types.Membership{
-				&types.Membership{testUser.String(), testUser2.String(), types.MembershipTypeBronze, &testExpiration},
-				&types.Membership{testUser2.String(), testUser.String(), types.MembershipTypeGold, &testExpiration},
-			},
-			expectedMemberships: []*types.Membership{},
-		},
-		{
-			name: "Some memberships expired are properly removed",
-			storedMemberships: []*types.Membership{
-				&types.Membership{testUser.String(), testUser2.String(), types.MembershipTypeBronze, &testExpiration},
-				&types.Membership{testUser2.String(), testTsp.String(), types.MembershipTypeBronze, &testExpiration},
-				&types.Membership{testInviteSender.String(), testUser.String(), types.MembershipTypeGold, &curTime},
-			},
-			expectedMemberships: []*types.Membership{
-				&types.Membership{testInviteSender.String(), testUser.String(), types.MembershipTypeGold, &curTime},
-			},
-		},
-		{
-			name: "All memberships not expired are properly left on store",
-			storedMemberships: []*types.Membership{
-				&types.Membership{testUser.String(), testTsp.String(), types.MembershipTypeBronze, &curTime},
-				&types.Membership{testUser2.String(), testTsp.String(), types.MembershipTypeGold, &curTime},
-			},
-			expectedMemberships: []*types.Membership{
-				&types.Membership{testUser.String(), testTsp.String(), types.MembershipTypeBronze, &curTime},
-				&types.Membership{testUser2.String(), testTsp.String(), types.MembershipTypeGold, &curTime},
-			},
-		},
-		{
-			name: "Black membership left in store and renewed",
-			storedMemberships: []*types.Membership{
-				&types.Membership{testUser.String(), testTsp.String(), types.MembershipTypeBlack, &testExpiration},
-				&types.Membership{testUser2.String(), testTsp.String(), types.MembershipTypeGold, &testExpiration},
-			},
-			expectedMemberships: []*types.Membership{
-				&types.Membership{testUser.String(), testTsp.String(), types.MembershipTypeBlack, &curTimePlusYear},
-			},
-		},
-	}
-
-	for _, test := range tests {
-
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, k := SetupTestInput()
-			ctx = ctx.WithBlockTime(curRemoveTime)
-			for _, m := range test.storedMemberships {
-				mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
-				mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
-				err := k.AssignMembership(ctx, mOwner, m.MembershipType, mTspAddress, *m.ExpiryAt)
-				require.NoError(t, err)
-			}
-			err2 := k.RemoveExpiredMemberships(ctx)
-			require.NoError(t, err2)
-			ms := k.GetMemberships(ctx)
 			require.Equal(t, test.expectedMemberships, ms)
 		})
 	}

@@ -18,7 +18,6 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRemoveTsp{}, "commercio/MsgRemoveTsp", nil)
 	cdc.RegisterConcrete(&MsgRemoveMembership{}, "commercio/MsgRemoveMembership", nil)
 	cdc.RegisterConcrete(&MsgSetMembership{}, "commercio/MsgSetMembership", nil)
-	cdc.RegisterConcrete(&MsgSetParams{}, "commercio/SetParams", nil)
 
 }
 
@@ -32,7 +31,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgRemoveTsp{},
 		&MsgRemoveMembership{},
 		&MsgSetMembership{},
-		&MsgSetParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

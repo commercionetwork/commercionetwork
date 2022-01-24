@@ -14,7 +14,6 @@ func DefaultGenesis() *GenesisState {
 		LiquidityPoolAmount: sdk.Coins(nil),
 		Invites:             []*Invite(nil),
 		Memberships:         []*Membership(nil),
-		Params:              Params{CheckMembershipsEpochIdentifier: "day"},
 	}
 }
 
@@ -28,11 +27,5 @@ func (gs GenesisState) Validate() error {
 	if coins.IsAnyNegative() {
 		return errors.New("liquidity pool amount cannot contain negative values")
 	}
-
-	err := gs.Params.Validate()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
