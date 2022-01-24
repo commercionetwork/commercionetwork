@@ -10,7 +10,7 @@ import (
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	uuid "github.com/satori/go.uuid"
+	//uuid "github.com/satori/go.uuid"
 	//kmint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 )
 
@@ -202,35 +202,12 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		rewardStakeCoinAmount := sdk.NewDecFromInt(rewardAmount).Mul(ucccConversionRate).Ceil().TruncateInt()
 		stakeEquivCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardStakeCoinAmount))
 
-		govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
-
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, govAddr, stakeEquivCoins); err != nil {
+		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, stakeEquivCoins); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
-		// Create a mint position from
+		k.bankKeeper.AddCoins(ctx, inviteSender, rewardCoins)
 
-		mintUUID := uuid.NewV4().String()
-
-		err := k.MintKeeper.NewPosition(
-			ctx,
-			govAddr.String(),
-			rewardCoins,
-			mintUUID,
-		)
-		if err != nil {
-			// TODO find a way to fix nested errors
-			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, stakeEquivCoins); err != nil {
-				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
-			}
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
-		}
-
-		// Send the reward to the invite sender
-		inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
-		if err := k.bankKeeper.SendCoins(ctx, govAddr, inviteSender, rewardCoins); err != nil {
-			return err
-		}
 		// Emits events
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			eventDistributeReward,
@@ -349,6 +326,30 @@ func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
 		ms = append(ms, m)
 	}
 	return ms
+}
+
+// RemoveExpiredMemberships delete all expired memberships
+func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
+	blockTime := ctx.BlockTime()
+	for _, m := range k.GetMemberships(ctx) {
+		if blockTime.After(*m.ExpiryAt) {
+			mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
+			mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
+			if m.MembershipType == types.MembershipTypeBlack {
+				expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
+				membership := types.NewMembership(types.MembershipTypeBlack, mOwner, mTspAddress, expiredAt)
+				store := ctx.KVStore(k.StoreKey)
+				staddr := k.storageForAddr(mOwner)
+				store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
+			} else {
+				err := k.DeleteMembership(ctx, mOwner)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // GetMembershipModuleAccount returns the module account for the commerciokyc module

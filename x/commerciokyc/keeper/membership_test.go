@@ -173,7 +173,6 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		name                 string
 		invite               types.Invite
 		pool                 sdk.Coins
-		expectedGovBalance   sdk.Coins
 		expectedUserBalance  sdk.Coins
 		expectedPoolBalance  sdk.Coins
 		expectedInviteStatus int64
@@ -223,7 +222,6 @@ func TestKeeper_DistributeReward(t *testing.T) {
 			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
 			pool:                 sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000000000000))),
 			expectedInviteStatus: int64(types.InviteStatusRewarded),
-			expectedGovBalance:   sdk.Coins{},
 			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, sdk.NewInt(1750000000))),
 			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(998775000000))),
 			mustError:            false,
@@ -240,10 +238,8 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		require.NoError(t, err)
 		senderAccAddr, _ := sdk.AccAddressFromBech32(test.invite.Sender)
 		userAccAddr, _ := sdk.AccAddressFromBech32(test.invite.User)
-		govAccAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 		//senderMembershipType := test.invite.SenderMembership
 		//senderBalance := bk.GetAllBalances(ctx, senderAccAddr)
-		govBalance := bk.GetAllBalances(ctx, govAccAddr)
 		//userBalance := bk.GetAllBalances(ctx, userAccAddr)
 		k.SaveInvite(ctx, test.invite)
 
@@ -265,10 +261,6 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		if test.expectedUserBalance != nil {
 			senderBalance := bk.GetAllBalances(ctx, senderAccAddr)
 			require.Equal(t, test.expectedUserBalance, senderBalance)
-		}
-
-		if test.expectedGovBalance != nil {
-			require.Equal(t, test.expectedGovBalance, govBalance)
 		}
 
 		if test.expectedPoolBalance != nil {
