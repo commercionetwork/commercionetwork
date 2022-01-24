@@ -11,9 +11,16 @@ import (
 func Migrate(oldGenState v220did.GenesisState) *types.GenesisState {
 
 	identities := []*types.Identity{}
+
+	// support data structure for no duplicates
+	appears := map[string]struct{}{}
+
 	for _, v220didDocument := range oldGenState.DidDocuments {
-		identity := fromDidDocumentToIdentity(v220didDocument)
-		identities = append(identities, identity)
+		if _, found := appears[string(v220didDocument.ID.String())]; !found {
+			identity := fromDidDocumentToIdentity(v220didDocument)
+			identities = append(identities, identity)
+			appears[string(v220didDocument.ID.String())] = struct{}{}
+		}
 	}
 
 	return &types.GenesisState{Identities: identities}
