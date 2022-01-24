@@ -78,7 +78,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	}
 
 	// Check if the expired at is greater then current time
-	if expited_at.Before(time.Now()) {
+	if expited_at.Before(ctx.BlockTime()) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", expited_at))
 	}
 
