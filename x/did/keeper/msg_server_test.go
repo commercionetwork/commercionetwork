@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -17,108 +16,62 @@ func setupMsgServer(t testing.TB) (types.MsgServer, Keeper, sdk.Context) {
 	return NewMsgServerImpl(*keeper), *keeper, ctx
 }
 
-// TODO use valid DID document content from the 'did.keeper.types' testing package
 func Test_SetDidDocument(t *testing.T) {
 	srv, k, ctx := setupMsgServer(t)
 
-	// creation
-	ctx = ctx.WithBlockTime(time.Now())
+	// create
+	dateString := types.ValidIdentity.Metadata.Created
+	createdTimestamp, err := time.Parse(types.ComplaintW3CTime, dateString)
+	require.NoError(t, err)
+	ctx = ctx.WithBlockTime(createdTimestamp.UTC())
 
 	sdkCtx := sdk.WrapSDKContext(ctx)
 
-	did := "did:com:13jckgxmj3v8jpqdeq8zxwcyhv7gc3dzmrqqger"
-
-	msg := types.MsgSetDidDocument{
-		Context: []string{
-			types.ContextDidV1,
-			"https://w3id.org/security/suites/ed25519-2018/v1",
-			"https://w3id.org/security/suites/x25519-2019/v1",
-		},
-		ID: did,
-		VerificationMethod: []*types.VerificationMethod{
-			{
-				ID:                 fmt.Sprint(did, "#key-1"),
-				Type:               "RsaSignature2018",
-				Controller:         did,
-				PublicKeyMultibase: "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",
-			},
-			{
-				ID:                 fmt.Sprint(did, "#key-agreement-1"),
-				Type:               "RsaVerificationKey2018",
-				Controller:         did,
-				PublicKeyMultibase: "FK2c4QudVyaodvX9LARDsbihkVBvWxe8oiJAiYQ2JpdC",
-			},
-		},
-		Authentication: []string{
-			fmt.Sprint(did, "#key-1"),
-		},
-		AssertionMethod: []string{
-			fmt.Sprint(did, "#key-1"),
-		},
-		KeyAgreement: []string{
-			fmt.Sprint(did, "#key-agreement-1"),
-		},
-		CapabilityInvocation: nil,
-		CapabilityDelegation: nil,
-		Service: []*types.Service{
-			{
-				ID:              "https://bar.example.com",
-				Type:            "agent",
-				ServiceEndpoint: "https://commerc.io/agent/serviceEndpoint/",
-			},
-			{
-				ID:              "https://foo.example.com",
-				Type:            "xdi",
-				ServiceEndpoint: "https://commerc.io/xdi/serviceEndpoint/",
-			},
-		},
+	msg := types.MsgSetIdentity{
+		DidDocument: types.ValidIdentity.DidDocument,
 	}
 
-	_, err := k.GetDidDocumentOfAddress(ctx, did)
+	did := msg.DidDocument.ID
+
+	_, err = k.GetLastIdentityOfAddress(ctx, did)
 	assert.Error(t, err)
 
-	resp, err := srv.SetDidDocument(sdkCtx, &msg)
+	resp, err := srv.UpdateIdentity(sdkCtx, &msg)
 	require.NoError(t, err)
-	assert.Equal(t, did, resp.ID)
+	assert.Equal(t, &types.MsgSetIdentityResponse{}, resp)
 
-	var ddo types.DidDocument
+	// try to update the identity with the same DDO as the previous one
+	_, err = srv.UpdateIdentity(sdkCtx, &msg)
+	require.Error(t, err)
 
-	ddo, err = k.GetDidDocumentOfAddress(ctx, did)
+	firstIdentity, err := k.GetLastIdentityOfAddress(ctx, did)
 	assert.NoError(t, err)
-	requireEqualMsgSetDidDocumentWithDidDocument(t, msg, ddo)
+	require.Equal(t, msg.DidDocument, firstIdentity.DidDocument)
+	expectedFirstMetadata := types.Metadata{
+		Created: dateString,
+		Updated: dateString,
+	}
+	require.Equal(t, &expectedFirstMetadata, firstIdentity.Metadata)
 
 	// update
 	ctx = sdk.UnwrapSDKContext(sdkCtx)
-	ctx = ctx.WithBlockTime(time.Now().Add(time.Hour))
+	updatedTimestamp := createdTimestamp.Add(time.Hour)
+	ctx = ctx.WithBlockTime(updatedTimestamp)
 
 	sdkCtx = sdk.WrapSDKContext(ctx)
 
 	newMsg := msg
-	newMsg.AssertionMethod = []string{"#key-1"}
+	newMsg.DidDocument.AssertionMethod = []string{"#key-1"}
 
-	resp, err = srv.SetDidDocument(sdkCtx, &newMsg)
+	resp, err = srv.UpdateIdentity(sdkCtx, &newMsg)
 	require.NoError(t, err)
-	assert.Equal(t, did, resp.ID)
+	assert.Equal(t, &types.MsgSetIdentityResponse{}, resp)
 
-	assert.True(t, k.HasDidDocument(ctx, did))
-
-	ddoUpdated, err := k.GetDidDocumentOfAddress(ctx, did)
+	identityUpdated, err := k.GetLastIdentityOfAddress(ctx, did)
 	assert.NoError(t, err)
-	requireEqualMsgSetDidDocumentWithDidDocument(t, newMsg, ddoUpdated)
+	require.Equal(t, newMsg.DidDocument, identityUpdated.DidDocument)
 
-	require.Equal(t, ddo.Created, ddoUpdated.Created)
-	require.NotEqual(t, ddo.Updated, ddoUpdated.Updated)
+	require.Equal(t, firstIdentity.Metadata.Created, identityUpdated.Metadata.Created)
+	require.NotEqual(t, firstIdentity.Metadata.Updated, identityUpdated.Metadata.Updated)
 
-}
-
-func requireEqualMsgSetDidDocumentWithDidDocument(t *testing.T, msg types.MsgSetDidDocument, ddo types.DidDocument) {
-	require.Equal(t, msg.ID, ddo.ID)
-	require.Equal(t, msg.Context, ddo.Context)
-	require.Equal(t, msg.AssertionMethod, ddo.AssertionMethod)
-	require.Equal(t, msg.Authentication, ddo.Authentication)
-	require.Equal(t, msg.CapabilityDelegation, ddo.CapabilityDelegation)
-	require.Equal(t, msg.CapabilityInvocation, ddo.CapabilityInvocation)
-	require.Equal(t, msg.KeyAgreement, ddo.KeyAgreement)
-	require.Equal(t, msg.Service, ddo.Service)
-	require.Equal(t, msg.VerificationMethod, ddo.VerificationMethod)
 }

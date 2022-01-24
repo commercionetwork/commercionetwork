@@ -5,66 +5,98 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func TestNewQuerier(t *testing.T) {
-
-	_, _, addr := testdata.KeyTestPubAddr()
-	didDocument := types.DidDocument{
-		ID: addr.String(),
-		Context: []string{
-			types.ContextDidV1,
-			"https://w3id.org/security/suites/ed25519-2018/v1",
-			"https://w3id.org/security/suites/x25519-2019/v1",
-		}}
-
+func TestNewQuerier_queryGetLastIdentityOfAddress(t *testing.T) {
 	tests := []struct {
-		name       string
-		want       types.QueryResolveDidDocumentResponse
-		shouldFind bool
+		name string
+		want types.QueryResolveIdentityResponse
 	}{
-		// {
-		// 	name:       "empty",
-		// 	want:       types.QueryResolveDidDocumentResponse{},
-		// 	shouldFind: false,
-		// },
-		// {
-		// 	name: "ok",
-		// 	want: types.QueryResolveDidDocumentResponse{
-		// 		DidDocument: &didDocument,
-		// 	},
-		// 	shouldFind: true,
-		// },
+		{
+			name: "empty",
+			want: types.QueryResolveIdentityResponse{},
+		},
+		{
+			name: "ok",
+			want: types.QueryResolveIdentityResponse{
+				Identity: &types.ValidIdentity,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeper(t)
 
+			if tt.want.Identity != nil {
+				k.SetIdentity(ctx, types.ValidIdentity)
+			}
+
 			app := simapp.Setup(false)
 			legacyAmino := app.LegacyAmino()
 			querier := NewQuerier(*k, legacyAmino)
-
-			id := k.UpdateDidDocument(ctx, didDocument)
-
-			path := []string{types.QueryResolveDid, id}
+			path := []string{types.QueryResolveIdentity, types.ValidIdentity.DidDocument.ID}
 			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
-			var got *types.DidDocument
-
-			if tt.shouldFind {
-				// t.Log(string(gotBz))
-				// TODO check legacyAmino problem, this cannot unmarshal the DDO
-				legacyAmino.MustUnmarshalJSON(gotBz, &got)
-				t.Log(got)
-				require.NoError(t, err)
-				require.Equal(t, tt.want.DidDocument, got)
-			} else {
+			if tt.want.Identity == nil {
 				require.Error(t, err)
+				return
 			}
 
+			var got types.QueryResolveIdentityResponse
+
+			legacyAmino.MustUnmarshalJSON(gotBz, &got)
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestNewQuerier_GetIdentityHistoryOfAddress(t *testing.T) {
+	tests := []struct {
+		name string
+		want types.QueryResolveIdentityHistoryResponse
+	}{
+		// TODO: consider changing proto of query and keeper methods to return a slice of values, no pointers
+		// then, want.Identities can be []types.Identity
+		{
+			name: "empty",
+			want: types.QueryResolveIdentityHistoryResponse{
+				Identities: nil,
+			},
+		},
+		{
+			name: "ok",
+			want: types.QueryResolveIdentityHistoryResponse{
+				Identities: identitiesAtIncreasingMoments(2, 0),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
+
+			for _, identity := range tt.want.Identities {
+				k.SetIdentity(ctx, *identity)
+			}
+
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+			querier := NewQuerier(*k, legacyAmino)
+			path := []string{types.QueryResolveIdentityHistory, types.ValidIdentity.DidDocument.ID}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
+			require.NoError(t, err)
+
+			var got types.QueryResolveIdentityHistoryResponse
+
+			legacyAmino.MustUnmarshalJSON(gotBz, &got)
+
+			expected := types.QueryResolveIdentityHistoryResponse{
+				Identities: tt.want.Identities,
+			}
+			require.NoError(t, err)
+			require.Equal(t, expected, got)
 		})
 	}
 }

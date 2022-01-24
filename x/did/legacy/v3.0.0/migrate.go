@@ -3,7 +3,6 @@ package v3_0_0
 import (
 	"strings"
 
-	"github.com/commercionetwork/commercionetwork/x/did/keeper"
 	v220did "github.com/commercionetwork/commercionetwork/x/did/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 )
@@ -11,14 +10,20 @@ import (
 // Migrate accepts exported genesis state from v2.2.0 and migrates it to v3.0.0
 func Migrate(oldGenState v220did.GenesisState) *types.GenesisState {
 
-	didDocuments := DidDocuments{}
-	var didDocument *types.DidDocument
+	identities := []*types.Identity{}
+
+	// support data structure for no duplicates
+	appears := map[string]struct{}{}
+
 	for _, v220didDocument := range oldGenState.DidDocuments {
-		didDocument = convertDDO(v220didDocument)
-		didDocuments = didDocuments.appendIfMissingID(didDocument)
+		if _, found := appears[string(v220didDocument.ID.String())]; !found {
+			identity := fromDidDocumentToIdentity(v220didDocument)
+			identities = append(identities, identity)
+			appears[string(v220didDocument.ID.String())] = struct{}{}
+		}
 	}
 
-	return &types.GenesisState{DidDocuments: didDocuments}
+	return &types.GenesisState{Identities: identities}
 }
 
 // TODO check for regex for pem
@@ -65,18 +70,24 @@ func convertService(services220 v220did.Services) (services300 []*types.Service)
 	return
 }
 
-func convertDDO(ddo220 v220did.DidDocument) (ddo300 *types.DidDocument) {
-	ddo300 = &types.DidDocument{}
-	ddo300.Context = []string{ddo220.Context}
-
-	ddo300.ID = ddo220.ID.String()
-
-	ddo300.VerificationMethod = convertPubKeys(ddo220.PubKeys)
-
-	ddo300.Service = convertService(ddo220.Service)
-
-	ddo300.Created = ddo220.Proof.Created.Format(keeper.ComplaintW3CTime)
-	ddo300.Updated = ddo300.Created
+func fromDidDocumentToIdentity(ddo v220did.DidDocument) (identity *types.Identity) {
+	identity = &types.Identity{
+		DidDocument: &types.DidDocument{
+			Context:              []string{ddo.Context},
+			ID:                   ddo.ID.String(),
+			VerificationMethod:   convertPubKeys(ddo.PubKeys),
+			Authentication:       []string{},
+			AssertionMethod:      []string{},
+			KeyAgreement:         []string{},
+			CapabilityInvocation: []string{},
+			CapabilityDelegation: []string{},
+			Service:              convertService(ddo.Service),
+		},
+		Metadata: &types.Metadata{
+			Created: ddo.Proof.Created.Format(types.ComplaintW3CTime),
+			Updated: ddo.Proof.Created.Format(types.ComplaintW3CTime),
+		},
+	}
 
 	return
 }

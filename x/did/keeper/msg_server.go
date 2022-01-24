@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type msgServer struct {
@@ -20,38 +20,36 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// SetDidDocument
-func (k msgServer) SetDidDocument(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
+// UpdateIdentity updates an Identity using the current block time for the Metadata Updated field
+// If there is no Identity associated to the DID document ID, the Metadata Created field is set with the current block time
+// Otherwise, the timestamp contained in the last Identity is used
+// If the DID document in the message is the same one as the one contained in the last Identity, returns an error
+func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdentity) (*types.MsgSetIdentityResponse, error) {
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	timestamp := obtainTimestamp(ctx)
+	timestamp := ctx.BlockTime().Format(types.ComplaintW3CTime)
 
-	ddo := types.DidDocument{
-		Context:              msg.Context,
-		ID:                   msg.ID,
-		VerificationMethod:   msg.VerificationMethod,
-		Service:              msg.Service,
-		Authentication:       msg.Authentication,
-		AssertionMethod:      msg.AssertionMethod,
-		CapabilityDelegation: msg.CapabilityDelegation,
-		CapabilityInvocation: msg.CapabilityInvocation,
-		KeyAgreement:         msg.KeyAgreement,
+	identity := types.Identity{
+		DidDocument: msg.DidDocument,
+		Metadata: &types.Metadata{
+			Updated: timestamp,
+		},
 	}
 
-	if !k.HasDidDocument(ctx, msg.ID) {
-		ddo.Created = timestamp
-		ddo.Updated = timestamp
+	previousIdentity, err := k.GetLastIdentityOfAddress(ctx, msg.DidDocument.ID)
+	if err != nil {
+		// create new identity
+		identity.Metadata.Created = timestamp
 	} else {
-		previousDDO, err := k.GetDidDocumentOfAddress(ctx, msg.ID)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot update DDO: %e", err)
+		// use last identity info
+		if msg.DidDocument.Equal(previousIdentity.DidDocument) {
+			return nil, fmt.Errorf("cannot update the identity with the same DID document as the last one stored")
 		}
-		ddo.Created = previousDDO.Created
-		ddo.Updated = timestamp
+		identity.Metadata.Created = previousIdentity.Metadata.Created
 	}
 
-	id := k.UpdateDidDocument(ctx, ddo)
+	k.SetIdentity(ctx, identity)
 
-	return &types.MsgSetDidDocumentResponse{ID: id}, nil
+	return &types.MsgSetIdentityResponse{}, nil
 }
