@@ -24,7 +24,7 @@ var _ types.MsgServer = msgServer{}
 // If there is no Identity associated to the DID document ID, the Metadata Created field is set with the current block time
 // Otherwise, the timestamp contained in the last Identity is used
 // If the DID document in the message is the same one as the one contained in the last Identity, returns an error
-func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetDidDocument) (*types.MsgSetDidDocumentResponse, error) {
+func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdentity) (*types.MsgSetIdentityResponse, error) {
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -51,5 +51,5 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetDidDoc
 
 	k.SetIdentity(ctx, identity)
 
-	return &types.MsgSetDidDocumentResponse{}, nil
+	return &types.MsgSetIdentityResponse{}, nil
 }

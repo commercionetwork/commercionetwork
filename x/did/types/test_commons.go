@@ -89,7 +89,7 @@ var (
 		Service:              validServices,
 	}
 
-	validMsgSetDidDocument = MsgSetDidDocument{
+	validMsgSetDidDocument = MsgSetIdentity{
 		DidDocument: &validDidDocument,
 	}
 
@@ -98,7 +98,7 @@ var (
 
 	validMetadata = Metadata{
 		Created: validDateCreated,
-		Updated: validDateCreated,
+		Updated: validDateUpdated,
 	}
 
 	ValidIdentity = Identity{

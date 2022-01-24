@@ -6,7 +6,7 @@ import (
 )
 
 // GetSigners implements "github.com/cosmos/cosmos-sdk/types".Msg
-func (msg *MsgSetDidDocument) GetSigners() []sdk.AccAddress {
+func (msg *MsgSetIdentity) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.DidDocument.ID)
 	if err != nil {
 		panic(err)
@@ -15,23 +15,23 @@ func (msg *MsgSetDidDocument) GetSigners() []sdk.AccAddress {
 }
 
 // GetSignBytes implements "github.com/cosmos/cosmos-sdk/types".Msg
-func (msg *MsgSetDidDocument) GetSignBytes() []byte {
+func (msg *MsgSetIdentity) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // Route implements "github.com/cosmos/cosmos-sdk/types".Msg
-func (msg *MsgSetDidDocument) Route() string {
+func (msg *MsgSetIdentity) Route() string {
 	return RouterKey
 }
 
 // Type implements "github.com/cosmos/cosmos-sdk/types".Msg
-func (msg *MsgSetDidDocument) Type() string {
-	return MsgTypeSetDid
+func (msg *MsgSetIdentity) Type() string {
+	return MsgTypeSetIdentity
 }
 
 // ValidateBasic implements "github.com/cosmos/cosmos-sdk/types".Msg
-func (msg *MsgSetDidDocument) ValidateBasic() error {
+func (msg *MsgSetIdentity) ValidateBasic() error {
 
 	if msg == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "msgSetDidDocument not defined")

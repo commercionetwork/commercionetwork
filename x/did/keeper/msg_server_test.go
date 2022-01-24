@@ -27,7 +27,7 @@ func Test_SetDidDocument(t *testing.T) {
 
 	sdkCtx := sdk.WrapSDKContext(ctx)
 
-	msg := types.MsgSetDidDocument{
+	msg := types.MsgSetIdentity{
 		DidDocument: types.ValidIdentity.DidDocument,
 	}
 
@@ -38,7 +38,7 @@ func Test_SetDidDocument(t *testing.T) {
 
 	resp, err := srv.UpdateIdentity(sdkCtx, &msg)
 	require.NoError(t, err)
-	assert.Equal(t, &types.MsgSetDidDocumentResponse{}, resp)
+	assert.Equal(t, &types.MsgSetIdentityResponse{}, resp)
 
 	// try to update the identity with the same DDO as the previous one
 	_, err = srv.UpdateIdentity(sdkCtx, &msg)
@@ -65,7 +65,7 @@ func Test_SetDidDocument(t *testing.T) {
 
 	resp, err = srv.UpdateIdentity(sdkCtx, &newMsg)
 	require.NoError(t, err)
-	assert.Equal(t, &types.MsgSetDidDocumentResponse{}, resp)
+	assert.Equal(t, &types.MsgSetIdentityResponse{}, resp)
 
 	identityUpdated, err := k.GetLastIdentityOfAddress(ctx, did)
 	assert.NoError(t, err)

@@ -18,7 +18,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
-		case *types.MsgSetDidDocument:
+		case *types.MsgSetIdentity:
 			res, err := msgServer.UpdateIdentity(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
