@@ -36,7 +36,7 @@ const (
 	stableCreditsDenom = "uccc"
 )
 
-// run the tx through the anteHandler and ensure its valid
+// run the tx through the anteHandler and ensure its validity
 func checkValidTx(t *testing.T, anteHandler sdk.AnteHandler, ctx sdk.Context, tx sdk.Tx, simulate bool) {
 	_, err := anteHandler(ctx, tx, simulate)
 	require.Nil(t, err)
@@ -118,7 +118,6 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
 	_ = app.BankKeeper.SetBalances(ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
 
-	//_ = acc1.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
 	app.AccountKeeper.SetAccount(ctx, acc1)
 
 	// Msg and signatures
@@ -169,7 +168,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has not specified enough token frees
+	// Signer has not specified enough token fees
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 1))
 	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
@@ -207,7 +206,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has specified not enough stake tokens fees but enough credit tokens fees
+	// Signer has not specified enough stake tokens fees but enough credit tokens fees
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999), sdk.NewInt64Coin(stableCreditsDenom, 10000))
 	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
@@ -217,7 +216,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has specified not enough both stake and credit tokens fees
+	// Signer has not specified enough in both stake and credit tokens fees
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999), sdk.NewInt64Coin(stableCreditsDenom, 9999))
 	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
@@ -279,7 +278,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has specified not enough stake tokens fees but enough credit tokens fees
+	// Signer has not specified enough stake tokens fees but enough credit tokens fees
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 19999), sdk.NewInt64Coin(stableCreditsDenom, 20000))
 	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
@@ -289,7 +288,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has specified not enough both stake and credit tokens fees
+	// Signer has not specified enough in both stake and credit tokens fees
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 19999), sdk.NewInt64Coin(stableCreditsDenom, 19999))
 	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
@@ -354,16 +353,12 @@ func createTestApp(isCheckTx bool, isBlockZero bool) (*app.App, sdk.Context) {
 	ctx := app.BaseApp.NewContext(isCheckTx, header)
 	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
 
-	// TODO shall we drop the following?
-	app.CommercioMintKeeper.UpdateParams(ctx, validCommercioMintParams)
-	// app.CommercioMintKeeper.UpdateConversionRate(ctx, sdk.NewDec(2))
+	// FIXME: after removing this line the tests continue to pass
+	// 		Is this behavior ok? If so, consider removing it
+	app.CommercioMintKeeper.UpdateParams(ctx, commerciomintTypes.Params{
+		ConversionRate: sdk.NewDec(0),
+		FreezePeriod:   time.Duration(0),
+	})
 
 	return app, ctx
-}
-
-var validConversionRate = sdk.NewDec(2)
-var validFreezePeriod time.Duration = 0
-var validCommercioMintParams = commerciomintTypes.Params{
-	ConversionRate: validConversionRate,
-	FreezePeriod:   validFreezePeriod,
 }

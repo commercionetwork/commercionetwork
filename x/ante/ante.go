@@ -53,7 +53,7 @@ func NewAnteHandler(
 // contains also a minimum fee amount corresponding to 0.01 euro per
 // MsgShareDocument included into the transaction itself.
 // The amount can be specified using stableCreditsDenom or stakeDenom.
-// If stakeDenom used the cost of transaction is always 10000ucommercio
+// If stakeDenom is used, the cost of transaction is always 10000ucommercio
 type MinFeeDecorator struct {
 	govk               government.Keeper
 	mintk              commerciomintKeeper.Keeper
@@ -71,6 +71,7 @@ func NewMinFeeDecorator(govKeeper government.Keeper, mintk commerciomintKeeper.K
 }
 
 func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	// FIXME: can these comments be removed?
 	// all transactions must be of type auth.StdTx
 	//stdTx, ok := tx.(types.StdTx)
 	stdTx, ok := tx.(authsigning.SigVerifiableTx)
@@ -108,6 +109,7 @@ func checkMinimumFees(
 	requiredFees sdk.Dec,
 ) error {
 	fiatAmount := sdk.ZeroDec()
+	// FIXME: comment below seems not consistent with the code
 	// Find required quantity of stable coin = number of msg * 10000
 	// Every message need 0.01 ccc
 	stableRequiredQty := requiredFees.MulInt64(1000000)
@@ -122,8 +124,9 @@ func checkMinimumFees(
 		// If amount of stable coin is enough return without error
 		return nil
 	}
-	// NB: if user pay insufficent fiat amount plus enough stake denom, fiat amount will be withdraw from the wallet anyway.
+	// NB: if user pays insufficent fiat amount plus enough stake denom, fiat amount will be withdrawn from the wallet anyway.
 
+	// FIXME: comment below seems not consistent with the code
 	// stakeDenom must always equal 10000
 	comAmount := sdk.ZeroDec()
 	comRequiredQty := requiredFees.MulInt64(1000000)
