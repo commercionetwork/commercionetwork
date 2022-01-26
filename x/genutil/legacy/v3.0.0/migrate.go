@@ -31,7 +31,7 @@ import (
 	v300vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v3.0.0"
 
 	//v300epochs "github.com/commercionetwork/commercionetwork/x/epochs/types"
-	//v300epochs "github.com/osmosis-labs/osmosis/x/epochs/types"
+	//v300epochs "github.com/commercionetwork/commercionetwork/x/epochs/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"

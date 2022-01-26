@@ -1,7 +1,8 @@
 package keeper
 
+/*
 import (
-	epochstypes "github.com/osmosis-labs/osmosis/x/epochs/types"
+	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -38,3 +39,4 @@ func (h Hooks) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNu
 func (h Hooks) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	h.k.AfterEpochEnd(ctx, epochIdentifier, epochNumber)
 }
+*/

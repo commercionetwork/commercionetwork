@@ -95,7 +95,7 @@ func (msg *MsgSetParams) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
-	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute{
+	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek/* && msg.DistrEpochIdentifier != EpochMinute*/{
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
 	if msg.EarnRate.IsNegative() {

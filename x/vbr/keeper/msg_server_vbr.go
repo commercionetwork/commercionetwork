@@ -39,7 +39,7 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 	if !(gov.Equals(msgGovAddr)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set params", msg.Government))
 	}
-	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute{
+	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek /*&& msg.DistrEpochIdentifier != types.EpochMinute*/{
 		return &types.MsgSetParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
 	if msg.EarnRate.IsNegative() {

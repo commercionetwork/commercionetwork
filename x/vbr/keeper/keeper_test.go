@@ -15,21 +15,21 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 
-	epochsTypes "github.com/osmosis-labs/osmosis/x/epochs/types"
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	epochsTypes "github.com/osmosis-labs/osmosis/x/epochs/types"
 
-	epochsKeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	epochsKeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
 )
 
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
@@ -143,7 +143,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 			"0.001369863013698630",
 			params_test,
 		},
-		{
+		/*{
 			"Compute reward per minute",
 			sdk.NewInt(100000000),
 			50,
@@ -152,7 +152,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 				DistrEpochIdentifier: types.EpochMinute,
 				EarnRate:             sdk.NewDecWithPrec(5, 1),
 			},
-		},
+		},*/
 	}
 	for _, tt := range tests {
 		tt := tt

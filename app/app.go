@@ -101,15 +101,15 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents"
 	documentskeeper "github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	documentstypes "github.com/commercionetwork/commercionetwork/x/documents/types"
-	"github.com/osmosis-labs/osmosis/x/epochs"
-	epochskeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
-	epochstypes "github.com/osmosis-labs/osmosis/x/epochs/types"
 	governmentmodule "github.com/commercionetwork/commercionetwork/x/government"
 	governmentmodulekeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentmoduletypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
 	vbrmodulekeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+	"github.com/osmosis-labs/osmosis/x/epochs"
+	epochskeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
+	epochstypes "github.com/osmosis-labs/osmosis/x/epochs/types"
 )
 
 const Name = "commercionetwork"
@@ -468,7 +468,7 @@ func New(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
 			app.VbrKeeper.Hooks(),
-			app.CommercioKycKeeper.Hooks(),
+			//app.CommercioKycKeeper.Hooks(),
 		),
 	)
 

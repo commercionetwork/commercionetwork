@@ -3,53 +3,54 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/tendermint/tendermint/libs/log"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	distKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
- 	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
 	// this line is used by starport scaffolding # ibc/keeper/import
-	epochsKeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
+	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	epochsKeeper "github.com/osmosis-labs/osmosis/x/epochs/keeper"
 )
 
 type (
 	Keeper struct {
-		cdc      			codec.Marshaler
-		storeKey			sdk.StoreKey
-		memKey   			sdk.StoreKey
-		distKeeper  		distKeeper.Keeper
-		bankKeeper			bankKeeper.Keeper
-		accountKeeper 		accountKeeper.AccountKeeper
-		govKeeper   		govKeeper.Keeper
-		epochsKeeper 		epochsKeeper.Keeper
-		paramSpace       	paramtypes.Subspace
-		stakingKeeper		stakingKeeper.Keeper
+		cdc           codec.Marshaler
+		storeKey      sdk.StoreKey
+		memKey        sdk.StoreKey
+		distKeeper    distKeeper.Keeper
+		bankKeeper    bankKeeper.Keeper
+		accountKeeper accountKeeper.AccountKeeper
+		govKeeper     govKeeper.Keeper
+		epochsKeeper  epochsKeeper.Keeper
+		paramSpace    paramtypes.Subspace
+		stakingKeeper stakingKeeper.Keeper
 	}
 )
 
 func NewKeeper(
-	cdc 				codec.Marshaler,
-	storeKey 			sdk.StoreKey,
-	memKey 				sdk.StoreKey,
-	distKeeper   		distKeeper.Keeper,
-	bankKeeper			bankKeeper.Keeper,
-	accountKeeper 		accountKeeper.AccountKeeper,
-	govKeeper    		govKeeper.Keeper,
-	epochsKeeper	 	epochsKeeper.Keeper,
-	paramSpace 			paramtypes.Subspace,
-	stakingKeeper 		stakingKeeper.Keeper,
+	cdc codec.Marshaler,
+	storeKey sdk.StoreKey,
+	memKey sdk.StoreKey,
+	distKeeper distKeeper.Keeper,
+	bankKeeper bankKeeper.Keeper,
+	accountKeeper accountKeeper.AccountKeeper,
+	govKeeper govKeeper.Keeper,
+	epochsKeeper epochsKeeper.Keeper,
+	paramSpace paramtypes.Subspace,
+	stakingKeeper stakingKeeper.Keeper,
 
 ) *Keeper {
 
@@ -59,15 +60,15 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
-		distKeeper: distKeeper,
-		bankKeeper: bankKeeper,
+		cdc:           cdc,
+		storeKey:      storeKey,
+		memKey:        memKey,
+		distKeeper:    distKeeper,
+		bankKeeper:    bankKeeper,
 		accountKeeper: accountKeeper,
-		govKeeper: govKeeper,
-		epochsKeeper: epochsKeeper,
-		paramSpace: paramSpace,
+		govKeeper:     govKeeper,
+		epochsKeeper:  epochsKeeper,
+		paramSpace:    paramSpace,
 		stakingKeeper: stakingKeeper,
 	}
 }
@@ -75,7 +76,6 @@ func NewKeeper(
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
-
 
 // -------------
 // --- Pool
@@ -91,6 +91,7 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 		store.Delete([]byte(types.PoolStoreKey))
 	}
 }
+
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	macc := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
@@ -120,33 +121,34 @@ func GetCoins(k Keeper, ctx sdk.Context, macc accountTypes.ModuleAccountI) sdk.C
 		coins = append(coins, coin)
 	}*/
 	coins = append(coins, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress())...)
-	
+
 	return coins
 }
+
 // ComputeProposerReward computes the final reward for the validator block's proposer
 func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator stakingTypes.ValidatorI, denom string, params types.Params) sdk.DecCoins {
 	// Get total bonded token of validator
 	validatorBonded := validator.GetBondedTokens()
 
 	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))
-	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100)) 
-	
+	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100))
+
 	//compute the annual distribution ((validator's token * 0.5)*(total_validators/100))
 	annualDistribution := sdk.NewDecCoinFromDec(denom, validatorBondedPerc.Amount.Mul(validatorsPerc))
 	var epochDuration sdk.Dec
-	switch (params.DistrEpochIdentifier){
-		case types.EpochDay: 
-			epochDuration = sdk.NewDec(365)
-		case types.EpochWeek:
-			epochDuration = sdk.NewDec(365).Quo(sdk.NewDec(7))
-		case types.EpochMinute:
-			epochDuration = sdk.NewDec(365*24*60)
-		case types.EpochMonthly:
-			epochDuration = sdk.NewDec(12)
-		default:
-			return nil
+	switch params.DistrEpochIdentifier {
+	case types.EpochDay:
+		epochDuration = sdk.NewDec(365)
+	case types.EpochWeek:
+		epochDuration = sdk.NewDec(365).Quo(sdk.NewDec(7))
+	/*case types.EpochMinute:
+		epochDuration = sdk.NewDec(365*24*60)
+	case types.EpochMonthly:
+		epochDuration = sdk.NewDec(12)*/
+	default:
+		return nil
 	}
-	
+
 	// Compute reward
 	return sdk.NewDecCoins(sdk.NewDecCoinFromDec(denom, annualDistribution.Amount.Quo(epochDuration)))
 }

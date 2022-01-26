@@ -41,7 +41,7 @@ genesis:
           denom: "ucommercio"
           amount: "10000000.000000000000000000"
       params: 
-        distr_epoch_identifier: "minute"
+        distr_epoch_identifier: "day"
         earn_rate: "0.500000000000000000"
     staking:
       params:
