@@ -9,6 +9,7 @@ import (
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
+
 func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.MsgIncrementBlockRewardsPool) (*types.MsgIncrementBlockRewardsPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -39,17 +40,17 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 	if !(gov.Equals(msgGovAddr)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set params", msg.Government))
 	}
-	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute{
+	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute && msg.DistrEpochIdentifier != types.EpochHour {
 		return &types.MsgSetParamsResponse{}, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
 	if msg.EarnRate.IsNegative() {
 		return &types.MsgSetParamsResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
 	}
 	params := types.Params{
-			DistrEpochIdentifier: msg.DistrEpochIdentifier,
-			EarnRate: msg.EarnRate,
-		}
+		DistrEpochIdentifier: msg.DistrEpochIdentifier,
+		EarnRate:             msg.EarnRate,
+	}
 	k.SetParamSet(ctx, params)
-	
+
 	return &types.MsgSetParamsResponse{}, nil
 }

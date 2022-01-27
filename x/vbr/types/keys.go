@@ -1,23 +1,24 @@
 package types
 
 const (
-	ModuleName = "vbr"
-	StoreKey = ModuleName
-	RouterKey = ModuleName
+	ModuleName   = "vbr"
+	StoreKey     = ModuleName
+	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
-	MemStoreKey = "mem_vbr"
+	MemStoreKey  = "mem_vbr"
 
 	// this line is used by starport scaffolding # ibc/keys/name
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
-	MsgTypeSetParams              = "setParams"
+	MsgTypeSetParams                 = "setParams"
 	PoolStoreKey                     = StoreKey + ":pool:"
 
 	QueryBlockRewardsPoolFunds = "funds"
-	QueryParams			   = "params"
+	QueryParams                = "params"
 
-	EpochWeek	= "week"
-	EpochDay	= "day"
-	EpochMinute = "minute"
+	EpochWeek    = "week"
+	EpochDay     = "day"
+	EpochHour    = "hour"
+	EpochMinute  = "minute"
 	EpochMonthly = "monthly"
 )
 
