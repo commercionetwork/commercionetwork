@@ -26,7 +26,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QuerySentReceipts:
 			return queryGetSentDocsReceipts(ctx, path[1:], k, legacyQuerierCdc)
 		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint: %s", types.ModuleName, path[0]))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint: %s", types.ModuleName, path[0]))
 		}
 	}
 }
@@ -37,17 +37,19 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 
 func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
+	address, err := sdk.AccAddressFromBech32(addr)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+	}
 
 	ri := k.UserReceivedDocumentsIterator(ctx, address)
 	defer ri.Close()
 
 	receivedResult := []types.Document{}
 	for ; ri.Valid(); ri.Next() {
-		documentUUID := types.StringProto{}
-		k.cdc.MustUnmarshalBinaryBare(ri.Value(), &documentUUID)
+		documentUUID := string(ri.Value())
 
-		document, err := k.GetDocumentByID(ctx, documentUUID.StProto)
+		document, err := k.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
@@ -70,7 +72,10 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQ
 
 func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
+	address, err := sdk.AccAddressFromBech32(addr)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+	}
 
 	usdi := keeper.UserSentDocumentsIterator(ctx, address)
 	defer usdi.Close()
@@ -107,7 +112,10 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper, legacy
 
 func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
+	address, err := sdk.AccAddressFromBech32(addr)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+	}
 
 	var uuid string
 	if len(path) == 2 {
@@ -155,7 +163,6 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper,
 func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
 	address, err := sdk.AccAddressFromBech32(addr)
-
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
