@@ -1,6 +1,8 @@
 package v3_0_0
 
 import (
+	"time"
+
 	v220commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -11,11 +13,13 @@ func Migrate(oldGenState v220commerciokyc.GenesisState) *types.GenesisState {
 	var memberships []*types.Membership
 	for _, oldMembership := range oldGenState.Memberships {
 		var membership types.Membership
+		var expiryAt time.Time
+		expiryAt = oldMembership.ExpiryAt
 
 		membership.Owner = oldMembership.Owner.String()
 		membership.TspAddress = oldMembership.TspAddress.String()
 		membership.MembershipType = oldMembership.MembershipType
-		membership.ExpiryAt = &oldMembership.ExpiryAt
+		membership.ExpiryAt = &expiryAt
 
 		memberships = append(memberships, &membership)
 	}
