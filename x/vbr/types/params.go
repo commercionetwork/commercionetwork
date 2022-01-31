@@ -45,6 +45,12 @@ func (p Params) Validate() error {
 	return nil
 }
 
+// At the moment, validateDistrEpochIdentifier and (msg *MsgSetParams) ValidateBasic() seem to be doing a different validation
+
+// consider using the pattern in https://github.com/commercionetwork/commercionetwork/blob/a6ffbce55976f4f9858480f74b52bfe87f7eff46/x/commerciomint/types/params.go
+// - rename validateDistrEpochIdentifier to validateDistrEpochIdentifierParamSetPairs
+// - invoke the validation function after the type assertion
+
 // Implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{

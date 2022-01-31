@@ -54,7 +54,6 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 	return nil
 }
 
-
 // -------------------------
 // --- MsgSetParams
 // -------------------------
@@ -63,9 +62,9 @@ var _ sdk.Msg = &MsgSetParams{}
 
 func NewMsgSetParams(government string, epochIdentifier string, earnRate sdk.Dec) *MsgSetParams {
 	return &MsgSetParams{
-		Government: government,
+		Government:           government,
 		DistrEpochIdentifier: epochIdentifier,
-		EarnRate: earnRate,
+		EarnRate:             earnRate,
 	}
 }
 
@@ -95,12 +94,13 @@ func (msg *MsgSetParams) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
-	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute{
+	// move this code to a support function, then invoke it here and use it also in validateDistrEpochIdentifierParamSetPairs(i interface{})
+	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
+	// move this code to a support function, invoke it here and use it also in validateEarnRateParamSetPairs(i interface{})
 	if msg.EarnRate.IsNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
 	}
 	return nil
 }
-
