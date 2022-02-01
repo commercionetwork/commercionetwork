@@ -1,5 +1,3 @@
-// DONTCOVER
-// nolint
 package v3_0_0
 
 import (
@@ -11,31 +9,44 @@ import (
 
 // Migrate accepts exported genesis state from v2.2.0 and migrates it to v3.0.0
 // genesis state. This migration changes the data that are saved for each document
-// removing the metadataSchema and proposers
+// removing the metadataSchema and proposers.
+// A DocumentReceipt will be included only there is a corresponding Document (that is, with the same UUID field).
 func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 
 	//documents
-	documents := Documents{}
+	documents := []*types.Document{}
 	var document *types.Document
-	documentsDeleted := make(map[string]string)
+
+	documentsDeleted := make(map[string]struct{})
+	appears := map[string]struct{}{}
+
 	for _, v220document := range oldGenState.Documents {
+
 		err := v220document.Validate()
 		if err == nil {
-			document = migrateDocument(v220document)
-			//documents =  append(documents, d"ocument)
-			documents = documents.AppendIfMissingID(document)
+
+			if _, found := appears[string(v220document.UUID)]; !found {
+
+				document = migrateDocument(v220document)
+				documents = append(documents, document)
+
+				appears[string(v220document.UUID)] = struct{}{}
+			}
 		} else {
-			documentsDeleted[v220document.UUID] = v220document.UUID
+			documentsDeleted[v220document.UUID] = struct{}{}
 		}
+
 	}
 
 	//document receipts
-	var receipts []*types.DocumentReceipt
+	receipts := []*types.DocumentReceipt{}
 	var documentReceipt *types.DocumentReceipt
 	for _, v220documentReceipt := range oldGenState.Receipts {
-		if _, ok := documentsDeleted[v220documentReceipt.DocumentUUID]; !ok {
-			documentReceipt = migrateReceipt(v220documentReceipt)
-			receipts = append(receipts, documentReceipt)
+		if _, found := appears[string(v220documentReceipt.UUID)]; found {
+			if _, ok := documentsDeleted[v220documentReceipt.DocumentUUID]; !ok {
+				documentReceipt = migrateReceipt(v220documentReceipt)
+				receipts = append(receipts, documentReceipt)
+			}
 		}
 	}
 
@@ -47,11 +58,8 @@ func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 
 //convert a slice of sdk.accAddr to a slice of string
 func fromSliceOfAddrToSliceOfString(Addresses []sdk.AccAddress) []string {
-	if len(Addresses) == 0 {
-		return nil
-	}
-
 	var strings []string
+
 	for _, s := range Addresses {
 		strings = append(strings, s.String())
 	}
