@@ -8,41 +8,37 @@ import (
 )
 
 // Migrate accepts exported genesis state from v2.2.0 and migrates it to v3.0.0
-func Migrate(oldGenState v220commerciokyc.GenesisState) *types.GenesisState {
+func Migrate(v220GenState v220commerciokyc.GenesisState) *types.GenesisState {
 
 	var memberships []*types.Membership
-	for _, oldMembership := range oldGenState.Memberships {
-		var membership types.Membership
+	for _, v220Membership := range v220GenState.Memberships {
 		var expiryAt time.Time
-		expiryAt = oldMembership.ExpiryAt
-
-		membership.Owner = oldMembership.Owner.String()
-		membership.TspAddress = oldMembership.TspAddress.String()
-		membership.MembershipType = oldMembership.MembershipType
-		membership.ExpiryAt = &expiryAt
-
-		memberships = append(memberships, &membership)
+		expiryAt = v220Membership.ExpiryAt
+		memberships = append(memberships, &types.Membership{
+			Owner:          v220Membership.Owner.String(),
+			TspAddress:     v220Membership.TspAddress.String(),
+			MembershipType: v220Membership.MembershipType,
+			ExpiryAt:       &expiryAt,
+		})
 	}
 
 	var invites []*types.Invite
-	for _, oldInvite := range oldGenState.Invites {
-		var invite types.Invite
-
-		invite.Sender = oldInvite.Sender.String()
-		invite.SenderMembership = oldInvite.SenderMembership
-		invite.Status = uint64(oldInvite.Status)
-		invite.User = oldInvite.User.String()
-
-		invites = append(invites, &invite)
+	for _, v220Invite := range v220GenState.Invites {
+		invites = append(invites, &types.Invite{
+			Sender:           v220Invite.Sender.String(),
+			SenderMembership: v220Invite.SenderMembership,
+			Status:           uint64(v220Invite.Status),
+			User:             v220Invite.User.String(),
+		})
 	}
 
 	var tsps []string
-	for _, oldTsp := range oldGenState.TrustedServiceProviders {
+	for _, oldTsp := range v220GenState.TrustedServiceProviders {
 		tsps = append(tsps, oldTsp.String())
 	}
 
 	return &types.GenesisState{
-		LiquidityPoolAmount:     oldGenState.LiquidityPoolAmount,
+		LiquidityPoolAmount:     v220GenState.LiquidityPoolAmount,
 		TrustedServiceProviders: tsps,
 		Invites:                 invites,
 		Memberships:             memberships,
