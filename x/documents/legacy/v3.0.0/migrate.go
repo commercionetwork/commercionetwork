@@ -100,7 +100,15 @@ func migrateDocument(doc v220docs.Document) *types.Document {
 			CertificateProfile: doc.DoSign.CertificateProfile,
 		}
 	}
-	doc.ContentURI = ""
+
+	var doChecksum *types.DocumentChecksum
+	if doc.Checksum != nil {
+		doChecksum = &types.DocumentChecksum{
+			Value:     doc.Checksum.Value,
+			Algorithm: doc.Checksum.Algorithm,
+		}
+	}
+
 	// Return a new document
 	return &types.Document{
 		Sender:     doc.Sender.String(),
@@ -110,11 +118,8 @@ func migrateDocument(doc v220docs.Document) *types.Document {
 			ContentURI: doc.Metadata.ContentURI,
 			Schema:     documentMetadataSchema,
 		},
-		ContentURI: doc.ContentURI,
-		Checksum: &types.DocumentChecksum{
-			Value:     doc.Checksum.Value,
-			Algorithm: doc.Checksum.Algorithm,
-		},
+		ContentURI:     doc.ContentURI,
+		Checksum:       doChecksum,
 		EncryptionData: encryptionData,
 		DoSign:         doSign,
 	}
