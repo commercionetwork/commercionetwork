@@ -8,10 +8,14 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+const stakeToken = "ucommercio"
+
 var params = types.Params{
-	DistrEpochIdentifier: "day",
-	EarnRate: sdk.NewDecWithPrec(5,1),
+	DistrEpochIdentifier: types.EpochDay,
+	EarnRate:             sdk.NewDecWithPrec(5, 1),
 }
+
 func TestMigrate(t *testing.T) {
 	type args struct {
 		v220GenState v220vbr.GenesisState
@@ -34,18 +38,18 @@ func TestMigrate(t *testing.T) {
 				v220GenState: v220vbr.GenesisState{
 					PoolAmount: sdk.DecCoins{
 						{
-							Denom:  "ucommercio",
+							Denom:  stakeToken,
 							Amount: sdk.NewDec(1000000),
 						},
 					},
-					RewardRate: sdk.NewDecWithPrec(112, 5),
+					RewardRate:        sdk.NewDecWithPrec(112, 5),
 					AutomaticWithdraw: true,
 				},
 			},
 			want: &types.GenesisState{
 				PoolAmount: sdk.DecCoins{
 					{
-						Denom:  "ucommercio",
+						Denom:  stakeToken,
 						Amount: sdk.NewDec(1000000),
 					},
 				},
