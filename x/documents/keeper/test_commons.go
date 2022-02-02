@@ -27,15 +27,25 @@ var testingDocument = types.Document{
 		Algorithm: "md5",
 	},
 	Sender:     testingSender.String(),
-	Recipients: append([]string{}, testingRecipient.String()),
+	Recipients: append([]string{}, testingRecipient.String(), testingSender2.String()),
 }
 
 var testingDocumentReceipt = types.DocumentReceipt{
+	UUID:      "testing-document-receipt-uuid",
+	Sender:    testingSender.String(),
+	Recipient: testingRecipient.String(),
+	TxHash:    "txHash",
+	//DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	DocumentUUID: "test-document-uuid",
+	Proof:        "proof",
+}
+
+var testingDocumentReceiptNoDoc = types.DocumentReceipt{
 	UUID:         "testing-document-receipt-uuid",
 	Sender:       testingSender.String(),
 	Recipient:    testingRecipient.String(),
 	TxHash:       "txHash",
-	DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+	DocumentUUID: "test-document-uuid-not-present",
 	Proof:        "proof",
 }
 
@@ -43,9 +53,9 @@ func createNDocument(keeper *Keeper, ctx sdk.Context, n int) []*types.Document {
 	items := []*types.Document{}
 	for i := 0; i < n; i++ {
 		item := &types.Document{
-			Sender: testingSender.String(),
+			Sender:     testingSender.String(),
 			Recipients: []string{testingRecipient.String()},
-			UUID: uuid.NewV4().String(),
+			UUID:       uuid.NewV4().String(),
 		}
 		items = append(items, item)
 
@@ -60,11 +70,11 @@ func createNDocumentReceipt(keeper *Keeper, ctx sdk.Context, n int) []*types.Doc
 	items := []*types.DocumentReceipt{}
 	for i := range docs {
 		item := &types.DocumentReceipt{
-					Sender: docs[i].Recipients[0],
-					DocumentUUID: docs[i].UUID,
-					Recipient: docs[i].Sender,
-					UUID: uuid.NewV4().String(),
-				}
+			Sender:       docs[i].Recipients[0],
+			DocumentUUID: docs[i].UUID,
+			Recipient:    docs[i].Sender,
+			UUID:         uuid.NewV4().String(),
+		}
 		items = append(items, item)
 
 		_ = keeper.SaveReceipt(ctx, *items[i])

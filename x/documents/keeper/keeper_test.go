@@ -518,7 +518,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 		{
 			"receipt UUID not specified",
 			types.DocumentReceipt{
-				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				DocumentUUID: "test-document-uuid",
 			},
 			true,
 		},
@@ -526,7 +526,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			"receipt UUID empty",
 			types.DocumentReceipt{
 				UUID:         "",
-				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				DocumentUUID: "test-document-uuid",
 			},
 			true,
 		},
@@ -546,7 +546,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			"receipt UUID not in store",
 			types.DocumentReceipt{
 				UUID:         testingDocumentReceipt.UUID + "-new",
-				Sender:       testingDocumentReceipt.Sender,
+				Sender:       testingSender2.String(),
 				Recipient:    testingDocumentReceipt.Recipient,
 				TxHash:       testingDocumentReceipt.TxHash,
 				DocumentUUID: testingDocument.UUID,
@@ -562,7 +562,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			store := ctx.KVStore(k.storeKey)
 			store.Set(getDocumentStoreKey(testingDocument.UUID), k.cdc.MustMarshalBinaryBare(&testingDocument))
 			senderAccadrr, _ := sdk.AccAddressFromBech32(testingDocumentReceipt.Sender)
-			store.Set(getSentReceiptsIdsUUIDStoreKey(senderAccadrr, testingDocumentReceipt.UUID), k.cdc.MustMarshalBinaryBare(&testingDocumentReceipt))
+			store.Set(getSentReceiptsIdsUUIDStoreKey(senderAccadrr, testingDocumentReceipt.DocumentUUID), k.cdc.MustMarshalBinaryBare(&testingDocumentReceipt))
 
 			if tt.wantErr {
 				require.Error(t, k.SaveReceipt(ctx, tt.documentReceipt))
