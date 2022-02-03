@@ -15,6 +15,12 @@ var params = types.Params{
 	DistrEpochIdentifier: types.EpochDay,
 	EarnRate:             sdk.NewDecWithPrec(5, 1),
 }
+var pool = sdk.DecCoins{
+	{
+		Denom:  stakeToken,
+		Amount: sdk.NewDec(1000000),
+	},
+}
 
 func TestMigrate(t *testing.T) {
 	type args struct {
@@ -36,23 +42,13 @@ func TestMigrate(t *testing.T) {
 			name: "genesis state correctly migrated",
 			args: args{
 				v220GenState: v220vbr.GenesisState{
-					PoolAmount: sdk.DecCoins{
-						{
-							Denom:  stakeToken,
-							Amount: sdk.NewDec(1000000),
-						},
-					},
+					PoolAmount: pool,
 					RewardRate:        sdk.NewDecWithPrec(112, 5),
 					AutomaticWithdraw: true,
 				},
 			},
 			want: &types.GenesisState{
-				PoolAmount: sdk.DecCoins{
-					{
-						Denom:  stakeToken,
-						Amount: sdk.NewDec(1000000),
-					},
-				},
+				PoolAmount: pool,
 				Params: params,
 			},
 		},
