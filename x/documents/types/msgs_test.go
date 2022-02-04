@@ -10,8 +10,7 @@ import (
 )
 
 // Test vars
-var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var recipient, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
+
 var msgShareDocumentSchema = MsgShareDocument(Document{
 	Sender:     sender.String(),
 	Recipients: append([]string{}, recipient.String()),
@@ -149,7 +148,6 @@ func TestMsgShareDocument_GetSigners(t *testing.T) {
 	require.Equal(t, 1, len(actual))
 	require.Equal(t, msgShareDocumentSchema.Sender, actual[0].String())
 }
-
 
 func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
 	json := `{"sender":"cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0",
@@ -314,4 +312,3 @@ func TestMsgDocumentReceipt_GetSigners(t *testing.T) {
 	require.Equal(t, 1, len(actual))
 	require.Equal(t, msgDocumentReceipt.Sender, actual[0].String())
 }
-

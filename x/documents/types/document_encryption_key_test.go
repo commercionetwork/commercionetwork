@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var key = DocumentEncryptionKey{
+var validDocumentEncryptionKey = DocumentEncryptionKey{
 	Recipient: recipient.String(),
 	Value:     "76616C7565",
 }
@@ -25,34 +25,34 @@ func TestDocumentEncryptionKey_Equals(t *testing.T) {
 	}{
 		{
 			"two equal keys",
-			key,
-			key,
+			validDocumentEncryptionKey,
+			validDocumentEncryptionKey,
 			true,
 		},
 		{
 			"different recipient",
-			key,
+			validDocumentEncryptionKey,
 			DocumentEncryptionKey{
 				Recipient: sender.String(),
-				Value:     key.Value,
+				Value:     validDocumentEncryptionKey.Value,
 			},
 			false,
 		},
 		{
 			"different value",
-			key,
+			validDocumentEncryptionKey,
 			DocumentEncryptionKey{
-				Recipient: key.Recipient,
+				Recipient: validDocumentEncryptionKey.Recipient,
 				Value:     "6F7468657276616C7565",
 			},
 			false,
 		},
 		{
 			"different encoding",
-			key,
+			validDocumentEncryptionKey,
 			DocumentEncryptionKey{
-				Recipient: key.Recipient,
-				Value:     key.Value + "difference",
+				Recipient: validDocumentEncryptionKey.Recipient,
+				Value:     validDocumentEncryptionKey.Value + "difference",
 			},
 			false,
 		},
@@ -77,17 +77,17 @@ func TestDocumentEncryptionKey_Validate(t *testing.T) {
 	}{
 		{
 			"a valid key",
-			key,
+			validDocumentEncryptionKey,
 			nil,
 		},
 		{
 			"empty value",
-			DocumentEncryptionKey{Recipient: key.Recipient, Value: "   "},
+			DocumentEncryptionKey{Recipient: validDocumentEncryptionKey.Recipient, Value: "   "},
 			errors.New("encryption key value cannot be empty"),
 		},
 		{
 			"invalid hex",
-			DocumentEncryptionKey{Recipient: key.Recipient, Value: "^&*(^*(&*"},
+			DocumentEncryptionKey{Recipient: validDocumentEncryptionKey.Recipient, Value: "^&*(^*(&*"},
 			errors.New("invalid encryption key value (must be hex)"),
 		},
 	}

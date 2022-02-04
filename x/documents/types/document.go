@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
-	//"github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // Equals returns true when doc equals other, false otherwise.
@@ -104,7 +103,8 @@ func (doc Document) Validate() error {
 	}
 
 	for _, recipient := range doc.Recipients {
-		if recipient == "" {
+		_, err := sdk.AccAddressFromBech32(recipient)
+		if err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, recipient)
 		}
 	}
