@@ -31,12 +31,11 @@ var testingDocument = types.Document{
 }
 
 var testingDocumentReceipt = types.DocumentReceipt{
-	UUID:      "testing-document-receipt-uuid",
-	Sender:    testingSender.String(),
-	Recipient: testingRecipient.String(),
-	TxHash:    "txHash",
-	//DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-	DocumentUUID: "test-document-uuid",
+	UUID:         "testing-document-receipt-uuid",
+	Sender:       testingSender.String(),
+	Recipient:    testingRecipient.String(),
+	TxHash:       "txHash",
+	DocumentUUID: testingDocument.UUID,
 	Proof:        "proof",
 }
 

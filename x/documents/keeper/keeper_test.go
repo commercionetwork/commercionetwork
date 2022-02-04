@@ -709,8 +709,6 @@ func TestKeeper_ExtractReceipt(t *testing.T) {
 }
 
 func TestKeeper_GetReceiptByID(t *testing.T) {
-	r := testingDocumentReceipt
-	r.DocumentUUID = testingDocument.UUID
 
 	tests := []struct {
 		name           string
@@ -721,12 +719,12 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 		{
 			"lookup on existing receipt",
 			testingDocument,
-			r,
+			testingDocumentReceipt,
 			false,
 		},
 		{
 			"lookup on non existing receipt",
-			types.Document{},
+			testingDocument,
 			types.DocumentReceipt{},
 			true,
 		},
