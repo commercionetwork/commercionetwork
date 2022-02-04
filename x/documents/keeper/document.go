@@ -34,12 +34,6 @@ func (k Keeper) HasDocument(ctx sdk.Context, id string) bool {
 	return store.Has(documentKey)
 }
 
-// GetDocumentOwner returns the creator of the document
-func (k Keeper) GetDocumentOwner(ctx sdk.Context, id string) string {
-	document, _ := k.GetDocumentByID(ctx, id)
-	return document.Sender
-}
-
 // getSentDocumentsIdsUUIDStoreKey generates a SentDocumentID for a given user and document UUID
 func getSentDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID string) []byte {
 	userPart := append(user, []byte(":"+documentUUID)...)
