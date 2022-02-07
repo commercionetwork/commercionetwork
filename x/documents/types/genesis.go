@@ -26,7 +26,7 @@ func (gs GenesisState) Validate() error {
 			return fmt.Errorf("duplicated id %s for document", document.UUID)
 		}
 		if err := document.Validate(); err != nil {
-			return fmt.Errorf("invalid document with UUID %s: %e", document.UUID, err)
+			return fmt.Errorf("document with UUID %s is invalid: %e", document.UUID, err)
 		}
 		DocumentIdMap[document.UUID] = struct{}{}
 	}
@@ -41,9 +41,9 @@ func (gs GenesisState) Validate() error {
 		if _, ok := ReceiptIdMap[receipt.UUID]; ok {
 			return fmt.Errorf("duplicated id %s for receipt", receipt.UUID)
 		}
-		// if err := receipt.Validate(); err!=nil{
-		// 	return fmt.Errorf("invalid receipt with UUID %s: %e", receipt.UUID, err)
-		// }
+		if err := receipt.Validate(); err != nil {
+			return fmt.Errorf("receipt with UUID %s is invalid: %e", receipt.UUID, err)
+		}
 		ReceiptIdMap[receipt.UUID] = struct{}{}
 	}
 

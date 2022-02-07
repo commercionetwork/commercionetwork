@@ -4,10 +4,10 @@ import "testing"
 
 func TestGenesisState_Validate(t *testing.T) {
 	invalidDocument := validDocument
-	invalidDocument.UUID = "abc"
+	invalidDocument.Sender = ""
 
-	invalidReceipt := validDocumentReceipt
-	invalidReceipt.UUID = "abc"
+	invalidDocumentReceipt := validDocumentReceipt
+	invalidDocumentReceipt.Sender = ""
 
 	type fields struct {
 		Documents []*Document
@@ -54,7 +54,15 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "invalid document",
 			fields: fields{
 				Documents: []*Document{&validDocument},
-				Receipts:  []*DocumentReceipt{&invalidReceipt},
+				Receipts:  []*DocumentReceipt{&invalidDocumentReceipt},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid receipt",
+			fields: fields{
+				Documents: []*Document{&validDocument},
+				Receipts:  []*DocumentReceipt{&invalidDocumentReceipt},
 			},
 			wantErr: true,
 		},
