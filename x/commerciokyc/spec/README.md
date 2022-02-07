@@ -5,7 +5,7 @@ parent:
   title: "commerciokyc"
 -->
 
-# `x/bank`
+# `x/commerciokyc`
 
 ## Abstract
 
@@ -43,7 +43,7 @@ type ModuleAccount interface {
 > Any module or message handler that allows either direct or indirect sending of funds must explicitly guarantee those funds cannot be sent to module accounts (unless allowed).
 
 The supply `Keeper` also introduces new wrapper functions for the auth `Keeper`
-and the bank `Keeper` that are related to `ModuleAccount`s in order to be able
+and the comerciokyc `Keeper` that are related to `ModuleAccount`s in order to be able
 to:
 
 - Get and set `ModuleAccount`s by providing the `Name`.
