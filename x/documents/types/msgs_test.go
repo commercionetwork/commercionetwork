@@ -85,7 +85,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 		{
 			"MsgShareDocument with valid schema",
 			msgShareDocumentSchema,
-			true,
+			false,
 		},
 		{
 			"MsgShareDocument with no schema",
