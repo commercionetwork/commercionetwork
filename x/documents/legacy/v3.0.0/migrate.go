@@ -22,8 +22,8 @@ func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 
 	for _, v220document := range oldGenState.Documents {
 
-		err := v220document.Validate()
-		if err == nil {
+		// invalid 2.2.0 documents won't be added
+		if err := v220document.Validate(); err == nil {
 
 			if _, found := appears[string(v220document.UUID)]; !found {
 
