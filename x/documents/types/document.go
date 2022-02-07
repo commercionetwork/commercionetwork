@@ -186,14 +186,6 @@ func (doc Document) Validate() error {
 				"field \"content_uri\" not present in document, but required when using do_sign",
 			)
 		}
-		/*
-			err := *(doc.DoSign).SdnData.Validate()
-			if err != nil {
-				return sdkErr.Wrap(
-					sdkErr.ErrInvalidRequest,
-					err.Error(),
-				)
-			}*/
 
 		if err := SdnData(doc.DoSign.SdnData).Validate(); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
