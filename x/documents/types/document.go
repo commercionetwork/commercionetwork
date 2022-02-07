@@ -130,9 +130,6 @@ func (doc Document) Validate() error {
 		if err != nil {
 			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 		}
-	}
-
-	if doc.EncryptionData != nil {
 
 		// check that each document recipient have some encrypted data
 		for _, recipient := range doc.Recipients {
@@ -171,10 +168,11 @@ func (doc Document) Validate() error {
 				if doc.ContentURI == "" {
 					return fNotPresent("content_uri")
 				}
-			case "metadata.schema.uri":
-				if doc.Metadata.Schema == nil || doc.Metadata.Schema.URI == "" {
-					return fNotPresent("metadata.schema.uri")
-				}
+				// case "metadata.schema.uri":
+				// 	// already checked in validate of metadata
+				// 	if doc.Metadata.Schema == nil || doc.Metadata.Schema.URI == "" {
+				// 		return fNotPresent("metadata.schema.uri")
+				// 	}
 			}
 		}
 

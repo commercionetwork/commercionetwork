@@ -153,18 +153,35 @@ func TestDocument_Validate(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		// {
-		// 	name: "check that there are no spurious encryption data recipients not present in the document recipient list",
-		// 	wantErr: true,
-		// },
-		// {
-		// 	name: "Check that the `encrypted_data' field name is actually present in doc",
-		// 	wantErr: true,
-		// },
-		// {
-		// 	name: "do_sign",
-		// 	wantErr: true,
-		// },
+		{
+			name: "content URI not present",
+			doc: func() Document {
+				doc := validDocument
+				doc.ContentURI = ""
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "do_sign specified but empty content uri",
+			doc: func() Document {
+				doc := validDocument
+				doc.EncryptionData = nil
+				doc.ContentURI = ""
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "do_sign specified but invalid checksum",
+			doc: func() Document {
+				doc := validDocument
+				doc.EncryptionData = nil
+				doc.Checksum = nil
+				return doc
+			},
+			wantErr: true,
+		},
 		{
 			name: "violate lenght limits",
 			doc: func() Document {
