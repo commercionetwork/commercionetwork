@@ -3,8 +3,6 @@ package types
 import (
 	"testing"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -82,12 +80,12 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name    string
 		sdr     MsgShareDocument
-		haveErr error
+		wantErr bool
 	}{
 		{
 			"MsgShareDocument with valid schema",
 			msgShareDocumentSchema,
-			nil,
+			true,
 		},
 		{
 			"MsgShareDocument with no schema",
@@ -104,7 +102,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 				Sender:     sender.String(),
 				Recipients: append([]string{}, recipient.String()),
 			}),
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "metadata.schema must be defined"),
+			true,
 		},
 		{
 			"MsgShareDocument with no schema type",
@@ -121,15 +119,15 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 				Sender:     sender.String(),
 				Recipients: append([]string{}, recipient.String()),
 			}),
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "metadata.schema must be defined"),
+			true,
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
-			if tt.haveErr != nil {
-				require.EqualError(t, err, tt.haveErr.Error())
+			if tt.wantErr {
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
@@ -225,12 +223,23 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name    string
 		sdr     MsgSendDocumentReceipt
-		haveErr error
+		wantErr bool
 	}{
 		{
 			"valid SendDocumentReceipt",
 			msgDocumentReceipt,
-			nil,
+			false,
+		},
+		{
+			"empty UUID",
+			MsgSendDocumentReceipt{
+				Sender:       sender.String(),
+				Recipient:    recipient.String(),
+				TxHash:       "txHash",
+				DocumentUUID: "",
+				Proof:        "proof",
+			},
+			true,
 		},
 		{
 			"invalid UUID",
@@ -238,10 +247,10 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				Sender:       sender.String(),
 				Recipient:    recipient.String(),
 				TxHash:       "txHash",
-				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				DocumentUUID: "6a2f41a3",
 				Proof:        "proof",
 			},
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid uuid: "),
+			true,
 		},
 		{
 			"empty sender",
@@ -252,7 +261,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
-			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
+			true,
 		},
 		{
 			"empty recipient",
@@ -263,7 +272,29 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
-			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
+			true,
+		},
+		{
+			"invalid sender",
+			MsgSendDocumentReceipt{
+				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Recipient:    recipient.String() + "$",
+				TxHash:       "txHash",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			true,
+		},
+		{
+			"invalid recipient",
+			MsgSendDocumentReceipt{
+				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Sender:       sender.String() + "$",
+				TxHash:       "txHash",
+				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				Proof:        "proof",
+			},
+			true,
 		},
 		{
 			"empty TxHash",
@@ -274,7 +305,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Send Document's Transaction Hash can't be empty"),
+			true,
 		},
 		{
 			"invalid document UUID",
@@ -285,15 +316,25 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 				TxHash:    "txHash",
 				Proof:     "proof",
 			},
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid document UUID"),
+			true,
+		},
+		{
+			"empty proof",
+			MsgSendDocumentReceipt{
+				UUID:      "cfbb5b51-6ac0-43b0-8e09-022236285e31",
+				Sender:    sender.String(),
+				Recipient: recipient.String(),
+				TxHash:    "txHash",
+			},
+			true,
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.sdr.ValidateBasic()
-			if tt.haveErr != nil {
-				require.EqualError(t, err, tt.haveErr.Error())
+			if tt.wantErr {
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}

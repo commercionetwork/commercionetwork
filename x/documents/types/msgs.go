@@ -2,13 +2,8 @@ package types
 
 import (
 	fmt "fmt"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/gofrs/uuid"
-
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 // ----------------------------------
@@ -52,117 +47,7 @@ func (msg *MsgShareDocument) GetSignBytes() []byte {
 }
 
 func (msg *MsgShareDocument) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Sender)
-	}
-
-	if len(msg.Recipients) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty")
-	}
-
-	for _, recipient := range msg.Recipients {
-		if recipient == "" {
-			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, recipient)
-		}
-	}
-
-	if !validateUUID(msg.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document UUID: %s", msg.UUID))
-	}
-
-	err := msg.Metadata.Validate()
-	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
-	}
-
-	if msg.Checksum != nil {
-		err = msg.Checksum.Validate()
-		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
-		}
-	}
-
-	if msg.EncryptionData != nil {
-		err = msg.EncryptionData.Validate()
-		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
-		}
-	}
-
-	if msg.EncryptionData != nil {
-
-		// check that each document recipient have some encrypted data
-		for _, recipient := range msg.Recipients {
-			recipientAccAddr, _ := sdk.AccAddressFromBech32(recipient)
-			if !msg.EncryptionData.ContainsRecipient(recipientAccAddr) {
-				errMsg := fmt.Sprintf(
-					"%s is a recipient inside the document but not in the encryption data",
-					recipient,
-				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
-			}
-		}
-
-		// check that there are no spurious encryption data recipients not present
-		// in the document recipient list
-		for _, encAdd := range msg.EncryptionData.Keys {
-			var recipient ctypes.Strings = msg.Recipients
-			if !recipient.Contains(encAdd.Recipient) {
-				errMsg := fmt.Sprintf(
-					"%s is a recipient inside encryption data but not inside the message",
-					encAdd.Recipient,
-				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
-			}
-		}
-
-		// Check that the `encrypted_data' field name is actually present in msg
-		fNotPresent := func(s string) error {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", s),
-			)
-		}
-
-		for _, fieldName := range msg.EncryptionData.EncryptedData {
-			switch fieldName {
-			case "content_uri":
-				if msg.ContentURI == "" {
-					return fNotPresent("content_uri")
-				}
-			case "metadata.schema.uri":
-				if msg.Metadata.Schema == nil || msg.Metadata.Schema.URI == "" {
-					return fNotPresent("metadata.schema.uri")
-				}
-			}
-		}
-
-	}
-
-	if msg.DoSign != nil {
-		if msg.Checksum == nil {
-			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
-				"field \"checksum\" not present in document, but required when using do_sign",
-			)
-		}
-
-		if msg.ContentURI == "" {
-			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
-				"field \"content_uri\" not present in document, but required when using do_sign",
-			)
-		}
-		var snData SdnData = msg.DoSign.SdnData
-		err := snData.Validate()
-		if err != nil {
-			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
-				err.Error(),
-			)
-		}
-	}
-
-	msgToDocument := Document{
+	var document = Document{
 		Sender:         msg.Sender,
 		Recipients:     msg.Recipients,
 		UUID:           msg.UUID,
@@ -172,10 +57,9 @@ func (msg *MsgShareDocument) ValidateBasic() error {
 		EncryptionData: msg.EncryptionData,
 		DoSign:         msg.DoSign,
 	}
-	if err := msgToDocument.lengthLimits(); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
-			err.Error(),
-		)
+
+	if err := document.Validate(); err != nil {
+		return fmt.Errorf("invalid document: %e", err)
 	}
 
 	return nil
@@ -210,28 +94,17 @@ func (msg *MsgSendDocumentReceipt) Type() string {
 
 // ValidateBasic Implements Msg.
 func (msg *MsgSendDocumentReceipt) ValidateBasic() error {
-	_, err := uuid.FromString(msg.UUID)
-
-	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid uuid: %s", msg.UUID))
+	receipt := DocumentReceipt{
+		UUID:         msg.DocumentUUID,
+		Sender:       msg.Sender,
+		Recipient:    msg.Recipient,
+		TxHash:       msg.TxHash,
+		DocumentUUID: msg.DocumentUUID,
+		Proof:        msg.Proof,
 	}
 
-	if msg.Sender == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Sender)
-	}
-
-	if msg.Recipient == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Recipient)
-	}
-
-	if len(strings.TrimSpace(msg.TxHash)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Send Document's Transaction Hash can't be empty")
-	}
-
-	_, err = uuid.FromString(msg.DocumentUUID)
-
-	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid document UUID")
+	if err := receipt.Validate(); err != nil {
+		return fmt.Errorf("invalid document receipt: %e", err)
 	}
 
 	return nil
