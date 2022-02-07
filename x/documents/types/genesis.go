@@ -35,7 +35,7 @@ func (gs GenesisState) Validate() error {
 	ReceiptIdMap := make(map[string]struct{})
 
 	for _, receipt := range gs.Receipts {
-		if _, found := DocumentIdMap[receipt.UUID]; !found {
+		if _, found := DocumentIdMap[receipt.DocumentUUID]; !found {
 			return fmt.Errorf("could not find corresponding document for %s", receipt.UUID)
 		}
 		if _, ok := ReceiptIdMap[receipt.UUID]; ok {
