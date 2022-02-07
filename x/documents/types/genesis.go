@@ -22,7 +22,7 @@ func (gs GenesisState) Validate() error {
 	DocumentIdMap := make(map[string]struct{})
 
 	for _, document := range gs.Documents {
-		if _, ok := DocumentIdMap[document.UUID]; ok {
+		if _, duplicated := DocumentIdMap[document.UUID]; duplicated {
 			return fmt.Errorf("duplicated id %s for document", document.UUID)
 		}
 		if err := document.Validate(); err != nil {
@@ -38,7 +38,7 @@ func (gs GenesisState) Validate() error {
 		if _, found := DocumentIdMap[receipt.DocumentUUID]; !found {
 			return fmt.Errorf("could not find corresponding document for %s", receipt.UUID)
 		}
-		if _, ok := ReceiptIdMap[receipt.UUID]; ok {
+		if _, duplicated := ReceiptIdMap[receipt.UUID]; duplicated {
 			return fmt.Errorf("duplicated id %s for receipt", receipt.UUID)
 		}
 		if err := receipt.Validate(); err != nil {
