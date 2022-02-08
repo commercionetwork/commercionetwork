@@ -11,7 +11,6 @@ import (
 )
 
 var validDocument = types.ValidDocument
-
 var validDocumentReceipt = types.ValidDocumentReceipt
 
 var anotherValidDocument types.Document
@@ -20,7 +19,6 @@ var anotherDocumentReceipt types.DocumentReceipt
 var v220DocumentRecipients []sdk.AccAddress
 var v220EncryptionDataKeys []v220docs.DocumentEncryptionKey
 var v220DocumentReceipt v220docs.DocumentReceipt
-
 var v220Document v220docs.Document
 
 var anotherV220Document v220docs.Document
@@ -34,7 +32,7 @@ func init() {
 	for _, r := range validDocument.Recipients {
 		addr, err := sdk.AccAddressFromBech32(r)
 		if err != nil {
-			panic("error on addresses for Recipients")
+			panic("error on addresses for recipients in document")
 		}
 		v220DocumentRecipients = append(v220DocumentRecipients, addr)
 	}
@@ -42,7 +40,7 @@ func init() {
 	for _, k := range validDocument.EncryptionData.Keys {
 		address, err := sdk.AccAddressFromBech32(k.Recipient)
 		if err != nil {
-			panic("error on addresses for EncriptionData Keys")
+			panic("error on addresses for encriptionData keys in document")
 		}
 		v220EncryptionDataKeys = append(v220EncryptionDataKeys, v220docs.DocumentEncryptionKey{
 			Recipient: address,
@@ -59,11 +57,11 @@ func init() {
 
 	sender, err := sdk.AccAddressFromBech32(validDocumentReceipt.Sender)
 	if err != nil {
-		panic(err)
+		panic("error on address for sender in receipt")
 	}
 	recipient, err := sdk.AccAddressFromBech32(validDocumentReceipt.Recipient)
 	if err != nil {
-		panic(err)
+		panic("error on address for recipient in receipt")
 	}
 
 	v220Document = v220docs.Document{
