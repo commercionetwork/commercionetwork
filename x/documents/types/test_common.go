@@ -5,14 +5,8 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var recipient, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
 
-const validDocumentUUID = "d83422c6-6e79-4a99-9767-fcae46dfa371"
-const validAnotherDocumentUUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
-
-const validReceiptUUID = "8db853ac-5265-4da6-a07a-c52ac8099385"
-const validAnotherReceiptUUID = "4c24eda0-6c06-476b-99ab-a05ea6f3d14f"
-
 var ValidDocument = Document{
-	UUID:       validDocumentUUID,
+	UUID:       "d83422c6-6e79-4a99-9767-fcae46dfa371",
 	ContentURI: "https://example.com/document",
 	Metadata: &DocumentMetadata{
 		ContentURI: "https://example.com/document/metadata",
@@ -47,11 +41,11 @@ var ValidDocument = Document{
 	Recipients: []string{recipient.String()},
 }
 
-var validDocumentReceipt = DocumentReceipt{
-	UUID:         validReceiptUUID,
+var ValidDocumentReceipt = DocumentReceipt{
+	UUID:         "8db853ac-5265-4da6-a07a-c52ac8099385",
 	Sender:       sender.String(),
 	Recipient:    recipient.String(),
 	TxHash:       "txHash",
-	DocumentUUID: validDocumentUUID,
+	DocumentUUID: ValidDocument.UUID,
 	Proof:        "proof",
 }

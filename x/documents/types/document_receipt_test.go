@@ -172,14 +172,14 @@ func TestDocumentReceipt_Validate(t *testing.T) {
 		{
 			name: "valid",
 			receipt: func() DocumentReceipt {
-				return validDocumentReceipt
+				return ValidDocumentReceipt
 			},
 			wantErr: false,
 		},
 		{
 			name: "empty UUID",
 			receipt: func() DocumentReceipt {
-				receipt := validDocumentReceipt
+				receipt := ValidDocumentReceipt
 				receipt.UUID = ""
 				return receipt
 			},
@@ -188,7 +188,7 @@ func TestDocumentReceipt_Validate(t *testing.T) {
 		{
 			name: "invalid sender",
 			receipt: func() DocumentReceipt {
-				receipt := validDocumentReceipt
+				receipt := ValidDocumentReceipt
 				receipt.Sender = ""
 				return receipt
 			},
@@ -197,7 +197,7 @@ func TestDocumentReceipt_Validate(t *testing.T) {
 		{
 			name: "invalid recipient",
 			receipt: func() DocumentReceipt {
-				receipt := validDocumentReceipt
+				receipt := ValidDocumentReceipt
 				receipt.Recipient = ""
 				return receipt
 			},
@@ -206,7 +206,7 @@ func TestDocumentReceipt_Validate(t *testing.T) {
 		{
 			name: "empty tx hash",
 			receipt: func() DocumentReceipt {
-				receipt := validDocumentReceipt
+				receipt := ValidDocumentReceipt
 				receipt.TxHash = ""
 				return receipt
 			},
@@ -215,7 +215,7 @@ func TestDocumentReceipt_Validate(t *testing.T) {
 		{
 			name: "empty document UUID",
 			receipt: func() DocumentReceipt {
-				receipt := validDocumentReceipt
+				receipt := ValidDocumentReceipt
 				receipt.DocumentUUID = ""
 				return receipt
 			},
@@ -224,7 +224,7 @@ func TestDocumentReceipt_Validate(t *testing.T) {
 		{
 			name: "empty proof",
 			receipt: func() DocumentReceipt {
-				receipt := validDocumentReceipt
+				receipt := ValidDocumentReceipt
 				receipt.Proof = ""
 				return receipt
 			},
