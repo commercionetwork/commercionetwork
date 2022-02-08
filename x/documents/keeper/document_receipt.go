@@ -12,6 +12,7 @@ import (
 
 // SaveReceipt allows to properly store the given receipt
 func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt) error {
+	// TODO: change to UUID validation
 	// Check the id
 	if len(strings.TrimSpace(receipt.UUID)) == 0 {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document receipt id: %s", receipt.UUID))

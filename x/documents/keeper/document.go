@@ -16,12 +16,12 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document UUID: %s", document.UUID))
 	}
 
-	// Check any existing document
+	// Check for an existing document
 	if _, err := keeper.GetDocumentByID(ctx, document.UUID); err == nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("document with uuid %s already present", document.UUID))
 	}
 
-	// Store the document object
+	// Store the document instance
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshalBinaryBare(&document))
 
@@ -62,6 +62,7 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	return nil
 }
 
+// TODO: remove and use GetDocumentbyID
 // ExtractDocument returns a Document slice instance and its UUID given an iterator byte stream value.
 func (keeper Keeper) ExtractDocument(ctx sdk.Context, keyVal []byte) (types.Document, string, error) {
 	documentUUID := string(keyVal[len(types.DocumentStorePrefix):])
