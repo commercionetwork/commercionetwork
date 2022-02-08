@@ -3,7 +3,7 @@ package types
 import "testing"
 
 func TestGenesisState_Validate(t *testing.T) {
-	invalidDocument := validDocument
+	invalidDocument := ValidDocument
 	invalidDocument.Sender = ""
 
 	invalidDocumentReceipt := validDocumentReceipt
@@ -29,7 +29,7 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			name: "document with no receipt",
 			fields: fields{
-				Documents: []*Document{&validDocument},
+				Documents: []*Document{&ValidDocument},
 				Receipts:  []*DocumentReceipt{},
 			},
 			wantErr: false,
@@ -37,7 +37,7 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			name: "document and receipt",
 			fields: fields{
-				Documents: []*Document{&validDocument},
+				Documents: []*Document{&ValidDocument},
 				Receipts:  []*DocumentReceipt{&validDocumentReceipt},
 			},
 			wantErr: false,
@@ -53,7 +53,7 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			name: "invalid document",
 			fields: fields{
-				Documents: []*Document{&validDocument},
+				Documents: []*Document{&ValidDocument},
 				Receipts:  []*DocumentReceipt{&invalidDocumentReceipt},
 			},
 			wantErr: true,
@@ -61,7 +61,7 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			name: "invalid receipt",
 			fields: fields{
-				Documents: []*Document{&validDocument},
+				Documents: []*Document{&ValidDocument},
 				Receipts:  []*DocumentReceipt{&invalidDocumentReceipt},
 			},
 			wantErr: true,
@@ -77,7 +77,7 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			name: "documents with same ID",
 			fields: fields{
-				Documents: []*Document{&validDocument, &validDocument},
+				Documents: []*Document{&ValidDocument, &ValidDocument},
 				Receipts:  []*DocumentReceipt{&validDocumentReceipt},
 			},
 			wantErr: true,
@@ -85,7 +85,7 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			name: "receipts with same ID",
 			fields: fields{
-				Documents: []*Document{&validDocument},
+				Documents: []*Document{&ValidDocument},
 				Receipts:  []*DocumentReceipt{&validDocumentReceipt, &validDocumentReceipt},
 			},
 			wantErr: true,
