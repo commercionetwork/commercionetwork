@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/gofrs/uuid"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
@@ -13,10 +14,8 @@ import (
 )
 
 const (
-	eventNewMetadataScheme = "new_metadata_scheme"
-	eventNewTMSP           = "new_tmsp"
-	eventSavedDocument     = "new_saved_document"
-	eventSavedReceipt      = "new_saved_receipt"
+	eventSavedDocument = "new_saved_document"
+	eventSavedReceipt  = "new_saved_receipt"
 )
 
 type (
@@ -51,14 +50,13 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // SaveDocument allows the sharing of a document
 func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) error {
 	// Check the id validity
-	if len(strings.TrimSpace(document.UUID)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document id: %s", document.UUID))
+	if _, err := uuid.FromString(document.UUID); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document UUID: %s", document.UUID))
 	}
 
 	// Check any existing document
-	// when err is nil, we found a document with said document.UUID
 	if _, err := keeper.GetDocumentByID(ctx, document.UUID); err == nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Document with uuid %s already present", document.UUID))
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("document with uuid %s already present", document.UUID))
 	}
 
 	// Store the document object
@@ -118,11 +116,11 @@ func (keeper Keeper) ExtractDocument(ctx sdk.Context, keyVal []byte) (types.Docu
 func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt) error {
 	// Check the id
 	if len(strings.TrimSpace(receipt.UUID)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document receipt id: %s", receipt.UUID))
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document receipt id: %s", receipt.UUID))
 	}
 
 	if _, err := keeper.GetDocumentByID(ctx, receipt.DocumentUUID); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "recepit points to a non-existing document UUID")
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "recepit points to a non-existing document UUID")
 	}
 
 	store := ctx.KVStore(keeper.storeKey)
@@ -136,13 +134,13 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	// Store the receipt as sent
 	if store.Has(sentReceiptsIdsStoreKey) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
 	store.Set(sentReceiptsIdsStoreKey, marshaledRecepitID)
 
 	// Store the receipt as received
 	if store.Has(receivedReceiptIdsStoreKey) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
 	store.Set(receivedReceiptIdsStoreKey, marshaledRecepitID)
 
@@ -174,6 +172,7 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	return receipt, nil
 }
 
+// TODO: change documentation or use directly GetReceiptByID instead of this method
 // ExtractReceipt returns a DocumentReceipt slice instance and its UUID given an iterator byte stream value.
 func (keeper Keeper) ExtractReceipt(ctx sdk.Context, iterVal []byte) (types.DocumentReceipt, string, error) {
 	rid := string(iterVal)

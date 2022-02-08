@@ -9,11 +9,17 @@ import (
 // Testing variables
 
 var testingSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var testingSender2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
+var anotherTestingSender, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 var testingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+var anotherTestingRecipient, _ = sdk.AccAddressFromBech32("cosmos1h2z8u9294gtqmxlrnlyfueqysng3krh009fum7")
+
+const validDocumentUUID = "d83422c6-6e79-4a99-9767-fcae46dfa371"
+const anotherValidDocumentUUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
+const documentReceiptUUID = "32c82ee4-c71d-4890-9680-4db7a3dbed41"
+const anotherDocumentReceiptUUID = "4c24eda0-6c06-476b-99ab-a05ea6f3d14f"
 
 var testingDocument = types.Document{
-	UUID:       "test-document-uuid",
+	UUID:       validDocumentUUID,
 	ContentURI: "https://example.com/document",
 	Metadata: &types.DocumentMetadata{
 		ContentURI: "https://example.com/document/metadata",
@@ -27,11 +33,11 @@ var testingDocument = types.Document{
 		Algorithm: "md5",
 	},
 	Sender:     testingSender.String(),
-	Recipients: append([]string{}, testingRecipient.String(), testingSender2.String()),
+	Recipients: append([]string{}, testingRecipient.String(), anotherTestingSender.String()),
 }
 
 var testingDocumentReceipt = types.DocumentReceipt{
-	UUID:         "testing-document-receipt-uuid",
+	UUID:         documentReceiptUUID,
 	Sender:       testingSender.String(),
 	Recipient:    testingRecipient.String(),
 	TxHash:       "txHash",
@@ -40,11 +46,11 @@ var testingDocumentReceipt = types.DocumentReceipt{
 }
 
 var testingDocumentReceiptNoDoc = types.DocumentReceipt{
-	UUID:         "testing-document-receipt-uuid",
+	UUID:         anotherDocumentReceiptUUID,
 	Sender:       testingSender.String(),
 	Recipient:    testingRecipient.String(),
 	TxHash:       "txHash",
-	DocumentUUID: "test-document-uuid-not-present",
+	DocumentUUID: anotherValidDocumentUUID,
 	Proof:        "proof",
 }
 
