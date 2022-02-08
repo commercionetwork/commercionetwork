@@ -162,7 +162,7 @@ func TestReceivedDocument(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createNDocument(keeper, ctx, 5)
-	
+
 	for _, tc := range []struct {
 		desc     string
 		request  *types.QueryGetReceivedDocumentRequest

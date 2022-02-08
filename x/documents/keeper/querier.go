@@ -106,7 +106,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, k Keeper, legacyQueri
 }
 
 // ----------------------------------
-// --- Documents receipts
+// --- Documents Receipts
 // ----------------------------------
 
 func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
