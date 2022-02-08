@@ -3,62 +3,7 @@ package types
 import (
 	"strings"
 	"testing"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
-var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var recipient, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
-
-const validDocumentUUID = "d83422c6-6e79-4a99-9767-fcae46dfa371"
-const anotherValidDocumentUUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
-
-const validReceiptUUID = "8db853ac-5265-4da6-a07a-c52ac8099385"
-
-var validDocument = Document{
-	UUID:       validDocumentUUID,
-	ContentURI: "https://example.com/document",
-	Metadata: &DocumentMetadata{
-		ContentURI: "https://example.com/document/metadata",
-		Schema: &DocumentMetadataSchema{
-			URI:     "https://example.com/document/metadata/schema",
-			Version: "1.0.0",
-		},
-	},
-	Checksum: &DocumentChecksum{
-		Value:     "93dfcaf3d923ec47edb8580667473987",
-		Algorithm: "md5",
-	},
-	EncryptionData: &DocumentEncryptionData{
-		Keys:          []*DocumentEncryptionKey{{Recipient: recipient.String(), Value: "6F7468657276616C7565"}},
-		EncryptedData: []string{"content", "content_uri", "metadata.content_uri", "metadata.schema.uri"},
-	},
-	DoSign: &DocumentDoSign{
-		StorageURI:     "https://example.com/document/storage",
-		SignerInstance: "SignerInstance",
-		SdnData: SdnData{
-			SdnDataCommonName,
-			SdnDataSurname,
-			SdnDataSurname,
-			SdnDataGivenName,
-			SdnDataOrganization,
-			SdnDataCountry,
-		},
-		VcrID:              "VcrID",
-		CertificateProfile: "CertificateProfile",
-	},
-	Sender:     sender.String(),
-	Recipients: []string{recipient.String()},
-}
-
-var validDocumentReceipt = DocumentReceipt{
-	UUID:         validReceiptUUID,
-	Sender:       sender.String(),
-	Recipient:    recipient.String(),
-	TxHash:       "txHash",
-	DocumentUUID: validDocumentUUID,
-	Proof:        "proof",
-}
 
 func TestDocument_Validate(t *testing.T) {
 
@@ -70,14 +15,14 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "valid",
 			doc: func() Document {
-				return validDocument
+				return ValidDocument
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid sender",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.Sender = ""
 				return doc
 			},
@@ -86,7 +31,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "empty recipients",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.Recipients = []string{}
 				return doc
 			},
@@ -95,7 +40,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "invalid recipients",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.Recipients = []string{"abc"}
 				return doc
 			},
@@ -104,7 +49,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "invalid UUID",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.UUID = "abc"
 				return doc
 			},
@@ -113,7 +58,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "invalid metadata",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.Metadata = &DocumentMetadata{}
 				return doc
 			},
@@ -122,7 +67,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "invalid checksum",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.Checksum = &DocumentChecksum{}
 				return doc
 			},
@@ -131,7 +76,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "invalid encryption data",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.EncryptionData = &DocumentEncryptionData{}
 				return doc
 			},
@@ -140,7 +85,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "encryption data does not contain a recipient",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				recipients := append([]string{}, doc.Recipients...)
 				doc.Recipients = append(recipients, doc.Sender)
 				return doc
@@ -150,7 +95,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "encryption data recipient not included in document recipient list",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				encryptionDataKeys := append([]*DocumentEncryptionKey{}, doc.EncryptionData.Keys...)
 				encryptionDataKeys = append(encryptionDataKeys, &DocumentEncryptionKey{
 					Recipient: doc.Sender,
@@ -170,7 +115,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "content URI not present",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.ContentURI = ""
 				return doc
 			},
@@ -179,7 +124,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "do_sign specified but empty ContentUri",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.EncryptionData = nil
 				doc.ContentURI = ""
 				return doc
@@ -189,9 +134,9 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "do_sign specified but empty MetadataSchemaURI",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.Metadata = &DocumentMetadata{
-					ContentURI: validDocument.ContentURI,
+					ContentURI: ValidDocument.ContentURI,
 					Schema:     nil,
 				}
 				return doc
@@ -201,7 +146,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "do_sign specified but invalid checksum",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.EncryptionData = nil
 				doc.Checksum = nil
 				return doc
@@ -211,13 +156,13 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "invalid SdnData",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.DoSign = &DocumentDoSign{
-					StorageURI:         validDocument.DoSign.StorageURI,
-					SignerInstance:     validDocument.DoSign.SignerInstance,
+					StorageURI:         ValidDocument.DoSign.StorageURI,
+					SignerInstance:     ValidDocument.DoSign.SignerInstance,
 					SdnData:            []string{"planet"},
-					VcrID:              validDocument.DoSign.VcrID,
-					CertificateProfile: validDocument.DoSign.CertificateProfile,
+					VcrID:              ValidDocument.DoSign.VcrID,
+					CertificateProfile: ValidDocument.DoSign.CertificateProfile,
 				}
 				return doc
 			},
@@ -226,7 +171,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "content URI not present",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.ContentURI = ""
 				return doc
 			},
@@ -235,7 +180,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "do_sign specified but empty content uri",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.EncryptionData = nil
 				doc.ContentURI = ""
 				return doc
@@ -245,7 +190,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "do_sign specified but invalid checksum",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.EncryptionData = nil
 				doc.Checksum = nil
 				return doc
@@ -255,7 +200,7 @@ func TestDocument_Validate(t *testing.T) {
 		{
 			name: "violate lenght limits",
 			doc: func() Document {
-				doc := validDocument
+				doc := ValidDocument
 				doc.ContentURI = strings.Repeat("a", 513)
 				return doc
 			},
