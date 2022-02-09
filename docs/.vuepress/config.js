@@ -22,17 +22,25 @@ module.exports = {
     ],
     themeConfig: {
         repo: "commercionetwork/commercionetwork",
+        logo: '/icon.png',
         editLinks: true,
         docsDir: "docs",
         docsBranch: "master",
         editLinkText: 'Edit this page on Github',
         lastUpdated: true,
-        //logo: '/.vuepress/icon.png',
         nav: [
+            {
+                text: 'Versions',
+                ariaLabel: 'Versions',
+                items: [
+                    { text: 'ver 3.0.0', link: '/' },
+                    { text: 'ver 2.2.0', link: '/docs2.2.0/' },
+                    { text: 'ver 2.1.2', link: '/docs2.1.2/' }
+                ]
+            },
             {text: "Commercio.network", link: "https://commercio.network"},
-            {text: "ver 2.2.0", link: "/" },
-            {text: "ver 2.1.2", link: "/docs2.1.2/" },
         ],
+
         sidebarDepth: 3,
         sidebar: [
             {

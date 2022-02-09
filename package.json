@@ -4,6 +4,7 @@
   "description": "Commercio.network documentation",
   "main": "index.js",
   "scripts": {
+    "predocs:serve": "./docs/pre.sh",
     "docs:serve": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
@@ -14,7 +15,8 @@
     "markdown-it": "^8.4.2",
     "markdown-it-meta": "0.0.1",
     "serialize-javascript": "^3.1.0",
-    "vuepress": "^1.8.2"
+    "vuepress": "^1.9.7",
+    "vuepress-theme-cosmos": "^1.0.183"
   },
   "dependencies": {
     "axios": "^0.21.4",
