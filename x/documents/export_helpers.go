@@ -15,14 +15,11 @@ func exportDocuments(ctx sdk.Context, keeper keeper.Keeper) []*types.Document {
 	di := keeper.DocumentsIterator(ctx)
 	defer di.Close()
 	for ; di.Valid(); di.Next() {
-		document, duuid, err := keeper.ExtractDocument(ctx, di.Key())
+		keyVal := di.Key()
+		uuid := string(keyVal[len(types.DocumentStorePrefix):])
+		document, err := keeper.GetDocumentByID(ctx, uuid)
 		if err != nil {
-			panic(
-				fmt.Sprintf(
-					"could not find document with UUID %s even though the user has an associated received document",
-					duuid,
-				),
-			)
+			panic(fmt.Sprintf("could not find document with UUID %s", uuid))
 		}
 
 		documents = append(documents, &document)
@@ -44,7 +41,7 @@ func exportReceipts(ctx sdk.Context, keeper keeper.Keeper) []*types.DocumentRece
 		if err != nil {
 			panic(
 				fmt.Sprintf(
-					"could not find document receipt with UUID %s even though the user has an associated document with it",
+					"could not find document receipt with UUID %s",
 					uuid,
 				),
 			)

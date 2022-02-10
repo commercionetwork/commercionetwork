@@ -62,15 +62,6 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	return nil
 }
 
-// TODO: remove and use GetDocumentbyID
-// ExtractDocument returns a Document slice instance and its UUID given an iterator byte stream value.
-func (keeper Keeper) ExtractDocument(ctx sdk.Context, keyVal []byte) (types.Document, string, error) {
-	documentUUID := string(keyVal[len(types.DocumentStorePrefix):])
-
-	document, err := keeper.GetDocumentByID(ctx, documentUUID)
-	return document, documentUUID, err
-}
-
 // getDocumentStoreKey generates an unique store key for a Document UUID
 func getDocumentStoreKey(uuid string) []byte {
 	return []byte(types.DocumentStorePrefix + uuid)

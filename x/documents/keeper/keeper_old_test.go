@@ -405,48 +405,6 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 	}
 }
 
-func TestKeeper_ExtractDocument(t *testing.T) {
-	tests := []struct {
-		name     string
-		want     types.Document
-		wantUUID string
-		wantErr  bool
-	}{
-		{
-			"stored document",
-			testingDocument,
-			testingDocument.UUID,
-			false,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
-
-			require.NoError(t, k.SaveDocument(ctx, tt.want))
-
-			docKey := []byte{}
-
-			di := k.DocumentsIterator(ctx)
-			defer di.Close()
-			for ; di.Valid(); di.Next() {
-				docKey = di.Key()
-			}
-
-			extDoc, extUUID, extErr := k.ExtractDocument(ctx, docKey)
-
-			if !tt.wantErr {
-				require.NoError(t, extErr)
-				require.Equal(t, tt.want, extDoc)
-				require.Equal(t, tt.wantUUID, extUUID)
-			} else {
-				require.Error(t, extErr)
-			}
-		})
-	}
-}
-
 func TestKeeper_ExtractReceipt(t *testing.T) {
 	r := testingDocumentReceipt
 	r.DocumentUUID = testingDocument.UUID
