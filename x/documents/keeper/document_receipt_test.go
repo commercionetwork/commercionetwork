@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
@@ -86,6 +87,60 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 				require.NoError(t, err)
 				receivedReceiptBz := store.Get(getReceivedReceiptsIdsUUIDStoreKey(recipient, testReceipt.DocumentUUID))
 				require.Equal(t, testReceipt.UUID, string(receivedReceiptBz))
+			}
+		})
+	}
+}
+
+func TestKeeper_GetReceiptByID(t *testing.T) {
+
+	tests := []struct {
+		name          string
+		storedReceipt *types.DocumentReceipt
+		ID            string
+		want          types.DocumentReceipt
+		wantErr       bool
+	}{
+		{
+			name:          "empty store",
+			storedReceipt: nil,
+			ID:            types.ValidDocumentReceipt.UUID,
+			wantErr:       true,
+		},
+		{
+			name:          "ok",
+			storedReceipt: &types.ValidDocumentReceipt,
+			ID:            types.ValidDocumentReceipt.UUID,
+			want:          types.ValidDocumentReceipt,
+			wantErr:       false,
+		},
+		{
+			name:          "store with another receipt",
+			storedReceipt: &types.ValidDocumentReceipt,
+			ID:            anotherDocumentReceiptUUID,
+			wantErr:       true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			keeper, ctx := setupKeeper(t)
+
+			if tt.storedReceipt != nil {
+				err := keeper.SaveDocument(ctx, types.ValidDocument)
+				require.NoError(t, err)
+
+				err = keeper.SaveReceipt(ctx, *tt.storedReceipt)
+				require.NoError(t, err)
+			}
+
+			got, err := keeper.GetReceiptByID(ctx, tt.ID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Keeper.GetReceiptByID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Keeper.GetReceiptByID() = %v, want %v", got, tt.want)
 			}
 		})
 	}
