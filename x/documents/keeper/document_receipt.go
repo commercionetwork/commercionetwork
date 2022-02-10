@@ -28,23 +28,30 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
 	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.DocumentUUID)
 
-	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
 	marshaledReceiptID := []byte(receipt.UUID)
+	receiptStoreKey := getReceiptStoreKey(receipt.UUID)
 
-	// Store the receipt as sent
+	// Check for an existing receipt
+	if store.Has(receiptStoreKey) {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+	}
+	// Store the receipt
+	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
+	store.Set(receiptStoreKey, marshaledReceipt)
+
+	// TODO remove
 	if store.Has(sentReceiptsIdsStoreKey) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
+	// Store the receipt as sent
 	store.Set(sentReceiptsIdsStoreKey, marshaledReceiptID)
 
-	// Store the receipt as received
+	// TODO remove
 	if store.Has(receivedReceiptIdsStoreKey) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
+	// Store the receipt as received
 	store.Set(receivedReceiptIdsStoreKey, marshaledReceiptID)
-
-	// Store the receipt
-	store.Set(getReceiptStoreKey(receipt.UUID), marshaledReceipt)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventSavedReceipt,

@@ -5,18 +5,8 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestDocumentGet(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
-	items := createNDocument(keeper, ctx, 10)
-	for _, item := range items {
-		actual, _ := keeper.GetDocumentByID(ctx, item.UUID)
-		assert.Equal(t, *item, actual)
-	}
-}
 
 func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 	tests := []struct {
@@ -207,11 +197,7 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 	}
 }
 
-// ----------------------------------
-// --- Document receipts
-// ----------------------------------
-
-func TestKeeper_SaveDocumentReceipt(t *testing.T) {
+func TestKeeper_UserSentReceiptsIterator(t *testing.T) {
 	tests := []struct {
 		name       string
 		document   types.Document
@@ -290,71 +276,6 @@ func TestKeeper_SaveDocumentReceipt(t *testing.T) {
 			require.Equal(t, 1, len(storedSlice))
 			require.Contains(t, storedSlice, tdr)
 			require.NotContains(t, storedSlice, tt.newReceipt)
-		})
-	}
-}
-
-func TestKeeper_SaveReceipt(t *testing.T) {
-	tests := []struct {
-		name            string
-		documentReceipt types.DocumentReceipt
-		wantErr         bool
-	}{
-		{
-			"receipt UUID not specified",
-			types.DocumentReceipt{
-				DocumentUUID: "test-document-uuid",
-			},
-			true,
-		},
-		{
-			"receipt UUID empty",
-			types.DocumentReceipt{
-				UUID:         "",
-				DocumentUUID: "test-document-uuid",
-			},
-			true,
-		},
-		{
-			"duplicated receipt",
-			testingDocumentReceipt,
-			true,
-		},
-		{
-			"UUID already in store",
-			types.DocumentReceipt{
-				UUID: "testing-document-receipt-uuid",
-			},
-			true,
-		},
-		{
-			"receipt UUID not in store",
-			types.DocumentReceipt{
-				UUID:         anotherDocumentReceiptUUID,
-				Sender:       anotherTestingSender.String(),
-				Recipient:    testingDocumentReceipt.Recipient,
-				TxHash:       testingDocumentReceipt.TxHash,
-				DocumentUUID: testingDocument.UUID,
-				Proof:        testingDocumentReceipt.Proof,
-			},
-			false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
-
-			store := ctx.KVStore(k.storeKey)
-			store.Set(getDocumentStoreKey(testingDocument.UUID), k.cdc.MustMarshalBinaryBare(&testingDocument))
-			senderAccadrr, _ := sdk.AccAddressFromBech32(testingDocumentReceipt.Sender)
-			store.Set(getSentReceiptsIdsUUIDStoreKey(senderAccadrr, testingDocumentReceipt.DocumentUUID), k.cdc.MustMarshalBinaryBare(&testingDocumentReceipt))
-
-			// add check for side effects in store ?
-			if tt.wantErr {
-				require.Error(t, k.SaveReceipt(ctx, tt.documentReceipt))
-			} else {
-				require.NoError(t, k.SaveReceipt(ctx, tt.documentReceipt))
-			}
 		})
 	}
 }

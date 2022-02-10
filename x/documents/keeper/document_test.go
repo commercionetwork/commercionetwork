@@ -58,20 +58,20 @@ func TestKeeper_SaveDocument(t *testing.T) {
 
 			if !tt.wantErr {
 				var stored types.Document
-				docBz := store.Get(getDocumentStoreKey(testDocument.UUID))
-				keeper.cdc.MustUnmarshalBinaryBare(docBz, &stored)
+				documentBz := store.Get(getDocumentStoreKey(testDocument.UUID))
+				keeper.cdc.MustUnmarshalBinaryBare(documentBz, &stored)
 				require.Equal(t, stored, testDocument)
 
 				sender, err := sdk.AccAddressFromBech32(testDocument.Sender)
 				require.NoError(t, err)
-				sentDocBz := store.Get(getSentDocumentsIdsUUIDStoreKey(sender, testDocument.UUID))
-				require.Equal(t, testDocument.UUID, string(sentDocBz))
+				sentDocumentBz := store.Get(getSentDocumentsIdsUUIDStoreKey(sender, testDocument.UUID))
+				require.Equal(t, testDocument.UUID, string(sentDocumentBz))
 
 				for _, recipientAddr := range testDocument.Recipients {
 					recipient, err := sdk.AccAddressFromBech32(recipientAddr)
 					require.NoError(t, err)
-					receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(recipient, testDocument.UUID))
-					require.Equal(t, testDocument.UUID, string(receivedDocsBz))
+					receivedDocumentBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(recipient, testDocument.UUID))
+					require.Equal(t, testDocument.UUID, string(receivedDocumentBz))
 				}
 			}
 		})
