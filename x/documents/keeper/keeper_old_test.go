@@ -8,70 +8,75 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
-	tests := []struct {
-		name      string
-		recipient []byte
-		docs      []types.Document
-	}{
-		{
-			"no document in store",
-			nil,
-			[]types.Document{},
-		},
-		{
-			"one document in store",
-			testingRecipient,
-			[]types.Document{
-				testingDocument,
-			},
-		},
-		{
-			"multiple documents in store",
-			testingRecipient,
-			[]types.Document{
-				testingDocument,
-				{ // TestingDocument with different uuid
-					UUID:           anotherValidDocumentUUID,
-					Sender:         testingDocument.Sender,
-					Recipients:     testingDocument.Recipients,
-					Metadata:       testingDocument.Metadata,
-					ContentURI:     testingDocument.ContentURI,
-					Checksum:       testingDocument.Checksum,
-					EncryptionData: testingDocument.EncryptionData,
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
+// func TestKeeper_UserReceivedDocumentsIteratorPlus(t *testing.T) {
+// 	tests := []struct {
+// 		name      string
+// 		recipient []byte
+// 		docs      []types.Document
+// 		receipts  []types.DocumentReceipt
+// 	}{
+// 		{
+// 			"no document in store",
+// 			nil,
+// 			[]types.Document{},
+// 			[]types.DocumentReceipt{},
+// 		},
+// 		{
+// 			"one document in store",
+// 			testingRecipient,
+// 			[]types.Document{
+// 				types.ValidDocument,
+// 			},
+// 			[]types.DocumentReceipt{
+// 				types.ValidDocumentReceipt,
+// 			},
+// 		},
+// 		{
+// 			"multiple documents in store",
+// 			testingRecipient,
+// 			[]types.Document{
+// 				testingDocument,
+// 				{ // TestingDocument with different uuid
+// 					UUID:           anotherValidDocumentUUID,
+// 					Sender:         testingDocument.Sender,
+// 					Recipients:     testingDocument.Recipients,
+// 					Metadata:       testingDocument.Metadata,
+// 					ContentURI:     testingDocument.ContentURI,
+// 					Checksum:       testingDocument.Checksum,
+// 					EncryptionData: testingDocument.EncryptionData,
+// 				},
+// 			},
+// 			[]types.DocumentReceipt{},
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			keeper, ctx := setupKeeper(t)
 
-			store := ctx.KVStore(k.storeKey)
-			for _, document := range tt.docs {
-				store.Set(getDocumentStoreKey(document.UUID), k.cdc.MustMarshalBinaryBare(&document))
-				store.Set(getReceivedDocumentsIdsUUIDStoreKey(tt.recipient, document.UUID), []byte(document.UUID))
-			}
+// 			for _, document := range tt.docs {
+// 				keeper.SaveDocument(ctx, document)
+// 			}
 
-			rdi := k.UserReceivedDocumentsIterator(ctx, tt.recipient)
-			defer rdi.Close()
+// 			for _, receipt := range tt.receipts {
+// 				keeper.SaveReceipt(ctx, receipt)
+// 			}
 
-			documents := []types.Document{}
-			for ; rdi.Valid(); rdi.Next() {
-				id := string(rdi.Value())
-				doc, err := k.GetDocumentByID(ctx, id)
-				require.NoError(t, err)
+// 			rdi := keeper.UserReceivedDocumentsIterator(ctx, tt.recipient)
+// 			defer rdi.Close()
 
-				documents = append(documents, doc)
-			}
+// 			documents := []types.Document{}
+// 			for ; rdi.Valid(); rdi.Next() {
+// 				id := string(rdi.Value())
+// 				doc, err := keeper.GetDocumentByID(ctx, id)
+// 				require.NoError(t, err)
 
-			require.Len(t, documents, len(tt.docs))
-			for _, document := range tt.docs {
-				require.Contains(t, documents, document)
-			}
-		})
-	}
-}
+// 				documents = append(documents, doc)
+// 			}
+
+// 			require.ElementsMatch(t, tt.docs, documents)
+// 		})
+// 	}
+// }
 
 func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 	tests := []struct {
@@ -130,69 +135,7 @@ func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 				documents = append(documents, doc)
 			}
 
-			require.Len(t, documents, len(tt.docs))
-			for _, document := range tt.docs {
-				require.Contains(t, documents, document)
-			}
-		})
-	}
-}
-
-func TestKeeper_DocumentsIterator(t *testing.T) {
-	tests := []struct {
-		name string
-		docs []types.Document
-	}{
-		{
-			"no document in store",
-			[]types.Document{},
-		},
-		{
-			"one document in store",
-			[]types.Document{
-				testingDocument,
-			},
-		},
-		{
-			"multiple documents in store",
-			[]types.Document{
-				testingDocument,
-				{ // TestingDocument with different uuid
-					UUID:           anotherValidDocumentUUID,
-					Sender:         testingDocument.Sender,
-					Recipients:     testingDocument.Recipients,
-					Metadata:       testingDocument.Metadata,
-					ContentURI:     testingDocument.ContentURI,
-					Checksum:       testingDocument.Checksum,
-					EncryptionData: testingDocument.EncryptionData,
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
-
-			for _, document := range tt.docs {
-				require.NoError(t, k.SaveDocument(ctx, document))
-			}
-
-			di := k.DocumentsIterator(ctx)
-			defer di.Close()
-
-			documents := []types.Document{}
-			for ; di.Valid(); di.Next() {
-				d := types.Document{}
-				k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
-
-				documents = append(documents, d)
-			}
-
-			require.Len(t, documents, len(tt.docs))
-			for _, document := range tt.docs {
-				require.Contains(t, documents, document)
-			}
-
+			require.ElementsMatch(t, tt.docs, documents)
 		})
 	}
 }

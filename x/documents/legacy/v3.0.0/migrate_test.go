@@ -11,10 +11,9 @@ import (
 )
 
 var validDocument = types.ValidDocument
-var validDocumentReceipt = types.ValidDocumentReceipt
-
-var anotherValidDocument types.Document
-var anotherDocumentReceipt types.DocumentReceipt
+var validDocumentReceipt = types.ValidDocumentReceiptRecipient1
+var anotherValidDocument = types.AnotherValidDocument
+var anotherDocumentReceipt = types.AnotherValidDocumentReceipt
 
 var v220DocumentRecipients []sdk.AccAddress
 var v220EncryptionDataKeys []v220docs.DocumentEncryptionKey
@@ -47,13 +46,6 @@ func init() {
 			Value:     k.Value,
 		})
 	}
-
-	anotherValidDocument = validDocument
-	anotherValidDocument.UUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
-
-	anotherDocumentReceipt = validDocumentReceipt
-	anotherDocumentReceipt.UUID = "7f4d6197-900a-44af-af22-3a703c568bfe"
-	anotherDocumentReceipt.DocumentUUID = anotherValidDocument.UUID
 
 	sender, err := sdk.AccAddressFromBech32(validDocumentReceipt.Sender)
 	if err != nil {

@@ -124,3 +124,50 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 		})
 	}
 }
+
+func TestKeeper_DocumentsIterator(t *testing.T) {
+	tests := []struct {
+		name string
+		docs []types.Document
+	}{
+		{
+			"empty",
+			[]types.Document{},
+		},
+		{
+			"one",
+			[]types.Document{
+				types.ValidDocument,
+			},
+		},
+		{
+			"multiple",
+			[]types.Document{
+				types.ValidDocument,
+				types.AnotherValidDocument,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
+
+			for _, document := range tt.docs {
+				require.NoError(t, k.SaveDocument(ctx, document))
+			}
+
+			di := k.DocumentsIterator(ctx)
+			defer di.Close()
+
+			documents := []types.Document{}
+			for ; di.Valid(); di.Next() {
+				d := types.Document{}
+				k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
+
+				documents = append(documents, d)
+			}
+
+			require.ElementsMatch(t, tt.docs, documents)
+		})
+	}
+}

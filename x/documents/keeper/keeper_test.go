@@ -41,7 +41,7 @@ var testingDocument = types.Document{
 		Algorithm: "md5",
 	},
 	Sender:     testingSender.String(),
-	Recipients: append([]string{}, testingRecipient.String(), anotherTestingSender.String()),
+	Recipients: append([]string{}, testingRecipient.String(), anotherTestingRecipient.String()),
 }
 
 var testingDocumentReceipt = types.DocumentReceipt{

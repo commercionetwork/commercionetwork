@@ -22,14 +22,14 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			name:           "ok",
 			storedDocument: &types.ValidDocument,
 			receipt: func() types.DocumentReceipt {
-				return types.ValidDocumentReceipt
+				return types.ValidDocumentReceiptRecipient1
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid UUID",
 			receipt: func() types.DocumentReceipt {
-				rec := types.ValidDocumentReceipt
+				rec := types.ValidDocumentReceiptRecipient1
 				rec.UUID = rec.UUID + "$"
 				return rec
 			},
@@ -38,16 +38,16 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 		{
 			name: "no corresponding document",
 			receipt: func() types.DocumentReceipt {
-				return types.ValidDocumentReceipt
+				return types.ValidDocumentReceiptRecipient1
 			},
 			wantErr: true,
 		},
 		{
 			name:           "receipt already in store",
 			storedDocument: &types.ValidDocument,
-			storedReceipt:  &types.ValidDocumentReceipt,
+			storedReceipt:  &types.ValidDocumentReceiptRecipient1,
 			receipt: func() types.DocumentReceipt {
-				return types.ValidDocumentReceipt
+				return types.ValidDocumentReceiptRecipient1
 			},
 			wantErr: true,
 		},
@@ -104,19 +104,19 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 		{
 			name:          "empty store",
 			storedReceipt: nil,
-			ID:            types.ValidDocumentReceipt.UUID,
+			ID:            types.ValidDocumentReceiptRecipient1.UUID,
 			wantErr:       true,
 		},
 		{
 			name:          "ok",
-			storedReceipt: &types.ValidDocumentReceipt,
-			ID:            types.ValidDocumentReceipt.UUID,
-			want:          types.ValidDocumentReceipt,
+			storedReceipt: &types.ValidDocumentReceiptRecipient1,
+			ID:            types.ValidDocumentReceiptRecipient1.UUID,
+			want:          types.ValidDocumentReceiptRecipient1,
 			wantErr:       false,
 		},
 		{
 			name:          "store with another receipt",
-			storedReceipt: &types.ValidDocumentReceipt,
+			storedReceipt: &types.ValidDocumentReceiptRecipient1,
 			ID:            anotherDocumentReceiptUUID,
 			wantErr:       true,
 		},

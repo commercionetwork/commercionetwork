@@ -6,7 +6,7 @@ func TestGenesisState_Validate(t *testing.T) {
 	invalidDocument := ValidDocument
 	invalidDocument.Sender = ""
 
-	invalidDocumentReceipt := ValidDocumentReceipt
+	invalidDocumentReceipt := ValidDocumentReceiptRecipient1
 	invalidDocumentReceipt.Sender = ""
 
 	type fields struct {
@@ -38,7 +38,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "document and receipt",
 			fields: fields{
 				Documents: []*Document{&ValidDocument},
-				Receipts:  []*DocumentReceipt{&ValidDocumentReceipt},
+				Receipts:  []*DocumentReceipt{&ValidDocumentReceiptRecipient1},
 			},
 			wantErr: false,
 		},
@@ -70,7 +70,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "receipt without corresponding document",
 			fields: fields{
 				Documents: []*Document{},
-				Receipts:  []*DocumentReceipt{&ValidDocumentReceipt},
+				Receipts:  []*DocumentReceipt{&ValidDocumentReceiptRecipient1},
 			},
 			wantErr: true,
 		},
@@ -78,7 +78,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "documents with same ID",
 			fields: fields{
 				Documents: []*Document{&ValidDocument, &ValidDocument},
-				Receipts:  []*DocumentReceipt{&ValidDocumentReceipt},
+				Receipts:  []*DocumentReceipt{&ValidDocumentReceiptRecipient1},
 			},
 			wantErr: true,
 		},
@@ -86,7 +86,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "receipts with same ID",
 			fields: fields{
 				Documents: []*Document{&ValidDocument},
-				Receipts:  []*DocumentReceipt{&ValidDocumentReceipt, &ValidDocumentReceipt},
+				Receipts:  []*DocumentReceipt{&ValidDocumentReceiptRecipient1, &ValidDocumentReceiptRecipient1},
 			},
 			wantErr: true,
 		},

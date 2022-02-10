@@ -45,11 +45,32 @@ var ValidDocument = Document{
 	Recipients: []string{recipient1.String(), recipient2.String()},
 }
 
-var ValidDocumentReceipt = DocumentReceipt{
+var ValidDocumentReceiptRecipient1 = DocumentReceipt{
 	UUID:         "8db853ac-5265-4da6-a07a-c52ac8099385",
 	Sender:       sender.String(),
 	Recipient:    recipient1.String(),
 	TxHash:       "txHash",
 	DocumentUUID: ValidDocument.UUID,
 	Proof:        "proof",
+}
+
+var ValidDocumentReceiptRecipient2 = DocumentReceipt{
+	UUID:         "bb84a465-6602-43af-9722-7d8a42d81ed8",
+	Sender:       sender.String(),
+	Recipient:    recipient2.String(),
+	TxHash:       "txHash",
+	DocumentUUID: ValidDocument.UUID,
+	Proof:        "proof",
+}
+
+var AnotherValidDocument Document
+var AnotherValidDocumentReceipt DocumentReceipt
+
+func init() {
+	AnotherValidDocument = ValidDocument
+	AnotherValidDocument.UUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
+
+	AnotherValidDocumentReceipt = ValidDocumentReceiptRecipient1
+	AnotherValidDocumentReceipt.UUID = "7f4d6197-900a-44af-af22-3a703c568bfe"
+	AnotherValidDocumentReceipt.DocumentUUID = AnotherValidDocument.UUID
 }
