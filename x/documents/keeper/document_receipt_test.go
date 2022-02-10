@@ -80,12 +80,12 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 
 				sender, err := sdk.AccAddressFromBech32(testReceipt.Sender)
 				require.NoError(t, err)
-				sentReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(sender, testReceipt.DocumentUUID))
+				sentReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(sender, testReceipt.UUID))
 				require.Equal(t, testReceipt.UUID, string(sentReceiptBz))
 
 				recipient, err := sdk.AccAddressFromBech32(testReceipt.Recipient)
 				require.NoError(t, err)
-				receivedReceiptBz := store.Get(getReceivedReceiptsIdsUUIDStoreKey(recipient, testReceipt.DocumentUUID))
+				receivedReceiptBz := store.Get(getReceivedReceiptsIdsUUIDStoreKey(recipient, testReceipt.UUID))
 				require.Equal(t, testReceipt.UUID, string(receivedReceiptBz))
 			}
 		})
@@ -142,6 +142,72 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Keeper.GetReceiptByID() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestKeeper_UserSentReceiptsIterator(t *testing.T) {
+	tests := []struct {
+		name     string
+		sender   string
+		docs     []types.Document
+		receipts []types.DocumentReceipt
+	}{
+		// {
+		// 	name:   "empty",
+		// 	sender: types.ValidDocument.Sender,
+		// },
+		// {
+		// 	name:   "empty receipts",
+		// 	sender: types.ValidDocument.Sender,
+		// 	docs:   []types.Document{types.ValidDocument},
+		// },
+		// {
+		// 	name:   "one receipt",
+		// 	sender: types.ValidDocument.Sender,
+		// 	docs:   []types.Document{types.ValidDocument},
+		// 	receipts: []types.DocumentReceipt{
+		// 		types.ValidDocumentReceiptRecipient1,
+		// 	},
+		// },
+		{
+			name:   "two receipts",
+			sender: types.ValidDocument.Sender,
+			docs:   []types.Document{types.ValidDocument},
+			receipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+				types.ValidDocumentReceiptRecipient2,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper, ctx := setupKeeper(t)
+
+			for _, document := range tt.docs {
+				keeper.SaveDocument(ctx, document)
+			}
+
+			for _, receipt := range tt.receipts {
+				keeper.SaveReceipt(ctx, receipt)
+			}
+
+			senderAddr, err := sdk.AccAddressFromBech32(tt.sender)
+			require.NoError(t, err)
+
+			receipts := []types.DocumentReceipt{}
+			di := keeper.UserSentReceiptsIterator(ctx, senderAddr)
+			defer di.Close()
+
+			for ; di.Valid(); di.Next() {
+				id := string(di.Value())
+				receipt, err := keeper.GetReceiptByID(ctx, id)
+				require.NoError(t, err)
+
+				receipts = append(receipts, receipt)
+			}
+
+			require.ElementsMatch(t, tt.receipts, receipts)
 		})
 	}
 }

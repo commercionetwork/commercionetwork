@@ -127,8 +127,8 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 
 func TestKeeper_DocumentsIterator(t *testing.T) {
 	tests := []struct {
-		name string
-		docs []types.Document
+		name      string
+		documents []types.Document
 	}{
 		{
 			"empty",
@@ -150,21 +150,153 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
+			keeper, ctx := setupKeeper(t)
 
-			for _, document := range tt.docs {
-				require.NoError(t, k.SaveDocument(ctx, document))
+			for _, document := range tt.documents {
+				require.NoError(t, keeper.SaveDocument(ctx, document))
 			}
 
-			di := k.DocumentsIterator(ctx)
+			di := keeper.DocumentsIterator(ctx)
 			defer di.Close()
 
 			documents := []types.Document{}
 			for ; di.Valid(); di.Next() {
 				d := types.Document{}
-				k.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
+				keeper.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
 
 				documents = append(documents, d)
+			}
+
+			require.ElementsMatch(t, tt.documents, documents)
+		})
+	}
+}
+
+func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
+	tests := []struct {
+		name     string
+		sender   string
+		docs     []types.Document
+		receipts []types.DocumentReceipt
+	}{
+		{
+			name:   "empty",
+			sender: types.ValidDocument.Sender,
+		},
+		{
+			name:   "empty receipts",
+			sender: types.ValidDocument.Sender,
+			docs:   []types.Document{types.ValidDocument},
+		},
+		{
+			name:   "one receipt",
+			sender: types.ValidDocument.Sender,
+			docs:   []types.Document{types.ValidDocument},
+			receipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
+		},
+		{
+			name:   "two receipts",
+			sender: types.ValidDocument.Sender,
+			docs:   []types.Document{types.ValidDocument},
+			receipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+				types.ValidDocumentReceiptRecipient2,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper, ctx := setupKeeper(t)
+
+			for _, document := range tt.docs {
+				keeper.SaveDocument(ctx, document)
+			}
+
+			for _, receipt := range tt.receipts {
+				keeper.SaveReceipt(ctx, receipt)
+			}
+
+			senderAddr, err := sdk.AccAddressFromBech32(tt.sender)
+			require.NoError(t, err)
+
+			documents := []types.Document{}
+			di := keeper.UserSentDocumentsIterator(ctx, senderAddr)
+			defer di.Close()
+
+			for ; di.Valid(); di.Next() {
+				id := string(di.Value())
+				doc, err := keeper.GetDocumentByID(ctx, id)
+				require.NoError(t, err)
+
+				documents = append(documents, doc)
+			}
+
+			require.ElementsMatch(t, tt.docs, documents)
+		})
+	}
+}
+
+func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
+	tests := []struct {
+		name      string
+		recipient string
+		docs      []types.Document
+		receipts  []types.DocumentReceipt
+	}{
+		{
+			name:      "empty",
+			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+		},
+		{
+			name:      "empty receipts",
+			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+			docs:      []types.Document{types.ValidDocument},
+		},
+		{
+			name:      "one receipt",
+			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+			docs:      []types.Document{types.ValidDocument},
+			receipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
+		},
+		{
+			name:      "two receipts",
+			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+			docs:      []types.Document{types.ValidDocument},
+			receipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+				types.ValidDocumentReceiptRecipient2,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper, ctx := setupKeeper(t)
+
+			for _, document := range tt.docs {
+				keeper.SaveDocument(ctx, document)
+			}
+
+			for _, receipt := range tt.receipts {
+				keeper.SaveReceipt(ctx, receipt)
+			}
+
+			recipientAddr, err := sdk.AccAddressFromBech32(tt.recipient)
+			require.NoError(t, err)
+
+			rdi := keeper.UserReceivedDocumentsIterator(ctx, recipientAddr)
+			defer rdi.Close()
+
+			documents := []types.Document{}
+			for ; rdi.Valid(); rdi.Next() {
+				id := string(rdi.Value())
+				doc, err := keeper.GetDocumentByID(ctx, id)
+				require.NoError(t, err)
+
+				documents = append(documents, doc)
 			}
 
 			require.ElementsMatch(t, tt.docs, documents)

@@ -24,9 +24,9 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	store := ctx.KVStore(keeper.storeKey)
 	senderAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
-	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)
+	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.UUID)
 	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
-	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.DocumentUUID)
+	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.UUID)
 
 	marshaledReceiptID := []byte(receipt.UUID)
 	receiptStoreKey := getReceiptStoreKey(receipt.UUID)
