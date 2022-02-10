@@ -71,15 +71,6 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	return receipt, nil
 }
 
-// TODO: change documentation or use directly GetReceiptByID instead of this method
-// ExtractReceipt returns a DocumentReceipt slice instance and its UUID given an iterator byte stream value.
-func (keeper Keeper) ExtractReceipt(ctx sdk.Context, iterVal []byte) (types.DocumentReceipt, string, error) {
-	rid := string(iterVal)
-
-	newReceipt, err := keeper.GetReceiptByID(ctx, rid)
-	return newReceipt, rid, err
-}
-
 // getReceiptStoreKey generates a store key for a document UUID
 func getReceiptStoreKey(id string) []byte {
 	return []byte(types.ReceiptsStorePrefix + id)
