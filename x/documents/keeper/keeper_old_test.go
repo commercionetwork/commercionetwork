@@ -26,53 +26,6 @@ func TestDocumentExist(t *testing.T) {
 	}
 }
 
-func TestKeeper_GetDocumentById(t *testing.T) {
-	tests := []struct {
-		name           string
-		storedDocument types.Document
-		wantedDoc      string
-		wantErr        bool
-	}{
-		{
-			"lookup on non existing document, empty store",
-			types.Document{},
-			testingDocument.UUID,
-			true,
-		},
-		{
-			"lookup on non existing document, not empty store",
-			testingDocument,
-			anotherValidDocumentUUID,
-			true,
-		},
-		{
-			"lookup on existing document",
-			testingDocument,
-			testingDocument.UUID,
-			false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
-
-			if tt.storedDocument.UUID != "" {
-				store := ctx.KVStore(k.storeKey)
-				store.Set(getDocumentStoreKey(tt.storedDocument.UUID), k.cdc.MustMarshalBinaryBare(&tt.storedDocument))
-			}
-
-			doc, err := k.GetDocumentByID(ctx, tt.wantedDoc)
-
-			if tt.wantErr {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
-				require.Equal(t, tt.storedDocument, doc)
-			}
-		})
-	}
-}
-
 func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 	tests := []struct {
 		name      string

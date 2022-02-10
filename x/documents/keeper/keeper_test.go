@@ -22,13 +22,12 @@ var anotherTestingSender, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj
 var testingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
 var anotherTestingRecipient, _ = sdk.AccAddressFromBech32("cosmos1h2z8u9294gtqmxlrnlyfueqysng3krh009fum7")
 
-const validDocumentUUID = "d83422c6-6e79-4a99-9767-fcae46dfa371"
 const anotherValidDocumentUUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
 const documentReceiptUUID = "32c82ee4-c71d-4890-9680-4db7a3dbed41"
 const anotherDocumentReceiptUUID = "4c24eda0-6c06-476b-99ab-a05ea6f3d14f"
 
 var testingDocument = types.Document{
-	UUID:       validDocumentUUID,
+	UUID:       "d83422c6-6e79-4a99-9767-fcae46dfa371",
 	ContentURI: "https://example.com/document",
 	Metadata: &types.DocumentMetadata{
 		ContentURI: "https://example.com/document/metadata",
