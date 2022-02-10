@@ -19,7 +19,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -27,7 +27,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -39,7 +39,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -47,7 +47,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"",
@@ -59,7 +59,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -67,7 +67,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"",
 				"proof",
@@ -79,7 +79,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -87,7 +87,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"",
 				"documentuuid",
 				"proof",
@@ -99,7 +99,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -119,7 +119,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -127,7 +127,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				"",
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -139,7 +139,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"uuid",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -147,7 +147,7 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			DocumentReceipt{
 				"",
 				sender.String(),
-				recipient.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",

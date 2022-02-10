@@ -3,7 +3,8 @@ package types
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
 var sender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var recipient, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
+var recipient1, _ = sdk.AccAddressFromBech32("cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr")
+var recipient2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 
 var ValidDocument = Document{
 	UUID:       "d83422c6-6e79-4a99-9767-fcae46dfa371",
@@ -20,7 +21,10 @@ var ValidDocument = Document{
 		Algorithm: "md5",
 	},
 	EncryptionData: &DocumentEncryptionData{
-		Keys:          []*DocumentEncryptionKey{{Recipient: recipient.String(), Value: "6F7468657276616C7565"}},
+		Keys: []*DocumentEncryptionKey{
+			{Recipient: recipient1.String(), Value: "6F7468657276616C7565"},
+			{Recipient: recipient2.String(), Value: "7F7468657276616C7565"},
+		},
 		EncryptedData: []string{"content", "content_uri", "metadata.content_uri", "metadata.schema.uri"},
 	},
 	DoSign: &DocumentDoSign{
@@ -38,13 +42,13 @@ var ValidDocument = Document{
 		CertificateProfile: "CertificateProfile",
 	},
 	Sender:     sender.String(),
-	Recipients: []string{recipient.String()},
+	Recipients: []string{recipient1.String(), recipient2.String()},
 }
 
 var ValidDocumentReceipt = DocumentReceipt{
 	UUID:         "8db853ac-5265-4da6-a07a-c52ac8099385",
 	Sender:       sender.String(),
-	Recipient:    recipient.String(),
+	Recipient:    recipient1.String(),
 	TxHash:       "txHash",
 	DocumentUUID: ValidDocument.UUID,
 	Proof:        "proof",

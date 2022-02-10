@@ -9,7 +9,7 @@ import (
 )
 
 var validDocumentEncryptionData = DocumentEncryptionData{
-	Keys:          []*DocumentEncryptionKey{{Recipient: recipient.String(), Value: "6F7468657276616C7565"}},
+	Keys:          []*DocumentEncryptionKey{{Recipient: recipient1.String(), Value: "6F7468657276616C7565"}},
 	EncryptedData: []string{"content", "content_uri", "metadata.content_uri", "metadata.schema.uri"},
 }
 
@@ -133,7 +133,7 @@ func TestDocumentEncryptionData_ContainsRecipient(t *testing.T) {
 			name: "contains",
 			data: validDocumentEncryptionData,
 			args: args{
-				recipient: recipient,
+				recipient: recipient1,
 			},
 			want: true,
 		},

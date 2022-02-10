@@ -8,7 +8,7 @@ import (
 )
 
 var validDocumentEncryptionKey = DocumentEncryptionKey{
-	Recipient: recipient.String(),
+	Recipient: recipient1.String(),
 	Value:     "76616C7565",
 }
 

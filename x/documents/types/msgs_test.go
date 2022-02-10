@@ -11,7 +11,7 @@ import (
 
 var msgShareDocumentSchema = MsgShareDocument(Document{
 	Sender:     sender.String(),
-	Recipients: append([]string{}, recipient.String()),
+	Recipients: append([]string{}, recipient1.String()),
 	UUID:       "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	Metadata: &DocumentMetadata{
 		ContentURI: "http://www.contentUri.com",
@@ -54,7 +54,7 @@ func TestNewMsgShareDocument(t *testing.T) {
 					Algorithm: "md5",
 				},
 				Sender:     sender.String(),
-				Recipients: append([]string{}, recipient.String()),
+				Recipients: append([]string{}, recipient1.String()),
 			},
 			msgShareDocumentSchema,
 		},
@@ -100,7 +100,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 					Algorithm: "md5",
 				},
 				Sender:     sender.String(),
-				Recipients: append([]string{}, recipient.String()),
+				Recipients: append([]string{}, recipient1.String()),
 			}),
 			true,
 		},
@@ -117,7 +117,7 @@ func TestMsgShareDocument_ValidateBasic(t *testing.T) {
 					Algorithm: "md5",
 				},
 				Sender:     sender.String(),
-				Recipients: append([]string{}, recipient.String()),
+				Recipients: append([]string{}, recipient1.String()),
 			}),
 			true,
 		},
@@ -175,7 +175,7 @@ func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
 var msgDocumentReceipt = MsgSendDocumentReceipt{
 	UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
 	Sender:       sender.String(),
-	Recipient:    recipient.String(),
+	Recipient:    recipient1.String(),
 	TxHash:       "txHash",
 	DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 	Proof:        "proof",
@@ -192,7 +192,7 @@ func TestNewMsgSendDocumentReceipt(t *testing.T) {
 			DocumentReceipt{
 				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
 				Sender:       sender.String(),
-				Recipient:    recipient.String(),
+				Recipient:    recipient1.String(),
 				TxHash:       "txHash",
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
@@ -234,7 +234,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 			"empty UUID",
 			MsgSendDocumentReceipt{
 				Sender:       sender.String(),
-				Recipient:    recipient.String(),
+				Recipient:    recipient1.String(),
 				TxHash:       "txHash",
 				DocumentUUID: "",
 				Proof:        "proof",
@@ -245,7 +245,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 			"invalid UUID",
 			MsgSendDocumentReceipt{
 				Sender:       sender.String(),
-				Recipient:    recipient.String(),
+				Recipient:    recipient1.String(),
 				TxHash:       "txHash",
 				DocumentUUID: "6a2f41a3",
 				Proof:        "proof",
@@ -256,7 +256,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 			"empty sender",
 			MsgSendDocumentReceipt{
 				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
-				Recipient:    recipient.String(),
+				Recipient:    recipient1.String(),
 				TxHash:       "txHash",
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
@@ -278,7 +278,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 			"invalid sender",
 			MsgSendDocumentReceipt{
 				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
-				Recipient:    recipient.String() + "$",
+				Recipient:    recipient1.String() + "$",
 				TxHash:       "txHash",
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
@@ -301,7 +301,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 			MsgSendDocumentReceipt{
 				UUID:         "cfbb5b51-6ac0-43b0-8e09-022236285e31",
 				Sender:       sender.String(),
-				Recipient:    recipient.String(),
+				Recipient:    recipient1.String(),
 				DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				Proof:        "proof",
 			},
@@ -312,7 +312,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 			MsgSendDocumentReceipt{
 				UUID:      "cfbb5b51-6ac0-43b0-8e09-022236285e31",
 				Sender:    sender.String(),
-				Recipient: recipient.String(),
+				Recipient: recipient1.String(),
 				TxHash:    "txHash",
 				Proof:     "proof",
 			},
@@ -323,7 +323,7 @@ func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {
 			MsgSendDocumentReceipt{
 				UUID:      "cfbb5b51-6ac0-43b0-8e09-022236285e31",
 				Sender:    sender.String(),
-				Recipient: recipient.String(),
+				Recipient: recipient1.String(),
 				TxHash:    "txHash",
 			},
 			true,
