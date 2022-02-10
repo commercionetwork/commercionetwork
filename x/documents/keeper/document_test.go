@@ -5,155 +5,73 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestDocumentGet(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
-	items := createNDocument(keeper, ctx, 10)
-	for _, item := range items {
-		actual, _ := keeper.GetDocumentByID(ctx, item.UUID)
-		assert.Equal(t, *item, actual)
-	}
-}
+func TestKeeper_SaveDocument(t *testing.T) {
 
-func TestDocumentExist(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
-	items := createNDocument(keeper, ctx, 10)
-	for _, item := range items {
-		assert.True(t, keeper.HasDocument(ctx, item.UUID))
-	}
-}
-
-func TestKeeper_SaveDocumentPlus(t *testing.T) {
 	tests := []struct {
 		name           string
-		storedDocument types.Document
-		document       types.Document
-		newRecipient   string
+		storedDocument *types.Document
+		document       func() types.Document
+		wantErr        bool
 	}{
 		{
-			"No document in store",
-			types.Document{},
-			testingDocument,
-			"",
-		},
-		{
-			"One document in store, different recipient",
-			testingDocument,
-			testingDocument,
-			anotherTestingRecipient.String(),
-		},
-		{
-			"One document in store, different uuid",
-			testingDocument,
-			types.Document{
-				UUID:       anotherValidDocumentUUID,
-				ContentURI: testingDocument.ContentURI,
-				Metadata:   testingDocument.Metadata,
-				Checksum:   testingDocument.Checksum,
-				Sender:     testingDocument.Sender,
-				Recipients: testingDocument.Recipients,
+			name: "ok",
+			document: func() types.Document {
+				return types.ValidDocument
 			},
-			"",
+		},
+		{
+			name: "invalid UUID",
+			document: func() types.Document {
+				doc := types.ValidDocument
+				doc.UUID = doc.UUID + "$"
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name:           "document already in store",
+			storedDocument: &types.ValidDocument,
+			document: func() types.Document {
+				return types.ValidDocument
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
+			testDocument := tt.document()
 
-			store := ctx.KVStore(k.storeKey)
+			keeper, ctx := setupKeeper(t)
+			store := ctx.KVStore(keeper.storeKey)
 
-			if !tt.storedDocument.Equals(types.Document{}) {
-				store.Set(getSentDocumentsIdsUUIDStoreKey(testingSender, tt.storedDocument.UUID), []byte(tt.storedDocument.UUID))
-				store.Set(getReceivedDocumentsIdsUUIDStoreKey(testingRecipient, tt.storedDocument.UUID), []byte(tt.storedDocument.UUID))
+			if tt.storedDocument != nil {
+				store.Set(getDocumentStoreKey(tt.storedDocument.UUID), keeper.cdc.MustMarshalBinaryBare(tt.storedDocument))
 			}
 
-			if tt.newRecipient != "" {
-				tt.document.Recipients = []string{tt.newRecipient}
+			if err := keeper.SaveDocument(ctx, testDocument); (err != nil) != tt.wantErr {
+				t.Errorf("Keeper.SaveDocument() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			err := k.SaveDocument(ctx, tt.document)
-			require.NoError(t, err)
+			if !tt.wantErr {
+				var stored types.Document
+				docBz := store.Get(getDocumentStoreKey(testDocument.UUID))
+				keeper.cdc.MustUnmarshalBinaryBare(docBz, &stored)
+				require.Equal(t, stored, testDocument)
 
-			docsBz := store.Get(getDocumentStoreKey(tt.document.UUID))
-			sentDocsBz := store.Get(getSentDocumentsIdsUUIDStoreKey(testingSender, tt.document.UUID))
-			receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(testingRecipient, tt.document.UUID))
+				sender, err := sdk.AccAddressFromBech32(testDocument.Sender)
+				require.NoError(t, err)
+				sentDocBz := store.Get(getSentDocumentsIdsUUIDStoreKey(sender, testDocument.UUID))
+				require.Equal(t, testDocument.UUID, string(sentDocBz))
 
-			if tt.newRecipient != "" {
-				recipientAddr, _ := sdk.AccAddressFromBech32(tt.newRecipient)
-				newReceivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(recipientAddr, tt.document.UUID))
-
-				newReceivedDocs := string(newReceivedDocsBz)
-				require.Equal(t, tt.document.UUID, newReceivedDocs)
-			}
-
-			var stored types.Document
-			k.cdc.MustUnmarshalBinaryBare(docsBz, &stored)
-			require.Equal(t, stored, tt.document)
-
-			sentDocs := string(sentDocsBz)
-			receivedDocs := string(receivedDocsBz)
-			require.Equal(t, tt.document.UUID, sentDocs)
-			require.Equal(t, tt.document.UUID, receivedDocs)
-
-		})
-	}
-}
-
-// SaveDocument duplicated tests
-func TestKeeper_SaveDocument(t *testing.T) {
-	tests := []struct {
-		name     string
-		document types.Document
-		wantErr  bool
-	}{
-		{
-			"duplicated document",
-			testingDocument,
-			true,
-		},
-		{
-			"UUID already in store",
-			types.Document{
-				UUID: "test-document-uuid",
-			},
-			true,
-		},
-		{
-			"document's UUID not in store",
-			types.Document{
-				UUID:       anotherValidDocumentUUID,
-				ContentURI: "https://example.com/document",
-				Metadata: &types.DocumentMetadata{
-					ContentURI: "https://example.com/document/metadata",
-					Schema: &types.DocumentMetadataSchema{
-						URI:     "https://example.com/document/metadata/schema",
-						Version: "1.0.0",
-					},
-				},
-				Checksum: &types.DocumentChecksum{
-					Value:     "93dfcaf3d923ec47edb8580667473987",
-					Algorithm: "md5",
-				},
-				Sender:     testingSender.String(),
-				Recipients: append([]string{}, testingRecipient.String()),
-			},
-			false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
-
-			store := ctx.KVStore(k.storeKey)
-			store.Set(getDocumentStoreKey(testingDocument.UUID), k.cdc.MustMarshalBinaryBare(&testingDocument))
-
-			if tt.wantErr {
-				require.Error(t, k.SaveDocument(ctx, tt.document))
-			} else {
-				require.NoError(t, k.SaveDocument(ctx, tt.document))
+				for _, recipientAddr := range testDocument.Recipients {
+					recipient, err := sdk.AccAddressFromBech32(recipientAddr)
+					require.NoError(t, err)
+					receivedDocsBz := store.Get(getReceivedDocumentsIdsUUIDStoreKey(recipient, testDocument.UUID))
+					require.Equal(t, testDocument.UUID, string(receivedDocsBz))
+				}
 			}
 		})
 	}

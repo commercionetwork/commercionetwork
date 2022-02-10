@@ -5,8 +5,26 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestDocumentGet(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	items := createNDocument(keeper, ctx, 10)
+	for _, item := range items {
+		actual, _ := keeper.GetDocumentByID(ctx, item.UUID)
+		assert.Equal(t, *item, actual)
+	}
+}
+
+func TestDocumentExist(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	items := createNDocument(keeper, ctx, 10)
+	for _, item := range items {
+		assert.True(t, keeper.HasDocument(ctx, item.UUID))
+	}
+}
 
 func TestKeeper_GetDocumentById(t *testing.T) {
 	tests := []struct {
