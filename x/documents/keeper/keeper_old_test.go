@@ -18,14 +18,6 @@ func TestDocumentGet(t *testing.T) {
 	}
 }
 
-func TestDocumentExist(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
-	items := createNDocument(keeper, ctx, 10)
-	for _, item := range items {
-		assert.True(t, keeper.HasDocument(ctx, item.UUID))
-	}
-}
-
 func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 	tests := []struct {
 		name      string

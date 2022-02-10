@@ -22,14 +22,12 @@ func (k Keeper) Document(c context.Context, req *types.QueryGetDocumentRequest) 
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var document types.Document
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if !k.HasDocument(ctx, req.UUID) {
+	document, err := k.GetDocumentByID(ctx, req.UUID)
+	if err != nil {
 		return nil, sdkerrors.ErrKeyNotFound
 	}
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get(getDocumentStoreKey(req.UUID)), &document)
 
 	return &types.QueryGetDocumentResponse{Document: &document}, nil
 }

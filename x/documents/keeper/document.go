@@ -89,13 +89,6 @@ func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, err
 	return document, nil
 }
 
-// HasDocument checks if the Document exists in the store
-func (k Keeper) HasDocument(ctx sdk.Context, id string) bool {
-	store := ctx.KVStore(k.storeKey)
-	documentKey := getDocumentStoreKey(id)
-	return store.Has(documentKey)
-}
-
 // getSentDocumentsIdsUUIDStoreKey generates a SentDocumentID for a given user and document UUID
 func getSentDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID string) []byte {
 	userPart := append(user, []byte(":"+documentUUID)...)
