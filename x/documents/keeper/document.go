@@ -16,21 +16,19 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document UUID: %s", document.UUID))
 	}
 
+	store := ctx.KVStore(keeper.storeKey)
+
 	// Check for an existing document
-	if _, err := keeper.GetDocumentByID(ctx, document.UUID); err == nil {
+	if store.Has(getDocumentStoreKey(document.UUID)) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("document with uuid %s already present", document.UUID))
 	}
 
 	// Store the document instance
-	store := ctx.KVStore(keeper.storeKey)
 	store.Set(getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshalBinaryBare(&document))
 
 	// Store the document as sent by the sender
-
-	// Idea: SentDocumentsPrefix + address + document.UUID -> document.UUID
-	senderAccadrr, _ := sdk.AccAddressFromBech32(document.Sender)
-	sentDocumentsStoreKey := getSentDocumentsIdsUUIDStoreKey(senderAccadrr, document.UUID)
-
+	senderAccAdrr, _ := sdk.AccAddressFromBech32(document.Sender)
+	sentDocumentsStoreKey := getSentDocumentsIdsUUIDStoreKey(senderAccAdrr, document.UUID)
 	store.Set(sentDocumentsStoreKey, []byte(document.UUID))
 
 	// Store the documents as received for all the recipients
