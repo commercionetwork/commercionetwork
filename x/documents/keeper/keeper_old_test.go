@@ -330,7 +330,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 		{
 			"receipt UUID not in store",
 			types.DocumentReceipt{
-				UUID:         testingDocumentReceipt.UUID + "-new",
+				UUID:         anotherDocumentReceiptUUID,
 				Sender:       anotherTestingSender.String(),
 				Recipient:    testingDocumentReceipt.Recipient,
 				TxHash:       testingDocumentReceipt.TxHash,

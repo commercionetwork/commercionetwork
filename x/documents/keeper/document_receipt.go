@@ -2,9 +2,9 @@ package keeper
 
 import (
 	"fmt"
-	"strings"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/gofrs/uuid"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,10 +12,10 @@ import (
 
 // SaveReceipt allows to properly store the given receipt
 func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt) error {
-	// TODO: change to UUID validation
-	// Check the id
-	if len(strings.TrimSpace(receipt.UUID)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document receipt id: %s", receipt.UUID))
+
+	// Check the id validity
+	if _, err := uuid.FromString(receipt.UUID); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document receipt UUID: %s", receipt.UUID))
 	}
 
 	if _, err := keeper.GetDocumentByID(ctx, receipt.DocumentUUID); err != nil {
@@ -23,8 +23,8 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	}
 
 	store := ctx.KVStore(keeper.storeKey)
-	senderAccadrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
-	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccadrr, receipt.DocumentUUID)
+	senderAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
+	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)
 	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
 	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.DocumentUUID)
 
