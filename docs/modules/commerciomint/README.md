@@ -9,7 +9,7 @@ parent:
 
 ## Abstract
 
-This document specifies the commerciomint module of the Commercio Network.
+This document specifies the commerciomint module of the Commercio Network chain.
 
 The `commerciomint` module is the one that allows you to create Exchange Trade Position (*ETPs*) using your 
 Commercio.network tokens (*ucommercio*) in order to get Commercio Cash Credits (*uccc*) in return.
