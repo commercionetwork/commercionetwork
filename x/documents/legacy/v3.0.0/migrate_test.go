@@ -47,11 +47,11 @@ func init() {
 		})
 	}
 
-	sender, err := sdk.AccAddressFromBech32(validDocumentReceipt.Sender)
+	sender, err := sdk.AccAddressFromBech32(validDocument.Sender)
 	if err != nil {
 		panic("error on address for sender in receipt")
 	}
-	recipient, err := sdk.AccAddressFromBech32(validDocumentReceipt.Recipient)
+	recipient, err := sdk.AccAddressFromBech32(validDocumentReceipt.Sender)
 	if err != nil {
 		panic("error on address for recipient in receipt")
 	}
@@ -88,8 +88,8 @@ func init() {
 
 	v220DocumentReceipt = v220docs.DocumentReceipt{
 		UUID:         validDocumentReceipt.UUID,
-		Sender:       sender,
-		Recipient:    recipient,
+		Sender:       recipient,
+		Recipient:    sender,
 		TxHash:       validDocumentReceipt.TxHash,
 		DocumentUUID: validDocumentReceipt.DocumentUUID,
 		Proof:        validDocumentReceipt.Proof,
