@@ -251,12 +251,12 @@ func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 		},
 		{
 			name:      "empty receipts",
-			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+			recipient: types.ValidDocumentReceiptRecipient1.Sender,
 			docs:      []types.Document{types.ValidDocument},
 		},
 		{
 			name:      "one receipt",
-			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+			recipient: types.ValidDocumentReceiptRecipient1.Sender,
 			docs:      []types.Document{types.ValidDocument},
 			receipts: []types.DocumentReceipt{
 				types.ValidDocumentReceiptRecipient1,
@@ -264,7 +264,7 @@ func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 		},
 		{
 			name:      "two receipts",
-			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+			recipient: types.ValidDocumentReceiptRecipient1.Sender,
 			docs:      []types.Document{types.ValidDocument},
 			receipts: []types.DocumentReceipt{
 				types.ValidDocumentReceiptRecipient1,

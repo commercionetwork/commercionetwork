@@ -47,8 +47,8 @@ var ValidDocument = Document{
 
 var ValidDocumentReceiptRecipient1 = DocumentReceipt{
 	UUID:         "8db853ac-5265-4da6-a07a-c52ac8099385",
-	Sender:       sender.String(),
-	Recipient:    recipient1.String(),
+	Sender:       recipient1.String(),
+	Recipient:    sender.String(),
 	TxHash:       "txHash",
 	DocumentUUID: ValidDocument.UUID,
 	Proof:        "proof",
@@ -56,8 +56,8 @@ var ValidDocumentReceiptRecipient1 = DocumentReceipt{
 
 var ValidDocumentReceiptRecipient2 = DocumentReceipt{
 	UUID:         "bb84a465-6602-43af-9722-7d8a42d81ed8",
-	Sender:       sender.String(),
-	Recipient:    recipient2.String(),
+	Sender:       recipient2.String(),
+	Recipient:    sender.String(),
 	TxHash:       "txHash",
 	DocumentUUID: ValidDocument.UUID,
 	Proof:        "proof",

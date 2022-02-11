@@ -65,6 +65,8 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 
 				if tt.storedReceipt != nil {
 					store.Set(getReceiptStoreKey(tt.storedReceipt.UUID), keeper.cdc.MustMarshalBinaryBare(tt.storedReceipt))
+					// ADD getSentReceiptsIdsUUIDStoreKey
+					// ADD getReceivedReceiptsIdsUUIDStoreKey
 				}
 			}
 
@@ -80,7 +82,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 
 				sender, err := sdk.AccAddressFromBech32(testReceipt.Sender)
 				require.NoError(t, err)
-				sentReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(sender, testReceipt.UUID))
+				sentReceiptBz := store.Get(getSentReceiptsIdsUUIDStoreKey(sender, testReceipt.DocumentUUID))
 				require.Equal(t, testReceipt.UUID, string(sentReceiptBz))
 
 				recipient, err := sdk.AccAddressFromBech32(testReceipt.Recipient)
@@ -155,16 +157,16 @@ func TestKeeper_UserSentReceiptsIterator(t *testing.T) {
 	}{
 		{
 			name:   "empty",
-			sender: types.ValidDocument.Sender,
+			sender: types.ValidDocumentReceiptRecipient1.Sender,
 		},
 		{
 			name:   "empty receipts",
-			sender: types.ValidDocument.Sender,
+			sender: types.ValidDocumentReceiptRecipient1.Sender,
 			docs:   []types.Document{types.ValidDocument},
 		},
 		{
 			name:   "one receipt",
-			sender: types.ValidDocument.Sender,
+			sender: types.ValidDocumentReceiptRecipient1.Sender,
 			docs:   []types.Document{types.ValidDocument},
 			receipts: []types.DocumentReceipt{
 				types.ValidDocumentReceiptRecipient1,
@@ -172,11 +174,10 @@ func TestKeeper_UserSentReceiptsIterator(t *testing.T) {
 		},
 		{
 			name:   "two receipts",
-			sender: types.ValidDocument.Sender,
+			sender: types.ValidDocumentReceiptRecipient1.Sender,
 			docs:   []types.Document{types.ValidDocument},
 			receipts: []types.DocumentReceipt{
 				types.ValidDocumentReceiptRecipient1,
-				types.ValidDocumentReceiptRecipient2,
 			},
 		},
 	}

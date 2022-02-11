@@ -23,33 +23,33 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	}
 
 	store := ctx.KVStore(keeper.storeKey)
-	senderAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
-	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.UUID)
-	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
-	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.UUID)
 
 	marshaledReceiptID := []byte(receipt.UUID)
 	receiptStoreKey := getReceiptStoreKey(receipt.UUID)
 
-	// Check for an existing receipt
+	// Check for usage of same ID
 	if store.Has(receiptStoreKey) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
-	// Store the receipt
-	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
-	store.Set(receiptStoreKey, marshaledReceipt)
 
-	// TODO remove
+	senderAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
+	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)
 	if store.Has(sentReceiptsIdsStoreKey) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
-	// Store the receipt as sent
-	store.Set(sentReceiptsIdsStoreKey, marshaledReceiptID)
 
-	// TODO remove
+	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
+	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.UUID)
 	if store.Has(receivedReceiptIdsStoreKey) {
+		// TODO: CHANGE MESSAGE
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
+
+	// Store the receipt
+	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
+	store.Set(receiptStoreKey, marshaledReceipt)
+	// Store the receipt as sent
+	store.Set(sentReceiptsIdsStoreKey, marshaledReceiptID)
 	// Store the receipt as received
 	store.Set(receivedReceiptIdsStoreKey, marshaledReceiptID)
 
