@@ -66,6 +66,9 @@ var ValidDocumentReceiptRecipient2 = DocumentReceipt{
 var AnotherValidDocument Document
 var AnotherValidDocumentReceipt DocumentReceipt
 
+var InvalidDocument Document
+var InvalidDocumentReceipt DocumentReceipt
+
 func init() {
 	AnotherValidDocument = ValidDocument
 	AnotherValidDocument.UUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
@@ -73,4 +76,11 @@ func init() {
 	AnotherValidDocumentReceipt = ValidDocumentReceiptRecipient1
 	AnotherValidDocumentReceipt.UUID = "7f4d6197-900a-44af-af22-3a703c568bfe"
 	AnotherValidDocumentReceipt.DocumentUUID = AnotherValidDocument.UUID
+
+	InvalidDocument = ValidDocument
+	InvalidDocument.UUID = "abc"
+
+	InvalidDocumentReceipt = ValidDocumentReceiptRecipient1
+	InvalidDocumentReceipt.UUID = "def"
+	InvalidDocumentReceipt.DocumentUUID = InvalidDocument.UUID
 }
