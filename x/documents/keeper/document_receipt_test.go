@@ -51,6 +51,17 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name:           "a receipt for the document already been sent by the sender",
+			storedDocument: &types.ValidDocument,
+			storedReceipt:  &types.ValidDocumentReceiptRecipient1,
+			receipt: func() types.DocumentReceipt {
+				receipt := types.ValidDocumentReceiptRecipient1
+				receipt.UUID = "4beff972-03a4-42da-9ebd-9303ae342be8"
+				return receipt
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -65,8 +76,17 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 
 				if tt.storedReceipt != nil {
 					store.Set(getReceiptStoreKey(tt.storedReceipt.UUID), keeper.cdc.MustMarshalBinaryBare(tt.storedReceipt))
-					// ADD getSentReceiptsIdsUUIDStoreKey
-					// ADD getReceivedReceiptsIdsUUIDStoreKey
+
+					marshaledReceiptID := []byte(tt.storedReceipt.UUID)
+
+					sender, err := sdk.AccAddressFromBech32(tt.storedReceipt.Sender)
+					require.NoError(t, err)
+					store.Set(getSentReceiptsIdsUUIDStoreKey(sender, tt.storedReceipt.DocumentUUID), marshaledReceiptID)
+
+					// TODO: remove if check for (recipientAccAdrr, receipt.UUID) is redundant
+					// recipient, err := sdk.AccAddressFromBech32(tt.storedReceipt.Recipient)
+					// require.NoError(t, err)
+					// store.Set(getReceivedReceiptsIdsUUIDStoreKey(recipient, tt.storedReceipt.UUID), marshaledReceiptID)
 				}
 			}
 
