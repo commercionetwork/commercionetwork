@@ -6,7 +6,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,29 +22,37 @@ func TestShareDocument(t *testing.T) {
 		err  bool
 	}{
 		{
-			desc: "share a document",
+			desc: "ok",
 			msg: &types.MsgShareDocument{
-				UUID:       uuid.NewV4().String(),
-				Sender:     types.ValidDocumentReceiptRecipient1.Recipient,
-				Recipients: []string{types.ValidDocumentReceiptRecipient1.Sender},
+				Sender:         types.ValidDocument.Sender,
+				Recipients:     types.ValidDocument.Recipients,
+				UUID:           types.AnotherValidDocument.UUID,
+				Metadata:       types.ValidDocument.Metadata,
+				ContentURI:     types.ValidDocument.ContentURI,
+				Checksum:       types.ValidDocument.Checksum,
+				EncryptionData: types.ValidDocument.EncryptionData,
+				DoSign:         types.ValidDocument.DoSign,
 			},
-			err: false,
 		},
 		{
-			desc: "invalid document uuid",
+			desc: "invalid document",
 			msg: &types.MsgShareDocument{
-				UUID:       "",
-				Sender:     types.ValidDocumentReceiptRecipient1.Recipient,
-				Recipients: []string{types.ValidDocumentReceiptRecipient1.Sender},
+				Sender:         types.ValidDocument.Sender,
+				Recipients:     types.ValidDocument.Recipients,
+				UUID:           "",
+				Metadata:       types.ValidDocument.Metadata,
+				ContentURI:     types.ValidDocument.ContentURI,
+				Checksum:       types.ValidDocument.Checksum,
+				EncryptionData: types.ValidDocument.EncryptionData,
+				DoSign:         types.ValidDocument.DoSign,
 			},
 			err: true,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			response, err := srv.ShareDocument(ctx, tc.msg)
 			if tc.err {
-				require.NotNil(t, err)
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.msg.UUID, response.UUID)
@@ -54,51 +61,64 @@ func TestShareDocument(t *testing.T) {
 	}
 }
 
-func TestSendDocument(t *testing.T) {
-	srv, ctx, k := setupMsgServer(t)
-	docs := createNDocument(&k, sdk.UnwrapSDKContext(ctx), 1)
+func TestSendDocumentReceipt(t *testing.T) {
 
 	for _, tc := range []struct {
-		desc string
-		msg  *types.MsgSendDocumentReceipt
-		err  bool
+		desc            string
+		storedDocuments []types.Document
+		msg             *types.MsgSendDocumentReceipt
+		err             bool
 	}{
 		{
-			desc: "send a document receipt",
+			desc:            "ok",
+			storedDocuments: []types.Document{types.ValidDocument},
 			msg: &types.MsgSendDocumentReceipt{
-				UUID:         uuid.NewV4().String(),
-				Sender:       docs[0].Recipients[0],
-				Recipient:    docs[0].Sender,
-				DocumentUUID: docs[0].UUID,
+				UUID:         types.ValidDocumentReceiptRecipient1.UUID,
+				Sender:       types.ValidDocumentReceiptRecipient1.Sender,
+				Recipient:    types.ValidDocumentReceiptRecipient1.Recipient,
+				TxHash:       types.ValidDocumentReceiptRecipient1.TxHash,
+				DocumentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
+				Proof:        types.ValidDocumentReceiptRecipient1.Proof,
 			},
-			err: false,
 		},
 		{
-			desc: "invalid document receipt uuid",
+			desc: "no corresponding document",
 			msg: &types.MsgSendDocumentReceipt{
-				UUID:         "",
-				Sender:       docs[0].Recipients[0],
-				Recipient:    docs[0].Sender,
-				DocumentUUID: docs[0].UUID,
+				UUID:         types.ValidDocumentReceiptRecipient1.UUID,
+				Sender:       types.ValidDocumentReceiptRecipient1.Sender,
+				Recipient:    types.ValidDocumentReceiptRecipient1.Recipient,
+				TxHash:       types.ValidDocumentReceiptRecipient1.TxHash,
+				DocumentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
+				Proof:        types.ValidDocumentReceiptRecipient1.Proof,
 			},
 			err: true,
 		},
 		{
-			desc: "invalid document uuid",
+			desc:            "invalid document receipt",
+			storedDocuments: []types.Document{types.ValidDocument},
 			msg: &types.MsgSendDocumentReceipt{
-				UUID:         uuid.NewV4().String(),
-				Sender:       docs[0].Recipients[0],
-				Recipient:    docs[0].Sender,
-				DocumentUUID: "",
+				UUID:         "",
+				Sender:       types.ValidDocumentReceiptRecipient1.Sender,
+				Recipient:    types.ValidDocumentReceiptRecipient1.Recipient,
+				TxHash:       types.ValidDocumentReceiptRecipient1.TxHash,
+				DocumentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
+				Proof:        types.ValidDocumentReceiptRecipient1.Proof,
 			},
 			err: true,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
+			srv, ctx, k := setupMsgServer(t)
+
+			for _, document := range tc.storedDocuments {
+				uctx := sdk.UnwrapSDKContext(ctx)
+				err := k.SaveDocument(uctx, document)
+				require.NoError(t, err)
+			}
+
 			response, err := srv.SendDocumentReceipt(ctx, tc.msg)
 			if tc.err {
-				require.NotNil(t, err)
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.msg.UUID, response.UUID)
