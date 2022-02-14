@@ -25,7 +25,7 @@ source ~/.profile
 ```
 
 ## 2. Chain selection
-Before installing the node, please select which chain you would like to connect to (for example **testent7000**)
+Before installing the node, please select which chain you would like to connect to (for example **testent11k**)
 
 ```bash
 rm -rf commercio-chains
@@ -43,8 +43,7 @@ Always remember to pick the latest chain version listed inside [chains repo](htt
 Compile binaries 
 
 ```bash
-pkill cnd
-pkill cncli
+pkill commercionetworkd
 git init . 
 git remote add origin https://github.com/commercionetwork/commercionetwork.git
 git pull
@@ -56,7 +55,7 @@ make install
 Test if you have the correct binaries version:
 
 ```bash
-cnd version
+commercionetworkd version
 # Should output the same version written inside the .data file.
 # cat .data | grep -oP 'Release\s+\K\S+'
 ```
@@ -70,52 +69,51 @@ export CHAINID="$CHAINID"
 EOF
 ```
 
-Init the `.cnd` folder with the basic configuration
+Init the `.commercionetwork` folder with the basic configuration
 
 :::warning  
 At this point there may be some differences if you are using `KMS` with `HSM`. Specifications will be published shortly.
 :::
 
 ```bash
-cnd unsafe-reset-all
-# If you get a error because .cnd folder is not present don't worry 
+commercionetworkd unsafe-reset-all
+# If you get a error because .commercionetwork folder is not present don't worry 
 
-cnd init $NODENAME
-# If you get a error because .cnd folder is present don't worry 
+commercionetworkd init $NODENAME
+# If you get a error because .commercionetwork folder is present don't worry 
 ```
 
 Install `genesis.json` file
 
 ```bash
-pkill cnd
-rm -rf ~/.cnd/config/genesis.json
-cp genesis.json ~/.cnd/config
+rm -rf ~/.commercionetwork/config/genesis.json
+cp genesis.json ~/.commercionetwork/config
 ```
 
 Change the persistent peers inside `config.toml` file
 
 ```bash
-sed -e "s|persistent_peers = \".*\"|persistent_peers = \"$(cat .data | grep -oP 'Persistent peers\s+\K\S+')\"|g" ~/.cnd/config/config.toml > ~/.cnd/config/config.toml.tmp
-mv ~/.cnd/config/config.toml.tmp  ~/.cnd/config/config.toml
+sed -e "s|persistent_peers = \".*\"|persistent_peers = \"$(cat .data | grep -oP 'Persistent peers\s+\K\S+')\"|g" ~/.commercionetwork/config/config.toml > ~/.commercionetwork/config/config.toml.tmp
+mv ~/.commercionetwork/config/config.toml.tmp  ~/.commercionetwork/config/config.toml
 ```
 
 Change the seeds inside the `config.toml` file
 ```bash
-sed -e "s|seeds = \".*\"|seeds = \"$(cat .data | grep -oP 'Seeds\s+\K\S+')\"|g" ~/.cnd/config/config.toml > ~/.cnd/config/config.toml.tmp
-mv ~/.cnd/config/config.toml.tmp  ~/.cnd/config/config.toml
+sed -e "s|seeds = \".*\"|seeds = \"$(cat .data | grep -oP 'Seeds\s+\K\S+')\"|g" ~/.commercionetwork/config/config.toml > ~/.commercionetwork/config/config.toml.tmp
+mv ~/.commercionetwork/config/config.toml.tmp  ~/.commercionetwork/config/config.toml
 ```
 
 ## 4. Configure the service
 
 ```bash
-tee /etc/systemd/system/cnd.service > /dev/null <<EOF  
+tee /etc/systemd/system/commercionetworkd.service > /dev/null <<EOF  
 [Unit]
 Description=Commercio Node
 After=network-online.target
 
 [Service]
 User=root
-ExecStart=/root/go/bin/cnd start
+ExecStart=/root/go/bin/commercionetwork start
 Restart=always
 RestartSec=3
 LimitNOFILE=4096
@@ -127,44 +125,65 @@ EOF
 
 **Optional**. You can quick sync with the follow procedure:
 ```bash
-wget "https://quicksync.commercio.network/$CHAINID.latest.tgz" -P ~/.cnd/
+wget "https://quicksync.commercio.network/$CHAINID.latest.tgz" -P ~/.commercionetwork/
 # Check if the checksum matches the one present inside https://quicksync.commercio.network
-cd ~/.cnd/
+cd ~/.commercionetwork/
 tar -zxf $(echo $CHAINID).latest.tgz
 ```
+Another strategy to acquire quickly the chain height is using the snapshots 
+
+**(WIP)**
+
 
 
 Now you can start you full node. Enable the newly created server and try starting it using:
 
 ```bash
 # Start the node  
-systemctl enable cnd  
-systemctl start cnd
+systemctl enable commercionetworkd  
+systemctl start commercionetworkd
 ```
 
 Control if the sync was started. Use `Ctrl + C` to interrupt the `journalctl` command
 
 ```bash
-journalctl -u cnd -f
+journalctl -u commercionetworkd -f
 # OUTPUT SHOULD BE LIKE BELOW
 #
-# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.722] Executed block                               module=state height=1 validTxs=0 invalidTxs=0
-# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.728] Committed state                              module=state height=1 txs=0 appHash=9815044185EB222CE9084AA467A156DFE6B4A0B1BAAC6751DE86BB31C83C4B08
-# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.745] Executed block                               module=state height=2 validTxs=0 invalidTxs=0
-# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.751] Committed state                              module=state height=2 txs=0 appHash=96BFD9C8714A79193A7913E5F091470691B195E1E6F028BC46D6B1423F7508A5
-# Aug 13 16:30:20 commerciotestnet-node4 cnd[351]: I[2019-08-13|16:30:20.771] Executed block                               module=state height=3 validTxs=0 invalidTxs=0
+# Aug 13 16:30:20 commerciotestnet-node4 commercionetworkd[351]: I[2019-08-13|16:30:20.722] Executed block                               module=state height=1 validTxs=0 invalidTxs=0
+# Aug 13 16:30:20 commerciotestnet-node4 commercionetworkd[351]: I[2019-08-13|16:30:20.728] Committed state                              module=state height=1 txs=0 appHash=9815044185EB222CE9084AA467A156DFE6B4A0B1BAAC6751DE86BB31C83C4B08
+# Aug 13 16:30:20 commerciotestnet-node4 commercionetworkd[351]: I[2019-08-13|16:30:20.745] Executed block                               module=state height=2 validTxs=0 invalidTxs=0
+# Aug 13 16:30:20 commerciotestnet-node4 commercionetworkd[351]: I[2019-08-13|16:30:20.751] Committed state                              module=state height=2 txs=0 appHash=96BFD9C8714A79193A7913E5F091470691B195E1E6F028BC46D6B1423F7508A5
+# Aug 13 16:30:20 commerciotestnet-node4 commercionetworkd[351]: I[2019-08-13|16:30:20.771] Executed block                               module=state height=3 validTxs=0 invalidTxs=0
 ```
 
 ## 6. Start the REST API
 Each full node can start up its own REST API service. 
 This will allow it to expose some endpoints that can be used in order to query the chain state at any moment. 
 
-If you want to start such a service, you need to run the following command
+If you want to start such a service, you need to change the parameters of your `~/.commercionetwork/config/app.toml` as follow
 
-```
-cncli config chain-id $CHAINID
-cncli rest-server
+```toml
+...
+[api]
+
+# Enable defines if the API server should be enabled.
+enable = true
+
+# Swagger defines if swagger documentation should automatically be registered.
+swagger = true
+
+# Address defines the API server to listen on.
+address = "tcp://0.0.0.0:1317"
+...
+
 ``` 
+
+Apply the configuration using
+```bash
+systemctl restart commercionetworkd
+```
+
 
 This will start up the REST server and make it reachable using the port `1317`.     
 **From here, if you want you can use services such as [Nginx](https://www.nginx.com/) in order to make it available to other devices.**
