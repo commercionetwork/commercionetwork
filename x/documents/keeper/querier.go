@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/gofrs/uuid"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
@@ -184,11 +185,14 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQu
 }
 
 func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	documentUUID := path[0]
+	documentUUID, err := uuid.FromString(path[0])
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid UUID: %s", path[0]))
+	}
 
 	receipts := []types.DocumentReceipt{}
 
-	ri := k.UserDocumentsReceiptsIterator(ctx, documentUUID)
+	ri := k.UserDocumentsReceiptsIterator(ctx, documentUUID.String())
 	defer ri.Close()
 
 	for ; ri.Valid(); ri.Next() {
