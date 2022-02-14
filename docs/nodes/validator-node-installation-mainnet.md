@@ -1,6 +1,6 @@
 # Becoming a validor in the Mainnet
 
-To becoming a validator in the Mainnet is quite different against mainnet
+To becoming a validator in the Mainnet is quite different against testnet
 
 
 
@@ -12,31 +12,31 @@ To becoming a validator in the Mainnet is quite different against mainnet
 When you create a full node for the first time you will use this command
 
 ```bash
-cnd init
+commercionetworkd init
 ```
 
-This command create by default a folder in home dir that named `.cnd`.    
+This command create by default a folder in home dir that named `.commercionetwork`.    
 This folder contains two sub folder 
 
 * config: contains configurations like genesis file, toml file, a file that contains private keys and node info.
 * data: contains database with the status of the chain
   
-If use command with specific flag you can create the cnd home folder in other place. 
+If use command with specific flag you can create the commercionetworkd home folder in other place. 
 
 ```bash
-cnd init --home /home/cnd-user/cnd
+commercionetworkd init --home /home/commercionetworkd-user/commercionetworkd
 ```
 
 So you can choose a specific disc to register all data of the chain
 You can stop you service and move all your data to another place and modify the service script to update with new position, or create with simbolic link. For example
 
 ```bash
-systemctl cnd stop
+systemctl commercionetworkd stop
 sleep 7 #<-- wait complete stop the service
-mv /home/cnd-user/cnd /mnt/largedisk/.
-cd /home/cnd-user/
-ln -s /mnt/largedisk/cnd .
-systemctl cnd start
+mv /home/commercionetworkd-user/commercionetworkd /mnt/largedisk/.
+cd /home/commercionetworkd-user/
+ln -s /mnt/largedisk/commercionetworkd .
+systemctl commercionetworkd start
 ```
 
 
@@ -44,7 +44,7 @@ systemctl cnd start
 
 ## Undestanding configurations
 
-When you create cnd home folder you get sub folder config.
+When you create commercionetworkd home folder you get sub folder config.
 In that folder there are some file
 
 * genesis.json: the main file that all nodes share, and the manifest of the chain

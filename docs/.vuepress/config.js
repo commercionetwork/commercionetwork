@@ -66,27 +66,69 @@ module.exports = {
 
                 ]
             },
+
             {
-                title: "SDK Developers",
-                collapsable: false,
-                children: [
-                    ["developers/", "Introduction"],
-                    "developers/create-sign-broadcast-tx",
-                    "developers/message-types",
-                    "developers/listing-transactions"
-                ]
-            },
-            {
-                title: "Custom Commercio.network Modules",
+                title: "Custom Modules",
                 collapsable: false,
                 children: [
                     "x/bank/",
-                    "x/government/",
-                    "x/id/",
-                    "x/documents/",
-                    "x/commerciomint/",
-                    "x/commerciokyc/",
-                    "x/vbr/"
+                    "modules/government/",
+                    "modules/did/",
+                    "modules/documents/",
+                    "modules/commerciomint/",
+                    "modules/commerciokyc/",
+                    "modules/vbr/",
+                ]
+            },
+            {
+                title: "ver 2.2.0",
+                collapsable: true,
+                children: [
+                    ["docs2.2.0/", "ver 2.2.0"],
+                    {
+                        title: "Nodes",
+                        collapsable: true,
+                        children: [
+                            ["docs2.2.0/nodes/", "Introduction"],
+                            ["docs2.2.0/nodes/hardware-requirements", "Hardware requirements"],
+                            ["docs2.2.0/nodes/full-node-installation", "Installing a full node"],
+                            ["docs2.2.0/nodes/validator-node-installation", "Becoming a validator"],
+                            ["docs2.2.0/nodes/validator-node-handling", "Handling a validator"],
+                            ["docs2.2.0/nodes/validator-node-update", "Updating a validator"],
+                        ]
+                    },
+                    {
+                        title: "App Developers",
+                        collapsable: true,
+                        children: [
+                            ["docs2.2.0/app_developers/", "Introduction"]
+                        ]
+                    },
+                    {
+                        title: "SDK Developers",
+                        collapsable: true,
+                        children: [
+                            ["docs2.2.0/developers/", "Introduction"],
+                            "docs2.2.0/developers/create-sign-broadcast-tx",
+                            "docs2.2.0/developers/message-types",
+                            "docs2.2.0/developers/listing-transactions"
+                        ]
+                    },
+
+
+                    {
+                        title: "Modules",
+                        collapsable: true,
+                        children: [
+                            "docs2.2.0/x/bank/",
+                            "docs2.2.0/x/government/",
+                            "docs2.2.0/x/id/",
+                            "docs2.2.0/x/documents/",
+                            "docs2.2.0/x/commerciomint/",
+                            "docs2.2.0/x/commerciokyc/",
+                            "docs2.2.0/x/vbr/",
+                        ]
+                    }
                 ]
             },
             {
@@ -143,7 +185,6 @@ module.exports = {
                     }
                 ]
             }
-
         ],
     }
 };
