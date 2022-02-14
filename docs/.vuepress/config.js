@@ -68,7 +68,7 @@ module.exports = {
             },
 
             {
-                title: "Custom Commercio.network Modules",
+                title: "Custom Modules",
                 collapsable: false,
                 children: [
                     "x/bank/",
@@ -77,7 +77,7 @@ module.exports = {
                     "modules/documents/",
                     "modules/commerciomint/",
                     "modules/commerciokyc/",
-                    "modules/vbr/"
+                    "modules/vbr/",
                 ]
             },
             {
@@ -133,8 +133,6 @@ module.exports = {
                     }
                 ]
             },
-
-
             {
                 title: "ver 2.1.2",
                 collapsable: true,
@@ -189,7 +187,6 @@ module.exports = {
                     }
                 ]
             }
-
         ],
     }
 };
