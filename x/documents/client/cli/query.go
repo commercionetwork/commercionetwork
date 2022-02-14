@@ -31,6 +31,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 
 		CmdSentReceipts(),
 		CmdReceivedReceipts(),
+		CmdDocumentsReceipts(),
 	)
 
 	return cmd
