@@ -72,12 +72,12 @@ module.exports = {
                 collapsable: false,
                 children: [
                     "x/bank/",
-                    "x/government/",
-                    "x/id/",
-                    "x/documents/",
-                    "x/commerciomint/",
-                    "x/commerciokyc/",
-                    "x/vbr/"
+                    "modules/government/",
+                    "modules/did/",
+                    "modules/documents/",
+                    "modules/commerciomint/",
+                    "modules/commerciokyc/",
+                    "modules/vbr/"
                 ]
             },
             {
