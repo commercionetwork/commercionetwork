@@ -123,12 +123,10 @@ module.exports = {
                             "docs2.2.0/x/bank/",
                             "docs2.2.0/x/government/",
                             "docs2.2.0/x/id/",
-                            "docs2.2.0/x/docs/",
-                            "docs2.2.0/x/pricefeed/",
+                            "docs2.2.0/x/documents/",
                             "docs2.2.0/x/commerciomint/",
-                            "docs2.2.0/x/memberships/",
+                            "docs2.2.0/x/commerciokyc/",
                             "docs2.2.0/x/vbr/",
-                            "docs2.2.0/x/creditrisk/"
                         ]
                     }
                 ]
