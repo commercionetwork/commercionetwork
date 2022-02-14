@@ -44,6 +44,7 @@ const (
 	ReceiptsStorePrefix             = StoreKey + ":receipts:"
 	SentDocumentsReceiptsPrefix     = StoreKey + ":receipts:sent:"
 	ReceivedDocumentsReceiptsPrefix = StoreKey + ":receipts:received:"
+	DocumentsReceiptsPrefix         = StoreKey + ":receipts:documents:"
 
 	MsgTypeShareDocument       = "shareDocument"
 	MsgTypeSendDocumentReceipt = "sendDocumentReceipt"

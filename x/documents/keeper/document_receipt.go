@@ -40,18 +40,26 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
 	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.UUID)
-	// TODO: this check can be omitted since receipt.UUID has already been checked to be unique
+	// TODO: the following can be omitted since receipt.UUID has already been checked to be unique
 	// if store.Has(receivedReceiptIdsStoreKey) {
 	// return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+	// }
+
+	documentsReceiptsIdsStoreKey := getDocumentReceiptsIdsUUIDStoreKey(receipt.DocumentUUID, receipt.UUID)
+	// TODO: the following can be omitted since receipt.UUID has already been checked to be unique
+	// if store.Has(documentsReceiptsIdsStoreKey) {
+	// 	return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	// }
 
 	// Store the receipt
 	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
 	store.Set(receiptStoreKey, marshaledReceipt)
-	// Store the receipt as sent
+	// Store the receipt ID as sent
 	store.Set(sentReceiptsIdsStoreKey, marshaledReceiptID)
-	// Store the receipt as received
+	// Store the receipt ID as received
 	store.Set(receivedReceiptIdsStoreKey, marshaledReceiptID)
+	// Store the receipt ID along the receipts for the document
+	store.Set(documentsReceiptsIdsStoreKey, marshaledReceiptID)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventSavedReceipt,
@@ -105,6 +113,18 @@ func getReceivedReceiptsIdsUUIDStoreKey(user sdk.AccAddress, receiptUUID string)
 	receiptPart := append(user, []byte(":"+receiptUUID)...)
 
 	return append([]byte(types.ReceivedDocumentsReceiptsPrefix), receiptPart...)
+}
+
+// getReceivedReceiptsIdsStoreKey generates a ReceivedReceiptsID store key for a given user
+func getDocumentReceiptsIdsStoreKey(documentUUID string) []byte {
+	return append([]byte(types.DocumentsReceiptsPrefix), []byte(documentUUID)...)
+}
+
+// getDocumentReceiptsIdsUUIDStoreKey generates a DocumentReceiptsID store key for a given document
+func getDocumentReceiptsIdsUUIDStoreKey(documentUUID string, receiptUUID string) []byte {
+	receiptPart := append([]byte(documentUUID), []byte(":"+receiptUUID)...)
+
+	return append([]byte(types.DocumentsReceiptsPrefix), receiptPart...)
 }
 
 // ReceiptsIterator returns an Iterator for Sent and Received receipts.

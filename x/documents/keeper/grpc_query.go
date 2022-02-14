@@ -166,3 +166,31 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 
 	return &types.QueryGetReceivedDocumentsReceiptsResponse{ReceiptReceived: receivedReceipts, Pagination: pageRes}, nil
 }
+
+func (k Keeper) DocumentsReceipts(c context.Context, req *types.QueryGetDocumentsReceiptsRequest) (*types.QueryGetDocumentsReceiptsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	var receivedReceipts []*types.DocumentReceipt
+	ctx := sdk.UnwrapSDKContext(c)
+
+	store := ctx.KVStore(k.storeKey)
+	documentStore := prefix.NewStore(store, getDocumentReceiptsIdsStoreKey(req.UUID))
+
+	pageRes, err := query.Paginate(documentStore, req.Pagination, func(key []byte, value []byte) error {
+		receivedReceipt, err := k.GetReceiptByID(ctx, string(value))
+		if err != nil {
+			return err
+		}
+		receivedReceipts = append(receivedReceipts, &receivedReceipt)
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryGetDocumentsReceiptsResponse{Receipts: receivedReceipts, Pagination: pageRes}, nil
+}
