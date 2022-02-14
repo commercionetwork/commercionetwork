@@ -418,7 +418,7 @@ func TestKeeper_UserDocumentsReceiptsIterator(t *testing.T) {
 			}
 
 			receipts := []types.DocumentReceipt{}
-			di := keeper.UserDocumentsReceiptsIterator(ctx, tt.documentUUID)
+			di := keeper.UUIDDocumentsReceiptsIterator(ctx, tt.documentUUID)
 			defer di.Close()
 
 			for ; di.Valid(); di.Next() {

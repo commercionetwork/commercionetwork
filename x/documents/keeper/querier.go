@@ -192,7 +192,7 @@ func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQ
 
 	receipts := []types.DocumentReceipt{}
 
-	ri := k.UserDocumentsReceiptsIterator(ctx, documentUUID.String())
+	ri := k.UUIDDocumentsReceiptsIterator(ctx, documentUUID.String())
 	defer ri.Close()
 
 	for ; ri.Valid(); ri.Next() {

@@ -97,6 +97,15 @@ func TestInitGenesis(t *testing.T) {
 				&types.ValidDocumentReceiptRecipient2,
 			},
 		},
+		{
+			name: "two documents, three receipts",
+			docs: []*types.Document{&types.ValidDocument, &types.AnotherValidDocument},
+			receipts: []*types.DocumentReceipt{
+				&types.ValidDocumentReceiptRecipient1,
+				&types.ValidDocumentReceiptRecipient2,
+				&types.AnotherValidDocumentReceipt,
+			},
+		},
 	}
 	for _, tt := range tests {
 
@@ -166,6 +175,16 @@ func TestExportGenesis(t *testing.T) {
 			receipts: []*types.DocumentReceipt{
 				&types.ValidDocumentReceiptRecipient1,
 				&types.ValidDocumentReceiptRecipient2,
+			},
+		},
+		{
+			name:      "two documents, three receipts",
+			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
+			docs:      []*types.Document{&types.ValidDocument, &types.AnotherValidDocument},
+			receipts: []*types.DocumentReceipt{
+				&types.ValidDocumentReceiptRecipient1,
+				&types.ValidDocumentReceiptRecipient2,
+				&types.AnotherValidDocumentReceipt,
 			},
 		},
 	}
