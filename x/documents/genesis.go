@@ -25,16 +25,37 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 
 // ExportGenesis returns the genesis state for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
-	documents, receipts := exportDocumentsAndReceipts(ctx, keeper)
+	documents := []*types.Document{}
+	receipts := []*types.DocumentReceipt{}
+
+	documentsIterator := keeper.DocumentsIterator(ctx)
+	defer documentsIterator.Close()
+	for ; documentsIterator.Valid(); documentsIterator.Next() {
+		keyDocumentUUIDVal := documentsIterator.Key()
+		documentUUID := string(keyDocumentUUIDVal[len(types.DocumentStorePrefix):])
+		document, err := keeper.GetDocumentByID(ctx, documentUUID)
+		if err != nil {
+			panic(fmt.Sprintf("could not find document with UUID %s", documentUUID))
+		}
+
+		documents = append(documents, &document)
+
+		receiptsIterator := keeper.UUIDDocumentsReceiptsIterator(ctx, documentUUID)
+		for ; receiptsIterator.Valid(); receiptsIterator.Next() {
+			keyReceiptUUIDVal := receiptsIterator.Key()
+			receiptUUID := string(keyReceiptUUIDVal[len(types.DocumentsReceiptsPrefix+documentUUID+":"):])
+			receipt, err := keeper.GetReceiptByID(ctx, receiptUUID)
+			if err != nil {
+				panic(fmt.Sprintf("could not find receipt with UUID %s", receiptUUID))
+			}
+			receipts = append(receipts, &receipt)
+		}
+	}
+
 	return types.GenesisState{
 		Documents: documents,
 		Receipts:  receipts,
 	}
-
-	// return types.GenesisState{
-	// 	Documents: exportDocuments(ctx, keeper),
-	// 	Receipts:  exportReceipts(ctx, keeper),
-	// }
 }
 
 // exportDocuments exports all the documents in the store.
@@ -77,35 +98,3 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 
 // 	return receipts
 // }
-
-// exportDocuments exports all the documents in the store.
-func exportDocumentsAndReceipts(ctx sdk.Context, keeper keeper.Keeper) ([]*types.Document, []*types.DocumentReceipt) {
-	documents := []*types.Document{}
-	receipts := []*types.DocumentReceipt{}
-
-	documentsIterator := keeper.DocumentsIterator(ctx)
-	defer documentsIterator.Close()
-	for ; documentsIterator.Valid(); documentsIterator.Next() {
-		keyDocumentUUIDVal := documentsIterator.Key()
-		documentUUID := string(keyDocumentUUIDVal[len(types.DocumentStorePrefix):])
-		document, err := keeper.GetDocumentByID(ctx, documentUUID)
-		if err != nil {
-			panic(fmt.Sprintf("could not find document with UUID %s", documentUUID))
-		}
-
-		documents = append(documents, &document)
-
-		receiptsIterator := keeper.UUIDDocumentsReceiptsIterator(ctx, documentUUID)
-		for ; receiptsIterator.Valid(); receiptsIterator.Next() {
-			keyReceiptUUIDVal := receiptsIterator.Key()
-			receiptUUID := string(keyReceiptUUIDVal[len(types.DocumentsReceiptsPrefix+documentUUID+":"):])
-			receipt, err := keeper.GetReceiptByID(ctx, receiptUUID)
-			if err != nil {
-				panic(fmt.Sprintf("could not find receipt with UUID %s", receiptUUID))
-			}
-			receipts = append(receipts, &receipt)
-		}
-	}
-
-	return documents, receipts
-}
