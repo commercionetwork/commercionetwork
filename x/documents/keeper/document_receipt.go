@@ -115,7 +115,7 @@ func getReceivedReceiptsIdsUUIDStoreKey(user sdk.AccAddress, receiptUUID string)
 	return append([]byte(types.ReceivedDocumentsReceiptsPrefix), receiptPart...)
 }
 
-// getReceivedReceiptsIdsStoreKey generates a ReceivedReceiptsID store key for a given user
+// getDocumentReceiptsIdsStoreKey generates a ReceivedReceiptsID store key for a given user
 func getDocumentReceiptsIdsStoreKey(documentUUID string) []byte {
 	return append([]byte(types.DocumentsReceiptsPrefix), []byte(documentUUID)...)
 }
@@ -147,4 +147,11 @@ func (keeper Keeper) UserReceivedReceiptsIterator(ctx sdk.Context, user sdk.AccA
 	store := ctx.KVStore(keeper.storeKey)
 
 	return sdk.KVStorePrefixIterator(store, getReceivedReceiptsIdsStoreKey(user))
+}
+
+// UserReceivedReceiptsIterator returns an Iterator for all the Receipts for a Document.
+func (keeper Keeper) UserDocumentsReceiptsIterator(ctx sdk.Context, documentUUID string) sdk.Iterator {
+	store := ctx.KVStore(keeper.storeKey)
+
+	return sdk.KVStorePrefixIterator(store, getDocumentReceiptsIdsStoreKey(documentUUID))
 }
