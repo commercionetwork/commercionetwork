@@ -144,7 +144,7 @@ func TestKeeper_GetReceiptByID(t *testing.T) {
 		{
 			name:          "store with another receipt",
 			storedReceipt: &types.ValidDocumentReceiptRecipient1,
-			ID:            anotherDocumentReceiptUUID,
+			ID:            types.AnotherValidDocument.UUID,
 			wantErr:       true,
 		},
 	}

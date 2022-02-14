@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -15,6 +16,39 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 )
+
+func createNDocument(keeper *Keeper, ctx sdk.Context, n int) []*types.Document {
+	items := []*types.Document{}
+	for i := 0; i < n; i++ {
+		item := &types.Document{
+			Sender:     types.ValidDocument.Sender,
+			Recipients: []string{types.ValidDocumentReceiptRecipient1.Sender},
+			UUID:       uuid.NewV4().String(),
+		}
+		items = append(items, item)
+
+		_ = keeper.SaveDocument(ctx, *items[i])
+	}
+	return items
+}
+
+func createNDocumentReceipt(keeper *Keeper, ctx sdk.Context, n int) []*types.DocumentReceipt {
+	docs := createNDocument(keeper, ctx, n)
+
+	items := []*types.DocumentReceipt{}
+	for i := range docs {
+		item := &types.DocumentReceipt{
+			Sender:       docs[i].Recipients[0],
+			DocumentUUID: docs[i].UUID,
+			Recipient:    docs[i].Sender,
+			UUID:         uuid.NewV4().String(),
+		}
+		items = append(items, item)
+
+		_ = keeper.SaveReceipt(ctx, *items[i])
+	}
+	return items
+}
 
 func TestDocumentQuerySingle(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
@@ -65,7 +99,7 @@ func TestDocumentQueryPaginated(t *testing.T) {
 
 	request := func(next []byte, offset, limit uint64, total bool) *types.QueryGetSentDocumentsRequest {
 		return &types.QueryGetSentDocumentsRequest{
-			Address: testingSender.String(),
+			Address: types.ValidDocument.Sender,
 			Pagination: &query.PageRequest{
 				Key:        next,
 				Offset:     offset,

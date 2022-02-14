@@ -53,4 +53,5 @@ const (
 	QueryReceivedDocuments = "received"
 	QueryReceivedReceipts  = "receivedReceipts"
 	QuerySentReceipts      = "sentReceipts"
+	QueryDocumentReceipts  = "documentReceipts"
 )

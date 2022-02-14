@@ -100,7 +100,7 @@ func TestKeeper_GetDocumentById(t *testing.T) {
 		{
 			name:           "store with another document",
 			storedDocument: &types.ValidDocument,
-			ID:             anotherValidDocumentUUID,
+			ID:             types.AnotherValidDocument.UUID,
 			wantErr:        true,
 		},
 	}

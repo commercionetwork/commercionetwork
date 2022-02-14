@@ -26,8 +26,8 @@ func TestShareDocument(t *testing.T) {
 			desc: "share a document",
 			msg: &types.MsgShareDocument{
 				UUID:       uuid.NewV4().String(),
-				Sender:     testingSender.String(),
-				Recipients: []string{testingRecipient.String()},
+				Sender:     types.ValidDocumentReceiptRecipient1.Recipient,
+				Recipients: []string{types.ValidDocumentReceiptRecipient1.Sender},
 			},
 			err: false,
 		},
@@ -35,8 +35,8 @@ func TestShareDocument(t *testing.T) {
 			desc: "invalid document uuid",
 			msg: &types.MsgShareDocument{
 				UUID:       "",
-				Sender:     testingSender.String(),
-				Recipients: []string{testingRecipient.String()},
+				Sender:     types.ValidDocumentReceiptRecipient1.Recipient,
+				Recipients: []string{types.ValidDocumentReceiptRecipient1.Sender},
 			},
 			err: true,
 		},
