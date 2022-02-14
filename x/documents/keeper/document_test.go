@@ -14,18 +14,18 @@ func TestKeeper_SaveDocument(t *testing.T) {
 	tests := []struct {
 		name           string
 		storedDocument *types.Document
-		document       func() types.Document
+		testDocument   func() types.Document
 		wantErr        bool
 	}{
 		{
 			name: "ok",
-			document: func() types.Document {
+			testDocument: func() types.Document {
 				return types.ValidDocument
 			},
 		},
 		{
 			name: "invalid UUID",
-			document: func() types.Document {
+			testDocument: func() types.Document {
 				doc := types.ValidDocument
 				doc.UUID = doc.UUID + "$"
 				return doc
@@ -35,7 +35,7 @@ func TestKeeper_SaveDocument(t *testing.T) {
 		{
 			name:           "document already in store",
 			storedDocument: &types.ValidDocument,
-			document: func() types.Document {
+			testDocument: func() types.Document {
 				return types.ValidDocument
 			},
 			wantErr: true,
@@ -43,7 +43,7 @@ func TestKeeper_SaveDocument(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testDocument := tt.document()
+			testDocument := tt.testDocument()
 
 			keeper, ctx := setupKeeper(t)
 			store := ctx.KVStore(keeper.storeKey)
@@ -174,48 +174,40 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 
 func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 	tests := []struct {
-		name     string
-		sender   string
-		docs     []types.Document
-		receipts []types.DocumentReceipt
+		name       string
+		sender     string
+		storedDocs []types.Document
+		wantedDocs []types.Document
 	}{
 		{
 			name:   "empty",
 			sender: types.ValidDocument.Sender,
 		},
 		{
-			name:   "empty receipts",
-			sender: types.ValidDocument.Sender,
-			docs:   []types.Document{types.ValidDocument},
+			name:       "one document",
+			sender:     types.ValidDocument.Sender,
+			storedDocs: []types.Document{types.ValidDocument},
+			wantedDocs: []types.Document{types.ValidDocument},
 		},
 		{
-			name:   "one receipt",
-			sender: types.ValidDocument.Sender,
-			docs:   []types.Document{types.ValidDocument},
-			receipts: []types.DocumentReceipt{
-				types.ValidDocumentReceiptRecipient1,
-			},
+			name:       "two documents",
+			sender:     types.ValidDocument.Sender,
+			storedDocs: []types.Document{types.ValidDocument, types.AnotherValidDocument},
+			wantedDocs: []types.Document{types.ValidDocument, types.AnotherValidDocument},
 		},
 		{
-			name:   "two receipts",
-			sender: types.ValidDocument.Sender,
-			docs:   []types.Document{types.ValidDocument},
-			receipts: []types.DocumentReceipt{
-				types.ValidDocumentReceiptRecipient1,
-				types.ValidDocumentReceiptRecipient2,
-			},
+			name:       "two documents, one by another sender",
+			sender:     types.ValidDocument.Sender,
+			storedDocs: []types.Document{types.ValidDocument, types.ValidDocumentDifferentSenderRecipients},
+			wantedDocs: []types.Document{types.ValidDocument},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			keeper, ctx := setupKeeper(t)
 
-			for _, document := range tt.docs {
+			for _, document := range tt.storedDocs {
 				keeper.SaveDocument(ctx, document)
-			}
-
-			for _, receipt := range tt.receipts {
-				keeper.SaveReceipt(ctx, receipt)
 			}
 
 			senderAddr, err := sdk.AccAddressFromBech32(tt.sender)
@@ -233,55 +225,47 @@ func TestKeeper_UserSentDocumentsIterator(t *testing.T) {
 				documents = append(documents, doc)
 			}
 
-			require.ElementsMatch(t, tt.docs, documents)
+			require.ElementsMatch(t, tt.wantedDocs, documents)
 		})
 	}
 }
 
 func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 	tests := []struct {
-		name      string
-		recipient string
-		docs      []types.Document
-		receipts  []types.DocumentReceipt
+		name            string
+		recipient       string
+		storedDocuments []types.Document
+		wantedDocuments []types.Document
 	}{
 		{
 			name:      "empty",
 			recipient: types.ValidDocumentReceiptRecipient1.Recipient,
 		},
 		{
-			name:      "empty receipts",
-			recipient: types.ValidDocumentReceiptRecipient1.Sender,
-			docs:      []types.Document{types.ValidDocument},
+			name:            "one document",
+			recipient:       types.ValidDocumentReceiptRecipient1.Sender,
+			storedDocuments: []types.Document{types.ValidDocument},
+			wantedDocuments: []types.Document{types.ValidDocument},
 		},
 		{
-			name:      "one receipt",
-			recipient: types.ValidDocumentReceiptRecipient1.Sender,
-			docs:      []types.Document{types.ValidDocument},
-			receipts: []types.DocumentReceipt{
-				types.ValidDocumentReceiptRecipient1,
-			},
+			name:            "two documents",
+			recipient:       types.ValidDocumentReceiptRecipient1.Sender,
+			storedDocuments: []types.Document{types.ValidDocument, types.AnotherValidDocument},
+			wantedDocuments: []types.Document{types.ValidDocument, types.AnotherValidDocument},
 		},
 		{
-			name:      "two receipts",
-			recipient: types.ValidDocumentReceiptRecipient1.Sender,
-			docs:      []types.Document{types.ValidDocument},
-			receipts: []types.DocumentReceipt{
-				types.ValidDocumentReceiptRecipient1,
-				types.ValidDocumentReceiptRecipient2,
-			},
+			name:            "two documents with one with different recipient",
+			recipient:       types.ValidDocumentReceiptRecipient1.Sender,
+			storedDocuments: []types.Document{types.ValidDocument, types.ValidDocumentDifferentSenderRecipients},
+			wantedDocuments: []types.Document{types.ValidDocument},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			keeper, ctx := setupKeeper(t)
 
-			for _, document := range tt.docs {
+			for _, document := range tt.storedDocuments {
 				keeper.SaveDocument(ctx, document)
-			}
-
-			for _, receipt := range tt.receipts {
-				keeper.SaveReceipt(ctx, receipt)
 			}
 
 			recipientAddr, err := sdk.AccAddressFromBech32(tt.recipient)
@@ -299,7 +283,7 @@ func TestKeeper_UserReceivedDocumentsIterator(t *testing.T) {
 				documents = append(documents, doc)
 			}
 
-			require.ElementsMatch(t, tt.docs, documents)
+			require.ElementsMatch(t, tt.wantedDocuments, documents)
 		})
 	}
 }
