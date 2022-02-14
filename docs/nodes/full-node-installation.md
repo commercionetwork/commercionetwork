@@ -103,6 +103,12 @@ sed -e "s|seeds = \".*\"|seeds = \"$(cat .data | grep -oP 'Seeds\s+\K\S+')\"|g" 
 mv ~/.commercionetwork/config/config.toml.tmp  ~/.commercionetwork/config/config.toml
 ```
 
+Change `external_address` value to contact your node using public ip of your node:
+```bash
+PUB_IP=`curl -s -4 icanhazip.com`
+sed -e "s|external_address = \".*\"|external_address = \"$PUB_IP:26656\"|g" ~/.commercionetwork/config/config.toml > ~/.commercionetwork/config/config.toml.tmp
+mv ~/.commercionetwork/config/config.toml.tmp  ~/.commercionetwork/config/config.toml
+```
 ## 4. Configure the service
 
 ```bash
@@ -123,16 +129,67 @@ WantedBy=multi-user.target
 EOF
 ```
 
-**Optional**. You can quick sync with the follow procedure:
+## 5. Sync node
+
+
+Choose 1 of these 3 ways to syncronize your node to the blockchain:
+1. [From the start](#from-the-start)
+2. [Using the state sync future](#using-the-state-sync-feature)
+3. [Using the quicksync dump](#using-the-quicksync-dump)
+### From the start
+
+If you intend to syncronize eveything from the start you can skip this part and continue with the configuration.     
+100.000 blocks should synchronize within an hour.     
+
+### Using the state sync feature
+
+Under the state sync section in `~/.commercionetwork/config/config.toml` you will find multiple settings that need to be configured in order for your node to use state sync.
+You need get information from chain about trusted block using
+
+Select open rpc services of chains
+
+* Testnet: 
+  * With name: rpc-testnet.commercio.network, rpc2-testnet.commercio.network
+  * With ip: 157.230.110.18:26657, 46.101.146.48:26657
+* Mainnet: (WIP)
+  * https://rpc-mainnet.commercio.network, https://rpc2-mainnet.commercio.network (WIP)
+
+
+
+```bash
+TRUST_RPC1="157.230.110.18:26657"
+TRUST_RPC2="46.101.146.48:26657"
+curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height + "\n" + .result.block_id.hash'
+```
+
+The command should be return block height and hash of block as follow:
+```
+5075021
+EB1032C6DFC9F2708B16DF8163CAB2258B0F1E1452AEF031CA3F32004F54C9D1
+```
+
+Edit these settings accordingly:
+
+```
+[statesync]
+
+enable = true
+
+rpc_servers = "$TRUST_RPC1,$TRUST_RPC2"
+trust_height = 5075021
+trust_hash = "EB1032C6DFC9F2708B16DF8163CAB2258B0F1E1452AEF031CA3F32004F54C9D1"
+```
+
+
+### Using the quicksync dump:
+
 ```bash
 wget "https://quicksync.commercio.network/$CHAINID.latest.tgz" -P ~/.commercionetwork/
 # Check if the checksum matches the one present inside https://quicksync.commercio.network
 cd ~/.commercionetwork/
 tar -zxf $(echo $CHAINID).latest.tgz
 ```
-Another strategy to acquire quickly the chain height is using the snapshots 
 
-**(WIP)**
 
 
 
