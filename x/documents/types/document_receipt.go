@@ -28,10 +28,6 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 }
 
 func (receipt DocumentReceipt) Validate() error {
-	if receipt.UUID == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "UUID cannot be empty")
-	}
-
 	if _, err := uuid.FromString(receipt.UUID); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid uuid: %s", receipt.UUID))
 	}
