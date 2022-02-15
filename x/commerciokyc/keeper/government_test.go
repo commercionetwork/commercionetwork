@@ -3,12 +3,10 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_AddTrustedServiceProvider(t *testing.T) {
@@ -181,6 +179,43 @@ func TestKeeper_RemoveTrustedServiceProviders(t *testing.T) {
 			stored := k.GetTrustedServiceProviders(ctx)
 			require.Equal(t, test.expected, stored)
 
+		})
+	}
+}
+
+func TestKeeper_DepositIntoPool(t *testing.T) {
+	tests := []struct {
+		name      string
+		depositor sdk.AccAddress
+		amount    sdk.Coins
+		wantErr   bool
+	}{
+		{
+			name:      "Deposit with different token",
+			depositor: testUser,
+			amount:    sdk.NewCoins(sdk.NewCoin("somecoin", sdk.NewInt(1))),
+			wantErr:   true,
+		},
+		{
+			name:      "Insufficient funds of user",
+			depositor: testUser,
+			amount:    sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000000000000000000))),
+			wantErr:   true,
+		},
+		{
+			name:      "Correct deposit into pool",
+			depositor: testUser,
+			amount:    sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1))),
+			wantErr:   false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, _, _, k := SetupTestInput()
+			k.GetBankKeeper().AddCoins(ctx, testUser, sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(10))))
+			if err := k.DepositIntoPool(ctx, tt.depositor, tt.amount); (err != nil) != tt.wantErr {
+				t.Errorf("Keeper.DepositIntoPool() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
 }

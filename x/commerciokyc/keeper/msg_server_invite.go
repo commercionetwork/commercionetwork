@@ -20,10 +20,6 @@ func (k msgServer) InviteUser(goCtx context.Context, msg *types.MsgInviteUser) (
 	}
 
 	msgSender, _ := sdk.AccAddressFromBech32(msg.Sender)
-	// Verify that the user that is inviting has already a membership
-	/*if _, err := k.GetMembership(ctx, msgSender); err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Cannot send an invitation without having a membership: %s", err.Error()))
-	}*/
 
 	// Try inviting the user
 	if err := k.Invite(ctx, msgRecipient, msgSender); err != nil {

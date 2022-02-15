@@ -10,7 +10,7 @@ import (
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	uuid "github.com/satori/go.uuid"
+	//uuid "github.com/satori/go.uuid"
 	//kmint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 )
 
@@ -78,7 +78,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	}
 
 	// Check if the expired at is greater then current time
-	if expited_at.Before(time.Now()) {
+	if expited_at.Before(ctx.BlockTime()) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", expited_at))
 	}
 
@@ -202,40 +202,12 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		rewardStakeCoinAmount := sdk.NewDecFromInt(rewardAmount).Mul(ucccConversionRate).Ceil().TruncateInt()
 		stakeEquivCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardStakeCoinAmount))
 
-		govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
-
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, govAddr, stakeEquivCoins); err != nil {
+		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, stakeEquivCoins); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
-		// Create a mint position from
+		k.bankKeeper.AddCoins(ctx, inviteSender, rewardCoins)
 
-		mintUUID := uuid.NewV4().String()
-		/*var postion = mtypes.Position{
-			Owner:      govAddr.String(),
-			Collateral: rewardAmount.Int64(),
-			ID:         mintUUID,
-		}*/
-
-		err := k.MintKeeper.NewPosition(
-			ctx,
-			govAddr.String(),
-			rewardCoins,
-			mintUUID,
-		)
-		if err != nil {
-			// TODO find a way to fix nested errors
-			if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, govAddr, types.ModuleName, stakeEquivCoins); err != nil {
-				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
-			}
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
-		}
-
-		// Send the reward to the invite sender
-		inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
-		if err := k.bankKeeper.SendCoins(ctx, govAddr, inviteSender, rewardCoins); err != nil {
-			return err
-		}
 		// Emits events
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			eventDistributeReward,
@@ -264,6 +236,13 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	return returnMethod
 }
 
+func IsValidMembership(ctx sdk.Context, expiredAt time.Time, mt string) bool {
+	if expiredAt.Before(ctx.BlockTime()) && mt != types.MembershipTypeBlack {
+		return false
+	}
+	return true
+}
+
 // GetMembership allows to retrieve any existent membership for the specified user.
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
 	store := ctx.KVStore(k.StoreKey)
@@ -277,6 +256,11 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
 	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
+	if !IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
+		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			fmt.Sprintf("membership not found for user \"%s\" has expired", user.String()),
+		)
+	}
 	return ms, nil
 }
 
@@ -288,6 +272,10 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 	for ; im.Valid(); im.Next() {
 		var m types.Membership
 		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		// Returns only valid memberships
+		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
+			continue
+		}
 		ms = append(ms, &m)
 	}
 
@@ -331,6 +319,10 @@ func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
 		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		// Returns only valid memberships
+		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
+			continue
+		}
 		ms = append(ms, m)
 	}
 	return ms

@@ -7,27 +7,35 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 var _ types.QueryServer = Keeper{}
 
-func (k Keeper) Identity(c context.Context, req *types.QueryResolveDidDocumentRequest) (*types.QueryResolveDidDocumentResponse, error) {
+func (k Keeper) Identity(c context.Context, req *types.QueryResolveIdentityRequest) (*types.QueryResolveIdentityResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var didDocument types.DidDocument
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if !k.HasDidDocument(ctx, req.ID) {
-		return nil, sdkerrors.ErrKeyNotFound
+	identity, err := k.GetLastIdentityOfAddress(ctx, req.ID)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
-	store := ctx.KVStore(k.storeKey)
-	k.cdc.MustUnmarshalBinaryBare(store.Get(getIdentityStoreKey(req.ID)), &didDocument)
+	return &types.QueryResolveIdentityResponse{Identity: identity}, nil
+}
 
-	return &types.QueryResolveDidDocumentResponse{DidDocument: &didDocument}, nil
+func (k Keeper) IdentityHistory(c context.Context, req *types.QueryResolveIdentityHistoryRequest) (*types.QueryResolveIdentityHistoryResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	identities := k.GetIdentityHistoryOfAddress(ctx, req.ID)
+
+	return &types.QueryResolveIdentityHistoryResponse{Identities: identities}, nil
 }

@@ -58,8 +58,6 @@ genesis:
         -
           amount: "1000000000000"
           denom: "ucommercio"
-      params:
-        check_memberships_epoch_identifier: "day"
     commerciomint:
       Positions:
         -

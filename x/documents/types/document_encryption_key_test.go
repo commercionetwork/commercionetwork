@@ -86,7 +86,7 @@ func TestDocumentEncryptionKey_Validate(t *testing.T) {
 			errors.New("encryption key value cannot be empty"),
 		},
 		{
-			"innvalid hex",
+			"invalid hex",
 			DocumentEncryptionKey{Recipient: key.Recipient, Value: "^&*(^*(&*"},
 			errors.New("invalid encryption key value (must be hex)"),
 		},

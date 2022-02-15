@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 const (
 	// ModuleName defines the module name
 	ModuleName = "did"
@@ -25,16 +27,17 @@ const (
 	// Identity prefix
 	IdentitiesStorePrefix = StoreKey + ":identities:"
 
-	// Context
-	ContextDidV1 = "https://www.w3.org/ns/did/v1"
-
-	MsgTypeSetDid = "MsgSetDid"
+	MsgTypeSetIdentity = "MsgSetIdentity"
 
 	// --------------
 	// --- Queries
 	// --------------
 
-	QueryResolveDid = "identities"
+	QueryResolveIdentity        = "identities"
+	QueryResolveIdentityHistory = "identities-history"
+
+	// W3C DID document context
+	ContextDidV1 = "https://www.w3.org/ns/did/v1"
 
 	// --------------
 	// --- KeyTypes required for the Documents module
@@ -51,9 +54,13 @@ const (
 	serviceLenghtLimitID              = 56
 	serviceLenghtLimitType            = 56
 	serviceLenghtLimitServiceEndpoint = 256
+
+	// XML Datetime normalized to UTC 00:00:00 and without sub-second decimal precision
+	ComplaintW3CTime = time.RFC3339
 )
 
 var (
+
 	// https://www.w3.org/TR/did-spec-registries/#verification-method-types
 	verificationMethodTypes = []string{
 		"Ed25519Signature2018",

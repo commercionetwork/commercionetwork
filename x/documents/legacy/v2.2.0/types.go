@@ -398,30 +398,30 @@ func (doc Document) Validate() error {
 	}
 
 	if !validateUUID(doc.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
 	}
 
 	err := doc.Metadata.Validate()
 	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 
 	if doc.Checksum != nil {
 		err = doc.Checksum.Validate()
 		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	} else {
 		errMsg := fmt.Sprintf(
 			"checksum can't be empty",
 		)
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg)
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, errMsg)
 	}
 
 	if doc.EncryptionData != nil {
 		err = doc.EncryptionData.Validate()
 		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	}
 
@@ -452,7 +452,7 @@ func (doc Document) Validate() error {
 
 		// Check that the `encrypted_data' field name is actually present in doc
 		fNotPresent := func(s string) error {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
 				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", s),
 			)
 		}
@@ -475,14 +475,14 @@ func (doc Document) Validate() error {
 	if doc.DoSign != nil {
 		if doc.Checksum == nil {
 			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
+				sdkErr.ErrInvalidRequest,
 				"field \"checksum\" not present in document, but required when using do_sign",
 			)
 		}
 
 		if doc.ContentURI == "" {
 			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
+				sdkErr.ErrInvalidRequest,
 				"field \"content_uri\" not present in document, but required when using do_sign",
 			)
 		}
@@ -490,7 +490,7 @@ func (doc Document) Validate() error {
 		err := doc.DoSign.SdnData.Validate()
 		if err != nil {
 			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
+				sdkErr.ErrInvalidRequest,
 				err.Error(),
 			)
 		}

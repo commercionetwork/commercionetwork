@@ -59,6 +59,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 
 	ctx := sdk.NewContext(ms, tmproto.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
 	ctx = ctx.WithBlockTime(time.Now())
+	//ctx = ctx.WithBlockTime(time.Now().Add(time.Hour * 1))
 
 	maccPerms := map[string][]string{
 		types.ModuleName:              {authTypes.Minter, authTypes.Burner},
@@ -85,7 +86,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
-		bk, *govk, ak, *mk, pk.Subspace(types.ModuleName))
+		bk, *govk, ak, *mk)
 
 	// TODO shall we drop the following?
 	k.MintKeeper.UpdateParams(ctx, validCommercioMintParams)
@@ -116,7 +117,7 @@ var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var testDenom = "ucommercio"
 var stableCreditDenom = "uccc"
-var testExpiration = time.Now().Add(SecondsPerYear).UTC()
+var testExpiration = time.Now().Add(time.Hour * 24 * 365).UTC()
 var testExpirationNegative = time.Now()
 var depositStableCoin = sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 50000000))
 var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))

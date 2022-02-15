@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -108,6 +109,48 @@ func TestDocumentEncryptionData_Validate(t *testing.T) {
 				require.EqualError(t, tt.ed.Validate(), tt.wantErr.Error())
 			} else {
 				require.NoError(t, tt.ed.Validate())
+			}
+		})
+	}
+}
+
+// ---------------
+// --- ContainsRecipient
+// ---------------
+
+func TestDocumentEncryptionData_ContainsRecipient(t *testing.T) {
+
+	type args struct {
+		recipient sdk.AccAddress
+	}
+	tests := []struct {
+		name string
+		data DocumentEncryptionData
+		args args
+		want bool
+	}{
+		{
+			name: "contains",
+			data: data,
+			args: args{
+				recipient: recipient,
+			},
+			want: true,
+		},
+		{
+			name: "not contains",
+			data: data,
+			args: args{
+				recipient: sender,
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if got := data.ContainsRecipient(tt.args.recipient); got != tt.want {
+				t.Errorf("DocumentEncryptionData.ContainsRecipient() = %v, want %v", got, tt.want)
 			}
 		})
 	}

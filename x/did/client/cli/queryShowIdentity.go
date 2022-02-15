@@ -20,7 +20,7 @@ func CmdShowIdentity() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 			id := string(args[0])
 
-			params := &types.QueryResolveDidDocumentRequest{
+			params := &types.QueryResolveIdentityRequest{
 				ID: id,
 			}
 

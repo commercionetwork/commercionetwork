@@ -4,8 +4,22 @@ import (
 	"strings"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 )
+
+// package initialization for correct validation of commercionetwork addresses
+func init() {
+	configTestPrefixes()
+}
+
+func configTestPrefixes() {
+	AccountAddressPrefix := "did:com:"
+	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
+	config.Seal()
+}
 
 func TestService_isValid(t *testing.T) {
 
@@ -103,7 +117,7 @@ func TestService_isValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.service().isValid(); (err != nil) != tt.wantErr {
+			if err := tt.service().Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Service.isValid() for service %s error = %v, wantErr %v", tt.service(), err, tt.wantErr)
 			}
 		})
@@ -171,7 +185,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			"{type} and {ID} mismatch for " + RsaVerificationKey2018,
 			func() *VerificationMethod {
 				verificationMethod := validVerificationMethodRsaVerificationKey2018
-				verificationMethod.ID = didSubject + RsaSignature2018NameSuffix
+				verificationMethod.ID = validDidSubject + RsaSignature2018NameSuffix
 				return &verificationMethod
 			},
 			true,
@@ -180,7 +194,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			"{type} and {ID} mismatch for " + RsaSignature2018,
 			func() *VerificationMethod {
 				verificationMethod := validVerificationMethodRsaSignature2018
-				verificationMethod.ID = didSubject + RsaVerificationKey2018NameSuffix
+				verificationMethod.ID = validDidSubject + RsaVerificationKey2018NameSuffix
 				return &verificationMethod
 			},
 			true,
@@ -198,7 +212,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			"{controller} against the DID specification",
 			func() *VerificationMethod {
 				verificationMethod := validVerificationMethodRsaVerificationKey2018
-				verificationMethod.Controller = "$" + didSubject
+				verificationMethod.Controller = "$" + validDidSubject
 				return &verificationMethod
 			},
 			true,
@@ -207,7 +221,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			"{controller} different from subject",
 			func() *VerificationMethod {
 				verificationMethod := validVerificationMethodRsaVerificationKey2018
-				verificationMethod.Controller = didNoSubject
+				verificationMethod.Controller = validDidNoSubject
 				return &verificationMethod
 			},
 			true,
@@ -278,8 +292,8 @@ func TestVerificationMethod_isValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.NotEqual(t, didSubject, didNoSubject)
-			if err := tt.verificationMethod().isValid(didSubject); (err != nil) != tt.wantErr {
+			assert.NotEqual(t, validDidSubject, validDidNoSubject)
+			if err := tt.verificationMethod().Validate(validDidSubject); (err != nil) != tt.wantErr {
 				t.Errorf("VerificationMethod.isValid() for verificationMethod %s error = %v, wantErr %v", tt.verificationMethod(), err, tt.wantErr)
 			}
 		})
@@ -293,14 +307,14 @@ func Test_isValidDidCom(t *testing.T) {
 		did     string
 		wantErr bool
 	}{
-		{"didSubject", didSubject, false},
-		{"didNoSubject", didNoSubject, false},
-		{"not valid suffix", didSubject + "$", true},
-		{"not valid prefix", "$" + didSubject, true},
+		{"didSubject", validDidSubject, false},
+		{"didNoSubject", validDidNoSubject, false},
+		{"not valid suffix", validDidSubject + "$", true},
+		{"not valid prefix", "$" + validDidSubject, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := isValidDidCom(tt.did); (err != nil) != tt.wantErr {
+			if err := Validate(tt.did); (err != nil) != tt.wantErr {
 				t.Errorf("isValidDidCom() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

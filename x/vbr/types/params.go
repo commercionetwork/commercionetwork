@@ -29,7 +29,7 @@ func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
 func DefaultParams() Params {
 	return Params{
 		DistrEpochIdentifier: EpochDay,
-		EarnRate:             sdk.NewDec(int64(50)),
+		EarnRate:             sdk.NewDecWithPrec(5, 1),
 	}
 }
 
