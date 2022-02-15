@@ -101,12 +101,12 @@ func CmdDocumentsReceipts() *cobra.Command {
 				return err
 			}
 
-			params := &types.QueryGetReceivedDocumentsReceiptsRequest{
-				Address:    args[0],
+			params := &types.QueryGetDocumentsReceiptsRequest{
+				UUID:       args[0],
 				Pagination: pageReq,
 			}
 
-			res, err := queryClient.ReceivedDocumentsReceipts(context.Background(), params)
+			res, err := queryClient.DocumentsReceipts(context.Background(), params)
 			if err != nil {
 				fmt.Printf("could not get any received receipt for the given document UUID: \n %s", err)
 			}
