@@ -22,7 +22,6 @@ const (
 	// PortID is the default port id that module binds to
 	PortID = "documents"*/
 
-	DocumentStorePrefix = StoreKey + ":document:"
 )
 
 var (
@@ -35,13 +34,13 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
-	DocumentKey      = "Document-value-"
-	DocumentCountKey = "Document-count-"
+	DocumentStorePrefix = StoreKey + ":document:"
 
 	SentDocumentsPrefix     = StoreKey + ":documents:sent:"
 	ReceivedDocumentsPrefix = StoreKey + ":documents:received:"
 
-	ReceiptsStorePrefix             = StoreKey + ":receipts:"
+	ReceiptsStorePrefix = StoreKey + ":receipt:"
+
 	SentDocumentsReceiptsPrefix     = StoreKey + ":receipts:sent:"
 	ReceivedDocumentsReceiptsPrefix = StoreKey + ":receipts:received:"
 	DocumentsReceiptsPrefix         = StoreKey + ":receipts:documents:"

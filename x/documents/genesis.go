@@ -1,8 +1,6 @@
 package documents
 
 import (
-	"fmt"
-
 	"github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,30 +24,27 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 // ExportGenesis returns the genesis state for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 	documents := []*types.Document{}
-	receipts := []*types.DocumentReceipt{}
 
 	documentsIterator := keeper.DocumentsIterator(ctx)
 	defer documentsIterator.Close()
+
 	for ; documentsIterator.Valid(); documentsIterator.Next() {
 		keyDocumentUUIDVal := documentsIterator.Key()
 		documentUUID := string(keyDocumentUUIDVal[len(types.DocumentStorePrefix):])
-		document, err := keeper.GetDocumentByID(ctx, documentUUID)
-		if err != nil {
-			panic(fmt.Sprintf("could not find document with UUID %s", documentUUID))
-		}
-
+		document, _ := keeper.GetDocumentByID(ctx, documentUUID)
 		documents = append(documents, &document)
+	}
 
-		receiptsIterator := keeper.UUIDDocumentsReceiptsIterator(ctx, documentUUID)
-		for ; receiptsIterator.Valid(); receiptsIterator.Next() {
-			keyReceiptUUIDVal := receiptsIterator.Key()
-			receiptUUID := string(keyReceiptUUIDVal[len(types.DocumentsReceiptsPrefix+documentUUID+":"):])
-			receipt, err := keeper.GetReceiptByID(ctx, receiptUUID)
-			if err != nil {
-				panic(fmt.Sprintf("could not find receipt with UUID %s", receiptUUID))
-			}
-			receipts = append(receipts, &receipt)
-		}
+	receipts := []*types.DocumentReceipt{}
+
+	receiptsIterator := keeper.DocumentReceiptsIterator(ctx)
+	defer receiptsIterator.Close()
+
+	for ; receiptsIterator.Valid(); receiptsIterator.Next() {
+		keyReceiptUUIDVal := receiptsIterator.Key()
+		receiptUUID := string(keyReceiptUUIDVal[len(types.ReceiptsStorePrefix):])
+		receipt, _ := keeper.GetReceiptByID(ctx, receiptUUID)
+		receipts = append(receipts, &receipt)
 	}
 
 	return types.GenesisState{

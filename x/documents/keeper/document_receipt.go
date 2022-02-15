@@ -119,13 +119,12 @@ func getDocumentReceiptsIdsUUIDStoreKey(documentUUID string, receiptUUID string)
 	return append([]byte(types.DocumentsReceiptsPrefix), receiptPart...)
 }
 
-// ReceiptsIterator returns an Iterator for Sent and Received receipts.
-// func (keeper Keeper) ReceiptsIterators(ctx sdk.Context) (sdk.Iterator, sdk.Iterator) {
-// 	store := ctx.KVStore(keeper.storeKey)
+// DocumentsIterator returns an Iterator for all the Documents saved in the store.
+func (keeper Keeper) DocumentReceiptsIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(keeper.storeKey)
 
-// 	return sdk.KVStorePrefixIterator(store, []byte(types.SentDocumentsReceiptsPrefix)),
-// 		sdk.KVStorePrefixIterator(store, []byte(types.ReceivedDocumentsReceiptsPrefix))
-// }
+	return sdk.KVStorePrefixIterator(store, []byte(types.ReceiptsStorePrefix))
+}
 
 // UserSentReceiptsIterator returns an Iterator for all the Document Sent Receipts for a user.
 func (keeper Keeper) UserSentReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
