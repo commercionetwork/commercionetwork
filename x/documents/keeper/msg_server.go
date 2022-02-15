@@ -23,23 +23,13 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) ShareDocument(goCtx context.Context, msg *types.MsgShareDocument) (*types.MsgShareDocumentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	var document = types.Document{
-		Sender:         msg.Sender,
-		Recipients:     msg.Recipients,
-		UUID:           msg.UUID,
-		Metadata:       msg.Metadata,
-		ContentURI:     msg.ContentURI,
-		Checksum:       msg.Checksum,
-		EncryptionData: msg.EncryptionData,
-		DoSign:         msg.DoSign,
-	}
-
-	err := k.SaveDocument(ctx, document)
-	if err != nil {
+	if err := k.SaveDocument(ctx, types.Document(*msg)); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgShareDocumentResponse{UUID: document.UUID}, nil
+	// TODO: add event
+
+	return &types.MsgShareDocumentResponse{UUID: msg.UUID}, nil
 }
 
 func (k msgServer) SendDocumentReceipt(goCtx context.Context, msg *types.MsgSendDocumentReceipt) (*types.MsgSendDocumentReceiptResponse, error) {

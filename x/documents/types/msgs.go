@@ -47,16 +47,7 @@ func (msg *MsgShareDocument) GetSignBytes() []byte {
 }
 
 func (msg *MsgShareDocument) ValidateBasic() error {
-	var document = Document{
-		Sender:         msg.Sender,
-		Recipients:     msg.Recipients,
-		UUID:           msg.UUID,
-		Metadata:       msg.Metadata,
-		ContentURI:     msg.ContentURI,
-		Checksum:       msg.Checksum,
-		EncryptionData: msg.EncryptionData,
-		DoSign:         msg.DoSign,
-	}
+	var document = Document(*msg)
 
 	if err := document.Validate(); err != nil {
 		return fmt.Errorf("invalid document: %e", err)
@@ -94,14 +85,7 @@ func (msg *MsgSendDocumentReceipt) Type() string {
 
 // ValidateBasic Implements Msg.
 func (msg *MsgSendDocumentReceipt) ValidateBasic() error {
-	receipt := DocumentReceipt{
-		UUID:         msg.DocumentUUID,
-		Sender:       msg.Sender,
-		Recipient:    msg.Recipient,
-		TxHash:       msg.TxHash,
-		DocumentUUID: msg.DocumentUUID,
-		Proof:        msg.Proof,
-	}
+	receipt := DocumentReceipt(*msg)
 
 	if err := receipt.Validate(); err != nil {
 		return fmt.Errorf("invalid document receipt: %e", err)
