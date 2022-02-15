@@ -58,7 +58,7 @@ func getEtpsFunc(cmd *cobra.Command, args []string) error {
 func CmdGetAllEtps() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-all-etps",
-		Short: "Get all opened ETPs for an user",
+		Short: "Get all opened ETPs",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
