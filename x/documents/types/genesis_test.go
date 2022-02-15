@@ -3,11 +3,6 @@ package types
 import "testing"
 
 func TestGenesisState_Validate(t *testing.T) {
-	invalidDocument := ValidDocument
-	invalidDocument.Sender = ""
-
-	invalidDocumentReceipt := ValidDocumentReceiptRecipient1
-	invalidDocumentReceipt.Sender = ""
 
 	type fields struct {
 		Documents []*Document
@@ -24,7 +19,6 @@ func TestGenesisState_Validate(t *testing.T) {
 				Documents: []*Document{},
 				Receipts:  []*DocumentReceipt{},
 			},
-			wantErr: false,
 		},
 		{
 			name: "document with no receipt",
@@ -32,7 +26,6 @@ func TestGenesisState_Validate(t *testing.T) {
 				Documents: []*Document{&ValidDocument},
 				Receipts:  []*DocumentReceipt{},
 			},
-			wantErr: false,
 		},
 		{
 			name: "document and receipt",
@@ -40,12 +33,11 @@ func TestGenesisState_Validate(t *testing.T) {
 				Documents: []*Document{&ValidDocument},
 				Receipts:  []*DocumentReceipt{&ValidDocumentReceiptRecipient1},
 			},
-			wantErr: false,
 		},
 		{
 			name: "invalid document",
 			fields: fields{
-				Documents: []*Document{&invalidDocument},
+				Documents: []*Document{&InvalidDocument},
 				Receipts:  []*DocumentReceipt{},
 			},
 			wantErr: true,
@@ -54,7 +46,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "invalid document",
 			fields: fields{
 				Documents: []*Document{&ValidDocument},
-				Receipts:  []*DocumentReceipt{&invalidDocumentReceipt},
+				Receipts:  []*DocumentReceipt{&InvalidDocumentReceipt},
 			},
 			wantErr: true,
 		},
@@ -62,7 +54,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "invalid receipt",
 			fields: fields{
 				Documents: []*Document{&ValidDocument},
-				Receipts:  []*DocumentReceipt{&invalidDocumentReceipt},
+				Receipts:  []*DocumentReceipt{&InvalidDocumentReceipt},
 			},
 			wantErr: true,
 		},

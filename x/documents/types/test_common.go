@@ -84,7 +84,7 @@ func init() {
 
 	InvalidDocumentReceipt = ValidDocumentReceiptRecipient1
 	InvalidDocumentReceipt.UUID = "def"
-	InvalidDocumentReceipt.DocumentUUID = InvalidDocument.UUID
+	InvalidDocumentReceipt.DocumentUUID = ValidDocument.UUID
 
 	ValidDocumentDifferentSenderRecipients = ValidDocument
 	ValidDocumentDifferentSenderRecipients.UUID = "91cdb334-a669-4c04-81e4-911473cbbf08"
