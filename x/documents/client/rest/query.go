@@ -11,33 +11,33 @@ import (
 )
 
 const (
-	addressUserRestParameterName = "user"
-	addressUUIDRestParameterName = "UUID"
+	userRestParameterName = "user"
+	UUIDRestParameterName = "UUID"
 )
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/docs/{%s}/sent", addressUserRestParameterName),
+		fmt.Sprintf("/commercionetwork/docs/{%s}/sent", userRestParameterName),
 		getSentDocumentsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/docs/{%s}/received", addressUserRestParameterName),
+		fmt.Sprintf("/commercionetwork/docs/{%s}/received", userRestParameterName),
 		getReceivedDocumentsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/receipts/{%s}/sent", addressUserRestParameterName),
+		fmt.Sprintf("/commercionetwork/receipts/{%s}/sent", userRestParameterName),
 		getSentDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/receipts/{%s}/received", addressUserRestParameterName),
+		fmt.Sprintf("/commercionetwork/receipts/{%s}/received", userRestParameterName),
 		getReceivedDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/docs/{%s}/receipts", addressUUIDRestParameterName),
+		fmt.Sprintf("/commercionetwork/docs/{%s}/receipts", UUIDRestParameterName),
 		getDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 }
@@ -49,7 +49,7 @@ func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 func getSentDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressUserRestParameterName]
+		address := vars[userRestParameterName]
 
 		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QuerySentDocuments)
 		res, _, err := cliCtx.QueryWithData(route, nil)
@@ -65,7 +65,7 @@ func getSentDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 func getReceivedDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressUserRestParameterName]
+		address := vars[userRestParameterName]
 
 		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedDocuments)
 		res, _, err := cliCtx.QueryWithData(route, nil)
@@ -85,7 +85,7 @@ func getReceivedDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 func getSentDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressUserRestParameterName]
+		address := vars[userRestParameterName]
 
 		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QuerySentReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
@@ -101,7 +101,7 @@ func getSentDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 func getReceivedDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressUserRestParameterName]
+		address := vars[userRestParameterName]
 
 		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
@@ -117,7 +117,7 @@ func getReceivedDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc
 func getDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressUUIDRestParameterName]
+		address := vars[UUIDRestParameterName]
 
 		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
