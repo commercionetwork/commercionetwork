@@ -21,11 +21,9 @@ it is connected to other computers on the same network and there are two kind of
 
 ## What is the the software that allow this blockchain to exist ?
 
-`cn` is the name of the [Commercio.network](https://commercio.network) blockchain application. It is shipped with two different entrypoints:  
-
-
-* `cnd`: The Commercio.network Daemon, runs a full-node of the `cn` application
-* `cndcli`: The Commercio.network command-line interface, which enables interaction with a Commercio.network full-node.
+`cn` is the name of the [Commercio.network](https://commercio.network) blockchain application.    
+It is shipped with `commercionetworkd`: The Commercio.network software provide daemon to runs a full-node of the `cn` application and the command-line interface, which enables interaction with a Commercio.network full-node.
+ 
 
 `cn` is built on top of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) using the following modules:
 
@@ -35,15 +33,18 @@ it is connected to other computers on the same network and there are two kind of
 * `x/distribution`: Fee distribution logic.
 * `x/slashing`: Slashing logic.
 * `x/params`: Handles app-level parameters.
+* `x/ibc`: (wip).
+* `x/wasm`: (wip).
 
 On top of that `cn` comes with the following custom modules: 
 
-* [`x/documents`](x/documents/README.md): Documents sharing. 
-* [`x/id`](x/id/README.md): Self sovereign  identities creation.
-* [`x/government`](x/government/README.md): On-chain government. 
-* [`x/commerciokyc`](x/commerciokyc/README.md): Invite new members and get ABR rewards. 
-* [`x/commerciomint`](x/commerciomint/README.md): Mint CCCs. 
-* [`x/vbr`](x/vbr/README.md): Run Validator nodes and get VBR rewards 
+* [`x/ante`](modules/ante/README.md): Custom fees. 
+* [`x/documents`](modules/documents/README.md): Documents sharing. 
+* [`x/did`](modules/did/README.md): Self sovereign  identities creation.
+* [`x/government`](modules/government/README.md): On-chain government. 
+* [`x/commerciokyc`](modules/commerciokyc/README.md): Invite new members and get ABR rewards. 
+* [`x/commerciomint`](modules/commerciomint/README.md): Mint CCCs. 
+* [`x/vbr`](modules/vbr/README.md): Run Validator nodes and get VBR rewards 
 
 
 ### Can I run this `cn` Node software ?
@@ -60,7 +61,7 @@ The CommmercioAPI removes the complexity and the security of managing your users
 
 **SDK**
 
-Another way is to develop your own APIs using our open source SDKs:
+Sdks are deprecated e no longer mantained. If you want to move forward the develop of the follow packages you can fork them and pull request upgrades.
 
 We have released SDK in 4 main languages 
 
@@ -68,9 +69,6 @@ We have released SDK in 4 main languages
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 | **Sacco**  | [Repo](https://github.com/commercionetwork/sacco.dart) | [Repo](https://github.com/commercionetwork/sacco.kt) | [Repo](https://github.com/commercionetwork/sacco.cs) |  [Repo](https://github.com/commercionetwork/sacco.go) | 
 | **CommercioSDK**  | [Repo](https://github.com/commercionetwork/commercio-sdk.dart) | [Repo](https://github.com/commercionetwork/commercio-sdk.kt) | [Repo](https://github.com/commercionetwork/commercio-sdk.cs) | Later |
-
-
-With the SDK you need to manage the complexity of dealing (or not)  with  your user Wallets.
 
 
 ## What is eIDAS Compliance ?
@@ -95,11 +93,10 @@ Commercio.network is a sovereign network that has its own native crypto currency
 Through this Token all active participants can benefit from the growth of the network.
 
 
-The Commercio Token (COM) in not inflationary since it has a  60 million limited supply
+The Commercio Token (COM) in not inflationary since it has a 60 million limited supply
 
 * The main purpose of the Token is to be a unit of value that can be placed on stake to secure the network of Commercio.network by the validators nodes It is a STAKING TOKEN (utility Token)
 * The price is VARIABLE and is determined according supply and demand by the market 
-
 
 
 ## The Commercio Cash Credit (CCC)
@@ -114,8 +111,9 @@ Through this Token all active participants can benefit from the growth of the ne
 The Commercio Cash Credit (CCC)  ha an unlimited supply and can be minted only by freezing the COM Token
 
 * The main purpose of the Token is to be a unit of value that can be used to perform transazction on chain. It is a FEE TOKEN (utility Token)
-* The price is FIXED  and is 1 EURO + VAT
-
+* The price is FIXED and is 1 EURO/CCC + VAT
+  
+**NB**: tansaction fees could be paid with COM, but the cost is fixed to 0.01 COM.
 
 ##  Test-net Vs Main-Net
 
@@ -132,10 +130,7 @@ Testnet, as the name suggests, is an alternative network for the developers for 
 
 Mainnet is the complete opposite of the testnet. Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
 
-Unlike testnet which is an open network for testing purposes, mainnet is the real deal.   Tokens on the Commercio.network  mainnet have real economic value, be carefull.
-
-
-
+Unlike testnet which is an open network for testing purposes, mainnet is the real deal. Tokens on the Commercio.network mainnet have real economic value, be carefull.
 
 
 

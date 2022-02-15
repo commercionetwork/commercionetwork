@@ -4,7 +4,8 @@ Once you've properly set up a [validator node](validator-node-installation.md), 
 
 ## Downtime rules
 The node can only stay offline for a certain amount of time.   
-In the case of **Commercio Network** this period has been fixed at 10,000 blocks lost, approximately corresponding to 17/18 hours.    
+In the case of **Commercio Network** this period has been fixed at 10,000 blocks lost, approximately corresponding to 17/18 hours. 
+Validator must validate at least 5% of the 10,000 blocks.
 If the node remains offline or fails to produce blocks for a period longer than the limit, it will incur slashing, i.e. an immediate loss of a certain amount of the staked tokens.    
 **For "Commercio Network" the slashing percentage for downtime is set at `1%`.**     
 
@@ -23,13 +24,14 @@ In case a validator ended up jail for downtime, it is necessary that the wallet 
 The follow command must be performed 
 
 ```bash
-cncli tx slashing \
+commercionetworkd tx slashing \
   unjail \
   --from <your pub addr creator val> \
   --fees=10000ucommercio  \
   --chain-id="$CHAINID" \
   -y
 ```
+**Note**: You can use `uccc` tokens instead `ucommercio` for the `fees` value
 
 If you are using the **Ledger device** you must first connect it to your computer, start the cosmos application and add `--ledger` flag to the command.
 
@@ -41,7 +43,7 @@ The undelegated period is **21 days**, so is necessary to wait this period to ge
 To perform `unbond transaction` use the follow command
 
 ```bash
-cncli tx staking \
+commercionetworkd tx staking \
   unbond \
   <validator-operator-addr> \
   50000000000ucommercio \
@@ -50,6 +52,9 @@ cncli tx staking \
   --chain-id="$CHAINID" \
   -y
 ```
+
+**Note**: You can use `uccc` tokens instead `ucommercio` for the `fees` value
+
 
 value of `<validator-operator-addr>` can be obtain from explorer:
 
@@ -69,7 +74,7 @@ It is possible to perform a procedure of moving tokens in stake from one validat
 To perform `redelegate transaction` use the follow command
 
 ```bash
-cncli tx staking \
+commercionetworkd tx staking \
   redelegate \
   <source-validator-operator-addr> \
   <destination-validator-operator-addr> \
@@ -79,6 +84,9 @@ cncli tx staking \
   --chain-id="$CHAINID" \
   -y
 ```
+
+**Note**: You can use `uccc` tokens instead `ucommercio` for the `fees` value
+
 
 value of `<source-validator-operator-addr>` and `<destination-validator-operator-addr>` can be obtains from explorer:
 

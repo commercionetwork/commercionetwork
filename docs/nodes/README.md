@@ -34,3 +34,6 @@ of the whole Commercio.network ecosystem.
 If you wish to become a validator node and start earning rewards you can read the
 [*validator node installation* guide](validator-node-installation.md)
 :::   
+<!--
+3.0 ok f1
+-->
