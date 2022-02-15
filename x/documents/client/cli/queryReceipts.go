@@ -14,7 +14,7 @@ import (
 func CmdSentReceipts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sent-receipts [user-address]",
-		Short: "Get the receipts sent by user",
+		Short: "Get all receipts sent by the user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -50,7 +50,7 @@ func CmdSentReceipts() *cobra.Command {
 func CmdReceivedReceipts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "received-receipts [user-address]",
-		Short: "Get the receipts received by user",
+		Short: "Get all receipts received by the user",
 
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -89,7 +89,7 @@ func CmdReceivedReceipts() *cobra.Command {
 func CmdDocumentsReceipts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "documents-receipts [documentUUID]",
-		Short: "Get the receipts associated with the given document ID",
+		Short: "Get all receipts associated with the given document ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

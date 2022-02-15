@@ -44,7 +44,7 @@ func CmdShowDocument() *cobra.Command {
 func CmdSentDocuments() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sent-documents [user-address]",
-		Short: "Get the documents sent by user",
+		Short: "Get all documents sent by the user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -79,7 +79,7 @@ func CmdSentDocuments() *cobra.Command {
 func CmdReceivedDocuments() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "received-documents [user-address]",
-		Short: "Get the documents received by user",
+		Short: "Get all documents received by the user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
