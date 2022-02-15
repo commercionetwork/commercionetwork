@@ -82,3 +82,5 @@ The available permissions are:
    - [Set Parameters (Conversion Rate & Freeze Period)](03_messages.md#set-parameters-(conversion-rate-&-freeze-period))
 4. **[Events](04_events.md)**
    - [Handlers](04_events.md#handlers)
+5. **[Parameters](05_params.md)**
+6. **[Client](06_client.md)**

@@ -39,5 +39,5 @@ The commerciomint module emits the following events:
 | ------------------- | ------------------- | --------------- |
 | new_freeze_period   | new_params          | {params}        |
 | message             | module              | commerciomint   |
-| message             | action              | setParams       |
+| message             | action              | set_params      |
 | message             | sender              | {senderAddress} |
