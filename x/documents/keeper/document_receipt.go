@@ -40,16 +40,8 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
 	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.UUID)
-	// TODO: the following can be omitted since receipt.UUID has already been checked to be unique
-	// if store.Has(receivedReceiptIdsStoreKey) {
-	// return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
-	// }
 
 	documentsReceiptsIdsStoreKey := getDocumentReceiptsIdsUUIDStoreKey(receipt.DocumentUUID, receipt.UUID)
-	// TODO: the following can be omitted since receipt.UUID has already been checked to be unique
-	// if store.Has(documentsReceiptsIdsStoreKey) {
-	// 	return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("received receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
-	// }
 
 	// Store the receipt
 	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
