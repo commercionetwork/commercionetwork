@@ -117,9 +117,9 @@ func getReceivedDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc
 func getDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[UUIDRestParameterName]
+		documentUUID := vars[UUIDRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedReceipts)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, documentUUID, types.QueryDocumentReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
