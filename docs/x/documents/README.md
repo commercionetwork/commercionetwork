@@ -412,9 +412,9 @@ Parameters:
 
 ##### Example 
 
-Getting receipt for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+Getting receipts for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 
 ```
-http://localhost:1317/receipt/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
+http://localhost:1317/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
 
