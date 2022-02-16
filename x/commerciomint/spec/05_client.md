@@ -1,5 +1,5 @@
 <!--
-order: 6
+order: 5
 -->
 
 # Client
@@ -77,7 +77,7 @@ commercionetworkd query commerciomint get-etps [user-addr]
 Endpoint:
    
 ```
-​/commercionetwork​/commerciomint/${Owner}/owner
+​/commercionetwork​/commerciomint/${Owner}/etpsOwner
 ```
 
 Parameters:
@@ -91,7 +91,7 @@ Parameters:
 Getting ETPs opened by `did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd`:
 
 ```
-http://localhost:1317/commercionetwork/commerciomint/did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd/owner
+http://localhost:1317/commercionetwork/commerciomint/did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd/etpsOwner
 ```
 
 #### Response

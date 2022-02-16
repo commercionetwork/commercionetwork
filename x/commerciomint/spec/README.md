@@ -75,12 +75,11 @@ The available permissions are:
 ## Contents
 
 1. **[State](01_state.md)**
-2. **[Keepers](02_keepers.md)**
-3. **[Messages](03_messages.md)**
-   - [Mint Commercio Cash Credit (CCC)](03_messages.md#mint-commercio-cash-credit-(CCC))
-   - [Burn Commercio Cash Credit (CCC)](03_messages.md#burn-commercio-cash-credit-(CCC))
-   - [Set Parameters (Conversion Rate & Freeze Period)](03_messages.md#set-parameters-(conversion-rate-&-freeze-period))
-4. **[Events](04_events.md)**
-   - [Handlers](04_events.md#handlers)
-5. **[Parameters](05_params.md)**
-6. **[Client](06_client.md)**
+2. **[Messages](02_messages.md)**
+   - [Mint Commercio Cash Credit (CCC)](02_messages.md#mint-commercio-cash-credit-(CCC))
+   - [Burn Commercio Cash Credit (CCC)](02_messages.md#burn-commercio-cash-credit-(CCC))
+   - [Set Parameters (Conversion Rate & Freeze Period)](02_messages.md#set-parameters-(conversion-rate-&-freeze-period))
+3. **[Events](03_events.md)**
+   - [Handlers](03_events.md#handlers)
+4. **[Parameters](04_params.md)**
+5. **[Client](05_client.md)**
