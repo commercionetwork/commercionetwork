@@ -7,8 +7,6 @@ parent:
 
 # CommercioKYC 
 
-## `x/commerciokyc`
-
 ## Abstract
 
 This document specifies the commerciokyc module of the Commercio Network.

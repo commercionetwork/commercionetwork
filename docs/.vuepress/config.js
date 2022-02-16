@@ -71,13 +71,13 @@ module.exports = {
                 title: "Custom Modules",
                 collapsable: false,
                 children: [
-                    "x/bank/",
-                    "modules/government/",
-                    "modules/did/",
-                    "modules/documents/",
-                    "modules/commerciomint/",
-                    "modules/commerciokyc/",
-                    "modules/vbr/",
+                    ["x/bank/","Bank"],
+                    ["modules/government/","Government"],
+                    ["modules/did/","Did"],
+                    ["modules/documents/","Documents"],
+                    ["modules/commerciomint/","Commerciomint"],
+                    ["modules/commerciokyc/","Commerciokyc"],
+                    ["modules/vbr/","Vbr"],
                 ]
             },
             {
