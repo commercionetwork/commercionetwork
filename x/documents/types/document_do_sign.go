@@ -16,7 +16,7 @@ const (
 	InputStringSep = ","
 )
 
-var validSdnData = map[string]struct{}{
+var ValidSdnData = map[string]struct{}{
 	SdnDataCommonName:   {},
 	SdnDataSurname:      {},
 	SdnDataSerialNumber: {},
@@ -32,7 +32,7 @@ type SdnData []string
 // validSdnData.
 func (s SdnData) Validate() error {
 	for _, val := range s {
-		if _, ok := validSdnData[val]; !ok {
+		if _, ok := ValidSdnData[val]; !ok {
 			return fmt.Errorf("sdn_data value \"%s\" is not supported", val)
 		}
 	}
