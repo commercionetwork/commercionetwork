@@ -27,6 +27,7 @@ tools/bin/*
 examples/build/*
 docs/_build
 docs/tutorial
+docs/modules
 dist
 tools-stamp
 

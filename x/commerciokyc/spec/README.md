@@ -159,4 +159,5 @@ The available permissions are:
    - [Handlers](04_events.md#handlers)
 5. **[Client](05_client.md)**
    - [Query](05_client.md#query)
-ì
+   - [gRPC](05_client.md#gRPC)
+   - [Rest](05_client.md#rest)
