@@ -78,6 +78,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	}
 
 	// Check if the expired at is greater then current time
+	// Blocktime maybe better with ctx.BlockHeader().Time
 	if expited_at.Before(ctx.BlockTime()) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", expited_at))
 	}
@@ -308,23 +309,6 @@ func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Member
 		ms = append(ms, m)
 	}
 
-	return ms
-}
-
-// ExportMemberships extracts all memberships for export
-func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
-	im := k.MembershipIterator(ctx)
-	m := types.Membership{}
-	ms := types.Memberships{}
-	defer im.Close()
-	for ; im.Valid(); im.Next() {
-		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
-		// Returns only valid memberships
-		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
-			continue
-		}
-		ms = append(ms, m)
-	}
 	return ms
 }
 
