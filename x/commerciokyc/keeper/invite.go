@@ -19,7 +19,7 @@ func (k Keeper) getInviteStoreKey(user sdk.AccAddress) []byte {
 }
 
 // InviteUser allows to set a given user as being invited by the given invite sender.
-func (k Keeper) Invite(ctx sdk.Context, recipient, sender sdk.AccAddress) error {
+func (k Keeper) SetInvite(ctx sdk.Context, recipient, sender sdk.AccAddress) error {
 	store := ctx.KVStore(k.StoreKey)
 
 	// Check if the user has already been invited

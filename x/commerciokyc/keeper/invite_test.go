@@ -51,7 +51,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err := k.Invite(ctx, test_invite_User, test_invite_Sender)
+		err := k.SetInvite(ctx, test_invite_User, test_invite_Sender)
 		if test.error != "" {
 			require.Equal(t, test.error, err.Error())
 		} else {

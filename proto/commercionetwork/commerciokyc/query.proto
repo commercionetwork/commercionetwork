@@ -17,6 +17,10 @@ service Query {
 	rpc Invites(QueryInvitesRequest) returns (QueryInvitesResponse) {
 		option (google.api.http).get = "/commercionetwork/commerciokyc/invites";
 	}
+	// Queries a invite by address
+	rpc Invite(QueryInviteRequest) returns (QueryInviteResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/invite/{address}";
+	}
 	// Queries a ivite by id.
 	// Queries all Tsp.
 	rpc Tsps(QueryTspsRequest) returns (QueryTspsResponse) {
@@ -43,6 +47,15 @@ message QueryInvitesRequest {
 
 message QueryInvitesResponse {
 	repeated Invite invites = 1;
+}
+
+
+message QueryInviteRequest {
+	string address = 1;
+}
+
+message QueryInviteResponse {
+	Invite invite = 1;
 }
 
 

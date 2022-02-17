@@ -22,6 +22,7 @@ const (
 	MsgTypeRemoveMembership          = "removeMembership"
 
 	QueryGetInvites                 = "invites"
+	QueryGetInvite                  = "invite"
 	QueryGetTrustedServiceProviders = "tsps"
 	QueryGetPoolFunds               = "poolFunds"
 	QueryGetMembership              = "membership"

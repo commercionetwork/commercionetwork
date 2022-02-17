@@ -28,6 +28,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		CmdPoolFunds(),
 		CmdTrustedServiceProviders(),
 		CmdGetInvites(),
+		CmdGetInvite(),
 
 		CmdMembership(),
 		CmdMemberships(),

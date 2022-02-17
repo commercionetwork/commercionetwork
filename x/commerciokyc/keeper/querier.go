@@ -15,6 +15,8 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case types.QueryGetPoolFunds:
 			return queryGetPoolFunds(ctx, req, k, legacyQuerierCdc)
+		case types.QueryGetInvite:
+			return queryGetInvite(ctx, path[1:], k, legacyQuerierCdc)
 		case types.QueryGetInvites:
 			return queryGetInvites(ctx, path[1:], k, legacyQuerierCdc)
 		case types.QueryGetTrustedServiceProviders:
@@ -51,6 +53,26 @@ func queryGetInvites(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 	invites = keeper.GetInvites(ctx)
 
 	bz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, invites)
+	if err2 != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}
+
+// queryGetMembership allows to retrieve the current membership of a user having a specified address
+func queryGetInvite(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
+	address, err2 := sdk.AccAddressFromBech32(path[0])
+	if err2 != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, path[0])
+	}
+	// Search the membership
+	invite, found := keeper.GetInvite(ctx, address)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not find invitation")
+	}
+
+	bz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, invite)
 	if err2 != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}

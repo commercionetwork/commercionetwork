@@ -14,7 +14,7 @@ func (suite *KeeperTestSuite) TestGRPCInvites() {
 	ctx := suite.ctx
 	// Setup membership before invite user
 	app.CommercioKycKeeper.AssignMembership(ctx, testUser, types.MembershipTypeGold, testTsp, testExpiration)
-	app.CommercioKycKeeper.Invite(ctx, testInviteSender, testUser)
+	app.CommercioKycKeeper.SetInvite(ctx, testInviteSender, testUser)
 
 	invite := types.Invite{
 		Sender:           testUser.String(),

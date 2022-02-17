@@ -158,7 +158,7 @@ func (k msgServer) governmentInvitesUser(ctx sdk.Context, user sdk.AccAddress) (
 	_ = govAddr
 	// otherwise, create an invite from the government
 	// TODO create invite
-	err := k.Invite(ctx, user, govAddr)
+	err := k.SetInvite(ctx, user, govAddr)
 	if err != nil {
 		return types.Invite{}, err
 	}
