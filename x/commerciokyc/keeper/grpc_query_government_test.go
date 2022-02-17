@@ -6,7 +6,6 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Tsps query tests
@@ -60,7 +59,7 @@ func (suite *KeeperTestSuite) TestGRPCFunds() {
 	app := suite.app
 	ctx := suite.ctx
 
-	coins := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1000)))
+	coins := sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000)))
 	app.CommercioKycKeeper.SetLiquidityPoolToAccount(ctx, coins)
 
 	var req *types.QueryFundsRequest

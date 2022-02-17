@@ -19,6 +19,7 @@ var (
 	timeNow       = time.Now()
 	mExp01        = timeNow.Add(time.Hour * 24 * 60)
 	mExp02        = timeNow.Add(time.Hour * 24 * 120)
+	testDenom     = "ucommercio"
 )
 
 func TestMigrate(t *testing.T) {
@@ -41,7 +42,7 @@ func TestMigrate(t *testing.T) {
 				v220GenState: v220commerciokyc.GenesisState{
 					LiquidityPoolAmount: sdk.Coins{
 						sdk.Coin{
-							Denom:  "ucommercio",
+							Denom:  testDenom,
 							Amount: sdk.NewInt(1000000),
 						},
 					},
@@ -81,7 +82,7 @@ func TestMigrate(t *testing.T) {
 			want: &types.GenesisState{
 				LiquidityPoolAmount: sdk.Coins{
 					sdk.Coin{
-						Denom:  "ucommercio",
+						Denom:  testDenom,
 						Amount: sdk.NewInt(1000000),
 					},
 				},

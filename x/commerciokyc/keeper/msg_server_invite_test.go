@@ -63,7 +63,7 @@ func Test_msgServer_InviteUser(t *testing.T) {
 
 			if tt.existingUser {
 				require.NoError(t,
-					bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(1)))),
+					bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1)))),
 				)
 			}
 
