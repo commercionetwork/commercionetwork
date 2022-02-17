@@ -106,12 +106,6 @@ func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bo
 	return signers.Contains(signer.String()) || signer.Equals(k.GovKeeper.GetGovernmentAddress(ctx))
 }
 
-// TspIterator returns an Iterator for all the tsps stored.
-func (k Keeper) TspIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.StoreKey)
-	return sdk.KVStorePrefixIterator(store, []byte(types.TrustedSignersStoreKey))
-}
-
 // GetPoolFunds returns the funds currently present inside the rewards pool
 func (k Keeper) GetPoolFunds(ctx sdk.Context) sdk.Coins {
 	moduleAccount := k.GetMembershipModuleAccount(ctx)

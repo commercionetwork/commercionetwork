@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -142,14 +141,6 @@ func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembers
 	// ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &types.MsgSetMembershipResponse{}, err
 
-}
-
-// ComputeExpiryHeight compute expiry height of membership.
-func (k msgServer) ComputeExpiryHeight(blockTime time.Time) time.Time {
-	var secondsPerYear time.Duration
-	secondsPerYear = time.Hour * 24 * 365
-	expirationAt := blockTime.Add(secondsPerYear)
-	return expirationAt
 }
 
 // governmentInvitesUser makes government invite an user if it isn't already invited and validated.

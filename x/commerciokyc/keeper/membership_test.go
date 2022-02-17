@@ -427,49 +427,6 @@ func TestKeeper_ComputeExpiryHeight(t *testing.T) {
 	}
 }
 
-/*
-func TestKeeper_ExtractMembership(t *testing.T) {
-	tests := []struct {
-		name       string
-		key        []byte
-		value      []byte
-		membership types.Membership
-		mustFail   bool
-	}{
-		{
-			"a good membership",
-			[]byte{97, 99, 99, 114, 101, 100, 105, 116, 97, 116, 105, 111, 110, 115, 58, 115, 116, 111, 114, 97, 103, 101, 58, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239},
-			[]byte{10, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239, 18, 20, 251, 182, 16, 225, 99, 30, 161, 9, 143, 124, 32, 185, 74, 85, 162, 77, 31, 208, 217, 44, 26, 6, 98, 114, 111, 110, 122, 101, 32, 10},
-			types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
-			false,
-		},
-		{
-			// Da correggere
-			"a badly serialized membership",
-			[]byte{99, 99, 114, 101, 100, 105, 116, 97, 116, 105, 111, 110, 115, 58, 115, 116, 111, 114, 97, 103, 101, 58, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239},
-			[]byte{6, 114, 111, 110, 122, 101},
-			types.Membership{},
-			true,
-		},
-	}
-
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			_, _, _, k := SetupTestInput()
-			if !test.mustFail {
-				m := k.ExtractMembership(test.value)
-				require.Equal(t, test.membership, m)
-			} else {
-				require.Panics(t, func() {
-					_ = k.ExtractMembership(test.value)
-				})
-			}
-		})
-	}
-}
-*/
-
 func TestKeeper_GetTspMemberships(t *testing.T) {
 	tests := []struct {
 		name               string

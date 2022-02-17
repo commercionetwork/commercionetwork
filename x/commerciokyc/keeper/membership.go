@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	//mtypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	//uuid "github.com/satori/go.uuid"
-	//kmint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 )
 
 const (
@@ -310,30 +307,6 @@ func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Member
 	}
 
 	return ms
-}
-
-// RemoveExpiredMemberships delete all expired memberships
-func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
-	blockTime := ctx.BlockTime()
-	for _, m := range k.GetMemberships(ctx) {
-		if blockTime.After(*m.ExpiryAt) {
-			mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
-			mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
-			if m.MembershipType == types.MembershipTypeBlack {
-				expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
-				membership := types.NewMembership(types.MembershipTypeBlack, mOwner, mTspAddress, expiredAt)
-				store := ctx.KVStore(k.StoreKey)
-				staddr := k.storageForAddr(mOwner)
-				store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
-			} else {
-				err := k.DeleteMembership(ctx, mOwner)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-	}
-	return nil
 }
 
 // GetMembershipModuleAccount returns the module account for the commerciokyc module

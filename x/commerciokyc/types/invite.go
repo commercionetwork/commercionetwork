@@ -42,6 +42,7 @@ type Invites []Invite
 
 // Equals returns true iff this slice contains the same data of the
 // other one and in the same order
+// TODO evalute remove Equals: only for tests
 func (slice Invites) Equals(other Invites) bool {
 	if len(slice) != len(other) {
 		return false
@@ -57,6 +58,7 @@ func (slice Invites) Equals(other Invites) bool {
 }
 
 // ValidateBasic returns error if Invite status is not Pending, Reward or Invalid
+// TODO validate basic not used
 func (invite Invite) ValidateBasic() error {
 	switch invite.Status {
 	case uint64(InviteStatusPending), uint64(InviteStatusRewarded), uint64(InviteStatusInvalid):
