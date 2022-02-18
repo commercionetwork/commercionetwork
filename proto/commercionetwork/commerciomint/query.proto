@@ -19,7 +19,7 @@ service Query {
 
   rpc EtpsByOwner(QueryEtpsByOwnerRequest) returns (QueryEtpsResponse) {
     option (google.api.http).get =
-        "/commercionetwork/commerciomint/{Owner}/owner";
+        "/commercionetwork/commerciomint/{Owner}/etpsOwner";
   }
 
   rpc Etps(QueryEtpsRequest) returns (QueryEtpsResponse) {

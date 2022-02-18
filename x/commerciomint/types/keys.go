@@ -13,7 +13,7 @@ const (
 
 	QueryGetEtpRest         = "etp"
 	QueryGetallEtpsRest     = "etps"
-	QueryGetEtpsByOwnerRest = "owner"
+	QueryGetEtpsByOwnerRest = "etpsOwner"
 	QueryConversionRateRest = "conversion_rate"
 	QueryFreezePeriodRest   = "freeze_period"
 	QueryGetParamsRest      = "params"

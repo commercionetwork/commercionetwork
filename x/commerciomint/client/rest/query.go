@@ -20,7 +20,7 @@ func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 		fmt.Sprintf("/commercionetwork/{%s}/etp", restuser),
 		getEtpsHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/{%s}/owner", restuser),
+		fmt.Sprintf("/commercionetwork/{%s}/etpsOwner", restuser),
 		getEtpsByOwnerHandler(cliCtx)).Methods("GET")
 	r.HandleFunc("/commercionetwork/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
 	r.HandleFunc("/commercionetwork/params", getParamsHandler(cliCtx)).Methods("GET")

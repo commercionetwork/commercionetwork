@@ -458,7 +458,7 @@ paths:
           type: string
       tags:
         - Query
-  '/commercionetwork/commerciomint/{Owner}/owner':
+  '/commercionetwork/commerciomint/{Owner}/etpsOwner':
     get:
       operationId: CommercionetworkCommercionetworkCommerciomintEtpsByOwner
       responses:
