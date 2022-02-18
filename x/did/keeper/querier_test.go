@@ -12,24 +12,22 @@ import (
 func TestNewQuerier_queryGetLastIdentityOfAddress(t *testing.T) {
 	tests := []struct {
 		name string
-		want types.QueryResolveIdentityResponse
+		want *types.Identity
 	}{
 		{
 			name: "empty",
-			want: types.QueryResolveIdentityResponse{},
+			want: nil,
 		},
 		{
 			name: "ok",
-			want: types.QueryResolveIdentityResponse{
-				Identity: &types.ValidIdentity,
-			},
+			want: &types.ValidIdentity,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeper(t)
 
-			if tt.want.Identity != nil {
+			if tt.want != nil {
 				k.SetIdentity(ctx, types.ValidIdentity)
 			}
 
@@ -39,16 +37,16 @@ func TestNewQuerier_queryGetLastIdentityOfAddress(t *testing.T) {
 			path := []string{types.QueryResolveIdentity, types.ValidIdentity.DidDocument.ID}
 			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
-			if tt.want.Identity == nil {
+			if tt.want == nil {
 				require.Error(t, err)
 				return
 			}
 
-			var got types.QueryResolveIdentityResponse
+			var got types.Identity
 
 			legacyAmino.MustUnmarshalJSON(gotBz, &got)
 			require.NoError(t, err)
-			require.Equal(t, tt.want, got)
+			require.Equal(t, *tt.want, got)
 		})
 	}
 }

@@ -34,11 +34,7 @@ func queryGetLastIdentityOfAddress(ctx sdk.Context, path []string, k Keeper, leg
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress, err.Error())
 	}
 
-	response := types.QueryResolveIdentityResponse{
-		Identity: identity,
-	}
-
-	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, response)
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, identity)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
