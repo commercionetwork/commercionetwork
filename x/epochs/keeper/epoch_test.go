@@ -10,7 +10,7 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 	suite.SetupTest()
 
 	epochInfo := types.EpochInfo{
-		Identifier:            "monthly",
+		Identifier:            "month",
 		StartTime:             time.Time{},
 		Duration:              time.Hour * 24 * 30,
 		CurrentEpoch:          0,
@@ -19,7 +19,7 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 		CurrentEpochEnded:     true,
 	}
 	suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epochInfo)
-	epochInfoSaved := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "monthly")
+	epochInfoSaved := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "month")
 	suite.Require().Equal(epochInfo, epochInfoSaved)
 
 	allEpochs := suite.app.EpochsKeeper.AllEpochInfos(suite.ctx)
@@ -27,10 +27,10 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 	suite.Require().Equal(allEpochs[0].Identifier, "day") // alphabetical order
 	suite.Require().Equal(allEpochs[1].Identifier, "hour")
 	suite.Require().Equal(allEpochs[2].Identifier, "minute")
-	suite.Require().Equal(allEpochs[3].Identifier, "monthly")
+	suite.Require().Equal(allEpochs[3].Identifier, "month")
 	suite.Require().Equal(allEpochs[4].Identifier, "week")
 
-	suite.app.EpochsKeeper.DeleteEpochInfo(suite.ctx, "monthly")
-	epochInfoMonthly := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "monthly")
-	suite.Require().Equal(types.EpochInfo{}, epochInfoMonthly)
+	suite.app.EpochsKeeper.DeleteEpochInfo(suite.ctx, "month")
+	epochInfomonth := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "month")
+	suite.Require().Equal(types.EpochInfo{}, epochInfomonth)
 }

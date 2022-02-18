@@ -10,6 +10,11 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const (
+	eventIncrementBlockRewardsPool      = "increment_block_rewards_pool"
+	eventSetParams         				= "new_params"
+)
+
 func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.MsgIncrementBlockRewardsPool) (*types.MsgIncrementBlockRewardsPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -25,6 +30,12 @@ func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.M
 
 	// Set the total rewards pool
 	k.SetTotalRewardPool(ctx, k.GetTotalRewardPool(ctx).Add(sdk.NewDecCoinsFromCoins(msg.Amount...)...))
+	
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventIncrementBlockRewardsPool,
+		sdk.NewAttribute("funder", msg.Funder),
+		sdk.NewAttribute("amount", msg.Amount.String()),
+	))
 
 	return &types.MsgIncrementBlockRewardsPoolResponse{}, nil
 }
@@ -51,6 +62,12 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 		EarnRate:             msg.EarnRate,
 	}
 	k.SetParamSet(ctx, params)
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		eventSetParams,
+		sdk.NewAttribute("government", msg.Government),
+		sdk.NewAttribute("distr_epoch_identifier", msg.DistrEpochIdentifier),
+		sdk.NewAttribute("earn_rate", msg.EarnRate.String()),
+	))
 
 	return &types.MsgSetParamsResponse{}, nil
 }

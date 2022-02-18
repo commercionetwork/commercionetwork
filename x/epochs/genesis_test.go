@@ -45,7 +45,7 @@ func TestEpochsExportGenesis(t *testing.T) {
 	require.Equal(t, genesis.Epochs[2].EpochCountingStarted, false)
 	require.Equal(t, genesis.Epochs[2].CurrentEpochEnded, true)
 
-	require.Equal(t, genesis.Epochs[3].Identifier, "monthly")
+	require.Equal(t, genesis.Epochs[3].Identifier, "month")
 	require.Equal(t, genesis.Epochs[3].StartTime, chainStartTime)
 	require.Equal(t, genesis.Epochs[3].Duration, time.Hour*24*30)
 	require.Equal(t, genesis.Epochs[3].CurrentEpoch, int64(0))
@@ -80,7 +80,7 @@ func TestEpochsInitGenesis(t *testing.T) {
 	epochs.InitGenesis(ctx, app.EpochsKeeper, types.GenesisState{
 		Epochs: []types.EpochInfo{
 			{
-				Identifier:            "monthly",
+				Identifier:            "month",
 				StartTime:             time.Time{},
 				Duration:              time.Hour * 24 * 30,
 				CurrentEpoch:          0,
@@ -127,14 +127,14 @@ func TestEpochsInitGenesis(t *testing.T) {
 		},
 	})
 
-	epochInfoMonthly := app.EpochsKeeper.GetEpochInfo(ctx, "monthly")
-	require.Equal(t, epochInfoMonthly.Identifier, "monthly")
-	require.Equal(t, epochInfoMonthly.StartTime.UTC().String(), now.UTC().String())
-	require.Equal(t, epochInfoMonthly.Duration, time.Hour*24*30)
-	require.Equal(t, epochInfoMonthly.CurrentEpoch, int64(0))
-	require.Equal(t, epochInfoMonthly.CurrentEpochStartTime.UTC().String(), ctx.BlockTime().UTC().String())
-	require.Equal(t, epochInfoMonthly.EpochCountingStarted, true)
-	require.Equal(t, epochInfoMonthly.CurrentEpochEnded, true)
+	epochInfomonth := app.EpochsKeeper.GetEpochInfo(ctx, "month")
+	require.Equal(t, epochInfomonth.Identifier, "month")
+	require.Equal(t, epochInfomonth.StartTime.UTC().String(), now.UTC().String())
+	require.Equal(t, epochInfomonth.Duration, time.Hour*24*30)
+	require.Equal(t, epochInfomonth.CurrentEpoch, int64(0))
+	require.Equal(t, epochInfomonth.CurrentEpochStartTime.UTC().String(), ctx.BlockTime().UTC().String())
+	require.Equal(t, epochInfomonth.EpochCountingStarted, true)
+	require.Equal(t, epochInfomonth.CurrentEpochEnded, true)
 
 	epochInfoWeek := app.EpochsKeeper.GetEpochInfo(ctx, "week")
 	require.Equal(t, epochInfoWeek.Identifier, "week")
