@@ -1,5 +1,13 @@
 package types
 
+import (
+	fmt "fmt"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	uuid "github.com/satori/go.uuid"
+)
+
 // DocumentReceipt contains the generic information about the proof that a shared document (identified by the DocumentUUID field)
 // has been read by the recipient.
 // It contains information about the sender of the receipt's proof, the recipient,
@@ -17,4 +25,32 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 		receipt.TxHash == rec.TxHash &&
 		receipt.DocumentUUID == rec.DocumentUUID &&
 		receipt.Proof == rec.Proof
+}
+
+func (receipt DocumentReceipt) Validate() error {
+	if _, err := uuid.FromString(receipt.UUID); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid uuid: %s", receipt.UUID))
+	}
+
+	if _, err := sdk.AccAddressFromBech32(receipt.Sender); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, receipt.Sender)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(receipt.Recipient); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, receipt.Recipient)
+	}
+
+	if receipt.TxHash == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "transaction hash of sent document cannot be empty")
+	}
+
+	if receipt.DocumentUUID == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "document UUID cannot be empty")
+	}
+
+	if receipt.Proof == "" {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Proof cannot be empty")
+	}
+
+	return nil
 }

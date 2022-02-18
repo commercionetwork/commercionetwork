@@ -22,8 +22,8 @@ func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 
 	for _, v220document := range oldGenState.Documents {
 
-		err := v220document.Validate()
-		if err == nil {
+		// invalid 2.2.0 documents won't be added
+		if err := v220document.Validate(); err == nil {
 
 			if _, found := appears[string(v220document.UUID)]; !found {
 
@@ -42,8 +42,9 @@ func Migrate(oldGenState v220docs.GenesisState) *types.GenesisState {
 	receipts := []*types.DocumentReceipt{}
 	var documentReceipt *types.DocumentReceipt
 	for _, v220documentReceipt := range oldGenState.Receipts {
-		if _, found := appears[string(v220documentReceipt.UUID)]; found {
-			if _, ok := documentsDeleted[v220documentReceipt.DocumentUUID]; !ok {
+
+		if _, found := appears[v220documentReceipt.DocumentUUID]; found {
+			if _, deleted := documentsDeleted[v220documentReceipt.DocumentUUID]; !deleted {
 				documentReceipt = migrateReceipt(v220documentReceipt)
 				receipts = append(receipts, documentReceipt)
 			}

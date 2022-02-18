@@ -2,24 +2,20 @@ package cli
 
 import (
 	"context"
-	//"errors"
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/spf13/cobra"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/spf13/cobra"
 )
 
-// ----------------------------------
-// --- Documents
-// ----------------------------------
 func CmdShowDocument() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-document [doc-uuid]",
-		Short: "shows a document",
+		Use:   "show-document [documentUUID]",
+		Short: "Get the document with the given ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -48,7 +44,7 @@ func CmdShowDocument() *cobra.Command {
 func CmdSentDocuments() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sent-documents [user-address]",
-		Short: "Get all documents sent by user",
+		Short: "Get all documents sent by the user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -63,13 +59,13 @@ func CmdSentDocuments() *cobra.Command {
 				return err
 			}
 			params := &types.QueryGetSentDocumentsRequest{
-				Address: addr.String(),
+				Address:    addr.String(),
 				Pagination: pageReq,
 			}
 
 			res, err := queryClient.SentDocuments(context.Background(), params)
 			if err != nil {
-				return sdkErr.Wrap(sdkErr.ErrLogic, fmt.Sprintf("Could not get sent documents by user: \n %s", err))
+				return sdkErr.Wrap(sdkErr.ErrLogic, fmt.Sprintf("could not get any sent document for the given address: \n %s", err))
 			}
 
 			return clientCtx.PrintProto(res)
@@ -83,7 +79,7 @@ func CmdSentDocuments() *cobra.Command {
 func CmdReceivedDocuments() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "received-documents [user-address]",
-		Short: "Get all documents received by user",
+		Short: "Get all documents received by the user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -99,91 +95,13 @@ func CmdReceivedDocuments() *cobra.Command {
 			}
 
 			params := &types.QueryGetReceivedDocumentRequest{
-				Address: addr.String(),
+				Address:    addr.String(),
 				Pagination: pageReq,
 			}
 
 			res, err := queryClient.ReceivedDocument(context.Background(), params)
 			if err != nil {
-				fmt.Printf("Could not get received documents by user: \n %s", err)
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// ----------------------------------
-// --- Document receipts
-// ----------------------------------
-
-func CmdSentReceipts() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "sent-receipts [user-address]",
-		Short: "Get all the receipts sent from the specified user",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			
-			queryClient := types.NewQueryClient(clientCtx)
-			addr, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			params := &types.QueryGetSentDocumentsReceiptsRequest{
-				Address: addr.String(),
-				Pagination: pageReq,
-			}
-
-			res, err := queryClient.SentDocumentsReceipts(context.Background(), params)
-			if err != nil {
-				fmt.Printf("Could not get any sent receipt for the given user: \n %s", err)
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-func CmdReceivedReceipts() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "received-receipts [user-address]",
-		Short: "Get the document receipt associated with given address",
-		Args: cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-
-			addr, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-			
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			params := &types.QueryGetReceivedDocumentsReceiptsRequest{
-				Address: addr.String(),
-				Pagination: pageReq,
-			}
-
-			res, err := queryClient.ReceivedDocumentsReceipts(context.Background(), params)
-			if err != nil {
-				fmt.Printf("Could not get any received receipt for the given user or uuid: \n %s", err)
+				fmt.Printf("could not get any received documents by user: \n %s", err)
 			}
 
 			return clientCtx.PrintProto(res)

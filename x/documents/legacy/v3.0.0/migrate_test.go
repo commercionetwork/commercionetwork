@@ -1,5 +1,3 @@
-// DONTCOVER
-// nolint
 package v3_0_0
 
 import (
@@ -12,151 +10,129 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testingSender, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var validDocument = types.ValidDocument
+var validDocumentReceipt = types.ValidDocumentReceiptRecipient1
+var anotherValidDocument = types.AnotherValidDocument
+var anotherDocumentReceipt = types.AnotherValidDocumentReceipt
 
-// var testingSender2, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
-var testingRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
+var v220DocumentRecipients []sdk.AccAddress
+var v220EncryptionDataKeys []v220docs.DocumentEncryptionKey
+var v220DocumentReceipt v220docs.DocumentReceipt
+var v220Document v220docs.Document
 
-const validUUID = "d83422c6-6e79-4a99-9767-fcae46dfa371"
-const anotherValidUUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
+var anotherV220Document v220docs.Document
+var anotherV220DocumentReceipt v220docs.DocumentReceipt
 
-var testingDocument = types.Document{
-	UUID:       validUUID,
-	ContentURI: "https://example.com/document",
-	Metadata: &types.DocumentMetadata{
-		ContentURI: "https://example.com/document/metadata",
-		Schema: &types.DocumentMetadataSchema{
-			URI:     "https://example.com/document/metadata/schema",
-			Version: "1.0.0",
-		},
-	},
-	Checksum: &types.DocumentChecksum{
-		Value:     "93dfcaf3d923ec47edb8580667473987",
-		Algorithm: "md5",
-	},
-	EncryptionData: &types.DocumentEncryptionData{
-		Keys:          []*types.DocumentEncryptionKey{{Recipient: testingRecipient.String(), Value: "6F7468657276616C7565"}},
-		EncryptedData: []string{"content", "content_uri", "metadata.content_uri", "metadata.schema.uri"},
-	},
-	DoSign: &types.DocumentDoSign{
-		StorageURI:     "https://example.com/document/storage",
-		SignerInstance: "SignerInstance",
-		SdnData: types.SdnData{
-			types.SdnDataCommonName,
-			types.SdnDataSurname,
-			types.SdnDataSurname,
-			types.SdnDataGivenName,
-			types.SdnDataOrganization,
-			types.SdnDataCountry,
-		},
-		VcrID:              "VcrID",
-		CertificateProfile: "CertificateProfile",
-	},
-	Sender:     testingSender.String(),
-	Recipients: []string{testingRecipient.String()},
-}
-
-var testingDocumentReceipt = types.DocumentReceipt{
-	UUID:         validUUID,
-	Sender:       testingSender.String(),
-	Recipient:    testingRecipient.String(),
-	TxHash:       "txHash",
-	DocumentUUID: "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
-	Proof:        "proof",
-}
-
-var anotherTestingDocument types.Document
-var anotherTestingDocumentReceipt types.DocumentReceipt
-
-var testingv220DocumentRecipients []sdk.AccAddress
-var testingv220EncryptionDataKeys []v220docs.DocumentEncryptionKey
-var testingv220DocumentReceipt v220docs.DocumentReceipt
-
-var testingv220Document v220docs.Document
-
-var anotherTestingv220Document v220docs.Document
-var anotherTestingv220DocumentReceipt v220docs.DocumentReceipt
-
-var invalidTestingv220Document v220docs.Document
-var invalidTestingv220DocumentReceipt v220docs.DocumentReceipt
+var invalidV220Document v220docs.Document
+var invalidV220DocumentReceipt v220docs.DocumentReceipt
 
 func init() {
 
-	for _, r := range testingDocument.Recipients {
+	for _, r := range validDocument.Recipients {
 		addr, err := sdk.AccAddressFromBech32(r)
 		if err != nil {
-			panic("error on addresses for Recipients")
+			panic("error on addresses for recipients in document")
 		}
-		testingv220DocumentRecipients = append(testingv220DocumentRecipients, addr)
+		v220DocumentRecipients = append(v220DocumentRecipients, addr)
 	}
 
-	for _, k := range testingDocument.EncryptionData.Keys {
+	for _, k := range validDocument.EncryptionData.Keys {
 		address, err := sdk.AccAddressFromBech32(k.Recipient)
 		if err != nil {
-			panic("error on addresses for EncriptionData Keys")
+			panic("error on addresses for encriptionData keys in document")
 		}
-		testingv220EncryptionDataKeys = append(testingv220EncryptionDataKeys, v220docs.DocumentEncryptionKey{
+		v220EncryptionDataKeys = append(v220EncryptionDataKeys, v220docs.DocumentEncryptionKey{
 			Recipient: address,
 			Value:     k.Value,
 		})
 	}
 
-	anotherTestingDocument = testingDocument
-	anotherTestingDocument.UUID = anotherValidUUID
+	sender, err := sdk.AccAddressFromBech32(validDocument.Sender)
+	if err != nil {
+		panic("error on address for sender in receipt")
+	}
+	recipient, err := sdk.AccAddressFromBech32(validDocumentReceipt.Sender)
+	if err != nil {
+		panic("error on address for recipient in receipt")
+	}
 
-	anotherTestingDocumentReceipt = testingDocumentReceipt
-	anotherTestingDocumentReceipt.UUID = anotherValidUUID
-
-	testingv220Document = v220docs.Document{
-		Sender:     testingSender,
-		Recipients: testingv220DocumentRecipients,
-		UUID:       testingDocument.UUID,
+	v220Document = v220docs.Document{
+		Sender:     sender,
+		Recipients: v220DocumentRecipients,
+		UUID:       validDocument.UUID,
 		Metadata: v220docs.DocumentMetadata{
-			ContentURI: testingDocument.Metadata.ContentURI,
+			ContentURI: validDocument.Metadata.ContentURI,
 			// SchemaType: "", // not converted
 			Schema: &v220docs.DocumentMetadataSchema{
-				URI:     testingDocument.Metadata.Schema.URI,
-				Version: testingDocument.Metadata.Schema.Version,
+				URI:     validDocument.Metadata.Schema.URI,
+				Version: validDocument.Metadata.Schema.Version,
 			},
 		},
-		ContentURI: testingDocument.ContentURI,
+		ContentURI: validDocument.ContentURI,
 		Checksum: &v220docs.DocumentChecksum{
-			Value:     testingDocument.Checksum.Value,
-			Algorithm: testingDocument.Checksum.Algorithm,
+			Value:     validDocument.Checksum.Value,
+			Algorithm: validDocument.Checksum.Algorithm,
 		},
 		EncryptionData: &v220docs.DocumentEncryptionData{
-			Keys:          testingv220EncryptionDataKeys,
-			EncryptedData: testingDocument.EncryptionData.EncryptedData,
+			Keys:          v220EncryptionDataKeys,
+			EncryptedData: validDocument.EncryptionData.EncryptedData,
 		},
 		DoSign: &v220docs.DocumentDoSign{
-			StorageURI:         testingDocument.DoSign.StorageURI,
-			SignerInstance:     testingDocument.DoSign.SignerInstance,
-			SdnData:            testingDocument.DoSign.SdnData,
-			VcrID:              testingDocument.DoSign.VcrID,
-			CertificateProfile: testingDocument.DoSign.CertificateProfile,
+			StorageURI:         validDocument.DoSign.StorageURI,
+			SignerInstance:     validDocument.DoSign.SignerInstance,
+			SdnData:            validDocument.DoSign.SdnData,
+			VcrID:              validDocument.DoSign.VcrID,
+			CertificateProfile: validDocument.DoSign.CertificateProfile,
 		},
 	}
 
-	testingv220DocumentReceipt = v220docs.DocumentReceipt{
-		UUID:         testingDocumentReceipt.UUID,
-		Sender:       testingSender,
-		Recipient:    testingRecipient,
-		TxHash:       testingDocumentReceipt.TxHash,
-		DocumentUUID: testingDocumentReceipt.DocumentUUID,
-		Proof:        testingDocumentReceipt.Proof,
+	v220DocumentReceipt = v220docs.DocumentReceipt{
+		UUID:         validDocumentReceipt.UUID,
+		Sender:       recipient,
+		Recipient:    sender,
+		TxHash:       validDocumentReceipt.TxHash,
+		DocumentUUID: validDocumentReceipt.DocumentUUID,
+		Proof:        validDocumentReceipt.Proof,
 	}
 
-	anotherTestingv220Document = testingv220Document
-	anotherTestingv220Document.UUID = anotherValidUUID
+	anotherV220Document = v220docs.Document{
+		Sender:     sender,
+		Recipients: v220DocumentRecipients,
+		UUID:       anotherValidDocument.UUID,
+		Metadata: v220docs.DocumentMetadata{
+			ContentURI: validDocument.Metadata.ContentURI,
+			Schema: &v220docs.DocumentMetadataSchema{
+				URI:     validDocument.Metadata.Schema.URI,
+				Version: validDocument.Metadata.Schema.Version,
+			},
+		},
+		ContentURI: validDocument.ContentURI,
+		Checksum: &v220docs.DocumentChecksum{
+			Value:     "825b5f1e6f9fe03eac07d27b164af1a2",
+			Algorithm: validDocument.Checksum.Algorithm,
+		},
+		EncryptionData: &v220docs.DocumentEncryptionData{
+			Keys:          v220EncryptionDataKeys,
+			EncryptedData: validDocument.EncryptionData.EncryptedData,
+		},
+		DoSign: &v220docs.DocumentDoSign{
+			StorageURI:         validDocument.DoSign.StorageURI,
+			SignerInstance:     validDocument.DoSign.SignerInstance,
+			SdnData:            validDocument.DoSign.SdnData,
+			VcrID:              validDocument.DoSign.VcrID,
+			CertificateProfile: validDocument.DoSign.CertificateProfile,
+		},
+	}
 
-	anotherTestingv220DocumentReceipt = testingv220DocumentReceipt
-	anotherTestingv220DocumentReceipt.UUID = anotherValidUUID
+	anotherV220DocumentReceipt = v220DocumentReceipt
+	anotherV220DocumentReceipt.UUID = anotherDocumentReceipt.UUID
+	anotherV220DocumentReceipt.DocumentUUID = anotherV220Document.UUID
 
-	invalidTestingv220Document = testingv220Document
-	invalidTestingv220Document.UUID = "invalid-uuid"
+	invalidV220Document = v220Document
+	invalidV220Document.UUID = "invalid-uuid"
 
-	invalidTestingv220DocumentReceipt = testingv220DocumentReceipt
-	invalidTestingv220DocumentReceipt.UUID = "invalid-uuid"
+	invalidV220DocumentReceipt = v220DocumentReceipt
+	invalidV220DocumentReceipt.UUID = "invalid-uuid"
 }
 
 func Test_migrateDocument(t *testing.T) {
@@ -171,9 +147,9 @@ func Test_migrateDocument(t *testing.T) {
 		{
 			name: "ok",
 			args: args{
-				doc: testingv220Document,
+				doc: v220Document,
 			},
-			want: &testingDocument,
+			want: &validDocument,
 		},
 	}
 	for _, tt := range tests {
@@ -197,9 +173,9 @@ func Test_migrateReceipt(t *testing.T) {
 		{
 			name: "ok",
 			args: args{
-				receipt: testingv220DocumentReceipt,
+				receipt: v220DocumentReceipt,
 			},
-			want: &testingDocumentReceipt,
+			want: &validDocumentReceipt,
 		},
 	}
 	for _, tt := range tests {
@@ -240,10 +216,10 @@ func TestMigrate(t *testing.T) {
 			args: args{
 				oldGenState: v220docs.GenesisState{
 					Documents: []v220docs.Document{
-						testingv220Document,
+						v220Document,
 					},
 					Receipts: []v220docs.DocumentReceipt{
-						testingv220DocumentReceipt,
+						v220DocumentReceipt,
 					},
 					SupportedMetadataSchemes:       []v220docs.MetadataSchema{},
 					TrustedMetadataSchemaProposers: []sdk.AccAddress{},
@@ -251,10 +227,10 @@ func TestMigrate(t *testing.T) {
 			},
 			want: &types.GenesisState{
 				Documents: []*types.Document{
-					&testingDocument,
+					&validDocument,
 				},
 				Receipts: []*types.DocumentReceipt{
-					&testingDocumentReceipt,
+					&validDocumentReceipt,
 				},
 			},
 		},
@@ -263,11 +239,11 @@ func TestMigrate(t *testing.T) {
 			args: args{
 				oldGenState: v220docs.GenesisState{
 					Documents: []v220docs.Document{
-						testingv220Document,
-						invalidTestingv220Document,
+						v220Document,
+						invalidV220Document,
 					},
 					Receipts: []v220docs.DocumentReceipt{
-						testingv220DocumentReceipt,
+						v220DocumentReceipt,
 					},
 					SupportedMetadataSchemes:       []v220docs.MetadataSchema{},
 					TrustedMetadataSchemaProposers: []sdk.AccAddress{},
@@ -275,10 +251,10 @@ func TestMigrate(t *testing.T) {
 			},
 			want: &types.GenesisState{
 				Documents: []*types.Document{
-					&testingDocument,
+					&validDocument,
 				},
 				Receipts: []*types.DocumentReceipt{
-					&testingDocumentReceipt,
+					&validDocumentReceipt,
 				},
 			},
 		},
@@ -287,12 +263,12 @@ func TestMigrate(t *testing.T) {
 			args: args{
 				oldGenState: v220docs.GenesisState{
 					Documents: []v220docs.Document{
-						testingv220Document,
-						anotherTestingv220Document,
+						v220Document,
+						anotherV220Document,
 					},
 					Receipts: []v220docs.DocumentReceipt{
-						testingv220DocumentReceipt,
-						anotherTestingv220DocumentReceipt,
+						v220DocumentReceipt,
+						anotherV220DocumentReceipt,
 					},
 					SupportedMetadataSchemes:       []v220docs.MetadataSchema{},
 					TrustedMetadataSchemaProposers: []sdk.AccAddress{},
@@ -300,12 +276,12 @@ func TestMigrate(t *testing.T) {
 			},
 			want: &types.GenesisState{
 				Documents: []*types.Document{
-					&testingDocument,
-					&anotherTestingDocument,
+					&validDocument,
+					&anotherValidDocument,
 				},
 				Receipts: []*types.DocumentReceipt{
-					&testingDocumentReceipt,
-					&anotherTestingDocumentReceipt,
+					&validDocumentReceipt,
+					&anotherDocumentReceipt,
 				},
 			},
 		},
@@ -314,11 +290,11 @@ func TestMigrate(t *testing.T) {
 			args: args{
 				oldGenState: v220docs.GenesisState{
 					Documents: []v220docs.Document{
-						testingv220Document,
+						v220Document,
 					},
 					Receipts: []v220docs.DocumentReceipt{
-						testingv220DocumentReceipt,
-						anotherTestingv220DocumentReceipt,
+						v220DocumentReceipt,
+						anotherV220DocumentReceipt,
 					},
 					SupportedMetadataSchemes:       []v220docs.MetadataSchema{},
 					TrustedMetadataSchemaProposers: []sdk.AccAddress{},
@@ -326,10 +302,10 @@ func TestMigrate(t *testing.T) {
 			},
 			want: &types.GenesisState{
 				Documents: []*types.Document{
-					&testingDocument,
+					&validDocument,
 				},
 				Receipts: []*types.DocumentReceipt{
-					&testingDocumentReceipt,
+					&validDocumentReceipt,
 				},
 			},
 		},
