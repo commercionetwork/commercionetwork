@@ -46,11 +46,7 @@ func queryGetIdentityHistoryOfAddress(ctx sdk.Context, path []string, k Keeper, 
 
 	identities := k.GetIdentityHistoryOfAddress(ctx, path[0])
 
-	response := types.QueryResolveIdentityHistoryResponse{
-		Identities: identities,
-	}
-
-	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, response)
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, identities)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}

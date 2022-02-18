@@ -54,28 +54,22 @@ func TestNewQuerier_queryGetLastIdentityOfAddress(t *testing.T) {
 func TestNewQuerier_GetIdentityHistoryOfAddress(t *testing.T) {
 	tests := []struct {
 		name string
-		want types.QueryResolveIdentityHistoryResponse
+		want []*types.Identity
 	}{
-		// TODO: consider changing proto of query and keeper methods to return a slice of values, no pointers
-		// then, want.Identities can be []types.Identity
 		{
 			name: "empty",
-			want: types.QueryResolveIdentityHistoryResponse{
-				Identities: nil,
-			},
+			want: nil,
 		},
 		{
 			name: "ok",
-			want: types.QueryResolveIdentityHistoryResponse{
-				Identities: identitiesAtIncreasingMoments(2, 0),
-			},
+			want: identitiesAtIncreasingMoments(2, 0),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeper(t)
 
-			for _, identity := range tt.want.Identities {
+			for _, identity := range tt.want {
 				k.SetIdentity(ctx, *identity)
 			}
 
@@ -86,15 +80,12 @@ func TestNewQuerier_GetIdentityHistoryOfAddress(t *testing.T) {
 			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 			require.NoError(t, err)
 
-			var got types.QueryResolveIdentityHistoryResponse
+			var got []*types.Identity
 
 			legacyAmino.MustUnmarshalJSON(gotBz, &got)
 
-			expected := types.QueryResolveIdentityHistoryResponse{
-				Identities: tt.want.Identities,
-			}
 			require.NoError(t, err)
-			require.Equal(t, expected, got)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
