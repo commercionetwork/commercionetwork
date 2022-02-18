@@ -6,8 +6,10 @@
   "scripts": {
     "predocs:serve": "./docs/pre.sh",
     "docs:serve": "vuepress dev docs",
+    "postdocs:serve": "./docs/post.sh",
     "predocs:build": "./docs/pre.sh",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "postdocs:build": "./docs/post.sh"
   },
   "author": "",
   "license": "MIT",

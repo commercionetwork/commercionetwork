@@ -3,7 +3,7 @@ module.exports = {
     description: "Documentation for the Commercio.network blockchain.",
     ga: "UA-51029217-2",
     head: [
-        ['link', {rel: 'icon', href: '/icon.png'}]
+        ['link', {rel: 'icon', href: '/icon.png'}],
     ],
     markdown: {
         lineNumbers: true,
@@ -66,18 +66,32 @@ module.exports = {
 
                 ]
             },
-
             {
                 title: "Custom Modules",
                 collapsable: false,
                 children: [
-                    "x/bank/",
-                    "modules/government/",
-                    "modules/did/",
-                    "modules/documents/",
-                    "modules/commerciomint/",
-                    "modules/commerciokyc/",
-                    "modules/vbr/",
+                    ["x/bank/","Bank"],
+                    ["modules/government/","Government"],
+                    ["modules/did/","Did"],
+                    ["modules/documents/","Documents"],
+                    ["modules/commerciomint/","Commerciomint"],
+                    /*["modules/commerciokyc/","Commerciokyc"
+                
+                    ],*/
+                    {
+                        title: "CommercioKYC",
+                        collapsable: true,
+                        children: [
+                            ["modules/commerciokyc/", "Concepts"],
+                            ["modules/commerciokyc/01_state.md", "State"],
+                            ["modules/commerciokyc/02_keepers.md", "Keepers"],
+                            ["modules/commerciokyc/03_messages.md", "Messages"],
+                            ["modules/commerciokyc/04_events.md", "Events"],
+                            ["modules/commerciokyc/05_client.md", "Client"],
+
+                        ]
+                    },
+                    ["modules/vbr/","Vbr"],
                 ]
             },
             {
@@ -145,7 +159,6 @@ module.exports = {
                             ["docs2.1.2/nodes/full-node-installation", "Installing a full node"],
                             ["docs2.1.2/nodes/validator-node-installation", "Becoming a validator"],
                             ["docs2.1.2/nodes/validator-node-handling", "Handling a validator"],
-         //                   ["docs2.1.2/nodes/validator-node-installation-mainnet", "Becoming a validor in the Mainnet"],
                             ["docs2.1.2/nodes/validator-node-update", "Updating a validator"],
                         ]
                     },
