@@ -145,7 +145,7 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 		epochDuration = sdk.NewDec(365 * 24 * 60)
 	case types.EpochHour:
 		epochDuration = sdk.NewDec(365 * 24)
-	case types.EpochMonthly:
+	case types.EpochMonth:
 		epochDuration = sdk.NewDec(12)
 	default:
 		return nil

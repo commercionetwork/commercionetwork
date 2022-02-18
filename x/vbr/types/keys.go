@@ -19,7 +19,7 @@ const (
 	EpochDay     = "day"
 	EpochHour    = "hour"
 	EpochMinute  = "minute"
-	EpochMonthly = "monthly"
+	EpochMonth 	 = "month"
 )
 
 // this line is used by starport scaffolding # ibc/keys/port

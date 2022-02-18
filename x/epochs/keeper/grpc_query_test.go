@@ -43,7 +43,7 @@ func (suite *KeeperTestSuite) TestQueryEpochInfos() {
 	suite.Require().Equal(epochInfosResponse.Epochs[2].EpochCountingStarted, false)
 	suite.Require().Equal(epochInfosResponse.Epochs[2].CurrentEpochEnded, true)
 
-	suite.Require().Equal(epochInfosResponse.Epochs[3].Identifier, "monthly")
+	suite.Require().Equal(epochInfosResponse.Epochs[3].Identifier, "month")
 	suite.Require().Equal(epochInfosResponse.Epochs[3].StartTime, chainStartTime)
 	suite.Require().Equal(epochInfosResponse.Epochs[3].Duration, time.Hour*24*30)
 	suite.Require().Equal(epochInfosResponse.Epochs[3].CurrentEpoch, int64(0))
@@ -79,9 +79,9 @@ func (suite *KeeperTestSuite) TestQueryCurrentEpoch() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(currentEpochMinute.CurrentEpoch, int64(0))
 
-	currentEpochMonthly, err := queryClient.CurrentEpoch(gocontext.Background(), &types.QueryCurrentEpochRequest{Identifier: "monthly"})
+	currentEpochmonth, err := queryClient.CurrentEpoch(gocontext.Background(), &types.QueryCurrentEpochRequest{Identifier: "month"})
 	suite.Require().NoError(err)
-	suite.Require().Equal(currentEpochMonthly.CurrentEpoch, int64(0))
+	suite.Require().Equal(currentEpochmonth.CurrentEpoch, int64(0))
 
 	currentEpochWeek, err := queryClient.CurrentEpoch(gocontext.Background(), &types.QueryCurrentEpochRequest{Identifier: "week"})
 	suite.Require().NoError(err)
