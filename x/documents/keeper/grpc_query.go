@@ -100,7 +100,10 @@ func (k Keeper) ReceivedDocument(c context.Context, req *types.QueryGetReceivedD
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryGetReceivedDocumentResponse{ReceivedDocument: receivedDocuments, Pagination: pageRes}, nil
+	return &types.QueryGetReceivedDocumentResponse{
+		ReceivedDocument: receivedDocuments,
+		Pagination:       pageRes,
+	}, nil
 }
 
 func (k Keeper) SentDocumentsReceipts(c context.Context, req *types.QueryGetSentDocumentsReceiptsRequest) (*types.QueryGetSentDocumentsReceiptsResponse, error) {
@@ -132,7 +135,10 @@ func (k Keeper) SentDocumentsReceipts(c context.Context, req *types.QueryGetSent
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryGetSentDocumentsReceiptsResponse{Receipt: receipts, Pagination: pageRes}, nil
+	return &types.QueryGetSentDocumentsReceiptsResponse{
+		Receipt:    receipts,
+		Pagination: pageRes,
+	}, nil
 }
 
 func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGetReceivedDocumentsReceiptsRequest) (*types.QueryGetReceivedDocumentsReceiptsResponse, error) {
@@ -164,7 +170,10 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryGetReceivedDocumentsReceiptsResponse{ReceiptReceived: receivedReceipts, Pagination: pageRes}, nil
+	return &types.QueryGetReceivedDocumentsReceiptsResponse{
+		ReceiptReceived: receivedReceipts,
+		Pagination:      pageRes,
+	}, nil
 }
 
 func (k Keeper) DocumentsReceipts(c context.Context, req *types.QueryGetDocumentsReceiptsRequest) (*types.QueryGetDocumentsReceiptsResponse, error) {
@@ -192,5 +201,8 @@ func (k Keeper) DocumentsReceipts(c context.Context, req *types.QueryGetDocument
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryGetDocumentsReceiptsResponse{Receipts: receivedReceipts, Pagination: pageRes}, nil
+	return &types.QueryGetDocumentsReceiptsResponse{
+		Receipts:   receivedReceipts,
+		Pagination: pageRes,
+	}, nil
 }

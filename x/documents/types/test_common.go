@@ -45,6 +45,45 @@ var ValidDocument = Document{
 	Recipients: []string{recipient1.String(), recipient2.String()},
 }
 
+var AnotherValidDocument = Document{
+	UUID:       "49c981c2-a09e-47d2-8814-9373ff64abae",
+	ContentURI: "https://example.com/document",
+	Metadata: &DocumentMetadata{
+		ContentURI: "https://example.com/document/metadata",
+		Schema: &DocumentMetadataSchema{
+			URI:     "https://example.com/document/metadata/schema",
+			Version: "1.0.0",
+		},
+	},
+	Checksum: &DocumentChecksum{
+		Value:     "825b5f1e6f9fe03eac07d27b164af1a2",
+		Algorithm: "md5",
+	},
+	EncryptionData: &DocumentEncryptionData{
+		Keys: []*DocumentEncryptionKey{
+			{Recipient: recipient1.String(), Value: "6F7468657276616C7565"},
+			{Recipient: recipient2.String(), Value: "7F7468657276616C7565"},
+		},
+		EncryptedData: []string{"content", "content_uri", "metadata.content_uri", "metadata.schema.uri"},
+	},
+	DoSign: &DocumentDoSign{
+		StorageURI:     "https://example.com/document/storage",
+		SignerInstance: "SignerInstance",
+		SdnData: SdnData{
+			SdnDataCommonName,
+			SdnDataSurname,
+			SdnDataSurname,
+			SdnDataGivenName,
+			SdnDataOrganization,
+			SdnDataCountry,
+		},
+		VcrID:              "VcrID",
+		CertificateProfile: "CertificateProfile",
+	},
+	Sender:     sender.String(),
+	Recipients: []string{recipient1.String(), recipient2.String()},
+}
+
 var ValidDocumentReceiptRecipient1 = DocumentReceipt{
 	UUID:         "8db853ac-5265-4da6-a07a-c52ac8099385",
 	Sender:       recipient1.String(),
@@ -63,7 +102,7 @@ var ValidDocumentReceiptRecipient2 = DocumentReceipt{
 	Proof:        "proof",
 }
 
-var AnotherValidDocument Document
+//var AnotherValidDocument Document
 var AnotherValidDocumentReceipt DocumentReceipt
 
 var InvalidDocument Document
@@ -72,8 +111,8 @@ var InvalidDocumentReceipt DocumentReceipt
 var ValidDocumentDifferentSenderRecipients Document
 
 func init() {
-	AnotherValidDocument = ValidDocument
-	AnotherValidDocument.UUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
+	//AnotherValidDocument = ValidDocument
+	//AnotherValidDocument.UUID = "49c981c2-a09e-47d2-8814-9373ff64abae"
 
 	AnotherValidDocumentReceipt = ValidDocumentReceiptRecipient1
 	AnotherValidDocumentReceipt.UUID = "7f4d6197-900a-44af-af22-3a703c568bfe"

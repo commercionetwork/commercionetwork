@@ -17,12 +17,12 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	if _, err := uuid.FromString(receipt.UUID); err != nil {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document receipt UUID: %s", receipt.UUID))
 	}
-
-	if _, err := keeper.GetDocumentByID(ctx, receipt.DocumentUUID); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "receipt points to a non-existing document UUID")
-	}
-
 	store := ctx.KVStore(keeper.storeKey)
+
+	// Check for an existing document
+	if !store.Has(getDocumentStoreKey(receipt.DocumentUUID)) {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("receipt points to a non-existing document UUID: %s", receipt.DocumentUUID))
+	}
 
 	marshaledReceiptID := []byte(receipt.UUID)
 	receiptStoreKey := getReceiptStoreKey(receipt.UUID)
@@ -119,7 +119,7 @@ func getDocumentReceiptsIdsUUIDStoreKey(documentUUID string, receiptUUID string)
 	return append([]byte(types.DocumentsReceiptsPrefix), receiptPart...)
 }
 
-// DocumentsIterator returns an Iterator for all the Documents saved in the store.
+// DocumentReceiptsIterator returns an Iterator for all Receipts saved in the store.
 func (keeper Keeper) DocumentReceiptsIterator(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 

@@ -36,14 +36,16 @@ func KeyPrefix(p string) []byte {
 const (
 	DocumentStorePrefix = StoreKey + ":document:"
 
-	SentDocumentsPrefix     = StoreKey + ":documents:sent:"
-	ReceivedDocumentsPrefix = StoreKey + ":documents:received:"
+	DocumentPrefix          = StoreKey + ":documents:"
+	SentDocumentsPrefix     = DocumentPrefix + "sent:"
+	ReceivedDocumentsPrefix = DocumentPrefix + "received:"
 
 	ReceiptsStorePrefix = StoreKey + ":receipt:"
 
-	SentDocumentsReceiptsPrefix     = StoreKey + ":receipts:sent:"
-	ReceivedDocumentsReceiptsPrefix = StoreKey + ":receipts:received:"
-	DocumentsReceiptsPrefix         = StoreKey + ":receipts:documents:"
+	ReceiptsPrefix                  = StoreKey + ":receipts:"
+	SentDocumentsReceiptsPrefix     = ReceiptsPrefix + "sent:"
+	ReceivedDocumentsReceiptsPrefix = ReceiptsPrefix + "received:"
+	DocumentsReceiptsPrefix         = ReceiptsPrefix + "documents:"
 
 	MsgTypeShareDocument       = "shareDocument"
 	MsgTypeSendDocumentReceipt = "sendDocumentReceipt"

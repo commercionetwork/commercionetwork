@@ -95,8 +95,34 @@ func init() {
 		Proof:        validDocumentReceipt.Proof,
 	}
 
-	anotherV220Document = v220Document
-	anotherV220Document.UUID = anotherValidDocument.UUID
+	anotherV220Document = v220docs.Document{
+		Sender:     sender,
+		Recipients: v220DocumentRecipients,
+		UUID:       anotherValidDocument.UUID,
+		Metadata: v220docs.DocumentMetadata{
+			ContentURI: validDocument.Metadata.ContentURI,
+			Schema: &v220docs.DocumentMetadataSchema{
+				URI:     validDocument.Metadata.Schema.URI,
+				Version: validDocument.Metadata.Schema.Version,
+			},
+		},
+		ContentURI: validDocument.ContentURI,
+		Checksum: &v220docs.DocumentChecksum{
+			Value:     "825b5f1e6f9fe03eac07d27b164af1a2",
+			Algorithm: validDocument.Checksum.Algorithm,
+		},
+		EncryptionData: &v220docs.DocumentEncryptionData{
+			Keys:          v220EncryptionDataKeys,
+			EncryptedData: validDocument.EncryptionData.EncryptedData,
+		},
+		DoSign: &v220docs.DocumentDoSign{
+			StorageURI:         validDocument.DoSign.StorageURI,
+			SignerInstance:     validDocument.DoSign.SignerInstance,
+			SdnData:            validDocument.DoSign.SdnData,
+			VcrID:              validDocument.DoSign.VcrID,
+			CertificateProfile: validDocument.DoSign.CertificateProfile,
+		},
+	}
 
 	anotherV220DocumentReceipt = v220DocumentReceipt
 	anotherV220DocumentReceipt.UUID = anotherDocumentReceipt.UUID

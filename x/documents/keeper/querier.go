@@ -198,7 +198,7 @@ func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQ
 	for ; ri.Valid(); ri.Next() {
 		receiptUUID := string(ri.Value())
 
-		newReceipt, err := k.GetReceiptByID(ctx, receiptUUID)
+		receipt, err := k.GetReceiptByID(ctx, receiptUUID)
 		if err != nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
@@ -208,7 +208,7 @@ func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQ
 			)
 		}
 
-		receipts = append(receipts, newReceipt)
+		receipts = append(receipts, receipt)
 	}
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, receipts)
