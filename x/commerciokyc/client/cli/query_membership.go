@@ -20,6 +20,7 @@ func CmdMemberships() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "memberships")
 
 	return cmd
 }
@@ -28,7 +29,12 @@ func getMembershipsFunc(cmd *cobra.Command, args []string) error {
 	clientCtx := client.GetClientContextFromCmd(cmd)
 
 	queryClient := types.NewQueryClient(clientCtx)
-	params := &types.QueryMembershipsRequest{}
+	pageReq, err := client.ReadPageRequest(cmd.Flags())
+	if err != nil {
+		return err
+	}
+
+	params := &types.QueryMembershipsRequest{Pagination: pageReq}
 
 	res, err := queryClient.Memberships(context.Background(), params)
 	if err != nil {

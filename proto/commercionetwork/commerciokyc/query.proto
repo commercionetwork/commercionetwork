@@ -19,7 +19,7 @@ service Query {
 	}
 	// Queries a invite by address
 	rpc Invite(QueryInviteRequest) returns (QueryInviteResponse) {
-		option (google.api.http).get = "/commercionetwork/commerciokyc/invite/{address}";
+		option (google.api.http).get = "/commercionetwork/commerciokyc/{address}/invite";
 	}
 	// Queries a ivite by id.
 	// Queries all Tsp.
@@ -32,7 +32,7 @@ service Query {
 	}
 	// Queries a membership by address
 	rpc Membership(QueryMembershipRequest) returns (QueryMembershipResponse) {
-		option (google.api.http).get = "/commercionetwork/commerciokyc/membership/{address}";
+		option (google.api.http).get = "/commercionetwork/commerciokyc/{address}/membership";
 	}
 	// Queries funds of ABR
 	rpc Funds(QueryFundsRequest) returns (QueryFundsResponse) {
@@ -43,10 +43,12 @@ service Query {
 
 
 message QueryInvitesRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 message QueryInvitesResponse {
 	repeated Invite invites = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 
@@ -70,10 +72,12 @@ message QueryTspsResponse {
 
 
 message QueryMembershipsRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 message QueryMembershipsResponse {
 	repeated Membership memberships = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 

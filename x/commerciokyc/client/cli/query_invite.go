@@ -21,6 +21,7 @@ func CmdGetInvites() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "invites")
 
 	return cmd
 }
@@ -29,7 +30,13 @@ func getInvitesFunc(cmd *cobra.Command, args []string) error {
 	clientCtx := client.GetClientContextFromCmd(cmd)
 
 	queryClient := types.NewQueryClient(clientCtx)
-	params := &types.QueryInvitesRequest{}
+
+	pageReq, err := client.ReadPageRequest(cmd.Flags())
+	if err != nil {
+		return err
+	}
+
+	params := &types.QueryInvitesRequest{Pagination: pageReq}
 
 	res, err := queryClient.Invites(context.Background(), params)
 	if err != nil {
@@ -46,7 +53,7 @@ func CmdGetInvite() *cobra.Command {
 		Short: "Get user invite",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return getInvitesFunc(cmd, args)
+			return getInviteFunc(cmd, args)
 		},
 	}
 

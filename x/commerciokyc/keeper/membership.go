@@ -256,7 +256,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
 	if !IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
 		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-			fmt.Sprintf("membership not found for user \"%s\" has expired", user.String()),
+			fmt.Sprintf("membership for user \"%s\" has expired", user.String()),
 		)
 	}
 	return ms, nil
