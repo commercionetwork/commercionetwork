@@ -60,6 +60,23 @@ and we will send you some as soon as possible.
 Being your account address a Did, using the Commercio Network blockchain you can associate to it a Did Document containing the information that are related to your public (or private) identity.  
 In order to do so you will need to perform a transaction and so your account must have first received some tokens. 
 
+### Updating an identity
+
+Updating an `Identity` means appending to the blockchain store a new version of the DID document.
+The transaction used to associate a DID document can be used to update the Identity.
+
+<!---
+This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
+Cosmos SDK store considerations:
+- The key for storing an `Identity` is parameterized with the `ID` field of `DidDocument` (a `did:com:` address) and the `Updated` field of `Metadata` (timestamp). 
+- The resulting key will look like the following. `did:identities:[address]:[updated]:`
+- Since the value used for the `Updated` field is a timestamp guaranteed to be always increasing, then a store iterator with prefix `did:identities:[address]:` will retrieve values in ascending update order.
+- For the same reason, the last value obtained by the same iterator will be the last identity appended to the store. Cosmos SDK allows to obtain a `ReverseIterator` returning values in the opposite order and therefore its first value will be the last updated identity.
+- For a certain address only one update per block will persist, as a consequence of using the block time in the key.
+--->
+
+
+
 <!-- TODO: check Msg format with Document -->
 #### Transaction message
 In order to properly send a transaction to set a DID Document associating it to your identity, you will need to create and sign the following message:
@@ -116,8 +133,9 @@ In order to properly send a transaction to set a DID Document associating it to 
 }
 ```
 
-The message must inclue a DID document conform to the rules of Decentralized Identitfiers (DIDs) v1.0 plus additional rules defined by commercionetwork. 
+The message must include a DID document conform to the rules of Decentralized Identitfiers (DIDs) v1.0 plus additional rules defined by commercionetwork. 
 Please refer to [https://www.w3.org/TR/2021/PR-did-core-20210803/]() and to the following requirements.
+A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirements will be discarded.
 
 Fields that are NOT required can be omitted from the message.
 
@@ -128,7 +146,7 @@ Fields that are NOT required can be omitted from the message.
 | :---:                  | :------: | :---: |
 | `@context`             | Yes      |       |
 | `id`                   | Yes      |       |
-| `verificationMethod`   |          |       | 
+| `verificationMethod`   | Yes      |       | 
 | `authentication`       | No       |       |
 | `assertionMethod`      | No       |       |
 | `keyAgreement`         | No       |       |
@@ -144,7 +162,7 @@ Fields that are NOT required can be omitted from the message.
 | `controller`           | Yes      |       | 
 | `publicKeyMultiBase`   | Yes      |       | 
 
-`controller` must be equal to the DID document `id` field
+`controller` must be equal to the DID document `id` field.
 
 The `id` field supports both absolute and relative identifiers.
 Each key **must** have an `id` field defined by the concatenation of the content of the `id` field, along with a `#keys-NUMBER` suffix, where `NUMBER` must be an integer.
@@ -170,44 +188,21 @@ The `id` and `serviceEndpoint` fields must conform to the rules of RFC3986 for U
 Please refer to [https://datatracker.ietf.org/doc/html/rfc3986]().
 
 
-
-The `controller` key field must be equal to the `id` field content.
-
-The commercio.network blockchain requires at least two keys, defined in the following way:
-
- 
-
- 
-A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirements will be discarded.
-
-
-
-
-## Historicization 
-
-The `did` module has been updated to support the historicization of DID documents.
-
-Following the latest [W3C Decentralized Identifiers (DIDs) v1.0 specification](https://www.w3.org/TR/2021/PR-did-core-20210803/), a DID resolution with no additional options should result in the latest version of the DID document for a certain DID plus additional metadata.
-A DID document can be updated and its previous versions should remain accessible.
+## Query 
 
 In `commercionetwork`, an identity is represented as the history of DID document updates made by a certain address.
 
-Type `Identity` is made of two fields: 
-- `DidDocument` - the JSON-LD representation of a DID document
-- `Metadata` - with the `Created` and `Updated` timestamps
+Following the latest [W3C Decentralized Identifiers (DIDs) v1.0 specification](https://www.w3.org/TR/2021/PR-did-core-20210803/), a DID resolution with no additional options should result in the latest version of the DID document for a certain DID plus additional metadata.
+
+Querying for an `Identity` means asking for the most recent version of the `DidDocument`, along with the associated `Metadata`.
+The result will be an `Identity` made of two fields: 
+- `DidDocument` - the stored DID document JSON-LD representation
+- `Metadata` - including the `Created` and `Updated` timestamps
+
+## Historicization
+
+The `did` module has been updated to support the historicization of DID documents.
+A DID document can be updated and its previous versions should remain accessible.
 
 Querying for an `IdentityHistory` means asking for the list of updates to an `Identity`, sorted in chronological order.
 
-Querying for an `Identity` means asking for the most recent version of the `DidDocument`, along with the associated `Metadata`.
-
-Updating an `Identity` means appending to the blockchain store a new version of the DID document.
-
-<!---
-This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
-Cosmos SDK store considerations:
-- The key for storing an `Identity` is parameterized with the `ID` field of `DidDocument` (a `did:com:` address) and the `Updated` field of `Metadata` (timestamp). 
-- The resulting key will look like the following. `did:identities:[address]:[updated]:`
-- Since the value used for the `Updated` field is a timestamp guaranteed to be always increasing, then a store iterator with prefix `did:identities:[address]:` will retrieve values in ascending update order.
-- For the same reason, the last value obtained by the same iterator will be the last identity appended to the store. Cosmos SDK allows to obtain a `ReverseIterator` returning values in the opposite order and therefore its first value will be the last updated identity.
-- For a certain address only one update per block will persist, as a consequence of using the block time in the key.
---->
