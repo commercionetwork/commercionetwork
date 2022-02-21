@@ -25,6 +25,11 @@ tx did set-identity [did_document_proposal_path]
 query did show-identity [did]
 ```
 
+### Parameters  
+| Parameter | Description |
+| :-------: | :---------- | 
+| `did` | Address of the user for which to read the Did Document |
+
 #### REST
 
 Endpoint:
