@@ -9,8 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const stakeToken = "ucommercio"
-
 var params = types.Params{
 	DistrEpochIdentifier: types.EpochDay,
 	EarnRate:             sdk.NewDecWithPrec(5, 1),
@@ -38,7 +36,7 @@ func TestMigrate(t *testing.T) {
 				v220GenState: v220vbr.GenesisState{
 					PoolAmount: sdk.DecCoins{
 						{
-							Denom:  stakeToken,
+							Denom:  types.BondDenom,
 							Amount: sdk.NewDec(1000000),
 						},
 					},
@@ -49,7 +47,7 @@ func TestMigrate(t *testing.T) {
 			want: &types.GenesisState{
 				PoolAmount: sdk.DecCoins{
 					{
-						Denom:  stakeToken,
+						Denom:  types.BondDenom,
 						Amount: sdk.NewDec(1000000),
 					},
 				},

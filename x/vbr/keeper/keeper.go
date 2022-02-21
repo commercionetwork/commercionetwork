@@ -16,7 +16,6 @@ import (
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
-	// this line is used by starport scaffolding # ibc/keeper/import
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"

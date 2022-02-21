@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	//"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,7 +12,7 @@ import (
 
 var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestAmount = sdk.NewCoins(sdk.Coin{
-	Denom:  "ucommercio",
+	Denom:  BondDenom,
 	Amount: sdk.NewInt(100),
 })
 
@@ -25,7 +24,7 @@ var msgIncrementsBRPool = MsgIncrementBlockRewardsPool{
 var msgIncrementsBrPoolNoFunds = MsgIncrementBlockRewardsPool{
 	Funder: TestFunder.String(),
 	Amount: sdk.NewCoins(sdk.Coin{
-		Denom:  "ucommercio",
+		Denom:  BondDenom,
 		Amount: sdk.NewInt(0),
 	}),
 }
@@ -71,22 +70,23 @@ func TestMsgIncrementBlockRewardsPool_GetSigners(t *testing.T) {
 
 	require.Equal(t, expected, actual)
 }
+
 // -------------------------
 // --- MsgSetParams
 // -------------------------
 var TestGov, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestEarnRate = sdk.NewDecWithPrec(5,1)
+var TestEarnRate = sdk.NewDecWithPrec(5, 1)
 
 var msgSetParams = MsgSetParams{
-	Government: TestGov.String(),
+	Government:           TestGov.String(),
 	DistrEpochIdentifier: EpochDay,
-	EarnRate: TestEarnRate,
+	EarnRate:             TestEarnRate,
 }
 
 var msgSetParamsNoEpochIdentifier = MsgSetParams{
-	Government: TestGov.String(),
+	Government:           TestGov.String(),
 	DistrEpochIdentifier: "",
-	EarnRate: TestEarnRate,
+	EarnRate:             TestEarnRate,
 }
 
 func TestMsgSetParams_Route(t *testing.T) {
