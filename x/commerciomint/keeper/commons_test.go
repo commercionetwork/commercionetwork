@@ -96,13 +96,12 @@ func SetupMsgServer() (context.Context, bankKeeper.Keeper, governmentKeeper.Keep
 // --- Test variables
 // ----------------------
 
-var testLiquidityDenom = "ucommercio"
 var testEtpOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var ownerAnother, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
 var government = ownerAnother
 
 var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
-var halfCoinSub = sdk.NewCoin("uccc", sdk.NewInt(10))
+var halfCoinSub = sdk.NewCoin(types.CreditsDenom, sdk.NewInt(10))
 
 var testEtp = types.NewPosition(
 	testEtpOwner,
@@ -119,7 +118,7 @@ var validParams = types.Params{
 }
 
 var validDepositCoin = sdk.NewCoin(types.CreditsDenom, sdk.NewInt(50))
-var inValidDepositCoin = sdk.NewCoin("ucommercio", sdk.NewInt(10))
+var inValidDepositCoin = sdk.NewCoin(types.BondDenom, sdk.NewInt(10))
 var validBurnCoin = inValidDepositCoin
 var inValidBurnCoin = validDepositCoin
 var validConversionRate = sdk.NewDec(2)
@@ -130,7 +129,7 @@ var zeroUCCC = sdk.NewCoin(types.CreditsDenom, sdk.ZeroInt())
 var validFreezePeriod time.Duration = 0
 var invalidFreezePeriod = -time.Minute
 
-var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(testLiquidityDenom, 10000))
+var testLiquidityPool = sdk.NewCoins(sdk.NewInt64Coin(types.BondDenom, 10000))
 
 var testEtp1, testEtp2, testEtpAnotherOwner types.Position
 

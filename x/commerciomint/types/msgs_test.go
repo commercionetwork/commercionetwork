@@ -9,7 +9,7 @@ import (
 )
 
 func TestMsgBasics(t *testing.T) {
-	coinPos := sdk.NewCoin("uccc", sdk.NewInt(1))
+	coinPos := sdk.NewCoin(CreditsDenom, sdk.NewInt(1))
 	exchangeRate := sdk.NewDec(1)
 	position := Position{
 		"1",
@@ -35,11 +35,11 @@ func TestMsgBasics(t *testing.T) {
 
 func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
-	coinPos := sdk.NewCoin("uccc", sdk.NewInt(1))
+	coinPos := sdk.NewCoin(CreditsDenom, sdk.NewInt(1))
 	exchangeRate := sdk.NewDec(1)
 	position := Position{"", 10, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.Error(t, NewMsgMintCCC(position).ValidateBasic())
-	//require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
+	//require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin(CreditsDenom, 100)), uuid).ValidateBasic())
 	//coinPos = sdk.NewCoin("denom", sdk.NewInt(0))
 	position = Position{testOwner.String(), 0, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.Error(t, NewMsgMintCCC(position).ValidateBasic())
@@ -60,13 +60,13 @@ func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 
 	position = Position{testOwner.String(), 10, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.NoError(t, NewMsgMintCCC(position).ValidateBasic())
-	//require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("uccc", 100)), uuid).ValidateBasic())
+	//require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin(CreditsDenom, 100)), uuid).ValidateBasic())
 }
 
 func TestMsgBurnCCC_ValidateBasic(t *testing.T) {
 	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
-	require.Error(t, NewMsgBurnCCC(nil, uuid, sdk.NewCoin("uccc", sdk.NewInt(100))).ValidateBasic())
+	require.Error(t, NewMsgBurnCCC(nil, uuid, sdk.NewCoin(CreditsDenom, sdk.NewInt(100))).ValidateBasic())
 	require.Error(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin("atom", sdk.NewInt(100))).ValidateBasic())
-	require.Error(t, NewMsgBurnCCC(testOwner, "", sdk.NewCoin("uccc", sdk.NewInt(100))).ValidateBasic())
-	require.NoError(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin("uccc", sdk.NewInt(100))).ValidateBasic())
+	require.Error(t, NewMsgBurnCCC(testOwner, "", sdk.NewCoin(CreditsDenom, sdk.NewInt(100))).ValidateBasic())
+	require.NoError(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin(CreditsDenom, sdk.NewInt(100))).ValidateBasic())
 }

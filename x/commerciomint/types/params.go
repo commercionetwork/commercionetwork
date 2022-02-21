@@ -15,10 +15,6 @@ var (
 	KeyFreezePeriod                     = []byte("FreezePeriod")
 )
 
-const (
-	DefaultCreditsDenom = "uccc"
-)
-
 // ParamKeyTable for commerciomint module.
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})

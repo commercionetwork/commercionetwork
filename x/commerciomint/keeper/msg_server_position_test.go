@@ -61,7 +61,7 @@ func Test_msgServer_MintCCC(t *testing.T) {
 			if !tt.wantErr {
 				ownerAddr, err := sdk.AccAddressFromBech32(tt.args.msg.Depositor)
 				require.NoError(t, err)
-				err = bk.AddCoins(sdk.UnwrapSDKContext(wctx), ownerAddr, sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 200)))
+				err = bk.AddCoins(sdk.UnwrapSDKContext(wctx), ownerAddr, sdk.NewCoins(sdk.NewInt64Coin(types.BondDenom, 200)))
 				require.NoError(t, err)
 			}
 
