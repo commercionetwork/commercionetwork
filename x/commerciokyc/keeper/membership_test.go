@@ -1,16 +1,14 @@
-package keeper_test
+package keeper
 
 import (
 	"fmt"
 	"testing"
 	"time"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_AssignMembership(t *testing.T) {
@@ -212,7 +210,7 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		/*{
 			name:      "Account has not sufficient funds (pool is small then expected reward)",
 			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
-			pool:      sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(10000000))),
+			pool:      sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10000000))),
 			mustError: true,
 			//expectedError: sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens"),
 			// could not move collateral amount to module account, 43478261ucommercio is smaller than 100000001ucommercio: insufficient funds
@@ -220,10 +218,10 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		{
 			name:                 "Account correctly rewarded",
 			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
-			pool:                 sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000000000000))),
+			pool:                 sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000000000000))),
 			expectedInviteStatus: int64(types.InviteStatusRewarded),
 			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, sdk.NewInt(1750000000))),
-			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(998775000000))),
+			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(998775000000))),
 			mustError:            false,
 		},
 	}
@@ -394,7 +392,7 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 			for ; i.Valid(); i.Next() {
 				//m := k.ExtractMembership(i.Value())
 				var m types.Membership
-				k.Cdc.MustUnmarshalBinaryBare(i.Value(), &m)
+				k.cdc.MustUnmarshalBinaryBare(i.Value(), &m)
 				require.Contains(t, test.storedMemberships, m)
 			}
 		})
@@ -410,7 +408,7 @@ func TestKeeper_ComputeExpiryHeight(t *testing.T) {
 	}{
 		{
 			name:               "Compute expiry",
-			expectedExpiration: currentTime.Add(SecondsPerYear),
+			expectedExpiration: currentTime.Add(secondsPerYear),
 			curTime:            currentTime,
 		},
 	}
@@ -487,6 +485,51 @@ func TestKeeper_GetTspMemberships(t *testing.T) {
 			}
 			ms := k.GetTspMemberships(ctx, test.tsp)
 			require.Equal(t, test.expetedMemberships, ms)
+		})
+	}
+}
+
+func TestIsValidMembership(t *testing.T) {
+	type args struct {
+		expiredAt time.Time
+		mt        string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Expired membership return error",
+			args: args{
+				expiredAt: time.Now(),
+				mt:        types.MembershipTypeBronze,
+			},
+			want: false,
+		},
+		{
+			name: "Black membership is always valid",
+			args: args{
+				expiredAt: time.Now(),
+				mt:        types.MembershipTypeBlack,
+			},
+			want: true,
+		},
+		{
+			name: "Valid membership",
+			args: args{
+				expiredAt: time.Now().Add(time.Hour * 24),
+				mt:        types.MembershipTypeBlack,
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, _, _, _ := SetupTestInput()
+			if got := IsValidMembership(ctx, tt.args.expiredAt, tt.args.mt); got != tt.want {
+				t.Errorf("IsValidMembership() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

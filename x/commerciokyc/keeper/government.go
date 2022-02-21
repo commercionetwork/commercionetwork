@@ -18,14 +18,14 @@ const (
 // AddTrustedServiceProvider allows to add the given signer as a trusted entity
 // that can sign transactions setting an accrediter for a user.
 func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, inserted := signers.AppendIfMissing(tsp.String()); inserted {
 		trustedServiceProviders.Addresses = signersNew
-		newSignersBz, _ := k.Cdc.MarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz, _ := k.cdc.MarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 
 	}
@@ -40,14 +40,14 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 // RemoveTrustedServiceProvider allows to remove the given tsp from trusted entity
 // list that can sign transactions setting an accrediter for a user.
 func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, find := signers.RemoveIfExisting(tsp.String()); find {
 		trustedServiceProviders.Addresses = signersNew
-		newSignersBz := k.Cdc.MustMarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz := k.cdc.MustMarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
 
@@ -87,10 +87,10 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
 // be allowed to send a transaction setting an accrediter for another user.
 func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.TrustedServiceProviders) {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.Cdc.UnmarshalBinaryBare(signersBz, &signers)
+	k.cdc.UnmarshalBinaryBare(signersBz, &signers)
 
 	//k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 	// Cannot use add govAddress: trust service provider doesn't work proprerly

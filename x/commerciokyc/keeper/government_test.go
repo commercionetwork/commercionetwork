@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	"testing"
@@ -132,10 +132,10 @@ func TestKeeper_IsTrustedServiceProvider(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, gk, k := SetupTestInput()
 
-			store := ctx.KVStore(k.StoreKey)
+			store := ctx.KVStore(k.storeKey)
 			if !test.tsps.Empty() {
 				tspsToTest := types.TrustedServiceProviders{Addresses: test.tsps}
-				store.Set([]byte(types.TrustedSignersStoreKey), k.Cdc.MustMarshalBinaryBare(&tspsToTest))
+				store.Set([]byte(types.TrustedSignersStoreKey), k.cdc.MustMarshalBinaryBare(&tspsToTest))
 			}
 			_ = gk.SetGovernmentAddress(ctx, test.govAddr)
 
@@ -199,20 +199,20 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 		{
 			name:      "Insufficient funds of user",
 			depositor: testUser,
-			amount:    sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000000000000000000))),
+			amount:    sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000000000000000000))),
 			wantErr:   true,
 		},
 		{
 			name:      "Correct deposit into pool",
 			depositor: testUser,
-			amount:    sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1))),
+			amount:    sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1))),
 			wantErr:   false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
-			k.GetBankKeeper().AddCoins(ctx, testUser, sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(10))))
+			k.bankKeeper.AddCoins(ctx, testUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10))))
 			if err := k.DepositIntoPool(ctx, tt.depositor, tt.amount); (err != nil) != tt.wantErr {
 				t.Errorf("Keeper.DepositIntoPool() error = %v, wantErr %v", err, tt.wantErr)
 			}

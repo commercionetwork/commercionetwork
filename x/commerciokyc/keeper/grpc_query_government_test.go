@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	gocontext "context"
@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestGRPCFunds() {
 	app := suite.app
 	ctx := suite.ctx
 
-	coins := sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000)))
+	coins := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000)))
 	app.CommercioKycKeeper.SetLiquidityPoolToAccount(ctx, coins)
 
 	var req *types.QueryFundsRequest

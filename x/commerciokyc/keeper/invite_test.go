@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	"fmt"
@@ -27,6 +27,12 @@ func TestKeeper_InviteUser(t *testing.T) {
 			error:          fmt.Sprintf("%s has already been invited: unknown request", testUser),
 		},
 		{
+			name:   "Invitation without membership returns error",
+			invite: types.NewInvite(testUser2, testUser, "bronze"),
+			error:  fmt.Sprintf("Cannot send an invitation without having a membership: membership not found for user \"%s\": unknown request: unauthorized", testUser2),
+		},
+
+		{
 			name:              "New invite works properly",
 			inviterMembership: "gold",
 			invite:            types.NewInvite(testInviteSender, testUser, "gold"),
@@ -37,10 +43,10 @@ func TestKeeper_InviteUser(t *testing.T) {
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
 
-		store := ctx.KVStore(k.StoreKey)
+		store := ctx.KVStore(k.storeKey)
 
 		if !test.existingInvite.Empty() {
-			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.Cdc.MustMarshalBinaryBare(&test.existingInvite))
+			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.cdc.MustMarshalBinaryBare(&test.existingInvite))
 		}
 
 		test_invite_User, _ := sdk.AccAddressFromBech32(test.invite.User)
@@ -60,7 +66,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 
 		var invite types.Invite
 		accreditationBz := store.Get([]byte(types.InviteStorePrefix + testUser.String()))
-		k.Cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
+		k.cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
 		require.Equal(t, test.expected, invite)
 	}
 }
@@ -97,10 +103,10 @@ func TestKeeper_GetInvite(t *testing.T) {
 
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
-		store := ctx.KVStore(k.StoreKey)
+		store := ctx.KVStore(k.storeKey)
 
 		if !test.storedInvite.Empty() {
-			store.Set([]byte(types.InviteStorePrefix+test.storedInvite.User), k.Cdc.MustMarshalBinaryBare(&test.storedInvite))
+			store.Set([]byte(types.InviteStorePrefix+test.storedInvite.User), k.cdc.MustMarshalBinaryBare(&test.storedInvite))
 		}
 
 		actual, found := k.GetInvite(ctx, test.user)
@@ -189,10 +195,10 @@ func TestKeeper_GetInvites(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
-			store := ctx.KVStore(k.StoreKey)
+			store := ctx.KVStore(k.storeKey)
 
 			for _, invite := range test.stored {
-				store.Set([]byte(types.InviteStorePrefix+invite.User), k.Cdc.MustMarshalBinaryBare(invite))
+				store.Set([]byte(types.InviteStorePrefix+invite.User), k.cdc.MustMarshalBinaryBare(invite))
 			}
 
 			actual := k.GetInvites(ctx)

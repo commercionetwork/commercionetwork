@@ -1,14 +1,12 @@
-package keeper_test
+package keeper
 
 import (
-	//"context"
 	"reflect"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
@@ -59,11 +57,11 @@ func Test_msgServer_InviteUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, bk, _, k := SetupTestInput()
-			msg := keeper.NewMsgServerImpl(k)
+			msg := NewMsgServerImpl(k)
 
 			if tt.existingUser {
 				require.NoError(t,
-					bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1)))),
+					bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
 				)
 			}
 

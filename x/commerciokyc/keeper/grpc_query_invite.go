@@ -16,7 +16,7 @@ import (
 func (k Keeper) Invites(c context.Context, req *types.QueryInvitesRequest) (*types.QueryInvitesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	var invites []*types.Invite
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	invitesStore := prefix.NewStore(store, []byte(types.InviteStorePrefix))
 
 	pageRes, err := query.Paginate(
@@ -24,7 +24,7 @@ func (k Keeper) Invites(c context.Context, req *types.QueryInvitesRequest) (*typ
 		req.Pagination,
 		func(key []byte, value []byte) error {
 			invite := types.Invite{}
-			k.Cdc.MustUnmarshalBinaryBare(value, &invite)
+			k.cdc.MustUnmarshalBinaryBare(value, &invite)
 			invites = append(invites, &invite)
 			return nil
 		},
