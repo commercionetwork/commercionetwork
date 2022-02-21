@@ -92,3 +92,26 @@ http://localhost:1317/commercionetwork/did/identities/did:com:18h03de6awcjk4u9ga
   }
 }
 ```
+
+### Showing the history of updates to an identity
+
+#### CLI
+
+```sh
+query did show-history [did]
+```
+
+### Parameters  
+| Parameter | Description |
+| :-------: | :---------- | 
+| `did` | Address of the user for which to read the history of Did Document updates|
+
+#### REST
+
+Endpoint:
+   
+```
+/commercionetwork/did/identities/{did}/history
+```
+
+##### Example
