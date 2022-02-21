@@ -6,8 +6,6 @@ order: 1
 
 ## `Identity`
 
-An identity consists of a DID document and metadata.
-
 ```
 message Identity {
   DidDocument didDocument = 1;
@@ -16,8 +14,6 @@ message Identity {
 ```
 
 ## `DidDocument`
-
-A DID document consists of 
 
 ```
 message DidDocument {
