@@ -13,13 +13,13 @@ service Query {
   // Queries a DidDocument by id.
   rpc Identity(QueryResolveIdentityRequest)
       returns (QueryResolveIdentityResponse) {
-    option (google.api.http).get = "/commercionetwork/did/identities/{ID}";
+    option (google.api.http).get = "/commercionetwork/did/{ID}/identities";
   }
 
   rpc IdentityHistory(QueryResolveIdentityHistoryRequest)
       returns (QueryResolveIdentityHistoryResponse) {
     option (google.api.http).get =
-        "/commercionetwork/did/identities/history/{ID}";
+        "/commercionetwork/did/{ID}/identities/history";
   }
 
   // this line is used by starport scaffolding # 2

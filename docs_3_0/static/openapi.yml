@@ -597,80 +597,79 @@ paths:
           type: boolean
       tags:
         - Query
-  '/commercionetwork/did/identities/history/{ID}':
+  '/commercionetwork/did/{ID}/identities':
     get:
-      operationId: CommercionetworkCommercionetworkDidIdentityHistory
+      summary: Queries a DidDocument by id.
+      operationId: CommercionetworkCommercionetworkDidIdentity
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              identities:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    didDocument:
-                      type: object
-                      properties:
-                        context:
-                          type: array
-                          items:
-                            type: string
-                        ID:
+              identity:
+                type: object
+                properties:
+                  didDocument:
+                    type: object
+                    properties:
+                      context:
+                        type: array
+                        items:
                           type: string
-                        verificationMethod:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              ID:
-                                type: string
-                              Type:
-                                type: string
-                              Controller:
-                                type: string
-                              publicKeyMultibase:
-                                type: string
-                        authentication:
-                          type: array
-                          items:
-                            type: string
-                        assertionMethod:
-                          type: array
-                          items:
-                            type: string
-                        keyAgreement:
-                          type: array
-                          items:
-                            type: string
-                        capabilityInvocation:
-                          type: array
-                          items:
-                            type: string
-                        capabilityDelegation:
-                          type: array
-                          items:
-                            type: string
-                        service:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              ID:
-                                type: string
-                              type:
-                                type: string
-                              serviceEndpoint:
-                                type: string
-                    metadata:
-                      type: object
-                      properties:
-                        created:
+                      ID:
+                        type: string
+                      verificationMethod:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            ID:
+                              type: string
+                            Type:
+                              type: string
+                            Controller:
+                              type: string
+                            publicKeyMultibase:
+                              type: string
+                      authentication:
+                        type: array
+                        items:
                           type: string
-                        updated:
+                      assertionMethod:
+                        type: array
+                        items:
                           type: string
+                      keyAgreement:
+                        type: array
+                        items:
+                          type: string
+                      capabilityInvocation:
+                        type: array
+                        items:
+                          type: string
+                      capabilityDelegation:
+                        type: array
+                        items:
+                          type: string
+                      service:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            ID:
+                              type: string
+                            type:
+                              type: string
+                            serviceEndpoint:
+                              type: string
+                  metadata:
+                    type: object
+                    properties:
+                      created:
+                        type: string
+                      updated:
+                        type: string
         default:
           description: An unexpected error response.
           schema:
@@ -863,79 +862,80 @@ paths:
           type: string
       tags:
         - Query
-  '/commercionetwork/did/identities/{ID}':
+  '/commercionetwork/did/{ID}/identities/history':
     get:
-      summary: Queries a DidDocument by id.
-      operationId: CommercionetworkCommercionetworkDidIdentity
+      operationId: CommercionetworkCommercionetworkDidIdentityHistory
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              identity:
-                type: object
-                properties:
-                  didDocument:
-                    type: object
-                    properties:
-                      context:
-                        type: array
-                        items:
+              identities:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    didDocument:
+                      type: object
+                      properties:
+                        context:
+                          type: array
+                          items:
+                            type: string
+                        ID:
                           type: string
-                      ID:
-                        type: string
-                      verificationMethod:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            ID:
-                              type: string
-                            Type:
-                              type: string
-                            Controller:
-                              type: string
-                            publicKeyMultibase:
-                              type: string
-                      authentication:
-                        type: array
-                        items:
+                        verificationMethod:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              ID:
+                                type: string
+                              Type:
+                                type: string
+                              Controller:
+                                type: string
+                              publicKeyMultibase:
+                                type: string
+                        authentication:
+                          type: array
+                          items:
+                            type: string
+                        assertionMethod:
+                          type: array
+                          items:
+                            type: string
+                        keyAgreement:
+                          type: array
+                          items:
+                            type: string
+                        capabilityInvocation:
+                          type: array
+                          items:
+                            type: string
+                        capabilityDelegation:
+                          type: array
+                          items:
+                            type: string
+                        service:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              ID:
+                                type: string
+                              type:
+                                type: string
+                              serviceEndpoint:
+                                type: string
+                    metadata:
+                      type: object
+                      properties:
+                        created:
                           type: string
-                      assertionMethod:
-                        type: array
-                        items:
+                        updated:
                           type: string
-                      keyAgreement:
-                        type: array
-                        items:
-                          type: string
-                      capabilityInvocation:
-                        type: array
-                        items:
-                          type: string
-                      capabilityDelegation:
-                        type: array
-                        items:
-                          type: string
-                      service:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            ID:
-                              type: string
-                            type:
-                              type: string
-                            serviceEndpoint:
-                              type: string
-                  metadata:
-                    type: object
-                    properties:
-                      created:
-                        type: string
-                      updated:
-                        type: string
         default:
           description: An unexpected error response.
           schema:
