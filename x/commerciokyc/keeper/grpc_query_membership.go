@@ -15,7 +15,7 @@ import (
 
 func (k Keeper) Memberships(c context.Context, req *types.QueryMembershipsRequest) (*types.QueryMembershipsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	var memberships []*types.Membership
+	memberships := []*types.Membership{}
 	store := ctx.KVStore(k.storeKey)
 	membershipsStore := prefix.NewStore(store, []byte(types.MembershipsStorageKey))
 

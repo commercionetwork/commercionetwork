@@ -15,7 +15,7 @@ import (
 
 func (k Keeper) Invites(c context.Context, req *types.QueryInvitesRequest) (*types.QueryInvitesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	var invites []*types.Invite
+	invites := []*types.Invite{}
 	store := ctx.KVStore(k.storeKey)
 	invitesStore := prefix.NewStore(store, []byte(types.InviteStorePrefix))
 
