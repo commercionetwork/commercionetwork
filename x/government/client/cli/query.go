@@ -22,7 +22,6 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	// this line is used by starport scaffolding # 1
 	cmd.AddCommand(
 		CmdGetGovernmentAddr(),
 	)

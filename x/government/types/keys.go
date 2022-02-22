@@ -16,7 +16,7 @@ const (
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "mem_" + ModuleName
 
-	// this line is used by starport scaffolding # ibc/keys/name
+	// State store key
 	GovernmentStoreKey     = StoreKey + "government"
 	QueryGovernmentAddress = "governmentAddress"
 )

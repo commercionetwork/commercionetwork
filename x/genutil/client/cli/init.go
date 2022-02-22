@@ -140,7 +140,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 					return err
 				}
 
-				genState, err := SetGovernmentAddress(appState, address)
+				genState, err := SetGovernmentAddress(clientCtx, appState, address)
 				if err != nil {
 					return err
 				}
