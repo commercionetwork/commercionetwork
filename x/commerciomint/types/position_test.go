@@ -18,7 +18,7 @@ var testOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50a
 var testEtp = NewPosition(
 	testOwner,
 	sdk.NewInt(100),
-	sdk.NewCoin("uccc", sdk.NewInt(50)),
+	sdk.NewCoin(CreditsDenom, sdk.NewInt(50)),
 	"E95613F1-8407-4B28-9B66-25AB5F4A5FD9",
 	testCreatedAt,
 	sdk.NewDec(2),
@@ -164,8 +164,8 @@ func TestPosition_Equals(t *testing.T) {
 	}
 }
 
-var validDepositCoin = sdk.NewCoin("uccc", sdk.NewInt(50))
-var inValidDenomDepositCoin = sdk.NewCoin("ucommercio", sdk.NewInt(10))
+var validDepositCoin = sdk.NewCoin(CreditsDenom, sdk.NewInt(50))
+var inValidDenomDepositCoin = sdk.NewCoin(BondDenom, sdk.NewInt(10))
 
 func TestValidateDeposit(t *testing.T) {
 	type args struct {

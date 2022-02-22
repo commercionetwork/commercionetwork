@@ -43,7 +43,7 @@ func TestMigrate(t *testing.T) {
 							Owner:      testUser01,
 							Collateral: sdk.NewInt(10),
 							Credits: sdk.Coin{
-								Denom:  "ucommerico",
+								Denom:  v220commerciomint.BondDenom,
 								Amount: sdk.NewInt(5),
 							},
 							CreatedAt:    cAt01,
@@ -54,7 +54,7 @@ func TestMigrate(t *testing.T) {
 							Owner:      testUser02,
 							Collateral: sdk.NewInt(1000),
 							Credits: sdk.Coin{
-								Denom:  "ucommerico",
+								Denom:  v220commerciomint.BondDenom,
 								Amount: sdk.NewInt(500),
 							},
 							CreatedAt:    cAt02,
@@ -64,7 +64,7 @@ func TestMigrate(t *testing.T) {
 					},
 					LiquidityPoolAmount: sdk.Coins{
 						sdk.Coin{
-							Denom:  "ucommercio",
+							Denom:  v220commerciomint.BondDenom,
 							Amount: sdk.NewInt(1000000),
 						},
 					},
@@ -78,7 +78,7 @@ func TestMigrate(t *testing.T) {
 						Owner:      testUser01.String(),
 						Collateral: 10,
 						Credits: &sdk.Coin{
-							Denom:  "ucommerico",
+							Denom:  types.BondDenom,
 							Amount: sdk.NewInt(5),
 						},
 						CreatedAt:    &cAt01,
@@ -89,7 +89,7 @@ func TestMigrate(t *testing.T) {
 						Owner:      testUser02.String(),
 						Collateral: 1000,
 						Credits: &sdk.Coin{
-							Denom:  "ucommerico",
+							Denom:  types.BondDenom,
 							Amount: sdk.NewInt(500),
 						},
 						CreatedAt:    &cAt02,
@@ -99,7 +99,7 @@ func TestMigrate(t *testing.T) {
 				},
 				PoolAmount: sdk.Coins{
 					sdk.Coin{
-						Denom:  "ucommercio",
+						Denom:  types.BondDenom,
 						Amount: sdk.NewInt(1000000),
 					},
 				},

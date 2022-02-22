@@ -3,12 +3,13 @@ package v2_2_0
 import (
 	"time"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
-	ModuleName = types.ModuleName
+	ModuleName   = "commerciomint"
+	BondDenom    = "ucommercio"
+	CreditsDenom = "uccc"
 )
 
 type Position struct {

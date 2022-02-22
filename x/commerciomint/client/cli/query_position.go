@@ -22,6 +22,7 @@ func CmdGetEtps() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "etpsbyowner")
 
 	return cmd
 }
@@ -83,6 +84,7 @@ func CmdGetAllEtps() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "etps")
 
 	return cmd
 }

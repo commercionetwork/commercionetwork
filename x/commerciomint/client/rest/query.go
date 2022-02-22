@@ -15,15 +15,14 @@ const (
 )
 
 func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
-	// TODO check the following
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/{%s}/etp", restuser),
+		fmt.Sprintf("/commerciomint/{%s}/etp", restuser),
 		getEtpsHandler(cliCtx)).Methods("GET")
 	r.HandleFunc(
-		fmt.Sprintf("/commercionetwork/{%s}/etpsOwner", restuser),
+		fmt.Sprintf("/commerciomint/{%s}/etpsOwner", restuser),
 		getEtpsByOwnerHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commercionetwork/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commercionetwork/params", getParamsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commerciomint/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commerciomint/params", getParamsHandler(cliCtx)).Methods("GET")
 }
 
 // ----------------------------------

@@ -85,7 +85,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 	if err != nil {
 		return err
 	}
-	ucccRequested := deposit.AmountOf("uccc")
+	ucccRequested := deposit.AmountOf(types.CreditsDenom)
 	if ucccRequested.IsZero() {
 		return fmt.Errorf("no %s requested", types.CreditsDenom)
 	}
@@ -98,7 +98,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 	// Create ucccEmitted token
 	ucccEmitted := sdk.NewCoin(types.CreditsDenom, ucccRequested)
 
-	ucomAmount := sdk.NewCoin("ucommercio", ucommercioAmount)
+	ucomAmount := sdk.NewCoin(types.BondDenom, ucommercioAmount)
 
 	// Create the ETP and validate it
 	position := types.NewPosition(
