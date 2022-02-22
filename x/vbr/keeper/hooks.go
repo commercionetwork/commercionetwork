@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k Keeper) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
@@ -20,6 +20,8 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 			reward := k.ComputeProposerReward(ctx, valNumber, validator, k.stakingKeeper.BondDenom(ctx), params)
 
 			// Distribute the reward to the block proposer
+			// TODO: Don't panic if pool is empty or not enough to distribute something
+			// _ = k.DistributeBlockRewards(ctx, validator, reward)
 			if err := k.DistributeBlockRewards(ctx, validator, reward); err != nil {
 				panic(err)
 			}

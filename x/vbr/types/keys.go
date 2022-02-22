@@ -5,7 +5,7 @@ const (
 	StoreKey     = ModuleName
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
-	MemStoreKey  = "mem_vbr"
+	MemStoreKey  = "mem_" + ModuleName
 
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 	MsgTypeSetParams                 = "setParams"
@@ -25,6 +25,7 @@ const (
 
 // this line is used by starport scaffolding # ibc/keys/port
 
-func KeyPrefix(p string) []byte {
+// TODO: use KeyPrefix function if needed
+/* func KeyPrefix(p string) []byte {
 	return []byte(p)
-}
+}*/
