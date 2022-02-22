@@ -1,14 +1,12 @@
-package keeper_test
+package keeper
 
 import (
-	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -62,7 +60,7 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, bk, _, k := SetupTestInput()
 
-			msg := keeper.NewMsgServerImpl(k)
+			msg := NewMsgServerImpl(k)
 			_ = bk
 			_ = msg
 			_ = ctx
@@ -87,28 +85,50 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 }
 
 func Test_msgServer_RemoveMembership(t *testing.T) {
-
-	type args struct {
-		goCtx context.Context
-		msg   *types.MsgRemoveMembership
-	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *types.MsgRemoveMembershipResponse
-		wantErr bool
+		name               string
+		msg                *types.MsgRemoveMembership
+		membershipToCreate types.Membership
+		want               *types.MsgRemoveMembershipResponse
+		wantErr            bool
 	}{
-		// TODO: Add test cases.
-
+		{
+			name: "Remove membership is not from government doesn't work",
+			msg:  types.NewMsgRemoveMembership(testInviteSender.String(), testUser.String()),
+			membershipToCreate: types.NewMembership(
+				types.MembershipTypeBronze,
+				testUser,
+				testUser3,
+				time.Now(),
+			),
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Remove membership correctly works",
+			msg:  types.NewMsgRemoveMembership(testUser3.String(), testUser.String()),
+			membershipToCreate: types.NewMembership(
+				types.MembershipTypeBronze,
+				testUser,
+				testUser3,
+				time.Now().Add(time.Hour*1),
+			),
+			want: &types.MsgRemoveMembershipResponse{
+				Subscriber: testUser.String(),
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, bk, _, k := SetupTestInput()
+			ctx, _, _, k := SetupTestInput()
 
-			msg := keeper.NewMsgServerImpl(k)
-			_ = bk
+			msg := NewMsgServerImpl(k)
+			user, _ := sdk.AccAddressFromBech32(tt.membershipToCreate.Owner)
+			tsp, _ := sdk.AccAddressFromBech32(tt.membershipToCreate.TspAddress)
+			k.AssignMembership(ctx, user, tt.membershipToCreate.MembershipType, tsp, *tt.membershipToCreate.ExpiryAt)
 
-			got, err := msg.RemoveMembership(sdk.WrapSDKContext(ctx), tt.args.msg)
+			got, err := msg.RemoveMembership(sdk.WrapSDKContext(ctx), tt.msg)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("msgServer.RemoveMembership() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -122,25 +142,76 @@ func Test_msgServer_RemoveMembership(t *testing.T) {
 
 func Test_msgServer_SetMembership(t *testing.T) {
 
-	type args struct {
-		goCtx context.Context
-		msg   *types.MsgSetMembership
-	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *types.MsgSetMembershipResponse
-		wantErr bool
+		name        string
+		msg         *types.MsgSetMembership
+		invite      *types.Invite
+		want        *types.MsgSetMembershipResponse
+		senderIsGov bool
+		wantErr     bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "invited user gets black membership by government",
+			msg: &types.MsgSetMembership{
+				Government:    testUser3.String(),
+				Subscriber:    testUser.String(),
+				NewMembership: "black",
+			},
+			invite: &types.Invite{
+				Sender:           testUser3.String(),
+				User:             testUser.String(),
+				Status:           uint64(types.InviteStatusPending),
+				SenderMembership: types.MembershipTypeBlack,
+			},
+			want:        &types.MsgSetMembershipResponse{},
+			senderIsGov: true,
+			wantErr:     false,
+		},
+		{
+			name: "non-invited user gets black membership by government",
+			msg: &types.MsgSetMembership{
+				Government:    testUser3.String(),
+				Subscriber:    testUser.String(),
+				NewMembership: types.MembershipTypeBlack,
+			},
+			invite:      nil,
+			want:        &types.MsgSetMembershipResponse{},
+			senderIsGov: true,
+			wantErr:     false,
+		},
+		{
+			name: "invited, verified user doesn't get black membership because sender is not government",
+			msg: &types.MsgSetMembership{
+				Government:    testInviteSender.String(),
+				Subscriber:    testUser.String(),
+				NewMembership: "bronze",
+			},
+			invite: &types.Invite{
+				Sender:           testInviteSender.String(),
+				User:             testUser.String(),
+				Status:           uint64(types.InviteStatusPending),
+				SenderMembership: types.MembershipTypeBlack,
+			},
+			want:        nil,
+			senderIsGov: false,
+			wantErr:     true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, bk, _, k := SetupTestInput()
+			ctx, _, _, k := SetupTestInput()
+			government, _ := sdk.AccAddressFromBech32(tt.msg.Government)
+			_ = k.AssignMembership(ctx, government, types.MembershipTypeBlack, testTsp, testExpiration)
 
-			msg := keeper.NewMsgServerImpl(k)
-			_ = bk
-			got, err := msg.SetMembership(sdk.WrapSDKContext(ctx), tt.args.msg)
+			if tt.invite != nil {
+				k.SaveInvite(ctx, *tt.invite)
+			}
+			if tt.senderIsGov {
+				k.AddTrustedServiceProvider(ctx, government)
+			}
+			msg := NewMsgServerImpl(k)
+
+			got, err := msg.SetMembership(sdk.WrapSDKContext(ctx), tt.msg)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("msgServer.SetMembership() error = %v, wantErr %v", err, tt.wantErr)
 				return

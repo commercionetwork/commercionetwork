@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	"time"
@@ -19,18 +19,13 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
-const (
-	SecondsPerYear time.Duration = time.Hour * 24 * 365
-)
-
 // SetupTestInput function create an environment to test modules
-func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper.Keeper) {
+func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper) {
 
 	memDB := db.NewMemDB()
 	legacyAmino := codec.NewLegacyAmino()
@@ -70,7 +65,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
 
-	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin("ucommercio", 1))))
+	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1))))
 
 	//ak.SetModuleAccount(ctx, authTypes.NewEmptyModuleAccount(types.ModuleName))
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
@@ -82,14 +77,14 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, keeper
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
 
-	k := keeper.NewKeeper(
+	k := NewKeeper(
 		cdc,
 		keys[types.StoreKey],
 		keys[types.MemStoreKey],
 		bk, *govk, ak, *mk)
 
 	// TODO shall we drop the following?
-	k.MintKeeper.UpdateParams(ctx, validCommercioMintParams)
+	k.mintKeeper.UpdateParams(ctx, validCommercioMintParams)
 	// k.MintKeeper.UpdateConversionRate(ctx, sdk.NewDecWithPrec(7, 1))
 
 	k.GovKeeper.SetGovernmentAddress(ctx, testUser3)
@@ -115,12 +110,12 @@ var testUser, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sq
 var testUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxadpjz5d5psf")
 var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var testDenom = "ucommercio"
-var stableCreditDenom = "uccc"
+
+//var stableCreditDenom = "uccc"
 var testExpiration = time.Now().Add(time.Hour * 24 * 365).UTC()
 var testExpirationNegative = time.Now()
 var depositStableCoin = sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 50000000))
-var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(testDenom, 50000000))
+var depositTestCoin = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 50000000))
 var yearBlocks = int64(4733640)
 
 var testInviteSender, _ = sdk.AccAddressFromBech32("cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my")

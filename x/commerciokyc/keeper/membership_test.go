@@ -1,16 +1,14 @@
-package keeper_test
+package keeper
 
 import (
 	"fmt"
 	"testing"
 	"time"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
 )
 
 func TestKeeper_AssignMembership(t *testing.T) {
@@ -212,7 +210,7 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		/*{
 			name:      "Account has not sufficient funds (pool is small then expected reward)",
 			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
-			pool:      sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(10000000))),
+			pool:      sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10000000))),
 			mustError: true,
 			//expectedError: sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens"),
 			// could not move collateral amount to module account, 43478261ucommercio is smaller than 100000001ucommercio: insufficient funds
@@ -220,10 +218,10 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		{
 			name:                 "Account correctly rewarded",
 			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
-			pool:                 sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(1000000000000))),
+			pool:                 sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000000000000))),
 			expectedInviteStatus: int64(types.InviteStatusRewarded),
 			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, sdk.NewInt(1750000000))),
-			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(testDenom, sdk.NewInt(998775000000))),
+			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(998775000000))),
 			mustError:            false,
 		},
 	}
@@ -394,7 +392,7 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 			for ; i.Valid(); i.Next() {
 				//m := k.ExtractMembership(i.Value())
 				var m types.Membership
-				k.Cdc.MustUnmarshalBinaryBare(i.Value(), &m)
+				k.cdc.MustUnmarshalBinaryBare(i.Value(), &m)
 				require.Contains(t, test.storedMemberships, m)
 			}
 		})
@@ -410,7 +408,7 @@ func TestKeeper_ComputeExpiryHeight(t *testing.T) {
 	}{
 		{
 			name:               "Compute expiry",
-			expectedExpiration: currentTime.Add(SecondsPerYear),
+			expectedExpiration: currentTime.Add(secondsPerYear),
 			curTime:            currentTime,
 		},
 	}
@@ -426,49 +424,6 @@ func TestKeeper_ComputeExpiryHeight(t *testing.T) {
 		})
 	}
 }
-
-/*
-func TestKeeper_ExtractMembership(t *testing.T) {
-	tests := []struct {
-		name       string
-		key        []byte
-		value      []byte
-		membership types.Membership
-		mustFail   bool
-	}{
-		{
-			"a good membership",
-			[]byte{97, 99, 99, 114, 101, 100, 105, 116, 97, 116, 105, 111, 110, 115, 58, 115, 116, 111, 114, 97, 103, 101, 58, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239},
-			[]byte{10, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239, 18, 20, 251, 182, 16, 225, 99, 30, 161, 9, 143, 124, 32, 185, 74, 85, 162, 77, 31, 208, 217, 44, 26, 6, 98, 114, 111, 110, 122, 101, 32, 10},
-			types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
-			false,
-		},
-		{
-			// Da correggere
-			"a badly serialized membership",
-			[]byte{99, 99, 114, 101, 100, 105, 116, 97, 116, 105, 111, 110, 115, 58, 115, 116, 111, 114, 97, 103, 101, 58, 20, 153, 39, 56, 31, 38, 42, 65, 168, 74, 73, 145, 237, 226, 147, 118, 104, 171, 0, 46, 239},
-			[]byte{6, 114, 111, 110, 122, 101},
-			types.Membership{},
-			true,
-		},
-	}
-
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			_, _, _, k := SetupTestInput()
-			if !test.mustFail {
-				m := k.ExtractMembership(test.value)
-				require.Equal(t, test.membership, m)
-			} else {
-				require.Panics(t, func() {
-					_ = k.ExtractMembership(test.value)
-				})
-			}
-		})
-	}
-}
-*/
 
 func TestKeeper_GetTspMemberships(t *testing.T) {
 	tests := []struct {
@@ -534,44 +489,47 @@ func TestKeeper_GetTspMemberships(t *testing.T) {
 	}
 }
 
-func TestKeeper_ExportMemberships(t *testing.T) {
+func TestIsValidMembership(t *testing.T) {
+	type args struct {
+		expiredAt time.Time
+		mt        string
+	}
 	tests := []struct {
-		name                string
-		storedMemberships   types.Memberships
-		expectedMemberships types.Memberships
+		name string
+		args args
+		want bool
 	}{
 		{
-			name:                "Empty set is returned properly",
-			storedMemberships:   types.Memberships{},
-			expectedMemberships: types.Memberships{},
+			name: "Expired membership return error",
+			args: args{
+				expiredAt: time.Now(),
+				mt:        types.MembershipTypeBronze,
+			},
+			want: false,
 		},
-
 		{
-			name: "All memberships return all set",
-			storedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
+			name: "Black membership is always valid",
+			args: args{
+				expiredAt: time.Now(),
+				mt:        types.MembershipTypeBlack,
 			},
-			expectedMemberships: types.Memberships{
-				types.NewMembership(types.MembershipTypeBronze, testUser, testTsp, testExpiration),
-				types.NewMembership(types.MembershipTypeGold, testUser2, testTsp, testExpiration),
+			want: true,
+		},
+		{
+			name: "Valid membership",
+			args: args{
+				expiredAt: time.Now().Add(time.Hour * 24),
+				mt:        types.MembershipTypeBlack,
 			},
+			want: true,
 		},
 	}
-
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, k := SetupTestInput()
-
-			for _, m := range test.storedMemberships {
-				mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
-				mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
-				err := k.AssignMembership(ctx, mOwner, m.MembershipType, mTspAddress, *m.ExpiryAt)
-				require.NoError(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, _, _, _ := SetupTestInput()
+			if got := IsValidMembership(ctx, tt.args.expiredAt, tt.args.mt); got != tt.want {
+				t.Errorf("IsValidMembership() = %v, want %v", got, tt.want)
 			}
-			ms := k.ExportMemberships(ctx)
-			require.Equal(t, test.expectedMemberships, ms)
 		})
 	}
 }

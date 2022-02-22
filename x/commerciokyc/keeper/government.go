@@ -18,14 +18,14 @@ const (
 // AddTrustedServiceProvider allows to add the given signer as a trusted entity
 // that can sign transactions setting an accrediter for a user.
 func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, inserted := signers.AppendIfMissing(tsp.String()); inserted {
 		trustedServiceProviders.Addresses = signersNew
-		newSignersBz, _ := k.Cdc.MarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz, _ := k.cdc.MarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 
 	}
@@ -40,14 +40,14 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 // RemoveTrustedServiceProvider allows to remove the given tsp from trusted entity
 // list that can sign transactions setting an accrediter for a user.
 func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, find := signers.RemoveIfExisting(tsp.String()); find {
 		trustedServiceProviders.Addresses = signersNew
-		newSignersBz := k.Cdc.MustMarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz := k.cdc.MustMarshalBinaryBare(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
 
@@ -61,11 +61,10 @@ func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress
 // DepositIntoPool allows the depositor to deposit the specified amount inside the rewards pool
 func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amount sdk.Coins) error {
 	// Send the coins from the user wallet to the pool
-	bondDenom := "ucommercio"
 	var amountCoins sdk.Coins
 	for _, coin := range amount {
-		if coin.Denom != bondDenom { // TODO change with constant
-			return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf("deposit into membership pool can only be expressed in %s", bondDenom))
+		if coin.Denom != stakeDenom { // TODO change with constant
+			return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf("deposit into membership pool can only be expressed in %s", stakeDenom))
 		}
 		amountCoins = append(amountCoins, coin)
 	}
@@ -88,10 +87,10 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 // NOTE. Any user which is not present inside the returned list SHOULD NOT
 // be allowed to send a transaction setting an accrediter for another user.
 func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.TrustedServiceProviders) {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.Cdc.UnmarshalBinaryBare(signersBz, &signers)
+	k.cdc.UnmarshalBinaryBare(signersBz, &signers)
 
 	//k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
 	// Cannot use add govAddress: trust service provider doesn't work proprerly
@@ -104,12 +103,6 @@ func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bo
 	var signers ctypes.Strings
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	return signers.Contains(signer.String()) || signer.Equals(k.GovKeeper.GetGovernmentAddress(ctx))
-}
-
-// TspIterator returns an Iterator for all the tsps stored.
-func (k Keeper) TspIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.StoreKey)
-	return sdk.KVStorePrefixIterator(store, []byte(types.TrustedSignersStoreKey))
 }
 
 // GetPoolFunds returns the funds currently present inside the rewards pool

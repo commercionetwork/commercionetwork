@@ -22,7 +22,7 @@ func (k msgServer) InviteUser(goCtx context.Context, msg *types.MsgInviteUser) (
 	msgSender, _ := sdk.AccAddressFromBech32(msg.Sender)
 
 	// Try inviting the user
-	if err := k.Invite(ctx, msgRecipient, msgSender); err != nil {
+	if err := k.SetInvite(ctx, msgRecipient, msgSender); err != nil {
 		return nil, err
 	}
 	ctypes.EmitCommonEvents(ctx, msgSender)

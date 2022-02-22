@@ -15,6 +15,8 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case types.QueryGetPoolFunds:
 			return queryGetPoolFunds(ctx, req, k, legacyQuerierCdc)
+		case types.QueryGetInvite:
+			return queryGetInvite(ctx, path[1:], k, legacyQuerierCdc)
 		case types.QueryGetInvites:
 			return queryGetInvites(ctx, path[1:], k, legacyQuerierCdc)
 		case types.QueryGetTrustedServiceProviders:
@@ -58,12 +60,32 @@ func queryGetInvites(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 	return bz, nil
 }
 
+// queryGetMembership allows to retrieve the current membership of a user having a specified address
+func queryGetInvite(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	address, err := sdk.AccAddressFromBech32(path[0])
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, path[0])
+	}
+	// Search the membership
+	invite, found := keeper.GetInvite(ctx, address)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not find invitation")
+	}
+
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, invite)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+	}
+
+	return bz, nil
+}
+
 // queryGetSigners allows to retrieve the all current trust service providers
-func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
+func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	signers := keeper.GetTrustedServiceProviders(ctx)
 
-	bz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, signers)
-	if err2 != nil {
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, signers)
+	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
@@ -71,9 +93,9 @@ func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 }
 
 // queryGetMembership allows to retrieve the current membership of a user having a specified address
-func queryGetMembership(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
-	address, err2 := sdk.AccAddressFromBech32(path[0])
-	if err2 != nil {
+func queryGetMembership(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	address, err := sdk.AccAddressFromBech32(path[0])
+	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, path[0])
 	}
 	// Search the membership
@@ -82,8 +104,8 @@ func queryGetMembership(ctx sdk.Context, path []string, keeper Keeper, legacyQue
 		return nil, err
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, membership)
-	if err2 != nil {
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, membership)
+	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
@@ -91,7 +113,7 @@ func queryGetMembership(ctx sdk.Context, path []string, keeper Keeper, legacyQue
 }
 
 // queryGetMemberships allows to retrieve all the current membership
-func queryGetMemberships(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
+func queryGetMemberships(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	// Extract all memberships
 	var memberships []*types.Membership
 	memberships = keeper.GetMemberships(ctx)
@@ -106,9 +128,9 @@ func queryGetMemberships(ctx sdk.Context, _ []string, keeper Keeper, legacyQueri
 }
 
 // queryGetTspMemberships allows to retrieve all the current membership
-func queryGetTspMemberships(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
-	tsp, err2 := sdk.AccAddressFromBech32(path[0])
-	if err2 != nil {
+func queryGetTspMemberships(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	tsp, err := sdk.AccAddressFromBech32(path[0])
+	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, path[0])
 	}
 

@@ -3,9 +3,9 @@ package keeper
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -37,7 +37,7 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 	}
 
 	membershipPrice := membershipCosts[msg.MembershipType] * 1000000 // Always multiply by one million
-	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(types.CreditsDenom, membershipPrice))
+	membershipCost := sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, membershipPrice))
 
 	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	// TODO Not send coins but control if account has enough
@@ -132,24 +132,25 @@ func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembers
 		)
 	}
 
-	err = k.DistributeReward(ctx, invite)
-	if err != nil {
+	// Emits events if error occours. No transaction error
+	if err := k.DistributeReward(ctx, invite); err != nil {
+		// Emits events
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			eventDistributeRewardFail,
+			sdk.NewAttribute("error", err.Error()),
+		))
+	}
+	// Reward not distribuited doesn't return an arror
+	/*if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not distribute membership reward to user %s: %s", invite.Sender, err.Error()),
 		)
-	}
+	}*/
+
 	// TODO emits events
-	// ctypes.EmitCommonEvents(ctx, msg.Government)
+	ctypes.EmitCommonEvents(ctx, govAddr)
 	return &types.MsgSetMembershipResponse{}, err
 
-}
-
-// ComputeExpiryHeight compute expiry height of membership.
-func (k msgServer) ComputeExpiryHeight(blockTime time.Time) time.Time {
-	var secondsPerYear time.Duration
-	secondsPerYear = time.Hour * 24 * 365
-	expirationAt := blockTime.Add(secondsPerYear)
-	return expirationAt
 }
 
 // governmentInvitesUser makes government invite an user if it isn't already invited and validated.
@@ -167,7 +168,7 @@ func (k msgServer) governmentInvitesUser(ctx sdk.Context, user sdk.AccAddress) (
 	_ = govAddr
 	// otherwise, create an invite from the government
 	// TODO create invite
-	err := k.Invite(ctx, user, govAddr)
+	err := k.SetInvite(ctx, user, govAddr)
 	if err != nil {
 		return types.Invite{}, err
 	}

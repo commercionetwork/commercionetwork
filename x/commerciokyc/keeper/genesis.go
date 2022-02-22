@@ -58,7 +58,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		// Delete membership if exists
 		_ = k.DeleteMembership(ctx, mOwner)
 
-		store := ctx.KVStore(k.StoreKey)
+		store := ctx.KVStore(k.storeKey)
 		staddr := k.storageForAddr(mOwner)
 		if store.Has(staddr) {
 			panic(sdkErr.Wrap(sdkErr.ErrUnknownRequest,
@@ -71,7 +71,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		}
 		// Save membership
 		membership := types.NewMembership(membership.MembershipType, mOwner, mTsp, membership.ExpiryAt.UTC())
-		store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
+		store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
 	}
 
 }

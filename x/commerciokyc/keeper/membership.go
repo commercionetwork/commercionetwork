@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	//mtypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	//uuid "github.com/satori/go.uuid"
-	//kmint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 )
 
 const (
@@ -78,6 +75,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	}
 
 	// Check if the expired at is greater then current time
+	// Blocktime maybe better with ctx.BlockHeader().Time
 	if expited_at.Before(ctx.BlockTime()) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", expited_at))
 	}
@@ -88,7 +86,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	// Check if user already has a membership.
 	// TODO: this check wont pass if DeleteMembership doesn't work.
 	//       Maybe it's better to check error from DeleteMembership method
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
 		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
@@ -102,7 +100,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	// Save membership
 	membership := types.NewMembership(membershipType, user, tsp, expited_at.UTC())
-	store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
+	store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
 
 	// TODO: add event to distinguish assign from buy, or add specific event to eventManager in buy method
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -118,7 +116,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 // DeleteMembership allows to remove any existing membership associated with the given user.
 func (k Keeper) DeleteMembership(ctx sdk.Context, user sdk.AccAddress) error {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	// Check if membership must be deleted is owned user by a trust service provider
 	if k.IsTrustedServiceProvider(ctx, user) {
@@ -193,7 +191,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 			rewardAmount = poolAmount
 		}
 		// Calcute equivalent distribution in uccc
-		ucccConversionRate := k.MintKeeper.GetConversionRate(ctx)
+		ucccConversionRate := k.mintKeeper.GetConversionRate(ctx)
 		//kmintTypes.GetConv
 
 		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditDenom, rewardAmount))
@@ -245,7 +243,7 @@ func IsValidMembership(ctx sdk.Context, expiredAt time.Time, mt string) bool {
 
 // GetMembership allows to retrieve any existent membership for the specified user.
 func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membership, error) {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 
 	if !store.Has(k.storageForAddr(user)) {
 		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
@@ -255,10 +253,10 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 
 	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
-	k.Cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
+	k.cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
 	if !IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
 		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-			fmt.Sprintf("membership not found for user \"%s\" has expired", user.String()),
+			fmt.Sprintf("membership for user \"%s\" has expired", user.String()),
 		)
 	}
 	return ms, nil
@@ -271,7 +269,7 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
 		var m types.Membership
-		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
 		// Returns only valid memberships
 		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
 			continue
@@ -284,13 +282,13 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 
 // MembershipIterator returns an Iterator for all the memberships stored.
 func (k Keeper) MembershipIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.StoreKey)
+	store := ctx.KVStore(k.storeKey)
 	return sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
 }
 
 // ComputeExpiryHeight compute expiry height of membership.
 func (k Keeper) ComputeExpiryHeight(blockTime time.Time) time.Time {
-	expirationAt := blockTime.Add(SecondsPerYear)
+	expirationAt := blockTime.Add(secondsPerYear)
 	return expirationAt
 }
 
@@ -301,7 +299,7 @@ func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Member
 	ms := types.Memberships{}
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
-		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
 		if m.TspAddress != tsp.String() {
 			continue
 		}
@@ -311,47 +309,6 @@ func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Member
 	return ms
 }
 
-// ExportMemberships extracts all memberships for export
-func (k Keeper) ExportMemberships(ctx sdk.Context) types.Memberships {
-	im := k.MembershipIterator(ctx)
-	m := types.Membership{}
-	ms := types.Memberships{}
-	defer im.Close()
-	for ; im.Valid(); im.Next() {
-		k.Cdc.MustUnmarshalBinaryBare(im.Value(), &m)
-		// Returns only valid memberships
-		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
-			continue
-		}
-		ms = append(ms, m)
-	}
-	return ms
-}
-
-// RemoveExpiredMemberships delete all expired memberships
-func (k Keeper) RemoveExpiredMemberships(ctx sdk.Context) error {
-	blockTime := ctx.BlockTime()
-	for _, m := range k.GetMemberships(ctx) {
-		if blockTime.After(*m.ExpiryAt) {
-			mOwner, _ := sdk.AccAddressFromBech32(m.Owner)
-			mTspAddress, _ := sdk.AccAddressFromBech32(m.TspAddress)
-			if m.MembershipType == types.MembershipTypeBlack {
-				expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
-				membership := types.NewMembership(types.MembershipTypeBlack, mOwner, mTspAddress, expiredAt)
-				store := ctx.KVStore(k.StoreKey)
-				staddr := k.storageForAddr(mOwner)
-				store.Set(staddr, k.Cdc.MustMarshalBinaryBare(&membership))
-			} else {
-				err := k.DeleteMembership(ctx, mOwner)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-	}
-	return nil
-}
-
 // GetMembershipModuleAccount returns the module account for the commerciokyc module
 func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) accTypes.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
@@ -359,6 +316,6 @@ func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) accTypes.ModuleAccou
 
 // storageForAddr returns a string representing the KVStore storage key for an addr.
 func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
-	//return append([]byte(types.MembershipsStorageKey), k.Cdc.MustMarshalBinaryBare(&addr)...)
+	//return append([]byte(types.MembershipsStorageKey), k.cdc.MustMarshalBinaryBare(&addr)...)
 	return append([]byte(types.MembershipsStorageKey), addr.Bytes()...)
 }

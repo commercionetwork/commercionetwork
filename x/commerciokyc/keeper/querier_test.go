@@ -1,10 +1,9 @@
-package keeper_test
+package keeper
 
 import (
 	"testing"
 	"time"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
@@ -20,7 +19,7 @@ func TestNewQuerier_InvalidMsg(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
 	app := simapp.Setup(false)
 	legacyAmino := app.LegacyAmino()
-	querier := keeper.NewQuerier(k, legacyAmino)
+	querier := NewQuerier(k, legacyAmino)
 	_, res := querier(ctx, []string{""}, abci.RequestQuery{})
 	require.Error(t, res)
 }
@@ -76,7 +75,7 @@ func Test_queryGetInvites(t *testing.T) {
 				k.SaveInvite(ctx, i)
 			}
 
-			querier := keeper.NewQuerier(k, legacyAmino)
+			querier := NewQuerier(k, legacyAmino)
 			path := []string{types.QueryGetInvites}
 			actualBz, _ := querier(ctx, path, request)
 
@@ -123,14 +122,14 @@ func Test_queryGetSigners(t *testing.T) {
 				k.AddTrustedServiceProvider(ctx, t)
 			}
 
-			querier := keeper.NewQuerier(k, legacyAmino)
+			querier := NewQuerier(k, legacyAmino)
 			request := abci.RequestQuery{}
 
 			path := []string{types.QueryGetTrustedServiceProviders}
 			actualBz, _ := querier(ctx, path, request)
 
 			var actual types.TrustedServiceProviders
-			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			k.cdc.MustUnmarshalJSON(actualBz, &actual)
 
 			for _, tsp := range test.expected {
 				require.Contains(t, actual.Addresses, tsp.String())
@@ -176,7 +175,7 @@ func Test_queryGetMembership(t *testing.T) {
 			_ = k.AssignMembership(ctx, owner, test.existingMembership.MembershipType, tsp, *test.existingMembership.ExpiryAt)
 		}
 
-		querier := keeper.NewQuerier(k, legacyAmino)
+		querier := NewQuerier(k, legacyAmino)
 
 		path := []string{types.QueryGetMembership, testUser.String()}
 		actualBz, err := querier(ctx, path, request)
@@ -184,7 +183,7 @@ func Test_queryGetMembership(t *testing.T) {
 		if !test.mustErr {
 			require.NoError(t, err)
 			var actual types.Membership
-			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			k.cdc.MustUnmarshalJSON(actualBz, &actual)
 			require.Equal(t, test.expected, actual)
 		} else {
 			require.Error(t, err)
@@ -229,7 +228,7 @@ func Test_queryGetMemberships(t *testing.T) {
 			_ = k.AssignMembership(ctx, owner, m.MembershipType, tsp, *m.ExpiryAt)
 		}
 
-		querier := keeper.NewQuerier(k, legacyAmino)
+		querier := NewQuerier(k, legacyAmino)
 		request := abci.RequestQuery{}
 
 		path := []string{types.QueryGetMemberships}
@@ -296,7 +295,7 @@ func Test_queryGetTspMemberships(t *testing.T) {
 			_ = k.AssignMembership(ctx, owner, m.MembershipType, tsp, *m.ExpiryAt)
 		}
 		k.AddTrustedServiceProvider(ctx, test.tsp)
-		querier := keeper.NewQuerier(k, legacyAmino)
+		querier := NewQuerier(k, legacyAmino)
 
 		path := []string{types.QueryGetTspMemberships, test.tsp.String()}
 		actualBz, _ := querier(ctx, path, request)

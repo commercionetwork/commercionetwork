@@ -1,4 +1,4 @@
-package keeper_test
+package keeper
 
 import (
 	"testing"
@@ -8,20 +8,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
-	//commsimapp "github.com/commercionetwork/commercionetwork/testutil/simapp"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	//"github.com/cosmos/cosmos-sdk/x/auth/types"
-	//authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
 type kycSimApp struct {
 	*simapp.SimApp
-	CommercioKycKeeper keeper.Keeper
+	CommercioKycKeeper Keeper
 }
 
 type KeeperTestSuite struct {

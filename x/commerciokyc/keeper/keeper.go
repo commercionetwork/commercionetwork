@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	SecondsPerYear time.Duration = time.Hour * 24 * 365
+	secondsPerYear time.Duration = time.Hour * 24 * 365
 )
 
 var membershipCosts = map[string]int64{
@@ -27,13 +27,13 @@ var membershipCosts = map[string]int64{
 }
 
 type Keeper struct {
-	Cdc           codec.Marshaler
-	StoreKey      sdk.StoreKey
+	cdc           codec.Marshaler
+	storeKey      sdk.StoreKey
 	memKey        sdk.StoreKey
 	bankKeeper    bank.Keeper
 	GovKeeper     government.Keeper
 	accountKeeper auth.AccountKeeper
-	MintKeeper    mint.Keeper
+	mintKeeper    mint.Keeper
 }
 
 func NewKeeper(
@@ -50,24 +50,12 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		Cdc:           cdc,
-		StoreKey:      storeKey,
+		cdc:           cdc,
+		storeKey:      storeKey,
 		memKey:        memKey,
 		bankKeeper:    bankKeeper,
 		GovKeeper:     govKeeper,
 		accountKeeper: accountKeeper,
-		MintKeeper:    mintKeeper,
+		mintKeeper:    mintKeeper,
 	}
-}
-
-func (k Keeper) GetBankKeeper() bank.Keeper {
-	return k.bankKeeper
-}
-
-func (k Keeper) GetMintKeeper() mint.Keeper {
-	return k.MintKeeper
-}
-
-func (k Keeper) GetGovKeeper() government.Keeper {
-	return k.GovKeeper
 }
