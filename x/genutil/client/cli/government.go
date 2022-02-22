@@ -3,11 +3,15 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
+	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/tendermint/tendermint/libs/cli"
+
 	"github.com/spf13/cobra"
 	tmtypes "github.com/tendermint/tendermint/types"
 
@@ -19,7 +23,7 @@ import (
 )
 
 // SetGenesisGovernmentAddressCmd returns set-genesis-government-address cobra Command.
-func SetGenesisGovernmentAddressCmd() *cobra.Command {
+func SetGenesisGovernmentAddressCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-genesis-government-address [government_address_or_key]",
 		Short: "Sets the given address as the government address inside genesis.json, and assings a black membership to it",
@@ -44,41 +48,24 @@ func SetGenesisGovernmentAddressCmd() *cobra.Command {
 				return err
 			}
 
-			genState, err := SetGovernmentAddress(genDoc.AppState, address)
+			genState, err := SetGovernmentAddress(clientCtx, genDoc.AppState, address)
 			if err != nil {
 				return err
 			}
 
-			// set a black membership to the government address
-			// add a membership to the genesis state
-			/*var genStateMemberships commerciokyc.GenesisState
-			err = json.Unmarshal(appState[commerciokycTypes.ModuleName], &genStateMemberships)
-			if err != nil {
-				return err
-			}
-
-			initSecondsPerYear := time.Hour * 24 * 365
-			initExpirationDate := time.Now().Add(initSecondsPerYear) // It's safe becouse command is executed in one machine
-
-			membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, address, initExpirationDate)
-			genStateMemberships.Memberships, _ = genStateMemberships.Memberships.AppendIfMissing(membership)
-
-			genesisStateBzMemberships := cdc.MustMarshalJSON(genStateMemberships)
-			appState[commerciokycTypes.ModuleName] = genesisStateBzMemberships
-			*/
 			genDoc.AppState, err = json.Marshal(genState)
 
 			return genutil.ExportGenesisFile(genDoc, genFile)
 		},
 	}
 
-	//cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
-	//cmd.Flags().String(flagClientHome, defaultClientHome, "client's home directory")
+	cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
+
 	return cmd
 }
 
-//func SetGovernmentAddress(genStateGovernment govTypes.GenesisState, address sdk.Address) (map[string]json.RawMessage, error) {
-func SetGovernmentAddress(appState json.RawMessage, address sdk.Address) (map[string]json.RawMessage, error) {
+// SetGovernmentAddress set government address in the genesis
+func SetGovernmentAddress(clientCtx client.Context, appState json.RawMessage, address sdk.AccAddress) (map[string]json.RawMessage, error) {
 	var genState map[string]json.RawMessage
 	if err := json.Unmarshal(appState, &genState); err != nil {
 		return nil, fmt.Errorf("error unmarshalling genesis doc for government address: %s", err.Error())
@@ -98,27 +85,22 @@ func SetGovernmentAddress(appState json.RawMessage, address sdk.Address) (map[st
 	}
 	genState[govTypes.ModuleName] = genesisStateBzGovernment
 
-	//return genesisStateBzGovernment, nil
+	// set a black membership to the government address
+	// add a membership to the genesis state
+	var genStateMemberships commerciokycTypes.GenesisState
+	json.Unmarshal(genState[commerciokycTypes.ModuleName], &genStateMemberships)
+
+	initSecondsPerYear := time.Hour * 24 * 365
+	initExpirationDate := time.Now().Add(initSecondsPerYear) // It's safe becouse command is executed in one machine
+
+	membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, address, initExpirationDate)
+	genStateMemberships.Memberships = append(genStateMemberships.Memberships, &membership)
+
+	genesisStateBzMemberships, err := tmjson.Marshal(genStateMemberships)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to marshal genesis doc")
+	}
+	genState[commerciokycTypes.ModuleName] = genesisStateBzMemberships
+
 	return genState, nil
 }
-
-// getAddressFromString reads the given value as an AccAddress object, retuning an error if
-// the specified value is not a valid address
-/*func getAddressFromString(value string) (sdk.AccAddress, error) {
-	minterAddr, err := sdk.AccAddressFromBech32(value)
-	if err != nil {
-		kb, err := keys.NewKeyBaseFromDir(viper.GetString(flagClientHome))
-		if err != nil {
-			return nil, err
-		}
-
-		info, err := kb.Get(value)
-		if err != nil {
-			return nil, err
-		}
-
-		minterAddr = info.GetAddress()
-	}
-
-	return minterAddr, nil
-}*/
