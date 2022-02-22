@@ -5,9 +5,8 @@ const (
 	StoreKey     = ModuleName
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
-	MemStoreKey  = "mem_vbr"
+	MemStoreKey  = "mem_" + ModuleName
 
-	// this line is used by starport scaffolding # ibc/keys/name
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
 	MsgTypeSetParams                 = "setParams"
 	PoolStoreKey                     = StoreKey + ":pool:"
@@ -15,15 +14,18 @@ const (
 	QueryBlockRewardsPoolFunds = "funds"
 	QueryParams                = "params"
 
-	EpochWeek    = "week"
-	EpochDay     = "day"
-	EpochHour    = "hour"
-	EpochMinute  = "minute"
-	EpochMonth 	 = "month"
+	EpochWeek   = "week"
+	EpochDay    = "day"
+	EpochHour   = "hour"
+	EpochMinute = "minute"
+	EpochMonth  = "month"
+
+	BondDenom = "ucommercio"
 )
 
 // this line is used by starport scaffolding # ibc/keys/port
 
-func KeyPrefix(p string) []byte {
+// TODO: use KeyPrefix function if needed
+/* func KeyPrefix(p string) []byte {
 	return []byte(p)
-}
+}*/

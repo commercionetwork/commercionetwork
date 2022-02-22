@@ -16,7 +16,6 @@ import (
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
-	// this line is used by starport scaffolding # ibc/keeper/import
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -85,10 +84,13 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	store := ctx.KVStore(k.storeKey)
 	pool := types.VbrPool{Amount: updatedPool}
+	// TODO: can use standard KeyPrefix function
+	// types.KeyPrefix(types.PoolStoreKey)
+	poolKeyPrefix := []byte(types.PoolStoreKey)
 	if !updatedPool.Empty() {
-		store.Set([]byte(types.PoolStoreKey), k.cdc.MustMarshalBinaryBare(&pool))
+		store.Set(poolKeyPrefix, k.cdc.MustMarshalBinaryBare(&pool))
 	} else {
-		store.Delete([]byte(types.PoolStoreKey))
+		store.Delete(poolKeyPrefix)
 	}
 }
 
@@ -117,11 +119,7 @@ func (k Keeper) MintVBRTokens(ctx sdk.Context, coins sdk.Coins) error {
 
 func GetCoins(k Keeper, ctx sdk.Context, macc accountTypes.ModuleAccountI) sdk.Coins {
 	var coins sdk.Coins
-	/*for _, coin := range k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()) {
-		coins = append(coins, coin)
-	}*/
 	coins = append(coins, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress())...)
-
 	return coins
 }
 
@@ -131,6 +129,9 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 	validatorBonded := validator.GetBondedTokens()
 
 	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))
+	// TODO: number of validator should be get from staking module
+	// paramsVal := k.stakingKeeper.GetParams(ctx)
+	// paramsVal.MaxValidators
 	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100))
 
 	//compute the annual distribution ((validator's token * 0.5)*(total_validators/100))
@@ -157,6 +158,8 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 
 // DistributeBlockRewards distributes the computed reward to the block proposer
 func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator stakingTypes.ValidatorI, reward sdk.DecCoins) error {
+	// TODO: mybe it's better to get from out of DistributeBlockRewards method the rewardPool amount
+	// so you can don't call the method
 	rewardPool := k.GetTotalRewardPool(ctx)
 	// Check if the yearly pool and the total pool have enough funds
 	if ctypes.IsAllGTE(rewardPool, reward) {
@@ -167,6 +170,8 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator stakingTypes.V
 
 		err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distributionTypes.ModuleName, rewardInt)
 		if err != nil {
+			// TODO: if sent token module to module fails the pool should be return to previous value
+			// k.SetTotalRewardPool(ctx, rewardPool)
 			return nil
 		}
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))

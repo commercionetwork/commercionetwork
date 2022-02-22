@@ -10,8 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/testutil/network"
-	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
 func TestIncrementBlockRewardsPool(t *testing.T) {
@@ -36,19 +37,19 @@ func TestIncrementBlockRewardsPool(t *testing.T) {
 		{
 			desc: "valid",
 			args: []string{
-				"ucommercio", "1000",
+				"1000" + types.BondDenom,
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
-			err: false,
+			err:  false,
 			code: 13,
 		},
 		{
 			desc: "invalid amount",
 			args: []string{
-				"ucommercio", "",
+				"" + types.BondDenom,
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
@@ -62,7 +63,7 @@ func TestIncrementBlockRewardsPool(t *testing.T) {
 			args := []string{}
 			args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdIncrementBlockRewardsPool(), args)
-			if tc.err  {
+			if tc.err {
 				require.NotNil(t, err)
 			} else {
 				require.NoError(t, err)
@@ -102,7 +103,7 @@ func TestSetParams(t *testing.T) {
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
-			err: false,
+			err:  false,
 			code: 13,
 		},
 		{
@@ -133,7 +134,7 @@ func TestSetParams(t *testing.T) {
 			args := []string{}
 			args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdSetParams(), args)
-			if tc.err  {
+			if tc.err {
 				require.NotNil(t, err)
 			} else {
 				require.NoError(t, err)

@@ -12,8 +12,8 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
-func setFunds (keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
-	if pool.Empty(){
+func setFunds(keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
+	if pool.Empty() {
 		return
 	}
 
@@ -26,15 +26,16 @@ func setFunds (keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
 	coins := GetCoins(*keeper, ctx, moduleAcc)
 	if coins.Empty() {
 		amount, _ := pool.TruncateDecimal()
-		keeper.bankKeeper.SetBalances(ctx,moduleAcc.GetAddress(), amount)
+		keeper.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), amount)
 	}
 }
 
-var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin("ucommercio",sdk.NewInt(1000)))
+var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(1000)))
+
 func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	
+
 	for _, tc := range []struct {
 		desc     string
 		request  *types.QueryGetBlockRewardsPoolFundsRequest
@@ -63,15 +64,16 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 		})
 	}
 }
+
 var params = types.Params{
 	DistrEpochIdentifier: types.EpochDay,
-	EarnRate: sdk.NewDecWithPrec(5,1),
+	EarnRate:             sdk.NewDecWithPrec(5, 1),
 }
 
 func Test_GetParams(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	
+
 	for _, tc := range []struct {
 		desc     string
 		request  *types.QueryGetParamsRequest
@@ -90,7 +92,7 @@ func Test_GetParams(t *testing.T) {
 	} {
 		tc := tc
 		keeper.SetParamSet(ctx, params)
-		
+
 		t.Run(tc.desc, func(t *testing.T) {
 			response, err := keeper.GetParams(wctx, tc.request)
 			if tc.err != nil {

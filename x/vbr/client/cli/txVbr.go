@@ -11,16 +11,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 )
 
 var _ = strconv.Itoa(0)
 
 func CmdIncrementBlockRewardsPool() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deposit [coin-denom] [amount]",
-		Short: "Increments the block rewards pool's liquidity by the given amount",
-		Args:  cobra.ExactArgs(2),
+		Use:   "deposit [amount denom]",
+		Short: "Increments the block rewards pool's liquidity by the given amount denom",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -28,7 +27,7 @@ func CmdIncrementBlockRewardsPool() *cobra.Command {
 			}
 
 			funder := clientCtx.GetFromAddress()
-			amout, e := sdk.ParseCoinNormalized(args[1] + args[0])
+			amout, e := sdk.ParseCoinNormalized(args[0])
 			if e != nil {
 				return e
 			}
@@ -50,8 +49,8 @@ func CmdIncrementBlockRewardsPool() *cobra.Command {
 func CmdSetParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-params [epoch_identifier] [earn_rate]",
-		Short: "Set the vbr params with epoch identifier(i.e. \"day\" and the vbr earn rate percentage(Dec))", 
-		Long: "Example usage:\n commercionetworkd tx vbr set-params day 0.500000000000000000 --from ",
+		Short: "Set the vbr params with epoch identifier(i.e. \"day\" and the vbr earn rate percentage(Dec))",
+		Long:  "Example usage:\n commercionetworkd tx vbr set-params day 0.500000000000000000 --from ",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
