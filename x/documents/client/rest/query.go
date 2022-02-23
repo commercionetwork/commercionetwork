@@ -4,46 +4,41 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/gorilla/mux"
-
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	restTypes "github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
 )
 
 const (
-	addressRestParameterName = "user"
+	userRestParameterName = "user"
+	UUIDRestParameterName = "UUID"
 )
 
-func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
+func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("/docs/{%s}/sent", addressRestParameterName),
+		fmt.Sprintf("/commercionetwork/docs/{%s}/sent", userRestParameterName),
 		getSentDocumentsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/docs/{%s}/received", addressRestParameterName),
+		fmt.Sprintf("/commercionetwork/docs/{%s}/received", userRestParameterName),
 		getReceivedDocumentsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/receipts/{%s}/sent", addressRestParameterName),
+		fmt.Sprintf("/commercionetwork/receipts/{%s}/sent", userRestParameterName),
 		getSentDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("/receipts/{%s}/received", addressRestParameterName),
+		fmt.Sprintf("/commercionetwork/receipts/{%s}/received", userRestParameterName),
 		getReceivedDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 
 	r.HandleFunc(
-		"/docs/metadataSchemes",
-		getSupportedMetadataSchemesHandler(cliCtx)).
-		Methods("GET")
-
-	r.HandleFunc(
-		"/docs/metadataSchemes/proposers",
-		getTrustedMetadataSchemesProposersHandler(cliCtx)).
+		fmt.Sprintf("/commercionetwork/docs/{%s}/receipts", UUIDRestParameterName),
+		getDocumentsReceiptsHandler(cliCtx)).
 		Methods("GET")
 }
 
@@ -51,53 +46,35 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 // --- Documents
 // ----------------------------------
 
-// @Summary Get the sent documents
-// @Description This endpoint returns the sent documents, along with the height at which the resource was queried at
-// @ID getSentDocumentsHandler
-// @Produce json
-// @Param address path string true "Address of the user"
-// @Success 200 {object} x.JSONResult{result=[]types.Document}
-// @Failure 404
-// @Router /docs/{address}/sent [get]
-// @Tags x/documents
-func getSentDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getSentDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressRestParameterName]
+		address := vars[userRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QuerySentDocuments, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QuerySentDocuments)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
 
-// @Summary Get the received documents
-// @Description This endpoint returns the received documents, along with the height at which the resource was queried at
-// @ID getReceivedDocumentsHandler
-// @Produce json
-// @Param address path string true "Address of the user"
-// @Success 200 {object} x.JSONResult{result=[]types.Document}
-// @Failure 404
-// @Router /docs/{address}/received [get]
-// @Tags x/documents
-func getReceivedDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getReceivedDocumentsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressRestParameterName]
+		address := vars[userRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceivedDocuments, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedDocuments)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
 
@@ -105,102 +82,50 @@ func getReceivedDocumentsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 // --- Document receipts
 // ---------------------------------
 
-// @Summary Get the sent receipts
-// @Description This endpoint returns the sent receipts, along with the height at which the resource was queried at
-// @ID getSentDocumentsReceiptsHandler
-// @Produce json
-// @Param address path string true "Address of the user"
-// @Success 200 {object} x.JSONResult{result=[]types.DocumentReceipt}
-// @Failure 404
-// @Router /receipts/{address}/sent [get]
-// @Tags x/documents
-func getSentDocumentsReceiptsHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getSentDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressRestParameterName]
+		address := vars[userRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QuerySentReceipts, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QuerySentReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
 
-// @Summary Get the received receipts
-// @Description This endpoint returns the received receipts, along with the height at which the resource was queried at
-// @ID getReceivedDocumentsReceiptsHandler
-// @Produce json
-// @Param address path string true "Address of the user"
-// @Success 200 {object} x.JSONResult{result=[]types.DocumentReceipt}
-// @Failure 404
-// @Router /receipts/{address}/received [get]
-// @Tags x/documents
-func getReceivedDocumentsReceiptsHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getReceivedDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address := vars[addressRestParameterName]
+		address := vars[userRestParameterName]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryReceivedReceipts, address)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, address, types.QueryReceivedReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
 
-// ----------------------------------
-// --- Document metadata schemes
-// ----------------------------------
-
-// @Summary Get the metadata schemes
-// @Description This endpoint returns the supported metadata schemes, along with the height at which the resource was queried at
-// @ID getSupportedMetadataSchemesHandler
-// @Produce json
-// @Success 200 {object} x.JSONResult{result=[]types.MetadataSchema}
-// @Failure 404
-// @Router /docs/metadataSchemes [get]
-// @Tags x/documents
-func getSupportedMetadataSchemesHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getDocumentsReceiptsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QuerySupportedMetadataSchemes)
+		vars := mux.Vars(r)
+		documentUUID := vars[UUIDRestParameterName]
+
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, documentUUID, types.QueryDocumentReceipts)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		rest.PostProcessResponse(w, cliCtx, res)
-	}
-}
-
-// -----------------------------------------
-// --- Document metadata schemes proposers
-// -----------------------------------------
-
-// @Summary Get the metadata proposers
-// @Description This endpoint returns the trusted metadata proposers, along with the height at which the resource was queried at
-// @ID getTrustedMetadataSchemesProposersHandler
-// @Produce json
-// @Success 200 {object} x.JSONResult{result=[]string}
-// @Failure 404
-// @Router /docs/metadataSchemes/proposers [get]
-// @Tags x/documents
-func getTrustedMetadataSchemesProposersHandler(cliCtx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTrustedMetadataProposers)
-		res, _, err := cliCtx.QueryWithData(route, nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }

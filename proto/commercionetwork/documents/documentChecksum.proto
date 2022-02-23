@@ -1,0 +1,11 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+import "gogoproto/gogo.proto";
+
+message DocumentChecksum {
+  string value = 1;
+  string algorithm = 2;
+}

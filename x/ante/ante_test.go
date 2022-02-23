@@ -3,19 +3,37 @@ package ante_test
 import (
 	"errors"
 	"testing"
+	"time"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-
+	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	ptx "github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto"
+
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
+	"github.com/commercionetwork/commercionetwork/app"
+	"github.com/commercionetwork/commercionetwork/testutil/simapp"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	sdksimapp "github.com/cosmos/cosmos-sdk/simapp"
 
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+)
+
+const (
+	chainID            = "commercionetwork"
+	stakeDenom         = "ucommercio"
+	stableCreditsDenom = "uccc"
 )
 
 // run the tx through the anteHandler and ensure its valid
@@ -37,7 +55,7 @@ var testRecipient, _ = sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzx
 var testDocument = docsTypes.Document{
 	UUID:       "test-document-uuid",
 	ContentURI: "https://example.com/document",
-	Metadata: docsTypes.DocumentMetadata{
+	Metadata: &docsTypes.DocumentMetadata{
 		ContentURI: "https://example.com/document/metadata",
 		Schema: &docsTypes.DocumentMetadataSchema{
 			URI:     "https://example.com/document/metadata/schema",
@@ -48,14 +66,14 @@ var testDocument = docsTypes.Document{
 		Value:     "93dfcaf3d923ec47edb8580667473987",
 		Algorithm: "md5",
 	},
-	Sender:     testSender,
-	Recipients: ctypes.Addresses{testRecipient},
+	Sender:     testSender.String(),
+	Recipients: ctypes.Strings{testRecipient.String()},
 }
 
 var testDocument2 = docsTypes.Document{
 	UUID:       "test-document-uuid-2",
 	ContentURI: "https://example.com/document",
-	Metadata: docsTypes.DocumentMetadata{
+	Metadata: &docsTypes.DocumentMetadata{
 		ContentURI: "https://example.com/document/metadata",
 		Schema: &docsTypes.DocumentMetadataSchema{
 			URI:     "https://example.com/document/metadata/schema",
@@ -66,8 +84,12 @@ var testDocument2 = docsTypes.Document{
 		Value:     "93dfcaf3d923ec47edb8580667473987",
 		Algorithm: "md5",
 	},
-	Sender:     testSender,
-	Recipients: ctypes.Addresses{testRecipient},
+	Sender:     testSender.String(),
+	Recipients: ctypes.Strings{testRecipient.String()},
+}
+
+type AnteTestSuite struct {
+	txBuilder client.TxBuilder
 }
 
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
@@ -76,22 +98,27 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	// Conversion rate is 2.0
 	app, ctx := createTestApp(true, false)
 
-	tokenDenom := "ucommercio"
-	stableCreditsDenom := "uccc"
+	encodingConfig := sdksimapp.MakeTestEncodingConfig()
 
 	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper,
-		app.GovernmentKeeper, app.CommercioMintKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.GovernmentKeeper,
+		app.CommercioMintKeeper,
 		cosmosante.DefaultSigVerificationGasConsumer,
+		encodingConfig.TxConfig.SignModeHandler(),
+		stakeDenom,
 		stableCreditsDenom,
 	)
 
 	// Keys and addresses
-	priv1, _, addr1 := types.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyTestPubAddr()
 
 	// Set the accounts
 	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
-	_ = acc1.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
+
+	//_ = acc1.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
 	app.AccountKeeper.SetAccount(ctx, acc1)
 
 	// Msg and signatures
@@ -102,58 +129,102 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 		ContentURI:     testDocument.ContentURI,
 		Checksum:       testDocument.Checksum,
 		EncryptionData: testDocument.EncryptionData,
-		Sender:         acc1.GetAddress(),
+		Sender:         acc1.GetAddress().String(),
 		Recipients:     testDocument.Recipients,
 	})
-	privs, accnums, seqs := []crypto.PrivKey{priv1}, []uint64{0}, []uint64{0}
+	privs, accnums, seqs := []cryptotypes.PrivKey{priv1}, []uint64{0}, []uint64{0}
 	msgs := []sdk.Msg{msg}
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+	as := AnteTestSuite{txBuilder}
+
+	as.txBuilder.SetMsgs(msgs...)
+	as.txBuilder.SetGasLimit(200000)
 
 	// Signer has not specified the fees
-	var tx sdk.Tx
 	fees := sdk.NewCoins()
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	as.txBuilder.SetFeeAmount(fees)
+
+	err := as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+
+	tx := as.txBuilder.GetTx()
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has not specified enough stable credits
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 9999))
-	seqs = []uint64{1}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+
+	tx = as.txBuilder.GetTx()
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough stable credits
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 10000))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{2}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+
+	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has not specified enough token frees
-	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 1))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{3}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 1))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough token fees
-	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 20000))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 10000))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{1}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has not specified enough stake token fees
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
+
+	// Signer has specified enough stake tokens fees but not enough credit tokens fees
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 10000), sdk.NewInt64Coin(stableCreditsDenom, 9999))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{2}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has specified not enough token fees with stable credits and token
-	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 4999), sdk.NewInt64Coin(stableCreditsDenom, 7500))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{6}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
-	checkInvalidTx(t, anteHandler, ctx, tx, true, sdkErr.ErrInsufficientFee)
-
-	// Signer has specified enough token fees with stable credits and token
-	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 5000), sdk.NewInt64Coin(stableCreditsDenom, 7500))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{6}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	// Signer has specified not enough stake tokens fees but enough credit tokens fees
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999), sdk.NewInt64Coin(stableCreditsDenom, 10000))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{3}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has specified not enough both stake and credit tokens fees
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999), sdk.NewInt64Coin(stableCreditsDenom, 9999))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Test with multiple messages
 	msg2 := docsTypes.NewMsgShareDocument(docsTypes.Document{
@@ -162,87 +233,137 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 		ContentURI:     testDocument2.ContentURI,
 		Checksum:       testDocument2.Checksum,
 		EncryptionData: testDocument2.EncryptionData,
-		Sender:         acc1.GetAddress(),
+		Sender:         acc1.GetAddress().String(),
 		Recipients:     testDocument2.Recipients,
 	})
 	msgs = []sdk.Msg{msg, msg2}
+	as.txBuilder.SetMsgs(msgs...)
 
-	// Signer has specified enough stable credits
+	// Signer has not specified enough stable credits
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 19999))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{7}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
-	checkInvalidTx(t, anteHandler, ctx, tx, true, sdkErr.ErrInsufficientFee)
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+
+	tx = as.txBuilder.GetTx()
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough stable credits
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 20000))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{8}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{4}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has specified enough token fees
-	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 40000))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{2}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	// Signer has specified enough stake tokens
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 20000))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{5}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
-	// Signer has specified not enough token fees with stable credits and token
-	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 9999), sdk.NewInt64Coin(stableCreditsDenom, 15000))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
+	// Signer has specified enough stake tokens fees but not enough credit tokens fees
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 20000), sdk.NewInt64Coin(stableCreditsDenom, 19999))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{6}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
-	checkInvalidTx(t, anteHandler, ctx, tx, true, sdkErr.ErrInsufficientFee)
-
-	// Signer has specified enough token fees with stable credits and token
-	fees = sdk.NewCoins(sdk.NewInt64Coin(tokenDenom, 10000), sdk.NewInt64Coin(stableCreditsDenom, 15000))
-	_ = app.BankKeeper.SetCoins(ctx, addr1, fees)
-	seqs = []uint64{6}
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
 	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has specified not enough stake tokens fees but enough credit tokens fees
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 19999), sdk.NewInt64Coin(stableCreditsDenom, 20000))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{7}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has specified not enough both stake and credit tokens fees
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 19999), sdk.NewInt64Coin(stableCreditsDenom, 19999))
+	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 }
 
-func TestAnteHandlerFees_MsgShareDocFromTumbler(t *testing.T) {
+func (as AnteTestSuite) setupSignatures(privs []cryptotypes.PrivKey, accnums []uint64, seqs []uint64) error {
+	encodingConfig := sdksimapp.MakeTestEncodingConfig()
+	var sigsV2 []signing.SignatureV2
+	for i, priv := range privs {
+		sigV2 := signing.SignatureV2{
+			PubKey: priv.PubKey(),
+			Data: &signing.SingleSignatureData{
+				SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
+				Signature: nil,
+			},
+			Sequence: seqs[i],
+		}
 
-	// Setup
-	app, ctx := createTestApp(true, false)
+		sigsV2 = append(sigsV2, sigV2)
+	}
+	err := as.txBuilder.SetSignatures(sigsV2...)
+	if err != nil {
+		return err
+	}
 
-	stableCreditsDenom := "uccc"
+	sigsV2 = []signing.SignatureV2{}
+	for i, priv := range privs {
+		signerData := xauthsigning.SignerData{
+			ChainID:       chainID,
+			AccountNumber: accnums[i],
+			Sequence:      seqs[i],
+		}
 
-	anteHandler := ante.NewAnteHandler(
-		app.AccountKeeper, app.SupplyKeeper, app.GovernmentKeeper, app.CommercioMintKeeper,
-		cosmosante.DefaultSigVerificationGasConsumer,
-		stableCreditsDenom,
-	)
+		sigV2, err := ptx.SignWithPrivKey(
+			encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
+			as.txBuilder, priv, encodingConfig.TxConfig, seqs[i])
+		if err != nil {
+			return err
+		}
+		sigsV2 = append(sigsV2, sigV2)
+	}
+	err = as.txBuilder.SetSignatures(sigsV2...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-	// Keys and addresses
-	priv1, _, addr1 := types.KeyTestPubAddr()
+// returns context and app with params set on account keeper
+func createTestApp(isCheckTx bool, isBlockZero bool) (*app.App, sdk.Context) {
+	app := simapp.New("")
+	header := tmproto.Header{ChainID: chainID}
+	if !isBlockZero {
+		header.Height = 1
+	}
 
-	// Set the accounts
-	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
-	_ = acc1.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
-	app.AccountKeeper.SetAccount(ctx, acc1)
-	require.NoError(t, app.GovernmentKeeper.SetTumblerAddress(ctx, addr1))
+	ctx := app.BaseApp.NewContext(isCheckTx, header)
+	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
 
-	// Msg and signatures
+	// TODO shall we drop the following?
+	app.CommercioMintKeeper.UpdateParams(ctx, validCommercioMintParams)
+	// app.CommercioMintKeeper.UpdateConversionRate(ctx, sdk.NewDec(2))
 
-	msg := docsTypes.NewMsgShareDocument(docsTypes.Document{
-		UUID:           testDocument.UUID,
-		Metadata:       testDocument.Metadata,
-		ContentURI:     testDocument.ContentURI,
-		Checksum:       testDocument.Checksum,
-		EncryptionData: testDocument.EncryptionData,
-		Sender:         acc1.GetAddress(),
-		Recipients:     testDocument.Recipients,
-	})
-	privs, accnums, seqs := []crypto.PrivKey{priv1}, []uint64{0}, []uint64{0}
-	msgs := []sdk.Msg{msg}
+	return app, ctx
+}
 
-	// Signer has not specified the fees
-	var tx sdk.Tx
-	fees := sdk.NewCoins()
-	tx = types.NewTestTx(ctx, msgs, privs, accnums, seqs, auth.NewStdFee(200000, fees))
-	checkValidTx(t, anteHandler, ctx, tx, false)
+var validConversionRate = sdk.NewDec(2)
+var validFreezePeriod time.Duration = 0
+var validCommercioMintParams = commerciomintTypes.Params{
+	ConversionRate: validConversionRate,
+	FreezePeriod:   validFreezePeriod,
 }

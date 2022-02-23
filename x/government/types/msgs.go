@@ -1,48 +1,37 @@
 package types
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// MsgSetTumblerAddress is used to modify the current government tumbler address.
-type MsgSetTumblerAddress struct {
-	Government sdk.AccAddress `json:"government"`
-	NewTumbler sdk.AccAddress `json:"new_tumbler"`
+// ----------------------------------
+// --- MsgSetGovAddress
+// ----------------------------------
+var _ sdk.Msg = &MsgSetGovAddress{}
+
+func NewMsgSetGovAddress() *MsgSetGovAddress {
+	return &MsgSetGovAddress{}
 }
 
-func NewMsgSetTumblerAddress(government sdk.AccAddress, newTumbler sdk.AccAddress) MsgSetTumblerAddress {
-	return MsgSetTumblerAddress{
-		Government: government,
-		NewTumbler: newTumbler,
-	}
+const SetGovAddressConst = "SetGovAddress"
+
+func (msg *MsgSetGovAddress) Route() string {
+	return RouterKey
 }
 
-// Route Implements Msg.
-func (msg MsgSetTumblerAddress) Route() string { return RouterKey }
+func (msg *MsgSetGovAddress) Type() string {
+	return SetGovAddressConst
+}
 
-// Type Implements Msg.
-func (msg MsgSetTumblerAddress) Type() string { return MsgTypeSetTumblerAddress }
+func (msg *MsgSetGovAddress) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{}
+}
 
-// ValidateBasic Implements Msg.
-func (msg MsgSetTumblerAddress) ValidateBasic() error {
-	if msg.Government.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("invalid government address: %s", msg.Government))
-	}
-	if msg.NewTumbler.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("invalid new tumbler address: %s", msg.NewTumbler))
-	}
+func (msg *MsgSetGovAddress) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgSetGovAddress) ValidateBasic() error {
 	return nil
-}
-
-// GetSignBytes Implements Msg.
-func (msg MsgSetTumblerAddress) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners Implements Msg.
-func (msg MsgSetTumblerAddress) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Government}
 }

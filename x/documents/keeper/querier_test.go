@@ -3,270 +3,352 @@ package keeper
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/commercionetwork/commercionetwork/x/documents/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-
-	"github.com/commercionetwork/commercionetwork/x/documents/types"
 )
 
-var request abci.RequestQuery
-var documents = []types.Document{TestingDocument}
+func Test_NewQuerier_default(t *testing.T) {
 
-// ----------------------------------
-// --- Documents
-// ----------------------------------
+	t.Run("default request", func(t *testing.T) {
+		k, ctx := setupKeeper(t)
 
-func Test_queryGetReceivedDocuments_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+		querier := NewQuerier(*k, legacyAmino)
+		path := []string{"abcd"}
+		_, err := querier(ctx, path, abci.RequestQuery{})
+		require.Error(t, err)
+	})
+}
 
-	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
-
-	var actual []types.Document
-	actualBz, err := querier(ctx, path, request)
-	if err != nil {
-		require.NoError(t, err)
+func Test_queryGetSentDocuments(t *testing.T) {
+	tests := []struct {
+		name            string
+		sender          string
+		storedDocuments []types.Document
+		wantedDocuments []types.Document
+		wantErr         bool
+	}{
+		{
+			name:    "invalid sender",
+			sender:  "",
+			wantErr: true,
+		},
+		{
+			name:   "empty",
+			sender: types.ValidDocument.Sender,
+		},
+		{
+			name:            "one",
+			sender:          types.ValidDocument.Sender,
+			storedDocuments: []types.Document{types.ValidDocument},
+			wantedDocuments: []types.Document{types.ValidDocument},
+		},
+		{
+			name:            "two",
+			sender:          types.ValidDocument.Sender,
+			storedDocuments: []types.Document{types.ValidDocument, types.AnotherValidDocument},
+			wantedDocuments: []types.Document{types.ValidDocument, types.AnotherValidDocument},
+		},
 	}
-	cdc.MustUnmarshalJSON(actualBz, &actual)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
 
-	require.Equal(t, "[]", string(actualBz))
-	require.Empty(t, actual)
-}
+			for _, document := range tt.storedDocuments {
+				err := k.SaveDocument(ctx, document)
+				require.NoError(t, err)
+			}
 
-func Test_queryGetReceivedDocuments_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+			querier := NewQuerier(*k, legacyAmino)
 
-	// Setup the store
-	err := k.SaveDocument(ctx, TestingDocument)
-	require.NoError(t, err)
+			path := []string{types.QuerySentDocuments, tt.sender}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
-	// Compose the path
-	path := []string{types.QueryReceivedDocuments, TestingRecipient.String()}
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 
-	// Get the returned documents
-	var actual []types.Document
-
-	actualBz, err := querier(ctx, path, request)
-	require.NoError(t, err)
-
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Equal(t, documents, actual)
-}
-
-func Test_queryGetSentDocuments_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
-
-	path := []string{types.QuerySentDocuments, TestingSender.String()}
-
-	var actual []types.Document
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Equal(t, "[]", string(actualBz))
-	require.Empty(t, actual)
-}
-
-func Test_queryGetSentDocuments_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
-	// Setup the store
-	err := k.SaveDocument(ctx, TestingDocument)
-	require.NoError(t, err)
-
-	// Compose the path
-	path := []string{types.QuerySentDocuments, TestingSender.String()}
-
-	// Get the returned documents
-	var actual []types.Document
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Equal(t, documents, actual)
-}
-
-// ---------------------------------
-// --- Document receipts
-// ---------------------------------
-
-func Test_queryGetReceivedDocsReceipts_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
-
-	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
-
-	// Get the returned receipts
-	var actual []types.DocumentReceipt
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Equal(t, "[]", string(actualBz))
-	require.Empty(t, actual)
-}
-
-func Test_queryGetReceivedDocsReceipts_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-
-	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
-
-	tdr := TestingDocumentReceipt
-	tdr.DocumentUUID = TestingDocument.UUID
-
-	err := k.SaveReceipt(ctx, tdr)
-	require.NoError(t, err)
-
-	// Compose the path
-	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), ""}
-
-	// Get the returned receipts
-	querier := NewQuerier(k)
-	actualBz, _ := querier(ctx, path, request)
-
-	var actual []types.DocumentReceipt
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	expected := []types.DocumentReceipt{tdr}
-	require.Equal(t, expected, actual)
-}
-
-func Test_queryGetReceivedDocsReceipts_WithDocUuid(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-
-	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
-
-	tdr := TestingDocumentReceipt
-	tdr.DocumentUUID = TestingDocument.UUID
-
-	err := k.SaveReceipt(ctx, tdr)
-	require.NoError(t, err)
-
-	// Compose the path
-	path := []string{types.QueryReceivedReceipts, TestingDocumentReceipt.Recipient.String(), tdr.DocumentUUID}
-
-	// Get the returned receipts
-	querier := NewQuerier(k)
-	actualBz, _ := querier(ctx, path, request)
-
-	var actual []types.DocumentReceipt
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	var expected = []types.DocumentReceipt{tdr}
-	require.Equal(t, expected, actual)
-}
-
-func Test_queryGetSentDocsReceipts_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
-
-	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
-
-	var actual []types.DocumentReceipt
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Equal(t, "[]", string(actualBz))
-	require.Empty(t, actual)
-}
-
-func Test_queryGetSentDocsReceipts_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-
-	require.NoError(t, k.SaveDocument(ctx, TestingDocument))
-
-	tdr := TestingDocumentReceipt
-	tdr.DocumentUUID = TestingDocument.UUID
-
-	err := k.SaveReceipt(ctx, tdr)
-	require.NoError(t, err)
-
-	path := []string{types.QuerySentReceipts, TestingDocumentReceipt.Sender.String()}
-
-	querier := NewQuerier(k)
-	actualBz, _ := querier(ctx, path, request)
-
-	var actual []types.DocumentReceipt
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	expected := []types.DocumentReceipt{tdr}
-	require.Equal(t, expected, actual)
-}
-
-// ----------------------------------
-// --- Document metadata schemes
-// ----------------------------------
-
-func Test_querySupportedMetadataSchemes_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
-
-	path := []string{types.QuerySupportedMetadataSchemes}
-
-	var actual []types.MetadataSchema
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Equal(t, "[]", string(actualBz))
-	require.Empty(t, actual)
-}
-
-func Test_querySupportedMetadataSchemes_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
-
-	schemes := []types.MetadataSchema{
-		{Type: "schema", SchemaURI: "https://example.com/schema", Version: "1.0.0"},
-		{Type: "other-schema", SchemaURI: "https://example.com/other-schema", Version: "1.0.0"},
+				var got []types.Document
+				legacyAmino.MustUnmarshalJSON(gotBz, &got)
+				require.NoError(t, err)
+				require.ElementsMatch(t, tt.wantedDocuments, got)
+			}
+		})
 	}
-
-	k.AddSupportedMetadataScheme(ctx, schemes[0])
-
-	k.AddSupportedMetadataScheme(ctx, schemes[1])
-
-	path := []string{types.QuerySupportedMetadataSchemes}
-
-	var actual []types.MetadataSchema
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
-
-	require.Contains(t, schemes, actual[0])
-	require.Contains(t, schemes, actual[1])
-
 }
 
-// -----------------------------------------
-// --- Document metadata schemes proposers
-// -----------------------------------------
+func Test_queryGetReceivedDocuments(t *testing.T) {
 
-func Test_queryTrustedMetadataProposers_EmptyList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
+	tests := []struct {
+		name            string
+		recipient       string
+		storedDocuments []types.Document
+		wantedDocuments []types.Document
+		wantErr         bool
+	}{
+		{
+			name:      "invalid recipient",
+			recipient: "",
+			wantErr:   true,
+		},
+		{
+			name:      "empty",
+			recipient: types.ValidDocumentReceiptRecipient1.Sender,
+		},
+		{
+			name:            "one",
+			recipient:       types.ValidDocumentReceiptRecipient1.Sender,
+			storedDocuments: []types.Document{types.ValidDocument},
+			wantedDocuments: []types.Document{types.ValidDocument},
+		},
+		{
+			name:            "two",
+			recipient:       types.ValidDocumentReceiptRecipient1.Sender,
+			storedDocuments: []types.Document{types.ValidDocument, types.AnotherValidDocument},
+			wantedDocuments: []types.Document{types.ValidDocument, types.AnotherValidDocument},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
 
-	path := []string{types.QueryTrustedMetadataProposers}
+			for _, document := range tt.wantedDocuments {
+				err := k.SaveDocument(ctx, document)
+				require.NoError(t, err)
+			}
 
-	var actual []sdk.AccAddress
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+			querier := NewQuerier(*k, legacyAmino)
 
-	require.Equal(t, "[]", string(actualBz))
-	require.Empty(t, actual)
+			path := []string{types.QueryReceivedDocuments, tt.recipient}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
+
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+
+				var got []types.Document
+				legacyAmino.MustUnmarshalJSON(gotBz, &got)
+				require.NoError(t, err)
+				require.ElementsMatch(t, tt.wantedDocuments, got)
+			}
+		})
+	}
 }
 
-func Test_queryTrustedMetadataProposers_ExistingList(t *testing.T) {
-	cdc, ctx, k := SetupTestInput()
-	var querier = NewQuerier(k)
+func Test_queryGetSentDocsReceipts(t *testing.T) {
+	tests := []struct {
+		name            string
+		sender          string
+		storedDocuments []types.Document
+		storedReceipts  []types.DocumentReceipt
+		wantedReceipts  []types.DocumentReceipt
+		wantErr         bool
+	}{
+		{
+			name:    "invalid sender",
+			sender:  "",
+			wantErr: true,
+		},
+		{
+			name:   "empty store",
+			sender: types.ValidDocumentReceiptRecipient1.Sender,
+		},
+		{
+			name:            "one",
+			sender:          types.ValidDocumentReceiptRecipient1.Sender,
+			storedDocuments: []types.Document{types.ValidDocument},
+			storedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1},
+			wantedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Run(tt.name, func(t *testing.T) {
+				k, ctx := setupKeeper(t)
 
-	k.AddTrustedSchemaProposer(ctx, TestingSender)
-	k.AddTrustedSchemaProposer(ctx, TestingSender2)
+				for _, document := range tt.storedDocuments {
+					err := k.SaveDocument(ctx, document)
+					require.NoError(t, err)
+				}
+				for _, receipt := range tt.storedReceipts {
+					err := k.SaveReceipt(ctx, receipt)
+					require.NoError(t, err)
+				}
 
-	path := []string{types.QueryTrustedMetadataProposers}
+				app := simapp.Setup(false)
+				legacyAmino := app.LegacyAmino()
+				querier := NewQuerier(*k, legacyAmino)
 
-	var actual []sdk.AccAddress
-	actualBz, _ := querier(ctx, path, request)
-	cdc.MustUnmarshalJSON(actualBz, &actual)
+				path := []string{types.QuerySentReceipts, tt.sender}
+				gotBz, err := querier(ctx, path, abci.RequestQuery{})
 
-	require.Contains(t, actual, TestingSender)
-	require.Contains(t, actual, TestingSender2)
+				if tt.wantErr {
+					require.Error(t, err)
+				} else {
+					require.NoError(t, err)
+
+					var got []types.DocumentReceipt
+					legacyAmino.MustUnmarshalJSON(gotBz, &got)
+					require.NoError(t, err)
+					require.ElementsMatch(t, tt.wantedReceipts, got)
+				}
+			})
+		})
+	}
+}
+func Test_queryGetReceivedDocsReceipts(t *testing.T) {
+
+	tests := []struct {
+		name            string
+		receiver        string
+		storedDocuments []types.Document
+		storedReceipts  []types.DocumentReceipt
+		wantedReceipts  []types.DocumentReceipt
+		wantErr         bool
+	}{
+		{
+			name:     "invalid receiver",
+			receiver: "",
+			wantErr:  true,
+		},
+		{
+			name:     "empty store",
+			receiver: types.ValidDocumentReceiptRecipient1.Recipient,
+		},
+		{
+			name:            "receipt not stored",
+			receiver:        types.ValidDocumentReceiptRecipient1.Recipient,
+			storedDocuments: []types.Document{types.ValidDocument},
+		},
+		{
+			name:            "one",
+			receiver:        types.ValidDocumentReceiptRecipient1.Recipient,
+			storedDocuments: []types.Document{types.ValidDocument},
+			storedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1},
+			wantedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1},
+		},
+		{
+			name:            "two",
+			receiver:        types.ValidDocumentReceiptRecipient1.Recipient,
+			storedDocuments: []types.Document{types.ValidDocument},
+			storedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1, types.ValidDocumentReceiptRecipient2},
+			wantedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1, types.ValidDocumentReceiptRecipient2},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
+
+			for _, document := range tt.storedDocuments {
+				err := k.SaveDocument(ctx, document)
+				require.NoError(t, err)
+			}
+			for _, receipt := range tt.storedReceipts {
+				err := k.SaveReceipt(ctx, receipt)
+				require.NoError(t, err)
+			}
+
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+			querier := NewQuerier(*k, legacyAmino)
+
+			path := []string{types.QueryReceivedReceipts, tt.receiver}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
+
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+
+				var got []types.DocumentReceipt
+				legacyAmino.MustUnmarshalJSON(gotBz, &got)
+				require.NoError(t, err)
+				require.ElementsMatch(t, tt.wantedReceipts, got)
+			}
+
+		})
+	}
+}
+
+func Test_queryGetDocumentsReceipts(t *testing.T) {
+
+	tests := []struct {
+		name            string
+		documentUUID    string
+		storedDocuments []types.Document
+		storedReceipts  []types.DocumentReceipt
+		wantedReceipts  []types.DocumentReceipt
+		wantErr         bool
+	}{
+		{
+			name:         "invalid receiver",
+			documentUUID: "",
+			wantErr:      true,
+		},
+		{
+			name:         "empty store",
+			documentUUID: types.ValidDocument.UUID,
+		},
+		{
+			name:            "receipt not stored",
+			documentUUID:    types.ValidDocument.UUID,
+			storedDocuments: []types.Document{types.ValidDocument},
+		},
+		{
+			name:            "one",
+			documentUUID:    types.ValidDocument.UUID,
+			storedDocuments: []types.Document{types.ValidDocument},
+			storedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1},
+			wantedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1},
+		},
+		{
+			name:            "two",
+			documentUUID:    types.ValidDocument.UUID,
+			storedDocuments: []types.Document{types.ValidDocument},
+			storedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1, types.ValidDocumentReceiptRecipient2},
+			wantedReceipts:  []types.DocumentReceipt{types.ValidDocumentReceiptRecipient1, types.ValidDocumentReceiptRecipient2},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
+
+			for _, document := range tt.storedDocuments {
+				err := k.SaveDocument(ctx, document)
+				require.NoError(t, err)
+			}
+			for _, receipt := range tt.storedReceipts {
+				err := k.SaveReceipt(ctx, receipt)
+				require.NoError(t, err)
+			}
+
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+			querier := NewQuerier(*k, legacyAmino)
+
+			path := []string{types.QueryDocumentReceipts, tt.documentUUID}
+			gotBz, err := querier(ctx, path, abci.RequestQuery{})
+
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+
+				var got []types.DocumentReceipt
+				legacyAmino.MustUnmarshalJSON(gotBz, &got)
+				require.NoError(t, err)
+				require.ElementsMatch(t, tt.wantedReceipts, got)
+			}
+
+		})
+	}
 }

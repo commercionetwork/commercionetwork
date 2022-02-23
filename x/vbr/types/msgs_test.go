@@ -12,19 +12,19 @@ import (
 
 var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 var TestAmount = sdk.NewCoins(sdk.Coin{
-	Denom:  "ucommercio",
+	Denom:  BondDenom,
 	Amount: sdk.NewInt(100),
 })
 
 var msgIncrementsBRPool = MsgIncrementBlockRewardsPool{
-	Funder: TestFunder,
+	Funder: TestFunder.String(),
 	Amount: TestAmount,
 }
 
 var msgIncrementsBrPoolNoFunds = MsgIncrementBlockRewardsPool{
-	Funder: TestFunder,
+	Funder: TestFunder.String(),
 	Amount: sdk.NewCoins(sdk.Coin{
-		Denom:  "ucommercio",
+		Denom:  BondDenom,
 		Amount: sdk.NewInt(0),
 	}),
 }
@@ -58,120 +58,75 @@ func TestMsgIncrementBlockRewardsPool_ValidateBasic_noFunds(t *testing.T) {
 
 func TestMsgIncrementBlockRewardsPool_GetSignBytes(t *testing.T) {
 	actual := msgIncrementsBRPool.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgIncrementsBRPool))
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msgIncrementsBRPool))
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgIncrementBlockRewardsPool_GetSigners(t *testing.T) {
 	actual := msgIncrementsBRPool.GetSigners()
-	expected := []sdk.AccAddress{msgIncrementsBRPool.Funder}
+	funderAddr, _ := sdk.AccAddressFromBech32(msgIncrementsBRPool.Funder)
+	expected := []sdk.AccAddress{funderAddr}
 
 	require.Equal(t, expected, actual)
 }
 
 // -------------------------
-// --- MsgSetRewardRate
+// --- MsgSetParams
 // -------------------------
-var TestGovernement, _= sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestRate = sdk.NewDec(100)
-var TestNegativeRate = sdk.NewDec(-50)
+var TestGov, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var TestEarnRate = sdk.NewDecWithPrec(5, 1)
 
-var msgSetRewardRate = MsgSetRewardRate{
-	Government: TestGovernement ,
-	RewardRate: TestRate,
+var msgSetParams = MsgSetParams{
+	Government:           TestGov.String(),
+	DistrEpochIdentifier: EpochDay,
+	EarnRate:             TestEarnRate,
 }
 
-var msgSetRewardRateNegative = MsgSetRewardRate{
-	Government: TestGovernement ,
-	RewardRate: TestNegativeRate,
+var msgSetParamsNoEpochIdentifier = MsgSetParams{
+	Government:           TestGov.String(),
+	DistrEpochIdentifier: "",
+	EarnRate:             TestEarnRate,
 }
 
-func TestMsgSetRewardRate_Route(t *testing.T){
-	actual := msgSetRewardRate.Route()
+func TestMsgSetParams_Route(t *testing.T) {
+	actual := msgSetParams.Route()
 	expected := ModuleName
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgSetRewardRate_Type(t *testing.T){
-	actual := msgSetRewardRate.Type()
-	expected := MsgTypeSetRewardRate
+func TestMsgSetParams_Type(t *testing.T) {
+	actual := msgSetParams.Type()
+	expected := MsgTypeSetParams
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgSetRewardRate_ValidateBasic(t *testing.T){
-	actual := msgSetRewardRate.ValidateBasic()
+func TestMsgSetParams_valid(t *testing.T) {
+	actual := msgSetParams.ValidateBasic()
 
 	require.Nil(t, actual)
 }
 
-func TestMsgSetRewardRate_ValidateBasic_NegativeRate(t *testing.T){
-	actual := msgSetRewardRateNegative.ValidateBasic()
-	expected := fmt.Errorf("reward rate must be positive: %s", msgSetRewardRateNegative.RewardRate)
+func TestMsgSetParams_ValidateBasic_noEpochIdentifier(t *testing.T) {
+	actual := msgSetParamsNoEpochIdentifier.ValidateBasic()
+	expected := sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msgSetParamsNoEpochIdentifier.DistrEpochIdentifier))
 
 	require.Equal(t, expected.Error(), actual.Error())
 }
 
-func TestMsgSetRewardRate_GetSignBytes(t *testing.T){
-	actual := msgSetRewardRate.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgSetRewardRate))
+func TestMsgSetParams_GetSignBytes(t *testing.T) {
+	actual := msgSetParams.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msgSetParams))
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgSetRewardRate_GetSigners(t *testing.T){
-	actual := msgSetRewardRate.GetSigners()
-	expected := []sdk.AccAddress{msgSetRewardRate.Government}
+func TestMsgSetParams_GetSigners(t *testing.T) {
+	actual := msgSetParams.GetSigners()
+	govAddr, _ := sdk.AccAddressFromBech32(msgSetParams.Government)
+	expected := []sdk.AccAddress{govAddr}
 
 	require.Equal(t, expected, actual)
-}
-
-// -------------------------
-// --- MsgSetAutomaticWithdraw
-// -------------------------
-var TestAutomaticWithdraw bool
-
-var msgSetAutomaticWithdraw = MsgSetAutomaticWithdraw{
-	Government: TestGovernement,
-	AutomaticWithdraw: TestAutomaticWithdraw,
-}
-
-func TestMsgSetAutomaticWithdraw_Route(t *testing.T){
-	actual := msgSetAutomaticWithdraw.Route()
-	expected := ModuleName
-
-	require.Equal(t, expected, actual)
-}
-
-func TestMsgSetAutomaticWithdraw_type(t *testing.T){
-	actual := msgSetAutomaticWithdraw.Type()
-	expected := MsgTypeSetAutomaticWithdraw
-
-	require.Equal(t, expected, actual)
-}
-
-func TestMsgSetAutomaticWithdraw_ValidateBasic(t *testing.T){
-	actual := msgSetAutomaticWithdraw.ValidateBasic()
-	
-	require.Nil(t, actual)
-}
-
-func TestMsgSetAutomaticWithdraw_GetSignBytes(t *testing.T){
-	actual := msgSetAutomaticWithdraw.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msgSetAutomaticWithdraw))
-
-	require.Equal(t, expected, actual)
-}
-
-func TestMsgSetAutomaticWithdraw_GetSigners(t *testing.T){
-	actual := msgSetAutomaticWithdraw.GetSigners()
-	expected := []sdk.AccAddress{msgSetAutomaticWithdraw.Government}
-
-	require.Equal(t, expected, actual)
-}
-
-func TestMsgSetAutomaticWithdraw(t *testing.T){
-	//TODO..
 }

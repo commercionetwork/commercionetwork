@@ -1,0 +1,33 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciokyc;
+
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+// Import section
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+
+message Membership {
+  string owner = 1;
+  string tsp_address = 2;
+  string membership_type = 3;
+  google.protobuf.Timestamp expiry_at = 4 [(gogoproto.stdtime) = true];
+}
+
+
+message Invite {
+  string sender = 1;
+  string sender_membership = 2;
+  string user = 3;
+  uint64 status = 4;
+}
+
+
+// ValAddresses defines a repeated set of validator addresses.
+message TrustedServiceProviders {
+  //option (gogoproto.goproto_stringer) = false;
+  //option (gogoproto.stringer)         = true;
+
+  repeated string addresses = 1;
+}

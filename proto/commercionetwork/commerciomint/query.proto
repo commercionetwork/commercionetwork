@@ -1,0 +1,58 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciomint;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "commercionetwork/commerciomint/position.proto";
+import "commercionetwork/commerciomint/params.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Queries a Etp by id.
+  rpc Etp(QueryEtpRequest) returns (QueryEtpResponse) {
+    option (google.api.http).get = "/commercionetwork/commerciomint/{ID}/etp";
+  }
+
+  rpc EtpsByOwner(QueryEtpsByOwnerRequest) returns (QueryEtpsResponse) {
+    option (google.api.http).get =
+        "/commercionetwork/commerciomint/{Owner}/etpsOwner";
+  }
+
+  rpc Etps(QueryEtpsRequest) returns (QueryEtpsResponse) {
+    option (google.api.http).get = "/commercionetwork/commerciomint/etps";
+  }
+
+  rpc Params(QueryParams) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/commercionetwork/commerciomint/params";
+  }
+
+  // this line is used by starport scaffolding # 2
+}
+
+message QueryEtpRequest { string ID = 1; }
+
+message QueryEtpsByOwnerRequest {
+  string Owner = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryEtpResponse { commerciomint.Position Position = 1; }
+
+message QueryEtpsRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryEtpsResponse {
+  repeated commerciomint.Position Positions = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryParams {}
+
+message QueryParamsResponse { Params params = 1; }
+
+// this line is used by starport scaffolding # 3

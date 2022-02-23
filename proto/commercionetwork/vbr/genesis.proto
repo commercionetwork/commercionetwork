@@ -1,0 +1,20 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.vbr;
+
+// this line is used by starport scaffolding # genesis/proto/import
+option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
+
+import "gogoproto/gogo.proto";
+import "commercionetwork/vbr/params.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+
+// GenesisState defines the vbr module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+    repeated cosmos.base.v1beta1.DecCoin poolAmount = 1 [(gogoproto.moretags) = "yaml:\"pool_amount\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable) = false] ;
+   
+    Params params = 4 [ (gogoproto.nullable) = false ];
+}

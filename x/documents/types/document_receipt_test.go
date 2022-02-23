@@ -18,16 +18,16 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			"two equal DocumentReceipt",
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
 			},
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -38,16 +38,16 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			"different in proof",
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
 			},
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"",
@@ -58,16 +58,16 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			"different in documentuuid",
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
 			},
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"",
 				"proof",
@@ -78,16 +78,16 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			"different in txhash",
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
 			},
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"",
 				"documentuuid",
 				"proof",
@@ -98,16 +98,16 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			"different in recipient",
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
 			},
 			DocumentReceipt{
 				"uuid",
-				sender,
-				nil,
+				sender.String(),
+				"",
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -118,16 +118,16 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			"different in sender",
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
 			},
 			DocumentReceipt{
 				"uuid",
-				nil,
-				recipient,
+				"",
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -138,16 +138,16 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 			"different in uuid",
 			DocumentReceipt{
 				"uuid",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
 			},
 			DocumentReceipt{
 				"",
-				sender,
-				recipient,
+				sender.String(),
+				recipient1.String(),
 				"txhash",
 				"documentuuid",
 				"proof",
@@ -159,6 +159,83 @@ func TestDocumentReceipt_Equals(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			require.Equal(t, tt.equal, tt.us.Equals(tt.them))
+		})
+	}
+}
+
+func TestDocumentReceipt_Validate(t *testing.T) {
+	tests := []struct {
+		name    string
+		receipt func() DocumentReceipt
+		wantErr bool
+	}{
+		{
+			name: "valid",
+			receipt: func() DocumentReceipt {
+				return ValidDocumentReceiptRecipient1
+			},
+			wantErr: false,
+		},
+		{
+			name: "empty UUID",
+			receipt: func() DocumentReceipt {
+				receipt := ValidDocumentReceiptRecipient1
+				receipt.UUID = ""
+				return receipt
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid sender",
+			receipt: func() DocumentReceipt {
+				receipt := ValidDocumentReceiptRecipient1
+				receipt.Sender = ""
+				return receipt
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid recipient",
+			receipt: func() DocumentReceipt {
+				receipt := ValidDocumentReceiptRecipient1
+				receipt.Recipient = ""
+				return receipt
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty tx hash",
+			receipt: func() DocumentReceipt {
+				receipt := ValidDocumentReceiptRecipient1
+				receipt.TxHash = ""
+				return receipt
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty document UUID",
+			receipt: func() DocumentReceipt {
+				receipt := ValidDocumentReceiptRecipient1
+				receipt.DocumentUUID = ""
+				return receipt
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty proof",
+			receipt: func() DocumentReceipt {
+				receipt := ValidDocumentReceiptRecipient1
+				receipt.Proof = ""
+				return receipt
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.receipt().Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("DocumentReceipt.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
 }

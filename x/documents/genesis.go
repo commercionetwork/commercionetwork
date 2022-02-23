@@ -1,60 +1,54 @@
 package documents
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GenesisState - documents genesis state
-type GenesisState struct {
-	Documents                      []types.Document        `json:"documents"`
-	Receipts                       []types.DocumentReceipt `json:"receipts"`
-	SupportedMetadataSchemes       []types.MetadataSchema  `json:"supported_metadata_schemes"`
-	TrustedMetadataSchemaProposers []sdk.AccAddress        `json:"trusted_metadata_schema_proposers"`
-}
-
-// DefaultGenesisState returns a default genesis state
-func DefaultGenesisState() GenesisState {
-	return GenesisState{}
-}
-
-// InitGenesis sets documents information for genesis.
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
+// InitGenesis sets documents and receipts information for genesis.
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState) {
 	for _, doc := range data.Documents {
-		if err := keeper.SaveDocument(ctx, doc); err != nil {
+		if err := keeper.SaveDocument(ctx, *doc); err != nil {
 			panic(err)
 		}
 	}
 
 	for _, receipt := range data.Receipts {
-		if err := keeper.SaveReceipt(ctx, receipt); err != nil {
+		if err := keeper.SaveReceipt(ctx, *receipt); err != nil {
 			panic(err)
 		}
 	}
-
-	for _, schema := range data.SupportedMetadataSchemes {
-		keeper.AddSupportedMetadataScheme(ctx, schema)
-	}
-
-	for _, proposer := range data.TrustedMetadataSchemaProposers {
-		keeper.AddTrustedSchemaProposer(ctx, proposer)
-	}
 }
 
-// ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
-	return GenesisState{
-		Documents:                      exportDocuments(ctx, keeper),
-		Receipts:                       exportReceipts(ctx, keeper),
-		SupportedMetadataSchemes:       exportMetadataSchemes(ctx, keeper),
-		TrustedMetadataSchemaProposers: exportTrustedSchemaProviders(ctx, keeper),
-	}
-}
+// ExportGenesis returns the genesis state for a given context and keeper.
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
+	documents := []*types.Document{}
 
-// ValidateGenesis performs basic validation of genesis data returning an
-// error for any failed validation criteria.
-func ValidateGenesis(_ GenesisState) error {
-	return nil
+	documentsIterator := keeper.DocumentsIterator(ctx)
+	defer documentsIterator.Close()
+
+	for ; documentsIterator.Valid(); documentsIterator.Next() {
+		keyDocumentUUIDVal := documentsIterator.Key()
+		documentUUID := string(keyDocumentUUIDVal[len(types.DocumentStorePrefix):])
+		document, _ := keeper.GetDocumentByID(ctx, documentUUID)
+		documents = append(documents, &document)
+	}
+
+	receipts := []*types.DocumentReceipt{}
+
+	receiptsIterator := keeper.DocumentReceiptsIterator(ctx)
+	defer receiptsIterator.Close()
+
+	for ; receiptsIterator.Valid(); receiptsIterator.Next() {
+		keyReceiptUUIDVal := receiptsIterator.Key()
+		receiptUUID := string(keyReceiptUUIDVal[len(types.ReceiptsStorePrefix):])
+		receipt, _ := keeper.GetReceiptByID(ctx, receiptUUID)
+		receipts = append(receipts, &receipt)
+	}
+
+	return types.GenesisState{
+		Documents: documents,
+		Receipts:  receipts,
+	}
 }

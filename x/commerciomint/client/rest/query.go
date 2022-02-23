@@ -4,86 +4,79 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/gorilla/mux"
-
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	restTypes "github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
 )
 
 const (
-	restOwnerAddress = "ownerAddress"
+	restuser = "user"
 )
 
-func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
+func RegisterRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("/commerciomint/etps/{%s}", restOwnerAddress),
+		fmt.Sprintf("/commerciomint/{%s}/etp", restuser),
 		getEtpsHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/conversion_rate", getConversionRateHandler(cliCtx)).Methods("GET")
-	r.HandleFunc("/commerciomint/freeze_period", getFreezePeriodHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(
+		fmt.Sprintf("/commerciomint/{%s}/etpsOwner", restuser),
+		getEtpsByOwnerHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commerciomint/etps", getAllEtpsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc("/commerciomint/params", getParamsHandler(cliCtx)).Methods("GET")
 }
 
 // ----------------------------------
 // --- Commerciomint
 // ----------------------------------
 
-// @Summary Get all the Exchange Trade Positions for user
-// @Description This endpoint returns the Exchange Trade Position, along with the blocktime at which the resource was queried at
-// @ID getEtpsHandler
-// @Produce json
-// @Param address path string true "Address of the user"
-// @Success 200 {object} x.JSONResult{result=[]types.Position}
-// @Failure 404
-// @Router /commerciomint/etps/{address} [get]
-// @Tags x/commerciomint
-func getEtpsHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getEtpsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		ownerAddr := vars[restOwnerAddress]
+		id := vars[restuser]
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetEtps, ownerAddr)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, id, types.QueryGetEtpRest)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
 		}
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
 
-// @Summary Get Conversion rate
-// @Description This endpoint returns the Conversion rate, along with the height at which the resource was queried at
-// @ID getConversionRateHandler
-// @Produce json
-// @Success 200 {object} x.JSONResult{result=types.Dec}
-// @Failure 404
-// @Router /commerciomint/conversion_rate [get]
-// @Tags x/commerciomint
-func getConversionRateHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getEtpsByOwnerHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryConversionRate)
+		vars := mux.Vars(r)
+		ownerAddr := vars[restuser]
+
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, ownerAddr, types.QueryGetEtpsByOwnerRest)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
 		}
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
-
-// @Summary Get Freeze period
-// @Description This endpoint returns the Freeze period, along with the height at which the resource was queried at
-// @ID getFreezePeriodHandler
-// @Produce json
-// @Success 200 {object} x.JSONResult{result=time.Duration}
-// @Failure 404
-// @Router /commerciomint/freeze_period [get]
-// @Tags x/commerciomint
-func getFreezePeriodHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func getAllEtpsHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryFreezePeriod)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetallEtpsRest)
 		res, _, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
 		}
-		rest.PostProcessResponse(w, cliCtx, res)
+		restTypes.PostProcessResponse(w, cliCtx, res)
+	}
+}
+func getParamsHandler(cliCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryGetParamsRest)
+		res, _, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			restTypes.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }

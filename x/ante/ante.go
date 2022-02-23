@@ -12,7 +12,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	//bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	//bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
@@ -22,11 +25,12 @@ var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(
-	ak keeper.AccountKeeper,
-	supplyKeeper types.SupplyKeeper,
+	ak keeper.AccountKeeper, bankKeeper types.BankKeeper,
 	govKeeper government.Keeper,
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
+	signModeHandler authsigning.SignModeHandler,
+	stakeDenom string,
 	stableCreditsDemon string,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
@@ -34,13 +38,13 @@ func NewAnteHandler(
 		cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
-		NewMinFeeDecorator(govKeeper, mintKeeper, stableCreditsDemon),
+		NewMinFeeDecorator(govKeeper, mintKeeper, stakeDenom, stableCreditsDemon),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
-		cosmosante.NewDeductFeeDecorator(ak, supplyKeeper),
+		cosmosante.NewDeductFeeDecorator(ak, bankKeeper),
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
-		cosmosante.NewSigVerificationDecorator(ak),
+		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),
 	)
 }
@@ -48,24 +52,28 @@ func NewAnteHandler(
 // MinFeeDecorator checks that each transaction containing a MsgShareDocument
 // contains also a minimum fee amount corresponding to 0.01 euro per
 // MsgShareDocument included into the transaction itself.
-// The amount can be specified using stableCreditsDenom.
+// The amount can be specified using stableCreditsDenom or stakeDenom.
+// If stakeDenom used the cost of transaction is always 10000ucommercio
 type MinFeeDecorator struct {
 	govk               government.Keeper
 	mintk              commerciomintKeeper.Keeper
+	stakeDenom         string
 	stableCreditsDenom string
 }
 
-func NewMinFeeDecorator(govKeeper government.Keeper, mintk commerciomintKeeper.Keeper, stableCreditsDenom string) MinFeeDecorator {
+func NewMinFeeDecorator(govKeeper government.Keeper, mintk commerciomintKeeper.Keeper, stakeDenom string, stableCreditsDenom string) MinFeeDecorator {
 	return MinFeeDecorator{
 		govk:               govKeeper,
 		mintk:              mintk,
+		stakeDenom:         stakeDenom,
 		stableCreditsDenom: stableCreditsDenom,
 	}
 }
 
 func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// all transactions must be of type auth.StdTx
-	stdTx, ok := tx.(types.StdTx)
+	//stdTx, ok := tx.(types.StdTx)
+	stdTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
 		// Set a gas meter with limit 0 as to prevent an infinite gas meter attack
 		// during runTx.
@@ -79,10 +87,11 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	}
 
 	// calculate required fees for this transaction as (number of messages * fixed required feees)
-	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.Msgs)))
+
+	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.GetMsgs())))
 
 	// Check the minimum fees
-	if err := checkMinimumFees(stdTx, ctx, mfd.govk, mfd.mintk, mfd.stableCreditsDenom, requiredFees); err != nil {
+	if err := checkMinimumFees(stdTx, ctx, mfd.govk, mfd.mintk, mfd.stakeDenom, mfd.stableCreditsDenom, requiredFees); err != nil {
 		return ctx, err
 	}
 
@@ -90,50 +99,44 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 }
 
 func checkMinimumFees(
-	stdTx types.StdTx,
+	stdTx sdk.Tx,
 	ctx sdk.Context,
 	govk government.Keeper,
 	mintk commerciomintKeeper.Keeper,
+	stakeDenom string,
 	stableCreditsDenom string,
 	requiredFees sdk.Dec,
 ) error {
-
-	// No Fees for the Tumbler.
-	if stdTx.FeePayer().Equals(govk.GetTumblerAddress(ctx)) {
-		return nil
-	}
-
 	fiatAmount := sdk.ZeroDec()
 	// Find required quantity of stable coin = number of msg * 10000
 	// Every message need 0.01 ccc
 	stableRequiredQty := requiredFees.MulInt64(1000000)
 	// Extract amount of stable coin from fees
-	fiatAmount = sdk.NewDecFromInt(stdTx.Fee.Amount.AmountOf(stableCreditsDenom))
+	feeTx, ok := stdTx.(sdk.FeeTx)
+	if !ok {
+		return sdkErr.Wrap(sdkErr.ErrTxDecode, "Tx must be a FeeTx")
+	}
+	fiatAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
 	// Check if amount of stable coin is enough
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(fiatAmount) {
 		// If amount of stable coin is enough return without error
 		return nil
 	}
+	// NB: if user pay insufficent fiat amount plus enough stake denom, fiat amount will be withdraw from the wallet anyway.
 
-	// Retrive stable coin conversion rate
-	ucccConversionRate := mintk.GetConversionRate(ctx)
-	// Retrive amount of commercio token and calculate equivalent in stable coin
-	if comAmount := stdTx.Fee.Amount.AmountOf("ucommercio"); comAmount.IsPositive() {
-		//f := comAmount.ToDec().Mul(ucccConversionRate)
-		f := comAmount.ToDec().Quo(ucccConversionRate)
-		//realQty := f.QuoInt64(1000000)
-		//fiatAmount = fiatAmount.Add(realQty)
-		fiatAmount = fiatAmount.Add(f)
+	// stakeDenom must always equal 10000
+	comAmount := sdk.ZeroDec()
+	comRequiredQty := requiredFees.MulInt64(1000000)
+	comAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stakeDenom))
 
+	// Check if amount of stake coin is enough
+	if !comRequiredQty.IsZero() && comRequiredQty.LTE(comAmount) {
+		// If amount of stake coin is enough return without error
+		return nil
 	}
 
-	// Check if amount of stable coin plus equivalent amount of commercio token are enough
-	if !stableRequiredQty.LTE(fiatAmount) {
-		msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s", stableRequiredQty, fiatAmount)
-		return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
-	}
-
-	return nil
+	msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s, or %s stake denom amount, got %s", stableRequiredQty, fiatAmount, comRequiredQty, comAmount)
+	return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
 }
 
 // setGasMeter returns a new context with a gas meter set from a given context.

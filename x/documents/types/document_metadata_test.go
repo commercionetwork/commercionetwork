@@ -43,7 +43,6 @@ func TestDocumentMetadata_Equals(t *testing.T) {
 			DocumentMetadata{ContentURI: "http://example.com/metadata"},
 			DocumentMetadata{
 				ContentURI: "http://example.com/metadata",
-				SchemaType: "",
 				Schema: &DocumentMetadataSchema{
 					URI:     "https://example.com/metadata/schema",
 					Version: "1.0.0",
@@ -97,9 +96,8 @@ func TestDocumentMetadata_Validate(t *testing.T) {
 			DocumentMetadata{
 				ContentURI: "https://example.com/metadata",
 				Schema:     nil,
-				SchemaType: "",
 			},
-			errors.New("either metadata.schema or metadata.schema_type must be defined"),
+			errors.New("metadata.schema must be defined"),
 		},
 		{
 			"empty schema uri",
@@ -137,7 +135,10 @@ func TestDocumentMetadata_Validate(t *testing.T) {
 }
 
 func TestDocumentMetadata_JSONUnmarshal(t *testing.T) {
-	json := `{"content_uri":"http://www.contentUri.com","schema":{"uri":"http://www.contentUri.com","version":"1.0.0"}}`
+	json := `{"contentURI":"http://www.contentUri.com",
+			"schema":{
+				"URI":"http://www.contentUri.com","version":"1.0.0"}
+			}`
 
 	var metadata DocumentMetadata
 	ModuleCdc.MustUnmarshalJSON([]byte(json), &metadata)

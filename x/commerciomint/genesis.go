@@ -2,84 +2,86 @@ package commerciomint
 
 import (
 	"fmt"
-	"time"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GenesisState - commerciomint genesis state
-type GenesisState struct {
-	Positions           []types.Position `json:"positions"`
-	LiquidityPoolAmount sdk.Coins        `json:"pool_amount"`
-	CollateralRate      sdk.Dec          `json:"collateral_rate"`
-	FreezePeriod        time.Duration    `json:"freeze_period"`
-}
+// InitGenesis initializes the capability module's state from a provided genesis
+// state.
 
-// DefaultGenesisState returns a default genesis state
-func DefaultGenesisState() GenesisState {
-	return GenesisState{
-		Positions:           []types.Position{},
-		LiquidityPoolAmount: sdk.Coins{},
-		CollateralRate:      sdk.NewDec(1),
-		FreezePeriod:        DefaultFreezePeriod,
-	}
-}
-
-// InitGenesis sets commerciomint information for genesis.
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, supplyKeeper supply.Keeper, data GenesisState) {
+// InitGenesis sets documents information for genesis.
+// TODO move all keeper invocation in keeper package
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState) {
 
 	// Get the module account
-	moduleAcc := keeper.GetMintModuleAccount(ctx)
+	moduleAcc := keeper.GetModuleAccount(ctx)
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	// Get the initial pool coins
-	if moduleAcc.GetCoins().IsZero() {
-		if err := moduleAcc.SetCoins(data.LiquidityPoolAmount); err != nil {
+	// TODO RESOLVE POOL ISSUE
+	if keeper.GetModuleBalance(ctx, moduleAcc.GetAddress()).IsZero() {
+		if err := keeper.SetLiquidityPoolToAccount(ctx, data.PoolAmount); err != nil {
 			panic(err)
 		}
-		supplyKeeper.SetModuleAccount(ctx, moduleAcc)
+		keeper.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	err := keeper.SetConversionRate(ctx, data.CollateralRate)
-	if err != nil {
+	params := types.Params{
+		ConversionRate: data.Params.ConversionRate,
+		FreezePeriod:   data.Params.FreezePeriod,
+	}
+
+	if err := keeper.UpdateParams(ctx, params); err != nil {
 		panic(err)
 	}
 
-	errFreeze := keeper.SetFreezePeriod(ctx, data.FreezePeriod)
-	if errFreeze != nil {
-		panic(errFreeze)
+	for _, position := range data.Positions {
+		if err := keeper.SetPosition(ctx, *position); err != nil {
+			panic(err)
+		}
 	}
 
-	// Add the existing ETPs
-	for _, position := range data.Positions {
-		keeper.SetPosition(ctx, position)
-	}
 }
 
-// ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
-	return GenesisState{
-		Positions:           keeper.GetAllPositions(ctx),
-		LiquidityPoolAmount: keeper.GetLiquidityPoolAmount(ctx),
-		CollateralRate:      keeper.GetConversionRate(ctx),
-		FreezePeriod:        keeper.GetFreezePeriod(ctx),
-	}
+// ExportGenesis returns the capability module's exported genesis.
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	genesis := types.DefaultGenesis()
+
+	// this line is used by starport scaffolding # genesis/module/export
+	genesis.Params = k.GetParams(ctx)
+
+	genesis.PoolAmount = k.GetLiquidityPoolAmount(ctx)
+
+	genesis.Positions = append(genesis.Positions, k.GetAllPositions(ctx)...)
+
+	return genesis
 }
 
 // ValidateGenesis performs basic validation of genesis data returning an
 // error for any failed validation criteria.
-func ValidateGenesis(state GenesisState) error {
+func ValidateGenesis(state types.GenesisState) error {
 	for _, position := range state.Positions {
 		err := position.Validate()
 		if err != nil {
 			return err
 		}
 	}
-	return types.ValidateConversionRate(state.CollateralRate)
+	// PoolAmount
+
+	freezePeriod := state.Params.FreezePeriod
+	err := types.ValidateFreezePeriod(freezePeriod)
+	if err != nil {
+		return err
+	}
+
+	err = types.ValidateConversionRate(state.Params.ConversionRate)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

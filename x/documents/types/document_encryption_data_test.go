@@ -4,11 +4,12 @@ import (
 	"errors"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
-var data = DocumentEncryptionData{
-	Keys:          []DocumentEncryptionKey{{Recipient: recipient, Value: "6F7468657276616C7565"}},
+var validDocumentEncryptionData = DocumentEncryptionData{
+	Keys:          []*DocumentEncryptionKey{{Recipient: recipient1.String(), Value: "6F7468657276616C7565"}},
 	EncryptedData: []string{"content", "content_uri", "metadata.content_uri", "metadata.schema.uri"},
 }
 
@@ -25,35 +26,35 @@ func TestDocumentEncryptionData_Equals(t *testing.T) {
 	}{
 		{
 			"two equal encryption data",
-			data,
-			data,
+			validDocumentEncryptionData,
+			validDocumentEncryptionData,
 			true,
 		},
 		{
 			"different key length",
-			data,
-			DocumentEncryptionData{Keys: []DocumentEncryptionKey{}, EncryptedData: data.EncryptedData},
+			validDocumentEncryptionData,
+			DocumentEncryptionData{Keys: []*DocumentEncryptionKey{}, EncryptedData: validDocumentEncryptionData.EncryptedData},
 			false,
 		},
 		{
 			"different keys",
-			data,
+			validDocumentEncryptionData,
 			DocumentEncryptionData{
-				Keys:          []DocumentEncryptionKey{{Recipient: sender, Value: data.Keys[0].Value}},
-				EncryptedData: data.EncryptedData,
+				Keys:          []*DocumentEncryptionKey{{Recipient: sender.String(), Value: validDocumentEncryptionData.Keys[0].Value}},
+				EncryptedData: validDocumentEncryptionData.EncryptedData,
 			},
 			false,
 		},
 		{
 			"different data length",
-			data,
-			DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"content"}},
+			validDocumentEncryptionData,
+			DocumentEncryptionData{Keys: validDocumentEncryptionData.Keys, EncryptedData: []string{"content"}},
 			false,
 		},
 		{
 			"different encrypted data",
-			data,
-			DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"metadata.schema.uri", "content_uri", "content", "metadata.content_uri"}},
+			validDocumentEncryptionData,
+			DocumentEncryptionData{Keys: validDocumentEncryptionData.Keys, EncryptedData: []string{"metadata.schema.uri", "content_uri", "content", "metadata.content_uri"}},
 			false,
 		},
 	}
@@ -77,27 +78,27 @@ func TestDocumentEncryptionData_Validate(t *testing.T) {
 	}{
 		{
 			"valid DocumentEncryptionData",
-			data,
+			validDocumentEncryptionData,
 			nil,
 		},
 		{
 			"empty keys",
-			DocumentEncryptionData{Keys: nil, EncryptedData: data.EncryptedData},
+			DocumentEncryptionData{Keys: nil, EncryptedData: validDocumentEncryptionData.EncryptedData},
 			errors.New("encryption data keys cannot be empty"),
 		},
 		{
 			"invalid keys (invalid address)",
 			DocumentEncryptionData{
-				Keys: []DocumentEncryptionKey{
-					{Recipient: nil, Value: ""},
+				Keys: []*DocumentEncryptionKey{
+					{Recipient: "", Value: ""},
 				},
-				EncryptedData: data.EncryptedData,
+				EncryptedData: validDocumentEncryptionData.EncryptedData,
 			},
 			errors.New("invalid address "),
 		},
 		{
 			"invalid encryption data",
-			DocumentEncryptionData{Keys: data.Keys, EncryptedData: []string{"invalid.data"}},
+			DocumentEncryptionData{Keys: validDocumentEncryptionData.Keys, EncryptedData: []string{"invalid.data"}},
 			errors.New("encrypted data not supported"),
 		},
 	}
@@ -108,6 +109,48 @@ func TestDocumentEncryptionData_Validate(t *testing.T) {
 				require.EqualError(t, tt.ed.Validate(), tt.wantErr.Error())
 			} else {
 				require.NoError(t, tt.ed.Validate())
+			}
+		})
+	}
+}
+
+// ---------------
+// --- ContainsRecipient
+// ---------------
+
+func TestDocumentEncryptionData_ContainsRecipient(t *testing.T) {
+
+	type args struct {
+		recipient sdk.AccAddress
+	}
+	tests := []struct {
+		name string
+		data DocumentEncryptionData
+		args args
+		want bool
+	}{
+		{
+			name: "contains",
+			data: validDocumentEncryptionData,
+			args: args{
+				recipient: recipient1,
+			},
+			want: true,
+		},
+		{
+			name: "not contains",
+			data: validDocumentEncryptionData,
+			args: args{
+				recipient: sender,
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if got := validDocumentEncryptionData.ContainsRecipient(tt.args.recipient); got != tt.want {
+				t.Errorf("DocumentEncryptionData.ContainsRecipient() = %v, want %v", got, tt.want)
 			}
 		})
 	}

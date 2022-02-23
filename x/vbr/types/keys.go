@@ -3,17 +3,29 @@ package types
 const (
 	ModuleName   = "vbr"
 	StoreKey     = ModuleName
-	QuerierRoute = ModuleName
 	RouterKey    = ModuleName
-
-	QueryBlockRewardsPoolFunds = "funds"
-	QueryRewardRate            = "reward_rate"
-	QueryAutomaticWithdraw     = "automatic_withdraw"
+	QuerierRoute = ModuleName
+	MemStoreKey  = "mem_" + ModuleName
 
 	MsgTypeIncrementBlockRewardsPool = "incrementBlockRewardsPool"
-	MsgTypeSetRewardRate             = "setRewardRate"
-	MsgTypeSetAutomaticWithdraw      = "setAutomaticWithdraw"
+	MsgTypeSetParams                 = "setParams"
 	PoolStoreKey                     = StoreKey + ":pool:"
-	RewardRateKey                    = StoreKey + ":rewardRate"
-	AutomaticWithdraw                = StoreKey + ":automaticWithdraw"
+
+	QueryBlockRewardsPoolFunds = "funds"
+	QueryParams                = "params"
+
+	EpochWeek   = "week"
+	EpochDay    = "day"
+	EpochHour   = "hour"
+	EpochMinute = "minute"
+	EpochMonth  = "month"
+
+	BondDenom = "ucommercio"
 )
+
+// this line is used by starport scaffolding # ibc/keys/port
+
+// TODO: use KeyPrefix function if needed
+/* func KeyPrefix(p string) []byte {
+	return []byte(p)
+}*/

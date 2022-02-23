@@ -1,56 +1,37 @@
 package government
 
 import (
-	"errors"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/commercionetwork/commercionetwork/x/government/keeper"
+	"github.com/commercionetwork/commercionetwork/x/government/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GenesisState - government genesis state
-type GenesisState struct {
-	GovernmentAddress sdk.AccAddress `json:"government_address"`
-	TumblerAddress    sdk.AccAddress `json:"tumbler_address"`
-}
+// InitGenesis initializes the capability module's state from a provided genesis
+// state.
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 
-// DefaultGenesisState returns a default genesis state
-func DefaultGenesisState() GenesisState {
-	return GenesisState{}
-}
+	govAddr, err := sdk.AccAddressFromBech32(genState.GovernmentAddress)
+	if err != nil {
+		panic(err)
+	}
 
-// InitGenesis sets documents information for genesis.
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
-	errSetGov := keeper.SetGovernmentAddress(ctx, data.GovernmentAddress)
-
-	errSetTumb := keeper.SetTumblerAddress(ctx, data.TumblerAddress)
-
+	errSetGov := k.SetGovernmentAddress(ctx, govAddr)
 	if errSetGov != nil {
 		panic(errSetGov)
 	}
 
-	if errSetTumb != nil {
-		panic(errSetTumb)
-	}
 }
 
-// ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
-	return GenesisState{
-		GovernmentAddress: keeper.GetGovernmentAddress(ctx),
-		TumblerAddress:    keeper.GetTumblerAddress(ctx),
-	}
+// ExportGenesis returns the capability module's exported genesis.
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	genesis := types.DefaultGenesis()
+
+	genesis.GovernmentAddress = k.GetGovernmentAddress(ctx).String()
+	return genesis
 }
 
 // ValidateGenesis performs basic validation of genesis data returning an
 // error for any failed validation criteria.
-func ValidateGenesis(data GenesisState) error {
-	if data.GovernmentAddress.Empty() {
-		return errors.New("government address cannot be empty. Use the set-genesis-government-address command to set one")
-	}
-
-	if data.TumblerAddress.Empty() {
-		return errors.New("tumbler address cannot be empty. Use the set-genesis-tumbler-address command to set one")
-	}
+func ValidateGenesis(_ types.GenesisState) error {
 	return nil
 }

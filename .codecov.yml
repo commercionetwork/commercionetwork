@@ -21,6 +21,14 @@ comment:
 
 ignore:
   - "docs"
+  - "docs_3_0"
   - "*.md"
   - "*.rst"
+  - "**/*.pb.go"
+  - "types/*.pb.go"
+  - "tests/*"
+  - "tests/**/*"
+  - "x/**/*.pb.go"
   - "x/**/test_common.go"
+  - "scripts/"
+  - "contrib"

@@ -2,14 +2,6 @@
 Once you've properly set up a [full node](full-node-installation.md), if you wish you can become a validator node and
 start in earning by  validating  the chain transactions. 
 
-Before you start, we recommend that you run the command 
-
-```bash
-cncli config chain-id $CHAINID
-```
-
-In this way you can omit the flag `--chain-id="$CHAINID"` in every command of the **cncli**
-
 
 ## Requirements
 If you want to become a Commercio.network validator you need to:
@@ -26,7 +18,7 @@ If you have any problems with the procedure try to read the section **[Common er
 
 
 ## 1. Add wallet key
-Inside the testnet you can use the **Ledger**, but you can also use the wallet software with the `cncli`.     
+Inside the testnet you can use the **Ledger**, but you can also use the wallet software with the `commercionetworkd`.     
 However, if you wish to use **Ledger**, please add the `--ledger` flat to any command.
 
 :::warning  
@@ -37,15 +29,15 @@ They are your mnemonic and if you loose them you lose all your tokens and the wh
 
 Create the first wallet with the following command
 ```bash
-cncli keys add $NODENAME
+commercionetworkd keys add $NODENAME
 # Enter a password that you can remember
 ```
 The output of the command will provide the 24 words that are the mnemonic.    
       
 
-If you are using the **Ledger** device you must first connect it to your computer, start the cosmos application and run the command 
+If you are using the **Ledger** device you must first connect it to your computer, start the commercionetworkd application and run the command 
 ```bash
-cncli keys add $NODENAME --ledger
+commercionetworkd keys add $NODENAME --ledger
 # Enter a password that you can remember
 ```
 In this case the 24 words are not provided because they have already been configured in the **Ledger** initialization
@@ -57,49 +49,53 @@ Copy your public address. It should have the format `did:com:<data>`.
 The second wallet must be requested through a message on the [Telegram group](https://t.me/commercionetworkvipsTelegram). With a private message will be sent the information of the second wallet.
 
  
-**ATTENTION**: from now on we will refer to the value of your public address of the first wallet as `<your pub addr creator val>` notation.
-We will refer to the second wallet as `<your pub addr delegator>` notation.   
+**ATTENTION**: from now on we will refer to the value of your public address of the first wallet as `<CREATOR ADDRESS>` notation.
+We will refer to the second wallet as `<DELEGATOR ADDRESS>` notation.   
 
 ## 2. Get the tokens
 
 To get your tokens inside our mainnet or testnet, you are required to purchase them using an exchange or having received a black card.  
-**The black card is the wallet `<your pub addr delegator>`**
+**The black card is the wallet `<DELEGATOR ADDRESS>`**
 
-Read [Add wallet key](#1-add-wallet-key) to create your own `<your pub addr creator val>`.
+Read [Add wallet key](#1-add-wallet-key) to create your own `<CREATOR ADDRESS>`.
 
-**Use the ledger or another hsm to make a recovery from 24 words for the second wallet `<your pub addr delegator>` with the black card.**
+**Use the ledger or another hsm to make a recovery from 24 words for the second wallet `<DELEGATOR ADDRESS>` with the black card.**
 
-Send one token to the `<your pub addr creator val>` wallet using the following command
+Send one token to the `<CREATOR ADDRESS>` wallet using the following command
 
 :::warning  
 This transaction is expected to be done with an hsm as Ledger. If you are using a Ledger add the `--ledger` flag.
 :::
 
+`$CHAINID` is the chain id of the chain. Use `commercio-3` if you work on the mainnet, or the `commerico-testnet11k` if you work on the testnet
+
 ```bash
-cncli tx send \
-<your pub addr delegator> \
-<your pub addr creator val> \
+commercionetworkd tx bank send \
+<DELEGATOR ADDRESS> \
+<CREATOR ADDRESS> \
 1110000ucommercio \
 --fees=10000ucommercio  \
 --chain-id="$CHAINID" \
 -y
 ```
 
+**Note**: You can use `uccc` tokens instead `ucommercio` for the `fees` value
+
 Once you've been confirmed the successful transaction, please check using the following command:
 ```bash
-cncli query account <your pub addr creator val> --chain-id $CHAINID
+commercionetworkd query bank balances <CREATOR ADDRESS>
 ```
 
-The output should look like this:
+The output should look like this **(WIP)**:
 ```
 - denom: ucommercio
-  amount: "1000000"
+  amount: "1110000"
 ```
 
 
 ## 3. Create a validator
 Once you have the tokens, you can create a validator. If you want, while doing so you can also specify the following parameters
-* `--moniker`: the name you want to assign to your validator. Spaces and special characters are accepted
+* `--moniker`: the name you want to assign to your validator. Spaces and special characters are accepted (**mandatory**)
 * `--details`: a brief description about your node or your company
 * `--identity`: your [Keybase](https://keybase.io) identity
 * `--website`: a public website of your node or your company
@@ -110,7 +106,7 @@ The overall command to create a validator is the following:
 
 ### Testnet
 ```bash
-export VALIDATOR_PUBKEY=$(cnd tendermint show-validator)
+export VALIDATOR_PUBKEY=$(commercionetworkd tendermint show-validator)
 ```
 
 ### Mainnet
@@ -126,7 +122,7 @@ Warning: a did address can create one and only one validator and a validator can
 
 
 ```bash
-cncli tx staking create-validator \
+commercionetworkd tx staking create-validator \
   --amount=1100000ucommercio \
   --pubkey=$VALIDATOR_PUBKEY \
   --moniker="$NODENAME" \
@@ -138,14 +134,15 @@ cncli tx staking create-validator \
   --commission-max-rate="0.20" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1" \
-  --from=<your pub addr creator val> \
+  --from=<CREATOR ADDRESS> \
   --fees=10000ucommercio \
   -y
-##Twice input password required
 ```
 
+**Note**: You can use `uccc` tokens instead `ucommercio` for the `fees` value
 
-The output should look like this:
+
+The output should look like this (WIP):
 ```
 height: 0
 txhash: C41B87615308550F867D42BB404B64343CB62D453A69F11302A68B02FAFB557C
@@ -168,21 +165,20 @@ timestamp: ""
 Please confirm that your validator is active by running the following command:
 
 ```bash
-cncli query staking validators --chain-id $CHAINID | fgrep -B 1 $VALIDATOR_PUBKEY
+commercionetworkd query staking validators | fgrep -A 7 "moniker: $NODENAME" | fgrep operator_addres
 ```
-     
+
 
 The output should look like this:
 
 ```
-  operatoraddress: did:com:valoper1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  conspubkey: did:com:valconspub1zcjduepq592mn5xucyqvfrvjegruhnx15rruffkrfq0rryu809fzkgwg684qmetxxs
+  operatoraddress: did:com:valoper1zcjx15rruffkrfq0rryu809fzkgwg684qmetxxs
 ```
 
 Copy the value of `operatoraddress`.
 
 
-You can also verify that the validator is active by browsing the 
+**ATTENTION**: Also verify that the validator is active and that the `operator_addres` is correct by browsing the 
 
 
 [Commercio.network explorer Testnet](https://testnet.commercio.network/it/validators).       
@@ -205,15 +201,15 @@ export OPERATOR_ADDRESS="did:com:valoper1zcjx15rruffkrfq0rryu809fzkgwg684qmetxxs
 Once received the second wallet must be loaded on the ledger or keyring through the command
 
 ```bash
-cncli keys add <name of second wallet> --recover
+commercionetworkd keys add <name of second wallet> --recover
 ```
 where `<name of second wallet>` is an arbitrary name.   
 When requested, the 24 keywords must be entered
 
 
-If you are using the **Ledger** device you must first connect it to your computer, start the cosmos application and run the command 
+If you are using the **Ledger** device you must first connect it to your computer, start the commercionetworkd application and run the command 
 ```bash
-cncli keys add <name of second wallet> --ledger
+commercionetworkd keys add <name of second wallet> --ledger
 # Enter a password that you can remember
 ```
 In this case the 24 words are not provided because they have already been configured in the **Ledger** initialization
@@ -230,14 +226,16 @@ This transaction is expected to be done with an hsm as a **Ledger** device . If 
 
 
 ```bash
-cncli tx staking delegate \
+commercionetworkd tx staking delegate \
   $OPERATOR_ADDRESS \
   50000000000ucommercio \
-  --from <your pub addr delegator> \
+  --from <DELEGATOR ADDRESS> \
   --chain-id="$CHAINID" \
   --fees=10000ucommercio \
   -y
 ```
+**Note**: You can use `uccc` tokens instead `ucommercio` for the `fees` value
+
 
 The output should look like this:
 ```
@@ -266,7 +264,7 @@ Congratulations, you are now a Commercio.network validator 🎉
 ## Note 
 
 If you want to make transactions with the **Nano Ledger** from another machine a full node must be created locally or a full node must be configured to accept remote connections.   
-Edit the `.cnd/config/config.toml` file by changing from 
+Edit the `.commercionetwork/config/config.toml` file by changing from 
 
 ```
 laddr = "tcp://127.0.0.1:26657"
@@ -278,16 +276,16 @@ laddr = "tcp://0.0.0.0:26657"
 
 and restart your node
 ```
-systemctl restart cnd
+systemctl restart commercionetworkd
 ```
 
 and use the transaction this way
 
 ```bash
-cncli tx staking delegate \
+commercionetworkd tx staking delegate \
   <validator-addr> \
   50000000000ucommercio \
-  --from <your pub addr delegator> \
+  --from <DELEGATOR ADDRESS> \
   --node tcp://<ip of your fulle node>:26657 \
   --chain-id="$CHAINID" \
   --fees=10000ucommercio \
@@ -303,7 +301,7 @@ cncli tx staking delegate \
 If I try to search for my address with the command 
 
 ```bash
-cncli query account did:com:1sl4xupdgsgptr2nr7wdtygjp5cw2dr8ncmdsyp --chain-id $CHAINID
+commercionetworkd query account did:com:1sl4xupdgsgptr2nr7wdtygjp5cw2dr8ncmdsyp --chain-id $CHAINID
 ```
 
 returns the message
@@ -313,11 +311,11 @@ ERROR: unknown address: account did:com:1sl4xupdgsgptr2nr7wdtygjp5cw2dr8ncmdsyp 
 #### Solution
 
 Check if your node has completed the sync.
-On https://testnet.commercio.network you can view the height of the chain at the current state
+On https://mainnet.commercio.network or https://testnet.commercio.network you can view the height of the chain at the current state
 
 Use the command 
 ```
-journal -u cnd -f | egrep " cnd+.*Committed state"
+journal -u commercionetworkd -f | egrep " commercionetworkd+.*Committed state"
 ```
 to check the height that reach your node
 
@@ -331,7 +329,7 @@ I executed the validator [creation transaction](#_3-create-a-validator) but I do
 
 It may be that by failing one or more transactions the tokens are not sufficient to execute the transaction.
 
-Send more funds to your `<your pub addr creator val>` and repeat the validator creation transaction
+Send more funds to your `<CREATOR ADDRESS>` and repeat the validator creation transaction
 
 ### DB errors
 
@@ -344,14 +342,12 @@ panic: Error initializing DB: resource temporarily unavailable
 
 #### Solution
 
-Maybe `cnd` and/or `cncli` services have been left active.
+Maybe `commercionetworkd` and/or `commercionetworkd` services have been left active.
 Use the following commands 
 
 ```bash
-systemctl stop cnd
-systemctl stop cncli
-pkill -9 cnd
-pkill -9 cncli
+systemctl stop commercionetworkd
+pkill -9 commercionetworkd
 ```
 
 and repeat the procedure

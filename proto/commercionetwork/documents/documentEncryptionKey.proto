@@ -1,0 +1,11 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+import "gogoproto/gogo.proto";
+
+message DocumentEncryptionKey {
+  string recipient = 1;
+  string Value = 2;
+}

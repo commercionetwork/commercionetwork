@@ -6,30 +6,21 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
-
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 )
-
-// Document contains the generic information about a single document which has been sent from a user to another user.
-// It contains the information about its content, its associated metadata and the related checksum.
-// In order to be valid, a document must have a non-empty and unique UUID and a valid metadata information.
-// Both the content and the checksum information are optional.
-type Document struct {
-	Sender         sdk.AccAddress          `json:"sender" swaggertype:"string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
-	Recipients     types.Addresses         `json:"recipients" swaggertype:"array,string" example:"did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf"`
-	UUID           string                  `json:"uuid" swaggertype:"string" example:"d0f6c692-506f-4bd7-bdf4-f6693633d1da"`
-	Metadata       DocumentMetadata        `json:"metadata"`
-	ContentURI     string                  `json:"content_uri,omitempty"`     // Optional
-	Checksum       *DocumentChecksum       `json:"checksum,omitempty"`        // Optional
-	EncryptionData *DocumentEncryptionData `json:"encryption_data,omitempty"` // Optional
-	DoSign         *DocumentDoSign         `json:"do_sign,omitempty"`         // Optional
-}
 
 // Equals returns true when doc equals other, false otherwise.
 func (doc Document) Equals(other Document) bool {
+	metadata := false
+	if doc.Metadata == nil && other.Metadata == nil {
+		metadata = true
+	} else if (doc.Metadata == nil && other.Metadata != nil) || (doc.Metadata != nil && other.Metadata == nil) {
+		metadata = false
+	} else {
+		metadata = doc.Metadata.Equals(*other.Metadata)
+	}
+
 	validContent := doc.UUID == other.UUID &&
-		doc.ContentURI == other.ContentURI &&
-		doc.Metadata.Equals(other.Metadata)
+		doc.ContentURI == other.ContentURI && metadata
 
 	var validChecksum bool
 	if doc.Checksum != nil && other.Checksum != nil {
@@ -65,21 +56,19 @@ func (doc Document) lengthLimits() error {
 		return e("content_uri", 512)
 	}
 
-	if len(doc.Metadata.ContentURI) > 512 {
-		return e("metadata.content_uri", 512)
-	}
-
-	if s := doc.Metadata.Schema; s != nil {
-		if len(s.URI) > 512 {
-			return e("metadata.schema.uri", 512)
+	if doc.Metadata != nil {
+		if len(doc.Metadata.ContentURI) > 512 {
+			return e("metadata.content_uri", 512)
 		}
-		if len(s.Version) > 32 {
-			return e("metadata.schema.version", 32)
-		}
-	}
 
-	if len(doc.Metadata.SchemaType) > 512 {
-		return e("metadata.schema_type", 512)
+		if s := doc.Metadata.Schema; s != nil {
+			if len(s.URI) > 512 {
+				return e("metadata.schema.uri", 512)
+			}
+			if len(s.Version) > 32 {
+				return e("metadata.schema.version", 32)
+			}
+		}
 	}
 
 	if doc.EncryptionData != nil {
@@ -107,51 +96,46 @@ func (doc Document) lengthLimits() error {
 // It returns an error with the validation failure motivation when the validation process
 // fails.
 func (doc Document) Validate() error {
-	if doc.Sender.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, doc.Sender.String())
+	if _, err := sdk.AccAddressFromBech32(doc.Sender); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, doc.Sender)
 	}
 
-	if doc.Recipients.Empty() {
+	if len(doc.Recipients) == 0 {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty")
 	}
 
 	for _, recipient := range doc.Recipients {
-		if recipient.Empty() {
-			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, recipient.String())
+		if _, err := sdk.AccAddressFromBech32(recipient); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, recipient)
 		}
 	}
 
 	if !validateUUID(doc.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
 	}
 
-	err := doc.Metadata.Validate()
-	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
+	if err := doc.Metadata.Validate(); err != nil {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 
 	if doc.Checksum != nil {
-		err = doc.Checksum.Validate()
-		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
+		if err := doc.Checksum.Validate(); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	}
 
 	if doc.EncryptionData != nil {
-		err = doc.EncryptionData.Validate()
-		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
+		if err := doc.EncryptionData.Validate(); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
-	}
-
-	if doc.EncryptionData != nil {
 
 		// check that each document recipient have some encrypted data
 		for _, recipient := range doc.Recipients {
-			if !doc.EncryptionData.ContainsRecipient(recipient) {
+			recipientAccAddr, _ := sdk.AccAddressFromBech32(recipient)
+			if !doc.EncryptionData.ContainsRecipient(recipientAccAddr) {
 				errMsg := fmt.Sprintf(
 					"%s is a recipient inside the document but not in the encryption data",
-					recipient.String(),
+					recipient,
 				)
 				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 			}
@@ -159,32 +143,29 @@ func (doc Document) Validate() error {
 
 		// check that there are no spurious encryption data recipients not present
 		// in the document recipient list
-		for _, encAdd := range doc.EncryptionData.Keys {
-			if !doc.Recipients.Contains(encAdd.Recipient) {
-				errMsg := fmt.Sprintf(
-					"%s is a recipient inside encryption data but not inside the message",
-					encAdd.Recipient.String(),
-				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
-			}
+		recipients := make(map[string]struct{})
+		for _, recipient := range doc.Recipients {
+			recipients[recipient] = struct{}{}
 		}
-
-		// Check that the `encrypted_data' field name is actually present in doc
-		fNotPresent := func(s string) error {
-			return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", s),
-			)
+		for _, encAdd := range doc.EncryptionData.Keys {
+			if _, found := recipients[encAdd.Recipient]; !found {
+				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("the recipient %s is inside encryption data but not along the recipients", encAdd.Recipient))
+			}
 		}
 
 		for _, fieldName := range doc.EncryptionData.EncryptedData {
 			switch fieldName {
 			case "content_uri":
 				if doc.ContentURI == "" {
-					return fNotPresent("content_uri")
+					return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "field ContentUri marked as encrypted but not present in document")
 				}
+			// case "metadata.content_uri":
+			// 	if doc.Metadata == nil || doc.Metadata.ContentURI == "" {
+			// 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "field Metadata.ContentURI marked as encrypted but not present in document")
+			// 	}
 			case "metadata.schema.uri":
-				if doc.Metadata.Schema == nil || doc.Metadata.Schema.URI == "" {
-					return fNotPresent("metadata.schema.uri")
+				if doc.Metadata == nil || doc.Metadata.Schema == nil || doc.Metadata.Schema.URI == "" {
+					return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "field Metadata.Schema.URI marked as encrypted but not present in document")
 				}
 			}
 		}
@@ -194,22 +175,20 @@ func (doc Document) Validate() error {
 	if doc.DoSign != nil {
 		if doc.Checksum == nil {
 			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
+				sdkErr.ErrInvalidRequest,
 				"field \"checksum\" not present in document, but required when using do_sign",
 			)
 		}
 
 		if doc.ContentURI == "" {
 			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
+				sdkErr.ErrInvalidRequest,
 				"field \"content_uri\" not present in document, but required when using do_sign",
 			)
 		}
 
-		err := doc.DoSign.SdnData.Validate()
-		if err != nil {
-			return sdkErr.Wrap(
-				sdkErr.ErrUnknownRequest,
+		if err := SdnData(doc.DoSign.SdnData).Validate(); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
 				err.Error(),
 			)
 		}

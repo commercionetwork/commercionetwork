@@ -1,5 +1,6 @@
 package v2_2_0
 
+/*
 import (
 	"time"
 
@@ -112,3 +113,4 @@ func migrateMembership(oldMembership v212memberships.Membership, govAddress sdk.
 		MembershipType: oldMembership.MembershipType,
 	}
 }
+*/

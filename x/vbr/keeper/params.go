@@ -1,20 +1,17 @@
 package keeper
 
-/*
-
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/vbr/types"
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
-// SetParams sets the vbr module's parameters.
-func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	k.paramSubspace.SetParamSet(ctx, &params)
+// GetParams returns the total set params
+func (k Keeper) GetParamSet(ctx sdk.Context) (params types.Params) {
+	k.paramSpace.GetParamSet(ctx, &params)
+	return params
 }
 
-// GetParams gets the vbr module's parameters.
-func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramSubspace.GetParamSet(ctx, &params)
-	return
+// SetParams sets the total set of params
+func (k Keeper) SetParamSet(ctx sdk.Context, params types.Params) {
+	k.paramSpace.SetParamSet(ctx, &params)
 }
-*/

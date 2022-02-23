@@ -1,6 +1,10 @@
 ### Docs
 /node_modules
 /.vuepress
+vue/node_modules
+vue/dist
+secret.yml
+
 
 ### JetBrains
 .idea
@@ -23,6 +27,7 @@ tools/bin/*
 examples/build/*
 docs/_build
 docs/tutorial
+docs/modules
 dist
 tools-stamp
 

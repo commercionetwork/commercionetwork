@@ -1,0 +1,41 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.vbr;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+//import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+import "commercionetwork/vbr/params.proto";
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+    rpc GetBlockRewardsPoolFunds(QueryGetBlockRewardsPoolFundsRequest) returns (QueryGetBlockRewardsPoolFundsResponse) {
+		option (google.api.http).get = "/commercionetwork/vbr/funds";
+	}
+
+	rpc GetParams(QueryGetParamsRequest) returns (QueryGetParamsResponse){
+		option (google.api.http).get = "/commercionetwork/vbr/params";
+	}
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetBlockRewardsPoolFundsRequest {
+}
+
+message QueryGetBlockRewardsPoolFundsResponse {
+	repeated cosmos.base.v1beta1.DecCoin funds = 1 [(gogoproto.moretags) = "yaml:\"funds\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable) = false] ;
+}
+
+message QueryGetParamsRequest {
+}
+
+message QueryGetParamsResponse{
+	Params params = 1 [(gogoproto.moretags) = "yaml:\"params\"",
+    (gogoproto.nullable) = false]; 
+}

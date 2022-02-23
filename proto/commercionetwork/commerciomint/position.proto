@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package commercionetwork.commercionetwork.commerciomint;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+message Position {
+  string owner = 1;
+  int64 collateral = 2;
+  cosmos.base.v1beta1.Coin credits = 3;
+  google.protobuf.Timestamp created_at = 4 [ (gogoproto.stdtime) = true ];
+  string ID = 5;
+  string exchange_rate = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+  ];
+}

@@ -1,0 +1,103 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciokyc;
+
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+// Import section
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "commercionetwork/commerciokyc/membership.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+	// Queries all invites
+	rpc Invites(QueryInvitesRequest) returns (QueryInvitesResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/invites";
+	}
+	// Queries a invite by address
+	rpc Invite(QueryInviteRequest) returns (QueryInviteResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/{address}/invite";
+	}
+	// Queries a ivite by id.
+	// Queries all Tsp.
+	rpc Tsps(QueryTspsRequest) returns (QueryTspsResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/tsps";
+	}
+	// Queries all memberships
+	rpc Memberships(QueryMembershipsRequest) returns (QueryMembershipsResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/memberships";
+	}
+	// Queries a membership by address
+	rpc Membership(QueryMembershipRequest) returns (QueryMembershipResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/{address}/membership";
+	}
+	// Queries funds of ABR
+	rpc Funds(QueryFundsRequest) returns (QueryFundsResponse) {
+		option (google.api.http).get = "/commercionetwork/commerciokyc/funds";
+	}
+
+}
+
+
+message QueryInvitesRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryInvitesResponse {
+	repeated Invite invites = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+
+message QueryInviteRequest {
+	string address = 1;
+}
+
+message QueryInviteResponse {
+	Invite invite = 1;
+}
+
+
+
+message QueryTspsRequest {
+}
+
+message QueryTspsResponse {
+	repeated string tsps = 1;
+}
+
+
+
+message QueryMembershipsRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryMembershipsResponse {
+	repeated Membership memberships = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+
+
+message QueryMembershipRequest {
+	string address = 1;
+}
+
+message QueryMembershipResponse {
+	Membership membership = 1;
+}
+
+
+message QueryFundsRequest {
+}
+
+message QueryFundsResponse {
+	repeated cosmos.base.v1beta1.Coin funds = 1
+		[(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}
+
+
+// this line is used by starport scaffolding # 3

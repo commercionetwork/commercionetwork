@@ -1,610 +1,218 @@
 package types
 
 import (
-	"fmt"
 	"strings"
 	"testing"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/go-amino"
-
-	"github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
-func TestDocument_Equals_NilValues(t *testing.T) {
-	document := Document{
-		UUID: "uuid",
-		Metadata: DocumentMetadata{
-			ContentURI: "document_metadata_content_uri",
-			SchemaType: "document_metadata_schema_type",
-		},
-		ContentURI:     "",
-		Checksum:       nil,
-		EncryptionData: nil,
-	}
-	require.True(t, document.Equals(document))
-}
-
-func Test_validateUUID(t *testing.T) {
-	tests := []struct {
-		name    string
-		UUID    string
-		badUUID bool
-	}{
-		{
-			"empty string",
-			"",
-			true,
-		},
-		{
-			"a well-formed UUID",
-			"6ba7b810-9dad-11d1-80b4-00c04fd430c8",
-			false,
-		},
-		{
-			"a seemingly well-formed UUID, with the last character removed",
-			"6ba7b810-9dad-11d1-80b4-00c04fd430c",
-			true,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			val := validateUUID(tt.UUID)
-			if tt.badUUID {
-				require.False(t, val, "got true")
-			} else {
-				require.True(t, val, "got false")
-			}
-		})
-	}
-}
-
-func TestDocument_Equals(t *testing.T) {
-	sender, _ := sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-	recipient, _ := sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
-	tests := []struct {
-		name      string
-		other     Document
-		us        Document
-		different bool
-	}{
-		{
-			"two empty documents",
-			Document{},
-			Document{},
-			false,
-		},
-		{
-			"two equal documents",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				UUID:           "ac33043b-5cb4-4645-a3f9-819140847252",
-				Checksum:       &DocumentChecksum{},
-				EncryptionData: &DocumentEncryptionData{},
-			},
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				UUID:           "ac33043b-5cb4-4645-a3f9-819140847252",
-				Checksum:       &DocumentChecksum{},
-				EncryptionData: &DocumentEncryptionData{},
-			},
-			false,
-		},
-		{
-			"two identical documents, except the UUID",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				UUID:           "ac33043b-5cb4-4645-a3f9-81914084725",
-				Checksum:       &DocumentChecksum{},
-				EncryptionData: &DocumentEncryptionData{},
-			},
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				UUID:           "ac33043b-5cb4-4645-a3f9-819140847252",
-				Checksum:       &DocumentChecksum{},
-				EncryptionData: &DocumentEncryptionData{},
-			},
-			true,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			if !tt.different {
-				require.True(t, tt.us.Equals(tt.other))
-			} else {
-				require.False(t, tt.us.Equals(tt.other))
-			}
-		})
-	}
-}
-
 func TestDocument_Validate(t *testing.T) {
-	sender, _ := sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-	recipient, _ := sdk.AccAddressFromBech32("cosmos1yhd6h25ksupyezrajk30n7y99nrcgcnppj2haa")
-	anotherRecipient, _ := sdk.AccAddressFromBech32("cosmos1tupew4x3rhh0lpqha9wvzmzxjr4e37mfy3qefm")
-
-	tests := []struct {
-		name        string
-		doc         Document
-		expectedErr error
-	}{
-		{
-			"a good document",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-			},
-			nil,
-		},
-		{
-			"no sender",
-			Document{
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-			},
-			sdkErr.Wrap(sdkErr.ErrInvalidAddress, ""),
-		},
-		{
-			"no recipients",
-			Document{
-				Sender: sender,
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-			},
-			sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty"),
-		},
-		{
-			"no uuid",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-			},
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid document UUID: "),
-		},
-		{
-			"a good document with some encrypted data inside",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				EncryptionData: &DocumentEncryptionData{
-					Keys: []DocumentEncryptionKey{
-						{
-							Recipient: recipient,
-							Value:     "6b6579",
-						},
-					},
-					EncryptedData: []string{"content"},
-				},
-			},
-			nil,
-		},
-		{
-			"a good document whom encrypted data recipient isn't contained in the recipients",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				EncryptionData: &DocumentEncryptionData{
-					Keys: []DocumentEncryptionKey{
-						{
-							Recipient: recipient,
-							Value:     "6b6579",
-						},
-						{
-							Recipient: anotherRecipient,
-							Value:     "6b6579",
-						},
-					},
-					EncryptedData: []string{"content"},
-				},
-			},
-			sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf(
-				"%s is a recipient inside encryption data but not inside the message",
-				anotherRecipient.String(),
-			)),
-		},
-		{
-			"a good document whom encrypted data recipient isn't in the document recipient",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					anotherRecipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				EncryptionData: &DocumentEncryptionData{
-					Keys: []DocumentEncryptionKey{
-						{
-							Recipient: recipient,
-							Value:     "6b6579",
-						},
-					},
-					EncryptedData: []string{"content"},
-				},
-			},
-			sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("%s is a recipient inside the document but not in the encryption data", anotherRecipient.String())),
-		},
-		{
-			"a good document whom encrypted data is content_uri, and the corresponding field isn't available",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				EncryptionData: &DocumentEncryptionData{
-					Keys: []DocumentEncryptionKey{
-						{
-							Recipient: recipient,
-							Value:     "6b6579",
-						},
-					},
-					EncryptedData: []string{"content_uri"},
-				},
-			},
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", "content_uri"),
-			),
-		},
-		{
-			"a good document whom encrypted data is metadata.schema.uri, and the corresponding field isn't available",
-			Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				EncryptionData: &DocumentEncryptionData{
-					Keys: []DocumentEncryptionKey{
-						{
-							Recipient: recipient,
-							Value:     "6b6579",
-						},
-					},
-					EncryptedData: []string{"metadata.schema.uri"},
-				},
-			},
-			sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", "metadata.schema.uri"),
-			),
-		},
-		{
-			name: "good document that has do_sign but no checksum",
-			doc: Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				DoSign: &DocumentDoSign{
-					StorageURI: "theuri",
-				},
-			},
-			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but required when using do_sign", "checksum"),
-			),
-		},
-		{
-			name: "good document that has do_sign but no content_uri",
-			doc: Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Checksum: &DocumentChecksum{
-					Value:     "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
-					Algorithm: "sha-1",
-				},
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				DoSign: &DocumentDoSign{
-					StorageURI: "theuri",
-				},
-			},
-			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				fmt.Sprintf("field \"%s\" not present in document, but required when using do_sign", "content_uri"),
-			),
-		}, {
-			name: "good document that has do_sign but invalid do_sign sdndata",
-			doc: Document{
-				Sender: sender,
-				Recipients: types.Addresses{
-					recipient,
-				},
-				Checksum: &DocumentChecksum{
-					Value:     "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
-					Algorithm: "sha-1",
-				},
-				ContentURI: "theContentUri",
-				Metadata: DocumentMetadata{
-					ContentURI: "content_uri",
-					SchemaType: "a schema type",
-				},
-				UUID: "ac33043b-5cb4-4645-a3f9-819140847252",
-				DoSign: &DocumentDoSign{
-					StorageURI: "theuri",
-					SdnData: SdnData{
-						"invalid",
-					},
-				},
-			},
-			expectedErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
-				"sdn_data value \"invalid\" is not supported",
-			),
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			err := tt.doc.Validate()
-			if tt.expectedErr != nil {
-				require.EqualError(t, err, tt.expectedErr.Error())
-			} else {
-				require.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestCreateDoc_DoSign(t *testing.T) {
-	baseDocument := Document{
-		UUID: "uuid",
-		Metadata: DocumentMetadata{
-			ContentURI: "document_metadata_content_uri",
-			SchemaType: "document_metadata_schema_type",
-		},
-		ContentURI:     "",
-		Checksum:       nil,
-		EncryptionData: nil,
-	}
-
-	tests := []struct {
-		name           string
-		documentDoSign *DocumentDoSign
-		expectedResult string
-	}{
-		{
-			"no do sign (null)",
-			nil,
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\"}}",
-		},
-		{
-			"some data but empty sdn data",
-			&DocumentDoSign{
-				StorageURI:         "abc",
-				SignerInstance:     "abc",
-				SdnData:            SdnData{},
-				VcrID:              "abc",
-				CertificateProfile: "abc",
-			},
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\"},\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
-		},
-		{
-			"all data",
-			&DocumentDoSign{
-				StorageURI:     "abc",
-				SignerInstance: "abc",
-				SdnData: SdnData{
-					"common_name",
-					"surname",
-					"serial_number",
-					"given_name",
-					"organization",
-					"country",
-				},
-				VcrID:              "abc",
-				CertificateProfile: "abc",
-			},
-			"{\"sender\":\"\",\"recipients\":null,\"uuid\":\"uuid\",\"metadata\":{\"content_uri\":\"document_metadata_content_uri\",\"schema_type\":\"document_metadata_schema_type\"},\"do_sign\":{\"storage_uri\":\"abc\",\"signer_instance\":\"abc\",\"sdn_data\":[\"common_name\",\"surname\",\"serial_number\",\"given_name\",\"organization\",\"country\"],\"vcr_id\":\"abc\",\"certificate_profile\":\"abc\"}}",
-		},
-	}
-
-	cdc := amino.NewCodec()
-
-	for _, tt := range tests {
-		tt := tt
-		baseDoc := baseDocument
-
-		t.Run(tt.name, func(t *testing.T) {
-			baseDoc.DoSign = tt.documentDoSign
-			json, err := cdc.MarshalJSON(baseDoc)
-			require.NoError(t, err)
-			require.Equal(t, tt.expectedResult, string(json))
-		})
-	}
-}
-
-func TestDocument_lengthLimits(t *testing.T) {
-	bigString := strings.Repeat("c", 513)
 
 	tests := []struct {
 		name    string
-		doc     Document
+		doc     func() Document
 		wantErr bool
 	}{
 		{
-			"content_uri longer than 512 bytes",
-			Document{
-				ContentURI: bigString,
+			name: "valid",
+			doc: func() Document {
+				return ValidDocument
 			},
-			true,
+			wantErr: false,
 		},
 		{
-			"metadata.content_uri longer than 512 bytes",
-			Document{
-				Metadata: DocumentMetadata{
-					ContentURI: bigString,
-				},
+			name: "invalid sender",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.Sender = ""
+				return doc
 			},
-			true,
+			wantErr: true,
 		},
 		{
-			"metadata.schema.uri longer than 512 bytes",
-			Document{
-				Metadata: DocumentMetadata{
-					Schema: &DocumentMetadataSchema{
-						URI: bigString,
-					},
-				},
+			name: "empty recipients",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.Recipients = []string{}
+				return doc
 			},
-			true,
+			wantErr: true,
 		},
 		{
-			"metadata.schema.version longer than 32 bytes",
-			Document{
-				Metadata: DocumentMetadata{
-					Schema: &DocumentMetadataSchema{
-						Version: bigString,
-					},
-				},
+			name: "invalid recipients",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.Recipients = []string{"abc"}
+				return doc
 			},
-			true,
+			wantErr: true,
 		},
 		{
-			"metadata.schema_type longer than 512 bytes",
-			Document{
-				Metadata: DocumentMetadata{
-					SchemaType: bigString,
-				},
+			name: "invalid UUID",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.UUID = "abc"
+				return doc
 			},
-			true,
+			wantErr: true,
 		},
 		{
-			"encryption_data keys value longer than 512 bytes",
-			Document{
-				EncryptionData: &DocumentEncryptionData{
-					Keys: []DocumentEncryptionKey{
-						{
-							Value: bigString,
-						},
-					},
-				},
+			name: "invalid metadata",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.Metadata = &DocumentMetadata{}
+				return doc
 			},
-			true,
+			wantErr: true,
 		},
 		{
-			"do_sign.vcr_id value longer than 64 bytes",
-			Document{
-				DoSign: &DocumentDoSign{
-					VcrID: bigString,
-				},
+			name: "invalid checksum",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.Checksum = &DocumentChecksum{}
+				return doc
 			},
-			true,
+			wantErr: true,
 		},
 		{
-			"do_sign.certificateProfile value longer than 32 bytes",
-			Document{
-				DoSign: &DocumentDoSign{
-					CertificateProfile: bigString,
-				},
+			name: "invalid encryption data",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.EncryptionData = &DocumentEncryptionData{}
+				return doc
 			},
-			true,
+			wantErr: true,
 		},
 		{
-			"all fine",
-			Document{
-				ContentURI: strings.Repeat("c", 512),
-				Metadata: DocumentMetadata{
-					ContentURI: strings.Repeat("c", 512),
-					Schema: &DocumentMetadataSchema{
-						URI:     strings.Repeat("c", 512),
-						Version: strings.Repeat("c", 32),
-					},
-					SchemaType: strings.Repeat("c", 512),
-				},
-				EncryptionData: &DocumentEncryptionData{
-					Keys: []DocumentEncryptionKey{
-						{
-							Value: strings.Repeat("c", 512),
-						},
-					},
-				},
-				DoSign: &DocumentDoSign{
-					VcrID:              strings.Repeat("c", 64),
-					CertificateProfile: strings.Repeat("c", 32),
-				},
+			name: "encryption data does not contain a recipient",
+			doc: func() Document {
+				doc := ValidDocument
+				recipients := append([]string{}, doc.Recipients...)
+				doc.Recipients = append(recipients, doc.Sender)
+				return doc
 			},
-			false,
+			wantErr: true,
+		},
+		{
+			name: "encryption data recipient not included in document recipient list",
+			doc: func() Document {
+				doc := ValidDocument
+				encryptionDataKeys := append([]*DocumentEncryptionKey{}, doc.EncryptionData.Keys...)
+				encryptionDataKeys = append(encryptionDataKeys, &DocumentEncryptionKey{
+					Recipient: doc.Sender,
+					Value:     "6F7468657276616C7565",
+				})
+
+				encryptionData := DocumentEncryptionData{
+					Keys:          encryptionDataKeys,
+					EncryptedData: validDocumentEncryptionData.EncryptedData,
+				}
+
+				doc.EncryptionData = &encryptionData
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "content URI not present",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.ContentURI = ""
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "do_sign specified but empty ContentUri",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.EncryptionData = nil
+				doc.ContentURI = ""
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "do_sign specified but empty MetadataSchemaURI",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.Metadata = &DocumentMetadata{
+					ContentURI: ValidDocument.ContentURI,
+					Schema:     nil,
+				}
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "do_sign specified but invalid checksum",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.EncryptionData = nil
+				doc.Checksum = nil
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid SdnData",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.DoSign = &DocumentDoSign{
+					StorageURI:         ValidDocument.DoSign.StorageURI,
+					SignerInstance:     ValidDocument.DoSign.SignerInstance,
+					SdnData:            []string{"planet"},
+					VcrID:              ValidDocument.DoSign.VcrID,
+					CertificateProfile: ValidDocument.DoSign.CertificateProfile,
+				}
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "content URI not present",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.ContentURI = ""
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "do_sign specified but empty content uri",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.EncryptionData = nil
+				doc.ContentURI = ""
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "do_sign specified but invalid checksum",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.EncryptionData = nil
+				doc.Checksum = nil
+				return doc
+			},
+			wantErr: true,
+		},
+		{
+			name: "violate lenght limits",
+			doc: func() Document {
+				doc := ValidDocument
+				doc.ContentURI = strings.Repeat("a", 513)
+				return doc
+			},
+			wantErr: true,
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.wantErr {
-				require.Error(t, tt.doc.lengthLimits())
-				return
+			doc := tt.doc()
+			if err := doc.Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("Document.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			require.NoError(t, tt.doc.lengthLimits())
 		})
 	}
 }

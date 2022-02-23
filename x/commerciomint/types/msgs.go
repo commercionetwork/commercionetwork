@@ -1,76 +1,113 @@
 package types
 
 import (
-	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/errors"
+	errors "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
-// -----------------
-// --- MsgMintCCC
-// -----------------
+var _ sdk.Msg = &MsgMintCCC{}
 
-type MsgMintCCC struct {
-	Owner   sdk.AccAddress `json:"depositor"`
-	Credits sdk.Coins      `json:"deposit_amount"`
-	ID      string         `json:"id"`
-}
+// -------------------------
+// MsgMintCCC
+// -------------------------
 
-func NewMsgMintCCC(owner sdk.AccAddress, deposit sdk.Coins, id string) MsgMintCCC {
-	return MsgMintCCC{
-		Credits: deposit,
-		Owner:   owner,
-		ID:      id,
+func NewMsgMintCCC(position Position) *MsgMintCCC {
+	var depositAmount []*sdk.Coin
+	coin := sdk.NewInt64Coin(CreditsDenom, position.Collateral)
+	depositAmount = append(depositAmount, &coin)
+
+	return &MsgMintCCC{
+		Depositor:     position.Owner,
+		DepositAmount: depositAmount,
+		ID:            position.ID,
 	}
 }
 
-// Route Implements Msg.
-func (msg MsgMintCCC) Route() string                { return RouterKey }
-func (msg MsgMintCCC) Type() string                 { return MsgTypeMintCCC }
-func (msg MsgMintCCC) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Owner} }
-func (msg MsgMintCCC) GetSignBytes() []byte         { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) }
-func (msg MsgMintCCC) ValidateBasic() error {
-	if msg.Owner.Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Owner.String())
+func (msg *MsgMintCCC) Route() string {
+	return ModuleName
+}
+
+func (msg *MsgMintCCC) Type() string {
+	return MsgTypeMintCCC
+}
+
+func (msg *MsgMintCCC) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Depositor)
+	if err != nil {
+		return nil
+	}
+	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgMintCCC) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgMintCCC) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Depositor)
+	if err != nil {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor)
 	}
 
 	if msg.ID == "" {
 		return errors.Wrap(errors.ErrInvalidRequest, "missing position ID")
 	}
 
-	if !ValidateDeposit(msg.Credits) {
-		return errors.Wrap(errors.ErrInvalidCoins, msg.Credits.String())
+	coins := sdk.NewCoins()
+	for _, coin := range msg.DepositAmount {
+		coins = append(coins, *coin)
+	}
+	if !ValidateDeposit(coins) {
+		return errors.Wrap(errors.ErrInvalidCoins, coins.String())
 	}
 
 	return nil
 }
 
-type MsgBurnCCC struct {
-	Signer sdk.AccAddress `json:"signer"`
-	Amount sdk.Coin       `json:"amount"`
-	ID     string         `json:"id"`
-}
+// -------------------------
+// MsgBurnCCC
+// -------------------------
 
-func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) MsgBurnCCC {
-	return MsgBurnCCC{
-		Signer: signer,
+var _ sdk.Msg = &MsgBurnCCC{}
+
+// TODO REVIEW MESSAGES CREATOR
+func NewMsgBurnCCC(signer sdk.AccAddress, id string, amount sdk.Coin) *MsgBurnCCC {
+	return &MsgBurnCCC{
+		Signer: signer.String(),
+		Amount: &amount,
 		ID:     id,
-		Amount: amount,
 	}
 }
 
-// Route Implements Msg.
-func (msg MsgBurnCCC) Route() string { return RouterKey }
+func (msg *MsgBurnCCC) Route() string {
+	return ModuleName
+}
 
-// Type Implements Msg.
-func (msg MsgBurnCCC) Type() string { return MsgTypeBurnCCC }
+func (msg *MsgBurnCCC) Type() string {
+	return MsgTypeBurnCCC
+}
 
-func (msg MsgBurnCCC) ValidateBasic() error {
-	if msg.Signer.Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
+func (msg *MsgBurnCCC) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return nil
+	}
+	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgBurnCCC) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgBurnCCC) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
 
 	if msg.Amount.IsZero() || msg.Amount.IsNegative() || msg.Amount.Denom != CreditsDenom {
@@ -80,89 +117,58 @@ func (msg MsgBurnCCC) ValidateBasic() error {
 	if _, err := uuid.FromString(msg.ID); err != nil {
 		return errors.Wrap(errors.ErrInvalidRequest, "id must be a well-defined UUID")
 	}
-
 	return nil
 }
 
-// GetSignBytes Implements Msg.
-func (msg MsgBurnCCC) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
+// -------------------------
+// --- MsgSetParams
+// -------------------------
 
-// GetSigners Implements Msg.
-func (msg MsgBurnCCC) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
-}
+var _ sdk.Msg = &MsgSetParams{}
 
-// -------------------
-// --- MsgSetCCCConversionRate
-// -------------------
-
-type MsgSetCCCConversionRate struct {
-	Signer sdk.AccAddress `json:"signer"`
-	Rate   sdk.Dec        `json:"rate"`
-}
-
-func NewMsgSetCCCConversionRate(signer sdk.AccAddress, rate sdk.Dec) MsgSetCCCConversionRate {
-	return MsgSetCCCConversionRate{Signer: signer, Rate: rate}
-}
-
-func (MsgSetCCCConversionRate) Route() string                    { return RouterKey }
-func (MsgSetCCCConversionRate) Type() string                     { return MsgTypeSetCCCConversionRate }
-func (msg MsgSetCCCConversionRate) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Signer} }
-func (msg MsgSetCCCConversionRate) ValidateBasic() error {
-	if msg.Signer.Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
+func NewMsgSetParams(government string, conversionRate sdk.Dec, freezePeriod time.Duration) *MsgSetParams {
+	params := Params{
+		ConversionRate: conversionRate,
+		FreezePeriod:   freezePeriod,
 	}
 
-	return ValidateConversionRate(msg.Rate)
-}
-
-func (msg MsgSetCCCConversionRate) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-func ValidateConversionRate(rate sdk.Dec) error {
-	if rate.IsZero() {
-		return fmt.Errorf("conversion rate cannot be zero")
+	return &MsgSetParams{
+		Signer: government,
+		Params: &params,
 	}
-	if rate.IsNegative() {
-		return fmt.Errorf("conversion rate must be positive")
+}
+
+func (msg *MsgSetParams) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSetParams) Type() string {
+	return MsgTypeSetParams
+}
+
+func (msg *MsgSetParams) GetSigners() []sdk.AccAddress {
+	gov, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		panic(err)
 	}
-	return nil
+	return []sdk.AccAddress{gov}
 }
 
-// -------------------
-// --- MsgSetCCCFreezePeriod
-// -------------------
-
-type MsgSetCCCFreezePeriod struct {
-	Signer       sdk.AccAddress `json:"signer"`
-	FreezePeriod time.Duration  `json:"freeze_period"`
+func (msg *MsgSetParams) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
 }
 
-func NewMsgSetCCCFreezePeriod(signer sdk.AccAddress, freezePeriod time.Duration) MsgSetCCCFreezePeriod {
-	return MsgSetCCCFreezePeriod{Signer: signer, FreezePeriod: freezePeriod}
-}
-
-func (MsgSetCCCFreezePeriod) Route() string                    { return RouterKey }
-func (MsgSetCCCFreezePeriod) Type() string                     { return MsgTypeSetCCCFreezePeriod }
-func (msg MsgSetCCCFreezePeriod) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{msg.Signer} }
-func (msg MsgSetCCCFreezePeriod) ValidateBasic() error {
-	if msg.Signer.Empty() {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer.String())
+func (msg *MsgSetParams) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Signer)
+	if err != nil {
+		return errors.Wrapf(errors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
-
-	return ValidateFreezePeriod(msg.FreezePeriod)
-}
-
-func (msg MsgSetCCCFreezePeriod) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-func ValidateFreezePeriod(freezePeriod time.Duration) error {
-	if freezePeriod.Seconds() < 0 {
-		return fmt.Errorf("freeze rate cannot be lower than zero")
-	}
+	/*
+		err = msg.Params.Validate()
+		if err != nil {
+			return errors.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
+		}
+	*/
 	return nil
 }

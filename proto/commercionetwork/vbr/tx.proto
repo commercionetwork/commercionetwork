@@ -1,0 +1,37 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.vbr;
+
+// this line is used by starport scaffolding # proto/tx/import
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc IncrementBlockRewardsPool(MsgIncrementBlockRewardsPool) returns (MsgIncrementBlockRewardsPoolResponse);
+  rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgIncrementBlockRewardsPool {
+  string funder = 1 [(gogoproto.moretags) = "yaml:\"funder\""];
+  repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.moretags) = "yaml:\"amount\"",
+  (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+  (gogoproto.nullable) = false] ;
+}
+
+message MsgIncrementBlockRewardsPoolResponse {
+}
+
+message MsgSetParams{
+  string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
+  string distr_epoch_identifier = 2 [(gogoproto.moretags) = "yaml:\"distr_epoch_identifier\""];
+  string earn_rate = 3 [(gogoproto.moretags) = "yaml:\"earn_rate\"",
+  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+  (gogoproto.nullable) = false];
+}
+
+message MsgSetParamsResponse{
+}

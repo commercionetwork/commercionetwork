@@ -1,0 +1,48 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+// this line is used by starport scaffolding # proto/tx/import
+import "commercionetwork/documents/document.proto";
+import "commercionetwork/documents/documentDoSign.proto";
+import "commercionetwork/documents/documentEncryptionData.proto";
+import "commercionetwork/documents/documentMetadataSchema.proto";
+import "commercionetwork/documents/documentChecksum.proto";
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc ShareDocument(MsgShareDocument) returns (MsgShareDocumentResponse);
+  rpc SendDocumentReceipt(MsgSendDocumentReceipt) returns (MsgSendDocumentReceiptResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgShareDocument {
+  string sender = 1;
+  repeated string recipients = 2;
+  string UUID = 3;
+  documents.DocumentMetadata metadata = 4;
+  string contentURI = 5;
+  documents.DocumentChecksum checksum = 6;
+  documents.DocumentEncryptionData encryptionData = 7;
+  documents.DocumentDoSign doSign = 8;
+}
+
+message MsgShareDocumentResponse {
+  string UUID = 1;
+}
+
+message MsgSendDocumentReceipt {
+  string UUID = 1;
+  string sender = 2;
+  string recipient = 3;
+  string txHash = 4;
+  string DocumentUUID = 5;
+  string proof = 6;  // Optional
+
+}
+
+message MsgSendDocumentReceiptResponse {
+  string UUID = 1;
+}

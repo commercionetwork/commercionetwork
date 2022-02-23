@@ -6,21 +6,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// DocumentEncryptionData contains the data that are related to the way
-// that a document's contents or other data have been encrypted
-type DocumentEncryptionData struct {
-	Keys          []DocumentEncryptionKey `json:"keys"`           // contains the keys used to encrypt the data
-	EncryptedData []string                `json:"encrypted_data"` // contains the list of data that have been encrypted
-}
-
-// Equals returns true iff this dat and other contain the same data
+// Equals returns true iff this and other contain the same data
 func (data DocumentEncryptionData) Equals(other DocumentEncryptionData) bool {
 	if len(data.Keys) != len(other.Keys) {
 		return false
 	}
 
 	for index := range data.Keys {
-		if !data.Keys[index].Equals(other.Keys[index]) {
+		if !data.Keys[index].Equals(*other.Keys[index]) {
 			return false
 		}
 	}
@@ -54,8 +47,8 @@ func (data DocumentEncryptionData) Validate() error {
 	}
 
 	// Validate the encrypted data
-	for _, data := range data.EncryptedData {
-		if data != "content" && data != "content_uri" && data != "metadata.content_uri" && data != "metadata.schema.uri" {
+	for _, eData := range data.EncryptedData {
+		if eData != "content" && eData != "content_uri" && eData != "metadata.content_uri" && eData != "metadata.schema.uri" {
 			return errors.New("encrypted data not supported")
 		}
 	}
@@ -66,7 +59,7 @@ func (data DocumentEncryptionData) Validate() error {
 // ContainsRecipient returns true iff data contains a key with recipient inside.
 func (data DocumentEncryptionData) ContainsRecipient(recipient sdk.AccAddress) bool {
 	for _, r := range data.Keys {
-		if r.Recipient.Equals(recipient) {
+		if r.Recipient == recipient.String() {
 			return true
 		}
 	}

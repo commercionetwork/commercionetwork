@@ -1,0 +1,21 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.commerciokyc;
+
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+// Import section
+import "gogoproto/gogo.proto";
+import "commercionetwork/commerciokyc/membership.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+
+// GenesisState defines the id module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+    repeated cosmos.base.v1beta1.Coin liquidity_pool_amount = 1
+        [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+    repeated string trusted_service_providers = 2;
+    repeated Invite invites = 3;
+    repeated Membership memberships = 4; // convert to time duration
+}

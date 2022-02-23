@@ -16,3 +16,36 @@ business documents using the blockchain technology.
 * [Official website](https://commercio.network/)
 * [Documentation](https://docs.commercio.network/)
 * [Telegram group](https://t.me/commercionetwork)
+
+## Version
+
+Current Software Version is `v3.0.0`
+
+Current Chain Version is `commercio-3`
+## Quick Start
+
+To compile our software (Debian/Ubuntu SO)
+
+```bash
+apt update && apt upgrade -y
+apt install -y git gcc make unzip
+snap install --classic go
+
+
+echo 'export GOPATH="$HOME/go"' >> ~/.profile
+echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.profile
+echo 'export PATH="$PATH:/snap/bin"' >> ~/.profile
+
+source ~/.profile
+
+git remote clone https://github.com/commercionetwork/commercionetwork.git
+git checkout tags/v3.0.0
+go mod verify
+make install
+```
+
+You can verify your installation with
+
+```bash
+commercionetworkd version
+```

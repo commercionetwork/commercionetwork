@@ -1,10 +1,7 @@
 package types
 
 import (
-	"fmt"
-	"strings"
-
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	fmt "fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -13,154 +10,100 @@ import (
 // --- MsgShareDocument
 // ----------------------------------
 
-type MsgShareDocument Document
+var _ sdk.Msg = &MsgShareDocument{}
 
-func NewMsgShareDocument(document Document) MsgShareDocument {
-	return MsgShareDocument(document)
+func NewMsgShareDocument(document Document) *MsgShareDocument {
+	return &MsgShareDocument{
+		Sender:         document.Sender,
+		Recipients:     document.Recipients,
+		UUID:           document.UUID,
+		Metadata:       document.Metadata,
+		ContentURI:     document.ContentURI,
+		Checksum:       document.Checksum,
+		EncryptionData: document.EncryptionData,
+		DoSign:         document.DoSign,
+	}
 }
 
-// RouterKey Implements Msg.
-func (msg MsgShareDocument) Route() string { return ModuleName }
-
-// Type Implements Msg.
-func (msg MsgShareDocument) Type() string { return MsgTypeShareDocument }
-
-// ValidateBasic Implements Msg.
-func (msg MsgShareDocument) ValidateBasic() error {
-	return Document(msg).Validate()
+func (msg *MsgShareDocument) Route() string {
+	return ModuleName
 }
 
-// GetSignBytes Implements Msg.
-func (msg MsgShareDocument) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+func (msg *MsgShareDocument) Type() string {
+	return MsgTypeShareDocument
 }
 
-// GetSigners Implements Msg.
-func (msg MsgShareDocument) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
+func (msg *MsgShareDocument) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgShareDocument) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgShareDocument) ValidateBasic() error {
+	var document = Document(*msg)
+
+	if err := document.Validate(); err != nil {
+		return fmt.Errorf("invalid document: %e", err)
+	}
+
+	return nil
 }
 
 // ----------------------------------
 // --- MsgSendDocumentReceipt
 // ----------------------------------
 
-type MsgSendDocumentReceipt DocumentReceipt
+var _ sdk.Msg = &MsgSendDocumentReceipt{}
 
-func NewMsgSendDocumentReceipt(receipt DocumentReceipt) MsgSendDocumentReceipt {
-	return MsgSendDocumentReceipt(receipt)
+func NewMsgSendDocumentReceipt(uuid string, sender string, recipient string, txHash string, documentUUID string, proof string) *MsgSendDocumentReceipt {
+	return &MsgSendDocumentReceipt{
+		UUID:         uuid,
+		Sender:       sender,
+		Recipient:    recipient,
+		TxHash:       txHash,
+		DocumentUUID: documentUUID,
+		Proof:        proof,
+	}
 }
 
 // RouterKey Implements Msg.
-func (msg MsgSendDocumentReceipt) Route() string { return ModuleName }
+func (msg *MsgSendDocumentReceipt) Route() string {
+	return ModuleName
+}
 
 // Type Implements Msg.
-func (msg MsgSendDocumentReceipt) Type() string { return MsgTypeSendDocumentReceipt }
+func (msg *MsgSendDocumentReceipt) Type() string {
+	return MsgTypeSendDocumentReceipt
+}
 
 // ValidateBasic Implements Msg.
-func (msg MsgSendDocumentReceipt) ValidateBasic() error {
-	if !validateUUID(msg.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid uuid: %s", msg.UUID))
-	}
+func (msg *MsgSendDocumentReceipt) ValidateBasic() error {
+	receipt := DocumentReceipt(*msg)
 
-	if msg.Sender.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Sender.String())
-	}
-
-	if msg.Recipient.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Recipient.String())
-	}
-
-	if len(strings.TrimSpace(msg.TxHash)) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Send Document's Transaction Hash can't be empty")
-	}
-
-	if !validateUUID(msg.DocumentUUID) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid document UUID")
+	if err := receipt.Validate(); err != nil {
+		return fmt.Errorf("invalid document receipt: %e", err)
 	}
 
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgSendDocumentReceipt) GetSignBytes() []byte {
+func (msg *MsgSendDocumentReceipt) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners Implements Msg.
-func (msg MsgSendDocumentReceipt) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
-}
-
-// ------------------------------------
-// --- MsgAddSupportedMetadataSchema
-// ------------------------------------
-
-type MsgAddSupportedMetadataSchema struct {
-	Signer sdk.AccAddress `json:"signer"`
-	Schema MetadataSchema `json:"schema"`
-}
-
-// RouterKey Implements Msg.
-func (msg MsgAddSupportedMetadataSchema) Route() string { return ModuleName }
-
-// Type Implements Msg.
-func (msg MsgAddSupportedMetadataSchema) Type() string { return MsgTypeAddSupportedMetadataSchema }
-
-// ValidateBasic Implements Msg.
-func (msg MsgAddSupportedMetadataSchema) ValidateBasic() error {
-	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
+func (msg *MsgSendDocumentReceipt) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
 	}
-	if err := msg.Schema.Validate(); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
-	}
-	return nil
-}
-
-// GetSignBytes Implements Msg.
-func (msg MsgAddSupportedMetadataSchema) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners Implements Msg.
-func (msg MsgAddSupportedMetadataSchema) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
-}
-
-// -----------------------------------------
-// --- MsgAddTrustedMetadataSchemaProposer
-// -----------------------------------------
-
-type MsgAddTrustedMetadataSchemaProposer struct {
-	Proposer sdk.AccAddress `json:"proposer"`
-	Signer   sdk.AccAddress `json:"signer"`
-}
-
-// RouterKey Implements Msg.
-func (msg MsgAddTrustedMetadataSchemaProposer) Route() string { return ModuleName }
-
-// Type Implements Msg.
-func (msg MsgAddTrustedMetadataSchemaProposer) Type() string {
-	return MsgTypeAddTrustedMetadataSchemaProposer
-}
-
-// ValidateBasic Implements Msg.
-func (msg MsgAddTrustedMetadataSchemaProposer) ValidateBasic() error {
-	if msg.Proposer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Proposer.String())
-	}
-	if msg.Signer.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, msg.Signer.String())
-	}
-	return nil
-}
-
-// GetSignBytes Implements Msg.
-func (msg MsgAddTrustedMetadataSchemaProposer) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners Implements Msg.
-func (msg MsgAddTrustedMetadataSchemaProposer) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Signer}
+	return []sdk.AccAddress{creator}
 }

@@ -1,16 +1,22 @@
 package types
 
 const (
-	ModuleName   = "government"
-	StoreKey     = ModuleName
-	RouterKey    = ModuleName
+	// ModuleName defines the module name
+	ModuleName = "government"
+
+	// StoreKey defines the primary module store key
+	StoreKey = ModuleName
+
+	// RouterKey is the message route for slashing
+	RouterKey = ModuleName
+
+	// QuerierRoute defines the module's query routing key
 	QuerierRoute = ModuleName
 
-	GovernmentStoreKey = StoreKey + "government"
-	TumblerStoreKey    = StoreKey + "tumbler"
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "mem_" + ModuleName
 
-	MsgTypeSetTumblerAddress = "setTumblerAddress"
-
+	// State store key
+	GovernmentStoreKey     = StoreKey + "government"
 	QueryGovernmentAddress = "governmentAddress"
-	QueryTumblerAddress    = "tumblerAddress"
 )

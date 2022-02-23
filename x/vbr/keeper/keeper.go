@@ -4,59 +4,76 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/staking/exported"
-	"github.com/cosmos/cosmos-sdk/x/supply"
-	supplyExported "github.com/cosmos/cosmos-sdk/x/supply/exported"
 
-	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
-	"github.com/commercionetwork/commercionetwork/x/vbr/types"
+	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// --------------------
-// --- Blocks per day
-// --- Blocks per year
-// --------------------
-
-var (
-	// DPY is Days Per Year
-	DPY = sdk.NewDecWithPrec(36525, 2)
-	// HPD is Hours Per Day
-	HPD = sdk.NewDecWithPrec(24, 0)
-	// MPH  is Minutes Per Hour
-	MPH = sdk.NewDecWithPrec(60, 0)
-	// BPM is Blocks Per Minutes
-	BPM = sdk.NewDecWithPrec(9, 0)
-	// BPD is Blocks Per Day
-	BPD = HPD.Mul(MPH).Mul(BPM)
-	// BPY is Blocks Per Year
-	BPY = DPY.Mul(BPD)
+type (
+	Keeper struct {
+		cdc           codec.Marshaler
+		storeKey      sdk.StoreKey
+		memKey        sdk.StoreKey
+		distKeeper    distKeeper.Keeper
+		bankKeeper    bankKeeper.Keeper
+		accountKeeper accountKeeper.AccountKeeper
+		govKeeper     govKeeper.Keeper
+		epochsKeeper  epochsKeeper.Keeper
+		paramSpace    paramtypes.Subspace
+		stakingKeeper stakingKeeper.Keeper
+	}
 )
 
-// Keeper is keeper type
-type Keeper struct {
-	cdc          *codec.Codec
-	storeKey     sdk.StoreKey
-	distKeeper   distribution.Keeper
-	supplyKeeper supply.Keeper
-	govKeeper    government.Keeper
+func NewKeeper(
+	cdc codec.Marshaler,
+	storeKey sdk.StoreKey,
+	memKey sdk.StoreKey,
+	distKeeper distKeeper.Keeper,
+	bankKeeper bankKeeper.Keeper,
+	accountKeeper accountKeeper.AccountKeeper,
+	govKeeper govKeeper.Keeper,
+	epochsKeeper epochsKeeper.Keeper,
+	paramSpace paramtypes.Subspace,
+	stakingKeeper stakingKeeper.Keeper,
+
+) *Keeper {
+
+	// set KeyTable if it has not already been set
+	if !paramSpace.HasKeyTable() {
+		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
+	return &Keeper{
+		cdc:           cdc,
+		storeKey:      storeKey,
+		memKey:        memKey,
+		distKeeper:    distKeeper,
+		bankKeeper:    bankKeeper,
+		accountKeeper: accountKeeper,
+		govKeeper:     govKeeper,
+		epochsKeeper:  epochsKeeper,
+		paramSpace:    paramSpace,
+		stakingKeeper: stakingKeeper,
+	}
 }
 
-// NewKeeper create Keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper, sk supply.Keeper, gk government.Keeper) Keeper {
-	return Keeper{
-		cdc:          cdc,
-		storeKey:     storeKey,
-		distKeeper:   dk,
-		supplyKeeper: sk,
-		govKeeper:    gk,
-	}
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 // -------------
@@ -66,43 +83,83 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, dk distribution.Keeper, 
 // SetTotalRewardPool allows to set the value of the total rewards pool that has left
 func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	store := ctx.KVStore(k.storeKey)
+	pool := types.VbrPool{Amount: updatedPool}
+	// TODO: can use standard KeyPrefix function
+	// types.KeyPrefix(types.PoolStoreKey)
+	poolKeyPrefix := []byte(types.PoolStoreKey)
 	if !updatedPool.Empty() {
-		store.Set([]byte(types.PoolStoreKey), k.cdc.MustMarshalBinaryBare(&updatedPool))
+		store.Set(poolKeyPrefix, k.cdc.MustMarshalBinaryBare(&pool))
 	} else {
-		store.Delete([]byte(types.PoolStoreKey))
+		store.Delete(poolKeyPrefix)
 	}
 }
 
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
-	macc := k.supplyKeeper.GetModuleAccount(ctx, types.ModuleName)
-	mcoins := macc.GetCoins()
+	macc := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+	//mcoins := macc.GetCoins()
+	coins := GetCoins(k, ctx, macc)
 
-	return sdk.NewDecCoinsFromCoins(mcoins...)
+	return sdk.NewDecCoinsFromCoins(coins...)
 }
 
-// ---------------------------
-// --- Reward distribution
-// ---------------------------
+// VbrAccount returns vbr's ModuleAccount
+func (k Keeper) VbrAccount(ctx sdk.Context) accountTypes.ModuleAccountI {
+	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
+// MintVBRTokens mints coins into the vbr's ModuleAccount
+func (k Keeper) MintVBRTokens(ctx sdk.Context, coins sdk.Coins) error {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
+		return fmt.Errorf("could not mint requested coins: %w", err)
+	}
+
+	return nil
+}
+
+func GetCoins(k Keeper, ctx sdk.Context, macc accountTypes.ModuleAccountI) sdk.Coins {
+	var coins sdk.Coins
+	coins = append(coins, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress())...)
+	return coins
+}
 
 // ComputeProposerReward computes the final reward for the validator block's proposer
-func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, proposer exported.ValidatorI, denom string) sdk.DecCoins {
-
-	// Get rewarded rate
-	rewardRate := k.GetRewardRate(ctx)
-
-	// Calculate rewarded rate with validator percentage
-	rewardRateVal := rewardRate.Mul(sdk.NewDec(vCount)).Quo(sdk.NewDec(100))
-
+func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator stakingTypes.ValidatorI, denom string, params types.Params) sdk.DecCoins {
 	// Get total bonded token of validator
-	proposerBonded := proposer.GetBondedTokens()
+	validatorBonded := validator.GetBondedTokens()
 
-	// Compute reward for each block
-	return sdk.NewDecCoins(sdk.NewDecCoinFromDec(denom, proposerBonded.ToDec().Mul(rewardRateVal).Quo(BPD)))
+	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))
+	// TODO: number of validator should be get from staking module
+	// paramsVal := k.stakingKeeper.GetParams(ctx)
+	// paramsVal.MaxValidators
+	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100))
+
+	//compute the annual distribution ((validator's token * 0.5)*(total_validators/100))
+	annualDistribution := sdk.NewDecCoinFromDec(denom, validatorBondedPerc.Amount.Mul(validatorsPerc))
+	var epochDuration sdk.Dec
+	switch params.DistrEpochIdentifier {
+	case types.EpochDay:
+		epochDuration = sdk.NewDec(365)
+	case types.EpochWeek:
+		epochDuration = sdk.NewDec(365).Quo(sdk.NewDec(7))
+	case types.EpochMinute:
+		epochDuration = sdk.NewDec(365 * 24 * 60)
+	case types.EpochHour:
+		epochDuration = sdk.NewDec(365 * 24)
+	case types.EpochMonth:
+		epochDuration = sdk.NewDec(12)
+	default:
+		return nil
+	}
+
+	// Compute reward
+	return sdk.NewDecCoins(sdk.NewDecCoinFromDec(denom, annualDistribution.Amount.Quo(epochDuration)))
 }
 
 // DistributeBlockRewards distributes the computed reward to the block proposer
-func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.ValidatorI, reward sdk.DecCoins) error {
+func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator stakingTypes.ValidatorI, reward sdk.DecCoins) error {
+	// TODO: mybe it's better to get from out of DistributeBlockRewards method the rewardPool amount
+	// so you can don't call the method
 	rewardPool := k.GetTotalRewardPool(ctx)
 	// Check if the yearly pool and the total pool have enough funds
 	if ctypes.IsAllGTE(rewardPool, reward) {
@@ -111,111 +168,16 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator exported.Valid
 
 		k.SetTotalRewardPool(ctx, rewardPool.Sub(sdk.NewDecCoinsFromCoins(rewardInt...)))
 
-		err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distribution.ModuleName, rewardInt)
+		err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, distributionTypes.ModuleName, rewardInt)
 		if err != nil {
+			// TODO: if sent token module to module fails the pool should be return to previous value
+			// k.SetTotalRewardPool(ctx, rewardPool)
 			return nil
 		}
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))
 	} else {
-		// TODO this error continue when pool hasn't enough funds for all rewards. Find a method to avoid this
 		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
 	}
 
 	return nil
-}
-
-// WithdrawAllRewards withdraw reward to all validator
-func (k Keeper) WithdrawAllRewards(ctx sdk.Context, stakeKeeper staking.Keeper) error {
-	// Loop throw delegations and withdraw all rewards from each validator
-	// and immediately delegate to validator
-	dels := stakeKeeper.GetAllDelegations(ctx)
-	for _, delegation := range dels {
-		returnedCoins, err := k.distKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
-		if err == nil {
-			amountRedelegate := returnedCoins.AmountOf(stakeKeeper.BondDenom(ctx))
-			if amountRedelegate.IsPositive() {
-				curValidator, found := stakeKeeper.GetValidator(ctx, delegation.ValidatorAddress)
-				if !found {
-					continue
-				}
-				_, _ = stakeKeeper.Delegate(ctx, delegation.DelegatorAddress, amountRedelegate, sdk.Unbonded, curValidator, true)
-			}
-		}
-	}
-
-	// Loop throw validators and withdraw all commission
-	// and immediately delegate to validator
-	vals := stakeKeeper.GetAllValidators(ctx)
-	for _, validator := range vals {
-		returnedCommission, err := k.distKeeper.WithdrawValidatorCommission(ctx, validator.GetOperator())
-
-		if err == nil {
-			amountRedelegate := returnedCommission.AmountOf(stakeKeeper.BondDenom(ctx))
-			if amountRedelegate.IsPositive() {
-				_, _ = stakeKeeper.Delegate(ctx, sdk.AccAddress(validator.GetOperator()), amountRedelegate, sdk.Unbonded, validator, true)
-			}
-		}
-	}
-	return nil
-}
-
-// VbrAccount returns vbr's ModuleAccount
-func (k Keeper) VbrAccount(ctx sdk.Context) supplyExported.ModuleAccountI {
-	return k.supplyKeeper.GetModuleAccount(ctx, types.ModuleName)
-}
-
-// MintVBRTokens mints coins into the vbr's ModuleAccount
-func (k Keeper) MintVBRTokens(ctx sdk.Context, coins sdk.Coins) error {
-	if err := k.supplyKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
-		return fmt.Errorf("could not mint requested coins: %w", err)
-	}
-
-	return nil
-}
-
-// GetRewardRate retrieve the vbr reward rate.
-func (k Keeper) GetRewardRate(ctx sdk.Context) sdk.Dec {
-	store := ctx.KVStore(k.storeKey)
-	var rate sdk.Dec
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.RewardRateKey)), &rate)
-	return rate
-}
-
-// SetRewardRate store the vbr reward rate.
-func (k Keeper) SetRewardRate(ctx sdk.Context, rate sdk.Dec) error {
-	if err := types.ValidateRewardRate(rate); err != nil {
-		return err
-	}
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.RewardRateKey), k.cdc.MustMarshalBinaryBare(rate))
-	return nil
-}
-
-// GetAutomaticWithdraw retrieve automatic withdraw flag.
-func (k Keeper) GetAutomaticWithdraw(ctx sdk.Context) bool {
-	store := ctx.KVStore(k.storeKey)
-	var autoW bool
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.AutomaticWithdraw)), &autoW)
-	return autoW
-}
-
-// SetAutomaticWithdraw store the automatic withdraw flag.
-func (k Keeper) SetAutomaticWithdraw(ctx sdk.Context, autoW bool) error {
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.AutomaticWithdraw), k.cdc.MustMarshalBinaryBare(autoW))
-	return nil
-}
-
-// IsDailyWithdrawBlock control if height is the daily withdraw block
-// BPD.Int64() return -8061083817814786048
-// But it would have to return 12960 (--> HoursPerDay * MinutesPerHour * BlocksPerMinute --> 24 * 60 * 9 )
-// Using RoundInt64() instead of Int64() it's work but RoundInt64() panics if something goes wrong...we may not use it
-func (k Keeper) IsDailyWithdrawBlock(height int64) bool {
-	if height == 0 {
-		return false
-	}
-
-	rest := height % BPD.Int64()
-	
-	return rest == 0
 }

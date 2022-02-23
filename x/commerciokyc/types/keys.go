@@ -5,6 +5,7 @@ const (
 	StoreKey     = ModuleName
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
+	MemStoreKey  = "mem_" + ModuleName
 
 	// --- Keeper
 	MembershipsStorageKey  = StoreKey + ":storage:"
@@ -21,6 +22,7 @@ const (
 	MsgTypeRemoveMembership          = "removeMembership"
 
 	QueryGetInvites                 = "invites"
+	QueryGetInvite                  = "invite"
 	QueryGetTrustedServiceProviders = "tsps"
 	QueryGetPoolFunds               = "poolFunds"
 	QueryGetMembership              = "membership"

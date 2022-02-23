@@ -2,203 +2,147 @@ package types
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
+var validDocumentChecksum = DocumentChecksum{
+	Value:     "93dfcaf3d923ec47edb8580667473987",
+	Algorithm: "md5",
+}
+
+var anotherValidDocumentChecksum = DocumentChecksum{
+	Value:     "D13519A356BEB6F2D993848AA29ECB8C07F4E80F",
+	Algorithm: "sha-1",
+}
+
 func TestDocumentChecksum_Validate(t *testing.T) {
+	type fields struct {
+		Value     string
+		Algorithm string
+	}
 	tests := []struct {
-		name     string
-		checksum DocumentChecksum
-		wantErr  string
+		name    string
+		fields  fields
+		wantErr bool
 	}{
 		{
-			"empty value",
-			DocumentChecksum{
-				Value:     "",
-				Algorithm: "md5",
+			name: "invalid algorithm length",
+			fields: fields{
+				Value:     validDocumentChecksum.Value,
+				Algorithm: validDocumentChecksum.Algorithm,
 			},
-			"checksum value can't be empty",
+			wantErr: false,
 		},
 		{
-			"empty algorithm",
-			DocumentChecksum{
-				Value:     "48656c6c6f20476f7068657221234567",
+			name: "empty value",
+			fields: fields{
+				Value:     "",
+				Algorithm: validDocumentChecksum.Algorithm,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty algorithm",
+			fields: fields{
+				Value:     validDocumentChecksum.Value,
 				Algorithm: "",
 			},
-			"checksum algorithm can't be empty",
+			wantErr: true,
 		},
 		{
-			"invalid hex value",
-			DocumentChecksum{
-				Value:     "qr54g7srg5674fsg4sfg",
-				Algorithm: "md5",
+			name: "invalid value",
+			fields: fields{
+				Value:     validDocumentChecksum.Value + "x",
+				Algorithm: validDocumentChecksum.Algorithm,
 			},
-			"invalid checksum value (must be hex)",
+			wantErr: true,
 		},
 		{
-			"invalid algorithm type",
-			DocumentChecksum{
-				Value:     "48656c6c6f20476f7068657221234567",
-				Algorithm: "md6",
+			name: "invalid algorithm type",
+			fields: fields{
+				Value:     validDocumentChecksum.Value,
+				Algorithm: validDocumentChecksum.Algorithm + "x",
 			},
-			"invalid checksum algorithm type md6",
+			wantErr: true,
 		},
 		{
-			"bad md5 hex hash decoding",
-			DocumentChecksum{
-				Value:     "0cc175bc0f1b6a831c399e269772661",
-				Algorithm: "md5",
+			name: "invalid value length",
+			fields: fields{
+				Value:     anotherValidDocumentChecksum.Value,
+				Algorithm: validDocumentChecksum.Algorithm,
 			},
-			"invalid checksum value (must be hex)",
-		},
-		{
-			"bad sha-1 hex hash decoding",
-			DocumentChecksum{
-				Value:     "86f7e437faa5a7fce15dddcb9eaeaea377667b8",
-				Algorithm: "sha-1",
-			},
-			"invalid checksum value (must be hex)",
-		},
-		{
-			"bad sha-224 hex hash decoding",
-			DocumentChecksum{
-				Value:     "abd37534c7d9a2efb946de931cd7055ffdb8879563ae98078d6d6d5",
-				Algorithm: "sha-224",
-			},
-			"invalid checksum value (must be hex)",
-		},
-		{
-			"bad sha-256 hex hash decoding",
-			DocumentChecksum{
-				Value:     "ca978112ca1bbdcafac21b39a23dc4da786eff8147c4e72b9807785afee48bb",
-				Algorithm: "sha-256",
-			},
-			"invalid checksum value (must be hex)",
-		},
-		{
-			"bad sha-384 hex hash decoding",
-			DocumentChecksum{
-				Value:     "54a59b9f22b0b80880d427e548b7c23abd873486e1f035dce9cd697e85175033caa88e6d57bc35efae0b5afd3145f31",
-				Algorithm: "sha-384",
-			},
-			"invalid checksum value (must be hex)",
-		},
-		{
-			"bad sha-512 hex hash decoding",
-			DocumentChecksum{
-				Value:     "1f40fc92da24169475099ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75",
-				Algorithm: "sha-512",
-			},
-			"invalid checksum value (must be hex)",
-		},
-		{
-			"good md5 hex hash decoding",
-			DocumentChecksum{
-				Value:     "0cc175b9c0f1b6a831c399e269772661",
-				Algorithm: "md5",
-			},
-			"",
-		},
-		{
-			"good sha-1 hex hash decoding",
-			DocumentChecksum{
-				Value:     "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8",
-				Algorithm: "sha-1",
-			},
-			"",
-		},
-		{
-			"good sha-224 hex hash decoding",
-			DocumentChecksum{
-				Value:     "abd37534c7d9a2efb9465de931cd7055ffdb8879563ae98078d6d6d5",
-				Algorithm: "sha-224",
-			},
-			"",
-		},
-		{
-			"good sha-256 hex hash decoding",
-			DocumentChecksum{
-				Value:     "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
-				Algorithm: "sha-256",
-			},
-			"",
-		},
-		{
-			"good sha-384 hex hash decoding",
-			DocumentChecksum{
-				Value:     "54a59b9f22b0b80880d8427e548b7c23abd873486e1f035dce9cd697e85175033caa88e6d57bc35efae0b5afd3145f31",
-				Algorithm: "sha-384",
-			},
-			"",
-		},
-		{
-			"good sha-512 hex hash decoding",
-			DocumentChecksum{
-				Value:     "1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75",
-				Algorithm: "sha-512",
-			},
-			"",
-		},
-		{
-			"a well-defined hex value for a well-known algorithm, but with bad hash length",
-			DocumentChecksum{
-				Value:     "68656c6c6f2c20746573747321",
-				Algorithm: "md5",
-			},
-			"invalid checksum length for algorithm md5",
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.checksum.Validate()
-			if tt.wantErr != "" {
-				require.EqualError(t, err, tt.wantErr)
-			} else {
-				require.NoError(t, err)
+			checksum := DocumentChecksum{
+				Value:     tt.fields.Value,
+				Algorithm: tt.fields.Algorithm,
+			}
+			if err := checksum.Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("DocumentChecksum.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
 func TestDocumentChecksum_Equals(t *testing.T) {
-	tests := []struct {
-		name  string
-		us    DocumentChecksum
+	type fields struct {
+		Value     string
+		Algorithm string
+	}
+	type args struct {
 		other DocumentChecksum
-		equal bool
+	}
+	tests := []struct {
+		name string
+		fields
+		args args
+		want bool
 	}{
 		{
-			"two equal DocumentChecksums",
-			DocumentChecksum{
-				Value:     "0cc175b9c0f1b6a831c399e269772661",
-				Algorithm: "md5",
+			name: "equal",
+			fields: fields{
+				Value:     validDocumentChecksum.Value,
+				Algorithm: validDocumentChecksum.Algorithm,
 			},
-			DocumentChecksum{
-				Value:     "0cc175b9c0f1b6a831c399e269772661",
-				Algorithm: "md5",
+			args: args{
+				other: validDocumentChecksum,
 			},
-			true,
+			want: true,
 		},
 		{
-			"two different DocumentChecksums",
-			DocumentChecksum{
-				Value:     "0cc175b9c0f1b6a831c399e269772661",
-				Algorithm: "md5",
+			name: "different value",
+			fields: fields{
+				Value:     validDocumentChecksum.Value,
+				Algorithm: anotherValidDocumentChecksum.Algorithm,
 			},
-			DocumentChecksum{
-				Value:     "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
-				Algorithm: "sha-256",
+			args: args{
+				other: validDocumentChecksum,
 			},
-			false,
+			want: false,
+		},
+		{
+			name: "different algorithm",
+			fields: fields{
+				Value:     anotherValidDocumentChecksum.Value,
+				Algorithm: validDocumentChecksum.Algorithm,
+			},
+			args: args{
+				other: validDocumentChecksum,
+			},
+			want: false,
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			val := tt.us.Equals(tt.other)
-			require.Equal(t, tt.equal, val)
+			checksum := DocumentChecksum{
+				Value:     tt.fields.Value,
+				Algorithm: tt.fields.Algorithm,
+			}
+			if got := checksum.Equals(tt.args.other); got != tt.want {
+				t.Errorf("DocumentChecksum.Equals() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

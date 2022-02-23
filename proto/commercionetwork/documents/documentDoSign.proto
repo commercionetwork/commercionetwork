@@ -1,0 +1,14 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+import "gogoproto/gogo.proto";
+
+message DocumentDoSign {
+  string storageURI = 1;
+  string signerInstance = 2;
+  repeated string sdnData = 3; 
+  string vcrID = 4;
+  string certificateProfile = 5;
+}

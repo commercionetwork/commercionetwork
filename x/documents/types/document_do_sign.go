@@ -16,22 +16,13 @@ const (
 	InputStringSep = ","
 )
 
-var validSdnData = map[string]struct{}{
+var ValidSdnData = map[string]struct{}{
 	SdnDataCommonName:   {},
 	SdnDataSurname:      {},
 	SdnDataSerialNumber: {},
 	SdnDataGivenName:    {},
 	SdnDataOrganization: {},
 	SdnDataCountry:      {},
-}
-
-// DocumentDoSign represents the optional DoSign value inside a Document.
-type DocumentDoSign struct {
-	StorageURI         string  `json:"storage_uri"`
-	SignerInstance     string  `json:"signer_instance"`
-	SdnData            SdnData `json:"sdn_data"`
-	VcrID              string  `json:"vcr_id"`
-	CertificateProfile string  `json:"certificate_profile"`
 }
 
 // SdnData represents the SdnData value inside a DocumentDoSign struct.
@@ -41,7 +32,7 @@ type SdnData []string
 // validSdnData.
 func (s SdnData) Validate() error {
 	for _, val := range s {
-		if _, ok := validSdnData[val]; !ok {
+		if _, ok := ValidSdnData[val]; !ok {
 			return fmt.Errorf("sdn_data value \"%s\" is not supported", val)
 		}
 	}

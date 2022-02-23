@@ -1,30 +1,58 @@
 package types
 
 const (
-	ModuleName   = "docs"
-	StoreKey     = ModuleName
+	// ModuleName defines the module name
+	ModuleName = "docs"
+
+	// StoreKey defines the primary module store key
+	StoreKey = ModuleName
+
+	// RouterKey is the message route for slashing
+	RouterKey = ModuleName
+
+	// QuerierRoute defines the module's query routing key
 	QuerierRoute = ModuleName
 
-	SupportedMetadataSchemesStoreKey = StoreKey + "supportedMetadata"
-	MetadataSchemaProposersStoreKey  = StoreKey + "metadataSchemaProposers"
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "mem_" + ModuleName
 
-	DocumentStorePrefix     = StoreKey + ":document:"
-	SentDocumentsPrefix     = StoreKey + ":documents:sent:"
-	ReceivedDocumentsPrefix = StoreKey + ":documents:received:"
+	/*// Version defines the current version the IBC module supports
+	Version = "documents-1"
 
-	ReceiptsStorePrefix             = StoreKey + ":receipts:"
-	SentDocumentsReceiptsPrefix     = StoreKey + ":receipts:sent:"
-	ReceivedDocumentsReceiptsPrefix = StoreKey + ":receipts:received:"
+	// PortID is the default port id that module binds to
+	PortID = "documents"*/
 
-	MsgTypeShareDocument                    = "shareDocument"
-	MsgTypeSendDocumentReceipt              = "sendDocumentReceipt"
-	MsgTypeAddSupportedMetadataSchema       = "addSupportedMetadataSchema"
-	MsgTypeAddTrustedMetadataSchemaProposer = "addTrustedMetadataSchemaProposer"
+)
 
-	QuerySentDocuments            = "sent"
-	QueryReceivedDocuments        = "received"
-	QueryReceivedReceipts         = "receivedReceipts"
-	QuerySentReceipts             = "sentReceipts"
-	QuerySupportedMetadataSchemes = "supportedMetadataSchemes"
-	QueryTrustedMetadataProposers = "trustedMetadataProposers"
+var (
+	// PortKey defines the key to store the port ID in store
+	PortKey = KeyPrefix("documents-port-")
+)
+
+func KeyPrefix(p string) []byte {
+	return []byte(p)
+}
+
+const (
+	DocumentStorePrefix = StoreKey + ":document:"
+
+	DocumentPrefix          = StoreKey + ":documents:"
+	SentDocumentsPrefix     = DocumentPrefix + "sent:"
+	ReceivedDocumentsPrefix = DocumentPrefix + "received:"
+
+	ReceiptsStorePrefix = StoreKey + ":receipt:"
+
+	ReceiptsPrefix                  = StoreKey + ":receipts:"
+	SentDocumentsReceiptsPrefix     = ReceiptsPrefix + "sent:"
+	ReceivedDocumentsReceiptsPrefix = ReceiptsPrefix + "received:"
+	DocumentsReceiptsPrefix         = ReceiptsPrefix + "documents:"
+
+	MsgTypeShareDocument       = "shareDocument"
+	MsgTypeSendDocumentReceipt = "sendDocumentReceipt"
+
+	QuerySentDocuments     = "sent"
+	QueryReceivedDocuments = "received"
+	QueryReceivedReceipts  = "receivedReceipts"
+	QuerySentReceipts      = "sentReceipts"
+	QueryDocumentReceipts  = "documentReceipts"
 )

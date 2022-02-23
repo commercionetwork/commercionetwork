@@ -1,133 +1,36 @@
 package cli
 
 import (
-	"bufio"
+	"fmt"
+	"time"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
 
-func GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	txCmd := &cobra.Command{
+var (
+	DefaultRelativePacketTimeoutTimestamp = uint64((time.Duration(10) * time.Minute).Nanoseconds())
+)
+
+const (
+	flagPacketTimeoutTimestamp = "packet-timeout-timestamp"
+)
+
+// GetTxCmd returns the transaction commands for this module
+func GetTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "CommercioVBR transactions subcommands",
+		Short:                      fmt.Sprintf("%s transactions subcommands", types.ModuleName),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	txCmd.AddCommand(
-		setRewardRateCmd(cdc),
-		setAutomaticWithdrawCmd(cdc),
-		GetCmdIncrementBlockRewardsPool(cdc),
-	)
-	return txCmd
-}
 
-// GetCmdIncrementBlockRewardsPool create increment block reward message and brodcast
-func GetCmdIncrementBlockRewardsPool(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "deposit [coin-denom] [amount]",
-		Short: "Increments the block rewards pool's liquidity by the given amount",
-		Args:  cobra.ExactArgs(2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			funder := cliCtx.GetFromAddress()
-			amount, err := sdk.ParseCoins(args[0])
-			if err != nil {
-				return err
-			}
-
-			msg := types.NewMsgIncrementBlockRewardsPool(funder, amount)
-			err = msg.ValidateBasic()
-			if err != nil {
-				return err
-			}
-
-			return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
-		},
-	}
-
-	cmd = flags.PostCommands(cmd)[0]
+	// this line is used by starport scaffolding # 1
+	cmd.AddCommand(CmdIncrementBlockRewardsPool())
+	cmd.AddCommand(CmdSetParams())
 
 	return cmd
-}
-
-func setRewardRateCmd(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "set-reward-rate [rate]",
-		Short: "Set reward rate for vbr",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return setRewardRateCmdFunc(cmd, args, cdc)
-		},
-	}
-
-	cmd = flags.PostCommands(cmd)[0]
-
-	return cmd
-}
-
-func setRewardRateCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
-	inBuf := bufio.NewReader(cmd.InOrStdin())
-	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-
-	sender := cliCtx.GetFromAddress()
-	rate, err := sdk.NewDecFromStr(args[0])
-	if err != nil {
-		return err
-	}
-
-	msg := types.NewMsgSetRewardRate(sender, rate)
-	if err := msg.ValidateBasic(); err != nil {
-		return err
-	}
-
-	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
-}
-
-func setAutomaticWithdrawCmd(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "set-automatic-withdraw [0/1]",
-		Short: "Set automatic withdraw for vbr",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return setAutomaticWithdrawCmdFunc(cmd, args, cdc)
-		},
-	}
-
-	cmd = flags.PostCommands(cmd)[0]
-
-	return cmd
-}
-
-func setAutomaticWithdrawCmdFunc(cmd *cobra.Command, args []string, cdc *codec.Codec) error {
-	inBuf := bufio.NewReader(cmd.InOrStdin())
-	cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
-	txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-
-	sender := cliCtx.GetFromAddress()
-
-	aWith := false
-	if args[0] == "1" {
-		aWith = true
-	}
-
-	msg := types.NewMsgSetAutomaticWithdraw(sender, aWith)
-	if err := msg.ValidateBasic(); err != nil {
-		return err
-	}
-
-	return utils.CompleteAndBroadcastTxCLI(txBldr, cliCtx, []sdk.Msg{msg})
 }

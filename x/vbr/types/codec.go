@@ -1,19 +1,33 @@
 package types
 
-import "github.com/cosmos/cosmos-sdk/codec"
+import (
+	"github.com/cosmos/cosmos-sdk/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
+)
 
-func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgIncrementBlockRewardsPool{}, "commercio/MsgIncrementBlockRewardsPool", nil)
-	cdc.RegisterConcrete(MsgSetRewardRate{}, "commercio/MsgSetRewardRate", nil)
-	cdc.RegisterConcrete(MsgSetAutomaticWithdraw{}, "commercio/MsgSetAutomaticWithdraw", nil)
+func RegisterCodec(cdc *codec.LegacyAmino) {
+	// this line is used by starport scaffolding # 2
+	cdc.RegisterConcrete(&MsgIncrementBlockRewardsPool{}, "vbr/MsgIncrementBlockRewardsPool", nil)
+
+	cdc.RegisterConcrete(&MsgSetParams{}, "vbr/SetParams", nil)
 
 }
 
-var ModuleCdc *codec.Codec
+func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	// this line is used by starport scaffolding # 3
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgIncrementBlockRewardsPool{},
+	)
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgSetParams{},
+	)
 
-func init() {
-	ModuleCdc = codec.New()
-	RegisterCodec(ModuleCdc)
-	codec.RegisterCrypto(ModuleCdc)
-	ModuleCdc.Seal()
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
+
+var (
+	amino     = codec.NewLegacyAmino()
+	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+)

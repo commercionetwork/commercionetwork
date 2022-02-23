@@ -5,48 +5,73 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-
-	"github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
-func TestKeeper_SetGovernmentAddress_NonExisting(t *testing.T) {
-	_, ctx, k := SetupTestInput(false)
+func TestKeeper_SetGovernmentAddress(t *testing.T) {
 
-	err := k.SetGovernmentAddress(ctx, governmentTestAddress)
-	require.Nil(t, err)
+	tests := []struct {
+		name            string
+		governmentToSet sdk.AccAddress
+		governmentOld   sdk.AccAddress
+		wantErr         bool
+	}{
+		{
+			"empty store",
+			governmentTestAddress,
+			nil,
+			false,
+		},
+		{
+			"same government already set",
+			governmentTestAddress,
+			governmentTestAddress,
+			true,
+		},
+		{
+			"new government with government already set",
+			notGovernmentAddress,
+			governmentTestAddress,
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeperWithGovernmentAddress(t, tt.governmentOld)
 
-	store := ctx.KVStore(k.StoreKey)
-	stored := sdk.AccAddress(store.Get([]byte(types.GovernmentStoreKey)))
-	require.Equal(t, governmentTestAddress, stored)
+			if err := k.SetGovernmentAddress(ctx, tt.governmentToSet); (err != nil) != tt.wantErr {
+				t.Errorf("Keeper.SetGovernmentAddress() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			var expected sdk.AccAddress
+			if tt.wantErr {
+				expected = tt.governmentOld
+			} else {
+				expected = tt.governmentToSet
+			}
+
+			require.Equal(t, expected, k.GetGovernmentAddress(ctx))
+		})
+	}
 }
 
 func TestKeeper_GetGovernmentAddress(t *testing.T) {
-	_, ctx, k := SetupTestInput(true)
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.GovernmentStoreKey), governmentTestAddress)
 
-	actual := k.GetGovernmentAddress(ctx)
-
-	require.Equal(t, governmentTestAddress, actual)
-}
-
-func TestKeeper_SetTumblerAddress_NonExisting(t *testing.T) {
-	_, ctx, k := SetupTestInput(false)
-
-	err := k.SetTumblerAddress(ctx, governmentTestAddress)
-	require.Nil(t, err)
-
-	store := ctx.KVStore(k.StoreKey)
-	stored := sdk.AccAddress(store.Get([]byte(types.TumblerStoreKey)))
-	require.Equal(t, governmentTestAddress, stored)
-}
-
-func TestKeeper_GetTumblerAddress(t *testing.T) {
-	_, ctx, k := SetupTestInput(true)
-	store := ctx.KVStore(k.StoreKey)
-	store.Set([]byte(types.TumblerStoreKey), governmentTestAddress)
-
-	actual := k.GetTumblerAddress(ctx)
-
-	require.Equal(t, governmentTestAddress, actual)
+	tests := []struct {
+		name    string
+		address sdk.AccAddress
+	}{
+		{
+			"expected government",
+			governmentTestAddress,
+		},
+		{
+			"empty government",
+			nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeperWithGovernmentAddress(t, tt.address)
+			require.Equal(t, tt.address, k.GetGovernmentAddress(ctx))
+		})
+	}
 }

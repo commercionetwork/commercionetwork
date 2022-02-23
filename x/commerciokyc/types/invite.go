@@ -6,11 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// --------------
-// --- Invite
-// --------------
-
-type InviteStatus uint8
+type InviteStatus uint64
 
 const (
 	InviteStatusPending InviteStatus = iota
@@ -18,22 +14,14 @@ const (
 	InviteStatusInvalid
 )
 
-// Invite represents an invitation that a user has made towards another user
-type Invite struct {
-	Sender           sdk.AccAddress `json:"sender"`            // User that has sent the invitation
-	SenderMembership string         `json:"sender_membership"` // Membership of Sender when the invite was created
-	User             sdk.AccAddress `json:"user"`              // Invited user
-	Status           InviteStatus   `json:"status"`            // Tells if the invite is pending, rewarded or invalid
-}
-
-// NewInvite creates a new invite object representing an invitation from the sender to the specified user.
-// By default, NewInvite returns a Pending invite.
+// NewMembership returns a new memberships containing the given data
+// TODO: fix conversion
 func NewInvite(sender, user sdk.AccAddress, senderMembership string) Invite {
 	return Invite{
-		Sender:           sender,
-		User:             user,
+		Sender:           sender.String(),
+		User:             user.String(),
 		SenderMembership: senderMembership,
-		Status:           InviteStatusPending,
+		Status:           uint64(InviteStatusPending), // TODO fix conversion
 	}
 }
 
@@ -44,21 +32,17 @@ func (invite Invite) Empty() bool {
 
 // Equals returns true iff invite contains the same data of the other invite
 func (invite Invite) Equals(other Invite) bool {
-	return invite.Sender.Equals(other.Sender) &&
-		invite.User.Equals(other.User) &&
+	return invite.Sender == other.Sender &&
+		invite.User == other.User &&
 		invite.SenderMembership == other.SenderMembership &&
 		invite.Status == other.Status
 }
 
-// --------------
-// --- Invites
-// --------------
-
-// Invites represents a slice of Invite objects
 type Invites []Invite
 
 // Equals returns true iff this slice contains the same data of the
 // other one and in the same order
+// TODO evalute remove Equals: only for tests
 func (slice Invites) Equals(other Invites) bool {
 	if len(slice) != len(other) {
 		return false
@@ -74,9 +58,10 @@ func (slice Invites) Equals(other Invites) bool {
 }
 
 // ValidateBasic returns error if Invite status is not Pending, Reward or Invalid
+// TODO validate basic not used
 func (invite Invite) ValidateBasic() error {
 	switch invite.Status {
-	case InviteStatusPending, InviteStatusRewarded, InviteStatusInvalid:
+	case uint64(InviteStatusPending), uint64(InviteStatusRewarded), uint64(InviteStatusInvalid):
 		return nil
 	default:
 		return fmt.Errorf("invite has invalid status: %d", invite.Status)

@@ -19,3 +19,19 @@ type GenesisState struct {
 	RewardRate        sdk.Dec      `json:"reward_rate"`
 	AutomaticWithdraw bool         `json:"automatic_withdraw"`
 }
+
+
+type MsgIncrementBlockRewardsPool struct {
+	Funder sdk.AccAddress `json:"funder"`
+	Amount sdk.Coins      `json:"amount"`
+}
+
+type MsgSetRewardRate struct {
+	Government sdk.AccAddress `json:"government"`
+	RewardRate sdk.Dec        `json:"reward_rate"`
+}
+
+type MsgSetAutomaticWithdraw struct {
+	Government        sdk.AccAddress `json:"government"`
+	AutomaticWithdraw bool           `json:"automatic_withdraw"`
+}

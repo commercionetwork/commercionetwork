@@ -1,0 +1,15 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.documents;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+import "gogoproto/gogo.proto";
+
+message DocumentReceipt {
+    string UUID = 1; 
+    string sender = 2; 
+    string recipient = 3; 
+    string txHash = 4; 
+    string documentUUID = 5;
+    string proof = 6;
+}

@@ -2,20 +2,24 @@ package keeper
 
 import (
 	"testing"
+	"time"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
+
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
-	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 )
 
 var request abci.RequestQuery
 
 func TestNewQuerier_InvalidMsg(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
-	querier := NewQuerier(k)
+	app := simapp.Setup(false)
+	legacyAmino := app.LegacyAmino()
+	querier := NewQuerier(k, legacyAmino)
 	_, res := querier(ctx, []string{""}, abci.RequestQuery{})
 	require.Error(t, res)
 }
@@ -64,17 +68,25 @@ func Test_queryGetInvites(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
 
 			for _, i := range test.storedInvites {
 				k.SaveInvite(ctx, i)
 			}
 
-			querier := NewQuerier(k)
+			querier := NewQuerier(k, legacyAmino)
 			path := []string{types.QueryGetInvites}
 			actualBz, _ := querier(ctx, path, request)
 
 			var actual types.Invites
-			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			var invites []*types.Invite
+			legacyAmino.MustUnmarshalJSON(actualBz, &invites)
+			for _, invite := range invites {
+				actual = append(actual, *invite)
+			}
+
+			//k.Cdc.MustUnmarshalJSON(actualBz, &actual)
 			require.True(t, test.expected.Equals(actual))
 		})
 	}
@@ -103,62 +115,25 @@ func Test_queryGetSigners(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
 
 			for _, t := range test.storedTsps {
 				k.AddTrustedServiceProvider(ctx, t)
 			}
 
-			querier := NewQuerier(k)
+			querier := NewQuerier(k, legacyAmino)
 			request := abci.RequestQuery{}
 
 			path := []string{types.QueryGetTrustedServiceProviders}
 			actualBz, _ := querier(ctx, path, request)
 
-			var actual []sdk.AccAddress
-			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			var actual types.TrustedServiceProviders
+			k.cdc.MustUnmarshalJSON(actualBz, &actual)
 
 			for _, tsp := range test.expected {
-				require.Contains(t, actual, tsp)
+				require.Contains(t, actual.Addresses, tsp.String())
 			}
-		})
-	}
-}
-
-func Test_queryGetPoolFunds(t *testing.T) {
-	tests := []struct {
-		name string
-		pool sdk.Coins
-	}{
-		{
-			name: "Empty pool is returned properly",
-			pool: sdk.Coins{},
-		},
-		{
-			name: "Exiting pool is returned properly",
-			pool: sdk.NewCoins(
-				sdk.NewCoin("uatom", sdk.NewInt(100)),
-				sdk.NewCoin("ucommercio", sdk.NewInt(1000)),
-			),
-		},
-	}
-
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			ctx, _, _, k := SetupTestInput()
-			if !test.pool.Empty() {
-				_ = k.SupplyKeeper.MintCoins(ctx, types.ModuleName, test.pool)
-			}
-
-			querier := NewQuerier(k)
-			request := abci.RequestQuery{}
-
-			path := []string{types.QueryGetPoolFunds}
-			actualBz, _ := querier(ctx, path, request)
-
-			var actual sdk.Coins
-			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-			require.True(t, test.pool.IsEqual(actual))
 		})
 	}
 }
@@ -182,19 +157,25 @@ func Test_queryGetMembership(t *testing.T) {
 			mustErr:            true,
 		},
 		{
-			name:    "Not found membership on empty set returns correctly",
-			mustErr: true,
+			name:               "Not found membership on empty set returns correctly",
+			existingMembership: types.Membership{ExpiryAt: &testExpiration},
+			mustErr:            true,
 		},
 	}
 
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
-
-		if !(types.Membership{}).Equals(test.existingMembership) {
-			_ = k.AssignMembership(ctx, test.existingMembership.Owner, test.existingMembership.MembershipType, test.existingMembership.TspAddress, test.existingMembership.ExpiryAt)
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+		owner, _ := sdk.AccAddressFromBech32(test.existingMembership.Owner)
+		tsp, _ := sdk.AccAddressFromBech32(test.existingMembership.TspAddress)
+		curTime := time.Now()
+		emptyMembership := types.Membership{ExpiryAt: &curTime}
+		if !emptyMembership.Equals(test.existingMembership) {
+			_ = k.AssignMembership(ctx, owner, test.existingMembership.MembershipType, tsp, *test.existingMembership.ExpiryAt)
 		}
 
-		querier := NewQuerier(k)
+		querier := NewQuerier(k, legacyAmino)
 
 		path := []string{types.QueryGetMembership, testUser.String()}
 		actualBz, err := querier(ctx, path, request)
@@ -202,7 +183,7 @@ func Test_queryGetMembership(t *testing.T) {
 		if !test.mustErr {
 			require.NoError(t, err)
 			var actual types.Membership
-			k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+			k.cdc.MustUnmarshalJSON(actualBz, &actual)
 			require.Equal(t, test.expected, actual)
 		} else {
 			require.Error(t, err)
@@ -237,19 +218,24 @@ func Test_queryGetMemberships(t *testing.T) {
 
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
 
 		for _, m := range test.existingMemberships {
-			_ = k.AssignMembership(ctx, m.Owner, m.MembershipType, m.TspAddress, m.ExpiryAt)
+			owner, _ := sdk.AccAddressFromBech32(m.Owner)
+			tsp, _ := sdk.AccAddressFromBech32(m.TspAddress)
+
+			_ = k.AssignMembership(ctx, owner, m.MembershipType, tsp, *m.ExpiryAt)
 		}
 
-		querier := NewQuerier(k)
+		querier := NewQuerier(k, legacyAmino)
 		request := abci.RequestQuery{}
 
 		path := []string{types.QueryGetMemberships}
 		actualBz, _ := querier(ctx, path, request)
 
 		var actual types.Memberships
-		k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+		legacyAmino.MustUnmarshalJSON(actualBz, &actual)
 		require.Equal(t, test.expected, actual)
 
 	}
@@ -299,18 +285,23 @@ func Test_queryGetTspMemberships(t *testing.T) {
 
 	for _, test := range tests {
 		ctx, _, _, k := SetupTestInput()
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
 
 		for _, m := range test.existingMemberships {
-			_ = k.AssignMembership(ctx, m.Owner, m.MembershipType, m.TspAddress, m.ExpiryAt)
+			owner, _ := sdk.AccAddressFromBech32(m.Owner)
+			tsp, _ := sdk.AccAddressFromBech32(m.TspAddress)
+
+			_ = k.AssignMembership(ctx, owner, m.MembershipType, tsp, *m.ExpiryAt)
 		}
 		k.AddTrustedServiceProvider(ctx, test.tsp)
-		querier := NewQuerier(k)
+		querier := NewQuerier(k, legacyAmino)
 
 		path := []string{types.QueryGetTspMemberships, test.tsp.String()}
 		actualBz, _ := querier(ctx, path, request)
 
 		var actual types.Memberships
-		k.Cdc.MustUnmarshalJSON(actualBz, &actual)
+		legacyAmino.MustUnmarshalJSON(actualBz, &actual)
 		require.Equal(t, test.expected, actual)
 
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/gofrs/uuid"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
@@ -14,23 +15,21 @@ import (
 )
 
 // NewQuerier is the module level router for state queries
-func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
+func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
 		case types.QueryReceivedDocuments:
-			return queryGetReceivedDocuments(ctx, path[1:], keeper)
+			return queryGetReceivedDocuments(ctx, path[1:], k, legacyQuerierCdc)
 		case types.QuerySentDocuments:
-			return queryGetSentDocuments(ctx, path[1:], keeper)
+			return queryGetSentDocuments(ctx, path[1:], k, legacyQuerierCdc)
 		case types.QueryReceivedReceipts:
-			return queryGetReceivedDocsReceipts(ctx, path[1:], keeper)
+			return queryGetReceivedDocsReceipts(ctx, path[1:], k, legacyQuerierCdc)
 		case types.QuerySentReceipts:
-			return queryGetSentDocsReceipts(ctx, path[1:], keeper)
-		case types.QuerySupportedMetadataSchemes:
-			return querySupportedMetadataSchemes(ctx, path[1:], keeper)
-		case types.QueryTrustedMetadataProposers:
-			return queryTrustedMetadataProposers(ctx, path[1:], keeper)
+			return queryGetSentDocsReceipts(ctx, path[1:], k, legacyQuerierCdc)
+		case types.QueryDocumentReceipts:
+			return queryGetDocumentsReceipts(ctx, path[1:], k, legacyQuerierCdc)
 		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint: %s", types.ModuleName, path[0]))
 		}
 	}
 }
@@ -39,19 +38,21 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 // --- Documents
 // ----------------------------------
 
-func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
+func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
+	address, err := sdk.AccAddressFromBech32(addr)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+	}
 
-	ri := keeper.UserReceivedDocumentsIterator(ctx, address)
+	ri := k.UserReceivedDocumentsIterator(ctx, address)
 	defer ri.Close()
 
-	receivedResult := []types.Document{}
+	documents := []types.Document{}
 	for ; ri.Valid(); ri.Next() {
-		documentUUID := ""
-		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &documentUUID)
+		documentUUID := string(ri.Value())
 
-		document, err := keeper.GetDocumentByID(ctx, documentUUID)
+		document, err := k.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
@@ -61,30 +62,32 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, keeper Keeper) ([
 			)
 		}
 
-		receivedResult = append(receivedResult, document)
+		documents = append(documents, document)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
-	if err2 != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, documents)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
-func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
+func queryGetSentDocuments(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
+	address, err := sdk.AccAddressFromBech32(addr)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+	}
 
-	usdi := keeper.UserSentDocumentsIterator(ctx, address)
+	usdi := k.UserSentDocumentsIterator(ctx, address)
 	defer usdi.Close()
 
-	receivedResult := []types.Document{}
+	documents := []types.Document{}
 	for ; usdi.Valid(); usdi.Next() {
-		documentUUID := ""
-		keeper.cdc.MustUnmarshalBinaryBare(usdi.Value(), &documentUUID)
+		documentUUID := string(usdi.Value())
 
-		document, err := keeper.GetDocumentByID(ctx, documentUUID)
+		document, err := k.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
@@ -94,99 +97,85 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, keeper Keeper) ([]byt
 			)
 		}
 
-		receivedResult = append(receivedResult, document)
+		documents = append(documents, document)
 	}
 
-	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, receivedResult)
-	if err2 != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, documents)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
 // ----------------------------------
-// --- Documents receipts
+// --- Documents Receipts
 // ----------------------------------
 
-func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
+func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
-	address, _ := sdk.AccAddressFromBech32(addr)
-
-	var uuid string
-	if len(path) == 2 {
-		uuid = path[1]
+	address, err := sdk.AccAddressFromBech32(addr)
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
-	receipts := []types.DocumentReceipt{}
-
-	ri := keeper.UserReceivedReceiptsIterator(ctx, address)
+	ri := k.UserReceivedReceiptsIterator(ctx, address)
 	defer ri.Close()
 
+	receipts := []types.DocumentReceipt{}
 	for ; ri.Valid(); ri.Next() {
-		rid := ""
-		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &rid)
+		receiptUUID := string(ri.Value())
 
-		newReceipt, err := keeper.GetReceiptByID(ctx, rid)
+		receipt, err := k.GetReceiptByID(ctx, receiptUUID)
 		if err != nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document receipt with UUID %s even though the user has an associated received document with it",
-					rid,
+					receiptUUID,
 				),
 			)
 		}
-
-		if uuid == "" {
-			receipts = append(receipts, newReceipt)
-			continue
-		}
-
-		if newReceipt.DocumentUUID == uuid {
-			receipts = append(receipts, newReceipt)
-		}
+		receipts = append(receipts, receipt)
 	}
 
-	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, receipts)
 
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil
 }
 
-func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]byte, error) {
+func queryGetSentDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	addr := path[0]
 	address, err := sdk.AccAddressFromBech32(addr)
-
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
 	receipts := []types.DocumentReceipt{}
 
-	ri := keeper.UserSentReceiptsIterator(ctx, address)
+	ri := k.UserSentReceiptsIterator(ctx, address)
 	defer ri.Close()
 
 	for ; ri.Valid(); ri.Next() {
-		rid := ""
-		keeper.cdc.MustUnmarshalBinaryBare(ri.Value(), &rid)
+		receiptUUID := string(ri.Value())
 
-		newReceipt, err := keeper.GetReceiptByID(ctx, rid)
+		receipt, err := k.GetReceiptByID(ctx, receiptUUID)
 		if err != nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document receipt with UUID %s even though the user has an associated received document with it",
-					rid,
+					receiptUUID,
 				),
 			)
 		}
 
-		receipts = append(receipts, newReceipt)
+		receipts = append(receipts, receipt)
 	}
 
-	bz, err := codec.MarshalJSONIndent(keeper.cdc, &receipts)
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, receipts)
 
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
@@ -195,49 +184,37 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, keeper Keeper) ([]
 	return bz, nil
 }
 
-// ----------------------------------
-// --- Document metadata schemes
-// ----------------------------------
-
-func querySupportedMetadataSchemes(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, error) {
-	si := keeper.SupportedMetadataSchemesIterator(ctx)
-	defer si.Close()
-
-	schemes := []types.MetadataSchema{}
-	for ; si.Valid(); si.Next() {
-		var ms types.MetadataSchema
-		keeper.cdc.MustUnmarshalBinaryBare(si.Value(), &ms)
-		schemes = append(schemes, ms)
+func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	documentUUID, err := uuid.FromString(path[0])
+	if err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid UUID: %s", path[0]))
 	}
 
-	bz, err := codec.MarshalJSONIndent(keeper.cdc, &schemes)
+	receipts := []types.DocumentReceipt{}
+
+	ri := k.UUIDDocumentsReceiptsIterator(ctx, documentUUID.String())
+	defer ri.Close()
+
+	for ; ri.Valid(); ri.Next() {
+		receiptUUID := string(ri.Value())
+
+		receipt, err := k.GetReceiptByID(ctx, receiptUUID)
+		if err != nil {
+			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+				fmt.Sprintf(
+					"could not find document receipt with UUID %s even though there is a document associated with it",
+					receiptUUID,
+				),
+			)
+		}
+
+		receipts = append(receipts, receipt)
+	}
+
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, receipts)
 
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
-	}
-
-	return bz, nil
-}
-
-// -----------------------------------------
-// --- Document metadata schemes proposers
-// -----------------------------------------
-
-func queryTrustedMetadataProposers(ctx sdk.Context, _ []string, keeper Keeper) ([]byte, error) {
-	pi := keeper.TrustedSchemaProposersIterator(ctx)
-	defer pi.Close()
-
-	proposers := []sdk.AccAddress{}
-	for ; pi.Valid(); pi.Next() {
-		aa := sdk.AccAddress{}
-		keeper.cdc.MustUnmarshalBinaryBare(pi.Value(), &aa)
-		proposers = append(proposers, aa)
-	}
-
-	bz, err := codec.MarshalJSONIndent(keeper.cdc, &proposers)
-
-	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil

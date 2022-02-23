@@ -1,116 +1,172 @@
 package keeper
 
 import (
-	//"fmt"
-
 	"testing"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	dist "github.com/cosmos/cosmos-sdk/x/distribution"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
-	//"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmdb "github.com/tendermint/tm-db"
+
+	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
-// -------------
-// --- Pool
-// -------------
+func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
+	storeKeys := sdk.NewKVStoreKeys(
+		types.StoreKey,
+		paramsTypes.StoreKey,
+		distrTypes.StoreKey,
+		bankTypes.StoreKey,
+		accountTypes.StoreKey,
+		govTypes.StoreKey,
+		epochsTypes.StoreKey,
+		stakingTypes.StoreKey,
+	)
+	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
 
-func TestKeeper_SetTotalRewardPool(t *testing.T) {
-	cdc, ctx, k, _, _, _ := SetupTestInput(true)
+	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
+	memStoreKeyGov := storetypes.NewMemoryStoreKey(govTypes.MemStoreKey)
 
-	k.SetTotalRewardPool(ctx, TestBlockRewardsPool)
+	db := tmdb.NewMemDB()
+	stateStore := store.NewCommitMultiStore(db)
+	for _, storeKey := range storeKeys {
+		stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+	}
+	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
+	stateStore.MountStoreWithDB(memStoreKeyGov, sdk.StoreTypeMemory, nil)
 
-	var pool sdk.DecCoins
-	store := ctx.KVStore(k.storeKey)
-	cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.PoolStoreKey)), &pool)
+	stateStore.MountStoreWithDB(tkeys[paramsTypes.TStoreKey], sdk.StoreTypeTransient, db)
+	require.NoError(t, stateStore.LoadLatestVersion())
 
-	require.Equal(t, TestBlockRewardsPool, pool)
+	//registry := codectypes.NewInterfaceRegistry()
+	app := simapp.Setup(false)
+	cdc := app.AppCodec()
+
+	feeCollectorAcc := accountTypes.NewEmptyModuleAccount(accountTypes.FeeCollectorName)
+	notBondedPool := accountTypes.NewEmptyModuleAccount(stakingTypes.NotBondedPoolName, accountTypes.Burner, accountTypes.Staking)
+	bondPool := accountTypes.NewEmptyModuleAccount(stakingTypes.BondedPoolName, accountTypes.Burner, accountTypes.Staking)
+
+	blacklistedAddrs := make(map[string]bool)
+	blacklistedAddrs[feeCollectorAcc.GetAddress().String()] = true
+	blacklistedAddrs[notBondedPool.GetAddress().String()] = true
+	blacklistedAddrs[bondPool.GetAddress().String()] = true
+	blacklistedAddrs[distrAcc.GetAddress().String()] = true
+
+	ctx := sdk.NewContext(stateStore, tmproto.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
+	maccPerms := map[string][]string{
+		accountTypes.FeeCollectorName:  nil,
+		distrTypes.ModuleName:          nil,
+		stakingTypes.BondedPoolName:    {accountTypes.Burner, accountTypes.Staking},
+		stakingTypes.NotBondedPoolName: {accountTypes.Burner, accountTypes.Staking},
+		types.ModuleName:               {accountTypes.Minter},
+		govTypes.ModuleName:            {accountTypes.Burner},
+	}
+
+	pk := paramsKeeper.NewKeeper(cdc, codec.NewLegacyAmino(), storeKeys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
+	ak := accountKeeper.NewAccountKeeper(cdc, storeKeys[accountTypes.StoreKey], pk.Subspace("auth"), accountTypes.ProtoBaseAccount, maccPerms)
+	bk := bankKeeper.NewBaseKeeper(cdc, storeKeys[bankTypes.StoreKey], ak, pk.Subspace("bank"), blacklistedAddrs)
+	sk := stakingKeeper.NewKeeper(cdc, storeKeys[stakingTypes.StoreKey], ak, bk, pk.Subspace("staking"))
+	sk.SetParams(ctx, stakingTypes.DefaultParams())
+	gk := govKeeper.NewKeeper(cdc, storeKeys[govTypes.StoreKey], memStoreKeyGov)
+	dk := distrKeeper.NewKeeper(cdc, storeKeys[distrTypes.StoreKey], pk.Subspace("distribution"), ak, bk, sk, accountTypes.FeeCollectorName, blacklistedAddrs)
+	sk.SetHooks(stakingTypes.NewMultiStakingHooks(dk.Hooks()))
+	ek := epochsKeeper.NewKeeper(cdc, storeKeys[epochsTypes.StoreKey])
+	keeper := NewKeeper(
+		cdc,
+		storeKeys[types.StoreKey],
+		memStoreKey,
+		dk,
+		bk,
+		ak,
+		*gk,
+		*ek,
+		pk.Subspace(types.ModuleName),
+		sk,
+	)
+	ek.SetHooks(epochsTypes.NewMultiEpochHooks(keeper.Hooks()))
+
+	return keeper, ctx
 }
 
-func TestKeeper_GetTotalRewardPool(t *testing.T) {
-	tests := []struct {
-		name         string
-		pool         sdk.DecCoins
-		expectedPool sdk.DecCoins
-	}{
-		{
-			name:         "Get total from empty pool",
-			pool:         sdk.DecCoins{sdk.NewInt64DecCoin("stake", 0)},
-			expectedPool: sdk.DecCoins{},
-		},
-		{
-			name:         "Get total from existing pool",
-			pool:         sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100)},
-			expectedPool: sdk.DecCoins{sdk.NewInt64DecCoin("stake", 100)},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			cdc, ctx, k, _, _, _ := SetupTestInput(true)
-			store := ctx.KVStore(k.storeKey)
-			store.Set([]byte(types.PoolStoreKey), cdc.MustMarshalBinaryBare(&tt.pool))
-
-			macc := k.VbrAccount(ctx)
-			suppl, _ := tt.pool.TruncateDecimal()
-			_ = macc.SetCoins(sdk.NewCoins(suppl...))
-			k.supplyKeeper.SetModuleAccount(ctx, macc)
-
-			actual := k.GetTotalRewardPool(ctx)
-
-			require.Equal(t, tt.expectedPool, actual)
-
-		})
-	}
+var params_test = types.Params{
+	DistrEpochIdentifier: types.EpochDay,
+	EarnRate:             sdk.NewDecWithPrec(5, 1),
 }
 
-// ---------------------------
-// --- Reward distribution
-// ---------------------------
 func TestKeeper_ComputeProposerReward(t *testing.T) {
 	tests := []struct {
 		name           string
 		bonded         sdk.Int
 		vNumber        int64
 		expectedReward string
+		params         types.Params
 	}{
 		{
 			"Compute reward with 100 validators",
 			sdk.NewInt(100000000),
 			100,
-			"92.592592592592592593",
+			"136986.301369863013698630",
+			params_test,
 		},
 		{
 			"Compute reward with 50 validators",
 			sdk.NewInt(100000000),
 			50,
-			"46.296296296296296296",
+			"68493.150684931506849315",
+			params_test,
 		},
 		{
 			"Compute reward with small bonded",
 			sdk.NewInt(1),
 			100,
-			"0.000000925925925926",
+			"0.001369863013698630",
+			params_test,
+		},
+		{
+			"Compute reward per minute",
+			sdk.NewInt(100000000),
+			50,
+			"47.564687975646879756",
+			types.Params{
+				DistrEpochIdentifier: types.EpochMinute,
+				EarnRate:             sdk.NewDecWithPrec(5, 1),
+			},
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _, _ := SetupTestInput(false)
+			k, ctx := setupKeeper(t)
 
-			testVal := TestValidator.UpdateStatus(sdk.Bonded)
+			testVal := TestValidator.UpdateStatus(stakingTypes.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
-			k.SetRewardRate(ctx, TestRewarRate)
-
-			reward := k.ComputeProposerReward(ctx, tt.vNumber, testVal, "stake")
+			params := tt.params
+			reward := k.ComputeProposerReward(ctx, tt.vNumber, testVal, types.BondDenom, params)
 
 			expectedDecReward, _ := sdk.NewDecFromStr(tt.expectedReward)
 
-			expected := sdk.DecCoins{sdk.NewDecCoinFromDec("stake", expectedDecReward)}
+			expected := sdk.DecCoins{sdk.NewDecCoinFromDec(types.BondDenom, expectedDecReward)}
 
 			require.Equal(t, expected, reward)
 
@@ -129,22 +185,22 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 	}{
 		{
 			name:              "Reward with enough pool",
-			pool:              sdk.DecCoins{sdk.NewInt64DecCoin("stake", 10000)},
-			expectedRemaining: sdk.DecCoins{sdk.NewInt64DecCoin("stake", 9991)},
-			expectedValidator: sdk.DecCoins{sdk.NewInt64DecCoin("stake", 9)},
+			pool:              sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 100000)},
+			expectedRemaining: sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 86302)},
+			expectedValidator: sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 13698)},
 			bonded:            sdk.NewInt(1000000000),
 		},
 		{
 			name:              "Reward with empty pool",
-			pool:              sdk.DecCoins{sdk.NewInt64DecCoin("stake", 0)},
+			pool:              sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 0)},
 			expectedRemaining: sdk.DecCoins{},
 			expectedValidator: sdk.DecCoins(nil),
 			bonded:            sdk.NewInt(1000000000),
 		},
 		{
 			name:              "Reward not enough funds into pool",
-			pool:              sdk.DecCoins{sdk.NewInt64DecCoin("stake", 1)},
-			expectedRemaining: sdk.DecCoins{sdk.NewInt64DecCoin("stake", 1)},
+			pool:              sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 1)},
+			expectedRemaining: sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 1)},
 			expectedError:     sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards"),
 			expectedValidator: sdk.DecCoins(nil),
 			bonded:            sdk.NewInt(1000000000),
@@ -153,34 +209,38 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _, _ := SetupTestInput(false)
+			k, ctx := setupKeeper(t)
 
-			testVal := TestValidator.UpdateStatus(sdk.Bonded)
+			testVal := TestValidator.UpdateStatus(stakingTypes.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
 
-			k.SetRewardRate(ctx, TestRewarRate)
 			k.SetTotalRewardPool(ctx, tt.pool)
 
 			macc := k.VbrAccount(ctx)
 			suppl, _ := tt.pool.TruncateDecimal()
-			_ = macc.SetCoins(sdk.NewCoins(suppl...))
-			k.supplyKeeper.SetModuleAccount(ctx, macc)
 
-			validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
+			k.bankKeeper.SetBalances(ctx, macc.GetAddress(), sdk.NewCoins(suppl...))
+			k.accountKeeper.SetModuleAccount(ctx, macc)
+
+			validatorRewards := distrTypes.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 			k.distKeeper.SetValidatorCurrentRewards(ctx, testVal.GetOperator(), validatorRewards)
 
-			validatorOutstandingRewards := sdk.DecCoins{}
+			validatorOutstandingRewards := distrTypes.ValidatorOutstandingRewards{}
 			k.distKeeper.SetValidatorOutstandingRewards(ctx, testVal.GetOperator(), validatorOutstandingRewards)
 
-			reward := k.ComputeProposerReward(ctx, 1, testVal, "stake")
-
+			params := types.Params{
+				DistrEpochIdentifier: types.EpochDay,
+				EarnRate:             sdk.NewDecWithPrec(5, 1),
+			}
+			reward := k.ComputeProposerReward(ctx, 1, testVal, types.BondDenom, params)
+			rewardInt, _ := reward.TruncateDecimal()
+			_ = rewardInt
 			err := k.DistributeBlockRewards(ctx, testVal, reward)
 			if tt.expectedError != nil {
 				require.Equal(t, err.Error(), tt.expectedError.Error())
 			}
 
 			valCurReward := k.distKeeper.GetValidatorCurrentRewards(ctx, testVal.GetOperator())
-			//rewardedVal := valCurReward.Rewards
 			rewardPool := k.GetTotalRewardPool(ctx)
 
 			require.Equal(t, tt.expectedRemaining, rewardPool)
@@ -189,92 +249,6 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 		})
 	}
 }
-
-
-/*func TestKeeper_WithdrawAllRewards(t *testing.T) {
-	tests := []struct {
-		name            string
-		bonded          sdk.Int
-		bondedVal       sdk.Int
-		rewardStr       string
-		commisionStr    string
-		expectedAccount sdk.Coins
-		expectedVal     sdk.Coins
-	}{
-		{
-			name:            "Reward",
-			bonded:          sdk.NewInt(100000000),
-			bondedVal:       sdk.NewInt(1000000),
-			rewardStr:       "10.1",
-			commisionStr:    "1",
-			expectedAccount: sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
-			expectedVal:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, bk, sk := SetupTestInput(false)
-			reward, _ := sdk.NewDecFromStr(tt.rewardStr)
-			commision, _ := sdk.NewDecFromStr(tt.commisionStr)
-
-			testVal := TestValidator.UpdateStatus(sdk.Bonded)
-			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
-
-			bk.SetCoins(ctx, valDelAddr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000000000))))
-			bk.SetCoins(ctx, sdk.AccAddress(valAddrVal), sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000000000))))
-
-			sk.SetValidator(ctx, testVal)
-
-			val, found := sk.GetValidator(ctx, valAddrVal)
-			if found {
-				fmt.Println(val)
-			}
-			fmt.Println("----- ==================================== -----")
-
-			//delegationVal := stakingTypes.NewDelegation(sdk.AccAddress(valAddrVal), valAddrVal, sdk.NewDec(1000))
-
-			fmt.Println("----- delegation info xxx-----")
-			delegationVal := staking.NewDelegation(sdk.AccAddress(valAddrVal), valAddrVal, sdk.NewDec(1000))
-			sk.SetDelegation(ctx, delegationVal)
-			fmt.Println(delegationVal)
-
-			//func (k Keeper) SetDelegatorStartingInfo(ctx sdk.Context, val sdk.ValAddress, del sdk.AccAddress, period types.DelegatorStartingInfo) {
-
-			//dist.Keeper.SetDelegatorStartingInfo(ctx, valAddrVal, dist.NewDelegatorStartingInfo(0, sdk.NewDec(0), 1))
-
-			delegation := staking.NewDelegation(valDelAddr, valAddrVal, sdk.NewDec(1000))
-			sk.SetDelegation(ctx, delegation)
-			fmt.Println(delegation)
-
-			//_, _ = sk.Delegate(ctx, valDelAddr, sdk.NewInt(100), sdk.Unbonded, testVal, true)
-
-			validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", reward))}
-			k.distKeeper.SetValidatorCurrentRewards(ctx, valAddrVal, validatorRewards)
-
-			previousPeriod := k.distKeeper.GetValidatorCurrentRewards(ctx, valAddrVal).Period - 1
-
-			stake := testVal.TokensFromSharesTruncated(delegationVal.GetShares())
-			k.distKeeper.SetDelegatorStartingInfo(ctx, valAddr, sdk.AccAddress(valAddrVal), dist.NewDelegatorStartingInfo(previousPeriod, stake, uint64(ctx.BlockHeight())))
-
-			validatorOutstandingRewards := sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", reward))
-			k.distKeeper.SetValidatorOutstandingRewards(ctx, valAddrVal, validatorOutstandingRewards)
-
-			k.distKeeper.SetValidatorAccumulatedCommission(ctx, valAddrVal, sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", commision)))
-
-			k.WithdrawAllRewards(ctx, sk)
-			valCurReward := k.distKeeper.GetValidatorCurrentRewards(ctx, valAddrVal)
-			fmt.Println(valCurReward)
-			//actualDel := bk.GetCoins(ctx, TestDelegator)
-			actualVal := bk.GetCoins(ctx, sdk.AccAddress(valAddrVal))
-
-			//require.Equal(t, tt.expectedAccount, actualDel)
-			require.Equal(t, tt.expectedVal, actualVal)
-
-		})
-	}
-}
-*/
 
 func TestKeeper_VbrAccount(t *testing.T) {
 	tests := []struct {
@@ -292,18 +266,24 @@ func TestKeeper_VbrAccount(t *testing.T) {
 		{
 			"a vbr account with coins in it",
 			"vbr",
-			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"}),
+			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.BondDenom}),
 			false,
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _, _ := SetupTestInput(tt.emptyPool)
+			k, ctx := setupKeeper(t)
 			macc := k.VbrAccount(ctx)
 
 			require.Equal(t, macc.GetName(), tt.wantModName)
-			require.True(t, macc.GetCoins().IsEqual(tt.wantModAccBalance))
+
+			if !tt.emptyPool {
+				coins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.BondDenom})
+				k.bankKeeper.SetBalances(ctx, macc.GetAddress(), coins)
+			}
+
+			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantModAccBalance))
 		})
 	}
 }
@@ -314,165 +294,23 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 		wantAmount sdk.Coins
 	}{
 		{
-			"add 10stake",
-			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: "stake"}),
+			"add 10ucommercio",
+			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom}),
 		},
 		{
-			"add no stake",
+			"add no ucommercio",
 			sdk.NewCoins(),
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, _, _ := SetupTestInput(true)
+			k, ctx := setupKeeper(t)
+			k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom})))
 			k.MintVBRTokens(ctx, tt.wantAmount)
 			macc := k.VbrAccount(ctx)
-			require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
+			//require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
+			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantAmount))
 		})
 	}
-}
-
-//NOT WORKING
-//panic --> GetValidatorHistoricalRewards not correctly inizializzed
-/*func TestKeeper_WithdrawAllRewards(t *testing.T){
-	tests := []struct {
-		name            string
-		bonded          sdk.Int
-		rewardStr       string
-		commisionStr    string
-	}{
-		{
-			name:            "Reward",
-			bonded:          sdk.NewInt(100000000),
-			rewardStr:       "10.1",
-			commisionStr:    "1",
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			_, ctx, k, _, bk, sk := SetupTestInput(false)
-			
-			reward, _ := sdk.NewDecFromStr(tt.rewardStr)
-			commision, _ := sdk.NewDecFromStr(tt.commisionStr)
-
-			testVal := TestValidator.UpdateStatus(sdk.Bonded)
-			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
-
-			bk.SetCoins(ctx, valDelAddr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000000000))))
-			bk.SetCoins(ctx, sdk.AccAddress(valAddrVal), sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000000000))))
-
-			sk.SetValidator(ctx, testVal)
-
-			_, found := sk.GetValidator(ctx, valAddrVal)
-			
-			if found {
-				k.distKeeper.SetDelegatorStartingInfo(ctx, valAddrVal, TestDelegator, dist.NewDelegatorStartingInfo(0, sdk.NewDec(0), 1))
-				//new delegation
-				delegationVal := staking.NewDelegation(TestDelegator, valAddrVal, sdk.NewDec(1000))
-				sk.SetDelegation(ctx, delegationVal)
-				fmt.Println(delegationVal)
-				
-				//set validator's rewards
-				validatorRewards := dist.ValidatorCurrentRewards{Rewards: sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", reward))}
-				
-				//trying to inizialize the validatorHistoricalReward
-				//ReferenceCount?
-				valHistrewards := dist.NewValidatorHistoricalRewards(validatorRewards.Rewards, uint16(1))
-				dist.Keeper.SetValidatorHistoricalRewards(k.distKeeper, ctx, valAddrVal, validatorRewards.Period, valHistrewards)
-				
-				k.distKeeper.SetValidatorCurrentRewards(ctx, valAddrVal, validatorRewards)
-
-				//outstandingRewards 
-				validatorOutstandingRewards := sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", reward))
-				k.distKeeper.SetValidatorOutstandingRewards(ctx, valAddrVal, validatorOutstandingRewards)
-				
-				//set comissions
-				k.distKeeper.SetValidatorAccumulatedCommission(ctx, valAddrVal, sdk.NewDecCoins(sdk.NewDecCoinFromDec("stake", commision)))
-				//delegation rewards
-				dist.NewDelegationDelegatorReward(valAddrVal, k.distKeeper.GetValidatorCurrentRewards(ctx, valAddrVal).Rewards)
-				
-				//execute the keeper method to test
-				err := k.WithdrawAllRewards(ctx,sk)
-
-				require.Nil(t, err)
-			}
-		})
-
-	}
-}
-*/
-
-func TestKeeper_GetRewardRate(t *testing.T){
-	_, ctx, k, _, _, _ := SetupTestInput(true)
-	store := ctx.KVStore(k.storeKey)
-
-	store.Set([]byte(types.RewardRateKey), k.cdc.MustMarshalBinaryBare(TestRewarRate))
-
-	actual := k.GetRewardRate(ctx)
-	
-	require.Equal(t, TestRewarRate, actual)
-}
-
-func TestKeeper_SetRewardRate(t *testing.T){
-	_, ctx, k, _, _, _ := SetupTestInput(true)
-	store := ctx.KVStore(k.storeKey)
-
-	k.SetRewardRate(ctx, TestRewarRate)
-
-	var actual sdk.Dec
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.RewardRateKey)), &actual)
-
-	require.Equal(t, TestRewarRate, actual)
-}
-
-func TestKeeper_GetAutomaticWithdraw(t *testing.T){
-	_, ctx, k, _, _, _ := SetupTestInput(true)
-
-	var autoWithdraw bool
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.AutomaticWithdraw), k.cdc.MustMarshalBinaryBare(autoWithdraw))
-
-	actual := k.GetAutomaticWithdraw(ctx)
-
-	require.Equal(t, autoWithdraw, actual)
-}
-
-func TestKeeper_SetAutomaticWithdraw(t *testing.T){
-	_, ctx, k, _, _, _ := SetupTestInput(true)
-
-	var autoWithdraw bool
-
-	error := k.SetAutomaticWithdraw(ctx, autoWithdraw)
-	
-	require.Nil(t, error)
-
-	store := ctx.KVStore(k.storeKey)
-	var actual bool
-	k.cdc.MustUnmarshalBinaryBare(store.Get([]byte(types.AutomaticWithdraw)), &actual)
-
-	require.Equal(t, autoWithdraw, actual)
-}
-
-func TestKeeper_IsDailyWithdrawBlock(t *testing.T){
-	_, _, k, _, _, _ := SetupTestInput(true)
-
-	var lowHeight int64 = BPD.Int64() - 1
-	lH := k.IsDailyWithdrawBlock(lowHeight)
-	require.False(t, lH)
-
-	var incorrectHeight int64 = BPD.Int64() + 1
-	iH := k.IsDailyWithdrawBlock(incorrectHeight)
-	require.False(t, iH)
-
-	var rightHeight int64 = BPD.Int64()
-	rH := k.IsDailyWithdrawBlock(rightHeight)
-	require.True(t, rH)
-
-	var zeroHeight int64 = 0
-	zH := k.IsDailyWithdrawBlock(zeroHeight)
-	require.False(t, zH)
-	
 }

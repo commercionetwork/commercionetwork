@@ -1,21 +1,17 @@
-PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
-BINDIR ?= $(GOPATH)/bin
+PACKAGES=$(shell go list ./... | grep -v '/simulation')
+
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
-
-REPO_ROOT := $(shell git rev-parse --show-toplevel)
-
-GENERATE ?= 1
-
-export GO111MODULE = on
-
 LEDGER_ENABLED ?= true
+BINDIR ?= $(GOPATH)/bin
 
-########################################
-### Build tags
+MOCKS_DIR = $(CURDIR)/tests/mocks
+REPOSITORY_BASE := github.com/commercionetwork/commercionetwork
+HTTPS_GIT := https://$(REPOSITORY_BASE).git
+
+DOCKER := $(shell which docker)
 
 build_tags = netgo
-
 ifeq ($(LEDGER_ENABLED),true)
   ifeq ($(OS),Windows_NT)
     GCCEXE = $(shell where gcc.exe 2> NUL)
@@ -39,22 +35,9 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
-ifeq ($(OS),Windows_NT)
-    TARGET_BIN = Windows-AMD64
-    TARGET_BUILD = build-windows
-else
-	UNAME_S = $(shell uname -s)
-	ifeq ($(UNAME_S),Darwin)
-		TARGET_BIN = Darwin-AMD64
-		TARGET_BUILD = build-darwin
-	else
-		TARGET_BIN = Linux-AMD64
-		TARGET_BUILD = build-linux
-	endif
+ifeq (cleveldb,$(findstring cleveldb,$(COMMERCIO_BUILD_OPTIONS)))
+  build_tags += gcc
 endif
-
-
-
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
 
@@ -63,61 +46,29 @@ whitespace += $(whitespace)
 comma := ,
 build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
-# process linker flags
-
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-		  -X github.com/cosmos/cosmos-sdk/version.ServerName=cnd \
-		  -X github.com/cosmos/cosmos-sdk/version.ClientName=cndcli \
-		  -X github.com/cosmos/cosmos-sdk/version.Name=commercionetwork \
-		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
-
-ldflags += $(LDFLAGS)
-ldflags := $(strip $(ldflags))
-
-BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
-
-all: tools build lint test
-
-# The below include contains the tools and runsim targets.
-include contrib/devtools/Makefile
-
-########################################
-### Install
-
-install: git-hooks go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cnd
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cncli
-
-########################################
-### Build
-
-build: go.sum generate
-ifeq ($(OS),Windows_NT)
-	go build -mod=readonly -o ./build/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
-	go build -mod=readonly -o ./build/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
-else
-	go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd
-	go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli
-endif
 
 
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=blog \
+	-X github.com/cosmos/cosmos-sdk/version.ServerName=blogd \
+	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) 
+
+BUILD_FLAGS := -ldflags '$(ldflags)'
+
+all: install
 
 build-darwin: go.sum generate
-	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
-	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
+	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-linux: go.sum generate
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cncli $(BUILD_FLAGS) ./cmd/cncli
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/cnd $(BUILD_FLAGS) ./cmd/cnd
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
+
 
 build-local-linux: go.sum generate
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/cncli $(BUILD_FLAGS) ./cmd/cncli
-	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/cnd $(BUILD_FLAGS) ./cmd/cnd
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-windows: go.sum generate
-	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cncli.exe $(BUILD_FLAGS) ./cmd/cncli
-	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/cnd.exe $(BUILD_FLAGS) ./cmd/cnd
+	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/commercionetworkd.exe $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-all: go.sum
 	make build-darwin
@@ -128,9 +79,9 @@ prepare-release: go.sum build-all
 	rm -f ./build/Darwin-386.zip ./build/Darwin-AMD64.zip
 	rm -f ./build/Linux-386.zip ./build/Linux-AMD64.zip
 	rm -f ./build/Windows-386.zip ./build/Windows-AMD64.zip
-	zip -jr ./build/Darwin-AMD64.zip ./build/Darwin-AMD64/cncli ./build/Darwin-AMD64/cnd
-	zip -jr ./build/Linux-AMD64.zip ./build/Linux-AMD64/cncli ./build/Linux-AMD64/cnd
-	zip -jr ./build/Windows-AMD64.zip ./build/Windows-AMD64/cncli.exe ./build/Windows-AMD64/cnd.exe
+	zip -jr ./build/Darwin-AMD64.zip ./build/Darwin-AMD64/commercionetworkd
+	zip -jr ./build/Linux-AMD64.zip ./build/Linux-AMD64/commercionetworkd
+	zip -jr ./build/Windows-AMD64.zip ./build/Windows-AMD64/commercionetworkd.exe
 
 ########################################
 ### Tools & dependencies
@@ -151,6 +102,8 @@ lint:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
 
+
+
 generate:
 ifeq ($(GENERATE),1)
 	go generate ./...
@@ -158,15 +111,34 @@ endif
 
 .PHONY: git-hooks
 
+
+install: go.sum
+	@echo "--> Installing commercionetwork"
+	@go install -mod=readonly $(BUILD_FLAGS) ./cmd/commercionetworkd
+
+build: go.sum
+	@echo "--> Building commercionetwork"
+	@go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
+
+
+#go.sum: go.mod
+#	@echo "--> Ensure dependencies have not been modified"
+#	GO111MODULE=on go mod verify
+
 ########################################
 ### Testing
 
-test: test_unit
+test:
+	@go test -mod=readonly $(PACKAGES)
 
-test_unit:
-	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_NOSIMULATION) -tags='ledger test_ledger_mock'
+## TODO test unit ledger ecc. ecc.
 
-.PHONY: lint test test_unit go-mod-cache
+.PHONY: lint test test_unit go-mod-cache build go.sum go.mod
+
+
+########################################
+### Docker
+
 
 build-docker-cndode:
 	$(MAKE) -C contrib/localnet
@@ -178,7 +150,7 @@ localnet-start: localnet-stop build-local-linux
 	docker-compose up
 
 localnet-reset: localnet-stop $(TARGET_BUILD)
-	@for node in 0 1 2 3; do build/$(TARGET_BIN)/cnd unsafe-reset-all --home ./build/node$$node/cnd; done
+	@for node in 0 1 2 3; do build/$(TARGET_BIN)/commercionetworkd unsafe-reset-all --home ./build/node$$node/cnd; done
 
 
 localnet-stop:

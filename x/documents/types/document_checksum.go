@@ -16,12 +16,6 @@ var algorithms = map[string]int{
 	"sha-512": 128,
 }
 
-// DocumentChecksum represents the information related to the checksum of a document, if any
-type DocumentChecksum struct {
-	Value     string `json:"value"`
-	Algorithm string `json:"algorithm"`
-}
-
 // Equals returns true iff this DocumentChecksum and other have the same contents
 func (checksum DocumentChecksum) Equals(other DocumentChecksum) bool {
 	return checksum.Value == other.Value &&
