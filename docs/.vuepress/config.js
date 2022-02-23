@@ -67,17 +67,54 @@ module.exports = {
                 ]
             },
             {
-                title: "Custom Modules",
+                title: "Custom Modules (WIP)",
                 collapsable: false,
                 children: [
-                    ["x/bank/","Bank"],
-                    ["modules/government/","Government"],
-                    ["modules/did/","Did"],
-                    ["modules/documents/","Documents"],
-                    ["modules/commerciomint/","Commerciomint"],
-                    /*["modules/commerciokyc/","Commerciokyc"
-                
-                    ],*/
+                    //["x/bank/","Bank"],
+                    {
+                        title: "Government",
+                        collapsable: true,
+                        children: [
+                            ["modules/government/", "Concepts"],
+                            ["modules/government/01_state.md", "State"],
+                        ]
+                    },                       
+                    {
+                        title: "Did",
+                        collapsable: true,
+                        children: [
+                            ["modules/did/", "Concepts"],
+                            ["modules/did/01_state.md", "State"],
+                            ["modules/did/05_client.md", "Client"],
+
+                        ]
+                    },                    
+                    {
+                        title: "Documents",
+                        collapsable: true,
+                        children: [
+                            ["modules/documents/", "Concepts"],
+                            ["modules/documents/01_state.md", "State"],
+                            ["modules/documents/02_keepers.md", "Keepers"],
+                            ["modules/documents/03_messages.md", "Messages"],
+                            ["modules/documents/04_events.md", "Events"],
+                            ["modules/documents/05_client.md", "Client"],
+
+                        ]
+                    },
+                    {
+                        title: "CommercioMint",
+                        collapsable: true,
+                        children: [
+                            ["modules/commerciomint/", "Concepts"],
+                            ["modules/commerciomint/01_state.md", "State"],
+                            ["modules/commerciomint/02_messages.md", "Messages"],
+                            ["modules/commerciomint/03_events.md", "Events"],
+                            ["modules/commerciomint/04_params.md", "Params"],
+                            ["modules/commerciomint/05_client.md", "Client"],
+
+                        ]
+                    },
                     {
                         title: "CommercioKYC",
                         collapsable: true,
@@ -91,7 +128,20 @@ module.exports = {
 
                         ]
                     },
-                    ["modules/vbr/","Vbr"],
+                    {
+                        title: "Vbr",
+                        collapsable: true,
+                        children: [
+                            ["modules/vbr/", "Concepts"],
+                            ["modules/vbr/01_state.md", "State"],
+                            ["modules/vbr/02_messages.md", "Messages"],
+                            ["modules/vbr/03_events.md", "Events"],
+                            ["modules/vbr/04_params.md", "Params"],
+                            ["modules/vbr/05_client.md", "Client"],
+
+                        ]
+                    },
+
                 ]
             },
             {
