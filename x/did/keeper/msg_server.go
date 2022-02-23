@@ -29,6 +29,10 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdenti
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
 	timestamp := ctx.BlockTime().Format(types.ComplaintW3CTime)
 
 	identity := types.Identity{
@@ -36,10 +40,6 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdenti
 		Metadata: &types.Metadata{
 			Updated: timestamp,
 		},
-	}
-
-	if err := identity.DidDocument.Validate(); err != nil {
-		return nil, err
 	}
 
 	previousIdentity, err := k.GetLastIdentityOfAddress(ctx, msg.DidDocument.ID)
