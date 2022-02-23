@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -37,6 +38,10 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdenti
 		},
 	}
 
+	if err := identity.DidDocument.Validate(); err != nil {
+		return nil, err
+	}
+
 	previousIdentity, err := k.GetLastIdentityOfAddress(ctx, msg.DidDocument.ID)
 	if err != nil {
 		// create new identity
@@ -50,6 +55,7 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdenti
 	}
 
 	k.SetIdentity(ctx, identity)
+	ctypes.EmitCommonEvents(ctx, msg.DidDocument.ID)
 
 	return &types.MsgSetIdentityResponse{}, nil
 }

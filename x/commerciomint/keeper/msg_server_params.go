@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -28,9 +29,13 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 	k.UpdateParams(ctx, *msg.Params)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventSetFreezePeriod,
-		sdk.NewAttribute(eventSetParams, msg.Params.String()),
+		eventSetParams,
+		sdk.NewAttribute("params", msg.Params.String()),
 	))
+	ctypes.EmitCommonEvents(ctx, msg.Signer)
+
+	logger := k.Logger(ctx)
+	logger.Info("Params successfully set up")
 
 	return &types.MsgSetParamsResponse{}, nil
 }

@@ -10,6 +10,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func init() {
+	configTestPrefixes()
+}
+
+func configTestPrefixes() {
+	AccountAddressPrefix := "did:com:"
+	AccountPubKeyPrefix := AccountAddressPrefix + "pub"
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(AccountAddressPrefix, AccountPubKeyPrefix)
+	config.Seal()
+}
+
 func setupMsgServer(t testing.TB) (types.MsgServer, Keeper, sdk.Context) {
 	keeper, ctx := setupKeeper(t)
 
@@ -32,6 +44,26 @@ func Test_SetDidDocument(t *testing.T) {
 	}
 
 	did := msg.DidDocument.ID
+	validBase64RsaVerificationKey2018 := "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDMr3V+Auyc+zvt2qX+jpwk3wM+m2DbfLjimByzQDIfrzSHMTQ8erL0kg69YsXHYXVX9mIZKRzk6VNwOBOQJSsIDf2jGbuEgI8EB4c3q1XykakCTvO3Ku3PJgZ9PO4qRw7QVvTkCbc91rT93/pD3/Ar8wqd4pNXtgbfbwJGviZ6kQIDAQAB"
+	validBase64RsaSignature2018 := "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaM5rNKqd5sl1flSqRHgkKdGJzVcktZs0O1IO5A7TauzAtn0vRMr4moWYTn5nUCCiDFbTPoMyPp6tsaZScADG9I7g4vK+/FcImcrdDdv9rjh1aGwkGK3AXUNEG+hkP+QsIBl5ORNSKn+EcdFmnUczhNulA74zQ3xnz9cUtsPC464AWW0Yrlw40rJ/NmDYfepjYjikMVvJbKGzbN3Xwv7ZzF4bPTi7giZlJuKbNUNTccPY/nPr5EkwZ5/cOZnAJGtmTtj0e0mrFTX8sMPyQx0O2uYM97z0SRkf8oeNQm+tyYbwGWY2TlCEXbvhP34xMaBTzWNF5+Z+FZi+UfPfVfKHQIDAQAB"
+
+	verificationMethodVer := types.VerificationMethod{
+		ID:                 msg.DidDocument.ID + "#keys-1",
+		Type:               types.RsaVerificationKey2018,
+		Controller:         msg.DidDocument.ID,
+		PublicKeyMultibase: string(types.MultibaseCodeBase64) + validBase64RsaVerificationKey2018,
+	}
+	verificationMethodSign := types.VerificationMethod{
+		ID:                 msg.DidDocument.ID + "#keys-2",
+		Type:               types.RsaSignature2018,
+		Controller:         msg.DidDocument.ID,
+		PublicKeyMultibase: string(types.MultibaseCodeBase64) + validBase64RsaSignature2018,
+	}
+
+	msg.DidDocument.VerificationMethod = []*types.VerificationMethod{
+		&verificationMethodVer,
+		&verificationMethodSign,
+	}
 
 	_, err = k.GetLastIdentityOfAddress(ctx, did)
 	assert.Error(t, err)
@@ -61,7 +93,8 @@ func Test_SetDidDocument(t *testing.T) {
 	sdkCtx = sdk.WrapSDKContext(ctx)
 
 	newMsg := msg
-	newMsg.DidDocument.AssertionMethod = []string{"#key-1"}
+
+	newMsg.DidDocument.AssertionMethod = []string{"#keys-1"}
 
 	resp, err = srv.UpdateIdentity(sdkCtx, &newMsg)
 	require.NoError(t, err)

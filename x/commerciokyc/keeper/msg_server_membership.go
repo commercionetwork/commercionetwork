@@ -75,6 +75,7 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 		))
 	}
 
+	ctypes.EmitCommonEvents(ctx, msg.Tsp)
 	return &types.MsgBuyMembershipResponse{
 		ExpiryAt: expirationAt.String(),
 	}, nil
@@ -93,8 +94,7 @@ func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveM
 	subscriber, _ := sdk.AccAddressFromBech32(msg.Subscriber)
 	err := k.DeleteMembership(ctx, subscriber)
 	// TODO emits events
-	//ctypes.EmitCommonEvents(ctx, msg.Government)
-
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &types.MsgRemoveMembershipResponse{
 		Subscriber: msg.Subscriber,
 	}, err
@@ -140,15 +140,14 @@ func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembers
 			sdk.NewAttribute("error", err.Error()),
 		))
 	}
-	// Reward not distribuited doesn't return an arror
+	// Reward not distribuited doesn't return an error
 	/*if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not distribute membership reward to user %s: %s", invite.Sender, err.Error()),
 		)
 	}*/
 
-	// TODO emits events
-	ctypes.EmitCommonEvents(ctx, govAddr)
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &types.MsgSetMembershipResponse{}, err
 
 }

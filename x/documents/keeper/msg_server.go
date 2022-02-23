@@ -5,6 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -27,8 +28,7 @@ func (k msgServer) ShareDocument(goCtx context.Context, msg *types.MsgShareDocum
 		return nil, err
 	}
 
-	// TODO: add event
-
+	ctypes.EmitCommonEvents(ctx, msg.Sender)
 	return &types.MsgShareDocumentResponse{UUID: msg.UUID}, nil
 }
 
@@ -39,9 +39,6 @@ func (k msgServer) SendDocumentReceipt(goCtx context.Context, msg *types.MsgSend
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		sdk.EventTypeMessage,
-		sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
-	))
+	ctypes.EmitCommonEvents(ctx, msg.Sender)
 	return &types.MsgSendDocumentReceiptResponse{UUID: msg.UUID}, nil
 }

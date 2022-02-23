@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/tendermint/tendermint/libs/log"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -14,11 +16,9 @@ import (
 )
 
 const (
-	eventNewPosition       = "new_position"
-	eventBurnCCC           = "burned_ccc"
-	eventSetConversionRate = "new_conversion_rate"
-	eventSetFreezePeriod   = "new_freeze_period"
-	eventSetParams         = "new_params"
+	eventNewPosition = "new_position"
+	eventBurnCCC     = "burned_ccc"
+	eventSetParams   = "new_params"
 )
 
 type Keeper struct {
@@ -58,4 +58,8 @@ func NewKeeper(
 		govKeeper:     govKeeper,
 		paramSpace:    paramSpace,
 	}
+}
+
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

@@ -1,9 +1,14 @@
 package keeper
 
 import (
+	"fmt"
+
+	"github.com/tendermint/tendermint/libs/log"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	// this line is used by starport scaffolding # ibc/keeper/import
+
+	"github.com/commercionetwork/commercionetwork/x/did/types"
 )
 
 type (
@@ -24,4 +29,12 @@ func NewKeeper(
 		storeKey: storeKey,
 		memKey:   memKey,
 	}
+}
+
+const (
+	updateDDO = "update_ddo"
+)
+
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

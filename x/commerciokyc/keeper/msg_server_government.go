@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -30,10 +31,7 @@ func (k msgServer) AddTsp(goCtx context.Context, msg *types.MsgAddTsp) (*types.M
 	}
 
 	k.AddTrustedServiceProvider(ctx, msgTsp)
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventAddTsp,
-		sdk.NewAttribute("tsp", msg.Tsp),
-	))
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &types.MsgAddTspResponse{
 		Tsp: msg.Tsp,
 	}, nil
@@ -50,10 +48,7 @@ func (k msgServer) RemoveTsp(goCtx context.Context, msg *types.MsgRemoveTsp) (*t
 
 	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
 	k.RemoveTrustedServiceProvider(ctx, msgTsp)
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		eventRemoveTsp,
-		sdk.NewAttribute("tsp", msg.Tsp),
-	))
+	ctypes.EmitCommonEvents(ctx, msg.Government)
 	return &types.MsgRemoveTspResponse{
 		Tsp: msg.Tsp,
 	}, nil
@@ -65,6 +60,7 @@ func (k msgServer) DepositIntoLiquidityPool(goCtx context.Context, msg *types.Ms
 	if err := k.DepositIntoPool(ctx, msgDepositor, msg.Amount); err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, err.Error())
 	}
+	ctypes.EmitCommonEvents(ctx, msg.Depositor)
 	coins := k.GetLiquidityPoolAmount(ctx)
 	return &types.MsgDepositIntoLiquidityPoolResponse{
 		AmountPool: coins,
