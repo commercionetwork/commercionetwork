@@ -22,6 +22,13 @@ func (k Keeper) SetIdentity(ctx sdk.Context, identity types.Identity) {
 	address := identity.DidDocument.ID
 	timestamp := identity.Metadata.Updated
 	store.Set(getIdentityStoreKey(address, timestamp), k.cdc.MustMarshalBinaryBare(&identity))
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		updateDDO,
+		sdk.NewAttribute("address", identity.DidDocument.ID),
+	))
+	logger := k.Logger(ctx)
+	logger.Debug("Identity successfully updated")
+
 }
 
 // GetIdentity returns the Identity associated to a given address and timestamp

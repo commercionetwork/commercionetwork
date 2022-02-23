@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -28,6 +29,10 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdenti
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
 	timestamp := ctx.BlockTime().Format(types.ComplaintW3CTime)
 
 	identity := types.Identity{
@@ -50,6 +55,7 @@ func (k msgServer) UpdateIdentity(goCtx context.Context, msg *types.MsgSetIdenti
 	}
 
 	k.SetIdentity(ctx, identity)
+	ctypes.EmitCommonEvents(ctx, msg.DidDocument.ID)
 
 	return &types.MsgSetIdentityResponse{}, nil
 }

@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -58,4 +59,8 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 		mintKeeper:    mintKeeper,
 	}
+}
+
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

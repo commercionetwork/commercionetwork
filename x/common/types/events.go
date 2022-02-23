@@ -6,8 +6,8 @@ import (
 
 const attributeKeySender = "sender"
 
-func EmitCommonEvents(ctx sdk.Context, sender sdk.AccAddress) {
+func EmitCommonEvents(ctx sdk.Context, sender string) {
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		sdk.EventTypeMessage,
-		sdk.NewAttribute(attributeKeySender, sender.String())))
+		sdk.NewAttribute(attributeKeySender, sender)))
 }

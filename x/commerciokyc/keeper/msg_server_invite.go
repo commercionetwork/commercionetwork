@@ -25,8 +25,7 @@ func (k msgServer) InviteUser(goCtx context.Context, msg *types.MsgInviteUser) (
 	if err := k.SetInvite(ctx, msgRecipient, msgSender); err != nil {
 		return nil, err
 	}
-	ctypes.EmitCommonEvents(ctx, msgSender)
-
+	ctypes.EmitCommonEvents(ctx, msg.Sender)
 	return &types.MsgInviteUserResponse{
 		Status: "1",
 	}, nil

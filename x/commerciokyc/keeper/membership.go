@@ -111,6 +111,9 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 		sdk.NewAttribute("expiry_at", membership.ExpiryAt.String()),
 	))
 
+	logger := k.Logger(ctx)
+	logger.Debug("Membership successfully set up")
+
 	return nil
 }
 
@@ -138,6 +141,8 @@ func (k Keeper) DeleteMembership(ctx sdk.Context, user sdk.AccAddress) error {
 		eventRemoveMembership,
 		sdk.NewAttribute("subscriber", user.String()),
 	))
+	logger := k.Logger(ctx)
+	logger.Debug("Membership successfully removed")
 
 	return nil
 }
@@ -214,7 +219,6 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 			sdk.NewAttribute("sender_membership_type", senderMembershipType),
 			sdk.NewAttribute("recipient_membership_type", recipientMembership.MembershipType),
 			sdk.NewAttribute("invite_recipient", invite.User),
-			sdk.NewAttribute("distrib", invite.User),
 		))
 
 	} else {
