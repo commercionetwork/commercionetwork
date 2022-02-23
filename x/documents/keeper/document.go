@@ -57,7 +57,7 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 		attributes...,
 	))
 	logger := keeper.Logger(ctx)
-	logger.Info("Document successfully shared")
+	logger.Debug("Document successfully shared")
 	return nil
 }
 

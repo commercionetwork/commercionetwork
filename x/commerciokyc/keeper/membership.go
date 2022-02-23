@@ -112,7 +112,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	))
 
 	logger := k.Logger(ctx)
-	logger.Info("Membership successfully set up")
+	logger.Debug("Membership successfully set up")
 
 	return nil
 }
@@ -142,7 +142,7 @@ func (k Keeper) DeleteMembership(ctx sdk.Context, user sdk.AccAddress) error {
 		sdk.NewAttribute("subscriber", user.String()),
 	))
 	logger := k.Logger(ctx)
-	logger.Info("Membership successfully removed")
+	logger.Debug("Membership successfully removed")
 
 	return nil
 }

@@ -27,7 +27,7 @@ func (k Keeper) SetIdentity(ctx sdk.Context, identity types.Identity) {
 		sdk.NewAttribute("address", identity.DidDocument.ID),
 	))
 	logger := k.Logger(ctx)
-	logger.Info("Identity successfully updated")
+	logger.Debug("Identity successfully updated")
 
 }
 

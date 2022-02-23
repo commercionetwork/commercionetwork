@@ -61,7 +61,7 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 		sdk.NewAttribute("recipient", receipt.Recipient),
 	))
 	logger := keeper.Logger(ctx)
-	logger.Info("Receipt Document successfully sent")
+	logger.Debug("Receipt Document successfully sent")
 	return nil
 }
 

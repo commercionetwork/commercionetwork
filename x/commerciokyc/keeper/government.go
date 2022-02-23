@@ -35,7 +35,7 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 		sdk.NewAttribute("tsp", tsp.String()),
 	))
 	logger := k.Logger(ctx)
-	logger.Info("Tsp successfully added")
+	logger.Debug("Tsp successfully added")
 
 }
 
@@ -58,7 +58,7 @@ func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress
 		sdk.NewAttribute("tsp", tsp.String()),
 	))
 	logger := k.Logger(ctx)
-	logger.Info("Tsp successfully removed")
+	logger.Debug("Tsp successfully removed")
 
 }
 
@@ -83,7 +83,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 		sdk.NewAttribute("amount", amount.String()),
 	))
 	logger := k.Logger(ctx)
-	logger.Info("Amount successfully deposited into pool")
+	logger.Debug("Amount successfully deposited into pool")
 
 	return nil
 }

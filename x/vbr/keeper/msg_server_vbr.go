@@ -40,7 +40,7 @@ func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.M
 	ctypes.EmitCommonEvents(ctx, msg.Funder)
 
 	logger := k.Logger(ctx)
-	logger.Info("Block reward pool successfully increased")
+	logger.Debug("Block reward pool successfully increased")
 
 	return &types.MsgIncrementBlockRewardsPoolResponse{}, nil
 }
@@ -76,7 +76,7 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 	ctypes.EmitCommonEvents(ctx, msg.Government)
 
 	logger := k.Logger(ctx)
-	logger.Info("Params successfully set up")
+	logger.Debug("Params successfully set up")
 
 	return &types.MsgSetParamsResponse{}, nil
 }

@@ -144,7 +144,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 		sdk.NewAttribute("timestamp", position.CreatedAt.String()),
 	))
 	logger := k.Logger(ctx)
-	logger.Info("mint successful")
+	logger.Debug("mint successful")
 
 	return nil
 }
@@ -235,7 +235,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 			sdk.NewAttribute("amount", burnAmount.String()),
 			sdk.NewAttribute("position_deleted", strconv.FormatBool(shouldDeletePos))))
 		logger := k.Logger(ctx)
-		logger.Info("burn successful")
+		logger.Debug("burn successful")
 
 	}(shouldDeletePos, ctx)
 

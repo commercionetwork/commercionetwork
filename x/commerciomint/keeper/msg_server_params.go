@@ -35,7 +35,7 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 	ctypes.EmitCommonEvents(ctx, msg.Signer)
 
 	logger := k.Logger(ctx)
-	logger.Info("Params successfully set up")
+	logger.Debug("Params successfully set up")
 
 	return &types.MsgSetParamsResponse{}, nil
 }

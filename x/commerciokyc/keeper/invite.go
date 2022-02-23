@@ -47,7 +47,7 @@ func (k Keeper) SetInvite(ctx sdk.Context, recipient, sender sdk.AccAddress) err
 		sdk.NewAttribute("sender_membership_type", inviterMembership.MembershipType),
 	))
 	logger := k.Logger(ctx)
-	logger.Info("User successfully invited")
+	logger.Debug("User successfully invited")
 
 	return nil
 }
