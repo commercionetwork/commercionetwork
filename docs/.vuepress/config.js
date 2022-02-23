@@ -3,7 +3,7 @@ module.exports = {
     description: "Documentation for the Commercio.network blockchain.",
     ga: "UA-51029217-2",
     head: [
-        ['link', {rel: 'icon', href: '/icon.png'}]
+        ['link', {rel: 'icon', href: '/icon.png'}],
     ],
     markdown: {
         lineNumbers: true,
@@ -22,17 +22,25 @@ module.exports = {
     ],
     themeConfig: {
         repo: "commercionetwork/commercionetwork",
+        logo: '/icon.png',
         editLinks: true,
         docsDir: "docs",
         docsBranch: "master",
         editLinkText: 'Edit this page on Github',
         lastUpdated: true,
-        //logo: '/.vuepress/icon.png',
         nav: [
+            {
+                text: 'Versions',
+                ariaLabel: 'Versions',
+                items: [
+                    { text: 'ver 3.0.0', link: '/' },
+                    { text: 'ver 2.2.0', link: '/docs2.2.0/' },
+                    { text: 'ver 2.1.2', link: '/docs2.1.2/' }
+                ]
+            },
             {text: "Commercio.network", link: "https://commercio.network"},
-            {text: "ver 2.2.0", link: "/" },
-            {text: "ver 2.1.2", link: "/docs2.1.2/" },
         ],
+
         sidebarDepth: 3,
         sidebar: [
             {
@@ -59,26 +67,132 @@ module.exports = {
                 ]
             },
             {
-                title: "SDK Developers",
+                title: "Custom Modules (WIP)",
                 collapsable: false,
                 children: [
-                    ["developers/", "Introduction"],
-                    "developers/create-sign-broadcast-tx",
-                    "developers/message-types",
-                    "developers/listing-transactions"
+                    //["x/bank/","Bank"],
+                    {
+                        title: "Government",
+                        collapsable: true,
+                        children: [
+                            ["modules/government/", "Concepts"],
+                            ["modules/government/01_state.md", "State"],
+                        ]
+                    },                       
+                    {
+                        title: "Did",
+                        collapsable: true,
+                        children: [
+                            ["modules/did/", "Concepts"],
+                            ["modules/did/01_state.md", "State"],
+                            ["modules/did/05_client.md", "Client"],
+
+                        ]
+                    },                    
+                    {
+                        title: "Documents",
+                        collapsable: true,
+                        children: [
+                            ["modules/documents/", "Concepts"],
+                            ["modules/documents/01_state.md", "State"],
+                            ["modules/documents/02_keepers.md", "Keepers"],
+                            ["modules/documents/03_messages.md", "Messages"],
+                            ["modules/documents/04_events.md", "Events"],
+                            ["modules/documents/05_client.md", "Client"],
+
+                        ]
+                    },
+                    {
+                        title: "CommercioMint",
+                        collapsable: true,
+                        children: [
+                            ["modules/commerciomint/", "Concepts"],
+                            ["modules/commerciomint/01_state.md", "State"],
+                            ["modules/commerciomint/02_messages.md", "Messages"],
+                            ["modules/commerciomint/03_events.md", "Events"],
+                            ["modules/commerciomint/04_params.md", "Params"],
+                            ["modules/commerciomint/05_client.md", "Client"],
+
+                        ]
+                    },
+                    {
+                        title: "CommercioKYC",
+                        collapsable: true,
+                        children: [
+                            ["modules/commerciokyc/", "Concepts"],
+                            ["modules/commerciokyc/01_state.md", "State"],
+                            ["modules/commerciokyc/02_keepers.md", "Keepers"],
+                            ["modules/commerciokyc/03_messages.md", "Messages"],
+                            ["modules/commerciokyc/04_events.md", "Events"],
+                            ["modules/commerciokyc/05_client.md", "Client"],
+
+                        ]
+                    },
+                    {
+                        title: "Vbr",
+                        collapsable: true,
+                        children: [
+                            ["modules/vbr/", "Concepts"],
+                            ["modules/vbr/01_state.md", "State"],
+                            ["modules/vbr/02_messages.md", "Messages"],
+                            ["modules/vbr/03_events.md", "Events"],
+                            ["modules/vbr/04_params.md", "Params"],
+                            ["modules/vbr/05_client.md", "Client"],
+
+                        ]
+                    },
+
                 ]
             },
             {
-                title: "Custom Commercio.network Modules",
-                collapsable: false,
+                title: "ver 2.2.0",
+                collapsable: true,
                 children: [
-                    "x/bank/",
-                    "x/government/",
-                    "x/id/",
-                    "x/documents/",
-                    "x/commerciomint/",
-                    "x/commerciokyc/",
-                    "x/vbr/"
+                    ["docs2.2.0/", "ver 2.2.0"],
+                    {
+                        title: "Nodes",
+                        collapsable: true,
+                        children: [
+                            ["docs2.2.0/nodes/", "Introduction"],
+                            ["docs2.2.0/nodes/hardware-requirements", "Hardware requirements"],
+                            ["docs2.2.0/nodes/full-node-installation", "Installing a full node"],
+                            ["docs2.2.0/nodes/validator-node-installation", "Becoming a validator"],
+                            ["docs2.2.0/nodes/validator-node-handling", "Handling a validator"],
+                            ["docs2.2.0/nodes/validator-node-update", "Updating a validator"],
+                        ]
+                    },
+                    {
+                        title: "App Developers",
+                        collapsable: true,
+                        children: [
+                            ["docs2.2.0/app_developers/", "Introduction"]
+                        ]
+                    },
+                    {
+                        title: "SDK Developers",
+                        collapsable: true,
+                        children: [
+                            ["docs2.2.0/developers/", "Introduction"],
+                            "docs2.2.0/developers/create-sign-broadcast-tx",
+                            "docs2.2.0/developers/message-types",
+                            "docs2.2.0/developers/listing-transactions"
+                        ]
+                    },
+
+
+                    {
+                        title: "Modules",
+                        collapsable: true,
+                        children: [
+                            "docs2.2.0/x/bank/",
+                            "docs2.2.0/x/government/",
+                            "docs2.2.0/x/id/",
+                            "docs2.2.0/x/documents/",
+                            "docs2.2.0/x/commerciomint/",
+                            "docs2.2.0/x/commerciokyc/",
+                            "docs2.2.0/x/vbr/",
+                        ]
+                    }
                 ]
             },
             {
@@ -95,7 +209,6 @@ module.exports = {
                             ["docs2.1.2/nodes/full-node-installation", "Installing a full node"],
                             ["docs2.1.2/nodes/validator-node-installation", "Becoming a validator"],
                             ["docs2.1.2/nodes/validator-node-handling", "Handling a validator"],
-         //                   ["docs2.1.2/nodes/validator-node-installation-mainnet", "Becoming a validor in the Mainnet"],
                             ["docs2.1.2/nodes/validator-node-update", "Updating a validator"],
                         ]
                     },
@@ -135,7 +248,6 @@ module.exports = {
                     }
                 ]
             }
-
         ],
     }
 };
