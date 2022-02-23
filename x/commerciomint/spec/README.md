@@ -5,7 +5,7 @@ parent:
   title: "commerciomint"
 -->
 
-# `x/commerciomint`
+# CommercioMint 
 
 ## Abstract
 
