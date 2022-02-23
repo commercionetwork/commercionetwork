@@ -1,4 +1,104 @@
-# Version 3.0.0-pre.1
+# Version 3.0.0
+
+* Update cosmos sdk to v0.42.10
+* Add protobuf
+* Reimplemented docs module
+* Reimplemented did module
+* Reimplemented commerciokyc module
+* Reimplemented commerciomin module
+* Reimplemented government module
+* Reimplemented vbr module
+* Add epochs module
+* Remove upgrade custom module
+* Reimplemented partial tests module
+* Add IBC module
+* Add Wasm module
+* Enable cosmos upgrade standard module
+* Enable cosmos gov standard module
+* Update npm dependencies
+
+# Version 3.0.0-rc5
+
+* Add protobuf
+* Reimplemented docs module
+* Reimplemented did module
+* Reimplemented commerciokyc module
+* Reimplemented commerciomin module
+* Reimplemented government module
+* Reimplemented vbr module
+* Add epochs module
+* Remove upgrade custom module
+* Reimplemented partial tests module
+* Add IBC module
+* Add Wasm module
+* Enable cosmos upgrade standard module
+* Enable cosmos gov standard module
+* Update npm dependencies
+# Version 3.0.0-rc4
+* Improve modules tests
+* Fix documents store bug
+* Fix minor bugs
+* Fix query issues
+* Add events
+* Complete command line interface
+* Remove hardcoded denom 
+
+# Version 3.0.0-rc3
+* Fix commerciomint migrate
+* Fix commerciokyc migrate
+* Fix documents migrate
+* Add commerciomint tests
+* Add commerciokyc tests
+* Add documents tests
+* Fix documents tests
+# Version 3.0.0-rc2
+* Fix commerciomint and commerciokyc migrate
+* Add commerciomint and commerciokyc tests
+
+# Version 3.0.0-rc1
+
+* Fix cli command set identity
+* Add hour identifier to vbr
+# Version 3.0.0-beta.2
+
+* Module Did
+   * Add historization of Did Document
+   * Improve tests and coverage
+* Module CommercioKyc
+   * Delete "remove memberships" trigger
+   * Fix bug create of commerciomint position.
+   * Improve tests and coverage
+
+# Version 3.0.0-beta.1
+
+* Complete commerciokyc module with epochs
+* Use params in commerciokyc
+* Add/Fix commerciomint tests
+* Add/Fix commerciokyc tests
+* Add/Fix vbr tests
+# Version 3.0.0-alpha.3
+
+* Fix messages bug Commerciomint
+* Add Commerciomint tests
+* Partial fix Epochs tests
+* Improved Commerciomint  coverage
+* Update Ante
+* Add Ante tests
+* Fix Did migrate
+# Version 3.0.0-alpha.2
+
+* Update commerciokyc module ABR for green membership
+* Convert ABR reward to uccc
+* Remove Vbr reward reate and and automatic-withdraw
+* Add Vbr earn rate
+* Update did to new W3C standards
+* Remove proof form did
+* Add epochs module and applied it to VBR module
+* Add/fix tests*
+
+# Version 3.0.0-alpha.1
+
+New alpha release 3.0.0
 
 # Version 2.2.0
 
