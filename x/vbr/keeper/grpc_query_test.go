@@ -33,7 +33,7 @@ func setFunds(keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
 var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(1000)))
 
 func TestGetBlockRewardsPoolFunds(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := SetupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 
 	for _, tc := range []struct {
@@ -71,7 +71,7 @@ var params = types.Params{
 }
 
 func Test_GetParams(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := SetupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 
 	for _, tc := range []struct {

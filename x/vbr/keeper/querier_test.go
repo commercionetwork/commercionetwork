@@ -12,7 +12,7 @@ import (
 
 func TestNewQuerier_default(t *testing.T) {
 	t.Run("default request", func(t *testing.T) {
-		k, ctx := setupKeeper(t)
+		k, ctx := SetupKeeper(t)
 
 		app := simapp.Setup(false)
 		legacyAmino := app.LegacyAmino()
@@ -25,7 +25,7 @@ func TestNewQuerier_default(t *testing.T) {
 
 func TestNewQuerier_queryGetBlockRewardsPoolFunds(t *testing.T) {
 	t.Run("default request", func(t *testing.T) {
-		k, ctx := setupKeeper(t)
+		k, ctx := SetupKeeper(t)
 
 		expected := sdk.NewDecCoinsFromCoins(types.ValidMsgIncrementBlockRewardsPool.Amount...)
 		k.SetTotalRewardPool(ctx, expected)
@@ -45,7 +45,7 @@ func TestNewQuerier_queryGetBlockRewardsPoolFunds(t *testing.T) {
 
 func TestNewQuerier_queryParams(t *testing.T) {
 	t.Run("default request", func(t *testing.T) {
-		k, ctx := setupKeeper(t)
+		k, ctx := SetupKeeper(t)
 
 		expected := types.Params{
 			DistrEpochIdentifier: types.ValidMsgSetParams.DistrEpochIdentifier,
