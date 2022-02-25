@@ -32,7 +32,7 @@ func Test_msgServer_IncrementBlockRewardsPool(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:        "ok",
+			name:        "add amount in message to empty rewards pool",
 			msg:         &types.ValidMsgIncrementBlockRewardsPool,
 			funderFunds: types.ValidMsgIncrementBlockRewardsPool.Amount,
 			want:        &types.MsgIncrementBlockRewardsPoolResponse{},
@@ -40,7 +40,7 @@ func Test_msgServer_IncrementBlockRewardsPool(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			srv, ctx, _, bank := setupMsgServer(t)
+			srv, ctx, keeper, bank := setupMsgServer(t)
 
 			if !tt.funderFunds.Empty() {
 				funder, err := sdk.AccAddressFromBech32(tt.msg.Funder)
@@ -58,7 +58,13 @@ func Test_msgServer_IncrementBlockRewardsPool(t *testing.T) {
 				t.Errorf("msgServer.IncrementBlockRewardsPool() = %v, want %v", got, tt.want)
 			}
 
-			// check for Set the total rewards pool
+			if !tt.wantErr {
+				actual := keeper.GetTotalRewardPool(sdk.UnwrapSDKContext(ctx))
+
+				expected := sdk.NewDecCoinsFromCoins(tt.msg.Amount...)
+
+				require.Equal(t, expected, actual)
+			}
 		})
 	}
 }
