@@ -83,39 +83,32 @@ func TestMsgIncrementBlockRewardsPool_ValidateBasic(t *testing.T) {
 // -------------------------
 // --- MsgSetParams
 // -------------------------
-var governmentAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-
-var validMsgSetParams = *NewMsgSetParams(
-	governmentAddress.String(),
-	validDistrEpochIdentifier,
-	validEarnRate,
-)
 
 func TestMsgSetParams_Route(t *testing.T) {
 	expected := RouterKey
-	actual := validMsgSetParams.Route()
+	actual := ValidMsgSetParams.Route()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgSetParams_Type(t *testing.T) {
 	expected := MsgTypeSetParams
-	actual := validMsgSetParams.Type()
+	actual := ValidMsgSetParams.Type()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgSetParams_GetSignBytes(t *testing.T) {
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&validMsgSetParams))
-	actual := validMsgSetParams.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&ValidMsgSetParams))
+	actual := ValidMsgSetParams.GetSignBytes()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgSetParams_GetSigners(t *testing.T) {
-	expectedAddr, _ := sdk.AccAddressFromBech32(validMsgSetParams.Government)
+	expectedAddr, _ := sdk.AccAddressFromBech32(ValidMsgSetParams.Government)
 	expected := []sdk.AccAddress{expectedAddr}
-	actual := validMsgSetParams.GetSigners()
+	actual := ValidMsgSetParams.GetSigners()
 
 	require.Equal(t, expected, actual)
 }
@@ -133,32 +126,32 @@ func TestMsgSetParams_ValidateBasic(t *testing.T) {
 	}{
 		{
 			name:    "ok",
-			fields:  fields(validMsgSetParams),
+			fields:  fields(ValidMsgSetParams),
 			wantErr: false,
 		},
 		{
 			name: "invalid Government",
 			fields: fields{
 				Government:           "",
-				DistrEpochIdentifier: validMsgSetParams.DistrEpochIdentifier,
-				EarnRate:             validMsgSetParams.EarnRate,
+				DistrEpochIdentifier: ValidMsgSetParams.DistrEpochIdentifier,
+				EarnRate:             ValidMsgSetParams.EarnRate,
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid DistrEpochIdentifier",
 			fields: fields{
-				Government:           validMsgSetParams.Government,
+				Government:           ValidMsgSetParams.Government,
 				DistrEpochIdentifier: "",
-				EarnRate:             validMsgSetParams.EarnRate,
+				EarnRate:             ValidMsgSetParams.EarnRate,
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid EarnRate",
 			fields: fields{
-				Government:           validMsgSetParams.Government,
-				DistrEpochIdentifier: validMsgSetParams.DistrEpochIdentifier,
+				Government:           ValidMsgSetParams.Government,
+				DistrEpochIdentifier: ValidMsgSetParams.DistrEpochIdentifier,
 				EarnRate:             invalidEarnRate,
 			},
 			wantErr: true,

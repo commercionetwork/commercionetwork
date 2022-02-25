@@ -2,16 +2,7 @@ package types
 
 import (
 	"testing"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
-var validDistrEpochIdentifier = EpochDay
-
-var validEarnRate = sdk.NewDecWithPrec(5, 1)
-var invalidEarnRate = sdk.NewDecWithPrec(-5, 1)
-
-var validParams = DefaultParams()
 
 func TestParams_Validate(t *testing.T) {
 	tests := []struct {
