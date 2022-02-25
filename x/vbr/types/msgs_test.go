@@ -7,42 +7,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var funderAddr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var validAmount = sdk.NewCoins(sdk.Coin{
-	Denom:  BondDenom,
-	Amount: sdk.NewInt(100),
-})
-
-var validMsgIncrementBlockRewardsPool = *NewMsgIncrementBlockRewardsPool(
-	funderAddr.String(),
-	validAmount,
-)
-
 func TestMsgIncrementBlockRewardsPool_Route(t *testing.T) {
 	expected := ModuleName
-	actual := validMsgIncrementBlockRewardsPool.Route()
+	actual := ValidMsgIncrementBlockRewardsPool.Route()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgIncrementBlockRewardsPool_Type(t *testing.T) {
 	expected := MsgTypeIncrementBlockRewardsPool
-	actual := validMsgIncrementBlockRewardsPool.Type()
+	actual := ValidMsgIncrementBlockRewardsPool.Type()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgIncrementBlockRewardsPool_GetSignBytes(t *testing.T) {
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&validMsgIncrementBlockRewardsPool))
-	actual := validMsgIncrementBlockRewardsPool.GetSignBytes()
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&ValidMsgIncrementBlockRewardsPool))
+	actual := ValidMsgIncrementBlockRewardsPool.GetSignBytes()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgIncrementBlockRewardsPool_GetSigners(t *testing.T) {
-	funderAddr, _ := sdk.AccAddressFromBech32(validMsgIncrementBlockRewardsPool.Funder)
+	funderAddr, _ := sdk.AccAddressFromBech32(ValidMsgIncrementBlockRewardsPool.Funder)
 	expected := []sdk.AccAddress{funderAddr}
-	actual := validMsgIncrementBlockRewardsPool.GetSigners()
+	actual := ValidMsgIncrementBlockRewardsPool.GetSigners()
 
 	require.Equal(t, expected, actual)
 }
@@ -58,7 +47,7 @@ func TestMsgIncrementBlockRewardsPool_ValidateBasic(t *testing.T) {
 	}{
 		{
 			name:    "ok",
-			fields:  fields(validMsgIncrementBlockRewardsPool),
+			fields:  fields(ValidMsgIncrementBlockRewardsPool),
 			wantErr: false,
 		},
 		{
