@@ -13,6 +13,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// this can be removed
 var _ = strconv.Itoa(0)
 
 func CmdIncrementBlockRewardsPool() *cobra.Command {

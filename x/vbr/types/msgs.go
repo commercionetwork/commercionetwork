@@ -47,13 +47,13 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid funder address (%s)", err)
 	}
 
+	// msg.Amount.IsAnyNegative() is redundant: sdk.Coins are checked to be positive
 	if msg.Amount.IsZero() || msg.Amount.IsAnyNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "You can't transfer a null or negative amount")
 	}
 
 	return nil
 }
-
 
 // -------------------------
 // --- MsgSetParams
@@ -63,9 +63,9 @@ var _ sdk.Msg = &MsgSetParams{}
 
 func NewMsgSetParams(government string, epochIdentifier string, earnRate sdk.Dec) *MsgSetParams {
 	return &MsgSetParams{
-		Government: government,
+		Government:           government,
 		DistrEpochIdentifier: epochIdentifier,
-		EarnRate: earnRate,
+		EarnRate:             earnRate,
 	}
 }
 
@@ -95,7 +95,9 @@ func (msg *MsgSetParams) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
-	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute{
+	// consider using Validate from Params instead than the following
+
+	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
 	}
 	if msg.EarnRate.IsNegative() {
@@ -103,4 +105,3 @@ func (msg *MsgSetParams) ValidateBasic() error {
 	}
 	return nil
 }
-
