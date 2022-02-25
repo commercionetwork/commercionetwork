@@ -68,7 +68,7 @@ func TestGenesisState_Validate(t *testing.T) {
 				PoolAmount: validPoolAmount,
 				Params: Params{
 					DistrEpochIdentifier: validDistrEpochIdentifier,
-					EarnRate:             invalidEarnRate,
+					EarnRate:             InvalidEarnRate,
 				},
 			},
 			wantErr: true,

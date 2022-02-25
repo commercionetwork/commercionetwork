@@ -23,7 +23,7 @@ func TestParams_Validate(t *testing.T) {
 			name: "invalid EarnRate",
 			params: Params{
 				DistrEpochIdentifier: validDistrEpochIdentifier,
-				EarnRate:             invalidEarnRate,
+				EarnRate:             InvalidEarnRate,
 			},
 			wantErr: true,
 		},
@@ -83,7 +83,7 @@ func Test_validateEarnRate(t *testing.T) {
 		},
 		{
 			name:     "negative",
-			earnRate: invalidEarnRate,
+			earnRate: InvalidEarnRate,
 			wantErr:  true,
 		},
 	}

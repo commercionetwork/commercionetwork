@@ -152,7 +152,7 @@ func TestMsgSetParams_ValidateBasic(t *testing.T) {
 			fields: fields{
 				Government:           ValidMsgSetParams.Government,
 				DistrEpochIdentifier: ValidMsgSetParams.DistrEpochIdentifier,
-				EarnRate:             invalidEarnRate,
+				EarnRate:             InvalidEarnRate,
 			},
 			wantErr: true,
 		},

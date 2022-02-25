@@ -106,6 +106,13 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	)
 	ek.SetHooks(epochsTypes.NewMultiEpochHooks(keeper.Hooks()))
 
+	government, err := sdk.AccAddressFromBech32(types.ValidMsgSetParams.Government)
+	if err != nil {
+		panic(err)
+	}
+
+	keeper.govKeeper.SetGovernmentAddress(ctx, government)
+
 	return keeper, ctx
 }
 
