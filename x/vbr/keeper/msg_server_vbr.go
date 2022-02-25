@@ -11,6 +11,8 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// refactor error variables names
+
 const (
 	eventIncrementBlockRewardsPool = "increment_block_rewards_pool"
 	eventSetParams                 = "new_params"
@@ -24,6 +26,7 @@ func (k msgServer) IncrementBlockRewardsPool(goCtx context.Context, msg *types.M
 	if e != nil {
 		return nil, e
 	}
+
 	// Subtract the coins from the account
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, funderAddr, types.ModuleName, msg.Amount); err != nil {
 		return nil, err

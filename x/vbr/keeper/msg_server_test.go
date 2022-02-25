@@ -8,50 +8,18 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/stretchr/testify/require"
 )
 
-func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {
+func setupMsgServer(t testing.TB) (types.MsgServer, context.Context, bankKeeper.Keeper) {
 	keeper, ctx := setupKeeper(t)
 	keeper.govKeeper.SetGovernmentAddress(ctx, TestFunder)
-	return NewMsgServerImpl(*keeper), sdk.WrapSDKContext(ctx)
-}
-func TestIncrementBlockRewardsPool(t *testing.T) {
-	srv, ctx := setupMsgServer(t)
-	for _, tc := range []struct {
-		desc string
-		msg  *types.MsgIncrementBlockRewardsPool
-		err  bool
-	}{
-		{
-			desc: "add 1000ucommercio",
-			msg: &types.MsgIncrementBlockRewardsPool{
-				Funder: string(TestFunder),
-				Amount: sdk.NewCoins(sdk.NewCoin(types.BondDenom, sdk.NewInt(1000))),
-			},
-			err: false,
-		},
-		{
-			desc: "invalid funder address",
-			msg: &types.MsgIncrementBlockRewardsPool{
-				Funder: "",
-				Amount: sdk.NewCoins(sdk.NewCoin(types.BondDenom, sdk.NewInt(1000))),
-			},
-			err: true,
-		},
-	} {
-		tc := tc
-		t.Run(tc.desc, func(t *testing.T) {
-			_, err := srv.IncrementBlockRewardsPool(ctx, tc.msg)
-			if tc.err {
-				require.NotNil(t, err)
-			}
-		})
-	}
+	return NewMsgServerImpl(*keeper), sdk.WrapSDKContext(ctx), keeper.bankKeeper
 }
 
 func TestSetParams(t *testing.T) {
-	srv, ctx := setupMsgServer(t)
+	srv, ctx, _ := setupMsgServer(t)
 	for _, tc := range []struct {
 		desc string
 		msg  *types.MsgSetParams

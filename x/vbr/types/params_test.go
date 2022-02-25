@@ -11,6 +11,8 @@ var validDistrEpochIdentifier = EpochDay
 var validEarnRate = sdk.NewDecWithPrec(5, 1)
 var invalidEarnRate = sdk.NewDecWithPrec(-5, 1)
 
+var validParams = DefaultParams()
+
 func TestParams_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -19,7 +21,7 @@ func TestParams_Validate(t *testing.T) {
 	}{
 		{
 			name:   "ok",
-			params: DefaultParams(),
+			params: validParams,
 		},
 		{
 			name:    "invalid DistrEpochIdentifier",
