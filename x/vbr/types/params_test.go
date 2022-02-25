@@ -6,10 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+var validDistrEpochIdentifier = EpochDay
+
 var validEarnRate = sdk.NewDecWithPrec(5, 1)
 var invalidEarnRate = sdk.NewDecWithPrec(-5, 1)
-
-// invalidEarnRate := validEarnRate.
 
 func TestParams_Validate(t *testing.T) {
 	tests := []struct {
@@ -29,7 +29,7 @@ func TestParams_Validate(t *testing.T) {
 		{
 			name: "invalid EarnRate",
 			params: Params{
-				DistrEpochIdentifier: EpochDay,
+				DistrEpochIdentifier: validDistrEpochIdentifier,
 				EarnRate:             invalidEarnRate,
 			},
 			wantErr: true,
@@ -53,7 +53,7 @@ func Test_validateDistrEpochIdentifier(t *testing.T) {
 	}{
 		{
 			name:                 "ok",
-			distrEpochIdentifier: EpochDay,
+			distrEpochIdentifier: validDistrEpochIdentifier,
 		},
 		{
 			name:    "wrong type",

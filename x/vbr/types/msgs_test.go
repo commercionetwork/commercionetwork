@@ -1,132 +1,190 @@
 package types
 
 import (
-	"fmt"
 	"testing"
-
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
-var TestFunder, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestAmount = sdk.NewCoins(sdk.Coin{
+var funderAddr, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
+var validAmount = sdk.NewCoins(sdk.Coin{
 	Denom:  BondDenom,
 	Amount: sdk.NewInt(100),
 })
 
-var msgIncrementsBRPool = MsgIncrementBlockRewardsPool{
-	Funder: TestFunder.String(),
-	Amount: TestAmount,
-}
-
-var msgIncrementsBrPoolNoFunds = MsgIncrementBlockRewardsPool{
-	Funder: TestFunder.String(),
-	Amount: sdk.NewCoins(sdk.Coin{
-		Denom:  BondDenom,
-		Amount: sdk.NewInt(0),
-	}),
-}
+var validMsgIncrementBlockRewardsPool = *NewMsgIncrementBlockRewardsPool(
+	funderAddr.String(),
+	validAmount,
+)
 
 func TestMsgIncrementBlockRewardsPool_Route(t *testing.T) {
-	actual := msgIncrementsBRPool.Route()
 	expected := ModuleName
+	actual := validMsgIncrementBlockRewardsPool.Route()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgIncrementBlockRewardsPool_Type(t *testing.T) {
-	actual := msgIncrementsBRPool.Type()
 	expected := MsgTypeIncrementBlockRewardsPool
+	actual := validMsgIncrementBlockRewardsPool.Type()
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgIncrementBlockRewardsPool_ValidateBasic_valid(t *testing.T) {
-	actual := msgIncrementsBRPool.ValidateBasic()
-
-	require.Nil(t, actual)
-}
-
-func TestMsgIncrementBlockRewardsPool_ValidateBasic_noFunds(t *testing.T) {
-	actual := msgIncrementsBrPoolNoFunds.ValidateBasic()
-	expected := sdkErr.Wrap(sdkErr.ErrUnknownRequest, "You can't transfer a null or negative amount")
-
-	require.Equal(t, expected.Error(), actual.Error())
-}
-
 func TestMsgIncrementBlockRewardsPool_GetSignBytes(t *testing.T) {
-	actual := msgIncrementsBRPool.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msgIncrementsBRPool))
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&validMsgIncrementBlockRewardsPool))
+	actual := validMsgIncrementBlockRewardsPool.GetSignBytes()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgIncrementBlockRewardsPool_GetSigners(t *testing.T) {
-	actual := msgIncrementsBRPool.GetSigners()
-	funderAddr, _ := sdk.AccAddressFromBech32(msgIncrementsBRPool.Funder)
+	funderAddr, _ := sdk.AccAddressFromBech32(validMsgIncrementBlockRewardsPool.Funder)
 	expected := []sdk.AccAddress{funderAddr}
+	actual := validMsgIncrementBlockRewardsPool.GetSigners()
 
 	require.Equal(t, expected, actual)
+}
+func TestMsgIncrementBlockRewardsPool_ValidateBasic(t *testing.T) {
+	type fields struct {
+		Funder string
+		Amount sdk.Coins
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			name:    "ok",
+			fields:  fields(validMsgIncrementBlockRewardsPool),
+			wantErr: false,
+		},
+		{
+			name: "invalid funder",
+			fields: fields{
+				Funder: "",
+				Amount: validAmount,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid amount: zero",
+			fields: fields{
+				Funder: funderAddr.String(),
+				Amount: sdk.NewCoins(sdk.NewCoin(BondDenom, sdk.ZeroInt())),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := &MsgIncrementBlockRewardsPool{
+				Funder: tt.fields.Funder,
+				Amount: tt.fields.Amount,
+			}
+			if err := msg.ValidateBasic(); (err != nil) != tt.wantErr {
+				t.Errorf("MsgIncrementBlockRewardsPool.ValidateBasic() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
 }
 
 // -------------------------
 // --- MsgSetParams
 // -------------------------
-var TestGov, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
-var TestEarnRate = sdk.NewDecWithPrec(5, 1)
+var governmentAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
-var msgSetParams = MsgSetParams{
-	Government:           TestGov.String(),
-	DistrEpochIdentifier: EpochDay,
-	EarnRate:             TestEarnRate,
-}
-
-var msgSetParamsNoEpochIdentifier = MsgSetParams{
-	Government:           TestGov.String(),
-	DistrEpochIdentifier: "",
-	EarnRate:             TestEarnRate,
-}
+var validMsgSetParams = *NewMsgSetParams(
+	governmentAddress.String(),
+	validDistrEpochIdentifier,
+	validEarnRate,
+)
 
 func TestMsgSetParams_Route(t *testing.T) {
-	actual := msgSetParams.Route()
-	expected := ModuleName
+	expected := RouterKey
+	actual := validMsgSetParams.Route()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgSetParams_Type(t *testing.T) {
-	actual := msgSetParams.Type()
 	expected := MsgTypeSetParams
+	actual := validMsgSetParams.Type()
 
 	require.Equal(t, expected, actual)
 }
 
-func TestMsgSetParams_valid(t *testing.T) {
-	actual := msgSetParams.ValidateBasic()
-
-	require.Nil(t, actual)
-}
-
-func TestMsgSetParams_ValidateBasic_noEpochIdentifier(t *testing.T) {
-	actual := msgSetParamsNoEpochIdentifier.ValidateBasic()
-	expected := sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msgSetParamsNoEpochIdentifier.DistrEpochIdentifier))
-
-	require.Equal(t, expected.Error(), actual.Error())
-}
-
 func TestMsgSetParams_GetSignBytes(t *testing.T) {
-	actual := msgSetParams.GetSignBytes()
-	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msgSetParams))
+	expected := sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&validMsgSetParams))
+	actual := validMsgSetParams.GetSignBytes()
 
 	require.Equal(t, expected, actual)
 }
 
 func TestMsgSetParams_GetSigners(t *testing.T) {
-	actual := msgSetParams.GetSigners()
-	govAddr, _ := sdk.AccAddressFromBech32(msgSetParams.Government)
-	expected := []sdk.AccAddress{govAddr}
+	expectedAddr, _ := sdk.AccAddressFromBech32(validMsgSetParams.Government)
+	expected := []sdk.AccAddress{expectedAddr}
+	actual := validMsgSetParams.GetSigners()
 
 	require.Equal(t, expected, actual)
+}
+
+func TestMsgSetParams_ValidateBasic(t *testing.T) {
+	type fields struct {
+		Government           string
+		DistrEpochIdentifier string
+		EarnRate             sdk.Dec
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			name:    "ok",
+			fields:  fields(validMsgSetParams),
+			wantErr: false,
+		},
+		{
+			name: "invalid Government",
+			fields: fields{
+				Government:           "",
+				DistrEpochIdentifier: validMsgSetParams.DistrEpochIdentifier,
+				EarnRate:             validMsgSetParams.EarnRate,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid DistrEpochIdentifier",
+			fields: fields{
+				Government:           validMsgSetParams.Government,
+				DistrEpochIdentifier: "",
+				EarnRate:             validMsgSetParams.EarnRate,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid EarnRate",
+			fields: fields{
+				Government:           validMsgSetParams.Government,
+				DistrEpochIdentifier: validMsgSetParams.DistrEpochIdentifier,
+				EarnRate:             invalidEarnRate,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := &MsgSetParams{
+				Government:           tt.fields.Government,
+				DistrEpochIdentifier: tt.fields.DistrEpochIdentifier,
+				EarnRate:             tt.fields.EarnRate,
+			}
+			if err := msg.ValidateBasic(); (err != nil) != tt.wantErr {
+				t.Errorf("MsgSetParams.ValidateBasic() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
 }
