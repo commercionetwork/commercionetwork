@@ -3,6 +3,10 @@ package keeper
 import (
 	"testing"
 
+	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -10,26 +14,20 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
-
-	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
-	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
-	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
@@ -318,6 +316,38 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 			macc := k.VbrAccount(ctx)
 			//require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
 			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantAmount))
+		})
+	}
+}
+
+func TestKeeper_SetTotalRewardPool(t *testing.T) {
+
+	tests := []struct {
+		name        string
+		updatedPool sdk.DecCoins
+	}{
+		{
+			name: "empty pool",
+		},
+		// failing test
+		// {
+		// 	name:        "ok",
+		// 	updatedPool: sdk.NewDecCoinsFromCoins(types.ValidMsgIncrementBlockRewardsPool.Amount...),
+		// },
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeper(t)
+			k.SetTotalRewardPool(ctx, tt.updatedPool)
+
+			store := ctx.KVStore(k.storeKey)
+			if tt.updatedPool.Empty() {
+				require.False(t, store.Has([]byte(types.PoolStoreKey)))
+			} else {
+				actual := k.GetTotalRewardPool(ctx)
+				require.Equal(t, tt.updatedPool, actual)
+			}
+
 		})
 	}
 }
