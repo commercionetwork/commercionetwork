@@ -12,7 +12,57 @@ order: 5
 ## REST (WiP) 
 -->
 
-## Queries
+# Transactions
+
+## Sharing a document
+
+
+
+```bash
+commercionetworkd tx docs share [recipient] [document-uuid] [document-metadata-uri] [metadata-schema-uri] [metadata-schema-version] [document-content-uri] [checksum-value] [checksum-algorithm] 
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `recipient`               | Address of the recipient for the document  |
+| `document-uuid`           | Document ID following the UUID format |
+| `document-metadata-uri`   |  |
+| `metadata-schema-uri`     |  |
+| `metadata-schema-version` |  |
+| `document-content-uri`    | **Optional.**  |
+| `checksum-value`          | **Optional.**  |
+| `checksum-algorithm`      | **Optional.**  |
+
+## Sending a receipt
+
+```bash
+commercionetworkd tx docs send-receipt [recipient] [tx-hash] [document-uuid] [proof]
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `recipient`     | Address of the user  |
+| `tx-hash`       |  |
+| `document-uuid` | ID of the associated document |
+
+Flags:
+
+| Parameter              | Type         | Default | Description |
+| :-------:              | :----------  | :---------- | :---------- |
+| `sign`                 | `bool`       | _false_ | specifies that we want to sign the document |
+| `sign-storage-uri`     | `string`     | `""`    | the storage URI to sign |
+| `sign-signer-instance` | `string`     | `""`    | the signer instance needed to sign |
+| `sign-vcr-id`          | `string`     | `""`    | the vcr id needed to sign |
+| `sign-certificate-profile` | `string` | `""`    | the certificate profile needed to sign |
+| `sign-sdn-data`        | `string`     | `""`    | the sdn data needed to sign |
+
+This command generates a random UUID for the receipt.
+
+# Queries
 
 
 ### List sent documents
@@ -20,7 +70,7 @@ order: 5
 #### CLI
 
 ```bash
-cncli query docs sent-documents [address]
+commercionetworkd query docs sent-documents [address]
 ```
 
 
@@ -49,7 +99,7 @@ http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
 #### CLI
 
 ```bash
-cncli query docs received-documents [address]
+commercionetworkd query docs received-documents [address]
 ```
 
 #### REST
@@ -80,7 +130,7 @@ http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/recei
 #### CLI
 
 ```bash
-cncli query docs sent-receipts [address]
+commercionetworkd query docs sent-receipts [address]
 ```
 
 #### REST
@@ -108,7 +158,7 @@ http://localhost:1317/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/s
 #### CLI
 
 ```bash
-cncli query docs received-receipts [address]
+commercionetworkd query docs received-receipts [address]
 ```
    
 
@@ -138,7 +188,7 @@ http://localhost:1317/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/r
 #### CLI
 
 ```bash
-cncli query docs documents-receipts [documentUUID]
+commercionetworkd query docs documents-receipts [documentUUID]
 ```
 
 #### REST
