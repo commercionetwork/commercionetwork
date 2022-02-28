@@ -9,13 +9,13 @@ parent:
 
 ## Abstract
 
-The `docs` module is the one that allows you to send a document to another user, and retrieve the list of documents
-that you have received. 
-
-Using the `docs` module you can perform the following transactions. 
+The `docs` module allows one to send a document to another user, and to retrieve the list of received documents
+receipts. 
 
 **Accessible to everyone**
 
+## Transactions
+Using the `docs` module you can perform the following transactions. 
 
 ### Sending a document
 In order to send a document you are required to have an account with some tokens inside it.   
@@ -24,23 +24,6 @@ In order to send a document you are required to have an account with some tokens
 To know what an account is, how to create it and how to get tokens, please refer to the general [cosmos documentation](http://docs.cosmos.network)
 :::  
 
-<!-- 
-# Docs
-The `docs` module is the one that allows you to send a document to another user, and retrieve the list of documents
-that you have received. 
-
-## Transactions
-Using the `docs` module you can perform the following transactions. 
-
-**Accessible to everyone**
-
-### Sending a document
-In order to send a document you are required to have an identity with some tokens inside it.   
-
-::: tip  
-To know what an identity is, how to create it and how to get tokens, please refer to the 
-[*"Creating an identity"* section](../id/tx/create-an-identity.md).  
-:::  
 
 #### Transaction message
 In order to properly send a transaction to share a document, you will need to create and sign the
@@ -100,15 +83,14 @@ following message.
 ##### Fields requirements
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
-| `sender` | Yes | bech32 |
-| `recipients` | Yes | bech32 |
-| `uuid` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
+| `sender` | Yes | `bech32` |
+| `recipients` | Yes | set of `bech32` |
+| `uuid` | Yes | [`uuid-v4`](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
 | `content_uri` | No *<sup>1</sup> | 512 bytes |
 | `metadata` | Yes | |
 | `checksum` | No | |
 | `encryption_data` | No *<sup>1</sup> | |
 | `do_sign` | No *<sup>1</sup> | |
-
 
 - *<sup>1</sup> **Must be omitted if empty.**
 
@@ -120,7 +102,7 @@ following message.
 | `schema` | No *<sup>1</sup> | |
 
 - *<sup>1</sup> The `schema_type` and `schema` fields are mutually exclusive.
-This means that if the first one exists the second will not be used.
+This means that if the first one exists the second will not be used and vice versa.
    
 - *<sup>2</sup> You can read which `schema_type` values are supported inside 
    the [supported metadata schemes section](metadata-schemes.md#supported-metadata-schemes)
@@ -151,8 +133,6 @@ This means that if the first one exists the second will not be used.
 | `encryption_data.keys.*.value` | Yes | 512 bytes |
 
 
-
-
 ##### `do_sign`
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
@@ -165,10 +145,10 @@ This means that if the first one exists the second will not be used.
 
 * storage_uri
 * signer_instance
-* sdn_data: contains an array with a list of required fields for Subject Distinguish Name. The names of fields are x509 standard compliant
+* sdn_data: contains an array with a list of required fields for _Subject Distinguish Name_. The names of fields are compliant to the x509 standard.
 
 
-#### Supported checksum algorithm
+#### Supported checksum algorithms
 When computing the checksum of a document's contents, you must use one of the following supported checksum algorithms.  
 Not using one of these will result in your transaction being rejected or mishandled by recipients. 
 
@@ -184,7 +164,7 @@ Not using one of these will result in your transaction being rejected or mishand
 ##### Checksum validity check
 Please note that, when sending a document that has an associated checksum, the validity of the checksum itself is
 checked only formally. This means that we only check that the hash value has a valid length, but we do not check 
-if the given has is indeed the hash of the document's content. It should be the client responsibility to perform this 
+if the given hash is indeed the hash of the document's content. It should be the client responsibility to perform this 
 check.  
 
 #### Encrypting the data
@@ -195,8 +175,7 @@ The following is just an example on how to do file encryption, you're free to us
 
 :::
 
-In order to properly encrypting the data that you want to avoid being shared publicly, 
-the following procedure should be followed.
+The following procedure should be followed to properly encrypt the data that should not be shared publicly.
 
 We'll use AES-256 in CBC mode to encrypt a file, and let the recipient decrypt it by sharing with
 it the AES encryption key.
@@ -285,6 +264,9 @@ the `MsgSendDocumentReceipt` message that allows you to do that.
 In order to properly send a transaction to send a document receipt, you will need to create and sign the
 following message.
 
+Please note that the former sender of a document becomes the receiver for a `MsgSendDocumentReceipt`.
+Conversely, one of the receivers (or it can be just one receiver) becomes the sender for a `MsgSendDocumentReceipt`.
+
 ```json
 {
   "type": "commercio/MsgSendDocumentReceipt",
@@ -304,17 +286,17 @@ following message.
 ##### Fields requirements
 | Field | Required | Limit/Format |
 | :---: | :------: | :------: |
-| `uuid` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
-| `sender` | Yes | bech32 | 
-| `recipient` | Yes | bech32 | 
+| `uuid` | Yes | [`uuid-v4`](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
+| `sender` | Yes | `bech32` | 
+| `recipient` | Yes | `bech32` | 
 | `tx_hash` | Yes | |
-| `document_uuid` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
+| `document_uuid` | Yes | [`uuid-v4`](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
 | `proof` | No *<sup>1</sup> | |
 
 
 - *<sup>1</sup> **Must be omitted if empty.**
 
-`proof` is a generic field that can be used to prove some part of receipt correlated to documents and/or some other proof out of chain
+`proof` is a generic field that can be used to prove that some part of the receipt is correlated to certain documents and/or some other proofs out of chain
 
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
@@ -405,7 +387,7 @@ Parameters:
 
 | Parameter | Description |
 | :-------: | :---------- | 
-| `address` | Address of the user for which to read current sent recepits |
+| `address` | Address of the user for which to read current sent receipts |
 
 ##### Example 
 
@@ -434,14 +416,42 @@ Parameters:
 
 | Parameter | Description |
 | :-------: | :---------- | 
-| `address` | Address of the user for which to read current received documents |
+| `address` | Address of the user for which to read current received receipts |
 
 
 ##### Example 
 
-Getting recepits for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
+Getting receipts for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 
 ```
-http://localhost:1317/recepits/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
-``` -->
+http://localhost:1317/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
+```
 
+### List receipts associated to a certain document
+
+#### CLI
+
+```bash
+cncli query docs documents-receipts [documentUUID]
+```
+
+#### REST
+
+```
+documents/document/{UUID}/receipts
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `UUID` | Document ID of the document for which to read current received receipts |
+
+##### Example 
+
+Getting receipts associated to the document with ID `d83422c6-6e79-4a99-9767-fcae46dfa371`:
+
+
+```
+http://localhost:1317/document/d83422c6-6e79-4a99-9767-fcae46dfa371/receipts
+```
