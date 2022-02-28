@@ -9,8 +9,8 @@ parent:
 
 ## Abstract
 
-The `docs` module allows one to send a document to another user, and to retrieve the list of received documents
-receipts. 
+The `docs` module allows one to share a document to other users.
+Then, the receivers can send back to the sender a receipt stating that they have seen the document. 
 
 **Accessible to everyone**
 
