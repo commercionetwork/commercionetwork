@@ -29,15 +29,15 @@ func TestShareDocument(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-	for _, tc := range []struct {
-		desc    string
+	for _, tt := range []struct {
+		name    string
 		fields  []string
 		args    []string
 		wantErr bool
 		code    uint32
 	}{
 		{
-			desc: "valid",
+			name: "valid",
 			fields: []string{"cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22", "http://www.contentUri.com",
 				"http://www.contentUri.com", "test", "http://www.contentUri.com", "48656c6c6f20476f7068657221234567", "md5"},
 			args: []string{
@@ -49,7 +49,7 @@ func TestShareDocument(t *testing.T) {
 			code: codeInsufficientFees,
 		},
 		{
-			desc: "missing checksum algorithm",
+			name: "missing checksum algorithm",
 			fields: []string{"cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22", "http://www.contentUri.com",
 				"http://www.contentUri.com", "test", "http://www.contentUri.com", "48656c6c6f20476f7068657221234567"},
 			args: []string{
@@ -61,7 +61,7 @@ func TestShareDocument(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			desc: "invalid data for document",
+			name: "invalid data for document",
 			fields: []string{"cosmosABC", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22", "http://www.contentUri.com",
 				"http://www.contentUri.com", "test", "http://www.contentUri.com", "48656c6c6f20476f7068657221234567", "md5"},
 			args: []string{
@@ -73,19 +73,16 @@ func TestShareDocument(t *testing.T) {
 			wantErr: true,
 		},
 	} {
-		tc := tc
-		t.Run(tc.desc, func(t *testing.T) {
-			args := []string{}
-			args = append(args, tc.fields...)
-			args = append(args, tc.args...)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShareDocument(), args)
-			if tc.wantErr {
+		t.Run(tt.name, func(t *testing.T) {
+			commandArgs := append(tt.fields, tt.args...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShareDocument(), commandArgs)
+			if tt.wantErr {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
 				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp))
-				require.Equal(t, tc.code, resp.Code)
+				require.Equal(t, tt.code, resp.Code)
 			}
 		})
 	}
