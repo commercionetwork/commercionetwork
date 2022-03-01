@@ -346,7 +346,7 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 	}
 }
 
-func TestKeeper_UserDocumentsReceiptsIterator(t *testing.T) {
+func TestKeeper_UUIDDocumentsReceiptsIterator(t *testing.T) {
 	tests := []struct {
 		name           string
 		documentUUID   string
@@ -425,6 +425,76 @@ func TestKeeper_UserDocumentsReceiptsIterator(t *testing.T) {
 				id := string(di.Value())
 				receipt, err := keeper.GetReceiptByID(ctx, id)
 				require.NoError(t, err)
+
+				receipts = append(receipts, receipt)
+			}
+
+			require.ElementsMatch(t, tt.wantedReceipts, receipts)
+		})
+	}
+}
+
+func TestKeeper_DocumentReceiptsIterator(t *testing.T) {
+	tests := []struct {
+		name           string
+		documentUUID   string
+		storedDocs     []types.Document
+		storedReceipts []types.DocumentReceipt
+		wantedReceipts []types.DocumentReceipt
+	}{
+		{
+			name:         "empty",
+			documentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
+		},
+		{
+			name:         "empty receipts",
+			documentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
+			storedDocs:   []types.Document{types.ValidDocument},
+		},
+		{
+			name:         "one receipt",
+			documentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
+			storedDocs:   []types.Document{types.ValidDocument},
+			storedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
+			wantedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
+		},
+		{
+			name:         "two receipts",
+			documentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
+			storedDocs:   []types.Document{types.ValidDocument},
+			storedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+				types.ValidDocumentReceiptRecipient2,
+			},
+			wantedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+				types.ValidDocumentReceiptRecipient2,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper, ctx := setupKeeper(t)
+
+			for _, document := range tt.storedDocs {
+				keeper.SaveDocument(ctx, document)
+			}
+
+			for _, receipt := range tt.storedReceipts {
+				keeper.SaveReceipt(ctx, receipt)
+			}
+
+			receipts := []types.DocumentReceipt{}
+			di := keeper.DocumentReceiptsIterator(ctx)
+			defer di.Close()
+
+			for ; di.Valid(); di.Next() {
+				var receipt types.DocumentReceipt
+				keeper.cdc.MustUnmarshalBinaryBare(di.Value(), &receipt)
 
 				receipts = append(receipts, receipt)
 			}
