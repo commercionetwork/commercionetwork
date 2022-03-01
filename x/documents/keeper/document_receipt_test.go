@@ -277,6 +277,9 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 			name:       "one receipt",
 			recipient:  types.ValidDocumentReceiptRecipient1.Recipient,
 			storedDocs: []types.Document{types.ValidDocument},
+			storedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
 			wantedReceipts: []types.DocumentReceipt{
 				types.ValidDocumentReceiptRecipient1,
 			},
@@ -319,7 +322,7 @@ func TestKeeper_UserReceivedReceiptsIterator(t *testing.T) {
 				keeper.SaveDocument(ctx, document)
 			}
 
-			for _, receipt := range tt.wantedReceipts {
+			for _, receipt := range tt.storedReceipts {
 				keeper.SaveReceipt(ctx, receipt)
 			}
 
@@ -364,6 +367,9 @@ func TestKeeper_UserDocumentsReceiptsIterator(t *testing.T) {
 			name:         "one receipt",
 			documentUUID: types.ValidDocumentReceiptRecipient1.DocumentUUID,
 			storedDocs:   []types.Document{types.ValidDocument},
+			storedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
 			wantedReceipts: []types.DocumentReceipt{
 				types.ValidDocumentReceiptRecipient1,
 			},
@@ -407,7 +413,7 @@ func TestKeeper_UserDocumentsReceiptsIterator(t *testing.T) {
 				keeper.SaveDocument(ctx, document)
 			}
 
-			for _, receipt := range tt.wantedReceipts {
+			for _, receipt := range tt.storedReceipts {
 				keeper.SaveReceipt(ctx, receipt)
 			}
 
