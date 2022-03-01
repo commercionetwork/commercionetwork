@@ -37,6 +37,7 @@ func CmdShareDocument() *cobra.Command {
 				return err
 			}
 
+			// this check could be improved by reading args[6] and args[7]
 			if len(args) == 7 {
 				return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Unauthorized number of arguments. If you specify [checksum-value] you have to specify [checksum-algorithm] too")
 			}
@@ -44,6 +45,7 @@ func CmdShareDocument() *cobra.Command {
 			sender := cliCtx.GetFromAddress()
 
 			var recipient []string
+			// accepting only one recipient
 			recipient = append(recipient, args[0])
 
 			var checksum *types.DocumentChecksum
