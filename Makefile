@@ -9,6 +9,9 @@ MOCKS_DIR = $(CURDIR)/tests/mocks
 REPOSITORY_BASE := github.com/commercionetwork/commercionetwork
 HTTPS_GIT := https://$(REPOSITORY_BASE).git
 
+SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
+TM_VERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::') # grab everything after the space in "github.com/tendermint/tendermint v0.34.7"
+
 DOCKER := $(shell which docker)
 
 build_tags = netgo
@@ -48,11 +51,16 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=commercionetword \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=commercionetwork \
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=commercionetword \
+	-X github.com/cosmos/cosmos-sdk/version.AppName=commercionetword \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
+	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
+	-X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
+	-X github.com/cosmos/cosmos-sdk/version.cosmos_sdk_version=$(SDK_PACK)
+	
+
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 # check for nostrip option
@@ -119,6 +127,7 @@ install: go.sum
 
 build: go.sum
 	@echo "--> Building commercionetwork"
+	@echo "--> $(SDK_PACK)"
 	@go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 
