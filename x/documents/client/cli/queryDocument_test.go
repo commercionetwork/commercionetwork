@@ -90,6 +90,7 @@ func testCmdSentDocuments(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
 		args     []string
+		flags    []string
 		expected []*types.Document
 		wantErr  bool
 	}{
@@ -107,6 +108,16 @@ func testCmdSentDocuments(t *testing.T) {
 			name: "no documents expected",
 			args: []string{types.ValidDocumentReceiptRecipient1.Sender},
 		},
+		// unknown flag: --page
+		// missing AddPaginationFlagsToCmd in CmdSentDocuments
+		// {
+		// 	name: "invalid pagination flags",
+		// 	args: []string{types.ValidDocumentReceiptRecipient1.Sender},
+		// 	flags: []string{
+		// 		fmt.Sprintf("--%s=2", flags.FlagPage),
+		// 		fmt.Sprintf("--%s=true", flags.FlagOffset),
+		// 	},
+		// },
 		{
 			name:    "no args",
 			args:    []string{},
@@ -114,7 +125,8 @@ func testCmdSentDocuments(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdSentDocuments(), tt.args)
+			commandArgs := append(tt.args, tt.flags...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdSentDocuments(), commandArgs)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
