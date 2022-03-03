@@ -130,6 +130,7 @@ func CmdSendDocumentReceipt() *cobra.Command {
 			documentUUID := args[2]
 			UUID := uuid.NewV4().String()
 
+			// empty proof is not valid! consider removing this check and accept all 4 arguments below
 			proof := ""
 			if len(args) == 4 {
 				proof = args[3]

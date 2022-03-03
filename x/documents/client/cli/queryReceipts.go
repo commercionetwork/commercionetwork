@@ -101,6 +101,8 @@ func CmdDocumentsReceipts() *cobra.Command {
 				return err
 			}
 
+			// consider checking uuid validity for args[0]
+
 			params := &types.QueryGetDocumentsReceiptsRequest{
 				UUID:       args[0],
 				Pagination: pageReq,
