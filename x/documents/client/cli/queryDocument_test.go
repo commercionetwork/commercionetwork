@@ -26,7 +26,7 @@ var documentsGenesisState = types.GenesisState{
 
 var ctx client.Context
 
-func TestTx(t *testing.T) {
+func TestQueries(t *testing.T) {
 
 	cfg := network.DefaultConfig()
 
@@ -44,7 +44,11 @@ func TestTx(t *testing.T) {
 
 	t.Run("CmdShowDocument", testCmdShowDocument)
 	t.Run("CmdSentDocuments", testCmdSentDocuments)
+	t.Run("CmdReceivedDocuments", testCmdReceivedDocuments)
 
+	t.Run("CmdSentReceipts", testCmdSentReceipts)
+	t.Run("CmdReceivedReceipts", testCmdReceivedReceipts)
+	t.Run("CmdDocumentsReceipts", testCmdDocumentsReceipts)
 }
 
 func testCmdShowDocument(t *testing.T) {
@@ -62,7 +66,7 @@ func testCmdShowDocument(t *testing.T) {
 		},
 		{
 			name:    "document not in store",
-			args:    []string{types.AnotherValidDocument.UUID},
+			args:    []string{types.ValidDocumentReceiptRecipient1.UUID},
 			wantErr: true,
 		},
 		{
@@ -134,6 +138,60 @@ func testCmdSentDocuments(t *testing.T) {
 				var response types.QueryGetSentDocumentsResponse
 				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.Document)
+			}
+		})
+	}
+}
+
+func testCmdReceivedDocuments(t *testing.T) {
+
+	for _, tt := range []struct {
+		name     string
+		args     []string
+		flags    []string
+		expected []*types.Document
+		wantErr  bool
+	}{
+		{
+			name:     "ok",
+			args:     []string{types.ValidDocumentReceiptRecipient1.Sender},
+			expected: documentsGenesisState.Documents,
+		},
+		{
+			name:    "invalid address",
+			args:    []string{"abc"},
+			wantErr: true,
+		},
+		{
+			name: "no documents expected",
+			args: []string{types.ValidDocument.Sender},
+		},
+		// unknown flag: --page
+		// missing AddPaginationFlagsToCmd in CmdReceivedDocuments
+		// {
+		// 	name: "invalid pagination flags",
+		// 	args: []string{types.ValidDocumentReceiptRecipient1.Sender},
+		// 	flags: []string{
+		// 		fmt.Sprintf("--%s=2", flags.FlagPage),
+		// 		fmt.Sprintf("--%s=true", flags.FlagOffset),
+		// 	},
+		// },
+		{
+			name:    "no args",
+			args:    []string{},
+			wantErr: true,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			commandArgs := append(tt.args, tt.flags...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdReceivedDocuments(), commandArgs)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				var response types.QueryGetReceivedDocumentResponse
+				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &response))
+				require.ElementsMatch(t, tt.expected, response.ReceivedDocument)
 			}
 		})
 	}
