@@ -130,7 +130,7 @@ func TestMsgSetParams_ValidateBasic(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "invalid Government",
+			name: "invalid Government address format",
 			fields: fields{
 				Government:           "",
 				DistrEpochIdentifier: ValidMsgSetParams.DistrEpochIdentifier,
