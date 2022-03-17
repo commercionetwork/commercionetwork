@@ -133,17 +133,6 @@ func TestCmdSendDocumentReceipt(t *testing.T) {
 			code: codeInsufficientFees,
 		},
 		{
-			name:   "no proof argument",
-			fields: []string{"cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr", "8205AB5C69C6F167D974FDC17B51367430E7E274E5084CE9E45D949C82AB02E6", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22"},
-			args: []string{
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
-			},
-			wantErr: true,
-		},
-		{
 			name: "invalid data for receipt",
 			fields: []string{"cosmosABC", "8205AB5C69C6F167D974FDC17B51367430E7E274E5084CE9E45D949C82AB02E6", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
 				"proof"},
