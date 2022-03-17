@@ -93,7 +93,7 @@ func (msg *MsgSetParams) GetSignBytes() []byte {
 func (msg *MsgSetParams) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Government)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address format: %s", err)
 	}
 	// consider using Validate from Params instead than the following
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -22,26 +23,30 @@ func TestNewQuerier_default(t *testing.T) {
 	})
 }
 
-// failing test
-// func TestNewQuerier_queryGetBlockRewardsPoolFunds(t *testing.T) {
-// 	t.Run("queryGetBlockRewardsPoolFunds", func(t *testing.T) {
-// 		k, ctx := SetupKeeper(t)
+func TestNewQuerier_queryGetBlockRewardsPoolFunds(t *testing.T) {
+	t.Run("queryGetBlockRewardsPoolFunds", func(t *testing.T) {
+		k, ctx := SetupKeeper(t)
 
-// 		expected := sdk.NewDecCoinsFromCoins(types.ValidMsgIncrementBlockRewardsPool.Amount...)
-// 		k.SetTotalRewardPool(ctx, expected)
+		expected := sdk.NewDecCoinsFromCoins(types.ValidMsgIncrementBlockRewardsPool.Amount...)
+		k.SetTotalRewardPool(ctx, expected)
+		amount, _ := expected.TruncateDecimal()
+		err := k.MintVBRTokens(ctx, sdk.NewCoins(amount...))
+		require.NoError(t, err)
 
-// 		app := simapp.Setup(false)
-// 		legacyAmino := app.LegacyAmino()
-// 		querier := NewQuerier(*k, legacyAmino)
-// 		path := []string{types.QueryBlockRewardsPoolFunds}
-// 		gotBz, err := querier(ctx, path, abci.RequestQuery{})
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
 
-// 		var got sdk.DecCoins
-// 		legacyAmino.MustUnmarshalJSON(gotBz, &got)
-// 		require.NoError(t, err)
-// 		require.Equal(t, expected, got)
-// 	})
-// }
+		querier := NewQuerier(*k, legacyAmino)
+		path := []string{types.QueryBlockRewardsPoolFunds}
+		gotBz, err := querier(ctx, path, abci.RequestQuery{})
+
+		var got sdk.DecCoins
+		legacyAmino.MustUnmarshalJSON(gotBz, &got)
+
+		require.NoError(t, err)
+		require.Equal(t, expected, got)
+	})
+}
 
 func TestNewQuerier_queryParams(t *testing.T) {
 	t.Run("queryParams", func(t *testing.T) {

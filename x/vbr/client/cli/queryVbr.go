@@ -48,7 +48,7 @@ func GetParams() *cobra.Command {
 			req := &types.QueryGetParamsRequest{}
 			res, err := queryClient.GetParams(cmd.Context(), req)
 			if err != nil {
-				return fmt.Errorf("could not get params: %s", err)
+				return fmt.Errorf("cannot get params: %s", err)
 			}
 
 			return cliCtx.PrintProto(res)
