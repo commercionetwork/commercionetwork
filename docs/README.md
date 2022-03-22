@@ -57,7 +57,7 @@ Sure. Please follow the step by step instructions on Running Nodes
 
 The EASY WAY is to signup to [commercio.app](https://commercio.app) and use the CommercioAPI. You can start developing blockchain solutions in minutes with the programming language you are most familiar.
 
-The CommmercioAPI removes the complexity and the security of managing your users' wallets.
+The CommercioAPI removes the complexity and the security of managing your users' wallets.
 
 **SDK**
 
