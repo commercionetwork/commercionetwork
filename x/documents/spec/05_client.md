@@ -2,54 +2,32 @@
 order: 5
 -->
 
-# Client (WiP)
+# Client
 
-<!-- 
-## CLI (WiP)
+## Transactions
 
-## gRPC (WiP)
+### Sharing a document
 
-## REST (WiP) 
--->
-
-# Transactions
-
-## Sharing a document
-
-
+#### CLI
 
 ```bash
 commercionetworkd tx docs share [recipient] [document-uuid] [document-metadata-uri] [metadata-schema-uri] [metadata-schema-version] [document-content-uri] [checksum-value] [checksum-algorithm] 
 ```
 
-Parameters:
+**Parameters:**
 
 | Parameter | Description |
 | :-------: | :---------- | 
 | `recipient`               | Address of the recipient for the document  |
 | `document-uuid`           | Document ID following the UUID format |
-| `document-metadata-uri`   |  |
-| `metadata-schema-uri`     |  |
-| `metadata-schema-version` |  |
-| `document-content-uri`    | **Optional.**  |
-| `checksum-value`          | **Optional.**  |
-| `checksum-algorithm`      | **Optional.**  |
+| `document-metadata-uri`   | Metadata content URI |
+| `metadata-schema-uri`     | Metadata schema definition URI |
+| `metadata-schema-version` | Metadata schema version |
+| `document-content-uri`    | **Optional.** Document content URI |
+| `checksum-value`          | **Optional.** Document content checksum value |
+| `checksum-algorithm`      | **Optional.** Document content checksum algorithm |
 
-## Sending a receipt
-
-```bash
-commercionetworkd tx docs send-receipt [recipient] [tx-hash] [document-uuid] [proof]
-```
-
-Parameters:
-
-| Parameter | Description |
-| :-------: | :---------- | 
-| `recipient`     | Address of the user  |
-| `tx-hash`       |  |
-| `document-uuid` | ID of the associated document |
-
-Flags:
+**Flags:**
 
 | Parameter              | Type         | Default | Description |
 | :-------:              | :----------  | :---------- | :---------- |
@@ -60,10 +38,26 @@ Flags:
 | `sign-certificate-profile` | `string` | `""`    | the certificate profile needed to sign |
 | `sign-sdn-data`        | `string`     | `""`    | the sdn data needed to sign |
 
+### Sending a receipt
+
+#### CLI
+
+```bash
+commercionetworkd tx docs send-receipt [recipient] [tx-hash] [document-uuid] [proof]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `recipient`     | Address of the user who initially shared the associated document  |
+| `tx-hash`       | Transaction hash in which the document has been shared |
+| `document-uuid` | ID of the associated document |
+| `proof` | **Optional.** Reading proof | 
+
 This command generates a random UUID for the receipt.
 
-# Queries
-
+## Queries
 
 ### List sent documents
 
@@ -72,7 +66,6 @@ This command generates a random UUID for the receipt.
 ```bash
 commercionetworkd query docs sent-documents [address]
 ```
-
 
 #### REST
 
@@ -123,8 +116,6 @@ Getting docs for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/docs/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
 
-
-
 ### List sent receipts
 
 #### CLI
@@ -160,7 +151,6 @@ http://localhost:1317/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/s
 ```bash
 commercionetworkd query docs received-receipts [address]
 ```
-   
 
 #### REST
 
@@ -207,8 +197,6 @@ Parameters:
 
 Getting receipts associated to the document with ID `d83422c6-6e79-4a99-9767-fcae46dfa371`:
 
-
 ```
 http://localhost:1317/document/d83422c6-6e79-4a99-9767-fcae46dfa371/receipts
 ```
-
