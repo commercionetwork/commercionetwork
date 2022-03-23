@@ -9,16 +9,15 @@ order: 3
 In order to share a document you are required to have an account with some tokens inside it.  
 
 ### Transaction message
-In order to properly send a transaction to share a document, you will need to create and sign the
-following message.
+In order to properly send a transaction to share a document, you will need to create and sign the following message.
 
 ```json
 {
   "type": "commercio/MsgShareDocument",
   "value": {
-    "sender": "<Sender Did>",
+    "sender": "<Sender address>",
     "recipients": [
-      "<Recipient did>"
+      "<Recipient address>"
     ],
     "uuid": "<Document UUID>",
     "content_uri": "<Document content URI>",
@@ -56,7 +55,7 @@ following message.
           "organization",
           "country"
         ],
-        "vcr_id": "<identity VCR Identifier",
+        "vcr_id": "<VCR Identifier",
         "certificate_profile": "<one of the profiles supported by S>"
     }
   }
@@ -69,28 +68,26 @@ following message.
 | `sender` | Yes | `bech32` |
 | `recipients` | Yes | set of `bech32` |
 | `uuid` | Yes | [`uuid-v4`](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
-| `content_uri` | No *<sup>1</sup> | 512 bytes |
+| `content_uri` | No *<sup>1</sup>  *<sup>2</sup> *<sup>3</sup> | 512 bytes |
 | `metadata` | Yes | |
-| `checksum` | No | |
+| `checksum` | No *<sup>2</sup> | |
 | `encryption_data` | No *<sup>1</sup> | |
 | `do_sign` | No *<sup>1</sup> | |
 
-- *<sup>1</sup> **Must be omitted if empty.**
+- *<sup>1</sup> Must be omitted if empty.
+- *<sup>2</sup> Required when included in `encryption_data`
+- *<sup>3</sup> Required when using `do_sign`
 
 ##### `metadata`
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
 | `content_uri` | Yes | 512 bytes | 
-| `schema_type` | No *<sup>1</sup> *<sup>2</sup> *<sup>3</sup>  | 512 bytes | 
+| `schema_type` | No *<sup>1</sup> *<sup>2</sup>  | 512 bytes | 
 | `schema` | No *<sup>1</sup> | |
 
 - *<sup>1</sup> The `schema_type` and `schema` fields are mutually exclusive.
 This means that if the first one exists the second will not be used and vice versa.
-   
-- *<sup>2</sup> You can read which `schema_type` values are supported inside 
-   the [supported metadata schemes section](metadata-schemes.md#supported-metadata-schemes)
-
-- *<sup>3</sup> **Must be omitted if empty.**
+- *<sup>2</sup> Must be omitted if empty.
    
 
 ##### `metadata.schema`
@@ -102,19 +99,31 @@ This means that if the first one exists the second will not be used and vice ver
 ##### `checksum`
 | Field | Required | 
 | :---: | :------: |
-| `value` | Yes |
-| `algorithm` | Yes *<sup>1</sup> |
+| `value` | Yes *<sup>1</sup> |
+| `algorithm` | Yes *<sup>2</sup> |
 
-- *<sup>1</sup> You can read which `checksum.algorithm` values are supported inside the
-[supported checksum algorithms section](#supported-checksum-algorithm)  
+- *<sup>1</sup> `value` must be in exadecimal format
+- *<sup>2</sup> You can read which `checksum.algorithm` values are supported inside the
+[supported checksum algorithms section](#supported-checksum-algorithms)  
 
 ##### `encryption_data`
+| Field | Required |
+| :---: | :------: |
+| `keys` | Yes *<sup>1</sup> *<sup>2</sup> |
+| `encrypted_data` | Yes *<sup>3</sup> |
+
+- *<sup>1</sup> `keys` must be a non-empty list of `document_encryption_key`s
+- *<sup>2</sup> For each `recipient` of the document, there should be a corresponding `document_encryption_key` and vice versa
+- *<sup>3</sup> `encrypted_data` must be a list of strings, with these supported values: `content`, `content_uri`, `metadata.content_uri`, `metadata.schema.uri`
+
+
+##### `document_encryption_key`
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
-| `keys` | Yes | |
-| `encrypted_data` | Yes | |
-| `encryption_data.keys.*.value` | Yes | 512 bytes |
+| `recipient` | Yes |  | 
+| `value` | Yes *<sup>1</sup> | 512 bytes |
 
+- *<sup>1</sup> Value must be in exadecimal format
 
 ##### `do_sign`
 | Field | Required | Limit/Format |
@@ -226,14 +235,14 @@ Inserting other non supported values inside such a field will result in the tran
 | `content_uri` | Value of the `content_uri` field |
 | `metadata.content_uri` | Value of the `content_uri` field inside the `metadata` object |
 | `metadata.schema.uri` | Value of the `uri` field inside the `metadata`'s `schema` sub-object |
-
+<!-- 
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
 shareDocument
-```
+``` -->
 
 
 
@@ -262,8 +271,6 @@ Conversely, one of the receivers (or it can be just one receiver) becomes the se
 }
 ```
 
-
-
 #### Fields requirements
 | Field | Required | Limit/Format |
 | :---: | :------: | :------: |
@@ -275,14 +282,15 @@ Conversely, one of the receivers (or it can be just one receiver) becomes the se
 | `proof` | No *<sup>1</sup> | |
 
 
-- *<sup>1</sup> **Must be omitted if empty.**
+- *<sup>1</sup> Must be omitted if empty.
 
 `proof` is a generic field that can be used to prove that some part of the receipt is correlated to certain documents and/or some other proofs out of chain
 
+<!-- 
 #### Action type
 If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
 sendDocumentReceipt
-```
+``` -->
