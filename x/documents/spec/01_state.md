@@ -4,18 +4,51 @@ order: 1
 
 # State
 
-The `x/documents` module keeps state of the following objects
+The `x/documents` module keeps state of Documents and Document Receipt sharing.
 
-- **Documents** `docs:document:[documentID]`
-- _documentIDs_ sent by an user `docs:documents:sent:[address]`
-- _documentIDs_ received by an user `docs:documents:received:[address]`
-- **Receipts** `docs:receipt:[receiptID]`
-- _receiptIDs_ sent by an user `docs:receipts:sent:[address]`
-- _receiptIDs_ received by an user `docs:receipts:received:[address]`
-- _receiptIDs_ associated to a certain document `docs:receipts:documents:[documentID]
+## Documents
 
+When a document gets shared, the module stores it in the store.
 
-## `Document`
+| Object | Prefix | Value |
+| :-------: | :---------- | :---------- | 
+| Document | `docs:document:` | `[documentID]` |
+
+Also, the module updates the following lists with the ID of the shared document:
+
+### Document w.r.t. addresses:
+
+| List | Prefix | Value |
+| :-------: | :---------- | :---------- | 
+| _documentIDs_ | `docs:documents:sent:` | `[address]` |
+| _documentIDs_ | `docs:documents:received:` | `[address]` |
+
+## Document Receipts
+
+When a document receipt gets shared, the module stores it in the store.
+
+| List | Prefix | Value |
+| :-------: | :---------- | :---------- | 
+| Receipt | `docs:receipt:` | `[receiptID]` |
+
+Also, the module updates the following lists with the ID of the shared document receipt:
+
+### Document Receipts w.r.t. addresses:
+
+| List | Prefix | Value |
+| :-------: | :---------- | :---------- | 
+| _receiptIDs_ | `docs:receipts:sent:` | `[address]` |
+| _receiptIDs_ | `docs:receipts:received:` | `[address]` |
+
+### Document Receipts w.r.t. documents:
+
+| List | Prefix | Value |
+| :-------: | :---------- | :---------- | 
+| _receiptIDs_ | `docs:receipts:documents` | `[documentID]` |
+
+## Type definitions
+
+### `Document` definition
 
 ```
 message Document {
@@ -38,7 +71,7 @@ message Document {
 }
 ```
 
-### `DocumentChecksum`
+#### `DocumentChecksum` definition
 
 ```
 message DocumentChecksum {
@@ -47,7 +80,7 @@ message DocumentChecksum {
 }
 ```
 
-### `DocumentEncryptionData`
+#### `DocumentEncryptionData` definition
 
 ```
 message DocumentEncryptionData {
@@ -56,7 +89,7 @@ message DocumentEncryptionData {
 }
 ```
 
-#### `DocumentEncryptionKey`
+##### `DocumentEncryptionKey` definition
 
 ```
 message DocumentEncryptionKey {
@@ -65,7 +98,7 @@ message DocumentEncryptionKey {
 }
 ```
 
-### `DocumentMetadata`
+#### `DocumentMetadata` definition
 
 ```
 message DocumentMetadata {
@@ -75,7 +108,7 @@ message DocumentMetadata {
 }
 ```
 
-#### `DocumentMetadataSchema`
+##### `DocumentMetadataSchema` definition
 ```
 message DocumentMetadataSchema {
   string URI = 1;
@@ -83,7 +116,7 @@ message DocumentMetadataSchema {
 }
 ```
 
-### `DocumentDoSign`
+#### `DocumentDoSign` definition
 
 ```
 message DocumentDoSign {
@@ -95,7 +128,10 @@ message DocumentDoSign {
 }
 ```
 
-## `DocumentReceipt`
+### `DocumentReceipt` definition
+
+Please note that the former sender of a document becomes the recipient for a `DocumentReceipt`.
+Conversely, one of the receivers (or it can be just one receiver) becomes the sender for a `DocumentReceipt`.
 
 ```
 message DocumentReceipt {
@@ -107,6 +143,3 @@ message DocumentReceipt {
     string proof = 6;
 }
 ```
-
-Please note that the former sender of a document becomes the recipient for a `DocumentReceipt`.
-Conversely, one of the receivers (or it can be just one receiver) becomes the sender for a `DocumentReceipt`.
