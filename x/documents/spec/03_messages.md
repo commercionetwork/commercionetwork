@@ -4,7 +4,7 @@ order: 3
 
 # Messages
 
-## Share a Document with **MsgShareDocument**
+## Share a Document with `MsgShareDocument`
 
 In order to share a document you are required to have an account with some tokens inside it.  
 
@@ -62,7 +62,8 @@ In order to properly send a transaction to share a document, you will need to cr
 }
 ```
 
-#### Fields requirements
+### Field requirements
+
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
 | `sender` | Yes | `bech32` |
@@ -78,7 +79,7 @@ In order to properly send a transaction to share a document, you will need to cr
 - *<sup>2</sup> Required when included in `encryption_data`
 - *<sup>3</sup> Required when using `do_sign`
 
-##### `metadata`
+#### `metadata` field requirements
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
 | `content_uri` | Yes | 512 bytes | 
@@ -89,14 +90,13 @@ In order to properly send a transaction to share a document, you will need to cr
 This means that if the first one exists the second will not be used and vice versa.
 - *<sup>2</sup> Must be omitted if empty.
    
-
-##### `metadata.schema`
+#### `metadata.schema` field requirements
 | Field | Required | Limit/Format | 
 | :---: | :------: | :---: |
 | `uri` | Yes | 512 bytes |
 | `version` | Yes | 32 bytes |
 
-##### `checksum`
+#### `checksum` field requirements
 | Field | Required | 
 | :---: | :------: |
 | `value` | Yes *<sup>1</sup> |
@@ -106,7 +106,7 @@ This means that if the first one exists the second will not be used and vice ver
 - *<sup>2</sup> You can read which `checksum.algorithm` values are supported inside the
 [supported checksum algorithms section](#supported-checksum-algorithms)  
 
-##### `encryption_data`
+#### `encryption_data` field requirements
 | Field | Required |
 | :---: | :------: |
 | `keys` | Yes *<sup>1</sup> *<sup>2</sup> |
@@ -116,8 +116,7 @@ This means that if the first one exists the second will not be used and vice ver
 - *<sup>2</sup> For each `recipient` of the document, there should be a corresponding `document_encryption_key` and vice versa
 - *<sup>3</sup> `encrypted_data` must be a list of strings, with these supported values: `content`, `content_uri`, `metadata.content_uri`, `metadata.schema.uri`
 
-
-##### `document_encryption_key`
+#### `document_encryption_key` field requirements
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
 | `recipient` | Yes |  | 
@@ -125,22 +124,20 @@ This means that if the first one exists the second will not be used and vice ver
 
 - *<sup>1</sup> Value must be in exadecimal format
 
-##### `do_sign`
+#### `do_sign` field requirements
 | Field | Required | Limit/Format |
 | :---: | :------: | :---: |
 | `storage_uri` | Yes | |
 | `signer_instance` | Yes | |
-| `sdn_data` | No | |
+| `sdn_data` | No *<sup>1</sup> | |
 | `vcr_id` | Yes | 64 bytes |
-| `certificate_profile` | Yes | 32 bytes |
+| `certificate_profile` | Yes  | 32 bytes |
 
+- *<sup>1</sup> `sdn_data` must be a string containing a list of comma-separated (`,`) required fields for _Subject Distinguish Name_. 
+  The allowed fields (compliant to the x509 standard) are `common_name`, `country`, `given_name`, `organization`, `serial_number`, `surname`. 
+  If empty, the default value is `serial_number`.
 
-* storage_uri
-* signer_instance
-* sdn_data: contains an array with a list of required fields for _Subject Distinguish Name_. The names of fields are compliant to the x509 standard.
-
-
-##### Supported checksum algorithms
+### Supported checksum algorithms
 When computing the checksum of a document's contents, you must use one of the following supported checksum algorithms.  
 Not using one of these will result in your transaction being rejected or mishandled by recipients. 
 
@@ -153,18 +150,16 @@ Not using one of these will result in your transaction being rejected or mishand
 | `sha-384` | [RFC 4634](https://tools.ietf.org/html/rfc4634) |
 | `sha-512` | [RFC 4634](https://tools.ietf.org/html/rfc4634) |
 
-##### Checksum validity check
+#### Checksum validity check
 Please note that, when sending a document that has an associated checksum, the validity of the checksum itself is
 checked only formally. This means that we only check that the hash value has a valid length, but we do not check 
 if the given hash is indeed the hash of the document's content. It should be the client responsibility to perform this 
 check.  
 
-##### Encrypting the data
+### Encrypting the data
 
 ::: tip
-
 The following is just an example on how to do file encryption, you're free to use any other algorithm!
-
 :::
 
 The following procedure should be followed to properly encrypt the data that should not be shared publicly.
@@ -198,7 +193,7 @@ it the AES encryption key.
    encoded_encryption_key = hex_encode(encrypted_aes_key)
    ```
    
-4. Compose the encryption data  
+5. Compose the encryption data  
    ```json
    {
      "encryption_data": {
@@ -224,7 +219,7 @@ The `encrypted_data` field does not contain the encrypted payload itself, but ra
 
 A special identifier, `content`, can be used to specify that `aes_key` has been used to encrypt a file exchanged by other means of communication.
 
-##### Supported encrypted data
+### Supported encrypted data
 Please note that when specifying which data you have encrypted for the document recipient, you need to use one or 
 more of the following identifiers inside the `encryption_data.encrypted_data` field.  
 Inserting other non supported values inside such a field will result in the transactions being rejected as not valid.   
@@ -236,17 +231,13 @@ Inserting other non supported values inside such a field will result in the tran
 | `metadata.content_uri` | Value of the `content_uri` field inside the `metadata` object |
 | `metadata.schema.uri` | Value of the `uri` field inside the `metadata`'s `schema` sub-object |
 
-
-## Send a document reading receipt with **MsgSendDocumentReceipt**
+## Send a Document Receipt with `MsgSendDocumentReceipt`
 Once you have received a document and you want to acknowledge the sender that you have properly read it, you can use 
 the `MsgSendDocumentReceipt` message that allows you to do that. 
 
 ### Transaction message
 In order to properly send a transaction to send a document receipt, you will need to create and sign the
 following message.
-
-Please note that the former sender of a document becomes the receiver for a `MsgSendDocumentReceipt`.
-Conversely, one of the receivers (or it can be just one receiver) becomes the sender for a `MsgSendDocumentReceipt`.
 
 ```json
 {
@@ -262,7 +253,10 @@ Conversely, one of the receivers (or it can be just one receiver) becomes the se
 }
 ```
 
-#### Fields requirements
+Please note that the former sender of a document becomes the receiver for a `MsgSendDocumentReceipt`.
+Conversely, one of the receivers (or it can be just one receiver) becomes the sender for a `MsgSendDocumentReceipt`.
+
+### Field requirements
 | Field | Required | Limit/Format |
 | :---: | :------: | :------: |
 | `uuid` | Yes | [`uuid-v4`](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
@@ -272,8 +266,4 @@ Conversely, one of the receivers (or it can be just one receiver) becomes the se
 | `document_uuid` | Yes | [`uuid-v4`](https://en.wikipedia.org/wiki/Universally_unique_identifier) |
 | `proof` | No *<sup>1</sup> | |
 
-
-- *<sup>1</sup> Must be omitted if empty.
-
-`proof` is a generic field that can be used to prove that some part of the receipt is correlated to certain documents and/or some other proofs out of chain
-
+- *<sup>1</sup> Must be omitted if empty. `proof` can be used to prove that some part of the receipt is correlated to certain documents and/or some other proofs out of chain.
