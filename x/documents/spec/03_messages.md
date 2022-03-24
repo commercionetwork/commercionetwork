@@ -76,8 +76,8 @@ In order to properly send a transaction to share a document, you will need to cr
 | `do_sign` | No *<sup>1</sup> | |
 
 - *<sup>1</sup> Must be omitted if empty.
-- *<sup>2</sup> Required when included in `encryption_data`
-- *<sup>3</sup> Required when using `do_sign`
+- *<sup>2</sup> Required when included in `encryption_data`.
+- *<sup>3</sup> Required when using `do_sign`.
 
 #### `metadata` field requirements
 | Field | Required | Limit/Format |
@@ -102,9 +102,9 @@ This means that if the first one exists the second will not be used and vice ver
 | `value` | Yes *<sup>1</sup> |
 | `algorithm` | Yes *<sup>2</sup> |
 
-- *<sup>1</sup> `value` must be in exadecimal format
+- *<sup>1</sup> `value` must be in exadecimal format.
 - *<sup>2</sup> You can read which `checksum.algorithm` values are supported inside the
-[supported checksum algorithms section](#supported-checksum-algorithms)  
+[supported checksum algorithms section](#supported-checksum-algorithms).
 
 #### `encryption_data` field requirements
 | Field | Required |
@@ -112,9 +112,9 @@ This means that if the first one exists the second will not be used and vice ver
 | `keys` | Yes *<sup>1</sup> *<sup>2</sup> |
 | `encrypted_data` | Yes *<sup>3</sup> |
 
-- *<sup>1</sup> `keys` must be a non-empty list of `document_encryption_key`s
-- *<sup>2</sup> For each `recipient` of the document, there should be a corresponding `document_encryption_key` and vice versa
-- *<sup>3</sup> `encrypted_data` must be a list of strings, with these supported values: `content`, `content_uri`, `metadata.content_uri`, `metadata.schema.uri`
+- *<sup>1</sup> `keys` must be a non-empty list of `document_encryption_key`s.
+- *<sup>2</sup> For each `recipient` of the document, there should be a corresponding `document_encryption_key` and vice versa.
+- *<sup>3</sup> `encrypted_data` must be a list of strings, with these supported values: `content`, `content_uri`, `metadata.content_uri`, `metadata.schema.uri`.
 
 #### `document_encryption_key` field requirements
 | Field | Required | Limit/Format |
@@ -122,7 +122,7 @@ This means that if the first one exists the second will not be used and vice ver
 | `recipient` | Yes |  | 
 | `value` | Yes *<sup>1</sup> | 512 bytes |
 
-- *<sup>1</sup> Value must be in exadecimal format
+- *<sup>1</sup> Value must be in exadecimal format.
 
 #### `do_sign` field requirements
 | Field | Required | Limit/Format |
@@ -133,8 +133,8 @@ This means that if the first one exists the second will not be used and vice ver
 | `vcr_id` | Yes | 64 bytes |
 | `certificate_profile` | Yes  | 32 bytes |
 
-- *<sup>1</sup> `sdn_data` must be a string containing a list of comma-separated (`,`) required fields for _Subject Distinguish Name_. 
-  The allowed fields (compliant to the x509 standard) are `common_name`, `country`, `given_name`, `organization`, `serial_number`, `surname`. 
+- *<sup>1</sup> `sdn_data` must be a set of strings. It represents the required fields for _Subject Distinguish Name_. 
+  The allowed values (compliant to the x509 standard) are `common_name`, `country`, `given_name`, `organization`, `serial_number`, `surname`. 
   If empty, the default value is `serial_number`.
 
 ### Supported checksum algorithms
