@@ -90,6 +90,14 @@ func TestMsgShareDocument_GetSigners(t *testing.T) {
 	actual := msgShareDocumentSchema.GetSigners()
 	require.Equal(t, 1, len(actual))
 	require.Equal(t, msgShareDocumentSchema.Sender, actual[0].String())
+
+	defer func() { recover() }()
+	invalidMsg := msgShareDocumentSchema
+	invalidMsg.Sender = ""
+	invalidMsg.GetSigners()
+	defer func() {
+		t.Error("should have panicked")
+	}()
 }
 
 func TestMsgShareDocument_UnmarshalJson_Schema(t *testing.T) {
@@ -167,6 +175,14 @@ func TestMsgDocumentReceipt_GetSigners(t *testing.T) {
 	actual := msgDocumentReceipt.GetSigners()
 	require.Equal(t, 1, len(actual))
 	require.Equal(t, msgDocumentReceipt.Sender, actual[0].String())
+
+	defer func() { recover() }()
+	invalidMsg := msgDocumentReceipt
+	invalidMsg.Sender = ""
+	invalidMsg.GetSigners()
+	defer func() {
+		t.Error("should have panicked")
+	}()
 }
 
 func TestMsgSendDocumentReceipt_ValidateBasic(t *testing.T) {

@@ -54,6 +54,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQ
 
 		document, err := k.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
+			// consider using sdk.ErrKeyNotFound
 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document with UUID %s even though the user has an associated received document",
@@ -67,6 +68,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQ
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, documents)
 	if err != nil {
+		// consider using sdk.ErrJSONMarshal
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 

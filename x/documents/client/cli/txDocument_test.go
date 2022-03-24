@@ -6,59 +6,155 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
+
+	// sdkNetwork "github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/testutil/network"
 	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 )
 
-func TestShareDocument(t *testing.T) {
+const codeInsufficientFees = 13
+
+// var txNet *sdkNetwork.Network
+// var txVal *sdkNetwork.Validator
+
+func TestCmdShareDocument(t *testing.T) {
+
 	cfg := network.DefaultConfig()
 
-	stateGov := govTypes.GenesisState{}
-	require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[govTypes.ModuleName], &stateGov))
-	stateGov.GovernmentAddress = "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae"
-	bufGov, _ := cfg.Codec.MarshalJSON(&stateGov)
+	bufGov, err := cfg.Codec.MarshalJSON(&governmentGenesisState)
+	require.NoError(t, err)
 	cfg.GenesisState[govTypes.ModuleName] = bufGov
 
-	net := network.New(t, cfg)
-	val := net.Validators[0]
-	ctx := val.ClientCtx
+	buf, err := cfg.Codec.MarshalJSON(&documentsGenesisState)
+	require.NoError(t, err)
+	cfg.GenesisState[types.ModuleName] = buf
 
-	fields := []string{"cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22", "http://www.contentUri.com",
-		"http://www.contentUri.com", "test", "http://www.contentUri.com", "48656c6c6f20476f7068657221234567", "md5"}
-	for _, tc := range []struct {
-		desc string
-		args []string
-		err  error
-		code uint32
+	txNet := network.New(t, cfg)
+	txVal := txNet.Validators[0]
+	ctx = txVal.ClientCtx
+
+	for _, tt := range []struct {
+		name    string
+		fields  []string
+		args    []string
+		wantErr bool
+		code    uint32
 	}{
 		{
-			desc: "valid",
+			name: "valid",
+			fields: []string{"cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22", "http://www.contentUri.com",
+				"http://www.contentUri.com", "test", "http://www.contentUri.com", "48656c6c6f20476f7068657221234567", "md5"},
 			args: []string{
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
-			code: 13, //WHY: code 13 insufficient fee???
+			code: codeInsufficientFees,
+		},
+		{
+			name: "missing checksum algorithm",
+			fields: []string{"cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22", "http://www.contentUri.com",
+				"http://www.contentUri.com", "test", "http://www.contentUri.com", "48656c6c6f20476f7068657221234567"},
+			args: []string{
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid data for document",
+			fields: []string{"cosmosABC", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22", "http://www.contentUri.com",
+				"http://www.contentUri.com", "test", "http://www.contentUri.com", "48656c6c6f20476f7068657221234567", "md5"},
+			args: []string{
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+			},
+			wantErr: true,
 		},
 	} {
-		tc := tc
-		t.Run(tc.desc, func(t *testing.T) {
-			args := []string{}
-			args = append(args, fields...)
-			args = append(args, tc.args...)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShareDocument(), args)
-			if tc.err != nil {
-				require.ErrorIs(t, err, tc.err)
+		t.Run(tt.name, func(t *testing.T) {
+			commandArgs := append(tt.fields, tt.args...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShareDocument(), commandArgs)
+			if tt.wantErr {
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
 				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp))
-				require.Equal(t, tc.code, resp.Code)
+				require.Equal(t, tt.code, resp.Code)
+			}
+		})
+	}
+}
+
+func TestCmdSendDocumentReceipt(t *testing.T) {
+
+	cfg := network.DefaultConfig()
+
+	bufGov, err := cfg.Codec.MarshalJSON(&governmentGenesisState)
+	require.NoError(t, err)
+	cfg.GenesisState[govTypes.ModuleName] = bufGov
+
+	buf, err := cfg.Codec.MarshalJSON(&documentsGenesisState)
+	require.NoError(t, err)
+	cfg.GenesisState[types.ModuleName] = buf
+
+	txNet := network.New(t, cfg)
+	txVal := txNet.Validators[0]
+	ctx = txVal.ClientCtx
+
+	for _, tt := range []struct {
+		name    string
+		fields  []string
+		args    []string
+		wantErr bool
+		code    uint32
+	}{
+		{
+			name: "valid",
+			fields: []string{"cosmos1v0yk4hs2nry020ufmu9yhpm39s4scdhhtecvtr", "8205AB5C69C6F167D974FDC17B51367430E7E274E5084CE9E45D949C82AB02E6", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				"proof"},
+			args: []string{
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+			},
+			code: codeInsufficientFees,
+		},
+		{
+			name: "invalid data for receipt",
+			fields: []string{"cosmosABC", "8205AB5C69C6F167D974FDC17B51367430E7E274E5084CE9E45D949C82AB02E6", "6a2f41a3-c54c-fce8-32d2-0324e1c32e22",
+				"proof"},
+			args: []string{
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+			},
+			wantErr: true,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			commandArgs := append(tt.fields, tt.args...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdSendDocumentReceipt(), commandArgs)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				var resp sdk.TxResponse
+				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp))
+				require.Equal(t, tt.code, resp.Code)
 			}
 		})
 	}

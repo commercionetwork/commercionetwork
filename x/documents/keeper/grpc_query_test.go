@@ -5,6 +5,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -13,9 +14,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/commercionetwork/commercionetwork/x/documents/types"
 )
+
+var invalidPagination = query.PageRequest{
+	Key:    []byte{},
+	Offset: 1,
+}
 
 func createNDocument(keeper *Keeper, ctx sdk.Context, n int) []*types.Document {
 	items := []*types.Document{}
@@ -79,6 +83,7 @@ func TestDocumentQuerySingle(t *testing.T) {
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
+		// TODO add test for invalidPagination (easier if we use require.NoError)
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
@@ -149,6 +154,14 @@ func TestDocumentQueryPaginated(t *testing.T) {
 		_, err := keeper.SentDocuments(wctx, nil)
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
+	t.Run("invalid Pagination", func(t *testing.T) {
+		request := &types.QueryGetSentDocumentsRequest{
+			Address:    types.ValidDocument.Sender,
+			Pagination: &invalidPagination,
+		}
+		_, err := keeper.SentDocuments(wctx, request)
+		require.Error(t, err)
+	})
 }
 
 func TestSentDocuments(t *testing.T) {
@@ -176,6 +189,7 @@ func TestSentDocuments(t *testing.T) {
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
+		// TODO add test for invalidPagination (easier if we use require.NoError)
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
@@ -217,6 +231,7 @@ func TestReceivedDocument(t *testing.T) {
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
+		// TODO add test for invalidPagination (easier if we use require.NoError)
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
@@ -258,6 +273,7 @@ func TestSentDocumentsReceipts(t *testing.T) {
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
+		// TODO add test for invalidPagination (easier if we use require.NoError)
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
@@ -299,6 +315,7 @@ func TestReceivedDocumentsReceipts(t *testing.T) {
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
+		// TODO add test for invalidPagination (easier if we use require.NoError)
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
@@ -310,6 +327,79 @@ func TestReceivedDocumentsReceipts(t *testing.T) {
 				for i := range tc.response.ReceiptReceived {
 					require.Contains(t, response.ReceiptReceived, tc.response.ReceiptReceived[i])
 				}
+			}
+		})
+	}
+}
+
+func TestKeeper_DocumentsReceipts(t *testing.T) {
+
+	tests := []struct {
+		name           string
+		storedDocs     []types.Document
+		storedReceipts []types.DocumentReceipt
+		request        *types.QueryGetDocumentsReceiptsRequest
+		response       *types.QueryGetDocumentsReceiptsResponse
+		wantErr        bool
+	}{
+		{
+			name:    "invalid request",
+			wantErr: true,
+		},
+		{
+			name: "invalid pagination",
+			request: &types.QueryGetDocumentsReceiptsRequest{
+				UUID:       types.ValidDocument.UUID,
+				Pagination: &invalidPagination,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty store",
+			request: &types.QueryGetDocumentsReceiptsRequest{
+				UUID: types.ValidDocument.UUID,
+			},
+			response: &types.QueryGetDocumentsReceiptsResponse{},
+			wantErr:  false,
+		},
+		{
+			name:       "one receipt for document",
+			storedDocs: []types.Document{types.ValidDocument},
+			storedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
+			request: &types.QueryGetDocumentsReceiptsRequest{
+				UUID: types.ValidDocument.UUID,
+			},
+			response: &types.QueryGetDocumentsReceiptsResponse{
+				Receipts: []*types.DocumentReceipt{
+					&types.ValidDocumentReceiptRecipient1,
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper, ctx := setupKeeper(t)
+			wctx := sdk.WrapSDKContext(ctx)
+
+			for _, document := range tt.storedDocs {
+				keeper.SaveDocument(ctx, document)
+			}
+
+			for _, receipt := range tt.storedReceipts {
+				keeper.SaveReceipt(ctx, receipt)
+			}
+
+			got, err := keeper.DocumentsReceipts(wctx, tt.request)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Keeper.DocumentsReceipts() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr {
+				require.ElementsMatch(t, tt.response.Receipts, got.Receipts)
 			}
 		})
 	}

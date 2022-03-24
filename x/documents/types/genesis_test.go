@@ -14,6 +14,10 @@ func TestGenesisState_Validate(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name:   "default genesis",
+			fields: fields(*DefaultGenesis()),
+		},
+		{
 			name: "empty",
 			fields: fields{
 				Documents: []*Document{},
