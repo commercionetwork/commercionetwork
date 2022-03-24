@@ -6,9 +6,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
+	"github.com/cosmos/cosmos-sdk/client"
 )
+
+// unused var and const
 
 var (
 	DefaultRelativePacketTimeoutTimestamp = uint64((time.Duration(10) * time.Minute).Nanoseconds())

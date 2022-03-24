@@ -15,3 +15,5 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 }
 
 var _ types.MsgServer = msgServer{}
+
+// msgServer methods can be moved here

@@ -5,9 +5,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	//sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/spf13/cobra"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/spf13/cobra"
 )
 
 func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
@@ -17,7 +17,7 @@ func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := client.GetClientContextFromCmd(cmd)
-			
+
 			queryClient := types.NewQueryClient(cliCtx)
 			params := &types.QueryGetBlockRewardsPoolFundsRequest{}
 			res, err := queryClient.GetBlockRewardsPoolFunds(cmd.Context(), params)
@@ -35,20 +35,20 @@ func GetCmdRetrieveBlockRewardsPoolFunds() *cobra.Command {
 	return cmd
 }
 
-func getParams() *cobra.Command {
+func GetParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-params",
 		Short: "Get the actual params of vbr",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx:= client.GetClientContextFromCmd(cmd)
+			cliCtx := client.GetClientContextFromCmd(cmd)
 
 			queryClient := types.NewQueryClient(cliCtx)
-		
+
 			req := &types.QueryGetParamsRequest{}
 			res, err := queryClient.GetParams(cmd.Context(), req)
 			if err != nil {
-				return fmt.Errorf("could not get total funds amount: %s", err)
+				return fmt.Errorf("cannot get params: %s", err)
 			}
 
 			return cliCtx.PrintProto(res)
