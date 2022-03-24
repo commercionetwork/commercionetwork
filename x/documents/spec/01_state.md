@@ -6,51 +6,45 @@ order: 1
 
 The `x/documents` module keeps state of Documents and Document Receipt sharing.
 
-## Documents
+## Store
 
-When a document gets shared, the module stores it in the store.
+### Documents tracking
 
-| Object | Prefix | Value |
-| :-------: | :---------- | :---------- | 
-| Document | `docs:document:` | `[documentID]` |
+The module appends in the store the shared document.
 
-Also, the module updates the following lists with the ID of the shared document:
+| Key |  | Value |
+| ------- | ---------- | ---------- | 
+| `docs:document:[documentID]` | &rarr; | _Document_ |
 
-### Document w.r.t. addresses:
+Also, the module appends to store the ID of the document, in the following lists:
 
-| List | Prefix | Value |
-| :-------: | :---------- | :---------- | 
-| _documentIDs_ | `docs:documents:sent:` | `[address]` |
-| _documentIDs_ | `docs:documents:received:` | `[address]` |
+| Key |  | Value |
+| ------- | ---------- | ---------- | 
+| `docs:documents:sent:[senderAddress]:[documentID]` | &rarr; | _documentID_ |
+| `docs:documents:received:[receiverAddress]:[documentID]` | &rarr; | _documentID_ |
 
-## Document Receipts
+### Document Receipts tracking
 
-When a document receipt gets shared, the module stores it in the store.
+The module appends in the store the shared document receipt
 
-| List | Prefix | Value |
-| :-------: | :---------- | :---------- | 
-| Receipt | `docs:receipt:` | `[receiptID]` |
+| Key |  | Value |
+| ------- | ---------- | ---------- | 
+| `docs:receipt:[receiptID]` | &rarr; | _Receipt_ |
 
-Also, the module updates the following lists with the ID of the shared document receipt:
+Also, the module appends to store the ID of the document receipt, in the following lists:
 
-### Document Receipts w.r.t. addresses:
-
-| List | Prefix | Value |
-| :-------: | :---------- | :---------- | 
-| _receiptIDs_ | `docs:receipts:sent:` | `[address]` |
-| _receiptIDs_ | `docs:receipts:received:` | `[address]` |
-
-### Document Receipts w.r.t. documents:
-
-| List | Prefix | Value |
-| :-------: | :---------- | :---------- | 
-| _receiptIDs_ | `docs:receipts:documents` | `[documentID]` |
+| Key |  | Value |
+| ------- | ---------- | ---------- | 
+| `docs:receipts:sent:[senderAddress]:[receiptID]` | &rarr; | _receiptID_ |
+| `docs:receipts:received:[receiverAddress]:[receiptID]` | &rarr; | _receiptID_ |
+| `docs:receipts:documents:[documentID]:[receiptID]` | &rarr; | _receiptID_ |
 
 ## Type definitions
 
-### `Document` definition
+### The `Document` type
 
-```
+#### `Document` definition
+```proto
 message Document {
   string sender = 1; 
   repeated string recipients = 2; 
@@ -73,7 +67,7 @@ message Document {
 
 #### `DocumentChecksum` definition
 
-```
+```proto
 message DocumentChecksum {
   string value = 1;
   string algorithm = 2;
@@ -82,7 +76,7 @@ message DocumentChecksum {
 
 #### `DocumentEncryptionData` definition
 
-```
+```proto
 message DocumentEncryptionData {
   repeated documents.DocumentEncryptionKey keys = 1;
   repeated string encryptedData = 2;
@@ -91,7 +85,7 @@ message DocumentEncryptionData {
 
 ##### `DocumentEncryptionKey` definition
 
-```
+```proto
 message DocumentEncryptionKey {
   string recipient = 1;
   string Value = 2;
@@ -100,7 +94,7 @@ message DocumentEncryptionKey {
 
 #### `DocumentMetadata` definition
 
-```
+```proto
 message DocumentMetadata {
 	string contentURI = 1;
 	//string schemaType = 2;
@@ -109,7 +103,8 @@ message DocumentMetadata {
 ```
 
 ##### `DocumentMetadataSchema` definition
-```
+
+```proto
 message DocumentMetadataSchema {
   string URI = 1;
   string version = 2;
@@ -118,7 +113,7 @@ message DocumentMetadataSchema {
 
 #### `DocumentDoSign` definition
 
-```
+```proto
 message DocumentDoSign {
   string storageURI = 1;
   string signerInstance = 2;
@@ -128,12 +123,12 @@ message DocumentDoSign {
 }
 ```
 
-### `DocumentReceipt` definition
+### The`DocumentReceipt` type
 
 Please note that the former sender of a document becomes the recipient for a `DocumentReceipt`.
 Conversely, one of the receivers (or it can be just one receiver) becomes the sender for a `DocumentReceipt`.
 
-```
+```proto
 message DocumentReceipt {
     string UUID = 1; 
     string sender = 2; 
