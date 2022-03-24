@@ -65,19 +65,9 @@ In order to do so you will need to perform a transaction and so your account mus
 Updating an `Identity` means appending to the blockchain store a new version of the DID document.
 The transaction used to associate a DID document can be used to update the Identity.
 
-<!---
-This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
-Cosmos SDK store considerations:
-- The key for storing an `Identity` is parameterized with the `ID` field of `DidDocument` (a `did:com:` address) and the `Updated` field of `Metadata` (timestamp). 
-- The resulting key will look like the following. `did:identities:[address]:[updated]:`
-- Since the value used for the `Updated` field is a timestamp guaranteed to be always increasing, then a store iterator with prefix `did:identities:[address]:` will retrieve values in ascending update order.
-- For the same reason, the last value obtained by the same iterator will be the last identity appended to the store. Cosmos SDK allows to obtain a `ReverseIterator` returning values in the opposite order and therefore its first value will be the last updated identity.
-- For a certain address only one update per block will persist, as a consequence of using the block time in the key.
---->
-
-
 
 <!-- TODO: check Msg format with Document -->
+
 ## Transaction message
 In order to properly send a transaction to set a DID Document associating it to your identity, you will need to create and sign the following message:
 
@@ -140,10 +130,10 @@ A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirement
 Fields that are NOT required can be omitted from the message.
 
 
-### `didDocument` fields requirements
+### `didDocument` field requirements
 
 | Field                  | Required | Value |
-| :---:                  | :------: | :---: |
+| ---                  | ------ | --- |
 | `@context`             | Yes      | `["https://www.w3.org/ns/did/v1","https://w3id.org/security/suites/ed25519-2018/v1"]` |
 | `id`                   | Yes      | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"` |
 | `verificationMethod`   | Yes      | Consider the values in the description below | 
@@ -154,21 +144,18 @@ Fields that are NOT required can be omitted from the message.
 | `capabilityDelegation` | No       | `"#keys-capabilityDelegation"` |
 | `service`              | No       | Consider the values in the description below |
 
-### `verificationMethod` fields requirements
+### `verificationMethod` field requirements
 | Field                  | Required | Value |
-| :---:                  | :------: | :---: |
-| `id`                   | Yes      | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytdw#keys-1"` | 
-| `type`                 | Yes      | `"RsaVerificationKey2018"` | 
-| `controller`           | Yes      | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"` | 
-| `publicKeyMultiBase`   | Yes      | `"mMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB...3awGwIDAQAB"` | 
+| ---                  | ------ | --- |
+| `id`                   | Yes *<sup>1</sup> | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytdw#keys-1"` (absolute) or `"#keys-1"` (relative) | 
+| `type`                 | Yes *<sup>2</sup> | `"RsaVerificationKey2018"` | 
+| `controller`           | Yes *<sup>3</sup> | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"` | 
+| `publicKeyMultiBase`   | Yes *<sup>4</sup> | `"mMIIBIjANBgkqh...3awGwIDAQAB"` | 
 
-`controller` must be equal to the DID document `id` field.
-
-The `id` field supports both absolute (e.g. `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytdw#keys-1"`) and relative (`"#keys-1"`) identifiers.
-
-Supported values for the `type` field are: `Ed25519Signature2018`, `Ed25519VerificationKey2018`, `RsaSignature2018`, `RsaVerificationKey2018`, `EcdsaSecp256k1Signature2019`, `EcdsaSecp256k1VerificationKey2019`, `EcdsaSecp256k1RecoverySignature2020`, `EcdsaSecp256k1RecoveryMethod2020`, `JsonWebSignature2020`, `JwsVerificationKey2020`, `GpgSignature2020`, `GpgVerificationKey2020`, `JcsEd25519Signature2020`, `JcsEd25519Key2020`, `BbsBlsSignature2020`, `BbsBlsSignatureProof2020`, `Bls12381G1Key2020`, `Bls12381G2Key2020`.
-
-For more information about the `publicKeyMultiBase` field, please refer to [https://tools.ietf.org/id/draft-multiformats-multibase-00.html#rfc.section.2.1]() 
+- *<sup>1</sup> The `id` field supports both absolute (e.g. `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytdw#keys-1"`) and relative (`"#keys-1"`) identifiers.
+- *<sup>2</sup> Supported values for the `type` field are: `Ed25519Signature2018`, `Ed25519VerificationKey2018`, `RsaSignature2018`, `RsaVerificationKey2018`, `EcdsaSecp256k1Signature2019`, `EcdsaSecp256k1VerificationKey2019`, `EcdsaSecp256k1RecoverySignature2020`, `EcdsaSecp256k1RecoveryMethod2020`, `JsonWebSignature2020`, `JwsVerificationKey2020`, `GpgSignature2020`, `GpgVerificationKey2020`, `JcsEd25519Signature2020`, `JcsEd25519Key2020`, `BbsBlsSignature2020`, `BbsBlsSignatureProof2020`, `Bls12381G1Key2020`, `Bls12381G2Key2020`.
+- *<sup>3</sup> `controller` must be equal to the DID document `id` field.
+- *<sup>4</sup> For more information about this field format, please refer to [The Multibase Data Format](https://tools.ietf.org/id/draft-multiformats-multibase-00.html). The example value `"mMIIBIjANBgkqh...3awGwIDAQAB"` start with `m` and therefore the rest of the string is in base64 [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) no padding.
 
 Additional requirements:
 - a verification method of type `RsaVerificationKey2018` must have the suffix `#keys-1` in the `id` field, and must be a valid _RSA PKIX_ public key;
@@ -176,9 +163,9 @@ Additional requirements:
 
 
 
-### `service` fields requirements
+### `service` field requirements
 | Field                  | Required | Value |
-| :---:                  | :------: | :---: |
+| ---                  | ----- | --- |
 | `id`                   | Yes      | `"Service001"` | 
 | `type`                 | Yes      | `"agent"` | 
 | `serviceEndpoint`      | Yes      | `"https://commercio.network/agent/serviceEndpoint/"`      | 

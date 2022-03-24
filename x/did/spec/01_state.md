@@ -4,7 +4,23 @@ order: 1
 
 # State
 
-## `Identity`
+The `x/did` module keeps state of Identities, represented as DID Document and Metadata.
+
+## Store
+
+
+<!---
+This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
+Cosmos SDK store considerations:
+- The key for storing an `Identity` is parameterized with the `ID` field of `DidDocument` (a `did:com:` address) and the `Updated` field of `Metadata` (timestamp). 
+- The resulting key will look like the following. `did:identities:[address]:[updated]:`
+- Since the value used for the `Updated` field is a timestamp guaranteed to be always increasing, then a store iterator with prefix `did:identities:[address]:` will retrieve values in ascending update order.
+- For the same reason, the last value obtained by the same iterator will be the last identity appended to the store. Cosmos SDK allows to obtain a `ReverseIterator` returning values in the opposite order and therefore its first value will be the last updated identity.
+- For a certain address only one update per block will persist, as a consequence of using the block time in the key.
+--->
+
+
+## The `Identity` type
 
 ```
 message Identity {
@@ -13,7 +29,7 @@ message Identity {
 }
 ```
 
-## `DidDocument`
+### `DidDocument` definition
 
 ```
 message DidDocument {
@@ -30,7 +46,7 @@ message DidDocument {
 }
 ```
 
-## `VerificationMethod`
+#### `VerificationMethod` definition
 
 ```
 message VerificationMethod {
@@ -42,7 +58,7 @@ message VerificationMethod {
 }
 ```
 
-## `Service`
+#### `Service` definition
 
 ```
 message Service {
@@ -53,7 +69,7 @@ message Service {
 }
 ```
 
-## `Metadata`
+### `Metadata` definition
 
 ```
 message Metadata {
