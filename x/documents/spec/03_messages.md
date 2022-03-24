@@ -235,15 +235,6 @@ Inserting other non supported values inside such a field will result in the tran
 | `content_uri` | Value of the `content_uri` field |
 | `metadata.content_uri` | Value of the `content_uri` field inside the `metadata` object |
 | `metadata.schema.uri` | Value of the `uri` field inside the `metadata`'s `schema` sub-object |
-<!-- 
-#### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
-you need to use the following `message.action` value: 
-
-```
-shareDocument
-``` -->
-
 
 
 ## Send a document reading receipt with **MsgSendDocumentReceipt**
@@ -286,11 +277,3 @@ Conversely, one of the receivers (or it can be just one receiver) becomes the se
 
 `proof` is a generic field that can be used to prove that some part of the receipt is correlated to certain documents and/or some other proofs out of chain
 
-<!-- 
-#### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
-you need to use the following `message.action` value: 
-
-```
-sendDocumentReceipt
-``` -->

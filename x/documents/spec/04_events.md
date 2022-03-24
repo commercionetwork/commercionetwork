@@ -18,8 +18,6 @@ The `documents` module emits the following events:
 | new_saved_document | receiver_1 | {secondReceiverAddress} |
 | new_saved_document | ...        | ...                     |
 | message            | sender     | {senderAddress}         |
-<!-- | message            | module     | docs               | -->
-<!-- | message            | action     | shareDocument      | -->
 
 ### MsgSendDocumentReceipt
 | Type     | Attribute Key | Attribute Value     |
@@ -29,8 +27,6 @@ The `documents` module emits the following events:
 | new_saved_receipt | sender      | {senderAddress}    |
 | new_saved_receipt | recipient   | {recipientAddress} |
 | message  | sender        | {senderAddress}     |
-<!-- | message  | module        | docs                | -->
-<!-- | message  | action        | sendDocumentReceipt | -->
   
 
 
