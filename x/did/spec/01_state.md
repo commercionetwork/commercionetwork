@@ -4,21 +4,18 @@ order: 1
 
 # State
 
-The `x/did` module keeps state of Identities, represented as DID Document and Metadata.
+The `x/did` module keeps state of Identities, represented as the evolution of the DID Document and Metadata for a certain DID.
 
 ## Store
 
+The module appends in the store the updated Identity.
 
-<!---
-This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
-Cosmos SDK store considerations:
-- The key for storing an `Identity` is parameterized with the `ID` field of `DidDocument` (a `did:com:` address) and the `Updated` field of `Metadata` (timestamp). 
-- The resulting key will look like the following. `did:identities:[address]:[updated]:`
-- Since the value used for the `Updated` field is a timestamp guaranteed to be always increasing, then a store iterator with prefix `did:identities:[address]:` will retrieve values in ascending update order.
-- For the same reason, the last value obtained by the same iterator will be the last identity appended to the store. Cosmos SDK allows to obtain a `ReverseIterator` returning values in the opposite order and therefore its first value will be the last updated identity.
-- For a certain address only one update per block will persist, as a consequence of using the block time in the key.
---->
+| Key |  | Value |
+| ------- | ---------- | ---------- | 
+| `did:identities:[address]:[updated]` | &rarr; | _Identity_ |
 
+This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. 
+This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
 
 ## The `Identity` type
 
@@ -77,3 +74,22 @@ message Metadata {
   string updated = 2;
 }
 ```
+
+## DID Resolution
+
+In `commercionetwork`, an identity is represented as the history of DID document updates made by a certain address.
+
+Following the latest [W3C Decentralized Identifiers (DIDs) v1.0 specification](https://www.w3.org/TR/2021/PR-did-core-20210803/), a DID resolution with no additional options should result in the latest version of the DID document for a certain DID plus additional metadata.
+
+Querying for an `Identity` means asking for the most recent version of the `DidDocument`, along with the associated `Metadata`.
+The result will be an `Identity` made of two fields: 
+- `DidDocument` - the stored DID document JSON-LD representation
+- `Metadata` - including the `Created` and `Updated` timestamps
+
+### Historicization
+
+The `did` module has been updated to support the historicization of DID documents.
+A DID document can be updated and its previous versions should remain accessible.
+
+Querying for an `IdentityHistory` means asking for the list of updates to an `Identity`, sorted in chronological order.
+
