@@ -9,6 +9,9 @@ MOCKS_DIR = $(CURDIR)/tests/mocks
 REPOSITORY_BASE := github.com/commercionetwork/commercionetwork
 HTTPS_GIT := https://$(REPOSITORY_BASE).git
 
+SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
+TM_VERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::') # grab everything after the space in "github.com/tendermint/tendermint v0.34.7"
+
 DOCKER := $(shell which docker)
 
 build_tags = netgo
@@ -48,26 +51,36 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=blog \
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=blogd \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=commercionetwork \
+	-X github.com/cosmos/cosmos-sdk/version.ServerName=commercionetword \
+	-X github.com/cosmos/cosmos-sdk/version.AppName=commercionetword \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) 
+	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
+	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
+	-X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
+	-X github.com/cosmos/cosmos-sdk/version.cosmos_sdk_version=$(SDK_PACK)
+	
 
-BUILD_FLAGS := -ldflags '$(ldflags)'
+
+BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
+# check for nostrip option
+ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
+  BUILD_FLAGS += -trimpath
+endif
 
 all: install
 
-build-darwin: go.sum generate
+build-darwin: go.sum
 	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build-linux: go.sum generate
+build-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 
-build-local-linux: go.sum generate
+build-local-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build-windows: go.sum generate
+build-windows: go.sum
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/commercionetworkd.exe $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-all: go.sum
@@ -104,10 +117,6 @@ lint:
 
 
 
-generate:
-ifeq ($(GENERATE),1)
-	go generate ./...
-endif
 
 .PHONY: git-hooks
 
@@ -118,6 +127,7 @@ install: go.sum
 
 build: go.sum
 	@echo "--> Building commercionetwork"
+	@echo "--> $(SDK_PACK)"
 	@go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 
