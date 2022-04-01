@@ -15,7 +15,7 @@ The module appends in the store the updated Identity.
 | `did:identities:[address]:[updated]` | &rarr; | _Identity_ |
 
 This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. 
-This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
+This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`, that will be maintained in the newer versions.
 
 ## The `Identity` type
 
@@ -74,22 +74,3 @@ message Metadata {
   string updated = 2;
 }
 ```
-
-## DID Resolution
-
-In `commercionetwork`, an identity is represented as the history of DID document updates made by a certain address.
-
-Following the latest [W3C Decentralized Identifiers (DIDs) v1.0 specification](https://www.w3.org/TR/2021/PR-did-core-20210803/), a DID resolution with no additional options should result in the latest version of the DID document for a certain DID plus additional metadata.
-
-Querying for an `Identity` means asking for the most recent version of the `DidDocument`, along with the associated `Metadata`.
-The result will be an `Identity` made of two fields: 
-- `DidDocument` - the stored DID document JSON-LD representation
-- `Metadata` - including the `Created` and `Updated` timestamps
-
-### Historicization
-
-The `did` module has been updated to support the historicization of DID documents.
-A DID document can be updated and its previous versions should remain accessible.
-
-Querying for an `IdentityHistory` means asking for the list of updates to an `Identity`, sorted in chronological order.
-

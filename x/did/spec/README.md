@@ -62,4 +62,20 @@ and we will send you some as soon as possible.
 Being your account address a DID, using the Commercio Network blockchain you can associate to it a DID document containing the information that are related to your public (or private) identity.  
 In order to do so you will need to perform a transaction and so your account must have first received some tokens. 
 
+## DID Resolution
 
+In `commercionetwork`, an identity is represented as the history of DID document updates made by a certain address.
+
+Following the latest [W3C Decentralized Identifiers (DIDs) v1.0 specification](https://www.w3.org/TR/2021/PR-did-core-20210803/), a DID resolution with no additional options should result in the latest version of the DID document for a certain DID plus additional metadata.
+
+Querying for an `Identity` means asking for the most recent version of the `DidDocument`, along with the associated `Metadata`.
+The result will be an `Identity` made of two fields: 
+- `DidDocument` - the stored DID document JSON-LD representation
+- `Metadata` - including the `Created` and `Updated` timestamps
+
+### Historicization
+
+The `did` module has been updated to support the historicization of DID documents.
+A DID document can be updated and its previous versions should remain accessible.
+
+Querying for an `IdentityHistory` means asking for the list of updates to an `Identity`, sorted in chronological order.
