@@ -8,6 +8,21 @@ order: 3
 
 In order to share a document you are required to have an account with some tokens inside it.  
 
+### Protobuf message
+
+```protobuf
+message MsgShareDocument {
+  string sender = 1;
+  repeated string recipients = 2;
+  string UUID = 3;
+  documents.DocumentMetadata metadata = 4;
+  string contentURI = 5;
+  documents.DocumentChecksum checksum = 6;
+  documents.DocumentEncryptionData encryptionData = 7;
+  documents.DocumentDoSign doSign = 8;
+}
+```
+
 ### Transaction message
 In order to properly send a transaction to share a document, you will need to create and sign the following message.
 
@@ -234,6 +249,19 @@ Inserting other non supported values inside such a field will result in the tran
 ## Send a Document Receipt with `MsgSendDocumentReceipt`
 Once you have received a document and you want to acknowledge the sender that you have properly read it, you can use 
 the `MsgSendDocumentReceipt` message that allows you to do that. 
+
+### Protobuf message
+
+```protobuf
+message MsgSendDocumentReceipt {
+  string UUID = 1;
+  string sender = 2;
+  string recipient = 3;
+  string txHash = 4;
+  string DocumentUUID = 5;
+  string proof = 6;  // Optional
+}
+```
 
 ### Transaction message
 In order to properly send a transaction to send a document receipt, you will need to create and sign the

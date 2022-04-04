@@ -145,19 +145,17 @@ The available permissions are:
 ## Contents
 
 1. **[State](01_state.md)**
-2. **[Keepers](02_keepers.md)**
-   - [Common Types](02_keepers.md#common-types)
-3. **[Messages](03_messages.md)**
-   - [MsgInviteUser](03_messages.md#msginviteuser)
-   - [MsgBuyMembership](03_messages.md#msgbuymembership)
-   - [MsgSetMembership](03_messages.md#msgsetmembership)
-   - [MsgRemoveMembership](03_messages.md#msgremovemembership)
-   - [MsgAddTsp](03_messages.md#msgaddtsp)
-   - [MsgRemoveTsp](03_messages.md#msgremovetsp)
-   - [MsgDepositIntoLiquidityPool](03_messages.md#msgdepositintoliquiditypool)
-4. **[Events](04_events.md)**
-   - [Handlers](04_events.md#handlers)
-5. **[Client](05_client.md)**
-   - [Query](05_client.md#query)
-   - [gRPC](05_client.md#gRPC)
-   - [Rest](05_client.md#rest)
+2. **[Messages](02_messages.md)**
+   - [MsgInviteUser](02_messages.md#msginviteuser)
+   - [MsgBuyMembership](02_messages.md#msgbuymembership)
+   - [MsgSetMembership](02_messages.md#msgsetmembership)
+   - [MsgRemoveMembership](02_messages.md#msgremovemembership)
+   - [MsgAddTsp](02_messages.md#msgaddtsp)
+   - [MsgRemoveTsp](02_messages.md#msgremovetsp)
+   - [MsgDepositIntoLiquidityPool](02_messages.md#msgdepositintoliquiditypool)
+3. **[Events](03_events.md)**
+   - [Handlers](03_events.md#handlers)
+4. **[Client](04_client.md)**
+   - [Query](04_client.md#query)
+   - [gRPC](04_client.md#gRPC)
+   - [Rest](04_client.md#rest)

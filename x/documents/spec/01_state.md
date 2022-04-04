@@ -44,7 +44,7 @@ Also, the module appends to store the ID of the document receipt, in the followi
 ### The `Document` type
 
 #### `Document` definition
-```proto
+```protobuf
 message Document {
   string sender = 1; 
   repeated string recipients = 2; 
@@ -67,7 +67,7 @@ message Document {
 
 #### `DocumentChecksum` definition
 
-```proto
+```protobuf
 message DocumentChecksum {
   string value = 1;
   string algorithm = 2;
@@ -76,7 +76,7 @@ message DocumentChecksum {
 
 #### `DocumentEncryptionData` definition
 
-```proto
+```protobuf
 message DocumentEncryptionData {
   repeated documents.DocumentEncryptionKey keys = 1;
   repeated string encryptedData = 2;
@@ -85,7 +85,7 @@ message DocumentEncryptionData {
 
 ##### `DocumentEncryptionKey` definition
 
-```proto
+```protobuf
 message DocumentEncryptionKey {
   string recipient = 1;
   string Value = 2;
@@ -94,17 +94,16 @@ message DocumentEncryptionKey {
 
 #### `DocumentMetadata` definition
 
-```proto
+```protobuf
 message DocumentMetadata {
 	string contentURI = 1;
-	//string schemaType = 2;
 	DocumentMetadataSchema schema = 2;
 }
 ```
 
 ##### `DocumentMetadataSchema` definition
 
-```proto
+```protobuf
 message DocumentMetadataSchema {
   string URI = 1;
   string version = 2;
@@ -113,7 +112,7 @@ message DocumentMetadataSchema {
 
 #### `DocumentDoSign` definition
 
-```proto
+```protobuf
 message DocumentDoSign {
   string storageURI = 1;
   string signerInstance = 2;
@@ -128,7 +127,7 @@ message DocumentDoSign {
 Please note that the former sender of a document becomes the recipient for a `DocumentReceipt`.
 Conversely, one of the receivers (or it can be just one receiver) becomes the sender for a `DocumentReceipt`.
 
-```proto
+```protobuf
 message DocumentReceipt {
     string UUID = 1; 
     string sender = 2; 

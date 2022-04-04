@@ -4,7 +4,7 @@ order: 2
 
 # Keepers
 
-The keeper of the `x/documents` module enforces the following requirements.
+The keeper of the `documents` module enforces the following requirements.
 
 ## Requirements for Documents
 

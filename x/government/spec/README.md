@@ -30,8 +30,13 @@ commercionetworkd set-genesis-government-address <ADDRESS-TO-USE>
 Running it several times after the first value has been set will result in an error been thrown inside the console.
 :::
 
+### Query government address 
+
+The government address can get by:
+
  - via **CLI**, `commercionetworkd query government gov-address`
  - via **REST**, by making a GET request to the `/commercionetwork/government/governmentAddress` endpoint 
+ - via **GRPC**, by making a Query to the `commercionetwork.commercionetwork.government.Query` method
 
 ## Contents
 
