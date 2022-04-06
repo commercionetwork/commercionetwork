@@ -4,7 +4,7 @@ order: 1
 
 # State
 
-The `x/documents` module keeps state of Documents and Document Receipts sharing.
+The `documents` module keeps state of Documents and Document Receipts sharing.
 
 ## Store
 

@@ -5,7 +5,22 @@ order: 2
 # Messages
 To invite a user, the following message must be used: 
 
+
+
+
+
 ## MsgInviteUser
+
+
+### Protobuf message
+
+```protobuf
+message MsgInviteUser {
+  string recipient = 1;
+  string sender = 2;
+}
+```
+### Transaction message
 
 ```json
 {
@@ -28,6 +43,21 @@ inviteUser
 ## MsgBuyMembership
 
 Buying a membership
+
+
+
+### Protobuf message
+
+```protobuf
+message MsgBuyMembership {
+  string membership_type = 1;
+  string buyer = 2;
+  string tsp = 3;
+}
+```
+
+### Transaction message
+
 
 ```json
 {
@@ -60,6 +90,19 @@ Trying to perform this transaction without being the government will result in a
 
 To arbitrarily set a user's membership, the following message must be used:
 
+
+### Protobuf message
+
+```protobuf
+message MsgSetMembership {
+  string government = 1;
+  string subscriber = 2;
+  string new_membership = 3;
+}
+```
+
+### Transaction message
+
 ```json
 {
   "type": "commercio/MsgSetMembership",
@@ -91,6 +134,18 @@ Trying to perform this transaction without being the government will result in a
 
 
 To arbitrarily set a user's membership, the following message must be used:
+
+### Protobuf message
+
+```protobuf
+message MsgRemoveMembership {
+  string government = 1;
+  string subscriber = 2;
+}
+```
+
+### Transaction message
+
 
 ```json
 {

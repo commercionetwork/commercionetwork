@@ -95,6 +95,9 @@ Getting sent docs from `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/commercionetwork/documents/document/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
 ```
 
+#### gRPC (WIP)
+
+
 ### List received documents
 
 #### CLI
@@ -124,6 +127,9 @@ Getting docs for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/commercionetwork/documents/document/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
 
+#### gRPC (WIP)
+
+
 ### List sent receipts
 
 #### CLI
@@ -152,6 +158,9 @@ Getting sent receipts from `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/commercionetwork/documents/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
 ```
 
+#### gRPC (WIP)
+
+
 ### List received receipts
 
 #### CLI
@@ -173,6 +182,7 @@ Parameters:
 | `address` | Address of the user for which to read current received receipts |
 
 
+
 ##### Example 
 
 Getting receipts for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
@@ -180,6 +190,8 @@ Getting receipts for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 ```
 http://localhost:1317/commercionetwork/documents/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
+
+#### gRPC (WIP)
 
 ### List receipts associated to a certain document
 
@@ -209,6 +221,8 @@ Getting receipts associated to the document with ID `d83422c6-6e79-4a99-9767-fca
 http://localhost:1317/commercionetwork/documents/document/d83422c6-6e79-4a99-9767-fcae46dfa371/receipts
 ```
 
+#### gRPC (WIP)
+
 ### Get document with specific `documentUUID`
 
 #### CLI
@@ -237,3 +251,4 @@ Getting receipts associated to the document with ID `d83422c6-6e79-4a99-9767-fca
 http://localhost:1317/commercionetwork/documents/document/d83422c6-6e79-4a99-9767-fcae46dfa371
 ```
 
+#### gRPC (WIP)
