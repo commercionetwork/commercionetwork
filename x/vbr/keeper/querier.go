@@ -26,6 +26,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	}
 }
 
+// the second argument can be dropped
 func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	funds := k.GetTotalRewardPool(ctx)
 
@@ -37,13 +38,13 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, k Keeper, legacy
 	return fundsBz, nil
 }
 
-func queryParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error){
+func queryParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	params := k.GetParamSet(ctx)
 
 	paramsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, params)
 	if err != nil {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
-	
+
 	return paramsBz, nil
 }

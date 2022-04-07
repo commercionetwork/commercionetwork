@@ -50,10 +50,13 @@ func CmdSentDocuments() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
 			queryClient := types.NewQueryClient(clientCtx)
+			// use err name for variable
 			addr, e := sdk.AccAddressFromBech32(args[0])
 			if e != nil {
 				return e
 			}
+
+			// missing AddPaginationFlagsToCmd below!
 			pageReq, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err

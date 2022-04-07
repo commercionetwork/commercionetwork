@@ -57,6 +57,17 @@ func TestIncrementBlockRewardsPool(t *testing.T) {
 			},
 			err: true,
 		},
+		{
+			desc: "zero amount",
+			args: []string{
+				"0" + types.BondDenom,
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
+			},
+			err: true,
+		},
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {

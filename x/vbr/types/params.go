@@ -73,7 +73,7 @@ func validateEarnRate(i interface{}) error {
 	}
 
 	if v.IsNegative() {
-		return fmt.Errorf("invalid earn rate(must be positive): %+v", i)
+		return fmt.Errorf("earn rate cannot be negative: %+v", i)
 	}
 
 	return nil

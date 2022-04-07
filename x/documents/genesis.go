@@ -31,6 +31,7 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 	for ; documentsIterator.Valid(); documentsIterator.Next() {
 		keyDocumentUUIDVal := documentsIterator.Key()
 		documentUUID := string(keyDocumentUUIDVal[len(types.DocumentStorePrefix):])
+		// documentsIterator.Value() can be used here
 		document, _ := keeper.GetDocumentByID(ctx, documentUUID)
 		documents = append(documents, &document)
 	}
@@ -43,6 +44,7 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 	for ; receiptsIterator.Valid(); receiptsIterator.Next() {
 		keyReceiptUUIDVal := receiptsIterator.Key()
 		receiptUUID := string(keyReceiptUUIDVal[len(types.ReceiptsStorePrefix):])
+		// receiptsIterator.Value() can be used here
 		receipt, _ := keeper.GetReceiptByID(ctx, receiptUUID)
 		receipts = append(receipts, &receipt)
 	}
