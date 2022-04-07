@@ -19,7 +19,7 @@ This timestamp is also used to populate the `Created` field, but only for the fi
 
 ## The `Identity` type
 
-```
+```protobuf
 message Identity {
   DidDocument didDocument = 1;
   Metadata metadata = 2;
@@ -28,7 +28,7 @@ message Identity {
 
 ### `DidDocument` definition
 
-```
+```protobuf
 message DidDocument {
   option (gogoproto.equal) = true;
   repeated string context = 1 [ (gogoproto.jsontag) = "@context,omitempty" ];
@@ -45,7 +45,7 @@ message DidDocument {
 
 #### `VerificationMethod` definition
 
-```
+```protobuf
 message VerificationMethod {
   option (gogoproto.equal) = true;
   string ID = 1;
@@ -57,7 +57,7 @@ message VerificationMethod {
 
 #### `Service` definition
 
-```
+```protobuf
 message Service {
   option (gogoproto.equal) = true;
   string ID = 1;
@@ -68,7 +68,7 @@ message Service {
 
 ### `Metadata` definition
 
-```
+```protobuf
 message Metadata {
   string created = 1;
   string updated = 2;
