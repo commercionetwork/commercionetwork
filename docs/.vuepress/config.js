@@ -67,7 +67,7 @@ module.exports = {
                 ]
             },
             {
-                title: "Custom Modules (WIP)",
+                title: "Custom Modules",
                 path: "/modules/",
                 collapsable: false,
                 children: [
