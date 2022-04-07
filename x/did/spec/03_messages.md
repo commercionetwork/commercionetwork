@@ -91,7 +91,25 @@ A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirement
 | `publicKeyMultiBase`   | Yes *<sup>4</sup> | `"mMIIBIjANBgkqh...3awGwIDAQAB"` | 
 
 - *<sup>1</sup> The `id` field supports both absolute (e.g. `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytdw#keys-1"`) and relative (`"#keys-1"`) identifiers.
-- *<sup>2</sup> Supported values for the `type` field are: `Ed25519Signature2018`, `Ed25519VerificationKey2018`, `RsaSignature2018`, `RsaVerificationKey2018`, `EcdsaSecp256k1Signature2019`, `EcdsaSecp256k1VerificationKey2019`, `EcdsaSecp256k1RecoverySignature2020`, `EcdsaSecp256k1RecoveryMethod2020`, `JsonWebSignature2020`, `JwsVerificationKey2020`, `GpgSignature2020`, `GpgVerificationKey2020`, `JcsEd25519Signature2020`, `JcsEd25519Key2020`, `BbsBlsSignature2020`, `BbsBlsSignatureProof2020`, `Bls12381G1Key2020`, `Bls12381G2Key2020`.
+- *<sup>2</sup> Supported values for the `type` field are: 
+    - `Ed25519Signature2018`|
+    - `Ed25519VerificationKey2018` 
+    - `RsaSignature2018`
+    - `RsaVerificationKey2018`
+    - `EcdsaSecp256k1Signature2019`
+    - `EcdsaSecp256k1VerificationKey2019`
+    - `EcdsaSecp256k1RecoverySignature2020`
+    - `EcdsaSecp256k1RecoveryMethod2020`
+    - `JsonWebSignature2020`
+    - `JwsVerificationKey2020`
+    - `GpgSignature2020`
+    - `GpgVerificationKey2020`
+    - `JcsEd25519Signature2020`
+    - `JcsEd25519Key2020`
+    - `BbsBlsSignature2020`
+    - `BbsBlsSignatureProof2020`
+    - `Bls12381G1Key2020`
+    - `Bls12381G2Key2020`
 - *<sup>3</sup> `controller` must be equal to the DID document `id` field.
 - *<sup>4</sup> For more information about this field format, please refer to [The Multibase Data Format](https://tools.ietf.org/id/draft-multiformats-multibase-00.html). The example value `"mMIIBIjANBgkqh...3awGwIDAQAB"` start with `m` and therefore the rest of the string is in base64 [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) no padding.
 

@@ -10,9 +10,9 @@ The `x/did` module keeps state of Identities, represented as the evolution of th
 
 The module appends in the store the updated Identity.
 
-| Key |  | Value |
-| ------- | ---------- | ---------- | 
-| `did:identities:[address]:[updated]` | &rarr; | _Identity_ |
+| Key | Value |
+| ------- | ---------- | 
+| `did:identities:[address]:[updated]` | _Identity_ |
 
 This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. 
 This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`, that will be maintained in the newer versions.
