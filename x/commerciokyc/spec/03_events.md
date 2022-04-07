@@ -17,7 +17,7 @@ The commerciokyc module emits the following events:
 | invite | sender        | {senderAddress}           |
 | invite  | sender_membership_type        | {senderMembership}               |
 | message  | module        | commerciokyc    |
-| message  | action        | invite          |
+| message  | action        | inviteUser          |
 | message  | sender        | {senderAddress}    |
 
 ### MsgBuyMembership
@@ -34,19 +34,10 @@ The commerciokyc module emits the following events:
 | distribute_reward * | recipient_membership_type | {invitedMembership} |
 | distribute_reward * | invite_recipient |  {invitedAddress} |
 | message  | module        | commerciokyc |
-| message  | action        | buy_membership |
+| message  | action        | buyMembership |
 | message  | sender        | {senderAddress} |
 
 \* Could be not present
-
-### MsgRemoveMembership
-
-| Type     | Attribute Key | Attribute Value    |
-| -------- | ------------- | ------------------ |
-| remove_membership | subscriber | {ownerAddress} |
-| message | module | commerciokyc |
-| message | action | remove_membership |
-| message | sender | {govAddress} |
 
 
 
@@ -65,17 +56,30 @@ The commerciokyc module emits the following events:
 | distribute_reward * | recipient_membership_type | {invitedMembership} |
 | distribute_reward * | invite_recipient |  {invitedAddress} |
 | message | module | commerciokyc |
-| message | action | assign_membership |
+| message | action | setMembership |
 | message | sender | {govAddress} |
 
 \* Could be not present
+
+
+### MsgRemoveMembership
+
+| Type     | Attribute Key | Attribute Value    |
+| -------- | ------------- | ------------------ |
+| remove_membership | subscriber | {ownerAddress} |
+| message | module | commerciokyc |
+| message | action | removeMembership |
+| message | sender | {govAddress} |
+
+
+
 ### MsgAddTsp
 
 | Type     | Attribute Key | Attribute Value    |
 | -------- | ------------- | ------------------ |
 | add_tsp | tsp     | {tspAddress} |
 | message | module | commerciokyc |
-| message | action | add_tsp |
+| message | action | addTsp |
 | message | sender | {govAddress} |
 
 
@@ -87,7 +91,7 @@ The commerciokyc module emits the following events:
 | -------- | ------------- | ------------------ |
 | remove_tsp | tsp | {tspAddress} |
 | message | module | commerciokyc |
-| message | action | remove_tsp |
+| message | action | removeTsp |
 | message | sender | {govAddress} |
 
 ### MsgDepositIntoLiquidityPool
@@ -97,17 +101,8 @@ The commerciokyc module emits the following events:
 | deposit_into_pool | depositor | {ownerAddress} |
 | deposit_into_pool | amount | {amount} |
 | message | module | commerciokyc |
-| message | action | deposit_into_liquidity_pool |
+| message | action | depositIntoLiquidityPool |
 | message | sender | {ownerAddress} |
-
-
-
-
-
-
-
-
-
 
 
 

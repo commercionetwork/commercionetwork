@@ -4,24 +4,145 @@ order: 4
 
 # Client
 
-## CLI
+## Transactions
 
-A user can query and interact with the `commerciomint` module using the CLI.
+### Invite
 
-### Query
+Invite user to buy a membership
 
-The `query` commands allow users to query `commerciomint` state.
+```bash
+commercionetworkd tx commerciokyc invite \
+  [subscriber]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `subscriber`               | Address of the account you want to invite |
+
+
+### Buy a membership
+
+Tsp buy a membership for subscriber
+
+```bash
+commercionetworkd tx commerciokyc buy \
+  [subscriber] \
+  [membership-type] 
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `subscriber`      | Address of the account you want to buy a membership for |
+| `membership-type` | Membership type to buy |
+
+### Assign a membership
+
+As government, assign membership to a user
+
+```bash
+commercionetworkd tx commerciokyc assign-membership \
+  [subscriber] \
+  [membership-type] 
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `subscriber`      | Address of the account you want to assign the membership |
+| `membership-type` | Membership type to assign |
+
+
+### Remove a membership
+
+As government, remove membership of a user.
+
+```bash
+commercionetworkd tx commerciokyc remove-membership \
+  [subscriber] \
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `subscriber`      | Address of the account from which you want to remove the membership |
+
+
+
+### Add Trusted Service Provider
+
+Government add a tsp.
+
+```bash
+commercionetworkd tx commerciokyc add-tsp \
+  [tsp-address]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `tsp-address`      | Address of the account you want to bacome a tsp |
+
+
+### Remove Trusted Service Provider
+
+Government remove a tsp.
+
+```bash
+commercionetworkd tx commerciokyc remove-tsp \
+  [tsp-address]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `tsp-address`      | Address of the account you want to remove from group of tsps |
+
+
+### Deposit into pool (available soon)
+
+Increments the membership rewards pool's liquidity by the given amount
+
+```bash
+commercionetworkd tx commerciokyc deposit \
+  [amount]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `amount`      | Amount of ucommercio tokens to deposit |
+
+
+
+A user can query and interact with the `commerciokyc` module using the CLI.
+
+## Queries
+
+The `query` commands allow users to query `commerciokyc` state.
 
 ```bash
 commercionetworkd query commerciokyc --help
 ```
 
-#### invites
+### Invites
+
+
+#### CLI
+
 
 The `invites` command gets all invites:
 
 ```bash
-commercionetworkd query commerciokyc invites [flags]
+commercionetworkd query commerciokyc invites 
 ```
 
 Example:
@@ -32,7 +153,7 @@ commercionetworkd query commerciokyc invites
 
 Example Output:
 
-```bash
+```yaml
 invites:
 - sender: did:com:1f06vm4x0ae978rtxvz5he82pg4mty3an6elt9x
   sender_membership: black
@@ -44,12 +165,189 @@ invites:
   user: did:com:1xz6ues73ahw5jdx9ukv8ruey5jqfg6qay0e6j8
 ```
 
-#### trusted-service-providers
+
+#### REST
+
+```
+/commercionetwork/commerciokyc/invites
+```
+
+##### Example 
+
+```
+https://localhost:1317/commercionetwork/commerciokyc/invites
+```
+
+#### gRPC (WIP)
+
+
+
+
+
+
+
+
+
+
+### Invite
+
+
+#### CLI
+
+
+The `invite` command gets user invite:
+
+```bash
+commercionetworkd query commerciokyc invites \
+  [user]
+```
+
+Example:
+
+```bash
+commercionetworkd query commerciokyc invite \
+  did:com:1xx88le4t8ateql77mzzyrg0damf43tt0qw2xms
+```
+
+Example Output:
+
+```yaml
+invite:
+- sender: did:com:1f06vm4x0ae978rtxvz5he82pg4mty3an6elt9x
+  sender_membership: black
+  status: "1"
+  user: did:com:1xx88le4t8ateql77mzzyrg0damf43tt0qw2xms
+```
+
+
+#### REST (available soon)
+
+#### gRPC (WIP)
+
+
+
+### Memberships
+
+
+#### CLI
+
+
+The `memberships` command gets all memberships:
+
+```bash
+commercionetworkd query commerciokyc memberships 
+```
+
+Example:
+
+```bash
+commercionetworkd query commerciokyc memberships
+```
+
+Example Output:
+
+```yaml
+memberships:
+- expiry_at: "2022-03-22T00:00:00Z"
+  membership_type: black
+  owner: did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9
+  tsp_address: did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx
+- expiry_at: "2022-06-25T19:12:45.276830498Z"
+  membership_type: bronze
+  owner: did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya
+  tsp_address: did:com:1x4hpem28uhrlh2sdvf3a2f5rw56jtvsgmjz5yp
+```
+
+
+#### REST
+
+
+```
+/commercionetwork/commerciokyc/memberships
+```
+
+##### Example 
+
+```
+https://localhost:1317/commercionetwork/commerciokyc/memberships
+```
+
+
+#### gRPC (WIP)
+
+
+
+
+
+### Membership
+
+
+#### CLI
+
+
+The `membership` command gets user membership:
+
+```bash
+commercionetworkd query commerciokyc memberships \
+  [user] \
+  
+```
+
+Example:
+
+```bash
+commercionetworkd query commerciokyc membership \
+  did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9
+```
+
+Example Output:
+
+```yaml
+membership:
+  expiry_at: "2022-03-22T00:00:00Z"
+  membership_type: black
+  owner: did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9
+  tsp_address: did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx
+```
+
+
+#### REST
+
+
+```
+/commercionetwork/commerciokyc/memberships/{address}
+```
+
+Parameters:
+
+| Parameter | Description |
+| :-------: | :---------- | 
+| `address` | Address of membership user |
+
+
+##### Example 
+
+```
+https://localhost:1317/commercionetwork/commerciokyc/memberships/did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9
+```
+
+
+#### gRPC (WIP)
+
+
+
+
+
+
+### Trusted Service Providers
+
+#### CLI
+
 
 The `trusted-service-providers` command allows users to query all trusted service providers.
 
 ```bash
-commercionetworkd query commerciokyc trusted-service-providers [flags]
+commercionetworkd query commerciokyc trusted-service-providers 
 ```
 
 
@@ -68,12 +366,33 @@ tsps:
 - did:com:14rcpqu0y8jgjrc823ejylgjnsh2jkkeg8kchl3
 ```
 
-#### pool-funds
+#### REST
+
+```
+/commercionetwork/commerciokyc/tsps
+```
+
+##### Example 
+
+```
+https://localhost:1317/commercionetwork/commerciokyc/tsps
+```
+
+#### gRPC (WIP)
+
+
+
+
+#### Pool Funds
+
+
+#### CLI
+
 
 The `pool-funds` command allows users to query a given ABR pool funds for the `commerciokyc` module.
 
 ```bash
-commercionetworkd query commerciokyc pool-funds [flags]
+commercionetworkd query commerciokyc pool-funds 
 ```
 
 Example:
@@ -90,65 +409,18 @@ funds:
   denom: ucommercio
 ```
 
+#### REST
 
-
-## gRPC
-
-A user can query the `commerciokyc` module using gRPC endpoints.
-
-### Invite
-
-The `Invite` endpoint allows users to query a given proposal.
-
-```bash
-commercionetwork/invite
+```
+/commercionetwork/commerciokyc/funds
 ```
 
-Example:
+##### Example 
 
-```bash
-grpcurl -plaintext \
-    -d '{"invite":"1"}' \
-    localhost:9090 \
-    commercionetwork/invite
+```
+https://localhost:1317/commercionetwork/commerciokyc/funds
 ```
 
-Example Output:
+#### gRPC (WIP)
 
-```bash
-{
-  "invite": {
-  }
-}
-```
-
-
-
-## REST
-
-A user can query the `commerciokyc` module using REST endpoints.
-
-### invites
-
-The `invites` endpoint allows users to query a given proposal.
-
-```bash
-/commerciokyc/invites
-```
-
-Example:
-
-```bash
-curl localhost:1317/commerciokyc/invites
-```
-
-Example Output:
-
-```bash
-{
-  "invites": {
-
-  }
-}
-```
 

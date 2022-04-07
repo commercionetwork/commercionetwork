@@ -38,7 +38,7 @@ you need to use the following `message.action` value:
 
 ```
 inviteUser
-```  
+```
 
 ## MsgBuyMembership
 
@@ -172,6 +172,17 @@ This transaction type is accessible only to the [government](../../government/RE
 Trying to perform this transaction without being the government will result in an error.  
 :::
 
+### Protobuf message
+
+```protobuf
+message MsgAddTsp {
+  string tsp = 1;
+  string government = 2;
+}
+```
+
+### Transaction message
+
 
 ```json
 {
@@ -198,6 +209,16 @@ This transaction type is accessible only to the [government](../../government/RE
 Trying to perform this transaction without being the government will result in an error.  
 :::
 
+### Protobuf message
+
+```protobuf
+message MsgRemoveTsp {
+  string tsp = 1;
+  string government = 2;
+}
+```
+
+### Transaction message
 
 ```json
 {
@@ -220,6 +241,18 @@ removeTsp
 
 
 ## MsgDepositIntoLiquidityPool
+
+### Protobuf message
+
+```protobuf
+message MsgDepositIntoLiquidityPool {
+  string depositor = 1;
+  repeated cosmos.base.v1beta1.Coin amount = 2
+    [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}
+```
+
+### Transaction message
 
 To deposit a given amount into the Memberships reward pool, the following message must be used:
 
