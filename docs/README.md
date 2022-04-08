@@ -22,7 +22,7 @@ it is connected to other computers on the same network and there are two kind of
 ## What is the the software that allow this blockchain to exist ?
 
 `cn` is the name of the [Commercio.network](https://commercio.network) blockchain application.    
-It is shipped with `commercionetworkd`: The Commercio.network software provide daemon to runs a full-node of the `cn` application and the command-line interface, which enables interaction with a Commercio.network full-node.
+It is shipped with `commercionetworkd`: The Commercio.network software provided daemon to run a full-node of the `cn` application and the command-line interface, which enables interaction with a Commercio.network full-node.
  
 
 `cn` is built on top of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) using the following modules:
@@ -110,10 +110,10 @@ Through this Token all active participants can benefit from the growth of the ne
 
 The Commercio Cash Credit (CCC)  ha an unlimited supply and can be minted only by freezing the COM Token
 
-* The main purpose of the Token is to be a unit of value that can be used to perform transazction on chain. It is a FEE TOKEN (utility Token)
+* The main purpose of the Token is to be a unit of value that can be used to perform transactions on chain. It is a FEE TOKEN (utility Token)
 * The price is FIXED and is 1 EURO/CCC + VAT
   
-**NB**: tansaction fees could be paid with COM, but the cost is fixed to 0.01 COM.
+**NB**: transaction fees could be paid with COM, but the cost is fixed to 0.01 COM.
 
 ##  Test-net Vs Main-Net
 
@@ -121,7 +121,7 @@ The Commercio Cash Credit (CCC)  ha an unlimited supply and can be minted only b
 
 [testnet.commercio.network](https://testnet.commercio.network)
 
-Testnet, as the name suggests, is an alternative network for the developers for testing purposes. You can view a testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
+Testnet, as the name suggests, is an alternative network for the developers for testing purposes. You can view a testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value. You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
 
 
 ## The Main-net
@@ -130,7 +130,7 @@ Testnet, as the name suggests, is an alternative network for the developers for 
 
 Mainnet is the complete opposite of the testnet. Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
 
-Unlike testnet which is an open network for testing purposes, mainnet is the real deal. Tokens on the Commercio.network mainnet have real economic value, be carefull.
+Unlike testnet which is an open network for testing purposes, mainnet is the real deal. Tokens on the Commercio.network mainnet have real economic value, be careful.
 
 
 
