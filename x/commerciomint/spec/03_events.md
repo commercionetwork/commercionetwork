@@ -17,11 +17,18 @@ The commerciomint module emits the following events:
 | new_position   | minted_coins     | {creditsCoins}       |
 | new_position   | position_id      | {position_id}        |
 | new_position   | timestamp        | {position_createdAt} |
-| message        | module           | commerciomint        |
+| transfer (ucommercio) | recipient     | {moduleAddress}   |
+| transfer (ucommercio) | sender        | {depositorAddress} |
+| transfer (ucommercio) | amount        | {ucomAmount}      |
+| transfer (uccc) | recipient     | {depositorAddress}   |
+| transfer (uccc) | sender        | {moduleAddress} |
+| transfer (uccc) | amount        | {creditsCoins}      |
 | message        | action           | mintCCC              |
 | message        | sender           | {senderAddress}      |
+| message        | sender           | {depositorAddress}      |
+| message        | sender           | {moduleAddress}      |
 
-### MsgBurnCCC
+### MsgBurnCCC (WIP)
 
 | Type       | Attribute Key    | Attribute Value   |
 | --------   | -------------    |----------------   |
@@ -29,7 +36,6 @@ The commerciomint module emits the following events:
 | burned_ccc | sender           | {userAddress}     |
 | burned_ccc | amount           | {burnAmount}      |
 | burned_ccc | position_deleted | {bool}            |
-| message    | module           | commerciomint     |
 | message    | action           | burnCCC           |
 | message    | sender           | {senderAddress}   |
 
@@ -37,7 +43,6 @@ The commerciomint module emits the following events:
 
 | Type                | Attribute Key       | Attribute Value |
 | ------------------- | ------------------- | --------------- |
-| new_freeze_period   | new_params          | {params}        |
-| message             | module              | commerciomint   |
-| message             | action              | set_params      |
+| new_params          | params              | {params}        |
+| message             | action              | setParams      |
 | message             | sender              | {senderAddress} |

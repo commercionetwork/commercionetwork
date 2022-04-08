@@ -4,13 +4,70 @@ order: 5
 
 # Client
 
+## Transactions
+
+### Mint CCC
+
+Mints a given amount of CCC
+#### CLI
+
+
+
+```bash
+commercionetworkd tx commerciomint mint \
+  [amount]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `amount`               | Amount of required uCCC  |
+
+### Burn CCC
+
+Burns a given amount of tokens, associated with ETP id.
+#### CLI
+
+```bash
+commercionetworkd tx commerciomint burn \
+  [id] \
+  [amount]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `id`         | ETP id from wich get tokens  |
+| `amount`         | Amount of required uCOM  |
+
+### Set Params
+
+Set the commerciomint params with conversion rate and freeze-period in seconds.
+#### CLI
+
+```bash
+commercionetworkd tx commerciomint set-params \
+  [conversion-rate] \
+  [freeze-period]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `conversion-rate`         | ETP conversion reate  |
+| `freeze-period`         | ETP freeze period in seconds  |
+
+
 ## Queries
 
 ### Reading all Exchange Trade Position (ETP)
 
 #### CLI
 
-```sh
+```bash
 commercionetworkd query commerciomint get-all-etps
 ```
 
@@ -64,11 +121,14 @@ http://localhost:1317/commercionetwork/commerciomint/etps
 }
 ```
 
+#### gRPC (WIP)
+
+
 ### Reading all Exchange Trade Position (ETP) opened by a user
 
 #### CLI
 
-```sh
+```bash
 commercionetworkd query commerciomint get-etps [user-addr]
 ```
 
@@ -116,12 +176,13 @@ http://localhost:1317/commercionetwork/commerciomint/did:com:18h03de6awcjk4u9gaz
   }
 }
 ```
+#### gRPC (WIP)
 
 ### Reading all Exchange Trade Position (ETP) by ID
 
 #### CLI
 
-```sh
+```bash
 commercionetworkd query commerciomint get-etp [id]
 ```
 
@@ -164,6 +225,9 @@ http://localhost:1317/commercionetwork/commerciomint/805a82db-a9e7-441a-a26b-d9d
 }
 ```
 
+#### gRPC (WIP)
+
+
 ### Reading the Params (conversion rate & freeze period)
 
 #### CLI
@@ -197,3 +261,6 @@ http://localhost:1317/commercionetwork/commerciomint/params
   }
 }
 ```
+
+
+#### gRPC (WIP)
