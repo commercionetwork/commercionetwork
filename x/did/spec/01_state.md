@@ -4,7 +4,7 @@ order: 1
 
 # State
 
-The `x/did` module keeps state of Identities, represented as the evolution of the DID Document and Metadata for a certain DID.
+The `did` module keeps state of Identities, represented as the evolution of the DID Document and Metadata for a certain DID.
 
 ## Store
 

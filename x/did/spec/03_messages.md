@@ -4,11 +4,18 @@ order: 3
 
 # Messages
 
-### Update an identity with `MsgSetIdentity`
+## Update an identity with `MsgSetIdentity`
 
 Updating an `Identity` means appending to the blockchain store a new version of the DID document.
 
-## Transaction message
+
+### Protobuf message
+
+```protobuf
+message MsgSetIdentity { DidDocument didDocument = 1; }
+```
+
+### Transaction message
 In order to properly send a transaction to set a DID Document associating it to your identity, you will need to create and sign the following message:
 
 ```javascript
