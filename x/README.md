@@ -8,7 +8,7 @@ parent:
 Here are our modules documentation:
 
 - [Government](government/spec/README.md) - Handle `government` address.
-- [Did](did/spec/README.md) - Allows the management of decentralized identitities.
+- [Did](did/spec/README.md) - Allows the management of decentralized identities.
 - [Documents](documents/spec/README.md) - Allows a user to share a document to other users and receives receipts.
 - [CommercioMint](commerciomint/spec/README.md) - Allows create Exchange Trade Position (ETPs) using COM tokens in order to get CCC tokens.
 - [CommercioKYC](commerciokyc/spec/README.md) - A system to make sure to have a network of trusted participants (Know your customer).
