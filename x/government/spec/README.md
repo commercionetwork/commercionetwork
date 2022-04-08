@@ -32,7 +32,7 @@ Running it several times after the first value has been set will result in an er
 
 ### Query government address 
 
-The government address can get by:
+The government address can be get:
 
  - via **CLI**, `commercionetworkd query government gov-address`
  - via **REST**, by making a GET request to the `/commercionetwork/government/governmentAddress` endpoint 

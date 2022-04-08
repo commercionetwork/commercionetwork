@@ -4,7 +4,7 @@ order: 1
 
 # State
 
-The `commerciokyc` module keeps state of the follow objects
+The `commerciokyc` module keeps state of the following objects
 
 ## Store
 

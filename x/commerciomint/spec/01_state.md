@@ -4,7 +4,7 @@ order: 1
 
 # State
 
-The `commerciomint` module keeps state of the Exchenge Trade Positions
+The `commerciomint` module keeps state of the Exchange Trade Positions
 
 
 ## Store
@@ -19,7 +19,7 @@ The `commerciomint` module keeps state of the Exchenge Trade Positions
 ## Type definitions
 
 ### Positions
-Positions are objects that are created when an user deposit an amount of Commercio Cash Credit (CCC). However the holded collateral is proportional to the position's exchange rate.
+Positions are objects that are created when a user deposits an amount of Commercio Cash Credit (CCC). However the holded collateral is proportional to the position's exchange rate.
 
  ```protobuf
  message Position {
