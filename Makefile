@@ -76,12 +76,14 @@ build-darwin: go.sum
 build-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-
 build-local-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-windows: go.sum
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/commercionetworkd.exe $(BUILD_FLAGS) ./cmd/commercionetworkd
+
+build-linux-docker:
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-all: go.sum
 	make build-darwin
@@ -141,7 +143,7 @@ build: go.sum
 test:
 	@go test -mod=readonly $(PACKAGES)
 
-## TODO test unit ledger ecc. ecc.
+## TODO test unit ledger etc. etc.
 
 .PHONY: lint test test_unit go-mod-cache build go.sum go.mod
 
@@ -149,9 +151,22 @@ test:
 ########################################
 ### Docker
 
+build-image-libraries-cached:
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
-build-docker-cndode:
-	$(MAKE) -C contrib/localnet
+build-image-to-download-libraries:
+	docker build -t commercionetwork/libraries -f DockerfileLibraries .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
+
+localnet-setup: localnet-stop
+	@if ! [ -f build/node0/commercionetwork/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
+	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
+
+localnet-start: localnet-setup
+	docker-compose up
+
+localnet-start-daemon: localnet-setup
+	docker-compose up -d
 
 
 localnet-start: localnet-stop build-local-linux
@@ -160,8 +175,7 @@ localnet-start: localnet-stop build-local-linux
 	docker-compose up
 
 localnet-reset: localnet-stop $(TARGET_BUILD)
-	@for node in 0 1 2 3; do build/$(TARGET_BIN)/commercionetworkd unsafe-reset-all --home ./build/node$$node/cnd; done
-
+	@for node in 0 1 2 3; do build/$(TARGET_BIN)/commercionetworkd unsafe-reset-all --home ./build/node$$node/commercionetwork; done
 
 localnet-stop:
 	docker-compose down
@@ -169,4 +183,4 @@ localnet-stop:
 clean:
 	rm -rf build/
 
-.PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset
+.PHONY: localnet-start localnet-start-daemon localnet-stop build-image-libraries-cached build-image-to-donwload-libraries clean localnet-reset
