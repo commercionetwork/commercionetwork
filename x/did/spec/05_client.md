@@ -10,7 +10,7 @@ order: 5
 
 #### CLI
 
-```sh
+```bash
 tx did set-identity [did_document_proposal_path]
 ```
 
@@ -64,7 +64,7 @@ For example, the user controlling the DID `did:com:18h03de6awcjk4u9gaz8s5l0xxl8u
 
 #### CLI
 
-```sh
+```bash
 query did show-identity [did]
 ```
 
@@ -141,7 +141,7 @@ Please note that in the metadata the fields `created` and `updated` are equal, m
 
 #### CLI
 
-```sh
+```bash
 query did show-history [did]
 ```
 

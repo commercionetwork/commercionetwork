@@ -4,18 +4,31 @@ order: 1
 
 # State
 
-## `Identity`
+The `x/did` module keeps state of Identities, represented as the evolution of the DID Document and Metadata for a certain DID.
 
-```
+## Store
+
+The module appends in the store the updated Identity.
+
+| Key |  | Value |
+| ------- | ---------- | ---------- | 
+| `did:identities:[address]:[updated]` | &rarr; | _Identity_ |
+
+This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. 
+This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`, that will be maintained in the newer versions.
+
+## The `Identity` type
+
+```protobuf
 message Identity {
   DidDocument didDocument = 1;
   Metadata metadata = 2;
 }
 ```
 
-## `DidDocument`
+### `DidDocument` definition
 
-```
+```protobuf
 message DidDocument {
   option (gogoproto.equal) = true;
   repeated string context = 1 [ (gogoproto.jsontag) = "@context,omitempty" ];
@@ -30,9 +43,9 @@ message DidDocument {
 }
 ```
 
-## `VerificationMethod`
+#### `VerificationMethod` definition
 
-```
+```protobuf
 message VerificationMethod {
   option (gogoproto.equal) = true;
   string ID = 1;
@@ -42,9 +55,9 @@ message VerificationMethod {
 }
 ```
 
-## `Service`
+#### `Service` definition
 
-```
+```protobuf
 message Service {
   option (gogoproto.equal) = true;
   string ID = 1;
@@ -53,9 +66,9 @@ message Service {
 }
 ```
 
-## `Metadata`
+### `Metadata` definition
 
-```
+```protobuf
 message Metadata {
   string created = 1;
   string updated = 2;
