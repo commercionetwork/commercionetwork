@@ -100,6 +100,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		commgenutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
+		testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		commgenutilcli.SetGenesisGovernmentAddressCmd(app.DefaultNodeHome),
 		commgenutilcli.SetGenesisVbrPoolAmount(),
 		AddGenesisAccountCmd(app.DefaultNodeHome),

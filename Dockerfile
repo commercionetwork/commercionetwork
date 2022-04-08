@@ -1,7 +1,7 @@
 # Dockerfile References: https://docs.docker.com/engine/reference/builder/
 
 # Start from the latest golang base image
-FROM golang:latest as builder
+FROM golang:latest
 
 # Add Maintainer Info
 LABEL maintainer="Gianguido Sorà <me@gsora.xyz>"
@@ -19,16 +19,13 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN make build-linux
+#RUN make build-linux
+RUN make install
 
-######## Start a new stage from scratch #######
-FROM golang:latest  
 
-WORKDIR /root/
-
-ARG LOG_DIR=/root/logs
-ARG CHAIN_DIR=/root/chain
-ARG GENESIS_DIR=/root/genesis
+ARG LOG_DIR=/app/logs
+ARG CHAIN_DIR=/app/chain
+ARG GENESIS_DIR=/app/genesis
 
 # Create Log Directory
 RUN mkdir -p ${LOG_DIR}
@@ -36,8 +33,7 @@ RUN mkdir -p ${CHAIN_DIR}
 RUN mkdir -p ${GENESIS_DIR}
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/build/Linux-AMD64/cncli .
-COPY --from=builder /app/build/Linux-AMD64/cnd .
+#COPY --from=builder /app/build/Linux-AMD64/commercionetworkd .
 COPY container_exec.sh .
 RUN chmod +x container_exec.sh
 

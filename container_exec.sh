@@ -18,11 +18,10 @@
 
 printf "This script will be replaced by the script for version 3.0\n"
 
-
 exit 0
 
-export CHAIN_DIR="/root/chain"
-export GENESIS_DIR="/root/genesis"
+export CHAIN_DIR="/app/chain"
+#export GENESIS_DIR="/app/genesis"
 
 CND_FLAGS="--home=$CHAIN_DIR $CND_EXTRA_FLAGS"
 CND_START_FLAGS="$CND_START_FLAGS"
