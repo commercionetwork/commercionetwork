@@ -6,6 +6,18 @@ order: 2
 
 ## Increment Block Rewards Pool
 
+### Protobuf message
+
+```protobuf
+message MsgIncrementBlockRewardsPool {
+  string funder = 1 [(gogoproto.moretags) = "yaml:\"funder\""];
+  repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.moretags) = "yaml:\"amount\"",
+  (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+  (gogoproto.nullable) = false] ;
+}
+```
+
+
 ### Transaction message
 To increment the block rewards pool you need to create and sign the following message:
   
@@ -46,6 +58,19 @@ incrementBlockRewardsPool
 This transaction type is accessible only to the [government](../../government/spec/README.md).  
 Trying to perform this transaction without being the government will result in an error.  
 :::
+
+### Protobuf message
+
+```protobuf
+message MsgSetParams{
+  string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
+  string distr_epoch_identifier = 2 [(gogoproto.moretags) = "yaml:\"distr_epoch_identifier\""];
+  string earn_rate = 3 [(gogoproto.moretags) = "yaml:\"earn_rate\"",
+  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+  (gogoproto.nullable) = false];
+}
+```
+
 
 #### Transaction message
 

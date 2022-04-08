@@ -5,7 +5,7 @@ DID document to a `did:com:` address.
 The module is also responsible for the historicization of identities.
 
 The `Commercio.network` blockchain is the Verifiable Data Registry that should be used to perform DID resolution for the `did:com:` method.
-In fact, the query functionalities of the `did` module provide all the necessary information to perform DID resolution for a certain address, requesting:
+In fact, the `did` module provides query functionalities providing all the necessary information to perform DID resolution for a certain address, allowing to request:
 - The latest DID document and the corresponding metadata.
 - The list of updates to the DID document and corresponding metadata.
 
@@ -14,11 +14,13 @@ First of all, let's define what an **identity** is inside the Commercio Network 
 
 > An identity is the method used inside the Commercio Network blockchain in order to identify documents' senders and recipients.
 
-In order to create an identity, you simply have to create a Commercio Network address, which will have the following form: 
+In order to create an identity, you should start by creating a Commercio Network address, which will have the following form: 
 
 ```
 did:com:<unique part>
 ```
+
+The address it itself a DID Decentralized Identifier.
 
 In order to do so, you can use the CLI and execute the following command: 
 
@@ -57,135 +59,8 @@ If you want to receive some tokens in **Test-net**, please use faucet service or
 and we will send you some as soon as possible.
 
 ### Associating a Did Document to your identity 
-Being your account address a Did, using the Commercio Network blockchain you can associate to it a Did Document containing the information that are related to your public (or private) identity.  
+Being your account address a DID, using the Commercio Network blockchain you can associate to it a DID document containing the information that are related to your public (or private) identity.  
 In order to do so you will need to perform a transaction and so your account must have first received some tokens. 
-
-### Updating an identity
-
-Updating an `Identity` means appending to the blockchain store a new version of the DID document.
-The transaction used to associate a DID document can be used to update the Identity.
-
-<!---
-This operation uses the block time (guaranteed to be deterministic and always increasing) to populate the `Updated` field of `Metadata`. This timestamp is also used to populate the `Created` field, but only for the first version of the `Identity`.
-Cosmos SDK store considerations:
-- The key for storing an `Identity` is parameterized with the `ID` field of `DidDocument` (a `did:com:` address) and the `Updated` field of `Metadata` (timestamp). 
-- The resulting key will look like the following. `did:identities:[address]:[updated]:`
-- Since the value used for the `Updated` field is a timestamp guaranteed to be always increasing, then a store iterator with prefix `did:identities:[address]:` will retrieve values in ascending update order.
-- For the same reason, the last value obtained by the same iterator will be the last identity appended to the store. Cosmos SDK allows to obtain a `ReverseIterator` returning values in the opposite order and therefore its first value will be the last updated identity.
-- For a certain address only one update per block will persist, as a consequence of using the block time in the key.
---->
-
-
-
-<!-- TODO: check Msg format with Document -->
-## Transaction message
-In order to properly send a transaction to set a DID Document associating it to your identity, you will need to create and sign the following message:
-
-```javascript
-{
-  "type": "commercio/MsgSetIdentity",
-  "value": {
-    "didDocument":
-        {
-            "@context": [
-                "https://www.w3.org/ns/did/v1",
-                "string"
-            ],
-            "id": "string",
-            "verificationMethod": [
-                {
-                    "type": "string",
-                    "id": "string",
-                    "controller": "string",
-                    "publicKeyMultiBase": "string"
-                },
-                {
-                    "type": "string",
-                    "id": "string",
-                    "controller": "string",
-                    "publicKeyMultiBase": "string"
-                }
-            ],
-            "authentication": [
-                "string"
-            ],
-            "assertionMethod": [
-                "string"
-            ],
-            "keyAgreement": [
-                "string"
-            ],
-            "capabilityInvocation": [
-                "string"
-            ],
-            "capabilityDelegation": [
-                "string"
-            ],
-            "service": [
-                {
-                    "id": "string",
-                    "type": "string",
-                    "serviceEndpoint": "string"
-                }
-            ]
-        }
-  }
-}
-```
-
-The message must include a DID document conform to the rules of Decentralized Identitfiers (DIDs) v1.0 plus additional rules defined by commercionetwork. 
-Please refer to [https://www.w3.org/TR/2021/PR-did-core-20210803/]() and to the following requirements.
-A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirements will be discarded.
-
-Fields that are NOT required can be omitted from the message.
-
-
-### `didDocument` fields requirements
-
-| Field                  | Required | Value |
-| :---:                  | :------: | :---: |
-| `@context`             | Yes      | `["https://www.w3.org/ns/did/v1","https://w3id.org/security/suites/ed25519-2018/v1"]` |
-| `id`                   | Yes      | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"` |
-| `verificationMethod`   | Yes      | Consider the values in the description below | 
-| `authentication`       | No       | `"#keys-authentication"` |
-| `assertionMethod`      | No       | `"#keys-assertionMethod"` |
-| `keyAgreement`         | No       | `"#keys-keyAgreement"` |
-| `capabilityInvocation` | No       | `"#keys-capabilityInvocation"` |
-| `capabilityDelegation` | No       | `"#keys-capabilityDelegation"` |
-| `service`              | No       | Consider the values in the description below |
-
-### `verificationMethod` fields requirements
-| Field                  | Required | Value |
-| :---:                  | :------: | :---: |
-| `id`                   | Yes      | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytdw#keys-1"` | 
-| `type`                 | Yes      | `"RsaVerificationKey2018"` | 
-| `controller`           | Yes      | `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"` | 
-| `publicKeyMultiBase`   | Yes      | `"mMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB...3awGwIDAQAB"` | 
-
-`controller` must be equal to the DID document `id` field.
-
-The `id` field supports both absolute (e.g. `"did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytdw#keys-1"`) and relative (`"#keys-1"`) identifiers.
-
-Supported values for the `type` field are: `Ed25519Signature2018`, `Ed25519VerificationKey2018`, `RsaSignature2018`, `RsaVerificationKey2018`, `EcdsaSecp256k1Signature2019`, `EcdsaSecp256k1VerificationKey2019`, `EcdsaSecp256k1RecoverySignature2020`, `EcdsaSecp256k1RecoveryMethod2020`, `JsonWebSignature2020`, `JwsVerificationKey2020`, `GpgSignature2020`, `GpgVerificationKey2020`, `JcsEd25519Signature2020`, `JcsEd25519Key2020`, `BbsBlsSignature2020`, `BbsBlsSignatureProof2020`, `Bls12381G1Key2020`, `Bls12381G2Key2020`.
-
-For more information about the `publicKeyMultiBase` field, please refer to [https://tools.ietf.org/id/draft-multiformats-multibase-00.html#rfc.section.2.1]() 
-
-Additional requirements:
-- a verification method of type `RsaVerificationKey2018` must have the suffix `#keys-1` in the `id` field, and must be a valid _RSA PKIX_ public key;
-- a verification method of type `RsaSignatureKey2018`, must have the suffix `#keys-2` in the `id` field, and must be a valid _RSA PKIX_ public key.
-
-
-
-### `service` fields requirements
-| Field                  | Required | Value |
-| :---:                  | :------: | :---: |
-| `id`                   | Yes      | `"Service001"` | 
-| `type`                 | Yes      | `"agent"` | 
-| `serviceEndpoint`      | Yes      | `"https://commercio.network/agent/serviceEndpoint/"`      | 
-
-The `id` and `serviceEndpoint` fields must conform to the rules of RFC3986 for URIs. 
-Please refer to [https://datatracker.ietf.org/doc/html/rfc3986]().
-
 
 ## DID Resolution
 
@@ -204,4 +79,3 @@ The `did` module has been updated to support the historicization of DID document
 A DID document can be updated and its previous versions should remain accessible.
 
 Querying for an `IdentityHistory` means asking for the list of updates to an `Identity`, sorted in chronological order.
-

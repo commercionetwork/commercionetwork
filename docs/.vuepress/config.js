@@ -67,12 +67,14 @@ module.exports = {
                 ]
             },
             {
-                title: "Custom Modules (WIP)",
+                title: "Custom Modules",
+                path: "/modules/",
                 collapsable: false,
                 children: [
                     //["x/bank/","Bank"],
                     {
                         title: "Government",
+                        path: "/modules/government/",
                         collapsable: true,
                         children: [
                             ["modules/government/", "Concepts"],
@@ -81,6 +83,7 @@ module.exports = {
                     },                       
                     {
                         title: "Did",
+                        path: "/modules/did/",
                         collapsable: true,
                         children: [
                             ["modules/did/", "Concepts"],
@@ -91,11 +94,12 @@ module.exports = {
                     },                    
                     {
                         title: "Documents",
+                        path: "/modules/documents/",
                         collapsable: true,
                         children: [
                             ["modules/documents/", "Concepts"],
                             ["modules/documents/01_state.md", "State"],
-                            ["modules/documents/02_keepers.md", "Keepers"],
+                            //["modules/documents/02_keepers.md", "Keepers"],
                             ["modules/documents/03_messages.md", "Messages"],
                             ["modules/documents/04_events.md", "Events"],
                             ["modules/documents/05_client.md", "Client"],
@@ -104,6 +108,7 @@ module.exports = {
                     },
                     {
                         title: "CommercioMint",
+                        path: "/modules/commerciomint/",
                         collapsable: true,
                         children: [
                             ["modules/commerciomint/", "Concepts"],
@@ -117,19 +122,20 @@ module.exports = {
                     },
                     {
                         title: "CommercioKYC",
+                        path: "/modules/commerciokyc/",
                         collapsable: true,
                         children: [
                             ["modules/commerciokyc/", "Concepts"],
                             ["modules/commerciokyc/01_state.md", "State"],
-                            ["modules/commerciokyc/02_keepers.md", "Keepers"],
-                            ["modules/commerciokyc/03_messages.md", "Messages"],
-                            ["modules/commerciokyc/04_events.md", "Events"],
-                            ["modules/commerciokyc/05_client.md", "Client"],
+                            ["modules/commerciokyc/02_messages.md", "Messages"],
+                            ["modules/commerciokyc/03_events.md", "Events"],
+                            ["modules/commerciokyc/04_client.md", "Client"],
 
                         ]
                     },
                     {
                         title: "Vbr",
+                        path: "/modules/vbr/",
                         collapsable: true,
                         children: [
                             ["modules/vbr/", "Concepts"],
