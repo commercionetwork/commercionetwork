@@ -44,6 +44,11 @@ module.exports = {
         sidebarDepth: 3,
         sidebar: [
             {
+                title: "Overview",
+                collapsable: false,
+                path: "/"
+            },
+            {
                 title: "Running Nodes",
                 collapsable: false,
                 children: [
