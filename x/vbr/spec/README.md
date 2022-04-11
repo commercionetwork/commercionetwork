@@ -5,7 +5,7 @@ parent:
   title: "vbr"
 -->
 
-# `x/vbr`
+# `Vbr`
 
 ## Abstract
 
