@@ -25,6 +25,7 @@ import (
 	commgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -40,7 +41,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	// this line is used by starport scaffolding # stargate/root/import
 )
 
 var ChainID string
@@ -60,12 +60,19 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
-		WithHomeDir(app.DefaultNodeHome)
+		WithHomeDir(app.DefaultNodeHome).
+		WithViper("")
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name + "d",
-		Short: "Stargate CosmosHub App",
+		Short: "Commercio Network App",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
+			initClientCtx, err := config.ReadFromClientConfig(initClientCtx)
+			if err != nil {
+				return err
+			}
+
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 				return err
 			}
@@ -93,12 +100,13 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		commgenutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
+		testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		commgenutilcli.SetGenesisGovernmentAddressCmd(app.DefaultNodeHome),
 		commgenutilcli.SetGenesisVbrPoolAmount(),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
-		// this line is used by starport scaffolding # stargate/root/commands
+		config.Cmd(),
 	)
 
 	a := appCreator{encodingConfig}
@@ -117,7 +125,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-	// this line is used by starport scaffolding # stargate/root/initFlags
 }
 
 func queryCommand() *cobra.Command {
@@ -204,7 +211,6 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		panic(err)
 	}
 
-	// this line is used by starport scaffolding # stargate/root/appBeforeInit
 	var wasmOpts []wasm.Option
 	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
@@ -215,7 +221,6 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		a.encCfg,
-		// this line is used by starport scaffolding # stargate/root/appArgument
 		appOpts,
 		app.GetEnabledProposals(),
 		wasmOpts,
@@ -260,7 +265,6 @@ func (a appCreator) appExport(
 			homePath,
 			uint(1),
 			a.encCfg,
-			// this line is used by starport scaffolding # stargate/root/exportArgument
 			appOpts,
 			app.GetEnabledProposals(),
 			wasmOpts,
@@ -279,7 +283,6 @@ func (a appCreator) appExport(
 			homePath,
 			uint(1),
 			a.encCfg,
-			// this line is used by starport scaffolding # stargate/root/noHeightExportArgument
 			appOpts,
 			app.GetEnabledProposals(),
 			wasmOpts,

@@ -8,6 +8,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Consider using the protobuf-generated equals
+// By the way, this is unused code
+
 // Equals returns true when doc equals other, false otherwise.
 func (doc Document) Equals(other Document) bool {
 	metadata := false

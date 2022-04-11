@@ -4,13 +4,51 @@ order: 5
 
 # Client
 
+## Transactions
+
+### Deposit
+Increments the block rewards pool's liquidity by the given amount denom
+#### CLI
+
+
+```bash
+commercionetworkd tx vbr deposit \
+  [amount denom]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `amount denom`               | Amount of tokens to increment reward pool  |
+
+
+### Set Params
+
+#### CLI
+
+```bash
+commercionetworkd tx vbr set-params \
+  [epoch_identifier] \
+  [earn_rate]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+| :------- | :---------- | 
+| `epoch_identifier`         | Epoch reward identifier: minute/hour/day/week/month  |
+| `earn_rate`         | Earn reward rate  |
+
+
+
 ## Queries
 
 ### Getting the total Pool Funds
 
 #### CLI
 
-```sh
+```bash
 commercionetworkd query vbr pool-funds
 ```
 

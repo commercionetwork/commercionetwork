@@ -37,6 +37,7 @@ func (k Keeper) SentDocuments(c context.Context, req *types.QueryGetSentDocument
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
+	// consider using documents := []*types.Document{}
 	var documents []*types.Document
 	ctx := sdk.UnwrapSDKContext(c)
 

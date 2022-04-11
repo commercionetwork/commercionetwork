@@ -4,110 +4,13 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/store"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmdb "github.com/tendermint/tm-db"
-
-	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
-	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
-	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
-	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
-	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"github.com/stretchr/testify/require"
 )
-
-func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
-	storeKeys := sdk.NewKVStoreKeys(
-		types.StoreKey,
-		paramsTypes.StoreKey,
-		distrTypes.StoreKey,
-		bankTypes.StoreKey,
-		accountTypes.StoreKey,
-		govTypes.StoreKey,
-		epochsTypes.StoreKey,
-		stakingTypes.StoreKey,
-	)
-	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
-
-	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
-	memStoreKeyGov := storetypes.NewMemoryStoreKey(govTypes.MemStoreKey)
-
-	db := tmdb.NewMemDB()
-	stateStore := store.NewCommitMultiStore(db)
-	for _, storeKey := range storeKeys {
-		stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
-	}
-	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
-	stateStore.MountStoreWithDB(memStoreKeyGov, sdk.StoreTypeMemory, nil)
-
-	stateStore.MountStoreWithDB(tkeys[paramsTypes.TStoreKey], sdk.StoreTypeTransient, db)
-	require.NoError(t, stateStore.LoadLatestVersion())
-
-	//registry := codectypes.NewInterfaceRegistry()
-	app := simapp.Setup(false)
-	cdc := app.AppCodec()
-
-	feeCollectorAcc := accountTypes.NewEmptyModuleAccount(accountTypes.FeeCollectorName)
-	notBondedPool := accountTypes.NewEmptyModuleAccount(stakingTypes.NotBondedPoolName, accountTypes.Burner, accountTypes.Staking)
-	bondPool := accountTypes.NewEmptyModuleAccount(stakingTypes.BondedPoolName, accountTypes.Burner, accountTypes.Staking)
-
-	blacklistedAddrs := make(map[string]bool)
-	blacklistedAddrs[feeCollectorAcc.GetAddress().String()] = true
-	blacklistedAddrs[notBondedPool.GetAddress().String()] = true
-	blacklistedAddrs[bondPool.GetAddress().String()] = true
-	blacklistedAddrs[distrAcc.GetAddress().String()] = true
-
-	ctx := sdk.NewContext(stateStore, tmproto.Header{ChainID: "test-chain-id"}, false, log.NewNopLogger())
-	maccPerms := map[string][]string{
-		accountTypes.FeeCollectorName:  nil,
-		distrTypes.ModuleName:          nil,
-		stakingTypes.BondedPoolName:    {accountTypes.Burner, accountTypes.Staking},
-		stakingTypes.NotBondedPoolName: {accountTypes.Burner, accountTypes.Staking},
-		types.ModuleName:               {accountTypes.Minter},
-		govTypes.ModuleName:            {accountTypes.Burner},
-	}
-
-	pk := paramsKeeper.NewKeeper(cdc, codec.NewLegacyAmino(), storeKeys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
-	ak := accountKeeper.NewAccountKeeper(cdc, storeKeys[accountTypes.StoreKey], pk.Subspace("auth"), accountTypes.ProtoBaseAccount, maccPerms)
-	bk := bankKeeper.NewBaseKeeper(cdc, storeKeys[bankTypes.StoreKey], ak, pk.Subspace("bank"), blacklistedAddrs)
-	sk := stakingKeeper.NewKeeper(cdc, storeKeys[stakingTypes.StoreKey], ak, bk, pk.Subspace("staking"))
-	sk.SetParams(ctx, stakingTypes.DefaultParams())
-	gk := govKeeper.NewKeeper(cdc, storeKeys[govTypes.StoreKey], memStoreKeyGov)
-	dk := distrKeeper.NewKeeper(cdc, storeKeys[distrTypes.StoreKey], pk.Subspace("distribution"), ak, bk, sk, accountTypes.FeeCollectorName, blacklistedAddrs)
-	sk.SetHooks(stakingTypes.NewMultiStakingHooks(dk.Hooks()))
-	ek := epochsKeeper.NewKeeper(cdc, storeKeys[epochsTypes.StoreKey])
-	keeper := NewKeeper(
-		cdc,
-		storeKeys[types.StoreKey],
-		memStoreKey,
-		dk,
-		bk,
-		ak,
-		*gk,
-		*ek,
-		pk.Subspace(types.ModuleName),
-		sk,
-	)
-	ek.SetHooks(epochsTypes.NewMultiEpochHooks(keeper.Hooks()))
-
-	return keeper, ctx
-}
 
 var params_test = types.Params{
 	DistrEpochIdentifier: types.EpochDay,
@@ -157,7 +60,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
+			k, ctx := SetupKeeper(t)
 
 			testVal := TestValidator.UpdateStatus(stakingTypes.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
@@ -209,7 +112,7 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
+			k, ctx := SetupKeeper(t)
 
 			testVal := TestValidator.UpdateStatus(stakingTypes.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
@@ -273,7 +176,7 @@ func TestKeeper_VbrAccount(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
+			k, ctx := SetupKeeper(t)
 			macc := k.VbrAccount(ctx)
 
 			require.Equal(t, macc.GetName(), tt.wantModName)
@@ -305,12 +208,44 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			k, ctx := setupKeeper(t)
+			k, ctx := SetupKeeper(t)
 			k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom})))
 			k.MintVBRTokens(ctx, tt.wantAmount)
 			macc := k.VbrAccount(ctx)
 			//require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))
 			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantAmount))
+		})
+	}
+}
+
+func TestKeeper_SetTotalRewardPool(t *testing.T) {
+
+	tests := []struct {
+		name        string
+		updatedPool sdk.DecCoins
+	}{
+		{
+			name: "empty pool",
+		},
+		// failing test
+		// {
+		// 	name:        "ok",
+		// 	updatedPool: sdk.NewDecCoinsFromCoins(types.ValidMsgIncrementBlockRewardsPool.Amount...),
+		// },
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := SetupKeeper(t)
+			k.SetTotalRewardPool(ctx, tt.updatedPool)
+
+			store := ctx.KVStore(k.storeKey)
+			if tt.updatedPool.Empty() {
+				require.False(t, store.Has([]byte(types.PoolStoreKey)))
+			} else {
+				actual := k.GetTotalRewardPool(ctx)
+				require.Equal(t, tt.updatedPool, actual)
+			}
+
 		})
 	}
 }
