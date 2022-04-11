@@ -5,14 +5,14 @@ module.exports = {
     head: [
         ['link', {rel: 'icon', href: '/icon.png'}],
     ],
-    markdown: {
+    /*markdown: {
         lineNumbers: true,
 	    extendMarkdown: md => {
 		    md.use(require("markdown-it-footnote"));
   	    }
-    },
+    },*/
     plugins: [
-        'latex',
+        '@renovamen/vuepress-plugin-katex',
         [
           "sitemap",
           {

@@ -4,7 +4,7 @@ order: 4
 
 # Events
 
-The `x/did` module emits the following events:
+The `did` module emits the following events:
 
 ### `MsgSetIdentity`
 
