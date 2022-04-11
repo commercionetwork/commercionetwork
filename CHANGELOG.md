@@ -1,3 +1,12 @@
+# Version 3.0.1
+
+* Added `config` command
+* Added `ledger` support
+* Added local-net docker support
+* Improved coverage
+* Fix and update documentation 
+* Update npm dependencies
+
 # Version 3.0.0
 
 * Update cosmos sdk to v0.42.10
