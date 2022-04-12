@@ -95,13 +95,15 @@ func (msg *MsgSetParams) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address format: %s", err)
 	}
-	// consider using Validate from Params instead than the following
 
-	if msg.DistrEpochIdentifier != EpochDay && msg.DistrEpochIdentifier != EpochWeek && msg.DistrEpochIdentifier != EpochMinute {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
+	params := Params{
+		DistrEpochIdentifier: msg.DistrEpochIdentifier,
+		EarnRate:             msg.EarnRate,
 	}
-	if msg.EarnRate.IsNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
+
+	if err := params.Validate(); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid params: %s", err))
 	}
+
 	return nil
 }

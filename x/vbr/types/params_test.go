@@ -16,7 +16,7 @@ func TestParams_Validate(t *testing.T) {
 		},
 		{
 			name:    "invalid DistrEpochIdentifier",
-			params:  NewParams("", validEarnRate),
+			params:  Params{"", validEarnRate},
 			wantErr: true,
 		},
 		{
@@ -60,7 +60,7 @@ func Test_validateDistrEpochIdentifier(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateDistrEpochIdentifier(tt.distrEpochIdentifier); (err != nil) != tt.wantErr {
+			if err := validateDistrEpochIdentifierParamSetPairs(tt.distrEpochIdentifier); (err != nil) != tt.wantErr {
 				t.Errorf("validateDistrEpochIdentifier() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -89,7 +89,7 @@ func Test_validateEarnRate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateEarnRate(tt.earnRate); (err != nil) != tt.wantErr {
+			if err := validateEarnRateParamSetPairs(tt.earnRate); (err != nil) != tt.wantErr {
 				t.Errorf("validateEarnRate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
