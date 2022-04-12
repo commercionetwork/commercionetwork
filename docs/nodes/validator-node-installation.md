@@ -78,6 +78,7 @@ commercionetworkd tx bank send \
 --chain-id="$CHAINID" \
 -y
 ```
+or you can use the [Commercio Wallet App](https://github.com/commercionetwork/Commercio-Wallet-App)
 
 **Note**: You can use `uccc` tokens instead `ucommercio` for the `fees` value
 
