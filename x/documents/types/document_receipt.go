@@ -48,9 +48,9 @@ func (receipt DocumentReceipt) Validate() error {
 		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "document UUID cannot be empty")
 	}
 
-	if receipt.Proof == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Proof cannot be empty")
-	}
+	// if receipt.Proof == "" {
+	// 	return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Proof cannot be empty")
+	// }
 
 	return nil
 }
