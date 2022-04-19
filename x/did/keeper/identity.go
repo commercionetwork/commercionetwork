@@ -21,7 +21,7 @@ func (k Keeper) SetIdentity(ctx sdk.Context, identity types.Identity) {
 	store := ctx.KVStore(k.storeKey)
 	address := identity.DidDocument.ID
 	timestamp := identity.Metadata.Updated
-	store.Set(getIdentityStoreKey(address, timestamp), k.cdc.MustMarshalBinaryBare(&identity))
+	store.Set(getIdentityStoreKey(address, timestamp), k.cdc.MustMarshal(&identity))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		updateDDO,
 		sdk.NewAttribute("address", identity.DidDocument.ID),
@@ -43,7 +43,7 @@ func (k Keeper) GetIdentity(ctx sdk.Context, address string, timestamp string) (
 	}
 
 	var identity types.Identity
-	k.cdc.MustUnmarshalBinaryBare(identityBz, &identity)
+	k.cdc.MustUnmarshal(identityBz, &identity)
 	return &identity, nil
 }
 
@@ -60,7 +60,7 @@ func (k Keeper) GetLastIdentityOfAddress(ctx sdk.Context, address string) (*type
 	}
 
 	var identity types.Identity
-	k.cdc.MustUnmarshalBinaryBare(iter.Value(), &identity)
+	k.cdc.MustUnmarshal(iter.Value(), &identity)
 	return &identity, nil
 }
 
@@ -76,7 +76,7 @@ func (k Keeper) GetIdentityHistoryOfAddress(ctx sdk.Context, address string) []*
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.Identity
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
 		history = append(history, &val)
 	}
 
@@ -94,7 +94,7 @@ func (k Keeper) GetAllIdentities(ctx sdk.Context) []*types.Identity {
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.Identity
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
 		list = append(list, &val)
 	}
 

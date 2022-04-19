@@ -129,7 +129,8 @@ func Test_queryGetSigners(t *testing.T) {
 			actualBz, _ := querier(ctx, path, request)
 
 			var actual types.TrustedServiceProviders
-			k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			k.cdc.MustUnmarshal(actualBz, &actual)
+			//k.cdc.MustUnmarshalJSON(actualBz, &actual)
 
 			for _, tsp := range test.expected {
 				require.Contains(t, actual.Addresses, tsp.String())
@@ -183,7 +184,8 @@ func Test_queryGetMembership(t *testing.T) {
 		if !test.mustErr {
 			require.NoError(t, err)
 			var actual types.Membership
-			k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			//k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			k.cdc.MustUnmarshal(actualBz, &actual)
 			require.Equal(t, test.expected, actual)
 		} else {
 			require.Error(t, err)

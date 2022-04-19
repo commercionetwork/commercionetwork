@@ -61,8 +61,14 @@ func Test_msgServer_InviteUser(t *testing.T) {
 
 			if tt.existingUser {
 				require.NoError(t,
-					bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
+					bk.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
 				)
+				require.NoError(t,
+					bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
+				)
+				/*require.NoError(t,
+					bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
+				)*/
 			}
 
 			if !tt.existingInvite.Empty() {

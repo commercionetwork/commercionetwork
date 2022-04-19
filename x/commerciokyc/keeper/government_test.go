@@ -135,7 +135,7 @@ func TestKeeper_IsTrustedServiceProvider(t *testing.T) {
 			store := ctx.KVStore(k.storeKey)
 			if !test.tsps.Empty() {
 				tspsToTest := types.TrustedServiceProviders{Addresses: test.tsps}
-				store.Set([]byte(types.TrustedSignersStoreKey), k.cdc.MustMarshalBinaryBare(&tspsToTest))
+				store.Set([]byte(types.TrustedSignersStoreKey), k.cdc.MustMarshal(&tspsToTest))
 			}
 			_ = gk.SetGovernmentAddress(ctx, test.govAddr)
 
@@ -212,7 +212,10 @@ func TestKeeper_DepositIntoPool(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, _, _, k := SetupTestInput()
-			k.bankKeeper.AddCoins(ctx, testUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10))))
+			coins := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10)))
+			k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
+			k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, testUser, coins)
+			//k.bankKeeper.AddCoins(ctx, testUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10))))
 			if err := k.DepositIntoPool(ctx, tt.depositor, tt.amount); (err != nil) != tt.wantErr {
 				t.Errorf("Keeper.DepositIntoPool() error = %v, wantErr %v", err, tt.wantErr)
 			}

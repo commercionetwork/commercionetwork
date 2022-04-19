@@ -26,7 +26,7 @@ import (
 
 type (
 	Keeper struct {
-		cdc           codec.Marshaler
+		cdc           codec.BinaryCodec
 		storeKey      sdk.StoreKey
 		memKey        sdk.StoreKey
 		distKeeper    distKeeper.Keeper
@@ -40,7 +40,7 @@ type (
 )
 
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.BinaryCodec,
 	storeKey sdk.StoreKey,
 	memKey sdk.StoreKey,
 	distKeeper distKeeper.Keeper,
@@ -88,7 +88,7 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	// types.KeyPrefix(types.PoolStoreKey)
 	poolKeyPrefix := []byte(types.PoolStoreKey)
 	if !updatedPool.Empty() {
-		store.Set(poolKeyPrefix, k.cdc.MustMarshalBinaryBare(&pool))
+		store.Set(poolKeyPrefix, k.cdc.MustMarshal(&pool))
 	} else {
 		store.Delete(poolKeyPrefix)
 	}

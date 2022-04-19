@@ -75,7 +75,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 				require.NoError(t, err)
 
 				if tt.storedReceipt != nil {
-					store.Set(getReceiptStoreKey(tt.storedReceipt.UUID), keeper.cdc.MustMarshalBinaryBare(tt.storedReceipt))
+					store.Set(getReceiptStoreKey(tt.storedReceipt.UUID), keeper.cdc.MustMarshal(tt.storedReceipt))
 
 					sender, err := sdk.AccAddressFromBech32(tt.storedReceipt.Sender)
 					require.NoError(t, err)
@@ -93,7 +93,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			if !tt.wantErr {
 				var stored types.DocumentReceipt
 				receiptBz := store.Get(getReceiptStoreKey(testReceipt.UUID))
-				keeper.cdc.MustUnmarshalBinaryBare(receiptBz, &stored)
+				keeper.cdc.MustUnmarshal(receiptBz, &stored)
 				require.Equal(t, stored, testReceipt)
 
 				sender, err := sdk.AccAddressFromBech32(testReceipt.Sender)
@@ -494,7 +494,7 @@ func TestKeeper_DocumentReceiptsIterator(t *testing.T) {
 
 			for ; di.Valid(); di.Next() {
 				var receipt types.DocumentReceipt
-				keeper.cdc.MustUnmarshalBinaryBare(di.Value(), &receipt)
+				keeper.cdc.MustUnmarshal(di.Value(), &receipt)
 
 				receipts = append(receipts, receipt)
 			}

@@ -44,7 +44,7 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	documentsReceiptsIdsStoreKey := getDocumentReceiptsIdsUUIDStoreKey(receipt.DocumentUUID, receipt.UUID)
 
 	// Store the receipt
-	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
+	marshaledReceipt := keeper.cdc.MustMarshal(&receipt)
 	store.Set(receiptStoreKey, marshaledReceipt)
 	// Store the receipt ID as sent
 	store.Set(sentReceiptsIdsStoreKey, marshaledReceiptID)
@@ -75,7 +75,7 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	}
 
 	var receipt types.DocumentReceipt
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(key), &receipt)
+	keeper.cdc.MustUnmarshal(store.Get(key), &receipt)
 	return receipt, nil
 }
 

@@ -15,14 +15,14 @@ import (
 
 type (
 	Keeper struct {
-		cdc      codec.Marshaler
+		cdc      codec.BinaryCodec
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 	}
 )
 
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.BinaryCodec,
 	storeKey,
 	memKey sdk.StoreKey,
 ) *Keeper {

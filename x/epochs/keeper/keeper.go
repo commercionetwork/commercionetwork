@@ -3,21 +3,21 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.Marshaler
+		cdc      codec.BinaryCodec
 		storeKey sdk.StoreKey
 		hooks    types.EpochHooks
 	}
 )
 
-func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey) *Keeper {
+func NewKeeper(cdc codec.BinaryCodec, storeKey sdk.StoreKey) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,

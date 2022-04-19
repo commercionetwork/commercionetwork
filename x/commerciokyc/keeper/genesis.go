@@ -71,7 +71,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		}
 		// Save membership
 		membership := types.NewMembership(membership.MembershipType, mOwner, mTsp, membership.ExpiryAt.UTC())
-		store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
+		store.Set(staddr, k.cdc.MustMarshal(&membership))
 	}
 
 }
