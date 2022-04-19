@@ -31,7 +31,7 @@ func (p Params) Validate() error {
 	if err := ValidateDistrEpochIdentifier(p.DistrEpochIdentifier); err != nil {
 		return err
 	}
-	if err := validateEarnRateParamSetPairs(p.EarnRate); err != nil {
+	if err := ValidateEarnRate(p.EarnRate); err != nil {
 		return err
 	}
 
