@@ -7,6 +7,13 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
+func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
+	return Params{
+		DistrEpochIdentifier: distrEpochIdentifier,
+		EarnRate:             earnRate,
+	}
+}
+
 // Parameter store keys
 var (
 	KeyDistrEpochIdentifier = []byte("DistrEpochIdentifier")
@@ -20,10 +27,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // default minting module parameters
 func DefaultParams() Params {
-	return Params{
-		DistrEpochIdentifier: EpochDay,
-		EarnRate:             sdk.NewDecWithPrec(5, 1),
-	}
+	return NewParams(EpochDay, sdk.NewDecWithPrec(5, 1))
 }
 
 // validate params

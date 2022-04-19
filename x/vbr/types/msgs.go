@@ -96,10 +96,7 @@ func (msg *MsgSetParams) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address format: %s", err)
 	}
 
-	params := Params{
-		DistrEpochIdentifier: msg.DistrEpochIdentifier,
-		EarnRate:             msg.EarnRate,
-	}
+	params := NewParams(msg.DistrEpochIdentifier, msg.EarnRate)
 
 	if err := params.Validate(); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid params: %s", err))

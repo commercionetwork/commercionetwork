@@ -65,10 +65,7 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	}
 }
 
-var params = types.Params{
-	DistrEpochIdentifier: types.EpochDay,
-	EarnRate:             sdk.NewDecWithPrec(5, 1),
-}
+var params = types.NewParams(types.EpochDay, sdk.NewDecWithPrec(5, 1))
 
 func Test_GetParams(t *testing.T) {
 	keeper, ctx := SetupKeeper(t)
@@ -90,7 +87,6 @@ func Test_GetParams(t *testing.T) {
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
 	} {
-		tc := tc
 		keeper.SetParamSet(ctx, params)
 
 		t.Run(tc.desc, func(t *testing.T) {

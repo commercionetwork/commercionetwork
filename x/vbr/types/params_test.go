@@ -16,15 +16,12 @@ func TestParams_Validate(t *testing.T) {
 		},
 		{
 			name:    "invalid DistrEpochIdentifier",
-			params:  Params{"", validEarnRate},
+			params:  NewParams("", validEarnRate),
 			wantErr: true,
 		},
 		{
-			name: "invalid EarnRate",
-			params: Params{
-				DistrEpochIdentifier: validDistrEpochIdentifier,
-				EarnRate:             InvalidEarnRate,
-			},
+			name:    "invalid EarnRate",
+			params:  NewParams(validDistrEpochIdentifier, InvalidEarnRate),
 			wantErr: true,
 		},
 	}

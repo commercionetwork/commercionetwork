@@ -18,10 +18,7 @@ const DefaultIndex uint64 = 1
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		Params: Params{
-			DistrEpochIdentifier: EpochDay,
-			EarnRate:             sdk.NewDecWithPrec(5, 1),
-		},
+		Params: NewParams(EpochDay, sdk.NewDecWithPrec(5, 1)),
 	}
 }
 

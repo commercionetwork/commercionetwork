@@ -69,6 +69,8 @@ func Test_msgServer_IncrementBlockRewardsPool(t *testing.T) {
 	}
 }
 
+var oldParams = types.NewParams(types.ValidMsgSetParams.DistrEpochIdentifier, types.ValidMsgSetParams.EarnRate.Mul(sdk.NewDec(2)))
+
 func Test_msgServer_SetParams(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -114,11 +116,8 @@ func Test_msgServer_SetParams(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "ok",
-			oldParams: &types.Params{
-				DistrEpochIdentifier: types.ValidMsgSetParams.DistrEpochIdentifier,
-				EarnRate:             types.ValidMsgSetParams.EarnRate.Mul(sdk.NewDec(2)),
-			},
+			name:      "ok",
+			oldParams: &oldParams,
 			msg: &types.MsgSetParams{
 				Government:           types.ValidMsgSetParams.Government,
 				DistrEpochIdentifier: types.ValidMsgSetParams.DistrEpochIdentifier,
@@ -131,10 +130,7 @@ func Test_msgServer_SetParams(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			srv, ctx, keeper, _ := setupMsgServer(t)
 
-			expected := types.Params{
-				DistrEpochIdentifier: tt.msg.DistrEpochIdentifier,
-				EarnRate:             tt.msg.EarnRate,
-			}
+			expected := types.NewParams(tt.msg.DistrEpochIdentifier, tt.msg.EarnRate)
 
 			if tt.oldParams != nil {
 				require.NotEqual(t, expected, tt.oldParams)
