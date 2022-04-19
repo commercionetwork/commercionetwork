@@ -41,11 +41,11 @@ func (receipt DocumentReceipt) Validate() error {
 	}
 
 	if receipt.TxHash == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "transaction hash of sent document cannot be empty")
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "transaction hash of sent document cannot be empty")
 	}
 
 	if receipt.DocumentUUID == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "document UUID cannot be empty")
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "document UUID cannot be empty")
 	}
 
 	// if receipt.Proof == "" {
