@@ -235,8 +235,9 @@ func InitTestnet(
 			return err
 		}
 
-		accTokens := sdk.TokensFromConsensusPower(10000000)
-		accStakingTokens := sdk.TokensFromConsensusPower(10000000)
+		accTokens := sdk.TokensFromConsensusPower(10000000, sdk.DefaultPowerReduction)
+
+		accStakingTokens := sdk.TokensFromConsensusPower(10000000, sdk.DefaultPowerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(app.StableCreditsDenom, accTokens),
 			sdk.NewCoin(app.DefaultBondDenom, accStakingTokens),
@@ -245,7 +246,7 @@ func InitTestnet(
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-		valTokens := sdk.TokensFromConsensusPower(100)
+		valTokens := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -312,7 +313,7 @@ func initGenFiles(
 	genFiles []string, numValidators int,
 ) error {
 
-	cdc := clientCtx.JSONMarshaler
+	cdc := clientCtx.JSONCodec
 
 	appGenState := mbm.DefaultGenesis(cdc)
 
@@ -361,7 +362,7 @@ func initGenFiles(
 	// set-genesis-vbr-pool-amount 1000000000ucommercio
 	var vbrState vbrTypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[vbrTypes.ModuleName], &vbrState)
-	tokens := sdk.TokensFromConsensusPower(1000)
+	tokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	vbrState.Params.DistrEpochIdentifier = "minute"
 	vbrState.Params.EarnRate = sdk.NewDecWithPrec(5, 2)
@@ -425,7 +426,7 @@ func collectGenFiles(
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.JSONMarshaler, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator)
+		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.JSONCodec, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator)
 		if err != nil {
 			return err
 		}
@@ -475,7 +476,7 @@ func collectGenFiles(
 	}
 
 	_, persistentPeers, _ := genutil.CollectTxs(
-		clientCtx.JSONMarshaler, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
+		clientCtx.JSONCodec, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
 	)
 
 	writeFile("persistent.txt", filepath.Join(outputDir, "base_config"), []byte(persistentPeers))
