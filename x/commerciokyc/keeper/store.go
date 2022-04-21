@@ -50,14 +50,10 @@ func (k Keeper) GetLiquidityPoolAmountCoins(ctx sdk.Context) sdk.Coins {
 
 // TODO CHECK FUNCTION
 func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins sdk.Coins) error {
-	moduleAccount := k.GetModuleAccount(ctx)
-
-	if err := k.bankKeeper.MintCoins(ctx, moduleAccount.GetAddress().String(), coins); err != nil {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
 		return err
 	}
-
 	return nil
-
 }
 
 func (k Keeper) SetModuleAccount(ctx sdk.Context, acc accType.ModuleAccountI) {

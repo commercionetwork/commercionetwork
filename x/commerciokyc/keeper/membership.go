@@ -212,6 +212,8 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		// Need Mint tokens to module and send to account
 		//
 		// k.bankKeeper.AddCoins(ctx, inviteSender, rewardCoins)
+		// WARNING: some problems here. MintCoins inflate the Supply
+		// Before AddCoins didn't that
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, rewardCoins); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
