@@ -52,10 +52,7 @@ func TestNewQuerier_queryParams(t *testing.T) {
 	t.Run("queryParams", func(t *testing.T) {
 		k, ctx := SetupKeeper(t)
 
-		expected := types.Params{
-			DistrEpochIdentifier: types.ValidMsgSetParams.DistrEpochIdentifier,
-			EarnRate:             types.ValidMsgSetParams.EarnRate,
-		}
+		expected := types.NewParams(types.ValidMsgSetParams.DistrEpochIdentifier, types.ValidMsgSetParams.EarnRate)
 		k.SetParamSet(ctx, expected)
 
 		app := simapp.Setup(false)

@@ -7,6 +7,13 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
+func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
+	return Params{
+		DistrEpochIdentifier: distrEpochIdentifier,
+		EarnRate:             earnRate,
+	}
+}
+
 // Parameter store keys
 var (
 	KeyDistrEpochIdentifier = []byte("DistrEpochIdentifier")
@@ -18,27 +25,17 @@ func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
-	return Params{
-		DistrEpochIdentifier: distrEpochIdentifier,
-		EarnRate:             earnRate,
-	}
-}
-
 // default minting module parameters
 func DefaultParams() Params {
-	return Params{
-		DistrEpochIdentifier: EpochDay,
-		EarnRate:             sdk.NewDecWithPrec(5, 1),
-	}
+	return NewParams(EpochDay, sdk.NewDecWithPrec(5, 1))
 }
 
 // validate params
 func (p Params) Validate() error {
-	if err := validateDistrEpochIdentifier(p.DistrEpochIdentifier); err != nil {
+	if err := ValidateDistrEpochIdentifier(p.DistrEpochIdentifier); err != nil {
 		return err
 	}
-	if err := validateEarnRate(p.EarnRate); err != nil {
+	if err := ValidateEarnRate(p.EarnRate); err != nil {
 		return err
 	}
 
@@ -48,32 +45,49 @@ func (p Params) Validate() error {
 // Implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyDistrEpochIdentifier, &p.DistrEpochIdentifier, validateDistrEpochIdentifier),
-		paramtypes.NewParamSetPair(KeyEarnRate, &p.EarnRate, validateEarnRate),
+		paramtypes.NewParamSetPair(KeyDistrEpochIdentifier, &p.DistrEpochIdentifier, validateDistrEpochIdentifierParamSetPairs),
+		paramtypes.NewParamSetPair(KeyEarnRate, &p.EarnRate, validateEarnRateParamSetPairs),
 	}
 }
 
-func validateDistrEpochIdentifier(i interface{}) error {
+func validateDistrEpochIdentifierParamSetPairs(i interface{}) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == "" {
-		return fmt.Errorf("empty distribution epoch identifier: %+v", i)
+	if err := ValidateDistrEpochIdentifier(v); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func validateEarnRate(i interface{}) error {
+func ValidateDistrEpochIdentifier(i string) error {
+	switch i {
+	case EpochDay, EpochWeek, EpochHour, EpochMinute:
+		return nil
+	}
+
+	return fmt.Errorf("invalid distr epoch identifier: %s", i)
+}
+
+func validateEarnRateParamSetPairs(i interface{}) error {
 	v, ok := i.(sdk.Dec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.IsNegative() {
-		return fmt.Errorf("earn rate cannot be negative: %+v", i)
+	if err := ValidateEarnRate(v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ValidateEarnRate(e sdk.Dec) error {
+	if e.IsNegative() {
+		return fmt.Errorf("earn rate cannot be negative: %+v", e)
 	}
 
 	return nil

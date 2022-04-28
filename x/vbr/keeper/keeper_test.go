@@ -12,10 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var params_test = types.Params{
-	DistrEpochIdentifier: types.EpochDay,
-	EarnRate:             sdk.NewDecWithPrec(5, 1),
-}
+var params_test = types.NewParams(types.EpochDay, sdk.NewDecWithPrec(5, 1))
 
 func TestKeeper_ComputeProposerReward(t *testing.T) {
 	tests := []struct {
@@ -51,10 +48,7 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 			sdk.NewInt(100000000),
 			50,
 			"47.564687975646879756",
-			types.Params{
-				DistrEpochIdentifier: types.EpochMinute,
-				EarnRate:             sdk.NewDecWithPrec(5, 1),
-			},
+			types.NewParams(types.EpochMinute, sdk.NewDecWithPrec(5, 1)),
 		},
 	}
 	for _, tt := range tests {
@@ -131,10 +125,8 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 			validatorOutstandingRewards := distrTypes.ValidatorOutstandingRewards{}
 			k.distKeeper.SetValidatorOutstandingRewards(ctx, testVal.GetOperator(), validatorOutstandingRewards)
 
-			params := types.Params{
-				DistrEpochIdentifier: types.EpochDay,
-				EarnRate:             sdk.NewDecWithPrec(5, 1),
-			}
+			params := types.NewParams(types.EpochDay, sdk.NewDecWithPrec(5, 1))
+
 			reward := k.ComputeProposerReward(ctx, 1, testVal, types.BondDenom, params)
 			rewardInt, _ := reward.TruncateDecimal()
 			_ = rewardInt

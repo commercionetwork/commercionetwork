@@ -224,11 +224,11 @@ func TestDocumentReceipt_Validate(t *testing.T) {
 		{
 			name: "empty proof",
 			receipt: func() DocumentReceipt {
-				receipt := ValidDocumentReceiptRecipient1
+				receipt := ValidDocumentReceiptRecipient2
 				receipt.Proof = ""
 				return receipt
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
