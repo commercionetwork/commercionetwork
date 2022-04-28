@@ -9,10 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var params = types.Params{
-	DistrEpochIdentifier: types.EpochDay,
-	EarnRate:             sdk.NewDecWithPrec(5, 1),
-}
+var params = types.NewParams(types.EpochDay, sdk.NewDecWithPrec(5, 1))
 
 func TestMigrate(t *testing.T) {
 	type args struct {

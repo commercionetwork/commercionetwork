@@ -68,10 +68,8 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 	if msg.EarnRate.IsNegative() {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
 	}
-	params := types.Params{
-		DistrEpochIdentifier: msg.DistrEpochIdentifier,
-		EarnRate:             msg.EarnRate,
-	}
+	params := types.NewParams(msg.DistrEpochIdentifier, msg.EarnRate)
+
 	k.SetParamSet(ctx, params)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventSetParams,
