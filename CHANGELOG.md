@@ -1,3 +1,10 @@
+# Version 3.0.2
+
+* Update general documentation
+* Allowed EpochHour in `vbr` module
+* Added deposit command in `commerciokyc` module
+* Removed check on empty proof for DocumentReceipt in `documents` module
+
 # Version 3.0.1
 
 * Added `config` command
