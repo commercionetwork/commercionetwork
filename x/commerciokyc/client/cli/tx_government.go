@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -115,10 +117,7 @@ func AddTspFunc(cmd *cobra.Command, args []string) error {
 	return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 }
 
-/*
-	CmdRemoveTsp(),
-*/
-
+// CmdRemoveTsp remove the given tsp from tsps list
 func CmdRemoveTsp() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-tsp [tsp-address]",
@@ -147,6 +146,46 @@ func RemoveTspFunc(cmd *cobra.Command, args []string) error {
 
 	msg := types.NewMsgRemoveTsp(tsp.String(), govAddr.String())
 
+	err = msg.ValidateBasic()
+	if err != nil {
+		return err
+	}
+
+	return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+}
+
+// CmdDepositIntoPool add the given amount of commercio token to the pool
+func CmdDepositIntoPool() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit [amount]",
+		Short: "Increments the membership rewards pool's liquidity by the given amount",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return depositIntoPoolFunc(cmd, args)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func depositIntoPoolFunc(cmd *cobra.Command, args []string) error {
+	cliCtx, err := client.GetClientTxContext(cmd)
+
+	funder := cliCtx.GetFromAddress()
+	amount, err := sdk.ParseCoinsNormalized(args[0])
+	if err != nil {
+		return err
+	}
+
+	for _, coin := range amount {
+		if coin.Denom != "ucommercio" {
+			return errors.New("only ucommercio amounts are accepted")
+		}
+	}
+
+	msg := types.NewMsgDepositIntoLiquidityPool(amount, funder.String())
 	err = msg.ValidateBasic()
 	if err != nil {
 		return err

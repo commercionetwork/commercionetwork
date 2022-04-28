@@ -119,7 +119,7 @@ After=network-online.target
 
 [Service]
 User=root
-ExecStart=/root/go/bin/commercionetwork start
+ExecStart=/root/go/bin/commercionetworkd start
 Restart=always
 RestartSec=3
 LimitNOFILE=4096

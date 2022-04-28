@@ -1,4 +1,4 @@
-# x/did
+# Did
 
 The `did` module allows the management of _identitities_ by associating a 
 DID document to a `did:com:` address.

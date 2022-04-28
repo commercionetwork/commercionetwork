@@ -31,7 +31,6 @@ curl -s --request POST \
     --data-urlencode 'scope=openid'  \
     --data-urlencode 'username=<EMAIL>'  \
     --data-urlencode 'password=<PASSWORD>' | jq -r '.id_token'
-
 ```
 
 Where `<EMAIL>` and `<PASSWORD>` are those of the user you registered in Web app
@@ -50,7 +49,7 @@ Suppose to have the user
 
 **Acquire the ID_Token**
 
-```
+```bash
 curl -s --request POST \
     'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token' \
     --header 'Content-Type: application/x-www-form-urlencoded'  \
@@ -66,10 +65,16 @@ curl -s --request POST \
 Simple way to compose `Bearer` `ID_token` string through curl
 
 
-```
-
- echo "Bearer "$(curl -s --request POST  'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token'  --header 'Content-Type: application/x-www-form-urlencoded'   --header 'Cookie: KEYCLOAK_LOCALE=en'  --data-urlencode 'client_id=dev.commercio.app'   --data-urlencode 'grant_type=password'   --data-urlencode 'scope=openid'   --data-urlencode 'username=testuser001@commercio.app'   --data-urlencode 'password=Testuser001' | jq -r '.id_token')
-
+```bash
+echo "Bearer "$(curl -s --request POST  \
+    'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token' \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --header 'Cookie: KEYCLOAK_LOCALE=en' \
+    --data-urlencode 'client_id=dev.commercio.app' \
+    --data-urlencode 'grant_type=password' \
+    --data-urlencode 'scope=openid' \
+    --data-urlencode 'username=testuser001@commercio.app' \
+    --data-urlencode 'password=Testuser001' | jq -r '.id_token')
 ```
 
 **Identity Manager (IDM) reply**
@@ -106,7 +111,7 @@ Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGa
 Example path /sharedoc/process
 
 
-```
+```bash
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/sharedoc/process' \
   -H 'accept: application/json' \
@@ -118,7 +123,7 @@ curl -X 'GET' \
 
 Pay attention that the `id_token` has an expiration time 
 
-```
+```json
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjE0OTU1NjcsImlhdCI6MTYyMTQ5NTI2NywianRpIjoiODE4NzdlZjMtNDQ3Yy00N2JlLTlhYjYtN2E2ZjBkZDhlMjEwIiwiaXNzIjoiaHR0cHM6Ly9kZXZsb2dpbi5jb21tZXJjaW8uYXBwL2F1dGgvcmVhbG1zL2NvbW1lcmNpbyIsImF1ZCI6WyJkZXYuY29tbWVyY2lvLmFwcCIsImFjY291bnQiXSwic3ViIjoiNDhhMDRiMjctZDY3OS00NDJiLWJlNmItMDJhNmQ4MmYxMGIzIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzZXNzaW9uX3N0YXRlIjoiNTQ0ZWZiMDctNGE2ZC00N2RkLWEwYjYtYTg0ZWJkZDg1ZGU2IiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2Rldi5jb21tZXJjaW8uYXBwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTQzMjUzOCIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAyIEVudGVycHJpc2V1c2VyMDAyIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAyQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAyIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMiIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDJAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAyQHpvdHNlbGwuY29tIn0.Wkho3o1Ef535BdGnyeQOiVQsOYKDvlNQGYCY_cIJHg23Ep2kr9gSM7KhSWvXz9o4Z7hMgCdX2jT7T2JL_6KLrv1sGeu8XYYbG1AbQDtoL5ZsKGtbSKl8yiL8QZZ5my-6lSPHmbg-xF8zePJYe3xhYR1evNaoO8WnDmTlyVyGsBoIu7Y2cBKVQtSyivD20XJx6V1ijp-Nr88wJTQFZYq4MSQS4IVdOeXTUbcVq3Ebc53tmOcfKg10OdZLKC2JoZQzh8Igomup-PaVB8MZUIv54Yxwg8nC45VNrgq6gVF32hJhlWVGf-LlhnP1Vmqjv7gSali6FsHg8sOBbxHbz99cew", 
   "expires_in": 300, 
@@ -134,6 +139,75 @@ Pay attention that the `id_token` has an expiration time
 
 * Rif : [Bearer Authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)
 * Usefull guide for common Client available can be found here  <a href="https://openid.net/developers/certified/">Certified OpenID Connect Implementations </a>
+
+
+## Using refresh_token 
+
+In order to obtain a new `id_token` due to the fact that it expires in time as per `expires_in` value it is possible to use alternatively the `refresh_token` instead of using the [Get id token procedure](#get-the-id-token)
+
+So initialy use the  [Get id token procedure](#get-the-id-token) to obtain the full JWT 
+
+###  Get the id token Request  
+
+```
+curl -s --request POST  'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token'  --header 'Content-Type: application/x-www-form-urlencoded'   --header 'Cookie: KEYCLOAK_LOCALE=en'  --data-urlencode 'client_id=dev.commercio.app'   --data-urlencode 'grant_type=password'   --data-urlencode 'scope=openid'   --data-urlencode 'username=youruseraccount@yourdomain.aaa'   --data-urlencode 'password=yourpassword'
+```
+
+### Login Reply 
+
+```json
+{
+   "access_token":"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2NDk4NDU2MjcsImlhdCI6MTY0OTg0MzgyNywianRpIjoiMzA1NDFlNTItYzdjYy00YmI5LWE1MGYtZGVhOTliMDhmMzU5IiwiaXNzIjoiaHR0cHM6Ly9kZXZsb2dpbi5jb21tZXJjaW8uYXBwL2F1dGgvcmVhbG1zL2NvbW1lcmNpbyIsImF1ZCI6WyJkZXYuY29tbWVyY2lvLmFwcCIsImFjY291bnQiXSwic3ViIjoiOTk3ZDI3Y2EtZWUxNS00N2E2LWEyOWUtZDIzOWNhNzA1MGFjIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzZXNzaW9uX3N0YXRlIjoiYzgwZmI5NjctYzQ4Yi00NDVjLTliMTMtMjMyYjYwMzBkNzE3IiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2Rldi5jb21tZXJjaW8uYXBwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyNDYzMzA4MCIsInJlZmVycmFsIjoiIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImFkZHJlc3MiOnt9LCJuYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEgRW50ZXJwcmlzZXVzZXIwMDEiLCJwaG9uZV9udW1iZXIiOiIzNDg1MjQxMDAxIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZW50ZXJwcmlzZXVzZXIwMDFAem90c2VsbC5jb20iLCJnaXZlbl9uYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEiLCJsb2NhbGUiOiJpdCIsImZhbWlseV9uYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEiLCJlbWFpbCI6ImVudGVycHJpc2V1c2VyMDAxQHpvdHNlbGwuY29tIiwidXNlcm5hbWUiOiJlbnRlcnByaXNldXNlcjAwMUB6b3RzZWxsLmNvbSJ9.iVct5CAL0aGbX40Z9GarcLGvXw0alVfPRWSWoiVgPqebENdcDpAQBCi1169_C_cG5STlybtVqosOFI_0bjMfqg6mm5P5_miWTLjZ6bWgRYfG1wmC1xhBzy5QM_ciR9CLb6r_8jckyCbd4tZS0iVrZmqcFNS9r_Iw5KEf4C8cjNacTYyv7ROGm09q9k5TBe2W7RJd6xtLV34e4eUqL6kDABhy61QplF6f9LaUrMyQEHJE3KU2lweL6NFTFJMngFer9Cocw_tXZ_VSMG63thjPKIWBJbfkNgajeMvvsHNvBOgzydYqbNGpS5HEsZAafE37ulf4k6d0TYSVFWzmwdATkg",
+   "expires_in":1800,
+   "refresh_expires_in":1800,
+   "refresh_token":"eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1YzcxNGJmZC03NThmLTRkZDItYTIyYy1jODJmMTk3NGIwZmMifQ.eyJleHAiOjE2NDk4NDU2MjcsImlhdCI6MTY0OTg0MzgyNywianRpIjoiOTk2Mjk4OWUtYWNjNC00MWVlLTlmMGQtN2NiNjQwMzQ4NzZjIiwiaXNzIjoiaHR0cHM6Ly9kZXZsb2dpbi5jb21tZXJjaW8uYXBwL2F1dGgvcmVhbG1zL2NvbW1lcmNpbyIsImF1ZCI6Imh0dHBzOi8vZGV2bG9naW4uY29tbWVyY2lvLmFwcC9hdXRoL3JlYWxtcy9jb21tZXJjaW8iLCJzdWIiOiI5OTdkMjdjYS1lZTE1LTQ3YTYtYTI5ZS1kMjM5Y2E3MDUwYWMiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzZXNzaW9uX3N0YXRlIjoiYzgwZmI5NjctYzQ4Yi00NDVjLTliMTMtMjMyYjYwMzBkNzE3Iiwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSJ9.VeN7bEwyD9e83rdapOXhXtDWTS31_bxtBMizSdNAKV8",
+   "token_type":"Bearer",
+   "id_token":"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2NDk4NDU2MjcsImlhdCI6MTY0OTg0MzgyNywiYXV0aF90aW1lIjowLCJqdGkiOiJlMjVkNWZhNy0yYWRlLTRhNjYtYjEwMi0zOGQ5MmE4NTYyMDUiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI5OTdkMjdjYS1lZTE1LTQ3YTYtYTI5ZS1kMjM5Y2E3MDUwYWMiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImM4MGZiOTY3LWM0OGItNDQ1Yy05YjEzLTIzMmI2MDMwZDcxNyIsImF0X2hhc2giOiJGZ2JodWJCUWtydThlTW5QR3N3cmN3IiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyNDYzMzA4MCIsInJlZmVycmFsIjoiIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImFkZHJlc3MiOnt9LCJuYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEgRW50ZXJwcmlzZXVzZXIwMDEiLCJwaG9uZV9udW1iZXIiOiIzNDg1MjQxMDAxIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZW50ZXJwcmlzZXVzZXIwMDFAem90c2VsbC5jb20iLCJnaXZlbl9uYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEiLCJsb2NhbGUiOiJpdCIsImZhbWlseV9uYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEiLCJlbWFpbCI6ImVudGVycHJpc2V1c2VyMDAxQHpvdHNlbGwuY29tIiwidXNlcm5hbWUiOiJlbnRlcnByaXNldXNlcjAwMUB6b3RzZWxsLmNvbSJ9.A2yvD484yZU-uVg9GBNuO5MS3pWvHzdlTZBPZrFz-PHTSfdSkQYqSsdOx2RABLdYeItQo5V2LobNlrzCxNN1F_yZ2Kgc7gk52CCwJWho8Vjii6kNgPR6_nYPMUCymekGESg5owZAw-RscX0LHYVdNLUp5qDHGfNQeid_wIbz3SzAOZK6O3kPRb_raMupfaXLhkUzfQ7xM3j7wop-fTn4CaVc7fpNtbNUTUmps0sRMWylPkQb36_kvgNeSOVTzQn7GE3cEiEtVI_Frazm6evUdDxYylihzT_RRY6mX6zZtrlu6w2Js0bt-gaMMT_CuAjvYkO0OZ55FLrHPzLhNGVK6w",
+   "not-before-policy":1630412674,
+   "session_state":"c80fb967-c48b-445c-9b13-232b6030d717",
+   "scope":"openid email profile"
+}
+```
+
+When you need to refresh the `id_token` before it expires you can perform the following steps using the 
+`refresh_token`
+
+
+
+### Get the id token by refresh_token Request 
+
+
+```bash
+curl -s --request POST \
+  'https://devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token' \
+  header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'client_id=dev.commercio.app' \
+  --data-urlencode 'grant_type=refresh_token' \
+  --data-urlencode 'refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1YzcxNGJmZC03NThmLTRkZDItYTIyYy1jODJmMTk3NGIwZmMifQ.eyJleHAiOjE2NDk4NDU2MjcsImlhdCI6MTY0OTg0MzgyNywianRpIjoiOTk2Mjk4OWUtYWNjNC00MWVlLTlmMGQtN2NiNjQwMzQ4NzZjIiwiaXNzIjoiaHR0cHM6Ly9kZXZsb2dpbi5jb21tZXJjaW8uYXBwL2F1dGgvcmVhbG1zL2NvbW1lcmNpbyIsImF1ZCI6Imh0dHBzOi8vZGV2bG9naW4uY29tbWVyY2lvLmFwcC9hdXRoL3JlYWxtcy9jb21tZXJjaW8iLCJzdWIiOiI5OTdkMjdjYS1lZTE1LTQ3YTYtYTI5ZS1kMjM5Y2E3MDUwYWMiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzZXNzaW9uX3N0YXRlIjoiYzgwZmI5NjctYzQ4Yi00NDVjLTliMTMtMjMyYjYwMzBkNzE3Iiwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSJ9.VeN7bEwyD9e83rdapOXhXtDWTS31_bxtBMizSdNAKV8' | jq '.'
+``` 
+
+### Login Reply 
+You will obtain a new JWT 
+
+
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2NDk4NDcyNDAsImlhdCI6MTY0OTg0NTQ0MCwianRpIjoiMzM1NjVkYmQtNWI2OS00NzJiLTgzZjQtYmJjMzM1Y2JhNjk4IiwiaXNzIjoiaHR0cHM6Ly9kZXZsb2dpbi5jb21tZXJjaW8uYXBwL2F1dGgvcmVhbG1zL2NvbW1lcmNpbyIsImF1ZCI6WyJkZXYuY29tbWVyY2lvLmFwcCIsImFjY291bnQiXSwic3ViIjoiOTk3ZDI3Y2EtZWUxNS00N2E2LWEyOWUtZDIzOWNhNzA1MGFjIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzZXNzaW9uX3N0YXRlIjoiYzgwZmI5NjctYzQ4Yi00NDVjLTliMTMtMjMyYjYwMzBkNzE3IiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2Rldi5jb21tZXJjaW8uYXBwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyNDYzMzA4MCIsInJlZmVycmFsIjoiIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImFkZHJlc3MiOnt9LCJuYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEgRW50ZXJwcmlzZXVzZXIwMDEiLCJwaG9uZV9udW1iZXIiOiIzNDg1MjQxMDAxIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZW50ZXJwcmlzZXVzZXIwMDFAem90c2VsbC5jb20iLCJnaXZlbl9uYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEiLCJsb2NhbGUiOiJpdCIsImZhbWlseV9uYW1lIjoiRW50ZXJwcmlzZXVzZXIwMDEiLCJlbWFpbCI6ImVudGVycHJpc2V1c2VyMDAxQHpvdHNlbGwuY29tIiwidXNlcm5hbWUiOiJlbnRlcnByaXNldXNlcjAwMUB6b3RzZWxsLmNvbSJ9.T49W5WcOxpOQ19l1urAOURBFUQ9UQPyJWBieqP-ZgELIR2fhxtj9BKAAC4WiUM7NZcsvGEr11Uxu0eZJqI5B50SqWFROEX5DHJ5wuRCvhLwIVGWKAVxNs1Y4_gFZAGMDLKCfa5Dg6g_zvd2Sce1YahhlLj81jBfq1Ik8RfSOlun6eZ6FjgC7-PDxXiuCZVQP4PDsY4W0r-3zHcawdYiznW8unRREvwECWo0pnS7GOw6RL3x_-o83hsEKgcv0B6ysgDq5i43KtqfF11zBBeAJAa5z3WeVMuF-bp11sFao3cSfkzf3Nq1bo7zZwUBs3z6SLZlZ83kAaq3OrEiQecFCHQ",
+  "expires_in": 1800,
+  "refresh_expires_in": 1800,
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1YzcxNGJmZC03NThmLTRkZDItYTIyYy1jODJmMTk3NGIwZmMifQ.eyJleHAiOjE2NDk4NDcyNDAsImlhdCI6MTY0OTg0NTQ0MCwianRpIjoiMGIzODkzNGUtYjg2NC00YmViLWJjNjktYWI0YzFmNzMwZjE1IiwiaXNzIjoiaHR0cHM6Ly9kZXZsb2dpbi5jb21tZXJjaW8uYXBwL2F1dGgvcmVhbG1zL2NvbW1lcmNpbyIsImF1ZCI6Imh0dHBzOi8vZGV2bG9naW4uY29tbWVyY2lvLmFwcC9hdXRoL3JlYWxtcy9jb21tZXJjaW8iLCJzdWIiOiI5OTdkMjdjYS1lZTE1LTQ3YTYtYTI5ZS1kMjM5Y2E3MDUwYWMiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzZXNzaW9uX3N0YXRlIjoiYzgwZmI5NjctYzQ4Yi00NDVjLTliMTMtMjMyYjYwMzBkNzE3Iiwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSJ9.PX5jgdC-5-v1Fe74wpzwWM5hBwFQJcRYxZKWYmt-Oys",
+  "token_type": "Bearer",
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2NDk4NDcyNDAsImlhdCI6MTY0OTg0NTQ0MCwiYXV0aF90aW1lIjowLCJqdGkiOiJlZDU4OGJmYy0yODQ4LTQxY2QtYjU0NC1iZWI0OWI2ZmRhMTIiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI5OTdkMjdjYS1lZTE1LTQ3YTYtYTI5ZS1kMjM5Y2E3MDUwYWMiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImM4MGZiOTY3LWM0OGItNDQ1Yy05YjEzLTIzMmI2MDMwZDcxNyIsImFjciI6IjEiLCJ0ZXJtc19hbmRfY29uZGl0aW9ucyI6IjE2MjQ2MzMwODAiLCJyZWZlcnJhbCI6IiIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAxIEVudGVycHJpc2V1c2VyMDAxIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTAwMSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAxQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAxIiwibG9jYWxlIjoiaXQiLCJmYW1pbHlfbmFtZSI6IkVudGVycHJpc2V1c2VyMDAxIiwiZW1haWwiOiJlbnRlcnByaXNldXNlcjAwMUB6b3RzZWxsLmNvbSIsInVzZXJuYW1lIjoiZW50ZXJwcmlzZXVzZXIwMDFAem90c2VsbC5jb20ifQ.aDT0OpBb3o3cLwsZL9vbgA5pm0NlGO75VgjFZzi7hYykKrXqaN20YWZuYoQXzeOeTh-AeSwMLCHDc6ie1_bz2dDJzDfECEzQ7PBRKaAgQy3LqZXrZG9uktO-magZ8CK0jzpuAKY1DD9SItzfcTrnxYwIYEzuPq8juUDEfkHgBnkahLdjj2__EGiD6i9eI_BDYJFGY6IrsObOPbnfd-pa7AqHkC47SzvLkjGajN3rj0dxDuD1rU2Eer392IvfVFAso1kkJjjTTSh1unnx7pu-wJSDTxmshF1i7CYCy5rMqS9D4VnJ2KDUswfM9Ooz3MvWCvCkjdGHWFEOUEncFutylw",
+  "not-before-policy": 1630412674,
+  "session_state": "c80fb967-c48b-445c-9b13-232b6030d717",
+  "scope": "openid email profile"
+}
+```
+
+
+This can be reiterated in time
+
 
 --- 
 

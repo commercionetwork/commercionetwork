@@ -55,10 +55,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "invalid DistrEpochIdentifier",
 			fields: fields{
 				PoolAmount: validPoolAmount,
-				Params: Params{
-					DistrEpochIdentifier: "",
-					EarnRate:             validEarnRate,
-				},
+				Params:     NewParams("", validEarnRate),
 			},
 			wantErr: true,
 		},
@@ -66,10 +63,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "invalid EarnRate",
 			fields: fields{
 				PoolAmount: validPoolAmount,
-				Params: Params{
-					DistrEpochIdentifier: validDistrEpochIdentifier,
-					EarnRate:             InvalidEarnRate,
-				},
+				Params:     NewParams(validDistrEpochIdentifier, InvalidEarnRate),
 			},
 			wantErr: true,
 		},

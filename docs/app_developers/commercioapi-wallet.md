@@ -114,7 +114,7 @@ Use the API Get : /wallet/address
 
 Example
 
-```
+```bash
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/address' \
   -H 'accept: application/json' \
@@ -134,7 +134,7 @@ THe body response is a json containing  the following important entity
 
 Example 
 
-``` 
+```json
 {
   "account_number": "7659", 
   "address": "did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx", 
@@ -152,7 +152,7 @@ Example
 }
 
 
-```  
+```
 
 
 
@@ -174,7 +174,7 @@ Use the API GET : `/wallet/balance`
 
 Example
 
-```
+```bash
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/balance' \
   -H 'accept: application/json' \
@@ -194,7 +194,7 @@ As per API `/wallet/address` entity response `coins`
 
 Example 
 
-```
+```json
 {
   "amount": [
     {
@@ -230,7 +230,7 @@ Use the API POST : `/wallet/transfers`
 
 Example
 
-```
+```bash
 curl -X 'POST' \
   'https://dev-api.commercio.app/v1/wallet/transfers' \
   -H 'accept: application/json' \
@@ -261,7 +261,7 @@ The response contains data about the process
 Is an important data that could be used later with the API Wallet transfers GET by send_token_id. See the next API description
 
 
-```
+```json
 {
   "send_token_id": "af5b3a65-9c60-4241-9186-b655a1091dcc",
   "sender": "did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx",
@@ -303,7 +303,7 @@ send_token_id = `af5b3a65-9c60-4241-9186-b655a1091dcc`
 Example
 
 
-```
+```bash
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/transfers/af5b3a65-9c60-4241-9186-b655a1091dcc' \
   -H 'accept: application/json' \
@@ -314,7 +314,7 @@ curl -X 'GET' \
 **API : Body response**
 
 
-```
+```json
 {
   "send_token_id": "af5b3a65-9c60-4241-9186-b655a1091dcc",
   "sender": "did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx",
@@ -369,7 +369,7 @@ Use the API GET : `/wallet/transfers`
 
 Example
 
-```
+```bash
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/transfers' \
   -H 'accept: application/json' \
@@ -381,7 +381,7 @@ curl -X 'GET' \
 **API : Body response**
 
 
-```
+```json
 [
   {
     "send_token_id": "af5b3a65-9c60-4241-9186-b655a1091dcc",

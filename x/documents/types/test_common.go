@@ -99,7 +99,7 @@ var ValidDocumentReceiptRecipient2 = DocumentReceipt{
 	Recipient:    sender.String(),
 	TxHash:       "txHash",
 	DocumentUUID: ValidDocument.UUID,
-	Proof:        "proof",
+	Proof:        "",
 }
 
 //var AnotherValidDocument Document
