@@ -43,6 +43,18 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name:           "sender not among recipients of document",
+			storedDocument: &types.ValidDocument,
+			testReceipt: func() types.DocumentReceipt {
+				receipt := types.ValidDocumentReceiptRecipient1
+				extraSender, _ := sdk.AccAddressFromBech32("cosmos1wze8mn5nsgl9qrgazq6a92fvh7m5e6psjcx2du")
+				receipt.Sender = extraSender.String()
+
+				return receipt
+			},
+			wantErr: true,
+		},
+		{
 			name:           "receipt already in store",
 			storedDocument: &types.ValidDocument,
 			storedReceipt:  &types.ValidDocumentReceiptRecipient1,
