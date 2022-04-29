@@ -60,28 +60,3 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 
 	return genesis
 }
-
-// ValidateGenesis performs basic validation of genesis data returning an
-// error for any failed validation criteria.
-func ValidateGenesis(state types.GenesisState) error {
-	for _, position := range state.Positions {
-		err := position.Validate()
-		if err != nil {
-			return err
-		}
-	}
-	// PoolAmount
-
-	freezePeriod := state.Params.FreezePeriod
-	err := types.ValidateFreezePeriod(freezePeriod)
-	if err != nil {
-		return err
-	}
-
-	err = types.ValidateConversionRate(state.Params.ConversionRate)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

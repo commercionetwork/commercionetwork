@@ -23,12 +23,10 @@ func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id s
 // Validate verifies that the data contained inside this position are all valid,
 // returning an error is something isn't valid
 func (pos Position) Validate() error {
-	//if pos.Owner.Empty() {
-	if pos.Owner == "" {
-		return fmt.Errorf("invalid owner address: %s", pos.Owner)
+	if _, err := sdk.AccAddressFromBech32(pos.Owner); err != nil {
+		return err
 	}
-	if pos.Collateral == 0 || pos.Collateral < 0 {
-		//return errors.New("invalid collateral amount")
+	if pos.Collateral <= 0 {
 		return fmt.Errorf("invalid collateral amount")
 	}
 
@@ -41,8 +39,10 @@ func (pos Position) Validate() error {
 		return fmt.Errorf("exchange rate cannot be negative")
 	}
 
-	if *pos.CreatedAt == (time.Time{}) {
-		return fmt.Errorf("cannot have empty creation time")
+	if pos.CreatedAt != nil {
+		if *pos.CreatedAt == (time.Time{}) {
+			return fmt.Errorf("cannot have empty creation time")
+		}
 	}
 
 	if _, err := uuid.FromString(pos.ID); err != nil {
