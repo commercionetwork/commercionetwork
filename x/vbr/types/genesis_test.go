@@ -43,14 +43,6 @@ func TestGenesisState_Validate(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		// {
-		// 	name: "invalid PoolAmount",
-		// 	fields: fields{
-		// 		PoolAmount: , // redundant test if !gs.PoolAmount.IsValid() gets removed
-		// 		Params:     validParams,
-		// 	},
-		// 	wantErr: true,
-		// },
 		{
 			name: "invalid DistrEpochIdentifier",
 			fields: fields{

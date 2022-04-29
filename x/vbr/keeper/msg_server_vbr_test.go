@@ -135,7 +135,8 @@ func Test_msgServer_SetParams(t *testing.T) {
 			if tt.oldParams != nil {
 				require.NotEqual(t, expected, tt.oldParams)
 
-				keeper.SetParamSet(sdk.UnwrapSDKContext(ctx), *tt.oldParams)
+				err := keeper.SetParamSet(sdk.UnwrapSDKContext(ctx), *tt.oldParams)
+				require.NoError(t, err)
 			}
 
 			got, err := srv.SetParams(ctx, tt.msg)
