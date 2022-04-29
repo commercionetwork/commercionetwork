@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -10,7 +11,6 @@ import (
 func DefaultGenesis() *GenesisState {
 
 	return &GenesisState{
-		// this line is used by starport scaffolding # genesis/types/default
 		LiquidityPoolAmount: sdk.Coins(nil),
 		Invites:             []*Invite(nil),
 		Memberships:         []*Membership(nil),
@@ -21,11 +21,23 @@ func DefaultGenesis() *GenesisState {
 // failure.
 func (gs GenesisState) Validate() error {
 
-	// this line is used by starport scaffolding # genesis/types/validate
 	coins := gs.LiquidityPoolAmount
 
 	if coins.IsAnyNegative() {
 		return errors.New("liquidity pool amount cannot contain negative values")
 	}
+
+	for _, invite := range gs.Invites {
+		if err := invite.ValidateBasic(); err != nil {
+			return fmt.Errorf("invalid invite: %s", err)
+		}
+	}
+
+	for _, membership := range gs.Memberships {
+		if err := membership.Validate(); err != nil {
+			return fmt.Errorf("invalid invite: %s", err)
+		}
+	}
+
 	return nil
 }
