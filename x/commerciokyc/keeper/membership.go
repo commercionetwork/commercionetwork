@@ -207,16 +207,14 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 
 		// Mint coins to module
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, rewardCoins); err != nil {
-			// If errors it's better to burn coins?
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, inviteSender, rewardCoins); err != nil {
-			// If errors it's better to burn coins?
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
-		// Burn coin after coins are sended
+		// Burn com tokens after ccc tokens are sent
 		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, stakeEquivCoins); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
