@@ -59,31 +59,32 @@ jobs:
           paths:
             - ".git"
 
-  test:
-    executor: golang
-    parallelism: 4
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-v2-{{ checksum "go.sum" }}
-      - run:
-          name: Run tests
-          command: |
-            export VERSION="$(git describe --tags --long | sed 's/v\(.*\)/\1/')"
-            export GO111MODULE=on
-            mkdir -p /tmp/logs /tmp/workspace/profiles
-            for pkg in $(go list ./... | grep -v '/simulation' | circleci tests split); do
-              id=$(echo "$pkg" | sed 's|[/.]|_|g')
-              go test -mod=readonly -timeout 30m -race -coverprofile=/tmp/workspace/profiles/$id.out -covermode=atomic -tags='ledger test_ledger_mock' "$pkg" | tee "/tmp/logs/$id-$RANDOM.log"
-            done
-          no_output_timeout: 30m
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - "profiles/*"
-      - store_artifacts:
-          path: /tmp/logs
+  # test:
+  #   executor: golang
+  #   parallelism: 4
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys:
+  #           - go-mod-v2-{{ checksum "go.sum" }}
+  #     - run:
+  #         name: Run tests
+  #         command: |
+  #           export VERSION="$(git describe --tags --long | sed 's/v\(.*\)/\1/')"
+  #           export GO111MODULE=on
+  #           mkdir -p /tmp/logs /tmp/workspace/profiles
+  #           for pkg in $(go list ./... | grep -v '/simulation' | circleci tests split); do
+  #             id=$(echo "$pkg" | sed 's|[/.]|_|g')
+  #             go test -mod=readonly -timeout 30m -race -coverprofile=/tmp/workspace/profiles/$id.out \
+  #               -covermode=atomic -tags='ledger test_ledger_mock' "$pkg" | tee "/tmp/logs/$id-$RANDOM.log"
+  #           done
+  #         no_output_timeout: 30m
+  #     - persist_to_workspace:
+  #         root: /tmp/workspace
+  #         paths:
+  #           - "profiles/*"
+  #     - store_artifacts:
+  #         path: /tmp/logs
 
   upload-coverage:
     executor: golang
