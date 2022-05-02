@@ -77,7 +77,6 @@ jobs:
               id=$(echo "$pkg" | sed 's|[/.]|_|g')
               go test -mod=readonly -timeout 30m -race -coverprofile=/tmp/workspace/profiles/$id.out \
                 -covermode=atomic -tags='ledger test_ledger_mock' "$pkg" | tee "/tmp/logs/$id-$RANDOM.log"
-              sleep 7
             done
           no_output_timeout: 30m
       - persist_to_workspace:
