@@ -37,7 +37,11 @@ func IsMembershipTypeValid(membershipType string) bool {
 
 func (m Membership) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(m.Owner); err != nil {
-		return fmt.Errorf("invalid owner address: %s", m.MembershipType)
+		return fmt.Errorf("invalid owner address: %s", m.Owner)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(m.TspAddress); err != nil {
+		return fmt.Errorf("invalid owner address: %s", m.TspAddress)
 	}
 
 	if !IsMembershipTypeValid(m.MembershipType) {

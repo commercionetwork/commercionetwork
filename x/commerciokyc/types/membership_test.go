@@ -6,10 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
 
 func TestMembership_Equals(t *testing.T) {
@@ -94,5 +93,66 @@ func TestMembership_IsMembershipTypeValid(t *testing.T) {
 		t.Run(fmt.Sprintf("%s is valid", test.membershipType), func(t *testing.T) {
 			require.Equal(t, test.shouldBeValid, types.IsMembershipTypeValid(test.membershipType))
 		})
+	}
+}
+
+func TestMembership_Validate(t *testing.T) {
+	timestamp, err := time.Parse(time.RFC3339, "2019-03-23T06:35:22Z")
+	require.NoError(t, err)
+
+	tests := []struct {
+		name       string
+		membership types.Membership
+		wantErr    bool
+	}{
+		{
+			name: "ok",
+			membership: types.Membership{
+				Owner:          government.String(),
+				TspAddress:     tsp.String(),
+				MembershipType: types.MembershipTypeBlack,
+				ExpiryAt:       &timestamp,
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid membership",
+			membership: types.Membership{
+				Owner:          government.String(),
+				TspAddress:     tsp.String(),
+				MembershipType: "teal",
+				ExpiryAt:       &timestamp,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid owner",
+			membership: types.Membership{
+				Owner:          "",
+				TspAddress:     tsp.String(),
+				MembershipType: types.MembershipTypeBlack,
+				ExpiryAt:       &timestamp,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid tsp",
+			membership: types.Membership{
+				Owner:          government.String(),
+				TspAddress:     "",
+				MembershipType: types.MembershipTypeBlack,
+				ExpiryAt:       &timestamp,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := tt.membership
+			if err := m.Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("Membership.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+
 	}
 }
