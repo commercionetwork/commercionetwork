@@ -86,33 +86,33 @@ jobs:
   #     - store_artifacts:
   #         path: /tmp/logs
 
-  upload-coverage:
-    executor: golang
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - checkout
-      - run:
-          name: gather
-          command: |
-            echo "--> Concatenating profiles:"
-            ls /tmp/workspace/profiles/
-            echo "mode: atomic" > coverage.txt
-            for prof in $(ls /tmp/workspace/profiles/); do
-              tail -n +2 /tmp/workspace/profiles/"$prof" >> coverage.txt
-            done
-      - run:
-          name: filter out DONTCOVER
-          command: |
-            excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER')"
-            for filename in ${excludelist}; do
-              filename=$(echo $filename | sed 's/^./github.com\/commercionetwork\/commercionetwork/g')
-              echo "Excluding ${filename} from coverage report..."
-              sed -i.bak "/$(echo $filename | sed 's/\//\\\//g')/d" coverage.txt
-            done
-      - run:
-          name: upload
-          command: bash <(curl -s https://codecov.io/bash) -f coverage.txt
+  # upload-coverage:
+  #   executor: golang
+  #   steps:
+  #     - attach_workspace:
+  #         at: /tmp/workspace
+  #     - checkout
+  #     - run:
+  #         name: gather
+  #         command: |
+  #           echo "--> Concatenating profiles:"
+  #           ls /tmp/workspace/profiles/
+  #           echo "mode: atomic" > coverage.txt
+  #           for prof in $(ls /tmp/workspace/profiles/); do
+  #             tail -n +2 /tmp/workspace/profiles/"$prof" >> coverage.txt
+  #           done
+  #     - run:
+  #         name: filter out DONTCOVER
+  #         command: |
+  #           excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER')"
+  #           for filename in ${excludelist}; do
+  #             filename=$(echo $filename | sed 's/^./github.com\/commercionetwork\/commercionetwork/g')
+  #             echo "Excluding ${filename} from coverage report..."
+  #             sed -i.bak "/$(echo $filename | sed 's/\//\\\//g')/d" coverage.txt
+  #           done
+  #     - run:
+  #         name: upload
+  #         command: bash <(curl -s https://codecov.io/bash) -f coverage.txt
 
 workflows:
   version: 2
@@ -126,17 +126,17 @@ workflows:
             branches:
               ignore:
                 - gh-pages
-      - test:
-          requires:
-            - setup-dependencies
-          filters:
-            branches:
-              ignore:
-                - gh-pages
-      - upload-coverage:
-          requires:
-            - test
-          filters:
-            branches:
-              ignore:
-                - gh-pages
+      # - test:
+      #     requires:
+      #       - setup-dependencies
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - gh-pages
+      # - upload-coverage:
+      #     requires:
+      #       - test
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - gh-pages
