@@ -62,15 +62,13 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 	if !(gov.Equals(msgGovAddr)) {
 		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set params", msg.Government))
 	}
-	if msg.DistrEpochIdentifier != types.EpochDay && msg.DistrEpochIdentifier != types.EpochWeek && msg.DistrEpochIdentifier != types.EpochMinute && msg.DistrEpochIdentifier != types.EpochHour {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidType, fmt.Sprintf("invalid epoch identifier: %s", msg.DistrEpochIdentifier))
-	}
-	if msg.EarnRate.IsNegative() {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invalid vbr earn rate: %s", msg.EarnRate))
-	}
+
 	params := types.NewParams(msg.DistrEpochIdentifier, msg.EarnRate)
 
-	k.SetParamSet(ctx, params)
+	if err := k.SetParamSet(ctx, params); err != nil {
+		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid params: %s", msg.EarnRate))
+	}
+
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		eventSetParams,
 		sdk.NewAttribute("government", msg.Government),

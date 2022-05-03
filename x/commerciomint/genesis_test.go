@@ -5,13 +5,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 
 func TestInitGenesis(t *testing.T) {
 	got := types.DefaultGenesis()
-	require.NoError(t, commerciomint.ValidateGenesis(*got))
+	require.NoError(t, got.Validate())
 	/*ctx, _, _, sk, k := keeper.SetupTestInput()
 	require.Equal(t, types.GenesisState{Positions: []*types.Position{}, PoolAmount: sdk.NewCoins(), CollateralRate: sdk.NewDec(1), FreezePeriod: types.DefaultFreezePeriod}, got)
 	commerciomint.InitGenesis(ctx, k, sk, got)

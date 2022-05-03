@@ -33,6 +33,12 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	}
 
 	senderAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
+
+	// check if Sender is included among the recipients of the document
+	if !store.Has(getReceivedDocumentsIdsUUIDStoreKey([]byte(senderAccAdrr), receipt.DocumentUUID)) {
+		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", receipt.Sender, receipt.UUID))
+	}
+
 	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)
 	if store.Has(sentReceiptsIdsStoreKey) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))

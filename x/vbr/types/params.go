@@ -20,17 +20,17 @@ var (
 	KeyEarnRate             = []byte("EarnRate")
 )
 
-// ParamTable for minting module.
+// ParamTable for vbr module
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-// default minting module parameters
+// default vbr module params
 func DefaultParams() Params {
 	return NewParams(EpochDay, sdk.NewDecWithPrec(5, 1))
 }
 
-// validate params
+// Params validation
 func (p Params) Validate() error {
 	if err := ValidateDistrEpochIdentifier(p.DistrEpochIdentifier); err != nil {
 		return err
