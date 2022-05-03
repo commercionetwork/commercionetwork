@@ -26,14 +26,15 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 			panic(err) // could not mint tokens on chain start, fatal!
 		}
 	}
-	k.SetParamSet(ctx, genState.Params)
+	if err := k.SetParamSet(ctx, genState.Params); err != nil {
+		panic(err)
+	}
 }
 
 // ExportGenesis returns the capability module's exported genesis.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
-	//return genesis
 	return &types.GenesisState{
-		PoolAmount:        k.GetTotalRewardPool(ctx),
-		Params:            k.GetParamSet(ctx),
+		PoolAmount: k.GetTotalRewardPool(ctx),
+		Params:     k.GetParamSet(ctx),
 	}
 }

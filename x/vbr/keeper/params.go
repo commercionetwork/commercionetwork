@@ -12,8 +12,11 @@ func (k Keeper) GetParamSet(ctx sdk.Context) (params types.Params) {
 }
 
 // SetParams sets the total set of params
-func (k Keeper) SetParamSet(ctx sdk.Context, params types.Params) {
-	// consider validating params, since SetParamSet could panic!
+func (k Keeper) SetParamSet(ctx sdk.Context, params types.Params) error {
+	if err := params.Validate(); err != nil {
+		return err
+	}
 
 	k.paramSpace.SetParamSet(ctx, &params)
+	return nil
 }

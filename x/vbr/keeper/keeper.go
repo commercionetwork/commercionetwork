@@ -126,6 +126,7 @@ func GetCoins(k Keeper, ctx sdk.Context, macc accountTypes.ModuleAccountI) sdk.C
 // ComputeProposerReward computes the final reward for the validator block's proposer
 func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator stakingTypes.ValidatorI, denom string, params types.Params) sdk.DecCoins {
 	// Get total bonded token of validator
+
 	validatorBonded := validator.GetBondedTokens()
 
 	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))

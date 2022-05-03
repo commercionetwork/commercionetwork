@@ -7,6 +7,9 @@ import (
 )
 
 var validPoolAmount = sdk.NewDecCoins(sdk.NewDecCoin(BondDenom, sdk.NewInt(100)))
+var invalidPoolAmount = sdk.DecCoins{
+	sdk.DecCoin{Denom: BondDenom, Amount: sdk.NewDec(-1)},
+}
 
 var validGenesis = GenesisState{
 	PoolAmount: validPoolAmount,
@@ -43,14 +46,14 @@ func TestGenesisState_Validate(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		// {
-		// 	name: "invalid PoolAmount",
-		// 	fields: fields{
-		// 		PoolAmount: , // redundant test if !gs.PoolAmount.IsValid() gets removed
-		// 		Params:     validParams,
-		// 	},
-		// 	wantErr: true,
-		// },
+		{
+			name: "invalid PoolAmount",
+			fields: fields{
+				PoolAmount: invalidPoolAmount,
+				Params:     validParams,
+			},
+			wantErr: true,
+		},
 		{
 			name: "invalid DistrEpochIdentifier",
 			fields: fields{

@@ -1,0 +1,57 @@
+package keeper
+
+import (
+	"reflect"
+	"testing"
+
+	"github.com/commercionetwork/commercionetwork/x/government/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
+)
+
+func TestNewQuerier(t *testing.T) {
+	t.Run("default request", func(t *testing.T) {
+		k, ctx := setupKeeperWithGovernmentAddress(t, governmentTestAddress)
+
+		app := simapp.Setup(false)
+		legacyAmino := app.LegacyAmino()
+		querier := NewQuerier(*k, legacyAmino)
+		path := []string{"abcd"}
+		_, err := querier(ctx, path, abci.RequestQuery{})
+		require.Error(t, err)
+	})
+}
+
+func Test_queryGetGovernmentAddress(t *testing.T) {
+	bz, _ := codec.MarshalJSONIndent(codec.NewLegacyAmino(), types.QueryGovernmentAddrResponse{GovernmentAddress: governmentTestAddress.String()})
+	tests := []struct {
+		name             string
+		legacyQuerierCdc *codec.LegacyAmino
+		want             []byte
+		wantErr          bool
+	}{
+		{
+			name:             "Query Government",
+			legacyQuerierCdc: codec.NewLegacyAmino(),
+			want:             bz,
+			wantErr:          false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeperWithGovernmentAddress(t, governmentTestAddress)
+
+			got, err := queryGetGovernmentAddress(ctx, *k, tt.legacyQuerierCdc)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("queryGetGovernmentAddress() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("queryGetGovernmentAddress() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

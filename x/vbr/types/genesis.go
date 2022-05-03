@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // unused constant
@@ -34,12 +33,8 @@ func (gs GenesisState) Validate() error {
 		return fmt.Errorf("invalid validator block reward pool: %s", gs.PoolAmount.String())
 	}
 
-	if gs.Params.DistrEpochIdentifier == "" {
-		return errors.New("epoch identifier should NOT be empty")
-	}
-
-	if gs.Params.EarnRate.IsNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("EarnRate: %d must be positive", gs.Params.EarnRate))
+	if err := gs.Params.Validate(); err != nil {
+		return fmt.Errorf("invalid params: %s", err)
 	}
 
 	return nil

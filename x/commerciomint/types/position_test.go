@@ -57,6 +57,11 @@ func TestPosition_Validate(t *testing.T) {
 			shouldBeValid: false,
 		},
 		{
+			name:          "Invalid id",
+			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, "abcd", testCreatedAt, testEtp.ExchangeRate),
+			shouldBeValid: false,
+		},
+		{
 			name:          "ok",
 			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: true,
