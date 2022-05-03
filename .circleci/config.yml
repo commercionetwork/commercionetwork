@@ -3,7 +3,7 @@ version: 2.1
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.16
+      - image: circleci/golang:1.17
 
 commands:
   make:
@@ -75,8 +75,10 @@ jobs:
             mkdir -p /tmp/logs /tmp/workspace/profiles
             for pkg in $(go list ./... | grep -v '/simulation' | circleci tests split); do
               id=$(echo "$pkg" | sed 's|[/.]|_|g')
-              go test -mod=readonly -timeout 8m -race -coverprofile=/tmp/workspace/profiles/$id.out -covermode=atomic -tags='ledger test_ledger_mock' "$pkg" | tee "/tmp/logs/$id-$RANDOM.log"
+              go test -mod=readonly -timeout 30m -race -coverprofile=/tmp/workspace/profiles/$id.out \
+                -covermode=atomic -tags='ledger test_ledger_mock' "$pkg" | tee "/tmp/logs/$id-$RANDOM.log"
             done
+          no_output_timeout: 30m
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
