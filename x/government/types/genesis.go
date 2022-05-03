@@ -1,25 +1,17 @@
 package types
 
-import (
-	"fmt"
-)
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		// this line is used by starport scaffolding # genesis/types/default
-
-	}
+	return &GenesisState{}
 }
 
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-
-	// this line is used by starport scaffolding # genesis/types/validate
-	if gs.GovernmentAddress == "" {
-		return fmt.Errorf("government address cannot be empty. Use the set-genesis-government-address command to set one")
+	if _, err := sdk.AccAddressFromBech32(gs.GovernmentAddress); err != nil {
+		return err
 	}
-
 	return nil
 }

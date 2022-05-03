@@ -205,11 +205,19 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		rewardStakeCoinAmount := sdk.NewDecFromInt(rewardAmount).Mul(ucccConversionRate).Ceil().TruncateInt()
 		stakeEquivCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardStakeCoinAmount))
 
-		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, stakeEquivCoins); err != nil {
+		// Mint coins to module
+		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, rewardCoins); err != nil {
 			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
-		k.bankKeeper.AddCoins(ctx, inviteSender, rewardCoins)
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, inviteSender, rewardCoins); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+		}
+
+		// Burn com tokens after ccc tokens are sent
+		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, stakeEquivCoins); err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+		}
 
 		// Emits events
 		ctx.EventManager().EmitEvent(sdk.NewEvent(

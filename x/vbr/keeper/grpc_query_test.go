@@ -87,7 +87,8 @@ func Test_GetParams(t *testing.T) {
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
 	} {
-		keeper.SetParamSet(ctx, params)
+		err := keeper.SetParamSet(ctx, params)
+		require.NoError(t, err)
 
 		t.Run(tc.desc, func(t *testing.T) {
 			response, err := keeper.GetParams(wctx, tc.request)

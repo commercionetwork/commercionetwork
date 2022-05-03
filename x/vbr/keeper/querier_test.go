@@ -53,7 +53,8 @@ func TestNewQuerier_queryParams(t *testing.T) {
 		k, ctx := SetupKeeper(t)
 
 		expected := types.NewParams(types.ValidMsgSetParams.DistrEpochIdentifier, types.ValidMsgSetParams.EarnRate)
-		k.SetParamSet(ctx, expected)
+		err := k.SetParamSet(ctx, expected)
+		require.NoError(t, err)
 
 		app := simapp.Setup(false)
 		legacyAmino := app.LegacyAmino()

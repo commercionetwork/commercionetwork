@@ -164,11 +164,11 @@ func (msg *MsgSetParams) ValidateBasic() error {
 	if err != nil {
 		return errors.Wrapf(errors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
-	/*
-		err = msg.Params.Validate()
-		if err != nil {
-			return errors.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
-		}
-	*/
+
+	err = msg.Params.Validate()
+	if err != nil {
+		return errors.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
+	}
+
 	return nil
 }

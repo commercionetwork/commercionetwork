@@ -29,9 +29,3 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis.GovernmentAddress = k.GetGovernmentAddress(ctx).String()
 	return genesis
 }
-
-// ValidateGenesis performs basic validation of genesis data returning an
-// error for any failed validation criteria.
-func ValidateGenesis(_ types.GenesisState) error {
-	return nil
-}

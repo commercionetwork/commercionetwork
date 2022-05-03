@@ -52,14 +52,13 @@ func TestKeeper_ComputeProposerReward(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := SetupKeeper(t)
 
 			testVal := TestValidator.UpdateStatus(stakingTypes.Bonded)
 			testVal, _ = testVal.AddTokensFromDel(tt.bonded)
-			params := tt.params
-			reward := k.ComputeProposerReward(ctx, tt.vNumber, testVal, types.BondDenom, params)
+
+			reward := k.ComputeProposerReward(ctx, tt.vNumber, testVal, types.BondDenom, tt.params)
 
 			expectedDecReward, _ := sdk.NewDecFromStr(tt.expectedReward)
 
@@ -104,7 +103,6 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := SetupKeeper(t)
 
@@ -166,7 +164,6 @@ func TestKeeper_VbrAccount(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := SetupKeeper(t)
 			macc := k.VbrAccount(ctx)
@@ -198,7 +195,6 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := SetupKeeper(t)
 			k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom})))
