@@ -94,7 +94,7 @@ func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
 	sk := stakingKeeper.NewKeeper(cdc, storeKeys[stakingTypes.StoreKey], ak, bk, pk.Subspace("staking"))
 	sk.SetParams(ctx, stakingTypes.DefaultParams())
-	gk := govKeeper.NewKeeper(cdc, storeKeys[govTypes.StoreKey], memStoreKeyGov)
+	gk := govKeeper.NewKeeper(cdc, storeKeys[govTypes.StoreKey], memStoreKeyGov, bk)
 	dk := distrKeeper.NewKeeper(cdc, storeKeys[distrTypes.StoreKey], pk.Subspace("distribution"), ak, bk, sk, accountTypes.FeeCollectorName, blacklistedAddrs)
 	sk.SetHooks(stakingTypes.NewMultiStakingHooks(dk.Hooks()))
 	ek := epochsKeeper.NewKeeper(cdc, storeKeys[epochsTypes.StoreKey])

@@ -64,7 +64,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
 
-	govkeeper := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
+	govkeeper := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey], bk)
 
 	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(*testEtp.Credits)))
 
