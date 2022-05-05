@@ -1,14 +1,23 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.government;
 
-// this line is used by starport scaffolding # proto/tx/import
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";
 service Msg {
-  // this line is used by starport scaffolding # proto/tx/rpc
   rpc SetGovAddress(MsgSetGovAddress) returns (MsgSetGovAddressResponse);
+  rpc FixSupply(MsgFixSupply) returns (MsgFixSupplyResponse);
 }
 
+message MsgFixSupply {
+  string sender = 1;
+  cosmos.base.v1beta1.Coin amount = 2;
+}
+
+message MsgFixSupplyResponse {
+  repeated cosmos.base.v1beta1.Coin supply = 1;
+}
 
 message MsgSetGovAddress {
 }

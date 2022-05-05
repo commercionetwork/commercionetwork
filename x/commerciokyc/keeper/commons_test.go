@@ -68,7 +68,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1))))
 
 	//ak.SetModuleAccount(ctx, authTypes.NewEmptyModuleAccount(types.ModuleName))
-	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
+	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey], bk)
 
 	mintAcc := authTypes.NewEmptyModuleAccount(commerciomintTypes.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, mintAcc)

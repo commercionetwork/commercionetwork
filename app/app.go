@@ -406,6 +406,7 @@ func New(
 		appCodec,
 		keys[governmentmoduletypes.StoreKey],
 		keys[governmentmoduletypes.MemStoreKey],
+		app.BankKeeper,
 	)
 	governmentModule := governmentmodule.NewAppModule(appCodec, app.GovernmentKeeper)
 

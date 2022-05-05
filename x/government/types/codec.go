@@ -9,12 +9,13 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetGovAddress{}, "government/SetGovAddress", nil)
-
+	cdc.RegisterConcrete(&MsgFixSupply{}, "government/FixSupply", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgSetGovAddress{},
+		&MsgFixSupply{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
