@@ -42,7 +42,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		{
+		/*{
 			name:           "sender not among recipients of document",
 			storedDocument: &types.ValidDocument,
 			testReceipt: func() types.DocumentReceipt {
@@ -53,7 +53,7 @@ func TestKeeper_SaveReceipt(t *testing.T) {
 				return receipt
 			},
 			wantErr: true,
-		},
+		},*/
 		{
 			name:           "receipt already in store",
 			storedDocument: &types.ValidDocument,

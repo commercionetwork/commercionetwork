@@ -34,6 +34,10 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	// Store the documents as received for all the recipients
 	for _, recipient := range document.Recipients {
 		recipientAccAdrr, _ := sdk.AccAddressFromBech32(recipient)
+		/*recipientAccAdrr, err := sdk.AccAddressFromBech32(recipient)
+		if err != nil {
+			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid recipient: %s", recipient))
+		}*/
 		receivedDocumentsStoreKey := getReceivedDocumentsIdsUUIDStoreKey(recipientAccAdrr, document.UUID)
 
 		store.Set(receivedDocumentsStoreKey, []byte(document.UUID))
