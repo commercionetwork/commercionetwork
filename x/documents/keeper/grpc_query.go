@@ -207,3 +207,27 @@ func (k Keeper) DocumentsReceipts(c context.Context, req *types.QueryGetDocument
 		Pagination: pageRes,
 	}, nil
 }
+
+func (k Keeper) ReceivedDocumentUuid(c context.Context, req *types.QueryGetReceivedDocumentUuidRequest) (*types.QueryGetReceivedDocumentUuidResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	store := ctx.KVStore(k.storeKey)
+	userAddress, e := sdk.AccAddressFromBech32(req.Address)
+	if e != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
+	}
+	storeKey := getReceivedDocumentsIdsUUIDStoreKey(userAddress, req.UUID)
+	if !store.Has(storeKey) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", req.Address, req.UUID))
+	}
+
+	uuid := store.Get(storeKey)
+
+	return &types.QueryGetReceivedDocumentUuidResponse{
+		UUID: string(uuid),
+	}, nil
+}

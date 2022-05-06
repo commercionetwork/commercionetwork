@@ -120,3 +120,33 @@ func CmdDocumentsReceipts() *cobra.Command {
 
 	return cmd
 }
+
+func CmdUUIDReceipts() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "uuid-receipts [user] [uuid]",
+		Short: "Get a uuid associated with the given document receipt user",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			// consider checking uuid validity for args[0]
+
+			params := &types.QueryGetReceivedDocumentUuidRequest{
+				Address: args[0],
+				UUID:    args[1],
+			}
+
+			res, err := queryClient.ReceivedDocumentUuid(context.Background(), params)
+			if err != nil {
+				fmt.Printf("could not get any received receipt for the given document UUID: \n %s", err)
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}

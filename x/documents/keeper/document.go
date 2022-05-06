@@ -83,15 +83,16 @@ func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, err
 	return document, nil
 }
 
+// getSentDocumentsIdsStoreKey generates a ReceivedDocumentsID store key for a given user
+func getSentDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
+	return append([]byte(types.SentDocumentsPrefix), user...)
+}
+
 // getSentDocumentsIdsUUIDStoreKey generates a SentDocumentID for a given user and document UUID
 func getSentDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID string) []byte {
 	userPart := append(user, []byte(":"+documentUUID)...)
 	return append([]byte(types.SentDocumentsPrefix), userPart...)
-}
-
-// getSentDocumentsIdsStoreKey generates a ReceivedDocumentsID store key for a given user
-func getSentDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
-	return append([]byte(types.SentDocumentsPrefix), user...)
+	//return append(getSentDocumentsIdsStoreKey(user), []byte(":"+documentUUID)...)
 }
 
 // getReceivedDocumentsIdsStoreKey generates a ReceivedDocumentsID store key for a given user
@@ -102,8 +103,8 @@ func getReceivedDocumentsIdsStoreKey(user sdk.AccAddress) []byte {
 // getReceivedDocumentsIdsUUIDStoreKey generates a ReceivedDocumentID for a given user and document UUID
 func getReceivedDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID string) []byte {
 	userPart := append(user, []byte(":"+documentUUID)...)
-
 	return append([]byte(types.ReceivedDocumentsPrefix), userPart...)
+	//return append(getReceivedDocumentsIdsStoreKey(user), []byte(":"+documentUUID)...)
 }
 
 // DocumentsIterator returns an Iterator for all the Documents saved in the store.

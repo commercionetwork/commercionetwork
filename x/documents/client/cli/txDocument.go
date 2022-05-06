@@ -114,9 +114,9 @@ func CmdShareDocument() *cobra.Command {
 
 func CmdSendDocumentReceipt() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "send-receipt [recipient] [tx-hash] [document-uuid] [proof]",
-		Short: "Send the document's receipt with the given recipient address ([proof] is optional)",
-		Args:  cobra.RangeArgs(3, 4),
+		Use:   "send-receipt [recipient] [tx-hash] [document-uuid] [proof] [recipient-uuid]",
+		Short: "Send the document's receipt with the given recipient address ([proof] and [recipient-uuid] are optional)",
+		Args:  cobra.RangeArgs(3, 5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -128,12 +128,16 @@ func CmdSendDocumentReceipt() *cobra.Command {
 			recipient := args[0]
 			txHash := args[1]
 			documentUUID := args[2]
-			UUID := uuid.NewV4().String()
 
 			// empty proof is not valid! consider removing this check and accept all 4 arguments below
 			proof := ""
+			UUID := ""
 			if len(args) == 4 {
 				proof = args[3]
+				UUID = uuid.NewV4().String()
+			}
+			if len(args) == 5 {
+				UUID = args[4]
 			}
 
 			msg := types.NewMsgSendDocumentReceipt(UUID, sender.String(), recipient, txHash, documentUUID, proof)

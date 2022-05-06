@@ -54,9 +54,16 @@ service Query {
     option (google.api.http).get =
         "/commercionetwork/documents/document/{UUID}/receipts";
   }
+
+  // Queries a list of received Document items uuid.
+  rpc ReceivedDocumentUuid(QueryGetReceivedDocumentUuidRequest)
+      returns (QueryGetReceivedDocumentUuidResponse) {
+    option (google.api.http).get =
+        "/commercionetwork/documents/document/{address}/received/{UUID}";
+  }
 }
 
-// this line is used by starport scaffolding # 3
+
 message QueryGetDocumentRequest { string UUID = 1; }
 
 message QueryGetDocumentResponse { Document Document = 1; }
@@ -92,6 +99,16 @@ message QueryGetReceivedDocumentRequest {
 message QueryGetReceivedDocumentResponse {
   repeated Document ReceivedDocument = 1;
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+
+message QueryGetReceivedDocumentUuidRequest {
+  string address = 1;
+  string UUID = 2;
+}
+
+message QueryGetReceivedDocumentUuidResponse {
+  string UUID = 1;
 }
 
 // ----------------------------------

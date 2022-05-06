@@ -36,10 +36,10 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	// check if Sender is included among the recipients of the document
 	// DISABLE: IT WILL BE RELEASED IN VERSION 4.0.0
-	/*if !store.Has(getReceivedDocumentsIdsUUIDStoreKey([]byte(senderAccAdrr), receipt.DocumentUUID)) {*/
-	if !store.Has(getReceivedDocumentsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)) {
+	//if !store.Has(getReceivedDocumentsIdsUUIDStoreKey([]byte(senderAccAdrr), receipt.DocumentUUID)) {
+	/*if !store.Has(getReceivedDocumentsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", receipt.Sender, receipt.UUID))
-	}
+	}*/
 
 	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)
 	if store.Has(sentReceiptsIdsStoreKey) {

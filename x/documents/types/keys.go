@@ -50,9 +50,10 @@ const (
 	MsgTypeShareDocument       = "shareDocument"
 	MsgTypeSendDocumentReceipt = "sendDocumentReceipt"
 
-	QuerySentDocuments     = "sent"
-	QueryReceivedDocuments = "received"
-	QueryReceivedReceipts  = "receivedReceipts"
-	QuerySentReceipts      = "sentReceipts"
-	QueryDocumentReceipts  = "documentReceipts"
+	QuerySentDocuments         = "sent"
+	QueryReceivedDocuments     = "received"
+	QueryReceivedDocumentsUuid = "receiveduuid"
+	QueryReceivedReceipts      = "receivedReceipts"
+	QuerySentReceipts          = "sentReceipts"
+	QueryDocumentReceipts      = "documentReceipts"
 )
