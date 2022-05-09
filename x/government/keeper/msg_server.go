@@ -43,6 +43,7 @@ func (k msgServer) FixSupply(goCtx context.Context, msg *types.MsgFixSupply) (*t
 		ctx,
 		signer,
 		*msg.Amount,
+		msg.Sub,
 	)
 	if err != nil {
 		return nil, err

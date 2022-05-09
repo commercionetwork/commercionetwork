@@ -13,6 +13,7 @@ service Msg {
 message MsgFixSupply {
   string sender = 1;
   cosmos.base.v1beta1.Coin amount = 2;
+  bool sub = 3;
 }
 
 message MsgFixSupplyResponse {

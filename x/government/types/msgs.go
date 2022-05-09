@@ -42,10 +42,11 @@ func (msg *MsgSetGovAddress) ValidateBasic() error {
 // ----------------------------------
 var _ sdk.Msg = &MsgSetGovAddress{}
 
-func NewMsgFixSupplys(signer sdk.AccAddress, amount sdk.Coin) *MsgFixSupply {
+func NewMsgFixSupplys(signer sdk.AccAddress, amount sdk.Coin, sub bool) *MsgFixSupply {
 	return &MsgFixSupply{
 		Sender: signer.String(),
 		Amount: &amount,
+		Sub:    sub,
 	}
 }
 

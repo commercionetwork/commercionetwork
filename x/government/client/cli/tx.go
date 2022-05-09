@@ -30,9 +30,9 @@ func GetTxCmd() *cobra.Command {
 
 func CmdFixSupply() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fixsupply [amount]",
+		Use:   "fixsupply [amount] [sub]",
 		Short: "Fix supply to avoid invariant broken on upgrade chain",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return fixSupplymdFunc(cmd, args)
 		},
@@ -53,8 +53,12 @@ func fixSupplymdFunc(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	sub := false
+	if len(args) == 2 {
+		sub = true
+	}
 
-	msg := types.NewMsgFixSupplys(sender, amount)
+	msg := types.NewMsgFixSupplys(sender, amount, sub)
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}

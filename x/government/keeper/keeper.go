@@ -59,11 +59,15 @@ func (k Keeper) GetGovernmentAddress(ctx sdk.Context) sdk.AccAddress {
 	return store.Get([]byte(types.GovernmentStoreKey))
 }
 
-func (k Keeper) FixSupplyKeeper(ctx sdk.Context, sender sdk.AccAddress, amount sdk.Coin) error {
+func (k Keeper) FixSupplyKeeper(ctx sdk.Context, sender sdk.AccAddress, amount sdk.Coin, sub bool) error {
 	supply := k.bankKeeper.GetSupply(ctx)
 	coins := sdk.Coins{}
 	coins = append(coins, amount)
-	supply.Inflate(coins)
+	if sub {
+		supply.Deflate(coins)
+	} else {
+		supply.Inflate(coins)
+	}
 	k.bankKeeper.SetSupply(ctx, supply)
 	return nil
 }
