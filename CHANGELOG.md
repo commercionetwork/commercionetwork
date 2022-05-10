@@ -6,6 +6,8 @@
 * Added deposit command in `commerciokyc` module
 * Added check recipients receipts in `documents` module
 * Removed check on empty proof for DocumentReceipt in `documents` module
+* Added validation for genesis, types, keeper packages of some modules
+* Improved tests coverage
 
 # ~~Version 3.0.2~~
 
