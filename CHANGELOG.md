@@ -8,6 +8,7 @@
 * Removed check on empty proof for DocumentReceipt in `documents` module
 * Added validation for genesis, types, keeper packages of some modules
 * Improved tests coverage
+* Fix local-net docker setup
 
 # ~~Version 3.0.2~~
 
