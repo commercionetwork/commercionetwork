@@ -392,7 +392,7 @@ func TestKeeper_MembershipIterator(t *testing.T) {
 			for ; i.Valid(); i.Next() {
 				//m := k.ExtractMembership(i.Value())
 				var m types.Membership
-				k.cdc.MustUnmarshalBinaryBare(i.Value(), &m)
+				k.cdc.MustUnmarshal(i.Value(), &m)
 				require.Contains(t, test.storedMemberships, m)
 			}
 		})

@@ -22,7 +22,7 @@ const (
 )
 
 type Keeper struct {
-	cdc           codec.Marshaler
+	cdc           codec.BinaryCodec
 	storeKey      sdk.StoreKey
 	memKey        sdk.StoreKey
 	accountKeeper auth.AccountKeeper
@@ -32,7 +32,7 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.BinaryCodec,
 	storeKey,
 	memKey sdk.StoreKey,
 	bankKeeper bank.Keeper,

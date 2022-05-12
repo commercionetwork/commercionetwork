@@ -266,6 +266,7 @@ type App struct {
 	ParamsKeeper     paramskeeper.Keeper
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	EvidenceKeeper   evidencekeeper.Keeper
+	FeeGrantKeeper   feegrantkeeper.Keeper
 	TransferKeeper   ibctransferkeeper.Keeper
 	WasmKeeper       wasm.Keeper
 
@@ -527,7 +528,8 @@ func New(
 		&app.IBCKeeper.PortKeeper,
 		scopedWasmKeeper,
 		app.TransferKeeper,
-		app.Router(),
+		app.MsgServiceRouter(),
+		//app.Router(),
 		app.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
@@ -693,12 +695,15 @@ func New(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
 		ante.NewAnteHandler(
-			app.AccountKeeper, app.BankKeeper,
-			app.GovernmentKeeper, app.CommercioMintKeeper,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.GovernmentKeeper,
+			app.CommercioMintKeeper,
 			comosante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
 			stakeDenom,
 			stableCreditDenom,
+			app.FeeGrantKeeper,
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)

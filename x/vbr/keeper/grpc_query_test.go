@@ -26,7 +26,8 @@ func setFunds(keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
 	coins := GetCoins(*keeper, ctx, moduleAcc)
 	if coins.Empty() {
 		amount, _ := pool.TruncateDecimal()
-		keeper.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), amount)
+		//keeper.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), amount)
+		keeper.bankKeeper.MintCoins(ctx, types.ModuleName, amount)
 	}
 }
 

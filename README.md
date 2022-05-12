@@ -19,7 +19,7 @@ business documents using the blockchain technology.
 
 ## Version
 
-Current Software Version is `v3.0.0`
+Current Software Version is `v3.1.0`
 
 Current Chain Version is `commercio-3`
 ## Quick Start
@@ -39,7 +39,7 @@ echo 'export PATH="$PATH:/snap/bin"' >> ~/.profile
 source ~/.profile
 
 git remote clone https://github.com/commercionetwork/commercionetwork.git
-git checkout tags/v3.0.0
+git checkout tags/v3.1.0
 go mod verify
 make install
 ```
@@ -49,3 +49,4 @@ You can verify your installation with
 ```bash
 commercionetworkd version
 ```
+

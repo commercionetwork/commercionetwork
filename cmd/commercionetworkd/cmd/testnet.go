@@ -376,7 +376,7 @@ func initGenFiles(
 	// commercionetworkd add-genesis-membership black
 	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), time.Now().Add(time.Hour*24*365))
 	kycState.Memberships = append(kycState.Memberships, &membership)
-	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &kycState)
+	appGenState[commerciokycTypes.ModuleName] = cdc.MustMarshalJSON(&kycState)
 
 	//appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")

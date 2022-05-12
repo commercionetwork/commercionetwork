@@ -32,7 +32,7 @@ func (k Keeper) EtpsByOwner(c context.Context, req *types.QueryEtpsByOwnerReques
 
 	pageRes, err := query.Paginate(etpsByOwnerStore, req.Pagination, func(key []byte, value []byte) error {
 		var position types.Position
-		e := k.cdc.UnmarshalBinaryBare(value, &position)
+		e := k.cdc.Unmarshal(value, &position)
 		if e != nil {
 			return e
 		}
@@ -57,7 +57,7 @@ func (k Keeper) Etps(c context.Context, req *types.QueryEtpsRequest) (*types.Que
 	etpStore := prefix.NewStore(store, []byte(types.EtpStorePrefix))
 	pageRes, err := query.Paginate(etpStore, req.Pagination, func(key []byte, value []byte) error {
 		var position types.Position
-		e := k.cdc.UnmarshalBinaryBare(value, &position)
+		e := k.cdc.Unmarshal(value, &position)
 		if e != nil {
 			return e
 		}

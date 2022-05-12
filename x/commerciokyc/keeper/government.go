@@ -25,7 +25,7 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, inserted := signers.AppendIfMissing(tsp.String()); inserted {
 		trustedServiceProviders.Addresses = signersNew
-		newSignersBz, _ := k.cdc.MarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz, _ := k.cdc.Marshal(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 
 	}
@@ -49,7 +49,7 @@ func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress
 	signers = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, find := signers.RemoveIfExisting(tsp.String()); find {
 		trustedServiceProviders.Addresses = signersNew
-		newSignersBz := k.cdc.MustMarshalBinaryBare(&trustedServiceProviders)
+		newSignersBz := k.cdc.MustMarshal(&trustedServiceProviders)
 		store.Set([]byte(types.TrustedSignersStoreKey), newSignersBz)
 	}
 
@@ -96,11 +96,8 @@ func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.Trust
 	store := ctx.KVStore(k.storeKey)
 
 	signersBz := store.Get([]byte(types.TrustedSignersStoreKey))
-	k.cdc.UnmarshalBinaryBare(signersBz, &signers)
+	k.cdc.Unmarshal(signersBz, &signers)
 
-	//k.Cdc.MustUnmarshalBinaryBare(signersBz, &signers)
-	// Cannot use add govAddress: trust service provider doesn't work proprerly
-	//signers = append(signers, k.governmentKeeper.GetGovernmentAddress(ctx))
 	return signers
 }
 

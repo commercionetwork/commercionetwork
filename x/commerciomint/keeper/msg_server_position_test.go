@@ -61,8 +61,14 @@ func Test_msgServer_MintCCC(t *testing.T) {
 			if !tt.wantErr {
 				ownerAddr, err := sdk.AccAddressFromBech32(tt.args.msg.Depositor)
 				require.NoError(t, err)
-				err = bk.AddCoins(sdk.UnwrapSDKContext(wctx), ownerAddr, sdk.NewCoins(sdk.NewInt64Coin(types.BondDenom, 200)))
+				coins := sdk.NewCoins(sdk.NewInt64Coin(types.BondDenom, 200))
+				ctx := sdk.UnwrapSDKContext(wctx)
+				err = bk.MintCoins(ctx, types.ModuleName, coins)
 				require.NoError(t, err)
+				err = bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, ownerAddr, coins)
+				require.NoError(t, err)
+				//err = bk.AddCoins(sdk.UnwrapSDKContext(wctx), ownerAddr, sdk.NewCoins(sdk.NewInt64Coin(types.BondDenom, 200)))
+				//require.NoError(t, err)
 			}
 
 			got, err := msgServer.MintCCC(wctx, tt.args.msg)
@@ -127,9 +133,11 @@ func Test_msgServer_BurnCCC(t *testing.T) {
 			wctx, bk, _, k, msgServer := SetupMsgServer()
 
 			if !tt.wantErr {
-				k.SetPosition(sdk.UnwrapSDKContext(wctx), testEtp)
-				_ = bk.MintCoins(sdk.UnwrapSDKContext(wctx), types.ModuleName, testLiquidityPool)
-				_ = bk.AddCoins(sdk.UnwrapSDKContext(wctx), testEtpOwner, sdk.NewCoins(*testEtp.Credits))
+				ctx := sdk.UnwrapSDKContext(wctx)
+				k.SetPosition(ctx, testEtp)
+				_ = bk.MintCoins(ctx, types.ModuleName, testLiquidityPool)
+				_ = bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
+				//_ = bk.AddCoins(sdk.UnwrapSDKContext(wctx), testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 			}
 
 			got, err := msgServer.BurnCCC(wctx, tt.args.msg)
