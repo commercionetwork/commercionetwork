@@ -65,8 +65,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
 
-	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1))))
-
+	//bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1))))
 	//ak.SetModuleAccount(ctx, authTypes.NewEmptyModuleAccount(types.ModuleName))
 	govk := government.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
 
@@ -76,6 +75,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	mk := commerciomintKeeper.NewKeeper(cdc, keys[commerciomintTypes.StoreKey], keys[commerciomintTypes.StoreKey], bk, ak, *govk, pk.Subspace(commerciomintTypes.ModuleName))
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)
+	bk.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1)))
 
 	k := NewKeeper(
 		cdc,

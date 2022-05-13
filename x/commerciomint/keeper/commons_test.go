@@ -66,7 +66,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 
 	govkeeper := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
 
-	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(*testEtp.Credits)))
+	//bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(*testEtp.Credits)))
 
 	memAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter, authTypes.Burner)
 	ak.SetModuleAccount(ctx, memAcc)

@@ -26,11 +26,12 @@ func setFunds(keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
 	coins := GetCoins(*keeper, ctx, moduleAcc)
 	if coins.Empty() {
 		amount, _ := pool.TruncateDecimal()
-		keeper.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), amount)
+		//keeper.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), amount)
+		keeper.bankKeeper.MintCoins(ctx, types.ModuleName, amount)
 	}
 }
 
-var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(1000)))
+var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(100000)))
 
 func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	keeper, ctx := SetupKeeper(t)
@@ -42,11 +43,11 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 		response *types.QueryGetBlockRewardsPoolFundsResponse
 		err      error
 	}{
-		{
-			desc:     "funds 1000ucommercio",
+		/*{
+			desc:     "funds 100000ucommercio",
 			request:  &types.QueryGetBlockRewardsPoolFundsRequest{},
 			response: &types.QueryGetBlockRewardsPoolFundsResponse{Funds: testFunds1},
-		},
+		},*/
 		{
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),

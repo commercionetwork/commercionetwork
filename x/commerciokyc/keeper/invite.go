@@ -37,7 +37,7 @@ func (k Keeper) SetInvite(ctx sdk.Context, recipient, sender sdk.AccAddress) err
 
 	// Build and save the invite
 	accreditation := types.NewInvite(sender, recipient, inviterMembership.MembershipType)
-	store.Set(inviteKey, k.cdc.MustMarshalBinaryBare(&accreditation))
+	store.Set(inviteKey, k.cdc.MustMarshal(&accreditation))
 
 	// Emits events
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -58,7 +58,7 @@ func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.In
 	key := k.getInviteStoreKey(user)
 
 	if store.Has(key) {
-		k.cdc.MustUnmarshalBinaryBare(store.Get(key), &invite)
+		k.cdc.MustUnmarshal(store.Get(key), &invite)
 		return invite, true
 	}
 
@@ -79,7 +79,7 @@ func (k Keeper) GetInvites(ctx sdk.Context) []*types.Invite {
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var invite types.Invite
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &invite)
+		k.cdc.MustUnmarshal(iterator.Value(), &invite)
 		invites = append(invites, &invite)
 	}
 
@@ -90,5 +90,5 @@ func (k Keeper) GetInvites(ctx sdk.Context) []*types.Invite {
 func (k Keeper) SaveInvite(ctx sdk.Context, invite types.Invite) {
 	store := ctx.KVStore(k.storeKey)
 	inviteUser, _ := sdk.AccAddressFromBech32(invite.User)
-	store.Set(k.getInviteStoreKey(inviteUser), k.cdc.MustMarshalBinaryBare(&invite))
+	store.Set(k.getInviteStoreKey(inviteUser), k.cdc.MustMarshal(&invite))
 }

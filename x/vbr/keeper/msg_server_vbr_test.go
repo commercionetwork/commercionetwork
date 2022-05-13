@@ -45,8 +45,10 @@ func Test_msgServer_IncrementBlockRewardsPool(t *testing.T) {
 			if !tt.funderFunds.Empty() {
 				funder, err := sdk.AccAddressFromBech32(tt.msg.Funder)
 				require.NoError(t, err)
-
-				bank.AddCoins(sdk.UnwrapSDKContext(ctx), funder, tt.funderFunds)
+				wctx := sdk.UnwrapSDKContext(ctx)
+				bank.MintCoins(wctx, types.ModuleName, tt.funderFunds)
+				bank.SendCoinsFromModuleToAccount(wctx, types.ModuleName, funder, tt.funderFunds)
+				//bank.AddCoins(sdk.UnwrapSDKContext(ctx), funder, tt.funderFunds)
 			}
 
 			got, err := srv.IncrementBlockRewardsPool(ctx, tt.msg)

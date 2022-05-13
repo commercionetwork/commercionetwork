@@ -32,6 +32,7 @@ func NewAnteHandler(
 	signModeHandler authsigning.SignModeHandler,
 	stakeDenom string,
 	stableCreditsDemon string,
+	feegrantKeeper cosmosante.FeegrantKeeper,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		cosmosante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
@@ -42,7 +43,7 @@ func NewAnteHandler(
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
-		cosmosante.NewDeductFeeDecorator(ak, bankKeeper),
+		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper),
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),

@@ -24,7 +24,7 @@ func (k Keeper) Invites(c context.Context, req *types.QueryInvitesRequest) (*typ
 		req.Pagination,
 		func(key []byte, value []byte) error {
 			invite := types.Invite{}
-			k.cdc.MustUnmarshalBinaryBare(value, &invite)
+			k.cdc.MustUnmarshal(value, &invite)
 			invites = append(invites, &invite)
 			return nil
 		},

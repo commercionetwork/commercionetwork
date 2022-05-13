@@ -24,7 +24,7 @@ func (k Keeper) Memberships(c context.Context, req *types.QueryMembershipsReques
 		req.Pagination,
 		func(key []byte, value []byte) error {
 			membership := types.Membership{}
-			k.cdc.MustUnmarshalBinaryBare(value, &membership)
+			k.cdc.MustUnmarshal(value, &membership)
 			if IsValidMembership(ctx, *membership.ExpiryAt, membership.MembershipType) {
 				memberships = append(memberships, &membership)
 			}

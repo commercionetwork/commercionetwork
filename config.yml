@@ -33,7 +33,7 @@ genesis:
     crisis:
       constant_fee:
         denom: "ucommercio"
-    government:
+    commerciogov:
       governmentAddress: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
     vbr:
       poolAmount:

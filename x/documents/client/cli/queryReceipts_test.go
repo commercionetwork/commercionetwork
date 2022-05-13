@@ -58,7 +58,7 @@ func testCmdSentReceipts(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetSentDocumentsReceiptsResponse
-				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.Receipt)
 			}
 		})
@@ -112,7 +112,7 @@ func testCmdReceivedReceipts(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetReceivedDocumentsReceiptsResponse
-				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.ReceiptReceived)
 			}
 		})
@@ -166,7 +166,7 @@ func testCmdDocumentsReceipts(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetDocumentsReceiptsResponse
-				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.Receipts)
 			}
 		})
