@@ -114,9 +114,11 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 			suppl, _ := tt.pool.TruncateDecimal()
 
 			//k.bankKeeper.SetBalances(ctx, macc.GetAddress(), sdk.NewCoins(suppl...))
-			k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), sdk.NewCoins(suppl...))
+			//k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), sdk.NewCoins(suppl...))
 
 			k.accountKeeper.SetModuleAccount(ctx, macc)
+			//k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), sdk.NewCoins(suppl...))
+			k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(suppl...))
 
 			validatorRewards := distrTypes.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 			k.distKeeper.SetValidatorCurrentRewards(ctx, testVal.GetOperator(), validatorRewards)
@@ -173,7 +175,8 @@ func TestKeeper_VbrAccount(t *testing.T) {
 
 			if !tt.emptyPool {
 				coins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.BondDenom})
-				k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), coins)
+				//k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), coins)
+				k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 				//k.bankKeeper.SetBalances(ctx, macc.GetAddress(), coins)
 			}
 

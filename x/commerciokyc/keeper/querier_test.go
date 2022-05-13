@@ -131,10 +131,10 @@ func Test_queryGetSigners(t *testing.T) {
 
 			var actual types.TrustedServiceProviders
 			// MUST VERIFIY
-			cdc := codec.NewLegacyAmino()
+			//cdc := codec.NewLegacyAmino()
 			// k.cdc.MustUnmarshal(actualBz, &actual)
-			cdc.MustUnmarshalJSON(actualBz, &actual)
-			//k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			//cdc.MustUnmarshalJSON(actualBz, &actual)
+			k.cdc.MustUnmarshalJSON(actualBz, &actual)
 			for _, tsp := range test.expected {
 				require.Contains(t, actual.Addresses, tsp.String())
 			}

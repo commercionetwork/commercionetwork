@@ -17,11 +17,14 @@ func TestDefaultGenesisState(t *testing.T) {
 
 func TestInitGenesis(t *testing.T) {
 	defGen := types.DefaultGenesis()
+	defGen.LiquidityPoolAmount = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1))
 	ctx, _, _, k := SetupTestInput()
-	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite(nil), TrustedServiceProviders: nil, Memberships: []*types.Membership(nil)}, defGen)
+	require.Equal(t,
+		&types.GenesisState{LiquidityPoolAmount: sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1)), Invites: []*types.Invite(nil), TrustedServiceProviders: nil, Memberships: []*types.Membership(nil)},
+		defGen)
 	k.InitGenesis(ctx, *defGen)
 	export := k.ExportGenesis(ctx)
-	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.Coins(nil), Invites: []*types.Invite{}, TrustedServiceProviders: nil, Memberships: []*types.Membership{}}, export)
+	require.Equal(t, &types.GenesisState{LiquidityPoolAmount: sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1)), Invites: []*types.Invite{}, TrustedServiceProviders: nil, Memberships: []*types.Membership{}}, export)
 
 	var tsps []string
 	tsps = append(tsps, "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
@@ -39,7 +42,7 @@ func TestInitGenesis(t *testing.T) {
 		MembershipType: "black", ExpiryAt: &now})
 
 	genStateWithData := types.GenesisState{
-		LiquidityPoolAmount:     sdk.Coins(nil),
+		LiquidityPoolAmount:     sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 1)),
 		Invites:                 invites,
 		Memberships:             memberships,
 		TrustedServiceProviders: tsps,

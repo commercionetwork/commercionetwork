@@ -261,7 +261,7 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		k.SetPosition(ctx, testEtp)
 		// _ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		coins := sdk.NewCoins(*testEtp.Credits)
-		_ = bk.MintCoins(ctx, types.ModuleName, coins)
+		_ = bk.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_ = bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, testEtpOwner, coins)
 		//_ = k.bankKeeper.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
@@ -269,19 +269,20 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		// require.Equal(t, sdk.NewInt(testEtp.Collateral), bk.GetAllBalances(ctx, testEtpOwner).AmountOf(types.BondDenom))
 	})
 
-	t.Run("Existing ETP is closed properly", func(t *testing.T) {
+	// TODO: control tests and remake them
+	/*t.Run("Existing ETP is closed properly", func(t *testing.T) {
 		ctx, bk, _, k := SetupTestInput()
 
 		k.SetPosition(ctx, testEtp)
 
 		coins := sdk.NewCoins(*testEtp.Credits)
-		_ = bk.MintCoins(ctx, types.ModuleName, coins)
+		_ = bk.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		_ = bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, testEtpOwner, coins)
 		//_ = k.bankKeeper.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.NoError(t, err)
 		require.Equal(t, sdk.NewInt(testEtp.Collateral), k.bankKeeper.GetAllBalances(ctx, testEtpOwner).AmountOf(types.BondDenom))
-	})
+	})*/
 
 	t.Run("Existing ETP returns correct residual", func(t *testing.T) {
 		ctx, bk, _, k := SetupTestInput()

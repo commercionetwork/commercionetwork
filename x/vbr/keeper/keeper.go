@@ -26,7 +26,7 @@ import (
 
 type (
 	Keeper struct {
-		cdc           codec.BinaryCodec
+		cdc           codec.Codec
 		storeKey      sdk.StoreKey
 		memKey        sdk.StoreKey
 		distKeeper    distKeeper.Keeper
@@ -40,7 +40,7 @@ type (
 )
 
 func NewKeeper(
-	cdc codec.BinaryCodec,
+	cdc codec.Codec,
 	storeKey sdk.StoreKey,
 	memKey sdk.StoreKey,
 	distKeeper distKeeper.Keeper,

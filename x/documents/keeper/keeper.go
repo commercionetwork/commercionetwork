@@ -17,14 +17,14 @@ const (
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryCodec
+		cdc      codec.Codec
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 	}
 )
 
 func NewKeeper(
-	cdc codec.BinaryCodec,
+	cdc codec.Codec,
 	storeKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
