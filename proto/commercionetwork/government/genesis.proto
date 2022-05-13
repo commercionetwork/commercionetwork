@@ -1,15 +1,10 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.government;
-//import "id/didDocument.proto";
 
-// this line is used by starport scaffolding # genesis/proto/import
-
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";
 
 // GenesisState defines the id module's genesis state.
 message GenesisState {
     string governmentAddress = 1;
-    // this line is used by starport scaffolding # genesis/proto/state
-    //string port_id = 1; // this line is used by starport scaffolding # genesis/proto/stateField
-
 }

@@ -12,7 +12,6 @@ import "cosmos/base/v1beta1/coin.proto";
 
 // GenesisState defines the id module's genesis state.
 message GenesisState {
-    // this line is used by starport scaffolding # genesis/proto/state
     repeated cosmos.base.v1beta1.Coin liquidity_pool_amount = 1
         [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
     repeated string trusted_service_providers = 2;

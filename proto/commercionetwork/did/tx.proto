@@ -1,19 +1,17 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.did;
 
-// this line is used by starport scaffolding # proto/tx/import
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
+
+// Import section
 import "commercionetwork/did/identity.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
-
 // Msg defines the Msg service.
 service Msg {
-  // this line is used by starport scaffolding # proto/tx/rpc
   rpc UpdateIdentity(MsgSetIdentity) returns (MsgSetIdentityResponse);
 }
-
-// this line is used by starport scaffolding # proto/tx/message
 
 message MsgSetIdentity { DidDocument didDocument = 1; }
 

@@ -1,22 +1,22 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.commerciomint;
 
-// this line is used by starport scaffolding # proto/tx/import
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+// Import section
 import "gogoproto/gogo.proto";
 import "commercionetwork/commerciomint/params.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
 
 // Msg defines the Msg service.
 service Msg {
-  // this line is used by starport scaffolding # proto/tx/rpc
   rpc MintCCC(MsgMintCCC) returns (MsgMintCCCResponse);
   rpc BurnCCC(MsgBurnCCC) returns (MsgBurnCCCResponse);
   rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
 }
 
-// this line is used by starport scaffolding # proto/tx/message
 message MsgMintCCC {
   string depositor = 1;
   repeated cosmos.base.v1beta1.Coin deposit_amount = 2;

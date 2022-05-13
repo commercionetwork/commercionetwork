@@ -1,10 +1,13 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.vbr;
 
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 
+// Import section
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+
 // Params holds parameters for the incentives module
 message Params {
   // distribution epoch identifier

@@ -1,11 +1,14 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.epochs;
 
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/epochs/types";
+
+// Import section
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/commercionetwork/commercionetwork/x/epochs/types";
 
 message EpochInfo {
   string identifier = 1;

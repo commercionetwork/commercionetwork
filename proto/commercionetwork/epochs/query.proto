@@ -1,12 +1,14 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.epochs;
 
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/epochs/types";
+
+// Import section
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/epochs/genesis.proto";
-
-option go_package = "github.com/commercionetwork/commercionetwork/x/epochs/types";
 
 // Query defines the gRPC querier service.
 service Query {
