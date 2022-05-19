@@ -1365,9 +1365,7 @@ paths:
         - Query
   '/commercionetwork/documents/document/{UUID}':
     get:
-      summary: |-
-        this line is used by starport scaffolding # 2
-        Queries a Document by id.
+      summary: Queries a Document by id.
       operationId: CommercionetworkCommercionetworkDocumentsDocument
       responses:
         '200':
@@ -2359,7 +2357,6 @@ paths:
         - Query
   /commercionetwork/vbr/funds:
     get:
-      summary: 'this line is used by starport scaffolding # 2'
       operationId: CommercionetworkCommercionetworkVbrGetBlockRewardsPoolFunds
       responses:
         '200':

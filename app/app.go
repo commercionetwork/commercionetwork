@@ -7,24 +7,29 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/spf13/cast"
 	"github.com/tendermint/spm/openapiconsole"
+
+	// ------------------------------------------
+	// Tendermint base
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	// ------------------------------------------
+	// Cosmwasm module
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
-	appparams "github.com/commercionetwork/commercionetwork/app/params"
-	docs "github.com/commercionetwork/commercionetwork/docs_3_0"
+	// ------------------------------------------
+	// Cosmos SDK utils
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -34,57 +39,78 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 
-	"github.com/commercionetwork/commercionetwork/x/ante"
+	// ------------------------------------------
+	// Cosmos SDK modules
+	//  Auth
 	comosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
+
+	//  Authz
+	//"github.com/cosmos/cosmos-sdk/x/authz"
+	//authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	//authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
+
+	//  Bank
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	//  Capability
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+
+	//  Crisis
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+
+	//  Distribution
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	//  Evidence
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+
+	//  Feegrant
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+
+	//  Genesis Utilities
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
+	//  Governance
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	transfer "github.com/cosmos/ibc-go/v2/modules/apps/transfer"
-
-	ibctransferkeeper "github.com/cosmos/ibc-go/v2/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v2/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v2/modules/core/02-client"
-	porttypes "github.com/cosmos/ibc-go/v2/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v2/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
-
+	//  Params
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+
+	//  Slashing
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+
+	//  Staking
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	//  Upgrade
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
@@ -92,31 +118,66 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	// this line is used by starport scaffolding # stargate/app/moduleImport
+	//  Vesting
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+
+	// ------------------------------------------
+	// IBC v2
+	//  Transfer
+	transfer "github.com/cosmos/ibc-go/v2/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v2/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
+
+	//  Core
+	ibc "github.com/cosmos/ibc-go/v2/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v2/modules/core/02-client"
+	porttypes "github.com/cosmos/ibc-go/v2/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v2/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
+
+	// ------------------------------------------
+	// Commercio.Network
+	appparams "github.com/commercionetwork/commercionetwork/app/params"
+	docs "github.com/commercionetwork/commercionetwork/docs_3_0"
+	"github.com/commercionetwork/commercionetwork/x/ante"
+
+	// ------------------------------------------
+	// Commercio.Network Modules
+	//  Kyc
 	commerciokycModule "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	commerciokycKeeper "github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+
+	//  Mint
 	commerciomintmodule "github.com/commercionetwork/commercionetwork/x/commerciomint"
 	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+
+	//  Did
 	"github.com/commercionetwork/commercionetwork/x/did"
 	didkeeper "github.com/commercionetwork/commercionetwork/x/did/keeper"
 	didTypes "github.com/commercionetwork/commercionetwork/x/did/types"
+
+	//  Documents
 	"github.com/commercionetwork/commercionetwork/x/documents"
 	documentskeeper "github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	documentstypes "github.com/commercionetwork/commercionetwork/x/documents/types"
+
+	//  Epochs
 	"github.com/commercionetwork/commercionetwork/x/epochs"
 	epochskeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
 	epochstypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
+
+	//  Government
 	governmentmodule "github.com/commercionetwork/commercionetwork/x/government"
 	governmentmodulekeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	governmentmoduletypes "github.com/commercionetwork/commercionetwork/x/government/types"
+
+	//  Vbr
 	vbrmodule "github.com/commercionetwork/commercionetwork/x/vbr"
 	vbrmodulekeeper "github.com/commercionetwork/commercionetwork/x/vbr/keeper"
 	vbrmoduletypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 )
 
 const Name = "commercionetwork"
@@ -129,9 +190,7 @@ var (
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
-	stakeDenom              = "ucommercio"
 	DefaultBondDenom        = "ucommercio"
-	stableCreditDenom       = "uccc"
 	StableCreditsDenom      = "uccc"
 )
 
@@ -152,18 +211,15 @@ func GetEnabledProposals() []wasm.ProposalType {
 	return proposals
 }
 
-// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
-
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
-	// this line is used by starport scaffolding # stargate/app/govProposalHandlers
+
 	govProposalHandlers = wasmclient.ProposalHandlers
 	govProposalHandlers = append(govProposalHandlers,
 		paramsclient.ProposalHandler,
 		distrclient.ProposalHandler,
 		upgradeclient.ProposalHandler,
 		upgradeclient.CancelProposalHandler,
-		// this line is used by starport scaffolding # stargate/app/govProposalHandler
 	)
 
 	return govProposalHandlers
@@ -193,7 +249,7 @@ var (
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		// this line is used by starport scaffolding # stargate/app/moduleBasic
+
 		vbrmodule.AppModuleBasic{},
 		governmentmodule.AppModuleBasic{},
 		did.AppModuleBasic{},
@@ -275,7 +331,6 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
 
-	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 	GovernmentKeeper    governmentmodulekeeper.Keeper
 	CommercioMintKeeper commerciomintKeeper.Keeper
 	CommercioKycKeeper  commerciokycKeeper.Keeper
@@ -296,7 +351,6 @@ type App struct {
 func New(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig appparams.EncodingConfig,
-	// this line is used by starport scaffolding # stargate/app/newArgument
 	appOpts servertypes.AppOptions, enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option, baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
 
@@ -324,7 +378,6 @@ func New(
 		capabilitytypes.StoreKey,
 		feegrant.StoreKey,
 		wasm.StoreKey,
-		// this line is used by starport scaffolding # stargate/app/storeKey
 		vbrmoduletypes.StoreKey,
 		didTypes.StoreKey,
 		commerciokycTypes.StoreKey,
@@ -359,7 +412,6 @@ func New(
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
-	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -419,9 +471,14 @@ func New(
 
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
-		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		appCodec,
+		keys[ibctransfertypes.StoreKey],
+		app.GetSubspace(ibctransfertypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
@@ -477,8 +534,6 @@ func New(
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
 
-	// this line is used by starport scaffolding # stargate/app/keeperDefinition
-
 	scopedIdKeeper := app.CapabilityKeeper.ScopeToModule(didTypes.ModuleName)
 	app.ScopedIdKeeper = scopedIdKeeper
 	app.IdKeeper = *didkeeper.NewKeeper(
@@ -506,7 +561,6 @@ func New(
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
-	// this line is used by starport scaffolding # ibc/app/router
 	//ibcRouter.AddRoute(documentstypes.ModuleName, documentsModule)
 
 	// Wasm keeper support
@@ -529,7 +583,6 @@ func New(
 		scopedWasmKeeper,
 		app.TransferKeeper,
 		app.MsgServiceRouter(),
-		//app.Router(),
 		app.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
@@ -579,7 +632,7 @@ func New(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
-		// this line is used by starport scaffolding # stargate/app/appModule
+		// custoum modules
 		governmentModule,
 		vbrModule,
 		commerciokycModule,
@@ -701,8 +754,8 @@ func New(
 			app.CommercioMintKeeper,
 			comosante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
-			stakeDenom,
-			stableCreditDenom,
+			DefaultBondDenom,
+			StableCreditsDenom,
 			app.FeeGrantKeeper,
 		),
 	)
@@ -727,7 +780,6 @@ func New(
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
 	app.ScopedWasmKeeper = scopedWasmKeeper
-	// this line is used by starport scaffolding # stargate/app/beforeInitReturn
 
 	return app
 }
@@ -873,7 +925,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
-	// this line is used by starport scaffolding # stargate/app/paramSubspace
+
 	paramsKeeper.Subspace(governmentmoduletypes.ModuleName)
 	paramsKeeper.Subspace(vbrmoduletypes.ModuleName)
 	paramsKeeper.Subspace(didTypes.ModuleName)
