@@ -7,7 +7,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 // Import section
 import "commercionetwork/did/identity.proto";
 
-// GenesisState defines the id module's genesis state.
+// GenesisState defines the did module's genesis state.
 message GenesisState {
   repeated Identity identities = 1;
 }
