@@ -100,7 +100,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 
 	// Save membership
 	membership := types.NewMembership(membershipType, user, tsp, expited_at.UTC())
-	store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
+	store.Set(staddr, k.cdc.MustMarshal(&membership))
 
 	// TODO: add event to distinguish assign from buy, or add specific event to eventManager in buy method
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -265,7 +265,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 
 	membershipRaw := store.Get(k.storageForAddr(user))
 	var ms types.Membership
-	k.cdc.MustUnmarshalBinaryBare(membershipRaw, &ms)
+	k.cdc.MustUnmarshal(membershipRaw, &ms)
 	if !IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
 		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("membership for user \"%s\" has expired", user.String()),
@@ -281,7 +281,7 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
 		var m types.Membership
-		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		k.cdc.MustUnmarshal(im.Value(), &m)
 		// Returns only valid memberships
 		if !IsValidMembership(ctx, *m.ExpiryAt, m.MembershipType) {
 			continue
@@ -311,7 +311,7 @@ func (k Keeper) GetTspMemberships(ctx sdk.Context, tsp sdk.Address) types.Member
 	ms := types.Memberships{}
 	defer im.Close()
 	for ; im.Valid(); im.Next() {
-		k.cdc.MustUnmarshalBinaryBare(im.Value(), &m)
+		k.cdc.MustUnmarshal(im.Value(), &m)
 		if m.TspAddress != tsp.String() {
 			continue
 		}
@@ -328,6 +328,6 @@ func (k Keeper) GetMembershipModuleAccount(ctx sdk.Context) accTypes.ModuleAccou
 
 // storageForAddr returns a string representing the KVStore storage key for an addr.
 func (k Keeper) storageForAddr(addr sdk.AccAddress) []byte {
-	//return append([]byte(types.MembershipsStorageKey), k.cdc.MustMarshalBinaryBare(&addr)...)
+	//return append([]byte(types.MembershipsStorageKey), k.cdc.MustMarshal(&addr)...)
 	return append([]byte(types.MembershipsStorageKey), addr.Bytes()...)
 }

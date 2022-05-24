@@ -13,9 +13,10 @@ import (
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	//"github.com/cosmos/cosmos-sdk/x/auth/types"
 	//bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	//bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
@@ -25,13 +26,15 @@ var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(
-	ak keeper.AccountKeeper, bankKeeper types.BankKeeper,
+	ak keeper.AccountKeeper,
+	bankKeeper bankKeeper.Keeper,
 	govKeeper government.Keeper,
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	signModeHandler authsigning.SignModeHandler,
 	stakeDenom string,
 	stableCreditsDemon string,
+	feegrantKeeper cosmosante.FeegrantKeeper,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		cosmosante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
@@ -42,7 +45,7 @@ func NewAnteHandler(
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
-		cosmosante.NewDeductFeeDecorator(ak, bankKeeper),
+		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper),
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),

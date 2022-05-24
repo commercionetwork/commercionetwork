@@ -136,7 +136,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	SetGovAddress(ctx context.Context, in *MsgSetGovAddress, opts ...grpc.CallOption) (*MsgSetGovAddressResponse, error)
 }
 
@@ -159,7 +158,6 @@ func (c *msgClient) SetGovAddress(ctx context.Context, in *MsgSetGovAddress, opt
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	SetGovAddress(context.Context, *MsgSetGovAddress) (*MsgSetGovAddressResponse, error)
 }
 

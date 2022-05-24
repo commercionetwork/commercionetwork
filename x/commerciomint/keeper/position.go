@@ -22,7 +22,7 @@ func (k Keeper) SetPosition(ctx sdk.Context, position types.Position) error {
 		return fmt.Errorf("a position with id %s already exists", position.ID)
 	}
 
-	store.Set(key, k.cdc.MustMarshalBinaryBare(&position))
+	store.Set(key, k.cdc.MustMarshal(&position))
 
 	return nil
 }
@@ -39,7 +39,7 @@ func (k Keeper) UpdatePosition(ctx sdk.Context, position types.Position) error {
 		return fmt.Errorf("a position with id %s doesn't exists", position.ID)
 	}
 
-	store.Set(key, k.cdc.MustMarshalBinaryBare(&position))
+	store.Set(key, k.cdc.MustMarshal(&position))
 
 	return nil
 }
@@ -52,7 +52,7 @@ func (k Keeper) GetPosition(ctx sdk.Context, owner sdk.AccAddress, id string) (t
 	if bs == nil {
 		return position, false
 	}
-	k.cdc.MustUnmarshalBinaryBare(bs, &position)
+	k.cdc.MustUnmarshal(bs, &position)
 	return position, true
 }
 
@@ -73,7 +73,7 @@ func (k Keeper) GetAllPositionsOwnedBy(ctx sdk.Context, owner sdk.AccAddress) []
 	defer i.Close()
 	for ; i.Valid(); i.Next() {
 		var position types.Position
-		k.cdc.MustUnmarshalBinaryBare(i.Value(), &position)
+		k.cdc.MustUnmarshal(i.Value(), &position)
 		positions = append(positions, &position)
 	}
 	return positions
@@ -155,7 +155,7 @@ func (k Keeper) GetAllPositions(ctx sdk.Context) []*types.Position {
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var pos types.Position
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &pos)
+		k.cdc.MustUnmarshal(iterator.Value(), &pos)
 		positions = append(positions, &pos)
 	}
 

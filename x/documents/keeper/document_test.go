@@ -49,7 +49,7 @@ func TestKeeper_SaveDocument(t *testing.T) {
 			store := ctx.KVStore(keeper.storeKey)
 
 			if tt.storedDocument != nil {
-				store.Set(getDocumentStoreKey(tt.storedDocument.UUID), keeper.cdc.MustMarshalBinaryBare(tt.storedDocument))
+				store.Set(getDocumentStoreKey(tt.storedDocument.UUID), keeper.cdc.MustMarshal(tt.storedDocument))
 			}
 
 			if err := keeper.SaveDocument(ctx, testDocument); (err != nil) != tt.wantErr {
@@ -59,7 +59,7 @@ func TestKeeper_SaveDocument(t *testing.T) {
 			if !tt.wantErr {
 				var stored types.Document
 				documentBz := store.Get(getDocumentStoreKey(testDocument.UUID))
-				keeper.cdc.MustUnmarshalBinaryBare(documentBz, &stored)
+				keeper.cdc.MustUnmarshal(documentBz, &stored)
 				require.Equal(t, stored, testDocument)
 
 				sender, err := sdk.AccAddressFromBech32(testDocument.Sender)
@@ -162,7 +162,7 @@ func TestKeeper_DocumentsIterator(t *testing.T) {
 			documents := []types.Document{}
 			for ; di.Valid(); di.Next() {
 				d := types.Document{}
-				keeper.cdc.MustUnmarshalBinaryBare(di.Value(), &d)
+				keeper.cdc.MustUnmarshal(di.Value(), &d)
 
 				documents = append(documents, d)
 			}

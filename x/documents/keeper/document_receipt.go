@@ -35,7 +35,7 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	senderAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
 
 	// check if Sender is included among the recipients of the document
-	if !store.Has(getReceivedDocumentsIdsUUIDStoreKey([]byte(senderAccAdrr), receipt.DocumentUUID)) {
+	if !store.Has(getReceivedDocumentsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)) {
 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", receipt.Sender, receipt.UUID))
 	}
 
@@ -50,7 +50,7 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 	documentsReceiptsIdsStoreKey := getDocumentReceiptsIdsUUIDStoreKey(receipt.DocumentUUID, receipt.UUID)
 
 	// Store the receipt
-	marshaledReceipt := keeper.cdc.MustMarshalBinaryBare(&receipt)
+	marshaledReceipt := keeper.cdc.MustMarshal(&receipt)
 	store.Set(receiptStoreKey, marshaledReceipt)
 	// Store the receipt ID as sent
 	store.Set(sentReceiptsIdsStoreKey, marshaledReceiptID)
@@ -81,7 +81,7 @@ func (keeper Keeper) GetReceiptByID(ctx sdk.Context, id string) (types.DocumentR
 	}
 
 	var receipt types.DocumentReceipt
-	keeper.cdc.MustUnmarshalBinaryBare(store.Get(key), &receipt)
+	keeper.cdc.MustUnmarshal(store.Get(key), &receipt)
 	return receipt, nil
 }
 

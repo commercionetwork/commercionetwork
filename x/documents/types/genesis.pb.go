@@ -24,7 +24,6 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the documents module's genesis state.
 type GenesisState struct {
-	// this line is used by starport scaffolding # genesis/proto/state
 	Documents []*Document        `protobuf:"bytes,1,rep,name=documents,proto3" json:"documents,omitempty"`
 	Receipts  []*DocumentReceipt `protobuf:"bytes,2,rep,name=receipts,proto3" json:"receipts,omitempty"`
 }

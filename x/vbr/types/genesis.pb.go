@@ -27,7 +27,6 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the vbr module's genesis state.
 type GenesisState struct {
-	// this line is used by starport scaffolding # genesis/proto/state
 	PoolAmount github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,1,rep,name=poolAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"poolAmount" yaml:"pool_amount"`
 	Params     Params                                      `protobuf:"bytes,4,opt,name=params,proto3" json:"params"`
 }

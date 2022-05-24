@@ -251,9 +251,9 @@ func AddTestAddrsFromPubKeys(app *App, ctx sdk.Context, pubKeys []cryptotypes.Pu
 
 // setTotalSupply provides the total supply based on accAmt * totalAccounts.
 func setTotalSupply(app *App, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
-	totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
+	/*totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
 	prevSupply := app.BankKeeper.GetSupply(ctx)
-	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
+	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))*/
 }
 
 // AddTestAddrs constructs and returns accNum amount of accounts with an
@@ -286,10 +286,10 @@ func addTestAddrs(app *App, ctx sdk.Context, accNum int, accAmt sdk.Int, strateg
 func saveAccount(app *App, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
-	err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
+	/*err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
 	if err != nil {
 		panic(err)
-	}
+	}*/
 }
 
 // ConvertAddrsToValAddrs converts the provided addresses to ValAddress.

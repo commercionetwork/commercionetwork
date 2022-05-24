@@ -1,22 +1,21 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.documents;
 
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
 
+// Import section
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-// this line is used by starport scaffolding # 1
 import "commercionetwork/documents/document.proto";
 import "commercionetwork/documents/documentReceipt.proto";
 
 /*
-
 rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
         option (google.api.http).get = "/commercionetwork/documents/document";
 }*/
 // Query defines the gRPC querier service.
 service Query {
-  // this line is used by starport scaffolding # 2
   // Queries a Document by id.
   rpc Document(QueryGetDocumentRequest) returns (QueryGetDocumentResponse) {
     option (google.api.http).get =
@@ -56,7 +55,6 @@ service Query {
   }
 }
 
-// this line is used by starport scaffolding # 3
 message QueryGetDocumentRequest { string UUID = 1; }
 
 message QueryGetDocumentResponse { Document Document = 1; }

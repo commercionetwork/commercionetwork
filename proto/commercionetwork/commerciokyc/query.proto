@@ -41,7 +41,6 @@ service Query {
 
 }
 
-
 message QueryInvitesRequest {
 	cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
@@ -69,8 +68,6 @@ message QueryTspsResponse {
 	repeated string tsps = 1;
 }
 
-
-
 message QueryMembershipsRequest {
 	cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
@@ -80,8 +77,6 @@ message QueryMembershipsResponse {
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-
-
 message QueryMembershipRequest {
 	string address = 1;
 }
@@ -89,7 +84,6 @@ message QueryMembershipRequest {
 message QueryMembershipResponse {
 	Membership membership = 1;
 }
-
 
 message QueryFundsRequest {
 }
@@ -99,5 +93,3 @@ message QueryFundsResponse {
 		[(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
-
-// this line is used by starport scaffolding # 3

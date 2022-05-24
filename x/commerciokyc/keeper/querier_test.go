@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
@@ -129,8 +130,11 @@ func Test_queryGetSigners(t *testing.T) {
 			actualBz, _ := querier(ctx, path, request)
 
 			var actual types.TrustedServiceProviders
+			// MUST VERIFIY
+			//cdc := codec.NewLegacyAmino()
+			// k.cdc.MustUnmarshal(actualBz, &actual)
+			//cdc.MustUnmarshalJSON(actualBz, &actual)
 			k.cdc.MustUnmarshalJSON(actualBz, &actual)
-
 			for _, tsp := range test.expected {
 				require.Contains(t, actual.Addresses, tsp.String())
 			}
@@ -183,7 +187,11 @@ func Test_queryGetMembership(t *testing.T) {
 		if !test.mustErr {
 			require.NoError(t, err)
 			var actual types.Membership
-			k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			// MUST VERIFIY
+			cdc := codec.NewLegacyAmino()
+			// k.cdc.MustUnmarshal(actualBz, &actual)
+			cdc.MustUnmarshalJSON(actualBz, &actual)
+			//k.cdc.MustUnmarshalJSON(actualBz, &actual)
 			require.Equal(t, test.expected, actual)
 		} else {
 			require.Error(t, err)

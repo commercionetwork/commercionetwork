@@ -30,7 +30,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// this line is used by starport scaffolding # proto/tx/message
 type MsgIncrementBlockRewardsPool struct {
 	Funder string                                   `protobuf:"bytes,1,opt,name=funder,proto3" json:"funder,omitempty" yaml:"funder"`
 	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount" yaml:"amount"`
@@ -265,7 +264,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	IncrementBlockRewardsPool(ctx context.Context, in *MsgIncrementBlockRewardsPool, opts ...grpc.CallOption) (*MsgIncrementBlockRewardsPoolResponse, error)
 	SetParams(ctx context.Context, in *MsgSetParams, opts ...grpc.CallOption) (*MsgSetParamsResponse, error)
 }
@@ -298,7 +296,6 @@ func (c *msgClient) SetParams(ctx context.Context, in *MsgSetParams, opts ...grp
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	IncrementBlockRewardsPool(context.Context, *MsgIncrementBlockRewardsPool) (*MsgIncrementBlockRewardsPoolResponse, error)
 	SetParams(context.Context, *MsgSetParams) (*MsgSetParamsResponse, error)
 }

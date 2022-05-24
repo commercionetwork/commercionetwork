@@ -116,7 +116,7 @@ Example:
 	cmd.Flags().String(
 		flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(
-		server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", app.DefaultBondDenom),
+		server.FlagMinGasPrices, fmt.Sprintf("0.000001%s,0.000001%s", app.DefaultBondDenom, app.StableCreditsDenom),
 		"Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
 	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.Secp256k1Type), "Key signing algorithm to generate keys for")
@@ -235,8 +235,8 @@ func InitTestnet(
 			return err
 		}
 
-		accTokens := sdk.TokensFromConsensusPower(10000000)
-		accStakingTokens := sdk.TokensFromConsensusPower(10000000)
+		accTokens := sdk.TokensFromConsensusPower(10000000, sdk.DefaultPowerReduction)
+		accStakingTokens := sdk.TokensFromConsensusPower(10000000, sdk.DefaultPowerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(app.StableCreditsDenom, accTokens),
 			sdk.NewCoin(app.DefaultBondDenom, accStakingTokens),
@@ -245,7 +245,7 @@ func InitTestnet(
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-		valTokens := sdk.TokensFromConsensusPower(100)
+		valTokens := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -312,7 +312,7 @@ func initGenFiles(
 	genFiles []string, numValidators int,
 ) error {
 
-	cdc := clientCtx.JSONMarshaler
+	cdc := clientCtx.JSONCodec
 
 	appGenState := mbm.DefaultGenesis(cdc)
 
@@ -361,7 +361,7 @@ func initGenFiles(
 	// set-genesis-vbr-pool-amount 1000000000ucommercio
 	var vbrState vbrTypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[vbrTypes.ModuleName], &vbrState)
-	tokens := sdk.TokensFromConsensusPower(1000)
+	tokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	vbrState.Params.DistrEpochIdentifier = "minute"
 	vbrState.Params.EarnRate = sdk.NewDecWithPrec(5, 2)
@@ -376,7 +376,7 @@ func initGenFiles(
 	// commercionetworkd add-genesis-membership black
 	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), time.Now().Add(time.Hour*24*365))
 	kycState.Memberships = append(kycState.Memberships, &membership)
-	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &kycState)
+	appGenState[commerciokycTypes.ModuleName] = cdc.MustMarshalJSON(&kycState)
 
 	//appGenStateJSON, err := codec.MarshalJSONIndent(cdc, appGenState)
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
@@ -425,7 +425,7 @@ func collectGenFiles(
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.JSONMarshaler, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator)
+		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.JSONCodec, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator)
 		if err != nil {
 			return err
 		}
@@ -475,7 +475,7 @@ func collectGenFiles(
 	}
 
 	_, persistentPeers, _ := genutil.CollectTxs(
-		clientCtx.JSONMarshaler, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
+		clientCtx.JSONCodec, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
 	)
 
 	writeFile("persistent.txt", filepath.Join(outputDir, "base_config"), []byte(persistentPeers))

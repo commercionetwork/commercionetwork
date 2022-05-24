@@ -24,7 +24,7 @@ func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) erro
 	}
 
 	// Store the document instance
-	store.Set(getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshalBinaryBare(&document))
+	store.Set(getDocumentStoreKey(document.UUID), keeper.cdc.MustMarshal(&document))
 
 	// Store the document as sent by the sender
 	senderAccAdrr, _ := sdk.AccAddressFromBech32(document.Sender)
@@ -75,7 +75,7 @@ func (k Keeper) GetDocumentByID(ctx sdk.Context, id string) (types.Document, err
 	}
 
 	var document types.Document
-	k.cdc.MustUnmarshalBinaryBare(store.Get(documentKey), &document)
+	k.cdc.MustUnmarshal(store.Get(documentKey), &document)
 	return document, nil
 }
 

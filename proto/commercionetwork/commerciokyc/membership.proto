@@ -15,7 +15,6 @@ message Membership {
   google.protobuf.Timestamp expiry_at = 4 [(gogoproto.stdtime) = true];
 }
 
-
 message Invite {
   string sender = 1;
   string sender_membership = 2;
@@ -23,11 +22,8 @@ message Invite {
   uint64 status = 4;
 }
 
-
-// ValAddresses defines a repeated set of validator addresses.
 message TrustedServiceProviders {
   //option (gogoproto.goproto_stringer) = false;
   //option (gogoproto.stringer)         = true;
-
   repeated string addresses = 1;
 }

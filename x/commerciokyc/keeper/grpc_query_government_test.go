@@ -87,6 +87,7 @@ func (suite *KeeperTestSuite) TestGRPCFunds() {
 			if testCase.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
+				coins = coins.Add(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))
 				suite.Require().Equal(coins, res.Funds)
 			} else {
 				suite.Require().Error(err)

@@ -27,6 +27,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
@@ -92,6 +93,11 @@ type AnteTestSuite struct {
 	txBuilder client.TxBuilder
 }
 
+func SetBalances(ctx sdk.Context, bk bankKeeper.Keeper, addr sdk.AccAddress, coins sdk.Coins) {
+	bk.MintCoins(ctx, authtypes.ModuleName, coins)
+	bk.SendCoinsFromModuleToAccount(ctx, authtypes.ModuleName, addr, coins)
+}
+
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 
 	// Setup
@@ -109,6 +115,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 		encodingConfig.TxConfig.SignModeHandler(),
 		stakeDenom,
 		stableCreditsDenom,
+		app.FeeGrantKeeper,
 	)
 
 	// Keys and addresses

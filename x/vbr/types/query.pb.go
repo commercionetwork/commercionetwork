@@ -31,7 +31,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// this line is used by starport scaffolding # 3
 type QueryGetBlockRewardsPoolFundsRequest struct {
 }
 
@@ -246,7 +245,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// this line is used by starport scaffolding # 2
 	GetBlockRewardsPoolFunds(ctx context.Context, in *QueryGetBlockRewardsPoolFundsRequest, opts ...grpc.CallOption) (*QueryGetBlockRewardsPoolFundsResponse, error)
 	GetParams(ctx context.Context, in *QueryGetParamsRequest, opts ...grpc.CallOption) (*QueryGetParamsResponse, error)
 }
@@ -279,7 +277,6 @@ func (c *queryClient) GetParams(ctx context.Context, in *QueryGetParamsRequest, 
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// this line is used by starport scaffolding # 2
 	GetBlockRewardsPoolFunds(context.Context, *QueryGetBlockRewardsPoolFundsRequest) (*QueryGetBlockRewardsPoolFundsResponse, error)
 	GetParams(context.Context, *QueryGetParamsRequest) (*QueryGetParamsResponse, error)
 }

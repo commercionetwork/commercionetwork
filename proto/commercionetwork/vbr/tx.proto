@@ -1,20 +1,20 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.vbr;
 
-// this line is used by starport scaffolding # proto/tx/import
+
+// Import section
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
   rpc IncrementBlockRewardsPool(MsgIncrementBlockRewardsPool) returns (MsgIncrementBlockRewardsPoolResponse);
   rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
 }
 
-// this line is used by starport scaffolding # proto/tx/message
 message MsgIncrementBlockRewardsPool {
   string funder = 1 [(gogoproto.moretags) = "yaml:\"funder\""];
   repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.moretags) = "yaml:\"amount\"",

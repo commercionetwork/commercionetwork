@@ -29,7 +29,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// this line is used by starport scaffolding # proto/tx/message
 type MsgMintCCC struct {
 	Depositor     string        `protobuf:"bytes,1,opt,name=depositor,proto3" json:"depositor,omitempty"`
 	DepositAmount []*types.Coin `protobuf:"bytes,2,rep,name=deposit_amount,json=depositAmount,proto3" json:"deposit_amount,omitempty"`
@@ -391,7 +390,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	MintCCC(ctx context.Context, in *MsgMintCCC, opts ...grpc.CallOption) (*MsgMintCCCResponse, error)
 	BurnCCC(ctx context.Context, in *MsgBurnCCC, opts ...grpc.CallOption) (*MsgBurnCCCResponse, error)
 	SetParams(ctx context.Context, in *MsgSetParams, opts ...grpc.CallOption) (*MsgSetParamsResponse, error)
@@ -434,7 +432,6 @@ func (c *msgClient) SetParams(ctx context.Context, in *MsgSetParams, opts ...grp
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	MintCCC(context.Context, *MsgMintCCC) (*MsgMintCCCResponse, error)
 	BurnCCC(context.Context, *MsgBurnCCC) (*MsgBurnCCCResponse, error)
 	SetParams(context.Context, *MsgSetParams) (*MsgSetParamsResponse, error)

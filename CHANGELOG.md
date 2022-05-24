@@ -1,4 +1,15 @@
-# Version 3.0.2
+# Version 3.1.0
+
+* Fixed ABR reward critical bug
+* Update general documentation
+* Allowed EpochHour in `vbr` module
+* Added deposit command in `commerciokyc` module
+* Added check recipients receipts in `documents` module
+* Removed check on empty proof for DocumentReceipt in `documents` module
+* Added validation for genesis, types, keeper packages of some modules
+* Improved tests coverage
+
+# ~~Version 3.0.2~~
 
 * Update general documentation
 * Allowed EpochHour in `vbr` module
