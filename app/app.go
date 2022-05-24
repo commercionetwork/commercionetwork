@@ -796,14 +796,14 @@ func New(
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
-	upgradeName := "v3.1.0"
+	/*upgradeName := "v3.1.0"
 
 	app.UpgradeKeeper.SetUpgradeHandler(
 		upgradeName,
 		func(ctx sdk.Context, plan upgradetypes.Plan) {
 
 		},
-	)
+	)*/
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
