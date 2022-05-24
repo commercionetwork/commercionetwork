@@ -159,7 +159,7 @@ build-image-to-download-libraries:
 	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
 localnet-setup: localnet-stop
-	@if ! [ -f build/node0/commercionetwork/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
+	@if ! [ -f build/node0/commercionetwork/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test --minimum-gas-prices ""; fi
 	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 
 localnet-start: localnet-setup

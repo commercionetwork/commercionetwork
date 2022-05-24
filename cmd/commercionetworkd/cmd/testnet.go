@@ -116,7 +116,7 @@ Example:
 	cmd.Flags().String(
 		flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(
-		server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", app.DefaultBondDenom),
+		server.FlagMinGasPrices, fmt.Sprintf("0.000001%s,0.000001%s", app.DefaultBondDenom, app.StableCreditsDenom),
 		"Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
 	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.Secp256k1Type), "Key signing algorithm to generate keys for")
