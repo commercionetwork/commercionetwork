@@ -1,16 +1,16 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.commerciokyc;
 
-// this line is used by starport scaffolding # proto/tx/import
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
+
+// Import section
 import "commercionetwork/commerciokyc/membership.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";
-
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
     rpc InviteUser(MsgInviteUser) returns (MsgInviteUserResponse);
     rpc BuyMembership(MsgBuyMembership) returns (MsgBuyMembershipResponse);
     rpc RemoveMembership(MsgRemoveMembership) returns (MsgRemoveMembershipResponse);
@@ -21,7 +21,6 @@ service Msg {
     rpc RemoveTsp(MsgRemoveTsp) returns (MsgRemoveTspResponse);
 }
 
-// this line is used by starport scaffolding # proto/tx/message
 message MsgInviteUser {
   string recipient = 1;
   string sender = 2;
@@ -52,7 +51,6 @@ message MsgDepositIntoLiquidityPoolResponse {
     [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
-
 // ==========================================
 message MsgAddTsp {
   string tsp = 1;
@@ -79,7 +77,6 @@ message MsgRemoveMembership {
 message MsgRemoveMembershipResponse {
   string subscriber = 1;
 }
-
 
 // ==========================================
 message MsgSetMembership {

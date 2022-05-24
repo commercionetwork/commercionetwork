@@ -28,7 +28,6 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the id module's genesis state.
 type GenesisState struct {
-	// this line is used by starport scaffolding # genesis/proto/state
 	Positions  []*Position                              `protobuf:"bytes,1,rep,name=Positions,proto3" json:"Positions,omitempty"`
 	PoolAmount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=pool_amount,json=poolAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"pool_amount"`
 	Params     Params                                   `protobuf:"bytes,4,opt,name=params,proto3" json:"params"`

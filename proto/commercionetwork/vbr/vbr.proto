@@ -1,12 +1,12 @@
 syntax = "proto3";
-
 package commercionetwork.commercionetwork.vbr;
 
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 
+// Import section
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
-
 
 message VbrPool {
     repeated cosmos.base.v1beta1.DecCoin amount = 1 [(gogoproto.moretags) = "yaml:\"amount\"",

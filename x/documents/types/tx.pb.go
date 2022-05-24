@@ -27,7 +27,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// this line is used by starport scaffolding # proto/tx/message
 type MsgShareDocument struct {
 	Sender         string                  `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	Recipients     []string                `protobuf:"bytes,2,rep,name=recipients,proto3" json:"recipients,omitempty"`
@@ -359,7 +358,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	ShareDocument(ctx context.Context, in *MsgShareDocument, opts ...grpc.CallOption) (*MsgShareDocumentResponse, error)
 	SendDocumentReceipt(ctx context.Context, in *MsgSendDocumentReceipt, opts ...grpc.CallOption) (*MsgSendDocumentReceiptResponse, error)
 }
@@ -392,7 +390,6 @@ func (c *msgClient) SendDocumentReceipt(ctx context.Context, in *MsgSendDocument
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	ShareDocument(context.Context, *MsgShareDocument) (*MsgShareDocumentResponse, error)
 	SendDocumentReceipt(context.Context, *MsgSendDocumentReceipt) (*MsgSendDocumentReceiptResponse, error)
 }

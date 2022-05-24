@@ -30,7 +30,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// this line is used by starport scaffolding # proto/tx/message
 type MsgInviteUser struct {
 	Recipient string `protobuf:"bytes,1,opt,name=recipient,proto3" json:"recipient,omitempty"`
 	Sender    string `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -808,7 +807,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	InviteUser(ctx context.Context, in *MsgInviteUser, opts ...grpc.CallOption) (*MsgInviteUserResponse, error)
 	BuyMembership(ctx context.Context, in *MsgBuyMembership, opts ...grpc.CallOption) (*MsgBuyMembershipResponse, error)
 	RemoveMembership(ctx context.Context, in *MsgRemoveMembership, opts ...grpc.CallOption) (*MsgRemoveMembershipResponse, error)
@@ -891,7 +889,6 @@ func (c *msgClient) RemoveTsp(ctx context.Context, in *MsgRemoveTsp, opts ...grp
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// this line is used by starport scaffolding # proto/tx/rpc
 	InviteUser(context.Context, *MsgInviteUser) (*MsgInviteUserResponse, error)
 	BuyMembership(context.Context, *MsgBuyMembership) (*MsgBuyMembershipResponse, error)
 	RemoveMembership(context.Context, *MsgRemoveMembership) (*MsgRemoveMembershipResponse, error)
