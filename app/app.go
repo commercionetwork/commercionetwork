@@ -805,6 +805,40 @@ func New(
 		},
 	)*/
 
+	upgradeName := "v4.0.0"
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeName,
+		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			updatedVM := module.VersionMap{}
+			fromVM := make(map[string]uint64)
+			for moduleName := range app.mm.Modules {
+				fromVM[moduleName] = 1
+			}
+
+			// 1. Upgrades all modules of sdk
+			// Automatic
+
+			// 2. Upgrade commerciokyc module
+
+			// 3. Upgrade government module
+
+			// 4. Init authz module
+			// Remove authz module so the init genesis will performs during upgrade
+			delete(fromVM, authz.ModuleName)
+
+			// 4. Update params
+			//    1. Cosmwasm: limit upload code only to specific address. Government and maybe tsps
+			//    2. Verify off-line jail period
+			//    3. Move, some funds
+
+			// 5. Setup IBC
+			//
+
+			app.mm.RunMigrations(ctx, cfg, fromVM)
+			return updatedVM, nil
+		},
+	)
+
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
