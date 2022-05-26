@@ -1,3 +1,5 @@
+rm -rf ~/.ignite/relayer
+
 ignite relayer configure -a \
 --source-rpc "http://0.0.0.0:26657" \
 --source-faucet "http://0.0.0.0:4500" \
