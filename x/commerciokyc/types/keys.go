@@ -8,7 +8,7 @@ const (
 	MemStoreKey  = "mem_" + ModuleName
 
 	// --- Keeper
-	MembershipsStorageKey  = StoreKey + ":storage:"
+	MembershipsStorageKey  = StoreKey + ":membership:"
 	TrustedSignersStoreKey = StoreKey + ":signers"
 	InviteStorePrefix      = "invite:"
 

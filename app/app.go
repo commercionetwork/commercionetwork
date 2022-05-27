@@ -111,6 +111,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	//  Upgrade
+	storetypes "github.com/cosmos/cosmos-sdk/store/types" //TODO: is this the correct place for the import?
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
@@ -819,6 +820,18 @@ func New(
 			// Automatic
 
 			// 2. Upgrade commerciokyc module
+			// updatedVM[commerciokycModule.Name()] = 2
+			updatedVM[commerciokycModule.Name()] = commerciokycModule.ConsensusVersion() + 1
+			storeUpgrades := storetypes.StoreUpgrades{
+				// Added:   []string{},
+				Renamed: []storetypes.StoreRename{
+					storetypes.StoreRename{
+						OldKey: commerciokycTypes.StoreKey + ":storage:",
+						NewKey: commerciokycTypes.MembershipsStorageKey,
+					},
+				},
+				// Deleted: []string{},
+			}
 
 			// 3. Upgrade government module
 
@@ -833,6 +846,13 @@ func New(
 
 			// 5. Setup IBC
 			//
+
+			upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+			if err != nil {
+				panic(err)
+			}
+
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 
 			app.mm.RunMigrations(ctx, cfg, fromVM)
 			return updatedVM, nil
