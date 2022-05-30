@@ -589,6 +589,7 @@ func New(
 
 	// Wasm keeper support
 	wasmDir := filepath.Join(homePath, "wasm")
+	//wasmDir := filepath.Join(homePath, "data") // TODO Save wasm cache and state in data folder
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
