@@ -811,7 +811,7 @@ func New(
 	app.UpgradeKeeper.SetUpgradeHandler(
 		upgradeName,
 		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			updatedVM := module.VersionMap{}
+			//updatedVM := module.VersionMap{}
 			fromVM := make(map[string]uint64)
 			for moduleName := range app.mm.Modules {
 				fromVM[moduleName] = 1
@@ -822,7 +822,8 @@ func New(
 
 			// 2. Upgrade commerciokyc module
 			// updatedVM[commerciokycModule.Name()] = 2
-			updatedVM[commerciokycModule.Name()] = commerciokycModule.ConsensusVersion() + 1
+			//updatedVM[commerciokycModule.Name()] = commerciokycModule.ConsensusVersion() + 1
+			//fromVM[commerciokycModule.Name()] = commerciokycModule.ConsensusVersion() + 1
 
 			// 3. Upgrade government module
 
@@ -845,8 +846,8 @@ func New(
 
 			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))*/
 
-			app.mm.RunMigrations(ctx, cfg, fromVM)
-			return updatedVM, nil
+			return app.mm.RunMigrations(ctx, cfg, fromVM)
+			//return updatedVM, nil
 		},
 	)
 
@@ -857,12 +858,12 @@ func New(
 	if upgradeInfo.Name == upgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		storeUpgrades := storetypes.StoreUpgrades{
 			// Added:   []string{},
-			Renamed: []storetypes.StoreRename{
+			/*Renamed: []storetypes.StoreRename{
 				storetypes.StoreRename{
 					OldKey: commerciokycTypes.StoreKey + ":storage:",
 					NewKey: commerciokycTypes.MembershipsStorageKey,
 				},
-			},
+			},*/
 			// Deleted: []string{},
 		}
 
@@ -912,6 +913,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
