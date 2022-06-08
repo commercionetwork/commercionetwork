@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -822,16 +823,6 @@ func New(
 			// 2. Upgrade commerciokyc module
 			// updatedVM[commerciokycModule.Name()] = 2
 			updatedVM[commerciokycModule.Name()] = commerciokycModule.ConsensusVersion() + 1
-			storeUpgrades := storetypes.StoreUpgrades{
-				// Added:   []string{},
-				Renamed: []storetypes.StoreRename{
-					storetypes.StoreRename{
-						OldKey: commerciokycTypes.StoreKey + ":storage:",
-						NewKey: commerciokycTypes.MembershipsStorageKey,
-					},
-				},
-				// Deleted: []string{},
-			}
 
 			// 3. Upgrade government module
 
@@ -847,17 +838,37 @@ func New(
 			// 5. Setup IBC
 			//
 
-			upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+			/*upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 			if err != nil {
 				panic(err)
 			}
 
-			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))*/
 
 			app.mm.RunMigrations(ctx, cfg, fromVM)
 			return updatedVM, nil
 		},
 	)
+
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
+	}
+	if upgradeInfo.Name == upgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		storeUpgrades := storetypes.StoreUpgrades{
+			// Added:   []string{},
+			Renamed: []storetypes.StoreRename{
+				storetypes.StoreRename{
+					OldKey: commerciokycTypes.StoreKey + ":storage:",
+					NewKey: commerciokycTypes.MembershipsStorageKey,
+				},
+			},
+			// Deleted: []string{},
+		}
+
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
