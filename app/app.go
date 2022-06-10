@@ -367,7 +367,7 @@ func New(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	keys := sdk.NewKVStoreKeys(
+	namesModules := []string{
 		authtypes.StoreKey,
 		banktypes.StoreKey,
 		stakingtypes.StoreKey,
@@ -388,9 +388,41 @@ func New(
 		commerciokycTypes.StoreKey,
 		commerciomintTypes.StoreKey,
 		governmentmoduletypes.StoreKey,
+		"government", // trik
 		documentstypes.StoreKey,
 		epochstypes.StoreKey,
-	)
+	}
+
+	keys := make(map[string]*sdk.KVStoreKey, len(namesModules))
+	for _, n := range namesModules {
+		keys[n] = sdk.NewKVStoreKey(n)
+	}
+
+	/*keysTmp := sdk.NewKVStoreKeys(
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		stakingtypes.StoreKey,
+		distrtypes.StoreKey,
+		slashingtypes.StoreKey,
+		govtypes.StoreKey,
+		paramstypes.StoreKey,
+		ibchost.StoreKey,
+		upgradetypes.StoreKey,
+		evidencetypes.StoreKey,
+		ibctransfertypes.StoreKey,
+		capabilitytypes.StoreKey,
+		feegrant.StoreKey,
+		authzkeeper.StoreKey,
+		wasm.StoreKey,
+		vbrmoduletypes.StoreKey,
+		didTypes.StoreKey,
+		commerciokycTypes.StoreKey,
+		commerciomintTypes.StoreKey,
+		governmentmoduletypes.StoreKey,
+		//"government", // trik
+		documentstypes.StoreKey,
+		epochstypes.StoreKey,
+	)*/
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -812,6 +844,7 @@ func New(
 		upgradeName,
 		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 			//updatedVM := module.VersionMap{}
+
 			fromVM := make(map[string]uint64)
 			for moduleName := range app.mm.Modules {
 				fromVM[moduleName] = 1
@@ -829,7 +862,12 @@ func New(
 
 			// 4. Init authz module
 			// Remove authz module so the init genesis will performs during upgrade
-			delete(fromVM, authz.ModuleName)
+			//delete(fromVM, authz.ModuleName)
+			//delete(fromVM, "commerciogov") // Force delete commerciogov reference
+			delete(fromVM, "ibc") // Force delete ibc reference
+
+			/*delete(fromVM, feegrant.ModuleName)
+			app.AuthzKeeper.InitGenesis(ctx, authz.DefaultGenesisState())*/
 
 			// 4. Update params
 			//    1. Cosmwasm: limit upload code only to specific address. Government and maybe tsps
@@ -856,14 +894,16 @@ func New(
 		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
 	}
 	if upgradeInfo.Name == upgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		//fmt.Println("Apply new store")
 		storeUpgrades := storetypes.StoreUpgrades{
-			// Added:   []string{},
-			/*Renamed: []storetypes.StoreRename{
-				storetypes.StoreRename{
-					OldKey: commerciokycTypes.StoreKey + ":storage:",
-					NewKey: commerciokycTypes.MembershipsStorageKey,
+			Added: []string{authz.ModuleName, feegrant.ModuleName},
+			//Added: []string{"authz"},
+			Renamed: []storetypes.StoreRename{
+				{
+					OldKey: "government",
+					NewKey: governmentmoduletypes.StoreKey,
 				},
-			},*/
+			},
 			// Deleted: []string{},
 		}
 

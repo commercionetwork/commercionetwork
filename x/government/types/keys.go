@@ -17,6 +17,6 @@ const (
 	MemStoreKey = "mem_" + ModuleName
 
 	// State store key
-	GovernmentStoreKey     = StoreKey + "government"
+	GovernmentStoreKey     = StoreKey + ":government"
 	QueryGovernmentAddress = "governmentAddress"
 )
