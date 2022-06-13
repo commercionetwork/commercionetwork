@@ -149,6 +149,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		txCommand(),
 		flags.LineBreak,
 		keys.Commands(app.DefaultNodeHome),
+		preUpgradeCommand(),
 	)
 }
 
@@ -335,4 +336,43 @@ func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
 	for _, c := range c.Commands() {
 		overwriteFlagDefaults(c, defaults)
 	}
+}
+
+func preUpgradeCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "pre-upgrade",
+		Short: "Pre-upgrade command",
+		Long:  "Pre-upgrade command to implement custom pre-upgrade handling",
+		Run: func(cmd *cobra.Command, args []string) {
+			homeDir, err := cmd.Flags().GetString(flags.FlagHome)
+			if homeDir == "" {
+				homeDir = app.DefaultNodeHome
+			}
+			err = HandlePreUpgrade(homeDir)
+
+			if err != nil {
+				os.Exit(30)
+			}
+			os.Exit(0)
+		},
+	}
+	return cmd
+}
+
+func HandlePreUpgrade(homeDir string) error {
+	oldWasmDir := filepath.Join(homeDir, "wasm")
+	_, err := os.Stat(oldWasmDir)
+	if errors.Is(err, os.ErrNotExist) { // Return no error if folder not exists
+		return nil
+	}
+	oldWasmSubDir := filepath.Join(oldWasmDir, "wasm")
+	dataDir := filepath.Join(homeDir, "data")
+	wasmDir := filepath.Join(dataDir, "wasm")
+
+	err = os.Rename(oldWasmSubDir, wasmDir)
+	if err != nil {
+		return err
+	}
+	os.Remove(oldWasmDir)
+	return nil
 }
