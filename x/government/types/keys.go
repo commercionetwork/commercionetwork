@@ -2,7 +2,8 @@ package types
 
 const (
 	// ModuleName defines the module name
-	ModuleName = "commerciogov"
+	//ModuleName = "commerciogov"
+	ModuleName = "government"
 
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName

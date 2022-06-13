@@ -350,6 +350,15 @@ type App struct {
 	EpochsKeeper epochskeeper.Keeper
 }
 
+// Remove assertNoPrefix
+func NewKVStoreKeys(names ...string) map[string]*sdk.KVStoreKey {
+	keys := make(map[string]*sdk.KVStoreKey, len(names))
+	for _, n := range names {
+		keys[n] = sdk.NewKVStoreKey(n)
+	}
+	return keys
+}
+
 // New returns a reference to an initialized Commercionetwork.
 // NewSimApp returns a reference to an initialized SimApp.
 func New(
@@ -367,7 +376,7 @@ func New(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	namesModules := []string{
+	/*namesModules := []string{
 		authtypes.StoreKey,
 		banktypes.StoreKey,
 		stakingtypes.StoreKey,
@@ -388,7 +397,7 @@ func New(
 		commerciokycTypes.StoreKey,
 		commerciomintTypes.StoreKey,
 		governmentmoduletypes.StoreKey,
-		"government", // trik
+		//"government", // trik
 		documentstypes.StoreKey,
 		epochstypes.StoreKey,
 	}
@@ -396,8 +405,31 @@ func New(
 	keys := make(map[string]*sdk.KVStoreKey, len(namesModules))
 	for _, n := range namesModules {
 		keys[n] = sdk.NewKVStoreKey(n)
-	}
-
+	}*/
+	keys := NewKVStoreKeys(
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		stakingtypes.StoreKey,
+		distrtypes.StoreKey,
+		slashingtypes.StoreKey,
+		govtypes.StoreKey,
+		paramstypes.StoreKey,
+		ibchost.StoreKey,
+		upgradetypes.StoreKey,
+		evidencetypes.StoreKey,
+		ibctransfertypes.StoreKey,
+		capabilitytypes.StoreKey,
+		feegrant.StoreKey,
+		authzkeeper.StoreKey,
+		wasm.StoreKey,
+		vbrmoduletypes.StoreKey,
+		didTypes.StoreKey,
+		commerciokycTypes.StoreKey,
+		commerciomintTypes.StoreKey,
+		governmentmoduletypes.StoreKey,
+		documentstypes.StoreKey,
+		epochstypes.StoreKey,
+	)
 	/*keysTmp := sdk.NewKVStoreKeys(
 		authtypes.StoreKey,
 		banktypes.StoreKey,
@@ -515,16 +547,6 @@ func New(
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 
 	// Create Transfer Keepers
-	/*app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec,
-		keys[ibctransfertypes.StoreKey],
-		app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		scopedTransferKeeper,
-	)*/
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		keys[ibctransfertypes.StoreKey],
@@ -898,12 +920,12 @@ func New(
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{authz.ModuleName, feegrant.ModuleName},
 			//Added: []string{"authz"},
-			Renamed: []storetypes.StoreRename{
+			/*Renamed: []storetypes.StoreRename{
 				{
 					OldKey: "government",
 					NewKey: governmentmoduletypes.StoreKey,
 				},
-			},
+			},*/
 			// Deleted: []string{},
 		}
 
