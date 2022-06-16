@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cast"
 	"github.com/tendermint/spm/openapiconsole"
@@ -22,6 +23,7 @@ import (
 	// Cosmwasm module
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// ------------------------------------------
 	// Cosmos SDK utils
@@ -341,9 +343,8 @@ type App struct {
 
 	VbrKeeper vbrmodulekeeper.Keeper
 
-	ScopedIdKeeper capabilitykeeper.ScopedKeeper
-	IdKeeper       didkeeper.Keeper
-	//ScopedDocumentsKeeper capabilitykeeper.ScopedKeeper
+	ScopedIdKeeper  capabilitykeeper.ScopedKeeper
+	IdKeeper        didkeeper.Keeper
 	DocumentsKeeper documentskeeper.Keeper
 	// the module manager
 	mm           *module.Manager
@@ -376,36 +377,7 @@ func New(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	/*namesModules := []string{
-		authtypes.StoreKey,
-		banktypes.StoreKey,
-		stakingtypes.StoreKey,
-		distrtypes.StoreKey,
-		slashingtypes.StoreKey,
-		govtypes.StoreKey,
-		paramstypes.StoreKey,
-		ibchost.StoreKey,
-		upgradetypes.StoreKey,
-		evidencetypes.StoreKey,
-		ibctransfertypes.StoreKey,
-		capabilitytypes.StoreKey,
-		feegrant.StoreKey,
-		authzkeeper.StoreKey,
-		wasm.StoreKey,
-		vbrmoduletypes.StoreKey,
-		didTypes.StoreKey,
-		commerciokycTypes.StoreKey,
-		commerciomintTypes.StoreKey,
-		governmentmoduletypes.StoreKey,
-		//"government", // trik
-		documentstypes.StoreKey,
-		epochstypes.StoreKey,
-	}
-
-	keys := make(map[string]*sdk.KVStoreKey, len(namesModules))
-	for _, n := range namesModules {
-		keys[n] = sdk.NewKVStoreKey(n)
-	}*/
+	//keys := sdk.NewKVStoreKeys(
 	keys := NewKVStoreKeys(
 		authtypes.StoreKey,
 		banktypes.StoreKey,
@@ -430,31 +402,7 @@ func New(
 		documentstypes.StoreKey,
 		epochstypes.StoreKey,
 	)
-	/*keysTmp := sdk.NewKVStoreKeys(
-		authtypes.StoreKey,
-		banktypes.StoreKey,
-		stakingtypes.StoreKey,
-		distrtypes.StoreKey,
-		slashingtypes.StoreKey,
-		govtypes.StoreKey,
-		paramstypes.StoreKey,
-		ibchost.StoreKey,
-		upgradetypes.StoreKey,
-		evidencetypes.StoreKey,
-		ibctransfertypes.StoreKey,
-		capabilitytypes.StoreKey,
-		feegrant.StoreKey,
-		authzkeeper.StoreKey,
-		wasm.StoreKey,
-		vbrmoduletypes.StoreKey,
-		didTypes.StoreKey,
-		commerciokycTypes.StoreKey,
-		commerciomintTypes.StoreKey,
-		governmentmoduletypes.StoreKey,
-		//"government", // trik
-		documentstypes.StoreKey,
-		epochstypes.StoreKey,
-	)*/
+
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -469,6 +417,9 @@ func New(
 		memKeys:           memKeys,
 	}
 
+	// Setup all modules keepers
+
+	// add params keeper
 	app.ParamsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
 
 	// set the BaseApp's parameter store
@@ -482,6 +433,7 @@ func New(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
+	// -----------------------------------------
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
@@ -577,6 +529,7 @@ func New(
 	)
 	governmentModule := governmentmodule.NewAppModule(appCodec, app.GovernmentKeeper)
 
+	// Create Vbr keeper
 	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
 		appCodec,
 		keys[vbrmoduletypes.StoreKey],
@@ -603,6 +556,7 @@ func New(
 	)
 	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.CommercioMintKeeper)
 
+	// Create commerciokyc keeper
 	app.CommercioKycKeeper = *commerciokycKeeper.NewKeeper(
 		appCodec,
 		keys[commerciokycTypes.StoreKey],
@@ -865,39 +819,34 @@ func New(
 	app.UpgradeKeeper.SetUpgradeHandler(
 		upgradeName,
 		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			//updatedVM := module.VersionMap{}
+
+			// Update modules params
+			// Update gov params
+			app.GovKeeper.SetVotingParams(ctx, govtypes.NewVotingParams(time.Hour*24))
+			app.GovKeeper.SetDepositParams(ctx, govtypes.NewDepositParams(sdk.NewCoins(sdk.NewCoin(DefaultBondDenom, sdk.NewInt(5000000000))), time.Hour*48))
+
+			// Update wasm params
+			wasmParams := wasmtypes.DefaultParams()
+			wasmParams.CodeUploadAccess.Permission = wasmtypes.AccessTypeOnlyAddress
+			wasmParams.CodeUploadAccess.Address = app.GovernmentKeeper.GetGovernment300Address(ctx).String()
+			app.WasmKeeper.SetParams(ctx, wasmParams)
+
+			// Update slashing params
+			slashingParams := slashingtypes.NewParams(
+				20000,
+				sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+				time.Minute*10,
+				sdk.NewDecFromIntWithPrec(sdk.NewInt(1), 2),
+				sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+			)
+			app.SlashingKeeper.SetParams(ctx, slashingParams)
 
 			fromVM := make(map[string]uint64)
 			for moduleName := range app.mm.Modules {
 				fromVM[moduleName] = 1
 			}
 
-			// 1. Upgrades all modules of sdk
-			// Automatic
-
-			// 2. Upgrade commerciokyc module
-			// updatedVM[commerciokycModule.Name()] = 2
-			//updatedVM[commerciokycModule.Name()] = commerciokycModule.ConsensusVersion() + 1
-			//fromVM[commerciokycModule.Name()] = commerciokycModule.ConsensusVersion() + 1
-
-			// 3. Upgrade government module
-
-			// 4. Init authz module
-			// Remove authz module so the init genesis will performs during upgrade
-			//delete(fromVM, authz.ModuleName)
-			//delete(fromVM, "commerciogov") // Force delete commerciogov reference
 			delete(fromVM, "ibc") // Force delete ibc reference
-
-			/*delete(fromVM, feegrant.ModuleName)
-			app.AuthzKeeper.InitGenesis(ctx, authz.DefaultGenesisState())*/
-
-			// 4. Update params
-			//    1. Cosmwasm: limit upload code only to specific address. Government and maybe tsps
-			//    2. Verify off-line jail period
-			//    3. Move, some funds
-
-			// 5. Setup IBC
-			//
 
 			/*upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 			if err != nil {
@@ -919,14 +868,12 @@ func New(
 		//fmt.Println("Apply new store")
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{authz.ModuleName, feegrant.ModuleName},
-			//Added: []string{"authz"},
 			/*Renamed: []storetypes.StoreRename{
 				{
 					OldKey: "government",
 					NewKey: governmentmoduletypes.StoreKey,
 				},
 			},*/
-			// Deleted: []string{},
 		}
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
