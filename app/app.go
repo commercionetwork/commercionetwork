@@ -343,8 +343,7 @@ type App struct {
 
 	VbrKeeper vbrmodulekeeper.Keeper
 
-	ScopedIdKeeper  capabilitykeeper.ScopedKeeper
-	IdKeeper        didkeeper.Keeper
+	DidKeeper       didkeeper.Keeper
 	DocumentsKeeper documentskeeper.Keeper
 	// the module manager
 	mm           *module.Manager
@@ -477,6 +476,7 @@ func New(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
+	// -----------------------------------------
 	// ... other modules keepers
 
 	// Create IBC Keeper
@@ -568,16 +568,15 @@ func New(
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
 
-	scopedIdKeeper := app.CapabilityKeeper.ScopeToModule(didTypes.ModuleName)
-	app.ScopedIdKeeper = scopedIdKeeper
-	app.IdKeeper = *didkeeper.NewKeeper(
+	// Create did keeper
+	app.DidKeeper = *didkeeper.NewKeeper(
 		appCodec,
 		keys[didTypes.StoreKey],
 		keys[didTypes.MemStoreKey],
 	)
-	idModule := did.NewAppModule(appCodec, app.IdKeeper)
-	//scopedDocumentsKeeper := app.CapabilityKeeper.ScopeToModule(documentstypes.ModuleName)
-	//app.ScopedDocumentsKeeper = scopedDocumentsKeeper
+	didModule := did.NewAppModule(appCodec, app.DidKeeper)
+
+	// Create documents keeper
 	app.DocumentsKeeper = *documentskeeper.NewKeeper(
 		appCodec,
 		keys[documentstypes.StoreKey],
@@ -585,6 +584,7 @@ func New(
 	)
 	documentsModule := documents.NewAppModule(appCodec, app.DocumentsKeeper)
 
+	// Create epoch keeper
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
@@ -673,7 +673,7 @@ func New(
 		vbrModule,
 		commerciokycModule,
 		commercioMintModule,
-		idModule,
+		didModule,
 		documentsModule,
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 	)
@@ -806,6 +806,8 @@ func New(
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
+
+	// Old upgrade v3.1.0 only for dev enviroment
 	/*upgradeName := "v3.1.0"
 
 	app.UpgradeKeeper.SetUpgradeHandler(
@@ -819,7 +821,6 @@ func New(
 	app.UpgradeKeeper.SetUpgradeHandler(
 		upgradeName,
 		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-
 			// Update modules params
 			// Update gov params
 			app.GovKeeper.SetVotingParams(ctx, govtypes.NewVotingParams(time.Hour*24))
@@ -848,15 +849,7 @@ func New(
 
 			delete(fromVM, "ibc") // Force delete ibc reference
 
-			/*upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
-			if err != nil {
-				panic(err)
-			}
-
-			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))*/
-
 			return app.mm.RunMigrations(ctx, cfg, fromVM)
-			//return updatedVM, nil
 		},
 	)
 
