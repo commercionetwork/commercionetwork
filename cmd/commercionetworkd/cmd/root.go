@@ -149,7 +149,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		txCommand(),
 		flags.LineBreak,
 		keys.Commands(app.DefaultNodeHome),
-		preUpgradeCommand(),
+		//preUpgradeCommand(),
 	)
 }
 
@@ -338,7 +338,7 @@ func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
 	}
 }
 
-func preUpgradeCommand() *cobra.Command {
+/*func preUpgradeCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pre-upgrade",
 		Short: "Pre-upgrade command",
@@ -375,4 +375,4 @@ func HandlePreUpgrade(homeDir string) error {
 	}
 	os.Remove(oldWasmDir)
 	return nil
-}
+}*/
