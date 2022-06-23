@@ -123,7 +123,10 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 
 	// Set the accounts
 	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
-	_ = app.BankKeeper.SetBalances(ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
+	amountAcc1 := sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000))
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, amountAcc1)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, amountAcc1)
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
 
 	//_ = acc1.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uccc", 1000000000)))
 	app.AccountKeeper.SetAccount(ctx, acc1)
@@ -167,8 +170,11 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough stable credits
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 10000))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	err = as.setupSignatures(privs, accnums, seqs)
 	require.NoError(t, err)
@@ -177,8 +183,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has not specified enough token frees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 1))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	err = as.setupSignatures(privs, accnums, seqs)
 	require.NoError(t, err)
@@ -186,8 +196,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough token fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 10000))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{1}
 	err = as.setupSignatures(privs, accnums, seqs)
@@ -196,8 +210,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has not specified enough stake token fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	err = as.setupSignatures(privs, accnums, seqs)
 	require.NoError(t, err)
@@ -205,8 +223,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough stake tokens fees but not enough credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 10000), sdk.NewInt64Coin(stableCreditsDenom, 9999))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{2}
 	err = as.setupSignatures(privs, accnums, seqs)
@@ -215,8 +237,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has specified not enough stake tokens fees but enough credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999), sdk.NewInt64Coin(stableCreditsDenom, 10000))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{3}
 	err = as.setupSignatures(privs, accnums, seqs)
@@ -225,8 +251,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has specified not enough both stake and credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 9999), sdk.NewInt64Coin(stableCreditsDenom, 9999))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	err = as.setupSignatures(privs, accnums, seqs)
 	require.NoError(t, err)
@@ -247,8 +277,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	as.txBuilder.SetMsgs(msgs...)
 
 	// Signer has not specified enough stable credits
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 19999))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	err = as.setupSignatures(privs, accnums, seqs)
 	require.NoError(t, err)
@@ -257,8 +291,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
 	// Signer has specified enough stable credits
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 20000))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{4}
 	err = as.setupSignatures(privs, accnums, seqs)
@@ -267,8 +305,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has specified enough stake tokens
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 20000))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{5}
 	err = as.setupSignatures(privs, accnums, seqs)
@@ -277,8 +319,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has specified enough stake tokens fees but not enough credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 20000), sdk.NewInt64Coin(stableCreditsDenom, 19999))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{6}
 	err = as.setupSignatures(privs, accnums, seqs)
@@ -287,8 +333,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has specified not enough stake tokens fees but enough credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 19999), sdk.NewInt64Coin(stableCreditsDenom, 20000))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	seqs = []uint64{7}
 	err = as.setupSignatures(privs, accnums, seqs)
@@ -297,8 +347,12 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	checkValidTx(t, anteHandler, ctx, tx, true)
 
 	// Signer has specified not enough both stake and credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
 	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 19999), sdk.NewInt64Coin(stableCreditsDenom, 19999))
-	_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+
+	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	err = as.setupSignatures(privs, accnums, seqs)
 	require.NoError(t, err)
