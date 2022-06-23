@@ -759,7 +759,7 @@ func New(
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		crisistypes.ModuleName,
-		ibchost.ModuleName,
+		ibchost.ModuleName, // Required if your application uses the localhost client (opens new window) to connect two different modules from the same chain
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -861,12 +861,6 @@ func New(
 		//fmt.Println("Apply new store")
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{authz.ModuleName, feegrant.ModuleName},
-			/*Renamed: []storetypes.StoreRename{
-				{
-					OldKey: "government",
-					NewKey: governmentmoduletypes.StoreKey,
-				},
-			},*/
 		}
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
