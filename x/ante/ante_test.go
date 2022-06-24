@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdksimapp "github.com/cosmos/cosmos-sdk/simapp"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
@@ -99,7 +100,6 @@ func SetBalances(ctx sdk.Context, bk bankKeeper.Keeper, addr sdk.AccAddress, coi
 }
 
 func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
-
 	// Setup
 	// Conversion rate is 2.0
 	app, ctx := createTestApp(true, false)
@@ -132,7 +132,6 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	app.AccountKeeper.SetAccount(ctx, acc1)
 
 	// Msg and signatures
-
 	msg := docsTypes.NewMsgShareDocument(docsTypes.Document{
 		UUID:           testDocument.UUID,
 		Metadata:       testDocument.Metadata,
@@ -353,6 +352,85 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
 
 	//_ = app.BankKeeper.SetBalances(ctx, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
+
+	// Test with wasm store messages with others
+	msgstore := &wasmtypes.MsgStoreCode{
+		Sender:       acc1.GetAddress().String(),
+		WASMByteCode: []byte("1"),
+	}
+	msgs = []sdk.Msg{msg, msgstore}
+	as.txBuilder.SetMsgs(msgs...)
+
+	// Signer has not specified enough stable credits
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 100009999))
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+
+	tx = as.txBuilder.GetTx()
+	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
+
+	// Signer has specified enough stable credits
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stableCreditsDenom, 100010000))
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{8}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has specified enough stake tokens
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 100010000))
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{9}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has specified enough stake tokens fees but not enough credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 100010000), sdk.NewInt64Coin(stableCreditsDenom, 100009999))
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{10}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has specified not enough stake tokens fees but enough credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 100009999), sdk.NewInt64Coin(stableCreditsDenom, 100010000))
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
+	as.txBuilder.SetFeeAmount(fees)
+	seqs = []uint64{11}
+	err = as.setupSignatures(privs, accnums, seqs)
+	require.NoError(t, err)
+	tx = as.txBuilder.GetTx()
+	checkValidTx(t, anteHandler, ctx, tx, true)
+
+	// Signer has specified not enough both stake and credit tokens fees
+	app.BankKeeper.SendCoinsFromAccountToModule(ctx, addr1, commerciomintTypes.ModuleName, app.BankKeeper.GetAllBalances(ctx, addr1))
+	fees = sdk.NewCoins(sdk.NewInt64Coin(stakeDenom, 100009999), sdk.NewInt64Coin(stableCreditsDenom, 100009999))
+	app.BankKeeper.MintCoins(ctx, commerciomintTypes.ModuleName, fees)
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, commerciomintTypes.ModuleName, addr1, fees)
 	as.txBuilder.SetFeeAmount(fees)
 	err = as.setupSignatures(privs, accnums, seqs)
 	require.NoError(t, err)
