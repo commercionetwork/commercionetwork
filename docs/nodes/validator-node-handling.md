@@ -107,7 +107,7 @@ If you are using the **Ledger device** you must first connect it to your compute
 
 ## Move node to other server
 
-If you need move your validator to another server only thing that you need is move your private key.     
+If you need to move your validator to another server, the only thing that you need to move is your private key.     
 Your node structure should be something like below
 
 ```bash
@@ -131,7 +131,7 @@ Your node structure should be something like below
             └── commercionetword
 
 ```
-If you doesn't use `kms` the private key of your validator is saved in `priv_validator_key.json` file.     
+If you don't use `kms` the private key of your validator is saved in `priv_validator_key.json` file.     
 
 ### Move validator to another server with `priv_validator_key.json` file
 
