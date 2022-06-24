@@ -13,8 +13,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 		k.SetIdentity(ctx, *elem)
 	}
 
-	// this line is used by starport scaffolding # genesis/module/init
-
 }
 
 // ExportGenesis returns the capability module's exported genesis.
@@ -23,8 +21,6 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 
 	identities := k.GetAllIdentities(ctx)
 	genesis.Identities = append(genesis.Identities, identities...)
-
-	// this line is used by starport scaffolding # genesis/module/export
 
 	return genesis
 }

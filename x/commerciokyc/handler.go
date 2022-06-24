@@ -18,7 +18,6 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
-		// this line is used by starport scaffolding # 1
 		case *types.MsgBuyMembership:
 			res, err := msgServer.BuyMembership(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)

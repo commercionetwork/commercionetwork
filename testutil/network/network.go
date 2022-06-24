@@ -76,7 +76,6 @@ func DefaultConfig() network.Config {
 			return app.New(
 				val.Ctx.Logger, tmdb.NewMemDB(), nil, true, map[int64]bool{}, val.Ctx.Config.RootDir, 0,
 				encoding,
-				// this line is used by starport scaffolding # stargate/testutil/appArgument
 				simapp.EmptyAppOptions{},
 				app.GetEnabledProposals(),
 				wasmOpts,

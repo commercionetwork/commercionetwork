@@ -54,7 +54,6 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 
 /*logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig appparams.EncodingConfig, enabledProposals []wasm.ProposalType,
-	// this line is used by starport scaffolding # stargate/app/newArgument
 	appOpts servertypes.AppOptions, wasmOpts []wasm.Option, baseAppOptions ...func(*baseapp.BaseApp),
 )*/
 

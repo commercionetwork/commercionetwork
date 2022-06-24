@@ -23,8 +23,6 @@ const (
 	BondDenom = "ucommercio"
 )
 
-// this line is used by starport scaffolding # ibc/keys/port
-
 // TODO: use KeyPrefix function if needed
 /* func KeyPrefix(p string) []byte {
 	return []byte(p)

@@ -26,7 +26,6 @@ func New(dir string) *app.App {
 	var wasmOpts []wasm.Option
 
 	a := app.New(logger, db, nil, true, map[int64]bool{}, dir, 0, encoding,
-		// this line is used by starport scaffolding # stargate/testutil/appArgument
 		appOpts,
 		app.GetEnabledProposals(),
 		wasmOpts,

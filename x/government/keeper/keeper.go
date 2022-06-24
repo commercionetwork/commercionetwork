@@ -12,7 +12,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	// this line is used by starport scaffolding # ibc/keeper/import
 )
 
 type (

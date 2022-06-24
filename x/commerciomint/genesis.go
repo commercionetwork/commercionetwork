@@ -51,7 +51,6 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState)
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
-	// this line is used by starport scaffolding # genesis/module/export
 	genesis.Params = k.GetParams(ctx)
 
 	genesis.PoolAmount = k.GetLiquidityPoolAmount(ctx)
