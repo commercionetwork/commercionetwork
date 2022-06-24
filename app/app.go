@@ -1,11 +1,13 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cast"
 	"github.com/tendermint/spm/openapiconsole"
@@ -21,6 +23,7 @@ import (
 	// Cosmwasm module
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// ------------------------------------------
 	// Cosmos SDK utils
@@ -111,6 +114,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	//  Upgrade
+	storetypes "github.com/cosmos/cosmos-sdk/store/types" //TODO: is this the correct place for the import?
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
@@ -339,13 +343,20 @@ type App struct {
 
 	VbrKeeper vbrmodulekeeper.Keeper
 
-	ScopedIdKeeper capabilitykeeper.ScopedKeeper
-	IdKeeper       didkeeper.Keeper
-	//ScopedDocumentsKeeper capabilitykeeper.ScopedKeeper
+	DidKeeper       didkeeper.Keeper
 	DocumentsKeeper documentskeeper.Keeper
 	// the module manager
 	mm           *module.Manager
 	EpochsKeeper epochskeeper.Keeper
+}
+
+// Remove assertNoPrefix
+func NewKVStoreKeys(names ...string) map[string]*sdk.KVStoreKey {
+	keys := make(map[string]*sdk.KVStoreKey, len(names))
+	for _, n := range names {
+		keys[n] = sdk.NewKVStoreKey(n)
+	}
+	return keys
 }
 
 // New returns a reference to an initialized Commercionetwork.
@@ -365,7 +376,8 @@ func New(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	keys := sdk.NewKVStoreKeys(
+	//keys := sdk.NewKVStoreKeys(
+	keys := NewKVStoreKeys(
 		authtypes.StoreKey,
 		banktypes.StoreKey,
 		stakingtypes.StoreKey,
@@ -389,6 +401,7 @@ func New(
 		documentstypes.StoreKey,
 		epochstypes.StoreKey,
 	)
+
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -403,6 +416,9 @@ func New(
 		memKeys:           memKeys,
 	}
 
+	// Setup all modules keepers
+
+	// add params keeper
 	app.ParamsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
 
 	// set the BaseApp's parameter store
@@ -416,6 +432,7 @@ func New(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
+	// -----------------------------------------
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
@@ -459,6 +476,7 @@ func New(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
+	// -----------------------------------------
 	// ... other modules keepers
 
 	// Create IBC Keeper
@@ -481,16 +499,6 @@ func New(
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 
 	// Create Transfer Keepers
-	/*app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec,
-		keys[ibctransfertypes.StoreKey],
-		app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		scopedTransferKeeper,
-	)*/
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		keys[ibctransfertypes.StoreKey],
@@ -521,6 +529,7 @@ func New(
 	)
 	governmentModule := governmentmodule.NewAppModule(appCodec, app.GovernmentKeeper)
 
+	// Create Vbr keeper
 	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
 		appCodec,
 		keys[vbrmoduletypes.StoreKey],
@@ -547,6 +556,7 @@ func New(
 	)
 	commercioMintModule := commerciomintmodule.NewAppModule(appCodec, app.CommercioMintKeeper)
 
+	// Create commerciokyc keeper
 	app.CommercioKycKeeper = *commerciokycKeeper.NewKeeper(
 		appCodec,
 		keys[commerciokycTypes.StoreKey],
@@ -558,16 +568,15 @@ func New(
 	)
 	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
 
-	scopedIdKeeper := app.CapabilityKeeper.ScopeToModule(didTypes.ModuleName)
-	app.ScopedIdKeeper = scopedIdKeeper
-	app.IdKeeper = *didkeeper.NewKeeper(
+	// Create did keeper
+	app.DidKeeper = *didkeeper.NewKeeper(
 		appCodec,
 		keys[didTypes.StoreKey],
 		keys[didTypes.MemStoreKey],
 	)
-	idModule := did.NewAppModule(appCodec, app.IdKeeper)
-	//scopedDocumentsKeeper := app.CapabilityKeeper.ScopeToModule(documentstypes.ModuleName)
-	//app.ScopedDocumentsKeeper = scopedDocumentsKeeper
+	didModule := did.NewAppModule(appCodec, app.DidKeeper)
+
+	// Create documents keeper
 	app.DocumentsKeeper = *documentskeeper.NewKeeper(
 		appCodec,
 		keys[documentstypes.StoreKey],
@@ -575,6 +584,7 @@ func New(
 	)
 	documentsModule := documents.NewAppModule(appCodec, app.DocumentsKeeper)
 
+	// Create epoch keeper
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
@@ -588,7 +598,7 @@ func New(
 	//ibcRouter.AddRoute(documentstypes.ModuleName, documentsModule)
 
 	// Wasm keeper support
-	wasmDir := filepath.Join(homePath, "wasm")
+	wasmDir := filepath.Join(homePath, "data")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
@@ -663,7 +673,7 @@ func New(
 		vbrModule,
 		commerciokycModule,
 		commercioMintModule,
-		idModule,
+		didModule,
 		documentsModule,
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 	)
@@ -749,7 +759,7 @@ func New(
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		crisistypes.ModuleName,
-		ibchost.ModuleName,
+		ibchost.ModuleName, // Required if your application uses the localhost client (opens new window) to connect two different modules from the same chain
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -797,6 +807,66 @@ func New(
 	)
 	app.SetEndBlocker(app.EndBlocker)
 
+	// Old upgrade v3.1.0 only for dev enviroment
+	/*upgradeName := "v3.1.0"
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeName,
+		func(ctx sdk.Context, plan upgradetypes.Plan) {
+
+		},
+	)*/
+
+	upgradeName := "v4.0.0"
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeName,
+		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			// Update modules params
+			// Update gov params
+			app.GovKeeper.SetVotingParams(ctx, govtypes.NewVotingParams(time.Hour*24))
+			app.GovKeeper.SetDepositParams(ctx, govtypes.NewDepositParams(sdk.NewCoins(sdk.NewCoin(DefaultBondDenom, sdk.NewInt(5000000000))), time.Hour*48))
+
+			// Update wasm params
+			wasmParams := wasmtypes.DefaultParams()
+			wasmParams.CodeUploadAccess.Permission = wasmtypes.AccessTypeOnlyAddress
+			wasmParams.CodeUploadAccess.Address = app.GovernmentKeeper.GetGovernment300Address(ctx).String()
+			app.WasmKeeper.SetParams(ctx, wasmParams)
+
+			// Update slashing params
+			slashingParams := slashingtypes.NewParams(
+				20000,
+				sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+				time.Minute*10,
+				sdk.NewDecFromIntWithPrec(sdk.NewInt(1), 2),
+				sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+			)
+			app.SlashingKeeper.SetParams(ctx, slashingParams)
+
+			fromVM := make(map[string]uint64)
+			for moduleName := range app.mm.Modules {
+				fromVM[moduleName] = 1
+			}
+
+			delete(fromVM, "ibc") // Force delete ibc reference
+
+			return app.mm.RunMigrations(ctx, cfg, fromVM)
+		},
+	)
+
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
+	}
+	if upgradeInfo.Name == upgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		//fmt.Println("Apply new store")
+		storeUpgrades := storetypes.StoreUpgrades{
+			Added: []string{authz.ModuleName, feegrant.ModuleName},
+		}
+
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
+
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
@@ -839,6 +909,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 

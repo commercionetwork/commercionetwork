@@ -104,6 +104,140 @@ The validator tab should have the value **Operator**. That value is your `<desti
 
 If you are using the **Ledger device** you must first connect it to your computer, start the cosmos application and add `--ledger` flag to the command.
 
+
+## Move node to other server
+
+If you need to move your validator to another server, the only thing that you need to move is your private key.     
+Your node structure should be something like below
+
+```bash
+.commercionetwork
+├── config
+│   └── app.toml
+│   └── config.toml
+│   └── genesis.json
+│   └── node_id.json
+│   └── priv_validator_key.json
+├── data
+│   └── priv_validator_state.json
+└── cosmovisor
+    └── current
+    └── genesis
+    └── bin
+    │   └── commercionetword
+    └── upgrades
+    └── <name>
+        └── bin
+            └── commercionetword
+
+```
+If you don't use `kms` the private key of your validator is saved in `priv_validator_key.json` file.     
+
+### Move validator to another server with `priv_validator_key.json` file
+
+1. Install a full node in the new server
+2. Stop the full node `commercionetword` service in the new server 
+   ```bash
+   systemctl stop commercionetword
+   ```
+3. Copy `data` folder to the new server
+   ```bash
+   rsync -av --delete ~/.commercionetwork/data/ <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
+   ```
+4. Stop and disable the `commercionetword` service in the current server of validator node
+   ```bash
+   systemctl stop commercionetword
+   systemctl disable commercionetword
+   ```
+1. Sync again your new node `data` folder
+   ```bash
+   rsync -av --delete ~/.commercionetwork/data/ <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
+   ```
+2. Copy your `priv_validator_key.json` in the new server
+   ```bash
+   scp ~/.commercionetwork/config/priv_validator_key.json <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/config/priv_validator_key.json
+   ```
+3. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node.
+4. Remove the `priv_validator_key.json` file from old server
+   ```bash
+   rm ~/.commercionetwork/config/priv_validator_key.json
+   ```
+1. Restart the node in your new server
+   ```bash
+   systemctl start commercionetword
+   ```
+1. Verify if your validator signs again
+### Move validator to another server with `kms`
+
+1. Install a full node in the new server
+2. Stop the full node `commercionetword` service in the new server 
+   ```bash
+   systemctl stop commercionetword
+   ```
+3. Copy `data` folder to the new server
+   ```bash
+   rsync -av --delete ~/.commercionetwork/data/ <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
+   ```
+1. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node. Especially setup your `priv_val_addr` in `config.toml` using the setup of your server. 
+1. Enter in your `kms` server and stop the `tmkms` service
+   ```bash
+   systemctl stop tmkms
+   ```
+1. Modify `tmkms` config using `priv_val_addr` value of your validator 
+   ```toml
+   [[validator]]
+   addr = "tcp://<VALIDATOR_IP>:26658"
+   ``` 
+1. Restart `tmkms` service
+   ```bash
+   systemctl start tmkms
+   ```
+1. Restart the node in your new server
+   ```bash
+   systemctl start commercionetword
+   ```
+1. Verify if your validator signs again
+### Resume validator after break down with `priv_validator_key.json` file
+
+To resume a validator after break down or some other terrible issue that destroy your server you need to have the `priv_validator_key.json` saved in a secure place.
+
+1. Install a full node in the new server
+2. After the node is synced with the chain stop it
+   ```bash
+   systemctl stop commercionetword
+   ```
+3. Copy your saved `priv_validator_key.json` file in the new server
+4. Restart the node in your new server
+   ```bash
+   systemctl start commercionetword
+   ```
+1. Verify if your validator signs again
+
+### Resume validator after break down with `kms`
+1. Install a full node in the new server
+2. After the node is synced with the chain stop it
+   ```bash
+   systemctl stop commercionetword
+   ```
+1. Setup your `priv_val_addr` in `config.toml` using the setup of your server. 
+1. Enter in your `kms` server and stop the `tmkms` service
+   ```bash
+   systemctl stop tmkms
+   ```
+1. Modify `tmkms` config using `priv_val_addr` value of your validator 
+   ```toml
+   [[validator]]
+   addr = "tcp://<VALIDATOR_IP>:26658"
+   ``` 
+1. Restart `tmkms` service
+   ```bash
+   systemctl start tmkms
+   ```
+1. Restart the node in your new server
+   ```bash
+   systemctl start commercionetword
+   ```
+1. Verify if your validator signs again
 ## x% Loss of blocks
 
  What does an x% loss of blocks mean for a validator? 

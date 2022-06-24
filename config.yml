@@ -30,10 +30,12 @@ genesis:
         -
           denom: "ucommercio"
           amount: "10000000"
+      voting_params:
+        voting_period: "120s"
     crisis:
       constant_fee:
         denom: "ucommercio"
-    commerciogov:
+    government:
       governmentAddress: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
     vbr:
       poolAmount:

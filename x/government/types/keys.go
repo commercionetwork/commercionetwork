@@ -2,7 +2,8 @@ package types
 
 const (
 	// ModuleName defines the module name
-	ModuleName = "commerciogov"
+	//ModuleName = "commerciogov"
+	ModuleName = "government"
 
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
@@ -17,6 +18,6 @@ const (
 	MemStoreKey = "mem_" + ModuleName
 
 	// State store key
-	GovernmentStoreKey     = StoreKey + "government"
+	GovernmentStoreKey     = StoreKey + ":government"
 	QueryGovernmentAddress = "governmentAddress"
 )
