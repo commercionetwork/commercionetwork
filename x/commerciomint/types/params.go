@@ -27,14 +27,6 @@ func NewParams(conversionRate sdk.Dec, freezePeriod time.Duration) Params {
 	}
 }
 
-// default commerciomint module parameters
-func DefaultParams() Params {
-	return Params{
-		ConversionRate: DefaultConversionRate,
-		FreezePeriod:   DefaultFreezePeriod,
-	}
-}
-
 func (p *Params) Validate() error {
 
 	if err := ValidateConversionRate(p.ConversionRate); err != nil {

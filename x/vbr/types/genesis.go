@@ -7,11 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// unused constant
-
-// DefaultIndex is the default capability global index
-const DefaultIndex uint64 = 1
-
 // DefautGenesis is not valid
 
 // DefaultGenesis returns the default Capability genesis state

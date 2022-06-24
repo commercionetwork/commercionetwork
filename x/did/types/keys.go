@@ -83,12 +83,3 @@ var (
 		"Bls12381G2Key2020",
 	}
 )
-
-var (
-	// PortKey defines the key to store the port ID in store
-	PortKey = KeyPrefix("did-port-")
-)
-
-func KeyPrefix(p string) []byte {
-	return []byte(p)
-}
