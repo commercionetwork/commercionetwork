@@ -1,5 +1,3 @@
-// DONTCOVER
-// nolint
 package v2_2_0
 
 import (
@@ -19,7 +17,6 @@ type GenesisState struct {
 	RewardRate        sdk.Dec      `json:"reward_rate"`
 	AutomaticWithdraw bool         `json:"automatic_withdraw"`
 }
-
 
 type MsgIncrementBlockRewardsPool struct {
 	Funder sdk.AccAddress `json:"funder"`
