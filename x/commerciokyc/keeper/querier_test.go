@@ -28,8 +28,8 @@ func TestNewQuerier_InvalidMsg(t *testing.T) {
 func Test_queryGetInvites(t *testing.T) {
 	tests := []struct {
 		name          string
-		storedInvites types.Invites
-		expected      types.Invites
+		storedInvites []types.Invite
+		expected      []types.Invite
 	}{
 		// These tests are not valid because can't get specific invite
 		/*{
@@ -49,16 +49,16 @@ func Test_queryGetInvites(t *testing.T) {
 		},*/
 		{
 			name:          "All invites and empty list is returned properly",
-			storedInvites: types.Invites{},
-			expected:      types.Invites{},
+			storedInvites: []types.Invite{},
+			expected:      []types.Invite{},
 		},
 		{
 			name: "All invites and non empty list is returned properly",
-			storedInvites: types.Invites{
+			storedInvites: []types.Invite{
 				types.NewInvite(testInviteSender, testUser, "bronze"),
 				types.NewInvite(testInviteSender, testUser2, "bronze"),
 			},
-			expected: types.Invites{
+			expected: []types.Invite{
 				types.NewInvite(testInviteSender, testUser2, "bronze"),
 				types.NewInvite(testInviteSender, testUser, "bronze"),
 			},
@@ -80,15 +80,14 @@ func Test_queryGetInvites(t *testing.T) {
 			path := []string{types.QueryGetInvites}
 			actualBz, _ := querier(ctx, path, request)
 
-			var actual types.Invites
+			var actual []types.Invite
 			var invites []*types.Invite
 			legacyAmino.MustUnmarshalJSON(actualBz, &invites)
 			for _, invite := range invites {
 				actual = append(actual, *invite)
 			}
 
-			//k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-			require.True(t, test.expected.Equals(actual))
+			require.ElementsMatch(t, test.storedInvites, actual)
 		})
 	}
 
