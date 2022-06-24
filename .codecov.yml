@@ -30,6 +30,7 @@ ignore:
   - "types/*.pb.gw.go"
   - "tests/*"
   - "tests/**/*"
+  - "x/**/module.go"
   - "x/**/*.pb.go"
   - "x/**/*.pb.gw.go"
   - "x/**/test_common.go"
