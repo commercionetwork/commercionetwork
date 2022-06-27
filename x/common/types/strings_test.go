@@ -1,11 +1,11 @@
 package types_test
 
 import (
+	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/commercionetwork/commercionetwork/x/common/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStrings_AppendIfMissing(t *testing.T) {
@@ -82,6 +82,73 @@ func Test_IsSet(t *testing.T) {
 
 			if got := types.Strings(tt.slice).IsSet(); got != tt.want {
 				t.Errorf("isMap(%s) = %v, want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestStrings_Empty(t *testing.T) {
+	tests := []struct {
+		name      string
+		addresses types.Strings
+		want      bool
+	}{
+		{
+			name: "ok",
+			want: true,
+		},
+		{
+			name:      "not empty",
+			addresses: []string{"something"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.addresses.Empty(); got != tt.want {
+				t.Errorf("Strings.Empty() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestStrings_RemoveIfExisting(t *testing.T) {
+	tests := []struct {
+		name     string
+		elements types.Strings
+		address  string
+		want     types.Strings
+		want1    bool
+	}{
+		{
+			name:     "ok",
+			elements: []string{"A", "B", "A"},
+			address:  "A",
+			want:     []string{"B", "A"},
+			want1:    true,
+		},
+		{
+			name:     "empty",
+			elements: []string{},
+			address:  "A",
+			want:     []string{},
+			want1:    false,
+		},
+		{
+			name:     "not contain",
+			elements: []string{"B"},
+			address:  "A",
+			want:     []string{"B"},
+			want1:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := tt.elements.RemoveIfExisting(tt.address)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Strings.RemoveIfExisting() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("Strings.RemoveIfExisting() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}
