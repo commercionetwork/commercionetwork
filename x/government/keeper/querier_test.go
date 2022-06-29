@@ -44,7 +44,12 @@ func Test_queryGetGovernmentAddress(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeperWithGovernmentAddress(t, governmentTestAddress)
 
-			got, err := queryGetGovernmentAddress(ctx, *k, tt.legacyQuerierCdc)
+			app := simapp.Setup(false)
+			legacyAmino := app.LegacyAmino()
+			querier := NewQuerier(*k, legacyAmino)
+			path := []string{types.QueryGovernmentAddress}
+			got, err := querier(ctx, path, abci.RequestQuery{})
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("queryGetGovernmentAddress() error = %v, wantErr %v", err, tt.wantErr)
 				return

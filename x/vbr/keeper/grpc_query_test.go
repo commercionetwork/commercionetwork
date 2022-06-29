@@ -37,30 +37,29 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	keeper, ctx := SetupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 
-	for _, tc := range []struct {
+	for _, tt := range []struct {
 		desc     string
 		request  *types.QueryGetBlockRewardsPoolFundsRequest
 		response *types.QueryGetBlockRewardsPoolFundsResponse
 		err      error
 	}{
-		/*{
+		{
 			desc:     "funds 100000ucommercio",
 			request:  &types.QueryGetBlockRewardsPoolFundsRequest{},
 			response: &types.QueryGetBlockRewardsPoolFundsResponse{Funds: testFunds1},
-		},*/
+		},
 		{
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
 	} {
-		tc := tc
 		setFunds(keeper, ctx, testFunds1)
-		t.Run(tc.desc, func(t *testing.T) {
-			response, err := keeper.GetBlockRewardsPoolFunds(wctx, tc.request)
-			if tc.err != nil {
-				require.ErrorIs(t, err, tc.err)
+		t.Run(tt.desc, func(t *testing.T) {
+			response, err := keeper.GetBlockRewardsPoolFunds(wctx, tt.request)
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
 			} else {
-				require.Equal(t, tc.response, response)
+				require.Equal(t, tt.response, response)
 			}
 		})
 	}

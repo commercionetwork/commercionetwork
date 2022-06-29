@@ -1,8 +1,10 @@
 package keeper
 
 import (
+	"reflect"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -72,6 +74,33 @@ func TestKeeper_GetGovernmentAddress(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := setupKeeperWithGovernmentAddress(t, tt.address)
 			require.Equal(t, tt.address, k.GetGovernmentAddress(ctx))
+		})
+	}
+}
+
+func TestKeeper_GetGovernment300Address(t *testing.T) {
+	type fields struct {
+		cdc      codec.Codec
+		storeKey sdk.StoreKey
+		memKey   sdk.StoreKey
+	}
+	type args struct {
+		ctx sdk.Context
+	}
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "ok",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k, ctx := setupKeeperWithV300Government(t, governmentTestAddress)
+
+			if got := k.GetGovernment300Address(ctx); !reflect.DeepEqual(got, governmentTestAddress) {
+				t.Errorf("Keeper.GetGovernment300Address() = %v, want %v", got, governmentTestAddress)
+			}
 		})
 	}
 }

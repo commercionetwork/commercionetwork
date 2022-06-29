@@ -1,5 +1,4 @@
 // DONTCOVER
-// nolint
 package v2_2_0
 
 import (

@@ -3,6 +3,7 @@ package keeper
 import (
 	"testing"
 
+	v300 "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -43,4 +44,15 @@ func setupKeeperWithGovernmentAddress(t testing.TB, address sdk.AccAddress) (*Ke
 	}
 
 	return keeper, ctx
+}
+
+func setupKeeperWithV300Government(t testing.TB, address sdk.AccAddress) (*Keeper, sdk.Context) {
+	k, ctx := setupKeeperWithGovernmentAddress(t, nil)
+
+	require.NotNil(t, address)
+
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(v300.GovernmentStoreKey), address)
+
+	return k, ctx
 }

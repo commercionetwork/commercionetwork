@@ -21,7 +21,6 @@ func (elements Strings) RemoveIfExisting(address string) (Strings, bool) {
 		return elements, false
 	}
 	return append(elements[:indexOf], elements[indexOf+1:]...), true
-
 }
 
 // IndexOf returns the index of the given address inside the addresses array,
