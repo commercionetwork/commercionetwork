@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
@@ -27,8 +28,8 @@ func TestNewQuerier_InvalidMsg(t *testing.T) {
 func Test_queryGetInvites(t *testing.T) {
 	tests := []struct {
 		name          string
-		storedInvites types.Invites
-		expected      types.Invites
+		storedInvites []types.Invite
+		expected      []types.Invite
 	}{
 		// These tests are not valid because can't get specific invite
 		/*{
@@ -48,16 +49,16 @@ func Test_queryGetInvites(t *testing.T) {
 		},*/
 		{
 			name:          "All invites and empty list is returned properly",
-			storedInvites: types.Invites{},
-			expected:      types.Invites{},
+			storedInvites: []types.Invite{},
+			expected:      []types.Invite{},
 		},
 		{
 			name: "All invites and non empty list is returned properly",
-			storedInvites: types.Invites{
+			storedInvites: []types.Invite{
 				types.NewInvite(testInviteSender, testUser, "bronze"),
 				types.NewInvite(testInviteSender, testUser2, "bronze"),
 			},
-			expected: types.Invites{
+			expected: []types.Invite{
 				types.NewInvite(testInviteSender, testUser2, "bronze"),
 				types.NewInvite(testInviteSender, testUser, "bronze"),
 			},
@@ -79,15 +80,14 @@ func Test_queryGetInvites(t *testing.T) {
 			path := []string{types.QueryGetInvites}
 			actualBz, _ := querier(ctx, path, request)
 
-			var actual types.Invites
+			var actual []types.Invite
 			var invites []*types.Invite
 			legacyAmino.MustUnmarshalJSON(actualBz, &invites)
 			for _, invite := range invites {
 				actual = append(actual, *invite)
 			}
 
-			//k.Cdc.MustUnmarshalJSON(actualBz, &actual)
-			require.True(t, test.expected.Equals(actual))
+			require.ElementsMatch(t, test.storedInvites, actual)
 		})
 	}
 
@@ -129,8 +129,11 @@ func Test_queryGetSigners(t *testing.T) {
 			actualBz, _ := querier(ctx, path, request)
 
 			var actual types.TrustedServiceProviders
+			// MUST VERIFIY
+			//cdc := codec.NewLegacyAmino()
+			// k.cdc.MustUnmarshal(actualBz, &actual)
+			//cdc.MustUnmarshalJSON(actualBz, &actual)
 			k.cdc.MustUnmarshalJSON(actualBz, &actual)
-
 			for _, tsp := range test.expected {
 				require.Contains(t, actual.Addresses, tsp.String())
 			}
@@ -183,7 +186,11 @@ func Test_queryGetMembership(t *testing.T) {
 		if !test.mustErr {
 			require.NoError(t, err)
 			var actual types.Membership
-			k.cdc.MustUnmarshalJSON(actualBz, &actual)
+			// MUST VERIFIY
+			cdc := codec.NewLegacyAmino()
+			// k.cdc.MustUnmarshal(actualBz, &actual)
+			cdc.MustUnmarshalJSON(actualBz, &actual)
+			//k.cdc.MustUnmarshalJSON(actualBz, &actual)
 			require.Equal(t, test.expected, actual)
 		} else {
 			require.Error(t, err)

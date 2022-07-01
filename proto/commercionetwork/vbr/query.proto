@@ -1,18 +1,17 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.vbr;
 
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
+
+// Import section
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
-//import "cosmos/base/query/v1beta1/pagination.proto";
-// this line is used by starport scaffolding # 1
 import "commercionetwork/vbr/params.proto";
-
-option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 
 // Query defines the gRPC querier service.
 service Query {
-    // this line is used by starport scaffolding # 2
     rpc GetBlockRewardsPoolFunds(QueryGetBlockRewardsPoolFundsRequest) returns (QueryGetBlockRewardsPoolFundsResponse) {
 		option (google.api.http).get = "/commercionetwork/vbr/funds";
 	}
@@ -22,7 +21,6 @@ service Query {
 	}
 }
 
-// this line is used by starport scaffolding # 3
 message QueryGetBlockRewardsPoolFundsRequest {
 }
 

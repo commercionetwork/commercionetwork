@@ -13,25 +13,29 @@ import (
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	//"github.com/cosmos/cosmos-sdk/x/auth/types"
 	//bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	//bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
 var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
+var storeRequiredFee = sdk.NewDecWithPrec(100, 0)
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(
-	ak keeper.AccountKeeper, bankKeeper types.BankKeeper,
+	ak keeper.AccountKeeper,
+	bankKeeper bankKeeper.Keeper,
 	govKeeper government.Keeper,
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
 	signModeHandler authsigning.SignModeHandler,
 	stakeDenom string,
 	stableCreditsDemon string,
+	feegrantKeeper cosmosante.FeegrantKeeper,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		cosmosante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
@@ -42,7 +46,7 @@ func NewAnteHandler(
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
-		cosmosante.NewDeductFeeDecorator(ak, bankKeeper),
+		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper),
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),
@@ -87,8 +91,19 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	}
 
 	// calculate required fees for this transaction as (number of messages * fixed required feees)
+	// get the len of messages array and find store messages to apply different fees
+	lenMsgs := int64(len(stdTx.GetMsgs()))
+	lenStoreMsgs := int64(0)
+	for _, value := range stdTx.GetMsgs() {
+		if sdk.MsgTypeURL(value) == "/cosmwasm.wasm.v1.MsgStoreCode" {
+			lenMsgs--
+			lenStoreMsgs++
+		}
+	}
 
-	requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.GetMsgs())))
+	//requiredFees := fixedRequiredFee.MulInt64(int64(len(stdTx.GetMsgs())))
+	requiredFees := fixedRequiredFee.MulInt64(lenMsgs)
+	requiredFees = requiredFees.Add(storeRequiredFee.MulInt64(lenStoreMsgs))
 
 	// Check the minimum fees
 	if err := checkMinimumFees(stdTx, ctx, mfd.govk, mfd.mintk, mfd.stakeDenom, mfd.stableCreditsDenom, requiredFees); err != nil {

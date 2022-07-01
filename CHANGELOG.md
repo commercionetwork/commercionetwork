@@ -1,3 +1,26 @@
+# Version 4.0.0
+
+* Upgraded cosmos sdk to version 0.45.5 
+* Upgraded wasm to version 0.27
+* Upgraded ibc to version 3
+* Added iterator support to wasm
+* Added setup upgrade handler
+* Added migration commerciokyc
+* Updated params
+   * Increased the offline block window from 10000 to 20000
+   * Decreased deposit amount proposal from 50000 to 5000 token
+   * Decreased voting period from 2 to 1 day
+   * Added code upload access permission address
+* Changed did keeper name
+* Updated config.yml
+* Updated ante tests
+* Removed useless comments
+* Updated validator handle (#367)
+* Updated documentation
+* Added wasm store fees (#369)
+* Fixed vbr moduleaccount (#372)
+* Updated npm library
+
 # Version 3.1.0
 
 * Fixed ABR reward critical bug

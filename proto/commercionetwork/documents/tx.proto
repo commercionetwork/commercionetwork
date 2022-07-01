@@ -1,23 +1,22 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.documents;
 
-// this line is used by starport scaffolding # proto/tx/import
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
+
+// Import section
 import "commercionetwork/documents/document.proto";
 import "commercionetwork/documents/documentDoSign.proto";
 import "commercionetwork/documents/documentEncryptionData.proto";
 import "commercionetwork/documents/documentMetadataSchema.proto";
 import "commercionetwork/documents/documentChecksum.proto";
 
-option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
-
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
   rpc ShareDocument(MsgShareDocument) returns (MsgShareDocumentResponse);
   rpc SendDocumentReceipt(MsgSendDocumentReceipt) returns (MsgSendDocumentReceiptResponse);
 }
 
-// this line is used by starport scaffolding # proto/tx/message
 message MsgShareDocument {
   string sender = 1;
   repeated string recipients = 2;

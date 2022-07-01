@@ -1,8 +1,10 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.documents;
 
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/documents/types";
 
+// Import section
 import "gogoproto/gogo.proto";
 
 message DocumentReceipt {

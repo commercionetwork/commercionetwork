@@ -30,14 +30,14 @@ import (
 )
 
 var (
-	distrAcc = accountTypes.NewEmptyModuleAccount(types.ModuleName)
-
 	valAddrVal, _    = sdk.ValAddressFromBech32("cosmosvaloper1tflk30mq5vgqjdly92kkhhq3raev2hnz6eete3")
 	PKs              = simapp.CreateTestPubKeys(10)
 	TestValidator, _ = stakingTypes.NewValidator(valAddrVal, PKs[0], stakingTypes.Description{})
 )
 
 func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
+	distrAcc := accountTypes.NewEmptyModuleAccount(types.ModuleName)
+
 	storeKeys := sdk.NewKVStoreKeys(
 		types.StoreKey,
 		paramsTypes.StoreKey,
@@ -91,7 +91,9 @@ func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	pk := paramsKeeper.NewKeeper(cdc, codec.NewLegacyAmino(), storeKeys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
 	ak := accountKeeper.NewAccountKeeper(cdc, storeKeys[accountTypes.StoreKey], pk.Subspace("auth"), accountTypes.ProtoBaseAccount, maccPerms)
 	bk := bankKeeper.NewBaseKeeper(cdc, storeKeys[bankTypes.StoreKey], ak, pk.Subspace("bank"), blacklistedAddrs)
-	bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
+	//bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
+	//bk.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"}))
+
 	sk := stakingKeeper.NewKeeper(cdc, storeKeys[stakingTypes.StoreKey], ak, bk, pk.Subspace("staking"))
 	sk.SetParams(ctx, stakingTypes.DefaultParams())
 	gk := govKeeper.NewKeeper(cdc, storeKeys[govTypes.StoreKey], memStoreKeyGov)

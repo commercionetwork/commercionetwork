@@ -12,7 +12,6 @@ import (
 func DefaultGenesis() *GenesisState {
 	freezePeriod := durationpb.New(DefaultFreezePeriod).AsDuration()
 	return &GenesisState{
-		// this line is used by starport scaffolding # genesis/types/default
 		Positions:  []*Position{},
 		PoolAmount: sdk.Coins{},
 		Params: Params{

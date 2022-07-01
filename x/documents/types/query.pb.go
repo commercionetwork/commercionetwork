@@ -29,7 +29,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// this line is used by starport scaffolding # 3
 type QueryGetDocumentRequest struct {
 	UUID string `protobuf:"bytes,1,opt,name=UUID,proto3" json:"UUID,omitempty"`
 }
@@ -723,7 +722,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// this line is used by starport scaffolding # 2
 	// Queries a Document by id.
 	Document(ctx context.Context, in *QueryGetDocumentRequest, opts ...grpc.CallOption) (*QueryGetDocumentResponse, error)
 	// Queries a list of sent Document items.
@@ -800,7 +798,6 @@ func (c *queryClient) DocumentsReceipts(ctx context.Context, in *QueryGetDocumen
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// this line is used by starport scaffolding # 2
 	// Queries a Document by id.
 	Document(context.Context, *QueryGetDocumentRequest) (*QueryGetDocumentResponse, error)
 	// Queries a list of sent Document items.

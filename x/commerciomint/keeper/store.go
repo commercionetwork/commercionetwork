@@ -21,7 +21,7 @@ func (k Keeper) GetLiquidityPoolAmount(ctx sdk.Context) sdk.Coins {
 
 }
 
-func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins sdk.Coins) error {
+/*func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins sdk.Coins) error {
 	moduleAccount := k.GetModuleAccount(ctx)
 	if err := k.bankKeeper.SetBalances(ctx, moduleAccount.GetAddress(), coins); err != nil {
 		return err
@@ -32,6 +32,15 @@ func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins sdk.Coins) erro
 	k.bankKeeper.SetSupply(ctx, supply)
 	return nil
 	//return k.bankKeeper.AddCoins(ctx, moduleAccount.GetAddress(), coins)
+}*/
+
+// Function SetLiquidityPoolToAccount is equivalent to MintCoins.
+// Maybe better to remove function and use directly MintCoins
+func (k Keeper) SetLiquidityPoolToAccount(ctx sdk.Context, coins sdk.Coins) error {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (k Keeper) SetModuleAccount(ctx sdk.Context, acc accType.ModuleAccountI) {

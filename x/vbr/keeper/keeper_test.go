@@ -6,7 +6,6 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
@@ -114,8 +113,12 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 			macc := k.VbrAccount(ctx)
 			suppl, _ := tt.pool.TruncateDecimal()
 
-			k.bankKeeper.SetBalances(ctx, macc.GetAddress(), sdk.NewCoins(suppl...))
+			//k.bankKeeper.SetBalances(ctx, macc.GetAddress(), sdk.NewCoins(suppl...))
+			//k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), sdk.NewCoins(suppl...))
+
 			k.accountKeeper.SetModuleAccount(ctx, macc)
+			//k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), sdk.NewCoins(suppl...))
+			k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(suppl...))
 
 			validatorRewards := distrTypes.ValidatorCurrentRewards{Rewards: sdk.DecCoins{}}
 			k.distKeeper.SetValidatorCurrentRewards(ctx, testVal.GetOperator(), validatorRewards)
@@ -172,7 +175,9 @@ func TestKeeper_VbrAccount(t *testing.T) {
 
 			if !tt.emptyPool {
 				coins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.BondDenom})
-				k.bankKeeper.SetBalances(ctx, macc.GetAddress(), coins)
+				//k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), coins)
+				k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
+				//k.bankKeeper.SetBalances(ctx, macc.GetAddress(), coins)
 			}
 
 			require.True(t, k.bankKeeper.GetAllBalances(ctx, macc.GetAddress()).IsEqual(tt.wantModAccBalance))
@@ -197,7 +202,8 @@ func TestKeeper_MintVBRTokens(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k, ctx := SetupKeeper(t)
-			k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom})))
+			//k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom})))
+
 			k.MintVBRTokens(ctx, tt.wantAmount)
 			macc := k.VbrAccount(ctx)
 			//require.True(t, macc.GetCoins().IsEqual(tt.wantAmount))

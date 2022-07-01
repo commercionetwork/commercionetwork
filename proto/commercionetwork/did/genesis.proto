@@ -1,13 +1,13 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.did;
-import "commercionetwork/did/identity.proto";
 
-// this line is used by starport scaffolding # genesis/proto/import
-
+// Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 
-// GenesisState defines the id module's genesis state.
+// Import section
+import "commercionetwork/did/identity.proto";
+
+// GenesisState defines the did module's genesis state.
 message GenesisState {
-  // this line is used by starport scaffolding # genesis/proto/state
   repeated Identity identities = 1;
 }

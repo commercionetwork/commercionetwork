@@ -26,24 +26,25 @@ func setFunds(keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
 	coins := GetCoins(*keeper, ctx, moduleAcc)
 	if coins.Empty() {
 		amount, _ := pool.TruncateDecimal()
-		keeper.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), amount)
+		//keeper.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), amount)
+		keeper.bankKeeper.MintCoins(ctx, types.ModuleName, amount)
 	}
 }
 
-var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(1000)))
+var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(100000)))
 
 func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	keeper, ctx := SetupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 
-	for _, tc := range []struct {
+	for _, tt := range []struct {
 		desc     string
 		request  *types.QueryGetBlockRewardsPoolFundsRequest
 		response *types.QueryGetBlockRewardsPoolFundsResponse
 		err      error
 	}{
 		{
-			desc:     "funds 1000ucommercio",
+			desc:     "funds 100000ucommercio",
 			request:  &types.QueryGetBlockRewardsPoolFundsRequest{},
 			response: &types.QueryGetBlockRewardsPoolFundsResponse{Funds: testFunds1},
 		},
@@ -52,14 +53,13 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
 	} {
-		tc := tc
 		setFunds(keeper, ctx, testFunds1)
-		t.Run(tc.desc, func(t *testing.T) {
-			response, err := keeper.GetBlockRewardsPoolFunds(wctx, tc.request)
-			if tc.err != nil {
-				require.ErrorIs(t, err, tc.err)
+		t.Run(tt.desc, func(t *testing.T) {
+			response, err := keeper.GetBlockRewardsPoolFunds(wctx, tt.request)
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
 			} else {
-				require.Equal(t, tc.response, response)
+				require.Equal(t, tt.response, response)
 			}
 		})
 	}

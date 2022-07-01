@@ -46,7 +46,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 		store := ctx.KVStore(k.storeKey)
 
 		if !test.existingInvite.Empty() {
-			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.cdc.MustMarshalBinaryBare(&test.existingInvite))
+			store.Set([]byte(types.InviteStorePrefix+testUser.String()), k.cdc.MustMarshal(&test.existingInvite))
 		}
 
 		test_invite_User, _ := sdk.AccAddressFromBech32(test.invite.User)
@@ -66,7 +66,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 
 		var invite types.Invite
 		accreditationBz := store.Get([]byte(types.InviteStorePrefix + testUser.String()))
-		k.cdc.MustUnmarshalBinaryBare(accreditationBz, &invite)
+		k.cdc.MustUnmarshal(accreditationBz, &invite)
 		require.Equal(t, test.expected, invite)
 	}
 }
@@ -106,7 +106,7 @@ func TestKeeper_GetInvite(t *testing.T) {
 		store := ctx.KVStore(k.storeKey)
 
 		if !test.storedInvite.Empty() {
-			store.Set([]byte(types.InviteStorePrefix+test.storedInvite.User), k.cdc.MustMarshalBinaryBare(&test.storedInvite))
+			store.Set([]byte(types.InviteStorePrefix+test.storedInvite.User), k.cdc.MustMarshal(&test.storedInvite))
 		}
 
 		actual, found := k.GetInvite(ctx, test.user)
@@ -198,7 +198,7 @@ func TestKeeper_GetInvites(t *testing.T) {
 			store := ctx.KVStore(k.storeKey)
 
 			for _, invite := range test.stored {
-				store.Set([]byte(types.InviteStorePrefix+invite.User), k.cdc.MustMarshalBinaryBare(invite))
+				store.Set([]byte(types.InviteStorePrefix+invite.User), k.cdc.MustMarshal(invite))
 			}
 
 			actual := k.GetInvites(ctx)

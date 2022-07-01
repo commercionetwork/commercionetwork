@@ -9,8 +9,8 @@ import (
 	sdkLegacy "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v3/modules/core/types"
 
 	v220government "github.com/commercionetwork/commercionetwork/x/government/legacy/v2.2.0"
 	v300government "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
@@ -38,7 +38,7 @@ import (
 
 func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 	v039Codec := codec.NewLegacyAmino()
-	v040Codec := clientCtx.JSONMarshaler
+	v040Codec := clientCtx.JSONCodec
 
 	appState = sdkLegacy.Migrate(appState, clientCtx)
 
@@ -91,7 +91,8 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 
 	wasmModule.Params.InstantiateDefaultPermission = 3
 	wasmModule.Params.CodeUploadAccess.Permission = 3
-	wasmModule.Params.MaxWasmCodeSize = 1228800
+	//wasmModule.Params.MaxWasmCodeSize = 1228800
+
 	appState[wasm.ModuleName] = v040Codec.MustMarshalJSON(wasmModule)
 	appState[ibctransfertypes.ModuleName] = v040Codec.MustMarshalJSON(ibctransfertypes.DefaultGenesisState())
 

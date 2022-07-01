@@ -26,7 +26,7 @@ import (
 
 type (
 	Keeper struct {
-		cdc           codec.Marshaler
+		cdc           codec.Codec
 		storeKey      sdk.StoreKey
 		memKey        sdk.StoreKey
 		distKeeper    distKeeper.Keeper
@@ -40,7 +40,7 @@ type (
 )
 
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.Codec,
 	storeKey sdk.StoreKey,
 	memKey sdk.StoreKey,
 	distKeeper distKeeper.Keeper,
@@ -52,6 +52,9 @@ func NewKeeper(
 	stakingKeeper stakingKeeper.Keeper,
 
 ) *Keeper {
+	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
 
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
@@ -88,24 +91,23 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	// types.KeyPrefix(types.PoolStoreKey)
 	poolKeyPrefix := []byte(types.PoolStoreKey)
 	if !updatedPool.Empty() {
-		store.Set(poolKeyPrefix, k.cdc.MustMarshalBinaryBare(&pool))
+		store.Set(poolKeyPrefix, k.cdc.MustMarshal(&pool))
 	} else {
 		store.Delete(poolKeyPrefix)
 	}
 }
 
-// GetTotalRewardPool returns the current total rewards pool amount
-func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
-	macc := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
-	//mcoins := macc.GetCoins()
-	coins := GetCoins(k, ctx, macc)
-
-	return sdk.NewDecCoinsFromCoins(coins...)
-}
-
 // VbrAccount returns vbr's ModuleAccount
 func (k Keeper) VbrAccount(ctx sdk.Context) accountTypes.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
+// GetTotalRewardPool returns the current total rewards pool amount
+func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
+	macc := k.VbrAccount(ctx)
+	coins := GetCoins(k, ctx, macc)
+
+	return sdk.NewDecCoinsFromCoins(coins...)
 }
 
 // MintVBRTokens mints coins into the vbr's ModuleAccount

@@ -8,40 +8,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// Consider using the protobuf-generated equals
-// By the way, this is unused code
-
-// Equals returns true when doc equals other, false otherwise.
-func (doc Document) Equals(other Document) bool {
-	metadata := false
-	if doc.Metadata == nil && other.Metadata == nil {
-		metadata = true
-	} else if (doc.Metadata == nil && other.Metadata != nil) || (doc.Metadata != nil && other.Metadata == nil) {
-		metadata = false
-	} else {
-		metadata = doc.Metadata.Equals(*other.Metadata)
-	}
-
-	validContent := doc.UUID == other.UUID &&
-		doc.ContentURI == other.ContentURI && metadata
-
-	var validChecksum bool
-	if doc.Checksum != nil && other.Checksum != nil {
-		validChecksum = doc.Checksum.Equals(*other.Checksum)
-	} else {
-		validChecksum = doc.Checksum == other.Checksum
-	}
-
-	var validEncryptionData bool
-	if doc.EncryptionData != nil && other.EncryptionData != nil {
-		validEncryptionData = doc.EncryptionData.Equals(*other.EncryptionData)
-	} else {
-		validEncryptionData = doc.EncryptionData == other.EncryptionData
-	}
-
-	return validContent && validChecksum && validEncryptionData
-}
-
 // validateUUID returns true when uuidStr is a valid UUID, false otherwise.
 func validateUUID(uuidStr string) bool {
 	_, err := uuid.FromString(uuidStr)

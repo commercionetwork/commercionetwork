@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	tmcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -31,10 +32,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
@@ -53,7 +54,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 	encodingConfig := app.MakeEncodingConfig()
 	initClientCtx := client.Context{}.
-		WithJSONMarshaler(encodingConfig.Marshaler).
+		WithJSONCodec(encodingConfig.Marshaler).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
@@ -67,8 +68,12 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Use:   app.Name + "d",
 		Short: "Commercio Network App",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
-			initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
-			initClientCtx, err := config.ReadFromClientConfig(initClientCtx)
+			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			initClientCtx, err = config.ReadFromClientConfig(initClientCtx)
 			if err != nil {
 				return err
 			}
@@ -77,7 +82,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			return server.InterceptConfigsPreRunHandler(cmd)
+			customTemplate, customCommercioConfig := initAppConfig()
+			//return server.InterceptConfigsPreRunHandler(cmd)
+			return server.InterceptConfigsPreRunHandler(cmd, customTemplate, customCommercioConfig)
 		},
 	}
 
@@ -90,8 +97,28 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	return rootCmd, encodingConfig
 }
 
+func initAppConfig() (string, interface{}) {
+
+	type CustomAppConfig struct {
+		serverconfig.Config
+	}
+
+	// Allow overrides to the SDK default server config
+	srvCfg := serverconfig.DefaultConfig()
+	srvCfg.StateSync.SnapshotInterval = 1000
+	srvCfg.StateSync.SnapshotKeepRecent = 10
+
+	CommercioAppCfg := CustomAppConfig{Config: *srvCfg}
+
+	CommercioAppTemplate := serverconfig.DefaultConfigTemplate
+
+	return CommercioAppTemplate, CommercioAppCfg
+}
+
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
-	authclient.Codec = encodingConfig.Marshaler
+	//authclient.Codec = encodingConfig.Marshaler
+	cfg := sdk.GetConfig()
+	cfg.Seal()
 
 	rootCmd.AddCommand(
 		commgenutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
@@ -105,6 +132,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		commgenutilcli.SetGenesisVbrPoolAmount(),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
+		tmcmd.ResetAllCmd,
 		debug.Cmd(),
 		config.Cmd(),
 	)
@@ -120,6 +148,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		txCommand(),
 		flags.LineBreak,
 		keys.Commands(app.DefaultNodeHome),
+		//preUpgradeCommand(),
 	)
 }
 
@@ -217,7 +246,11 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	return app.New(
-		logger, db, traceStore, true, skipUpgradeHeights,
+		logger,
+		db,
+		traceStore,
+		true,
+		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		a.encCfg,
@@ -307,3 +340,42 @@ func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
 		overwriteFlagDefaults(c, defaults)
 	}
 }
+
+/*func preUpgradeCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "pre-upgrade",
+		Short: "Pre-upgrade command",
+		Long:  "Pre-upgrade command to implement custom pre-upgrade handling",
+		Run: func(cmd *cobra.Command, args []string) {
+			homeDir, err := cmd.Flags().GetString(flags.FlagHome)
+			if homeDir == "" {
+				homeDir = app.DefaultNodeHome
+			}
+			err = HandlePreUpgrade(homeDir)
+
+			if err != nil {
+				os.Exit(30)
+			}
+			os.Exit(0)
+		},
+	}
+	return cmd
+}
+
+func HandlePreUpgrade(homeDir string) error {
+	oldWasmDir := filepath.Join(homeDir, "wasm")
+	_, err := os.Stat(oldWasmDir)
+	if errors.Is(err, os.ErrNotExist) { // Return no error if folder not exists
+		return nil
+	}
+	oldWasmSubDir := filepath.Join(oldWasmDir, "wasm")
+	dataDir := filepath.Join(homeDir, "data")
+	wasmDir := filepath.Join(dataDir, "wasm")
+
+	err = os.Rename(oldWasmSubDir, wasmDir)
+	if err != nil {
+		return err
+	}
+	os.Remove(oldWasmDir)
+	return nil
+}*/

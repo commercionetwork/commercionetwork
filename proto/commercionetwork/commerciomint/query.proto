@@ -1,14 +1,15 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.commerciomint;
 
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
+
+// Import section
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciomint/position.proto";
 import "commercionetwork/commerciomint/params.proto";
-// this line is used by starport scaffolding # 1
-
-option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomint/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -30,7 +31,6 @@ service Query {
     option (google.api.http).get = "/commercionetwork/commerciomint/params";
   }
 
-  // this line is used by starport scaffolding # 2
 }
 
 message QueryEtpRequest { string ID = 1; }
@@ -55,4 +55,3 @@ message QueryParams {}
 
 message QueryParamsResponse { Params params = 1; }
 
-// this line is used by starport scaffolding # 3

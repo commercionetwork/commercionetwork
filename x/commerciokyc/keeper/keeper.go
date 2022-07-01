@@ -28,7 +28,7 @@ var membershipCosts = map[string]int64{
 }
 
 type Keeper struct {
-	cdc           codec.Marshaler
+	cdc           codec.Codec
 	storeKey      sdk.StoreKey
 	memKey        sdk.StoreKey
 	bankKeeper    bank.Keeper
@@ -38,7 +38,7 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.Codec,
 	storeKey,
 	memKey sdk.StoreKey,
 	bankKeeper bank.Keeper,

@@ -60,7 +60,7 @@ func test_getParams(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetParamsResponse
-				require.NoError(t, ctx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.Equal(t, vbrGenesisState.Params, response.Params)
 			}
 		})

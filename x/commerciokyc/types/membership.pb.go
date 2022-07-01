@@ -163,8 +163,9 @@ func (m *Invite) GetStatus() uint64 {
 	return 0
 }
 
-// ValAddresses defines a repeated set of validator addresses.
 type TrustedServiceProviders struct {
+	//option (gogoproto.goproto_stringer) = false;
+	//option (gogoproto.stringer)         = true;
 	Addresses []string `protobuf:"bytes,1,rep,name=addresses,proto3" json:"addresses,omitempty"`
 }
 

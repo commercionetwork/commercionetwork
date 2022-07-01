@@ -7,7 +7,6 @@ import (
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		// this line is used by starport scaffolding # genesis/types/default
 		Documents: []*Document{},
 		Receipts:  []*DocumentReceipt{},
 	}
@@ -16,7 +15,6 @@ func DefaultGenesis() *GenesisState {
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-	// this line is used by starport scaffolding # genesis/types/validate
 
 	// Support map for duplicated ID in documents
 	// It will be used later also for accepting only receipts that concern valid documents

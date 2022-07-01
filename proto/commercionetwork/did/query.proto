@@ -1,12 +1,13 @@
 syntax = "proto3";
 package commercionetwork.commercionetwork.did;
 
+// Options section
+option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
+
+// Import section
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/did/identity.proto";
-// this line is used by starport scaffolding # 1
-
-option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -22,7 +23,6 @@ service Query {
         "/commercionetwork/did/{ID}/identities/history";
   }
 
-  // this line is used by starport scaffolding # 2
 }
 
 message QueryResolveIdentityRequest { string ID = 1; }
@@ -35,4 +35,3 @@ message QueryResolveIdentityHistoryResponse {
   repeated Identity identities = 1;
 }
 
-// this line is used by starport scaffolding # 3
