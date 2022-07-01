@@ -64,5 +64,5 @@ sed 's/timeout_propose = "3s"/timeout_propose = "1s"/g' \
 sed 's/index_all_keys = false/index_all_keys = true/g' \
    $HOMECOMMERCIO/config/config.toml.tmp > \
    $HOMECOMMERCIO/config/config.toml
-# Start the gaia
+# Start the commercio
 $BINCOMMERCIO start --pruning=nothing --home $HOMECOMMERCIO

@@ -30,14 +30,14 @@ import (
 )
 
 var (
-	distrAcc = accountTypes.NewEmptyModuleAccount(types.ModuleName)
-
 	valAddrVal, _    = sdk.ValAddressFromBech32("cosmosvaloper1tflk30mq5vgqjdly92kkhhq3raev2hnz6eete3")
 	PKs              = simapp.CreateTestPubKeys(10)
 	TestValidator, _ = stakingTypes.NewValidator(valAddrVal, PKs[0], stakingTypes.Description{})
 )
 
 func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
+	distrAcc := accountTypes.NewEmptyModuleAccount(types.ModuleName)
+
 	storeKeys := sdk.NewKVStoreKeys(
 		types.StoreKey,
 		paramsTypes.StoreKey,
