@@ -68,7 +68,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Use:   app.Name + "d",
 		Short: "Commercio Network App",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
-			//initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
 				return err
@@ -109,11 +108,11 @@ func initAppConfig() (string, interface{}) {
 	srvCfg.StateSync.SnapshotInterval = 1000
 	srvCfg.StateSync.SnapshotKeepRecent = 10
 
-	GaiaAppCfg := CustomAppConfig{Config: *srvCfg}
+	CommercioAppCfg := CustomAppConfig{Config: *srvCfg}
 
-	GaiaAppTemplate := serverconfig.DefaultConfigTemplate
+	CommercioAppTemplate := serverconfig.DefaultConfigTemplate
 
-	return GaiaAppTemplate, GaiaAppCfg
+	return CommercioAppTemplate, CommercioAppCfg
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
@@ -247,7 +246,11 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	return app.New(
-		logger, db, traceStore, true, skipUpgradeHeights,
+		logger,
+		db,
+		traceStore,
+		true,
+		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		a.encCfg,

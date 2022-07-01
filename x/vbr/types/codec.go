@@ -9,9 +9,7 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgIncrementBlockRewardsPool{}, "vbr/MsgIncrementBlockRewardsPool", nil)
-
 	cdc.RegisterConcrete(&MsgSetParams{}, "vbr/SetParams", nil)
-
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {

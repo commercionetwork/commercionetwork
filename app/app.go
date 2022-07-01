@@ -149,7 +149,7 @@ import (
 	// ------------------------------------------
 	// Commercio.Network Modules
 	//  Kyc
-	commerciokycModule "github.com/commercionetwork/commercionetwork/x/commerciokyc"
+	commerciokycmodule "github.com/commercionetwork/commercionetwork/x/commerciokyc"
 	commerciokycKeeper "github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 
@@ -259,7 +259,7 @@ var (
 		governmentmodule.AppModuleBasic{},
 		did.AppModuleBasic{},
 		documents.AppModuleBasic{},
-		commerciokycModule.AppModuleBasic{},
+		commerciokycmodule.AppModuleBasic{},
 		commerciomintmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		epochs.AppModuleBasic{},
@@ -364,7 +364,9 @@ func NewKVStoreKeys(names ...string) map[string]*sdk.KVStoreKey {
 func New(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig appparams.EncodingConfig,
-	appOpts servertypes.AppOptions, enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option, baseAppOptions ...func(*baseapp.BaseApp),
+	appOpts servertypes.AppOptions,
+	enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option,
+	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
 
 	appCodec := encodingConfig.Marshaler
@@ -434,9 +436,11 @@ func New(
 
 	// -----------------------------------------
 	// add keepers
+
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
+
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
 	)
@@ -566,7 +570,7 @@ func New(
 		app.AccountKeeper,
 		app.CommercioMintKeeper,
 	)
-	commerciokycModule := commerciokycModule.NewAppModule(appCodec, app.CommercioKycKeeper)
+	commerciokycModule := commerciokycmodule.NewAppModule(appCodec, app.CommercioKycKeeper)
 
 	// Create did keeper
 	app.DidKeeper = *didkeeper.NewKeeper(

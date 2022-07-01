@@ -52,6 +52,9 @@ func NewKeeper(
 	stakingKeeper stakingKeeper.Keeper,
 
 ) *Keeper {
+	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
 
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
@@ -96,7 +99,7 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
-	macc := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+	macc := k.VbrAccount(ctx)
 	//mcoins := macc.GetCoins()
 	coins := GetCoins(k, ctx, macc)
 
