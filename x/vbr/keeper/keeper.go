@@ -100,7 +100,6 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	macc := k.VbrAccount(ctx)
-	//mcoins := macc.GetCoins()
 	coins := GetCoins(k, ctx, macc)
 
 	return sdk.NewDecCoinsFromCoins(coins...)
