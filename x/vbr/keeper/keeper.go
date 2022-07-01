@@ -97,17 +97,17 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 	}
 }
 
+// VbrAccount returns vbr's ModuleAccount
+func (k Keeper) VbrAccount(ctx sdk.Context) accountTypes.ModuleAccountI {
+	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
 // GetTotalRewardPool returns the current total rewards pool amount
 func (k Keeper) GetTotalRewardPool(ctx sdk.Context) sdk.DecCoins {
 	macc := k.VbrAccount(ctx)
 	coins := GetCoins(k, ctx, macc)
 
 	return sdk.NewDecCoinsFromCoins(coins...)
-}
-
-// VbrAccount returns vbr's ModuleAccount
-func (k Keeper) VbrAccount(ctx sdk.Context) accountTypes.ModuleAccountI {
-	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // MintVBRTokens mints coins into the vbr's ModuleAccount
