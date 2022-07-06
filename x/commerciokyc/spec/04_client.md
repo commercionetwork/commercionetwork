@@ -269,10 +269,17 @@ grpcurl -plaintext \
 }
 ```
 
+#### REST
 
-#### REST (available soon)
+```
+/commercionetwork/commerciokyc/{address}/invite
+```
 
+##### Example 
 
+```
+https://localhost:1317/commercionetwork/commerciokyc/did:com:1gdcxa02g5l3cm0mgqfsz3ju42jyur82z3cx45p/invite
+```
 
 ### Memberships
 
