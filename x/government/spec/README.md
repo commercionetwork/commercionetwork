@@ -40,10 +40,25 @@ The government address can be get:
 
 #### gRPC
 
+Endpoint:
+
 ```
+commercionetwork.commercionetwork.government.Query/GovernmentAddr
+```
+
+##### Example
+
+```bash
 grpcurl -plaintext \
     lcd-mainnet.commercio.network:9090 \
     commercionetwork.commercionetwork.government.Query/GovernmentAddr
+```
+
+#### Response
+```json
+{
+  "governmentAddress": "did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx"
+}
 ```
 
 ## Contents
