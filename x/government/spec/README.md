@@ -36,7 +36,15 @@ The government address can be get:
 
  - via **CLI**, `commercionetworkd query government gov-address`
  - via **REST**, by making a GET request to the `/commercionetwork/government/governmentAddress` endpoint 
- - via **GRPC**, by making a Query to the `commercionetwork.commercionetwork.government.Query` method
+ - via **gRPC**, by making a Query to the `commercionetwork.commercionetwork.government.Query` method
+
+#### gRPC
+
+```
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.government.Query/GovernmentAddr
+```
 
 ## Contents
 
