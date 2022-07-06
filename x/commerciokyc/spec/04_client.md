@@ -178,16 +178,38 @@ invites:
 https://localhost:1317/commercionetwork/commerciokyc/invites
 ```
 
-#### gRPC (WIP)
+#### gRPC
+Endpoint:
 
+```
+commercionetwork.commercionetwork.commerciokyc.Query/Invites
+```
 
+##### Example
 
+```bash
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciokyc.Query/Invites
+```
 
-
-
-
-
-
+#### Response
+```json
+{
+  "invites": [
+    {
+      "sender": "did:com:1gdcxa02g5l3cm0mgqfsz3ju42jyur82z3cx45p",
+      "senderMembership": "black",
+      "user": "did:com:109fup66yms0e559l54tjaawz0rsj2gxvqzlr9z",
+      "status": "1"
+    },
+    ...
+  ],
+  "pagination": {
+    "total": "100"
+  }
+}
+```
 
 ### Invite
 
@@ -219,10 +241,36 @@ invite:
   user: did:com:1xx88le4t8ateql77mzzyrg0damf43tt0qw2xms
 ```
 
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciokyc.Query/Invite
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    -d '{"address":"did:com:1gdcxa02g5l3cm0mgqfsz3ju42jyur82z3cx45p"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciokyc.Query/Invite
+```
+
+#### Response
+```json
+{
+  "invite": {
+    "sender": "did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx",
+    "senderMembership": "black",
+    "user": "did:com:1gdcxa02g5l3cm0mgqfsz3ju42jyur82z3cx45p",
+    "status": "1"
+  }
+}
+```
+
 
 #### REST (available soon)
-
-#### gRPC (WIP)
 
 
 
@@ -257,7 +305,38 @@ memberships:
   owner: did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya
   tsp_address: did:com:1x4hpem28uhrlh2sdvf3a2f5rw56jtvsgmjz5yp
 ```
+#### gRPC
+Endpoint:
 
+```
+commercionetwork.commercionetwork.commerciokyc.Query/Memberships
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciokyc.Query/Memberships
+```
+
+#### Response
+```json
+{
+  "memberships": [
+    {
+      "owner": "did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9",
+      "tspAddress": "did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx",
+      "membershipType": "black",
+      "expiryAt": "2022-03-22T00:00:00Z"
+    },
+    ...
+  ],
+  "pagination": {
+    "total": "92"
+  }
+}
+```
 
 #### REST
 
@@ -272,8 +351,6 @@ memberships:
 https://localhost:1317/commercionetwork/commerciokyc/memberships
 ```
 
-
-#### gRPC (WIP)
 
 
 
@@ -310,6 +387,33 @@ membership:
   tsp_address: did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx
 ```
 
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciokyc.Query/Membership
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    -d '{"address":"did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciokyc.Query/Membership
+```
+
+#### Response
+```json
+{
+  "membership": {
+    "owner": "did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9",
+    "tspAddress": "did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx",
+    "membershipType": "black",
+    "expiryAt": "2022-03-22T00:00:00Z"
+  }
+}
+```
 
 #### REST
 
@@ -330,13 +434,6 @@ Parameters:
 ```
 https://localhost:1317/commercionetwork/commerciokyc/memberships/did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9
 ```
-
-
-#### gRPC (WIP)
-
-
-
-
 
 
 ### Trusted Service Providers
@@ -365,6 +462,31 @@ tsps:
 - did:com:1cc65t29yuwuc32ep2h9uqhnwrregfq230lf2rj
 - did:com:14rcpqu0y8jgjrc823ejylgjnsh2jkkeg8kchl3
 ```
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciokyc.Query/Tsps
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciokyc.Query/Tsps
+```
+
+#### Response
+```json
+{
+  "tsps": [
+    "did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx",
+    "did:com:1ft3ggfazm9yakmhl79r0qukgufesadkw3xpsmx",
+    "did:com:1x4hpem28uhrlh2sdvf3a2f5rw56jtvsgmjz5yp"
+  ]
+}
+```
 
 #### REST
 
@@ -378,7 +500,6 @@ tsps:
 https://localhost:1317/commercionetwork/commerciokyc/tsps
 ```
 
-#### gRPC (WIP)
 
 
 
@@ -409,6 +530,33 @@ funds:
   denom: ucommercio
 ```
 
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciokyc.Query/Funds
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciokyc.Query/Funds
+```
+
+#### Response
+```json
+{
+  "funds": [
+    {
+      "denom": "ucommercio",
+      "amount": "10674787750000"
+    }
+  ]
+}
+```
+
 #### REST
 
 ```
@@ -420,7 +568,3 @@ funds:
 ```
 https://localhost:1317/commercionetwork/commerciokyc/funds
 ```
-
-#### gRPC (WIP)
-
-
