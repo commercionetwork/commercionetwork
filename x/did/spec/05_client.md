@@ -86,7 +86,7 @@ commercionetwork.commercionetwork.did.Query/Identity
 ```bash
 grpcurl -plaintext \
     -d '{"ID":"did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20"}' \
-    157.230.110.179:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.did.Query/Identity
 ```
 
@@ -226,7 +226,7 @@ commercionetwork.commercionetwork.did.Query/IdentityHistory
 ```bash
 grpcurl -plaintext \
     -d '{"ID":"did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20"}' \
-    157.230.110.179:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.did.Query/IdentityHistory
 ```
 

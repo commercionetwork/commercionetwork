@@ -50,7 +50,7 @@ commercionetwork.commercionetwork.government.Query/GovernmentAddr
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.government.Query/GovernmentAddr
 ```
 

@@ -189,7 +189,7 @@ commercionetwork.commercionetwork.commerciokyc.Query/Invites
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciokyc.Query/Invites
 ```
 
@@ -253,7 +253,7 @@ commercionetwork.commercionetwork.commerciokyc.Query/Invite
 ```bash
 grpcurl -plaintext \
     -d '{"address":"did:com:1gdcxa02g5l3cm0mgqfsz3ju42jyur82z3cx45p"}' \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciokyc.Query/Invite
 ```
 
@@ -323,7 +323,7 @@ commercionetwork.commercionetwork.commerciokyc.Query/Memberships
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciokyc.Query/Memberships
 ```
 
@@ -406,7 +406,7 @@ commercionetwork.commercionetwork.commerciokyc.Query/Membership
 ```bash
 grpcurl -plaintext \
     -d '{"address":"did:com:1q8mkesv6kcyr8ft69mvtmy6lxzfvn5y6ywhgh9"}' \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciokyc.Query/Membership
 ```
 
@@ -480,7 +480,7 @@ commercionetwork.commercionetwork.commerciokyc.Query/Tsps
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciokyc.Query/Tsps
 ```
 
@@ -548,7 +548,7 @@ commercionetwork.commercionetwork.commerciokyc.Query/Funds
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciokyc.Query/Funds
 ```
 

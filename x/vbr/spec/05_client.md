@@ -63,7 +63,7 @@ commercionetwork.commercionetwork.vbr.Query/GetBlockRewardsPoolFunds
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.vbr.Query/GetBlockRewardsPoolFunds
 ```
 
@@ -126,7 +126,7 @@ commercionetwork.commercionetwork.vbr.Query/GetParams
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.vbr.Query/GetParams
 ```
 

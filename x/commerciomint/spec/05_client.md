@@ -82,7 +82,7 @@ commercionetwork.commercionetwork.commerciomint.Query/Etps
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciomint.Query/Etps
 ```
 
@@ -180,7 +180,7 @@ commercionetwork.commercionetwork.commerciomint.Query/EtpsByOwner
 ```bash
 grpcurl -plaintext \
     -d '{"Owner":"did:com:1rsyglnhpg7q6hvz3422wm63tehtkx5xa2uwp3j"}' \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciomint.Query/EtpsByOwner
 ```
 
@@ -272,7 +272,7 @@ commercionetwork.commercionetwork.commerciomint.Query/Etp
 ```bash
 grpcurl -plaintext \
     -d '{"ID":"8f1a387b-dcbd-43ec-9376-026b45d1f5d2"}' \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciomint.Query/Etp
 ```
 
@@ -350,7 +350,7 @@ commercionetwork.commercionetwork.commerciomint.Query/Params
 
 ```bash
 grpcurl -plaintext \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.commerciomint.Query/Params
 ```
 

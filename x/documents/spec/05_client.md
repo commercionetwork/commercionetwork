@@ -87,7 +87,7 @@ commercionetwork.commercionetwork.documents.Query/SentDocuments
 ```bash
 grpcurl -plaintext \
     -d '{"address":"did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya"}' \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.documents.Query/SentDocuments
 ```
 
@@ -180,7 +180,7 @@ commercionetwork.commercionetwork.documents.Query/ReceivedDocument
 ```
 grpcurl -plaintext \
     -d '{"address":"did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya"}' \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.documents.Query/ReceivedDocument
 ```
 
@@ -256,7 +256,7 @@ commercionetwork.commercionetwork.documents.Query/SentDocumentsReceipts
 ```
 grpcurl -plaintext \
     -d '{"address":"did:com:1a0v2kdjkm95gq5qq7ygvczdyuymt6hg3c2su0c"}' \
-    46.101.146.48:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.documents.Query/SentDocumentsReceipts
 ```
 
@@ -337,7 +337,7 @@ commercionetwork.commercionetwork.documents.Query/ReceivedDocumentsReceipts
 ```
 grpcurl -plaintext \
     -d '{"address":"did:com:1ujh8ldcy2k737vwz8k6cw86uhfvwfe5peay8gg"}' \
-    46.101.146.48:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.documents.Query/ReceivedDocumentsReceipts
 ```
 
@@ -420,18 +420,9 @@ commercionetwork.commercionetwork.documents.Query/DocumentsReceipts
 ```
 grpcurl -plaintext \
     -d '{"UUID":"4939a995-e979-41a3-9b03-bef6f1fc7044"}' \
-    lcd-testnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.documents.Query/DocumentsReceipts
 ```
-
-```
-grpcurl -plaintext \
-    -d '{"UUID":"4939a995-e979-41a3-9b03-bef6f1fc7044"}' \
-    46.101.146.48:9090 \
-    commercionetwork.commercionetwork.documents.Query/DocumentsReceipts
-```
-
-
 
 #### Response
 ```json
@@ -493,7 +484,7 @@ commercionetwork.commercionetwork.documents.Query/Document
 ```bash
 grpcurl -plaintext \
     -d '{"UUID":"3469ca3e-8fe6-4d1f-9713-11418bb9a8f4"}' \
-    lcd-mainnet.commercio.network:9090 \
+    localhost:9090 \
     commercionetwork.commercionetwork.documents.Query/Document
 ```
 
