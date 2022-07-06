@@ -52,6 +52,14 @@ commercionetworkd tx vbr set-params \
 commercionetworkd query vbr pool-funds
 ```
 
+#### gRPC
+
+```
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.vbr.Query/GetBlockRewardsPoolFunds
+```
+
 #### REST
 
 Endpoint:
@@ -86,6 +94,14 @@ http://localhost:1317/commercionetwork/vbr/funds
 
 ```bash
 commercionetworkd query vbr get-params
+```
+
+#### gRPC
+
+```
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.vbr.Query/GetParams
 ```
 
 #### REST
