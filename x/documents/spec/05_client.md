@@ -75,6 +75,15 @@ This command generates a random UUID for the receipt.
 commercionetworkd query docs sent-documents [address]
 ```
 
+#### gRPC
+
+```
+grpcurl -plaintext \
+    -d '{"address":"did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.documents.Query/SentDocuments
+```
+
 #### REST
 
 ```
@@ -95,15 +104,21 @@ Getting sent docs from `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/commercionetwork/documents/document/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
 ```
 
-#### gRPC (WIP)
-
-
 ### List received documents
 
 #### CLI
 
 ```bash
 commercionetworkd query docs received-documents [address]
+```
+
+#### gRPC
+
+```
+grpcurl -plaintext \
+    -d '{"address":"did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.documents.Query/ReceivedDocument
 ```
 
 #### REST
@@ -127,15 +142,21 @@ Getting docs for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/commercionetwork/documents/document/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
 
-#### gRPC (WIP)
-
-
 ### List sent receipts
 
 #### CLI
 
 ```bash
 commercionetworkd query docs sent-receipts [address]
+```
+
+#### gRPC
+
+```
+grpcurl -plaintext \
+    -d '{"address":"did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.documents.Query/SentDocumentsReceipts
 ```
 
 #### REST
@@ -158,15 +179,21 @@ Getting sent receipts from `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/commercionetwork/documents/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/sent
 ```
 
-#### gRPC (WIP)
-
-
 ### List received receipts
 
 #### CLI
 
 ```bash
 commercionetworkd query docs received-receipts [address]
+```
+
+#### gRPC
+
+```
+grpcurl -plaintext \
+    -d '{"address":"did:com:1py237er2h2jdgdpzggeqmat556u65fv6ql22ya"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.documents.Query/ReceivedDocumentsReceipts
 ```
 
 #### REST
@@ -191,14 +218,21 @@ Getting receipts for `did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf`:
 http://localhost:1317/commercionetwork/documents/receipts/did:com:12p24st9asf394jv04e8sxrl9c384jjqwejv0gf/received
 ```
 
-#### gRPC (WIP)
-
 ### List receipts associated to a certain document
 
 #### CLI
 
 ```bash
 commercionetworkd query docs documents-receipts [documentUUID]
+```
+
+#### gRPC
+
+```
+grpcurl -plaintext \
+    -d '{"UUID":"3469ca3e-8fe6-4d1f-9713-11418bb9a8f4"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.documents.Query/DocumentsReceipts
 ```
 
 #### REST
@@ -221,14 +255,21 @@ Getting receipts associated to the document with ID `d83422c6-6e79-4a99-9767-fca
 http://localhost:1317/commercionetwork/documents/document/d83422c6-6e79-4a99-9767-fcae46dfa371/receipts
 ```
 
-#### gRPC (WIP)
-
 ### Get document with specific `documentUUID`
 
 #### CLI
 
 ```bash
 commercionetworkd query docs show-document [documentUUID]
+```
+
+#### gRPC
+
+```
+grpcurl -plaintext \
+    -d '{"UUID":"3469ca3e-8fe6-4d1f-9713-11418bb9a8f4"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.documents.Query/Document
 ```
 
 #### REST
@@ -250,5 +291,3 @@ Getting receipts associated to the document with ID `d83422c6-6e79-4a99-9767-fca
 ```
 http://localhost:1317/commercionetwork/documents/document/d83422c6-6e79-4a99-9767-fcae46dfa371
 ```
-
-#### gRPC (WIP)
