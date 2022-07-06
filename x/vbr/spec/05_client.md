@@ -53,11 +53,30 @@ commercionetworkd query vbr pool-funds
 ```
 
 #### gRPC
+Endpoint:
 
 ```
+commercionetwork.commercionetwork.vbr.Query/GetBlockRewardsPoolFunds
+```
+
+##### Example
+
+```bash
 grpcurl -plaintext \
     lcd-mainnet.commercio.network:9090 \
     commercionetwork.commercionetwork.vbr.Query/GetBlockRewardsPoolFunds
+```
+
+#### Response
+```json
+{
+  "funds": [
+    {
+      "denom": "ucommercio",
+      "amount": "10161937347246000000000000000000"
+    }
+  ]
+}
 ```
 
 #### REST
@@ -97,11 +116,28 @@ commercionetworkd query vbr get-params
 ```
 
 #### gRPC
+Endpoint:
 
 ```
+commercionetwork.commercionetwork.vbr.Query/GetParams
+```
+
+##### Example
+
+```bash
 grpcurl -plaintext \
     lcd-mainnet.commercio.network:9090 \
     commercionetwork.commercionetwork.vbr.Query/GetParams
+```
+
+#### Response
+```json
+{
+  "params": {
+    "distrEpochIdentifier": "day",
+    "earnRate": "500000000000000000"
+  }
+}
 ```
 
 #### REST
