@@ -71,6 +71,46 @@ commercionetworkd tx commerciomint set-params \
 commercionetworkd query commerciomint get-all-etps
 ```
 
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciomint.Query/Etps
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciomint.Query/Etps
+```
+
+#### Response
+```json
+{
+  "Positions": [
+    {
+      "owner": "did:com:1rsyglnhpg7q6hvz3422wm63tehtkx5xa2uwp3j",
+      "collateral": "400000000",
+      "credits": {
+        "denom": "uccc",
+        "amount": "400000000"
+      },
+      "createdAt": "2022-07-04T10:19:15.704764997Z",
+      "ID": "8f1a387b-dcbd-43ec-9376-026b45d1f5d2",
+      "exchangeRate": "1000000000000000000"
+    },
+
+    ...
+
+  ],
+  "pagination": {
+    "total": "10"
+  }
+}
+```
+
 #### REST
 
 Endpoint:
@@ -121,15 +161,50 @@ http://localhost:1317/commercionetwork/commerciomint/etps
 }
 ```
 
-#### gRPC (WIP)
-
-
 ### Reading all Exchange Trade Position (ETP) opened by a user
 
 #### CLI
 
 ```bash
 commercionetworkd query commerciomint get-etps [user-addr]
+```
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciomint.Query/EtpsByOwner
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    -d '{"Owner":"did:com:1rsyglnhpg7q6hvz3422wm63tehtkx5xa2uwp3j"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciomint.Query/EtpsByOwner
+```
+
+#### Response
+```json
+{
+  "Positions": [
+    {
+      "owner": "did:com:1rsyglnhpg7q6hvz3422wm63tehtkx5xa2uwp3j",
+      "collateral": "400000000",
+      "credits": {
+        "denom": "uccc",
+        "amount": "400000000"
+      },
+      "createdAt": "2022-07-04T10:19:15.704764997Z",
+      "ID": "8f1a387b-dcbd-43ec-9376-026b45d1f5d2",
+      "exchangeRate": "1000000000000000000"
+    },
+    ...
+  ],
+  "pagination": {
+    "total": "3"
+  }
+}
 ```
 
 #### REST
@@ -176,7 +251,6 @@ http://localhost:1317/commercionetwork/commerciomint/did:com:18h03de6awcjk4u9gaz
   }
 }
 ```
-#### gRPC (WIP)
 
 ### Reading all Exchange Trade Position (ETP) by ID
 
@@ -184,6 +258,39 @@ http://localhost:1317/commercionetwork/commerciomint/did:com:18h03de6awcjk4u9gaz
 
 ```bash
 commercionetworkd query commerciomint get-etp [id]
+```
+
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciomint.Query/Etp
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    -d '{"ID":"8f1a387b-dcbd-43ec-9376-026b45d1f5d2"}' \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciomint.Query/Etp
+```
+
+#### Response
+```json
+{
+  "Position": {
+    "owner": "did:com:1rsyglnhpg7q6hvz3422wm63tehtkx5xa2uwp3j",
+    "collateral": "400000000",
+    "credits": {
+      "denom": "uccc",
+      "amount": "400000000"
+    },
+    "createdAt": "2022-07-04T10:19:15.704764997Z",
+    "ID": "8f1a387b-dcbd-43ec-9376-026b45d1f5d2",
+    "exchangeRate": "1000000000000000000"
+  }
+}
 ```
 
 #### REST
@@ -225,15 +332,36 @@ http://localhost:1317/commercionetwork/commerciomint/805a82db-a9e7-441a-a26b-d9d
 }
 ```
 
-#### gRPC (WIP)
-
-
 ### Reading the Params (conversion rate & freeze period)
 
 #### CLI
 
 ```bash
 commercionetworkd query commerciomint get-params
+```
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.commerciomint.Query/Params
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    lcd-mainnet.commercio.network:9090 \
+    commercionetwork.commercionetwork.commerciomint.Query/Params
+```
+
+#### Response
+```json
+{
+  "params": {
+    "conversionRate": "1000000000000000000",
+    "freezePeriod": "1814400s"
+  }
+}
 ```
 
 #### REST
@@ -261,6 +389,3 @@ http://localhost:1317/commercionetwork/commerciomint/params
   }
 }
 ```
-
-
-#### gRPC (WIP)
