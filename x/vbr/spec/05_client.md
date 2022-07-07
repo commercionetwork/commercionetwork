@@ -67,7 +67,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.vbr.Query/GetBlockRewardsPoolFunds
 ```
 
-#### Response
+##### Response
 ```json
 {
   "funds": [
@@ -95,7 +95,7 @@ Getting all the block rewards pool Funds:
 http://localhost:1317/commercionetwork/vbr/funds
 ```
 
-#### Response
+##### Response
 ```json
 {
   "funds": [
@@ -130,7 +130,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.vbr.Query/GetParams
 ```
 
-#### Response
+##### Response
 ```json
 {
   "params": {
@@ -156,7 +156,7 @@ Getting the parameters:
 http://localhost:1317/commercionetwork/vbr/params
 ```
 
-#### Response
+##### Response
 ```json
 {
   "params": {

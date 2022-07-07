@@ -193,7 +193,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciokyc.Query/Invites
 ```
 
-#### Response
+##### Response
 ```json
 {
   "invites": [
@@ -257,7 +257,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciokyc.Query/Invite
 ```
 
-#### Response
+##### Response
 ```json
 {
   "invite": {
@@ -327,7 +327,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciokyc.Query/Memberships
 ```
 
-#### Response
+##### Response
 ```json
 {
   "memberships": [
@@ -410,7 +410,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciokyc.Query/Membership
 ```
 
-#### Response
+##### Response
 ```json
 {
   "membership": {
@@ -484,7 +484,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciokyc.Query/Tsps
 ```
 
-#### Response
+##### Response
 ```json
 {
   "tsps": [
@@ -552,7 +552,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciokyc.Query/Funds
 ```
 
-#### Response
+##### Response
 ```json
 {
   "funds": [

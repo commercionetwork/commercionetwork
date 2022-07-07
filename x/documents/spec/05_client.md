@@ -91,7 +91,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.documents.Query/SentDocuments
 ```
 
-#### Response
+##### Response
 ```json
 "Document": [
     {
@@ -184,7 +184,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.documents.Query/ReceivedDocument
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Document": [
@@ -260,7 +260,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.documents.Query/SentDocumentsReceipts
 ```
 
-#### Response
+##### Response
 ```json
 {
   "receipt": [
@@ -341,7 +341,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.documents.Query/ReceivedDocumentsReceipts
 ```
 
-#### Response
+##### Response
 ```json
 {
   "ReceiptReceived": [
@@ -424,7 +424,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.documents.Query/DocumentsReceipts
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Receipts": [
@@ -488,7 +488,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.documents.Query/Document
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Document": {

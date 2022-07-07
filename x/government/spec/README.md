@@ -54,7 +54,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.government.Query/GovernmentAddr
 ```
 
-#### Response
+##### Response
 ```json
 {
   "governmentAddress": "did:com:1mj9h87yqjel0fsvkq55v345kxk0n09krtfvtyx"

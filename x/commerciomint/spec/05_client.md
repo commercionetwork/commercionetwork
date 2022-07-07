@@ -86,7 +86,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciomint.Query/Etps
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Positions": [
@@ -127,7 +127,7 @@ Getting all users opened ETPs:
 http://localhost:1317/commercionetwork/commerciomint/etps
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Positions": [
@@ -184,7 +184,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciomint.Query/EtpsByOwner
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Positions": [
@@ -229,7 +229,7 @@ Getting ETPs opened by `did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd`:
 http://localhost:1317/commercionetwork/commerciomint/did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd/etpsOwner
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Positions": [
@@ -276,7 +276,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciomint.Query/Etp
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Position": {
@@ -315,7 +315,7 @@ Getting ETPs with ID `805a82db-a9e7-441a-a26b-d9dd9dc84a0b`:
 http://localhost:1317/commercionetwork/commerciomint/805a82db-a9e7-441a-a26b-d9dd9dc84a0b/etp
 ```
 
-#### Response
+##### Response
 ```json
 {
   "Position": {
@@ -354,7 +354,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.commerciomint.Query/Params
 ```
 
-#### Response
+##### Response
 ```json
 {
   "params": {
@@ -380,7 +380,7 @@ Getting the parameters:
 http://localhost:1317/commercionetwork/commerciomint/params
 ```
 
-#### Response
+##### Response
 ```json
 {
   "params": {

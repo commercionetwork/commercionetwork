@@ -90,7 +90,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.did.Query/Identity
 ```
 
-#### Response
+##### Response
 ```json
 {
   "identity": {
@@ -153,7 +153,7 @@ Getting the latest identity of `did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd`
 http://localhost:1317/commercionetwork/did/did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd/identities
 ```
 
-#### Response
+##### Response
 ```json
 {
   "identity": {
@@ -230,7 +230,7 @@ grpcurl -plaintext \
     commercionetwork.commercionetwork.did.Query/IdentityHistory
 ```
 
-#### Response
+##### Response
 ```json
 {
   "identities": [
