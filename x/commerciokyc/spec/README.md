@@ -46,7 +46,7 @@ Then, the following requirements must be met:
 
 ## Inviting a user
 Once all the [above requirements](#requirements) have been met, you can invite the user by performing an
-[invitation transaction](#sending-an-invite) 
+[invitation transaction](02_messages.md#msginviteuser) 
 
 Once done, you will be automatically rewarded when the user buys a new membership.  
 
