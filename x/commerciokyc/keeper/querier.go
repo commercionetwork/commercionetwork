@@ -69,7 +69,7 @@ func queryGetInvite(ctx sdk.Context, path []string, keeper Keeper, legacyQuerier
 	// Search the membership
 	invite, found := keeper.GetInvite(ctx, address)
 	if !found {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not find invitation")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "Could not find invitation")
 	}
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, invite)
@@ -135,7 +135,7 @@ func queryGetTspMemberships(ctx sdk.Context, path []string, keeper Keeper, legac
 	}
 
 	if !keeper.IsTrustedServiceProvider(ctx, tsp) {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Requested address is not a valid tsp")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "Requested address is not a valid tsp")
 	}
 
 	// Search the membership

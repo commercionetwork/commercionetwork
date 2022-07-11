@@ -59,7 +59,7 @@ Please note that each price is expressed using *Commercio Cash Credit* as measur
 
 | Membership | Identifier | Price | 
 | :-------: | :---: | :---- |
-| Green | `green` | `5` | 
+| Green | `green` | `1` | 
 | Bronze | `bronze` | `25` | 
 | Silver | `silver` | `250` | 
 | Gold | `gold` | `2500` | 
@@ -75,11 +75,11 @@ Please note that each reward is expressed using *Commercio Token* as measurement
 
 | Invitee / Invited | Green | Bronze | Silver | Gold | Black |
 | :--------------: | :----: | :----: | :----: | :---: | :---: |
-| Green | 0.05 | 0.5 | 7.5 | 100 | 1,250 | 
-| Bronze | 0.125 | 1.25 | 25 | 375 | 5,000 | 
-| Silver | 0.5 | 5 | 75 | 1,000 | 12,500 |
-| Gold | 2 | 12.5 | 150 | 1,750 | 20,000 |
-| Black | 2.5 | 17.5 | 200 | 2,250 | 25,000 |  
+| Green | 0.01 | 0.1 | 1.5 | 20 | 250 | 
+| Bronze | 0.025 | 1.25 | 25 | 375 | 5,000 | 
+| Silver | 0.1 | 5 | 75 | 1,000 | 12,500 |
+| Gold | 0.4 | 12.5 | 150 | 1,750 | 20,000 |
+| Black | 0.5 | 17.5 | 200 | 2,250 | 25,000 |  
 
 Please note that the number of rewards is capped to a maximum of **12.5 millions tokens**.
 After all the tokens have been distributed, any following invite will not be rewarded anymore.
