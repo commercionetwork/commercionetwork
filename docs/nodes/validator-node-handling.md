@@ -329,10 +329,10 @@ After adding the key you will be able to access your account image using the `ht
 ### 5. Edit your validator adding identity
 
 In order to add the identity to your validator you need to edit the validator profile with a transaction.      
-**Warning: put the values of `moniker`, `website` and `descripiton` according with your environment**
+**Warning: put the values of `moniker`, `website` and `details` according with your environment**
 
 ```bash
-IDENTITY="[id]" #ID that you obtained in the previous step
+IDENTITY="[id]" #ID that you obtained in the previous step. Something like 21C53B7B20C1145D
 commercionetworkd tx staking edit-validator \
   --moniker="$NODENAME" \
   --identity="$IDENTITY" \
