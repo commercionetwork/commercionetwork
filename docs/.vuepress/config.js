@@ -39,6 +39,9 @@ module.exports = {
                 ]
             },
             {text: "Commercio.network", link: "https://commercio.network"},
+            {text: "Discord", link: "https://discord.gg/N7DxaDj5sW", logo: "/icon.png"},
+            {text: "Telegram", link: "https://t.me/CommercioNetwork"},
+            {text: "Twitter", link: "https://twitter.com/commercionet?s=21&t=8FTpg5f7kurZ1d7LOb9YXw"},
         ],
 
         sidebarDepth: 3,
