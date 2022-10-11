@@ -310,19 +310,10 @@ After authenticating, request verification of the email address.
 
 In the `people` section of the program, click on the `Edit Profile` button to complete the profile (data and image) and to access the proof list.
 
-
-Dall'elenco delle prove selezionare `Add a PGP key`, quindi aggiungere una chiave pubblica PGP generata in locale oppure crearne una nuova con la funzione `Get a new PGP key` fornita dall'applicazione. La generazione tramite l'applicazione di Keybase avviene in automatico, le uniche azioni richieste sono:
-
 From the proof list, select `Add a PGP key`, then add a locally generated PGP public key or create a new one with the `Get a new PGP key` function provided by the application. Generation via the Keybase application is done automatically, the only actions required are:
-
-- Compilare il form (`nome completo` e indirizzo `email`);
-- Al ternmine della generazione decidere di salvare o no su Keybase la chiave privata  crittografandola.
 
 - Fill out the form (`full name` and `email`);
 - At the end of generation decide to save or not to Keybase the private key by encrypting it.
-
-
-Dopo aver aggiunto la chiave  sarà possibile accedere all'immagine del proprio account utilizzando l'endpoint `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=[id]&fields=pictures`, dove `[id]` è composto dalle prime 16 cifre esadecimali della chiave PGP.
 
 After adding the key you will be able to access your account image using the `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=[id]&fields=pictures` endpoint, where `[id]` consists of the first 16 hexadecimal digits of the PGP key.
 
