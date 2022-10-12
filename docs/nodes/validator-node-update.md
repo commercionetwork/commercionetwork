@@ -20,21 +20,19 @@ When a minor release is publish the steps that the node should be performed are
 3. Stop the validator/node service with `systemctl stop commercionetworkd`
 4. Put new version of chain in the right folder:
    1. **Cosmovisor**: copy the binary in cosmovisor current folder `cp build/commercionetworkd ~/.commercionetwork/cosmovisor/current/bin/commercionetworkd`
-   2. **Old style installation**: copy the binary in `GOBIN` path. In the most case `cp build/commercionetworkd ~/go/bin/commercionetworkd`
+   2. **Old style installation**: copy the binary in `GOBIN` path. In the most cases `cp build/commercionetworkd ~/go/bin/commercionetworkd`
    3. **Other enviroment**: if you have a custom env copy the new binary replacing the one on which the chain service is based
 5. Start the validator/node service with `systemctl start commercionetworkd`
-6. Check the validator/node block emissione with `journalctl -u commercionetworkd -f`
-7. Also check the validator signing blocks watching [Commercio Network explorer](https://mainnent.commercio.network)
+6. Check the validator/node blocks issuance with `journalctl -u commercionetworkd -f`
+7. Also check the validator signature blocks by looking at [Commercio Network explorer](https://mainnent.commercio.network)
 
 
 
 ## Upgrade via Proposal
 
-The main way to upgrade chain and his node for a major release is via Upgrade Proposal.     
+The main way to upgrade chain and its nodes for a major release is via the Upgrade Proposal.     
 Everytime a new major release will be released a Upgrade Proposol will be submited in the chain and all users of chain with stake will be able to vote it.     
-Every proposal will be show in the explorer in follow page
-
-https://mainnet.commercio.network/proposals/
+Each proposal will be displayed in the explorer in this [page](https://mainnet.commercio.network/proposals/)
 
 Clicking one proposal you can access to the proposal details and you can vote it with keplr extension.
 
@@ -55,13 +53,13 @@ An example of these procedure could be find [here](https://github.com/commercion
 
 ## Emergency Upgrade
 
-In some case should be necessary emercency upgrade. In this case a special message will be send to all validators, sometime in the group channel and in other case with 1-1 comunication.    
-These upgrades is quite rare and they will performed only when a real danger issue will be found in the chain.
+In some cases an emergency update may be necessary. In this case a special message will be sent to all validators, sometimes in the group channel and in other case with a 1-1 comunication.    
+These upgrades is quite rare and are performed only when a real danger issue is found in the chain software.
 
 
 ## Dump Upgrade
 
-This type of upgrade is a special case. In epochal cases the chain could be stop. Sometime, in this case the only way to restart the chain is dumping the whole state, correct the errors, install new software in all validators, import the state, install new genesis and start the chain.    
+This type of upgrade is a special case. In epochal cases, the chain could stop because consensus issues. Sometimes, in such cases, the only way to restart the chain is dump the whole state, correct the errors, install new software in all validators, import the state, install the new genesis, and start the chain.    
 An example of these procedure could be find [here](https://github.com/commercionetwork/commercio-consortium/blob/master/upgrade/2.2.0-3.0.0/en/README.md)
 
 
