@@ -251,7 +251,8 @@ This will start up the REST server and make it reachable using the port `1317`.
 ### What is cosmovisor?
 
 `cosmovisor` is a small process manager for Cosmos SDK application binaries that monitors the governance module for incoming chain upgrade proposals. 
-If it sees a proposal that gets approved, cosmovisor can automatically download the new binary, stop the current binary, switch from the old binary to the new one, and finally restart the node with the new binary.
+If it sees a proposal that gets approved, cosmovisor can automatically download the new binary, stop the current binary, switch from the old binary to the new one, and finally restart the node with the new binary.    
+**As in all other explanations, it is assumed that you are acting as root. Change the parameters and variables depending on your installation environment**
 ### Installation
 
 Download and compile cosmovisor:
@@ -260,8 +261,9 @@ cd $HOME
 git clone https://github.com/cosmos/cosmos-sdk.git
 cd cosmos-sdk
 git checkout cosmovisor/v0.1.0
+# you can use version v1.0.0 or v1.1.0
 cd cosmovisor
-make
+make cosmovisor
 cp cosmovisor $HOME/go/bin
 ```
 
@@ -274,11 +276,34 @@ mkdir -p $HOME/.commercionetwork/cosmovisor/upgrades
 Copy `commercionetwork` to cosmovisor folder
 ```bash
 cp $HOME/go/bin/commercionetworkd $HOME/.commercionetwork/cosmovisor/genesis/bin
-``` 
+```
+
+After installation your `.commercionetwork` folder should be structured like below
+
+```
+.commercionetwork
+├── config
+│   └── app.toml
+│   └── config.toml
+│   └── genesis.json
+│   └── node_id.json
+│   └── priv_validator_key.json
+├── data
+│   └── priv_validator_state.json
+└── cosmovisor
+    └── current
+    └── genesis
+    └── bin
+    │   └── commercionetword
+    └── upgrades
+    └── <name>
+        └── bin
+            └── commercionetword
+```
+
 
 Configure the service:
 ```bash
-exit # <- Login back to root at this point!
 
 tee /etc/systemd/system/commercionetworkd.service > /dev/null <<EOF  
 [Unit]
@@ -286,20 +311,21 @@ Description=Commercio Network Node
 After=network.target
 
 [Service]
-User=commercionetwork
+User=root
 LimitNOFILE=4096
 
 Restart=always
 RestartSec=3
 
-Environment="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/home/commercionetwork/bin/go" # <-- set this only if you compiled "commercionetworkd" locally
+Environment="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/root/bin/go" # <-- set this only if you compiled "commercionetworkd" locally
 Environment="DAEMON_NAME=commercionetworkd"
-Environment="DAEMON_HOME=/home/commercionetwork/.commercionetwork"
+Environment="DAEMON_HOME=/root/.commercionetwork"
 Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
 Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
 Environment="DAEMON_LOG_BUFFER_SIZE=512"
+Environment="UNSAFE_SKIP_BACKUP=true" # Set to false if you want make backup during the upgrade
 
-ExecStart=/home/commercionetwork/go/bin/cosmovisor start --home="/home/commercionetwork/.commercionetwork" 
+ExecStart=/root/go/bin/cosmovisor start --home="/root/.commercionetwork" 
 
 [Install]
 WantedBy=multi-user.target
@@ -315,6 +341,17 @@ systemctl start commercionetworkd
 Control if the sync was started. Use `Ctrl + C` to interrupt the `journalctl` command:
 ```bash
 journalctl -u commercionetworkd -f
+```
+
+Set env of cosmovisor for you convenience
+
+```bash
+echo 'export DAEMON_NAME=commercionetworkd' >> ~/.profile
+echo 'export DAEMON_HOME=/root/.commercionetwork' >> ~/.profile
+echo 'export DAEMON_RESTART_AFTER_UPGRADE=true' >> ~/.profile
+echo 'export DAEMON_ALLOW_DOWNLOAD_BINARIES=false' >> ~/.profile
+echo 'export DAEMON_LOG_BUFFER_SIZE=512' >> ~/.profile
+echo 'export UNSAFE_SKIP_BACKUP=true' >> ~/.profile
 ```
 
 
