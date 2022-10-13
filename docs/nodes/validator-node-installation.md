@@ -46,10 +46,15 @@ In this case the 24 words are not provided because they have already been config
 Copy your public address. It should have the format `did:com:<data>`.
 
 
-The second wallet must be requested through a message on the [Telegram group](https://t.me/commercionetworkvipsTelegram). With a private message will be sent the information of the second wallet.
+The second wallet must be requested through a message on the 
 
- 
-**ATTENTION**: from now on we will refer to the value of your public address of the first wallet as `<CREATOR ADDRESS>` notation.
+- [Telegram group](https://t.me/CommercioNetwork)
+- [Discord"](https://discord.gg/N7DxaDj5sW)
+
+With a private message will be sent the information of the second wallet.
+
+
+**WARNING**: from now on we will refer to the value of your public address of the first wallet as `<CREATOR ADDRESS>` notation.
 We will refer to the second wallet as `<DELEGATOR ADDRESS>` notation.   
 
 ## 2. Get the tokens
@@ -71,12 +76,12 @@ This transaction is expected to be done with an hsm as Ledger. If you are using 
 
 ```bash
 commercionetworkd tx bank send \
-<DELEGATOR ADDRESS> \
-<CREATOR ADDRESS> \
-1110000ucommercio \
---fees=10000ucommercio  \
---chain-id="$CHAINID" \
--y
+  <DELEGATOR ADDRESS> \
+  <CREATOR ADDRESS> \
+  1110000ucommercio \
+  --fees=10000ucommercio  \
+  --chain-id="$CHAINID" \
+  -y
 ```
 or you can use the [Commercio Wallet App](https://github.com/commercionetwork/Commercio-Wallet-App)
 
@@ -98,7 +103,7 @@ The output should look like this **(WIP)**:
 Once you have the tokens, you can create a validator. If you want, while doing so you can also specify the following parameters
 * `--moniker`: the name you want to assign to your validator. Spaces and special characters are accepted (**mandatory**)
 * `--details`: a brief description about your node or your company
-* `--identity`: your [Keybase](https://keybase.io) identity
+* `--identity`: your [Keybase](https://keybase.io) identity. You can find information about this value in [Handling a validator](./validator-node-handling.md#add-identity-to-your-validator)
 * `--website`: a public website of your node or your company
 
 The overall command to create a validator is the following:
@@ -125,7 +130,7 @@ Warning: a did address can create one and only one validator and a validator can
 ```bash
 commercionetworkd tx staking create-validator \
   --amount=1100000ucommercio \
-  --pubkey=$VALIDATOR_PUBKEY \
+  --pubkey="$VALIDATOR_PUBKEY" \
   --moniker="$NODENAME" \
   --chain-id="$CHAINID" \
   --identity="" \
