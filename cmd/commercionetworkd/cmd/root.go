@@ -245,18 +245,13 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 
-	homePath := cast.ToString(appOpts.Get(flags.FlagHome).(string))
-	if homePath == "" {
-		homePath = app.DefaultNodeHome
-	}
-
 	return app.New(
 		logger,
 		db,
 		traceStore,
 		true,
 		skipUpgradeHeights,
-		homePath,
+		cast.ToString(appOpts.Get(flags.FlagHome).(string)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		a.encCfg,
 		appOpts,
