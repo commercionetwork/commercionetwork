@@ -73,6 +73,70 @@ query did show-identity [did]
 | :-------: | :---------- | 
 | `did` | Address of the user for which to read the Did Document |
 
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.did.Query/Identity
+```
+
+##### Example
+
+
+```bash
+grpcurl -plaintext \
+    -d '{"ID":"did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20"}' \
+    localhost:9090 \
+    commercionetwork.commercionetwork.did.Query/Identity
+```
+
+##### Response
+```json
+{
+  "identity": {
+    "didDocument": {
+      "context": [
+        "https://www.w3.org/ns/did/v1"
+      ],
+      "ID": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20",
+      "verificationMethod": [
+        {
+          "ID": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20#keys-1",
+          "Type": "RsaVerificationKey2018",
+          "Controller": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20",
+          "publicKeyMultibase": "mMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq1/cwtXIoJxvp6jJpqYqxNlXGhdW9Elwpc8OW//hgSMknHqDzKOOfDUiJbiPq0/BMD00im0aBbVCezkSfQxmu1aB4RMCh39CYe5qbkSDXnKfwCI72e26Om/lJGfSUe11xVBHsjT9r5SugGFVJ3ljwG5MFY50sdeAeX16nUZbHjRIh/E+n2oZlNV0uhsxsV4HtzA0Km9D+D8bBCEt4PUXHCE6kOmPORfPS7UvG/q5IZUlPeSGPXJAl3kYOT/s58ptxe4Id8Np0h6g/iEfdxw7SG6NS7GVA52blg8mFbGv0ynQCor/P+Vfh7fRnZC9wzCSXqis4PGNVq1s1MGQ13bM5wIDAQAB"
+        },
+        {
+          "ID": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20#keys-2",
+          "Type": "RsaSignature2018",
+          "Controller": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20",
+          "publicKeyMultibase": "mMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxk51GIYeuiZ24rlmKXQ/LoiYOuMNFM1/HhK4pEh/G6tu59U13zGx5eiIZWtdbpesEGt3Uw67oQUV+3YSGjalUMl+HUtVmk1yL0zQz85b2np+SZxxE4DbaQunaFfFy1hfNEmsrh6mpXuPeU4TCEm7vri4wfWheqn939UuIgsOoIc6vRbVeQWHU13O/EvJsquItuunCWNMOD3FEAuSDTf4X/2LgE2q07Gwf643lipS7AzXB/sNJL0hg/QH8dNz9uaW2TcIqbmr8TtOejPTwBsTcOM/mG+WGfhAmR1HYmcdiZPn47bnjamMv5OwaoSrEjMxB8tvn8W+AGm8DuUHkk5TjwIDAQAB"
+        }
+      ],
+      "authentication": [
+        "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20#keys-1"
+      ],
+      "service": [
+        {
+          "ID": "A",
+          "type": "agent",
+          "serviceEndpoint": "https://commerc.io/agent/serviceEndpoint/"
+        }
+      ]
+    },
+    "metadata": {
+      "created": "2022-02-03T13:53:28Z",
+      "updated": "2022-02-03T13:53:28Z"
+    }
+  }
+}
+```
+
+
+
+
+
+
 #### REST
 
 Endpoint:
@@ -89,7 +153,7 @@ Getting the latest identity of `did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd`
 http://localhost:1317/commercionetwork/did/did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd/identities
 ```
 
-#### Response
+##### Response
 ```json
 {
   "identity": {
@@ -149,6 +213,67 @@ query did show-history [did]
 | Parameter | Description |
 | :-------: | :---------- | 
 | `did` | Address of the user for which to read the history of Did Document updates|
+
+#### gRPC
+Endpoint:
+
+```
+commercionetwork.commercionetwork.did.Query/IdentityHistory
+```
+
+##### Example
+
+```bash
+grpcurl -plaintext \
+    -d '{"ID":"did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20"}' \
+    localhost:9090 \
+    commercionetwork.commercionetwork.did.Query/IdentityHistory
+```
+
+##### Response
+```json
+{
+  "identities": [
+    {
+      "didDocument": {
+        "context": [
+          "https://www.w3.org/ns/did/v1"
+        ],
+        "ID": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20",
+        "verificationMethod": [
+          {
+            "ID": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20#keys-1",
+            "Type": "RsaVerificationKey2018",
+            "Controller": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20",
+            "publicKeyMultibase": "mMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq1/cwtXIoJxvp6jJpqYqxNlXGhdW9Elwpc8OW//hgSMknHqDzKOOfDUiJbiPq0/BMD00im0aBbVCezkSfQxmu1aB4RMCh39CYe5qbkSDXnKfwCI72e26Om/lJGfSUe11xVBHsjT9r5SugGFVJ3ljwG5MFY50sdeAeX16nUZbHjRIh/E+n2oZlNV0uhsxsV4HtzA0Km9D+D8bBCEt4PUXHCE6kOmPORfPS7UvG/q5IZUlPeSGPXJAl3kYOT/s58ptxe4Id8Np0h6g/iEfdxw7SG6NS7GVA52blg8mFbGv0ynQCor/P+Vfh7fRnZC9wzCSXqis4PGNVq1s1MGQ13bM5wIDAQAB"
+          },
+          {
+            "ID": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20#keys-2",
+            "Type": "RsaSignature2018",
+            "Controller": "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20",
+            "publicKeyMultibase": "mMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxk51GIYeuiZ24rlmKXQ/LoiYOuMNFM1/HhK4pEh/G6tu59U13zGx5eiIZWtdbpesEGt3Uw67oQUV+3YSGjalUMl+HUtVmk1yL0zQz85b2np+SZxxE4DbaQunaFfFy1hfNEmsrh6mpXuPeU4TCEm7vri4wfWheqn939UuIgsOoIc6vRbVeQWHU13O/EvJsquItuunCWNMOD3FEAuSDTf4X/2LgE2q07Gwf643lipS7AzXB/sNJL0hg/QH8dNz9uaW2TcIqbmr8TtOejPTwBsTcOM/mG+WGfhAmR1HYmcdiZPn47bnjamMv5OwaoSrEjMxB8tvn8W+AGm8DuUHkk5TjwIDAQAB"
+          }
+        ],
+        "authentication": [
+          "did:com:133nf49v83dts7pq30csnnl7ul5unsvzz55qt20#keys-1"
+        ],
+        "service": [
+          {
+            "ID": "A",
+            "type": "agent",
+            "serviceEndpoint": "https://commerc.io/agent/serviceEndpoint/"
+          }
+        ]
+      },
+      "metadata": {
+        "created": "2022-02-03T13:53:28Z",
+        "updated": "2022-02-03T13:53:28Z"
+      }
+    }
+  ]
+}
+```
+
 
 #### REST
 

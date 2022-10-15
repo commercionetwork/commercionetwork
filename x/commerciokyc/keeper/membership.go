@@ -9,6 +9,8 @@ import (
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -258,7 +260,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 	store := ctx.KVStore(k.storeKey)
 
 	if !store.Has(k.storageForAddr(user)) {
-		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+		return types.Membership{}, status.Errorf(codes.NotFound,
 			fmt.Sprintf("membership not found for user \"%s\"", user.String()),
 		)
 	}

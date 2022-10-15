@@ -2,6 +2,29 @@
 Once you've properly set up a [validator node](validator-node-installation.md), it must be subject to certain rules and certain operations must be carried out to manage it.
 
 
+
+- [Handling a validator](#handling-a-validator)
+  - [Downtime rules](#downtime-rules)
+  - [Double sign rules](#double-sign-rules)
+  - [Unjail procedure](#unjail-procedure)
+  - [Unbond procedure](#unbond-procedure)
+  - [Redelegate procedure](#redelegate-procedure)
+  - [Move node to other server](#move-node-to-other-server)
+    - [Move validator to another server with `priv_validator_key.json` file](#move-validator-to-another-server-with-priv_validator_keyjson-file)
+    - [Move validator to another server with `kms`](#move-validator-to-another-server-with-kms)
+    - [Resume validator after break down with `priv_validator_key.json` file](#resume-validator-after-break-down-with-priv_validator_keyjson-file)
+    - [Resume validator after break down with `kms`](#resume-validator-after-break-down-with-kms)
+  - [x% Loss of blocks](#x-loss-of-blocks)
+  - [Add identity to your validator](#add-identity-to-your-validator)
+    - [References keybase](#references-keybase)
+    - [1. Registration](#1-registration)
+    - [2. Adding one or more devices](#2-adding-one-or-more-devices)
+      - [2.1. Program installation on computers](#21-program-installation-on-computers)
+      - [2.2. App installation on iPhone and Android](#22-app-installation-on-iphone-and-android)
+    - [3. Verify email](#3-verify-email)
+    - [4. Add logo and key](#4-add-logo-and-key)
+    - [5. Edit your validator adding identity](#5-edit-your-validator-adding-identity)
+
 ## Downtime rules
 The node can only stay offline for a certain amount of time.   
 In the case of **Commercio Network** this period has been fixed at 10,000 blocks lost, approximately corresponding to 17/18 hours. 
@@ -245,3 +268,73 @@ To resume a validator after break down or some other terrible issue that destroy
  In order to create blocks and extend the blockchain, active validators are selected in proportion to their stake by a pseudo-random mechanism that assigns at a time t a proposer (block proposer) and a fixed pool of validators (committee). The block proposer is assigned the task of proposing the block Bt (block at time t) while the committee is given the task of voting whether the block is hung on the chain or not.
 
  Losing a block for a validator means that this validator was inactive at the time of the committee's choice or that it did not vote towards the execution of the block. Thus, having a validator with an x% loss of blocks means that the validator is only active (100 - x)% of the time when the Bt block is assigned.
+
+
+## Add identity to your validator
+
+In order to publish the validator icon to any explorer, an identity must be created at [keybase](https://keybase.io).
+Below are the steps to be performed 
+
+
+
+### References keybase
+
+- [Keybase book](https://book.keybase.io/account)
+- [Keybase API](https://keybase.io/docs/api/1.0/intro)
+
+### 1. Registration
+
+In the [Keybase.io](https://keybase.io/) site click on `Login`; a popup opens where there is a `Join Keybase` button. After pressing this button fill in the form fields and submit the request.
+
+### 2. Adding one or more devices
+
+
+Install Keybase on a device, start the program and authenticate with the credentials entered during registration. The application displays a prompt to add the device in use.
+
+#### 2.1. Program installation on computers
+
+- [macOS](https://keybase.io/docs/the_app/install_macos)
+- [Linux](https://keybase.io/docs/the_app/install_linux)
+- [Windows](https://keybase.io/docs/the_app/install_windows)
+
+#### 2.2. App installation on iPhone and Android
+
+- [iPhone/iPad](https://apps.apple.com/us/app/keybase-crypto-for-everyone/id1044461770)
+- [Android](https://play.google.com/store/apps/details?id=io.keybase.ossifrage&referrer=undefined)
+
+### 3. Verify email
+
+After authenticating, request verification of the email address.
+
+### 4. Add logo and key
+
+In the `people` section of the program, click on the `Edit Profile` button to complete the profile (data and image) and to access the proof list.
+
+From the proof list, select `Add a PGP key`, then add a locally generated PGP public key or create a new one with the `Get a new PGP key` function provided by the application. Generation via the Keybase application is done automatically, the only actions required are:
+
+- Fill out the form (`full name` and `email`);
+- At the end of generation decide to save or not to Keybase the private key by encrypting it.
+
+After adding the key you will be able to access your account image using the `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=[id]&fields=pictures` endpoint, where `[id]` consists of the first 16 hexadecimal digits of the PGP key.
+
+### 5. Edit your validator adding identity
+
+In order to add the identity to your validator you need to edit the validator profile with a transaction.      
+**Warning: put the values of `moniker`, `website` and `details` according with your environment**
+
+```bash
+IDENTITY="[id]" #ID that you obtained in the previous step. Something like 21C53B7B20C1145D
+commercionetworkd tx staking edit-validator \
+  --moniker="$NODENAME" \
+  --identity="$IDENTITY" \
+  --website="your website (leave blank if you don't have it)" \
+  --details="description of your node (leave blank if you don't have it)" \
+  --chain-id="commercio-3" \
+  --from=<CREATOR ADDRESS> \
+  --fees=10000ucommercio \
+  -y
+```
+
+
+*N.B.: after editing the profile the `Edit Profile` button will disappear, in its place will be the `Prove your identies` button until the identity is proven*
+

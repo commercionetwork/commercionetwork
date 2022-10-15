@@ -46,7 +46,7 @@ func (k Keeper) Invite(c context.Context, req *types.QueryInviteRequest) (*types
 	ctx := sdk.UnwrapSDKContext(c)
 	invite, found := k.GetInvite(ctx, address)
 	if !found {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not find invitation")
+		return nil, status.Errorf(codes.NotFound, "Could not find invitation")
 	}
 	return &types.QueryInviteResponse{Invite: &invite}, nil
 }

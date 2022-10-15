@@ -113,7 +113,6 @@ curl -X 'POST' \
   "doc_hash": "3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
   "doc_hash_alg": "sha-256",
   "doc_tx_hash": "",
-  "doc_storage_uri": "8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9",
   "doc_metadata": {
     "content_uri": "-",
     "schema": {
@@ -147,7 +146,6 @@ see for more details below in the guide
   "doc_hash": "3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
   "doc_hash_alg": "sha-256",
   "doc_tx_hash": "78733941DE98F4D39424DD082F3516438E397A236BA28C0BBE2AC3CD3A66E94F",
-  "doc_storage_uri": "8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9",
   "doc_metadata": {
     "content_uri": "-",
     "schema": {
@@ -305,7 +303,6 @@ Example Value
       "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
       "tx_timestamp": "2021-06-30T09:49:32Z",
       "tx_type": "commercio/MsgShareDocument",
-      "doc_storage_uri": "26148be69aa41cdab718b650c7244d7df654a1300222649ab3fc1558e33e6ec0",
       "doc_metadata": {
         "content_uri": "-",
         "schema": {
@@ -329,7 +326,6 @@ Example Value
       "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
       "tx_timestamp": "2021-06-30T09:49:32Z",
       "tx_type": "commercio/MsgShareDocument",
-      "doc_storage_uri": "514002e33d7c239c7a2af9a6e9f23aa4de9bb4e5abd9869fbf556f002a71e6e7",
       "doc_metadata": {
         "content_uri": "-",
         "schema": {
@@ -354,7 +350,6 @@ Example Value
       "doc_tx_hash": "FD2E1D5DD97E9589673A6BDB2F9A2468F4A856664F843619AF0FDC1D99F6560E",
       "tx_timestamp": "2021-06-30T10:25:06Z",
       "tx_type": "commercio/MsgShareDocument",
-      "doc_storage_uri": "02975f9494afd8cbb9f2a776f3a5c456d4c6cba40410e1eec2d9cc3476386d2e",
       "doc_metadata": {
         "content_uri": "-",
         "schema": {
@@ -422,7 +417,6 @@ curl -X 'GET' \
   "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
   "tx_timestamp": "2021-06-30T09:49:32Z",
   "tx_type": "commercio/MsgShareDocument",
-  "doc_storage_uri": "26148be69aa41cdab718b650c7244d7df654a1300222649ab3fc1558e33e6ec0",
   "doc_metadata": {
     "content_uri": "-",
     "schema": {
