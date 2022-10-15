@@ -29,7 +29,7 @@ func TestKeeper_InviteUser(t *testing.T) {
 		{
 			name:   "Invitation without membership returns error",
 			invite: types.NewInvite(testUser2, testUser, "bronze"),
-			error:  fmt.Sprintf("Cannot send an invitation without having a membership: membership not found for user \"%s\": unknown request: unauthorized", testUser2),
+			error:  fmt.Sprintf("Cannot send an invitation without having a membership: rpc error: code = NotFound desc = membership not found for user \"%s\": unauthorized", testUser2),
 		},
 
 		{
