@@ -1,3 +1,23 @@
+# Version 4.1.0
+
+* **Upgrade Cosmos SDK for [Dragonbarry patch](https://forum.cosmos.network/t/ibc-security-advisory-dragonberry/7702)**
+* Update vbr spec
+* Update  government spec
+* Update documents spec
+* Update  commerciomint spec
+* Update  commerciokyc spec
+* Update  did spec
+* replace available soon REST with useful info
+* make gRPC Example nesting similar to REST docs
+* Fix issue https://github.com/commercionetwork/commercionetwork/issues/366, https://github.com/commercionetwork/commercionetwork/issues/378,  https://github.com/commercionetwork/commercionetwork/issues/371, https://github.com/commercionetwork/commercionetwork/issues/374
+* Add keybase identity
+* Update validator instructions
+* Add upgrade instructions
+* Fix cosmovisor docs 
+* Fix golang version
+* Update circleci
+* Fix tests
+
 # Version 4.0.0
 
 * Upgraded cosmos sdk to version 0.45.5 
