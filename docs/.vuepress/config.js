@@ -71,6 +71,7 @@ module.exports = {
                     ["app_developers/commercioapi-authentication", "Authentication process"],
                     ["app_developers/commercioapi-wallet", "Wallet"],
                     ["app_developers/commercioapi-sharedoc", "ShareDoc"],
+                    ["app_developers/listing-transactions", "Listing past txs"],
 
                 ]
             },

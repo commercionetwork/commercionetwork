@@ -33,7 +33,7 @@ message MsgInviteUser {
 ```
 
 #### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -71,7 +71,7 @@ message MsgBuyMembership {
 ```
 #### Action type
 
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -115,7 +115,7 @@ message MsgSetMembership {
 ```
 
 #### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -158,7 +158,7 @@ message MsgRemoveMembership {
 ```
 
 #### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -195,7 +195,7 @@ message MsgAddTsp {
 ```
 
 #### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -231,7 +231,7 @@ message MsgRemoveTsp {
 ```
 
 #### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -272,7 +272,7 @@ To deposit a given amount into the Memberships reward pool, the following messag
 ```
 
 #### Action type
-If you want to [list past transactions](../../../developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```

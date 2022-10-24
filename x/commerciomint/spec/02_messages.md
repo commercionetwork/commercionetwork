@@ -45,7 +45,7 @@ To mint CCC you need to create and sign the following message:
 | `id` | Yes | [uuid-v4](https://en.wikipedia.org/wiki/Universally_unique_identifier) | 
 
 ### Action type
-If you want to [list past transactions](../../../docs/developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -92,7 +92,7 @@ To burn previously minteted CCC you need to create and sign the following messag
 
 
 ### Action type
-If you want to [list past transactions](../../../docs/developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -159,7 +159,7 @@ To set module params you need to create and sign the following message:
 
 
 #### Action type
-If you want to [list past transactions](../../../docs/developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```

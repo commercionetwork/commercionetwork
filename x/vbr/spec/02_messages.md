@@ -44,7 +44,7 @@ To increment the block rewards pool you need to create and sign the following me
 | `amount` | Yes |  []coins | 
 
 ### Action type
-If you want to [list past transactions](../../../docs/developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
@@ -97,7 +97,7 @@ To set the module's params you need to create and sign the following message:
 
 
 #### Action type
-If you want to [list past transactions](../../../docs/developers/listing-transactions.md) including this kind of message,
+If you want to [list past transactions](../../app_developers/listing-transactions.md) including this kind of message,
 you need to use the following `message.action` value: 
 
 ```
