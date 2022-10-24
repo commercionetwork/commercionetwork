@@ -1,3 +1,9 @@
+<!--
+order: 0
+title: Did Overview
+parent:
+  title: "did"
+-->
 # Did
 
 The `did` module allows the management of _identitities_ by associating a 
@@ -79,3 +85,15 @@ The `did` module has been updated to support the historicization of DID document
 A DID document can be updated and its previous versions should remain accessible.
 
 Querying for an `IdentityHistory` means asking for the list of updates to an `Identity`, sorted in chronological order.
+
+## Contents
+
+1. **[State](01_state.md)**
+2. **[Messages](03_messages.md)**
+   - [MsgSetIdentity](03_messages.md#msgSetIdentity)
+3. **[Events](04_events.md)**
+   - [Handlers](04_events.md#handlers)
+4. **[Client](05_client.md)**
+   - [Query](05_client.md#query)
+   - [gRPC](05_client.md#gRPC)
+   - [Rest](05_client.md#rest)

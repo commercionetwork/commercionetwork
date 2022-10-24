@@ -97,6 +97,8 @@ module.exports = {
                         children: [
                             ["modules/did/", "Concepts"],
                             ["modules/did/01_state.md", "State"],
+                            ["modules/did/03_messages.md", "Messages"],
+                            ["modules/did/04_events.md", "Events"],
                             ["modules/did/05_client.md", "Client"],
 
                         ]

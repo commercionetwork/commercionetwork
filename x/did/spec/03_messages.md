@@ -1,5 +1,5 @@
 <!--
-order: 3
+order: 2
 -->
 
 # Messages
@@ -118,7 +118,7 @@ A `commercio/MsgSetIdentity` transaction that **doesn't** meet these requirement
     - `Bls12381G1Key2020`
     - `Bls12381G2Key2020`
 - *<sup>3</sup> `controller` must be equal to the DID document `id` field.
-- *<sup>4</sup> For more information about this field format, please refer to [The Multibase Data Format](https://tools.ietf.org/id/draft-multiformats-multibase-00.html). The example value `"mMIIBIjANBgkqh...3awGwIDAQAB"` start with `m` and therefore the rest of the string is in base64 [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) no padding.
+- *<sup>4</sup> For more information about this field format, please refer to [The Multibase Data Format](https://datatracker.ietf.org/doc/html/draft-multiformats-multibase-03). The example value `"mMIIBIjANBgkqh...3awGwIDAQAB"` start with `m` and therefore the rest of the string is in base64 [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) no padding.
 
 Additional requirements:
 - a verification method of type `RsaVerificationKey2018` must have the suffix `#keys-1` in the `id` field, and must be a valid _RSA PKIX_ public key;
