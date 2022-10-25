@@ -13,6 +13,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	governmentKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 const (
@@ -23,8 +24,8 @@ const (
 
 type Keeper struct {
 	cdc           codec.Codec
-	storeKey      sdk.StoreKey
-	memKey        sdk.StoreKey
+	storeKey      storetypes.StoreKey
+	memKey        storetypes.StoreKey
 	accountKeeper auth.AccountKeeper
 	bankKeeper    bank.Keeper
 	govKeeper     governmentKeeper.Keeper
@@ -34,7 +35,7 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.Codec,
 	storeKey,
-	memKey sdk.StoreKey,
+	memKey storetypes.StoreKey,
 	bankKeeper bank.Keeper,
 	accountKeeper auth.AccountKeeper,
 	govKeeper governmentKeeper.Keeper,

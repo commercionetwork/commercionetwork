@@ -22,6 +22,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
+
+	//"github.com/cosmos/cosmos-sdk/testutil/network"
 
 	"github.com/cosmos/cosmos-sdk/server"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
@@ -36,6 +39,7 @@ import (
 
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -204,6 +208,7 @@ func InitTestnet(
 			keyringBackend,
 			nodeDir,
 			inBuf,
+			clientCtx.Codec,
 		)
 		if err != nil {
 			return err
@@ -212,11 +217,12 @@ func InitTestnet(
 		//keyPass := clientkeys.DefaultKeyPass
 		keyringAlgos, _ := kb.SupportedAlgorithms()
 		algo, err := keyring.NewSigningAlgoFromString(algoStr, keyringAlgos)
+		//algo, err := keyring.NewSigningAlgoFromString(args.algo, keyringAlgos)
 		if err != nil {
 			return err
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, algo)
+		addr, secret, err := testutil.GenerateSaveCoinKey(kb, nodeDirName, "", true, algo)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
@@ -312,7 +318,7 @@ func initGenFiles(
 	genFiles []string, numValidators int,
 ) error {
 
-	cdc := clientCtx.JSONCodec
+	cdc := clientCtx.Codec
 
 	appGenState := mbm.DefaultGenesis(cdc)
 
@@ -347,7 +353,7 @@ func initGenFiles(
 	crisisState.ConstantFee.Denom = app.DefaultBondDenom
 	appGenState[crisistypes.ModuleName] = cdc.MustMarshalJSON(&crisisState)
 
-	var govState govtypes.GenesisState
+	var govState govtypesv1.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[govtypes.ModuleName], &govState)
 	govState.DepositParams.MinDeposit[0].Denom = app.DefaultBondDenom
 	appGenState[govtypes.ModuleName] = cdc.MustMarshalJSON(&govState)
@@ -425,7 +431,7 @@ func collectGenFiles(
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.JSONCodec, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator)
+		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator)
 		if err != nil {
 			return err
 		}
@@ -475,7 +481,7 @@ func collectGenFiles(
 	}
 
 	_, persistentPeers, _ := genutil.CollectTxs(
-		clientCtx.JSONCodec, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
+		clientCtx.Codec, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
 	)
 
 	writeFile("persistent.txt", filepath.Join(outputDir, "base_config"), []byte(persistentPeers))

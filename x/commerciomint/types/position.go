@@ -9,10 +9,10 @@ import (
 )
 
 func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Dec) Position {
-
 	return Position{
-		Owner:        owner.String(),
-		Collateral:   deposit.ToDec().RoundInt64(), // TODO FIX THIS
+		Owner: owner.String(),
+		//Collateral:   deposit.ToDec().RoundInt64(), // TODO FIX THIS
+		Collateral:   deposit.Int64(), // TODO FIX THIS
 		Credits:      &liquidity,
 		ID:           id,
 		CreatedAt:    &createdAt, // TODO FIX THIS

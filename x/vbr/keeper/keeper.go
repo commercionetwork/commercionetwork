@@ -18,6 +18,7 @@ import (
 
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	distributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingKeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -27,8 +28,8 @@ import (
 type (
 	Keeper struct {
 		cdc           codec.Codec
-		storeKey      sdk.StoreKey
-		memKey        sdk.StoreKey
+		storeKey      storetypes.StoreKey
+		memKey        storetypes.StoreKey
 		distKeeper    distKeeper.Keeper
 		bankKeeper    bankKeeper.Keeper
 		accountKeeper accountKeeper.AccountKeeper
@@ -41,8 +42,8 @@ type (
 
 func NewKeeper(
 	cdc codec.Codec,
-	storeKey sdk.StoreKey,
-	memKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
+	memKey storetypes.StoreKey,
 	distKeeper distKeeper.Keeper,
 	bankKeeper bankKeeper.Keeper,
 	accountKeeper accountKeeper.AccountKeeper,
@@ -130,8 +131,8 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 	// Get total bonded token of validator
 
 	validatorBonded := validator.GetBondedTokens()
-
-	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))
+	amount := sdk.NewDecFromIntWithPrec(validatorBonded, 6)
+	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, amount.Mul(params.EarnRate))
 	// TODO: number of validator should be get from staking module
 	// paramsVal := k.stakingKeeper.GetParams(ctx)
 	// paramsVal.MaxValidators

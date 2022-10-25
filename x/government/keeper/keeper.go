@@ -7,25 +7,25 @@ import (
 
 	"errors"
 
-	v300 "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (
 	Keeper struct {
 		cdc      codec.Codec
-		storeKey sdk.StoreKey
-		memKey   sdk.StoreKey
+		storeKey storetypes.StoreKey
+		memKey   storetypes.StoreKey
 	}
 )
 
 func NewKeeper(
 	cdc codec.Codec,
 	storeKey,
-	memKey sdk.StoreKey,
+	memKey storetypes.StoreKey,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
@@ -55,9 +55,4 @@ func (k Keeper) SetGovernmentAddress(ctx sdk.Context, address sdk.AccAddress) er
 func (k Keeper) GetGovernmentAddress(ctx sdk.Context) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
 	return store.Get([]byte(types.GovernmentStoreKey))
-}
-
-func (k Keeper) GetGovernment300Address(ctx sdk.Context) sdk.AccAddress {
-	store := ctx.KVStore(k.storeKey)
-	return store.Get([]byte(v300.GovernmentStoreKey))
 }

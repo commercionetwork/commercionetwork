@@ -27,6 +27,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
+
 )
 
 var (
@@ -56,12 +57,12 @@ func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	db := tmdb.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db)
 	for _, storeKey := range storeKeys {
-		stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+		stateStore.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, db)
 	}
-	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
-	stateStore.MountStoreWithDB(memStoreKeyGov, sdk.StoreTypeMemory, nil)
+	stateStore.MountStoreWithDB(memStoreKey, storetypes.StoreTypeMemory, nil)
+	stateStore.MountStoreWithDB(memStoreKeyGov, storetypes.StoreTypeMemory, nil)
 
-	stateStore.MountStoreWithDB(tkeys[paramsTypes.TStoreKey], sdk.StoreTypeTransient, db)
+	stateStore.MountStoreWithDB(tkeys[paramsTypes.TStoreKey], storetypes.StoreTypeTransient, db)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	//registry := codectypes.NewInterfaceRegistry()
