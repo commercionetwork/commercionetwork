@@ -145,7 +145,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
 					Type:               RsaVerificationKey2018,
 					Controller:         validDidSubject,
-					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey2018DecondingSize,
+					PublicKeyMultibase: string(MultibaseCodeBase64Padded) + validBase64RsaVerificationKey2018DecondingSize,
 				}
 			},
 			false,
@@ -157,7 +157,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
 					Type:               RsaVerificationKey2018,
 					Controller:         validDidSubject,
-					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey20182048,
+					PublicKeyMultibase: string(MultibaseCodeBase64Padded) + validBase64RsaVerificationKey20182048,
 				}
 			},
 			false,
@@ -169,7 +169,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
 					Type:               RsaVerificationKey2018,
 					Controller:         validDidSubject,
-					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey20184096,
+					PublicKeyMultibase: string(MultibaseCodeBase64Padded) + validBase64RsaVerificationKey20184096,
 				}
 			},
 			false,
@@ -181,10 +181,46 @@ func TestVerificationMethod_isValid(t *testing.T) {
 					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
 					Type:               RsaVerificationKey2018,
 					Controller:         validDidSubject,
-					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey2018OpenSSL,
+					PublicKeyMultibase: string(MultibaseCodeBase64Padded) + validBase64RsaVerificationKey2018OpenSSL,
 				}
 			},
 			false,
+		},
+		{
+			"valid padded RSA key with no padding multibase code should error",
+			func() *VerificationMethod {
+				return &VerificationMethod{
+					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
+					Type:               RsaVerificationKey2018,
+					Controller:         validDidSubject,
+					PublicKeyMultibase: string(MultibaseCodeBase64NoPadding) + validBase64RsaVerificationKey2018Padded,
+				}
+			},
+			true,
+		},
+		{
+			"invalid multibase code should error",
+			func() *VerificationMethod {
+				return &VerificationMethod{
+					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
+					Type:               RsaVerificationKey2018,
+					Controller:         validDidSubject,
+					PublicKeyMultibase: "u" + validBase64RsaVerificationKey20182048,
+				}
+			},
+			true,
+		},
+		{
+			"valid no padding RSA key with padding multibase code should error",
+			func() *VerificationMethod {
+				return &VerificationMethod{
+					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
+					Type:               RsaVerificationKey2018,
+					Controller:         validDidSubject,
+					PublicKeyMultibase: string(MultibaseCodeBase64Padded) + validBase64RsaVerificationKey2018NoPadding,
+				}
+			},
+			true,
 		},
 		{
 			"not defined",
@@ -323,7 +359,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			"{publicKeyMultibase} invalid key for {type} " + RsaVerificationKey2018,
 			func() *VerificationMethod {
 				verificationMethod := validVerificationMethodRsaVerificationKey2018
-				verificationMethod.PublicKeyMultibase = string(MultibaseCodeBase64) + invalidBase64RSAKey
+				verificationMethod.PublicKeyMultibase = string(MultibaseCodeBase64Padded) + invalidBase64RSAKey
 				return &verificationMethod
 			},
 			true,
@@ -332,7 +368,7 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			"{publicKeyMultibase} invalid key for {type} " + RsaSignature2018,
 			func() *VerificationMethod {
 				verificationMethod := validVerificationMethodRsaSignature2018
-				verificationMethod.PublicKeyMultibase = string(MultibaseCodeBase64) + invalidBase64RSAKey
+				verificationMethod.PublicKeyMultibase = string(MultibaseCodeBase64Padded) + invalidBase64RSAKey
 				return &verificationMethod
 			},
 			true,
