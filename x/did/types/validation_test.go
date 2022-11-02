@@ -139,6 +139,54 @@ func TestVerificationMethod_isValid(t *testing.T) {
 			false,
 		},
 		{
+			"valid with RSA key with different decoding size should be valid",
+			func() *VerificationMethod {
+				return &VerificationMethod{
+					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
+					Type:               RsaVerificationKey2018,
+					Controller:         validDidSubject,
+					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey2018DecondingSize,
+				}
+			},
+			false,
+		},
+		{
+			"valid with RSA key with 2048 bytes should be valid",
+			func() *VerificationMethod {
+				return &VerificationMethod{
+					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
+					Type:               RsaVerificationKey2018,
+					Controller:         validDidSubject,
+					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey20182048,
+				}
+			},
+			false,
+		},
+		{
+			"valid with RSA key with 4096 bytes should be valid",
+			func() *VerificationMethod {
+				return &VerificationMethod{
+					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
+					Type:               RsaVerificationKey2018,
+					Controller:         validDidSubject,
+					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey20184096,
+				}
+			},
+			false,
+		},
+		{
+			"valid with RSA key OpenSSL-generated should be valid",
+			func() *VerificationMethod {
+				return &VerificationMethod{
+					ID:                 validDidSubject + RsaVerificationKey2018NameSuffix,
+					Type:               RsaVerificationKey2018,
+					Controller:         validDidSubject,
+					PublicKeyMultibase: string(MultibaseCodeBase64) + validBase64RsaVerificationKey2018OpenSSL,
+				}
+			},
+			false,
+		},
+		{
 			"not defined",
 			func() *VerificationMethod {
 				return nil

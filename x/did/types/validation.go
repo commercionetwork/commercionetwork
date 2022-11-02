@@ -143,8 +143,7 @@ func (v *VerificationMethod) Validate(subject string) error {
 }
 
 func validateRSAPubkey(key []byte) error {
-	pemBytes := make([]byte, base64.StdEncoding.DecodedLen(len(key)))
-	_, err := base64.StdEncoding.Decode(pemBytes, key)
+	pemBytes, err := base64.StdEncoding.DecodeString(string(key))
 	if err != nil {
 		return err
 	}
