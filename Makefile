@@ -68,6 +68,15 @@ ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
   BUILD_FLAGS += -trimpath
 endif
 
+
+build-docs:
+	@npm ci
+	@npm run docs:build
+	@echo "docs.commercio.network" > docs/.vuepress/dist/CNAME
+
+.PHONY: build-docs
+
+
 all: install
 
 build-darwin: go.sum
@@ -180,9 +189,3 @@ clean:
 
 .PHONY: localnet-start localnet-start-daemon localnet-stop build-image-libraries-cached build-image-to-donwload-libraries clean localnet-reset
 
-build-docs:
-	npm ci
-	npm run docs:build
-	@echo "docs.commercio.network" > docs/.vuepress/dist/CNAME
-
-.PHONY: build-docs

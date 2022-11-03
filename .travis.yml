@@ -3,9 +3,6 @@ if: branch != gh-pages
 node_js:
   - 16
 
-install:
-  - npm ci
-
 script:
   - make build-docs
 
