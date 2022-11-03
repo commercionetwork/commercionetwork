@@ -2,7 +2,7 @@ dist: focal
 language: node_js
 if: branch != gh-pages
 node_js:
-  - lts/*
+  - 17
 
 install:
   - npm ci
