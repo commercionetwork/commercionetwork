@@ -7,8 +7,7 @@ install:
   - npm ci
 
 script:
-  - npm run docs:build
-  - echo 'docs.commercio.network' > docs/.vuepress/dist/CNAME
+  - make build-docs
 
 deploy:
   provider: pages
