@@ -4,8 +4,10 @@ node_js:
   - 16
 
 script:
-  - make build-docs
-
+  - npm ci
+  - npm run docs:build
+  - echo "docs.commercio.network" > docs/.vuepress/dist/CNAME
+  
 deploy:
   provider: pages
   skip-cleanup: true
