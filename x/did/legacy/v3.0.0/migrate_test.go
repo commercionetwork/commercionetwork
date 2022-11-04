@@ -47,14 +47,14 @@ var (
 		ID:                 validDidSubject + types.RsaVerificationKey2018NameSuffix,
 		Type:               types.RsaVerificationKey2018,
 		Controller:         validDidSubject,
-		PublicKeyMultibase: string(types.MultibaseCodeBase64) + validBase64RsaVerificationKey2018,
+		PublicKeyMultibase: string(types.MultibaseCodeBase64NoPadding) + validBase64RsaVerificationKey2018,
 	}
 
 	validVerificationMethodRsaSignature2018 = types.VerificationMethod{
 		ID:                 validDidSubject + types.RsaSignature2018NameSuffix,
 		Type:               types.RsaSignature2018,
 		Controller:         validDidSubject,
-		PublicKeyMultibase: string(types.MultibaseCodeBase64) + validBase64RsaSignature2018,
+		PublicKeyMultibase: string(types.MultibaseCodeBase64NoPadding) + validBase64RsaSignature2018,
 	}
 
 	validVerificationMethods = []*types.VerificationMethod{

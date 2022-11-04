@@ -131,10 +131,10 @@ func (v *VerificationMethod) Validate(subject string) error {
 	}
 
 	if v.Type == RsaVerificationKey2018 || v.Type == RsaSignature2018 {
-		if v.PublicKeyMultibase[0] != MultibaseCodeBase64 {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid field \"publicKeyMultibase\" must start with multibase code "+string(MultibaseCodeBase64))
+		if v.PublicKeyMultibase[0] != MultibaseCodeBase64NoPadding && v.PublicKeyMultibase[0] != MultibaseCodeBase64Padded {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid field \"publicKeyMultibase\" must start with multibase code "+string(MultibaseCodeBase64NoPadding)+" or "+string(MultibaseCodeBase64Padded))
 		}
-		if err := validateRSAPubkey([]byte(v.PublicKeyMultibase[1:])); err != nil {
+		if err := validateRSAPubkey(string(v.PublicKeyMultibase[0]), []byte(v.PublicKeyMultibase[1:])); err != nil {
 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("invalid field \"publicKeyMultibase\" must be a valid RSA public key: %e", err))
 		}
 	}
@@ -142,9 +142,19 @@ func (v *VerificationMethod) Validate(subject string) error {
 	return nil
 }
 
-func validateRSAPubkey(key []byte) error {
-	pemBytes := make([]byte, base64.StdEncoding.DecodedLen(len(key)))
-	_, err := base64.StdEncoding.Decode(pemBytes, key)
+func validateRSAPubkey(multibaseCode string, key []byte) error {
+	var decodeBase64Fn func(string) ([]byte, error)
+
+	switch multibaseCode {
+	case string(MultibaseCodeBase64NoPadding):
+		decodeBase64Fn = base64.RawStdEncoding.DecodeString
+	case string(MultibaseCodeBase64Padded):
+		decodeBase64Fn = base64.StdEncoding.DecodeString
+	default:
+		return fmt.Errorf("unsupported multibase key with code %s", multibaseCode)
+	}
+
+	pemBytes, err := decodeBase64Fn(string(key))
 	if err != nil {
 		return err
 	}

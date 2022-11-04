@@ -51,13 +51,13 @@ func Test_SetDidDocument(t *testing.T) {
 		ID:                 msg.DidDocument.ID + "#keys-1",
 		Type:               types.RsaVerificationKey2018,
 		Controller:         msg.DidDocument.ID,
-		PublicKeyMultibase: string(types.MultibaseCodeBase64) + validBase64RsaVerificationKey2018,
+		PublicKeyMultibase: string(types.MultibaseCodeBase64NoPadding) + validBase64RsaVerificationKey2018,
 	}
 	verificationMethodSign := types.VerificationMethod{
 		ID:                 msg.DidDocument.ID + "#keys-2",
 		Type:               types.RsaSignature2018,
 		Controller:         msg.DidDocument.ID,
-		PublicKeyMultibase: string(types.MultibaseCodeBase64) + validBase64RsaSignature2018,
+		PublicKeyMultibase: string(types.MultibaseCodeBase64NoPadding) + validBase64RsaSignature2018,
 	}
 
 	msg.DidDocument.VerificationMethod = []*types.VerificationMethod{
