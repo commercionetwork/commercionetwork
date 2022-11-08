@@ -1,0 +1,56 @@
+name: Deploy to GitHub pages
+on:
+  push:
+    # this is the branch where you develop your site
+    # as discussed in the publishing sources section
+    # this can change if you are using an user/organization repo
+    branches: 
+      - master
+      - main
+      - main*
+      - 'marco/4.2.0/github-actions'
+      - 'docs/**'
+      - '!gh-pages'
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
+    branches: 
+      - master
+      - main
+      - main*
+      - 'docs/**'
+      - '!gh-pages'
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run a multi-line script
+      run: |
+        echo checkout action pub docs,
+    - name: Generate static VuePress files
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - run: npm ci
+    - run: npm run docs:build
+    - run: echo "docs.commercio.network" > docs/.vuepress/dist/CNAME
+    - name: Init new repo in dist folder and commit generated files
+      run: |
+        cd docs/.vuepress/dist
+        git init
+        git add -A
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git config --global --add safe.directory /github/workspace/docs/.vuepress/dist
+        git config --global --add safe.directory docs/.vuepress/dist
+        git commit -m 'deploy'
+    - name: Force push to destination branch
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages
+        force: true
+        directory: ./docs/.vuepress/dist
