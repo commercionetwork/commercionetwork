@@ -260,8 +260,7 @@ Download and compile cosmovisor:
 cd $HOME
 git clone https://github.com/cosmos/cosmos-sdk.git
 cd cosmos-sdk
-git checkout cosmovisor/v0.1.0
-# you can use version v1.0.0 or v1.1.0
+git checkout cosmovisor/v1.1.0
 cd cosmovisor
 make cosmovisor
 cp cosmovisor $HOME/go/bin
@@ -325,7 +324,7 @@ Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
 Environment="DAEMON_LOG_BUFFER_SIZE=512"
 Environment="UNSAFE_SKIP_BACKUP=true" # Set to false if you want make backup during the upgrade
 
-ExecStart=/root/go/bin/cosmovisor start --home="/root/.commercionetwork" 
+ExecStart=/root/go/bin/cosmovisor run start --home="/root/.commercionetwork" 
 
 [Install]
 WantedBy=multi-user.target
