@@ -1,3 +1,9 @@
+# Version 4.2.0
+
+* Upgraded cosmos sdk to version 0.45.11 
+* Fix multibase control (https://github.com/commercionetwork/commercionetwork/pull/386)
+* Remove Travis and add GitHub actions (https://github.com/commercionetwork/commercionetwork/pull/387)
+* Update Docs
 # Version 4.1.0
 
 * **Upgrade Cosmos SDK for [Dragonbarry patch](https://forum.cosmos.network/t/ibc-security-advisory-dragonberry/7702)**

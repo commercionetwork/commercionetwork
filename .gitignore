@@ -64,3 +64,5 @@ vagrant
 
 # Build
 build
+vue/src
+ts-client

@@ -42,7 +42,8 @@ const (
 	// --------------
 	// --- KeyTypes required for the Documents module
 	// --------------
-	MultibaseCodeBase64 = 'm'
+	MultibaseCodeBase64NoPadding = 'm'
+	MultibaseCodeBase64Padded    = 'M'
 
 	RsaVerificationKey2018 = "RsaVerificationKey2018"
 	RsaSignature2018       = "RsaSignature2018"
