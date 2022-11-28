@@ -147,11 +147,11 @@ Your node structure should be something like below
     └── current
     └── genesis
     └── bin
-    │   └── commercionetword
+    │   └── commercionetworkd
     └── upgrades
     └── <name>
         └── bin
-            └── commercionetword
+            └── commercionetworkd
 
 ```
 If you don't use `kms` the private key of your validator is saved in `priv_validator_key.json` file.     
@@ -159,18 +159,18 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
 ### Move validator to another server with `priv_validator_key.json` file
 
 1. Install a full node in the new server
-2. Stop the full node `commercionetword` service in the new server 
+2. Stop the full node `commercionetworkd` service in the new server 
    ```bash
-   systemctl stop commercionetword
+   systemctl stop commercionetworkd
    ```
 3. Copy `data` folder to the new server
    ```bash
    rsync -av --delete ~/.commercionetwork/data/ <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
-4. Stop and disable the `commercionetword` service in the current server of validator node
+4. Stop and disable the `commercionetworkd` service in the current server of validator node
    ```bash
-   systemctl stop commercionetword
-   systemctl disable commercionetword
+   systemctl stop commercionetworkd
+   systemctl disable commercionetworkd
    ```
 1. Sync again your new node `data` folder
    ```bash
@@ -187,15 +187,15 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
    ```
 1. Restart the node in your new server
    ```bash
-   systemctl start commercionetword
+   systemctl start commercionetworkd
    ```
 1. Verify if your validator signs again
 ### Move validator to another server with `kms`
 
 1. Install a full node in the new server
-2. Stop the full node `commercionetword` service in the new server 
+2. Stop the full node `commercionetworkd` service in the new server 
    ```bash
-   systemctl stop commercionetword
+   systemctl stop commercionetworkd
    ```
 3. Copy `data` folder to the new server
    ```bash
@@ -217,7 +217,7 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
    ```
 1. Restart the node in your new server
    ```bash
-   systemctl start commercionetword
+   systemctl start commercionetworkd
    ```
 1. Verify if your validator signs again
 ### Resume validator after break down with `priv_validator_key.json` file
@@ -227,12 +227,12 @@ To resume a validator after break down or some other terrible issue that destroy
 1. Install a full node in the new server
 2. After the node is synced with the chain stop it
    ```bash
-   systemctl stop commercionetword
+   systemctl stop commercionetworkd
    ```
 3. Copy your saved `priv_validator_key.json` file in the new server
 4. Restart the node in your new server
    ```bash
-   systemctl start commercionetword
+   systemctl start commercionetworkd
    ```
 1. Verify if your validator signs again
 
@@ -240,7 +240,7 @@ To resume a validator after break down or some other terrible issue that destroy
 1. Install a full node in the new server
 2. After the node is synced with the chain stop it
    ```bash
-   systemctl stop commercionetword
+   systemctl stop commercionetworkd
    ```
 1. Setup your `priv_val_addr` in `config.toml` using the setup of your server. 
 1. Enter in your `kms` server and stop the `tmkms` service
@@ -258,7 +258,7 @@ To resume a validator after break down or some other terrible issue that destroy
    ```
 1. Restart the node in your new server
    ```bash
-   systemctl start commercionetword
+   systemctl start commercionetworkd
    ```
 1. Verify if your validator signs again
 ## x% Loss of blocks

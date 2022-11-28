@@ -52,8 +52,8 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=commercionetwork \
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=commercionetword \
-	-X github.com/cosmos/cosmos-sdk/version.AppName=commercionetword \
+	-X github.com/cosmos/cosmos-sdk/version.ServerName=commercionetworkd \
+	-X github.com/cosmos/cosmos-sdk/version.AppName=commercionetworkd \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \

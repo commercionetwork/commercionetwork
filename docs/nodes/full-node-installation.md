@@ -293,11 +293,11 @@ After installation your `.commercionetwork` folder should be structured like bel
     └── current
     └── genesis
     └── bin
-    │   └── commercionetword
+    │   └── commercionetworkd
     └── upgrades
     └── <name>
         └── bin
-            └── commercionetword
+            └── commercionetworkd
 ```
 
 
