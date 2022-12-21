@@ -27,12 +27,12 @@ The result is the file’s hash value or message digest.
 * Notarize a document  
 
 
-## ShareDoc trasaction processes 
+## ShareDoc processes 
 
 See folowing guides for more technical details on  <a href="/x/documents/#sending-a-document">MsgShareDocument</a> using the <a href="/x/documents/#docs">DOCS MODULE</a>
 
 
-### Send a shareDoc 
+### Send a shareDoc Message
 
 Use the API POST : `/sharedoc/process`
 
@@ -753,6 +753,48 @@ curl -X 'GET' \
 }
 
 ```
+
+## Check the hash of a message
+
+If you need to check if a file you own correspond to the one notarized in the blockchain 
+you can perform a verification directly in <b>Almerico</b> through a simple widget that permit you to 
+drag&drop the file in your browser using a specific area and verify if the calculated footprint of the file correspond to the one notarized in the message.
+
+To perform the check open the spacific page of message for the specific transaction.
+
+Example 
+
+```
+
+https://testnet.commercio.network/transactions/sharedoc/1348F1AB13E473A94D5656445D0F49FE1924CC3340B533C5C24EA8E2D7FACC43/uuid/6c509472-ead2-4f6f-89c3-f30206c7a737
+
+```
+
+<small>Nb: the url page is composed by tx has and uuid of the message</small>
+<small>https://testnet.commercio.network/transactions/sharedoc/#TXHASH#/uuid/#MESSAGE_UUID#</small>
+
+<br><br><br>
+
+
+![Modal](./dragNdrop_hash_check.png)
+
+Then you could get the following results 
+
+### Success 
+
+![Modal](./verification_success.png)
+
+It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&Drop area correspond to the one certified in the message
+
+
+### Failure
+
+It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&Drop area <b>DO NOT</b> correspond to the one certified in the message
+
+![Modal](./verification_failure.png)
+
+
+<small>Same check could be obviuolsy done with other public hashing site or localy with internal hasching tools for eexample through the shell functions</small>
 
 
 ## Receipt
