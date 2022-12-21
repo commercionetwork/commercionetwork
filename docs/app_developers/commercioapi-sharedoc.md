@@ -756,11 +756,13 @@ curl -X 'GET' \
 
 ## Check the hash of a message
 
-If you need to check if a file you own correspond to the one notarized in the blockchain 
-you can perform a verification directly in <b>Almerico</b> through a simple widget that permit you to 
-drag&drop the file in your browser using a specific area and verify if the calculated footprint of the file correspond to the one notarized in the message.
+In order to check if a file you own correspond to the one notarized in the blockchain 
+you can perform a verification directly with <b>Almerico</b> throught a simple widget that permit  to  drag&drop a file  using a specific tool and verify if the calculated footprint of the file correspond to the one notarized in the message.
 
-To perform the check open the spacific page of message for the specific transaction.
+To perform the validation check:
+
+### 1) Open message 
+ Open the spacific page of message for the specific transaction.
 
 Example 
 
@@ -775,26 +777,29 @@ https://testnet.commercio.network/transactions/sharedoc/1348F1AB13E473A94D565644
 
 <br><br><br>
 
+### 2) Use the tool 
+Drag&drop your file in the widget as asked  
 
 ![Modal](./dragNdrop_hash_check.png)
 
-Then you could get the following results 
+### 3) Check result 
+You could get the following results 
 
-### Success 
+#### Success 
 
 ![Modal](./verification_success.png)
 
 It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&Drop area correspond to the one certified in the message
 
 
-### Failure
+#### Failure
 
 It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&Drop area <b>DO NOT</b> correspond to the one certified in the message
 
 ![Modal](./verification_failure.png)
 
 
-<small>Same check could be obviuolsy done with other public hashing site or localy with internal hasching tools for eexample through the shell functions</small>
+<small>Same check could be obviuolsy done with other public hashing site or localy with internal hashing tools for example through the shell's functions</small>
 
 
 ## Receipt
