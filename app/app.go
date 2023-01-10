@@ -133,6 +133,14 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
+	//ibc-rate-limit
+	commercioibcratelimit "github.com/commercionetwork/commercionetwork/x/ibc-rate-limit"
+	commercioibcratelimittypes "github.com/commercionetwork/commercionetwork/x/ibc-rate-limit/types"
+
+	/*ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
+	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"*/
+
 	//  Core
 	ibc "github.com/cosmos/ibc-go/v3/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
@@ -316,7 +324,7 @@ type App struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
+	BankKeeper       bankkeeper.BaseKeeper
 	AuthzKeeper      authzkeeper.Keeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
@@ -331,6 +339,11 @@ type App struct {
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	TransferKeeper   ibctransferkeeper.Keeper
 	WasmKeeper       wasm.Keeper
+	RateLimitingICS4Wrapper   *commercioibcratelimit.ICS4Wrapper
+	/*Ics20WasmHooks            *ibchooks.WasmHooks
+	HooksICS4Wrapper          ibchooks.ICS4Middleware
+	RawIcs20TransferAppModule transfer.AppModule
+	TransferStack             *ibchooks.IBCMiddleware*/
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -910,6 +923,64 @@ func New(
 	return app
 }
 
+// Create the IBC Transfer Stack from bottom to top:
+//
+// * SendPacket. Originates from the transferKeeper and and goes up the stack:
+// transferKeeper.SendPacket -> ibc_rate_limit.SendPacket -> ibc_hooks.SendPacket -> channel.SendPacket
+// * RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
+// channel.RecvPacket -> ibc_hooks.OnRecvPacket -> ibc_rate_limit.OnRecvPacket -> transfer.OnRecvPacket
+//
+// After this, the wasm keeper is required to be set on both
+// app.WasmHooks AND app.RateLimitingICS4Wrapper
+/*func (app *App) WireICS20PreWasmKeeper(
+	appCodec codec.Codec,
+	bApp *baseapp.BaseApp,
+	hooksKeeper *ibchookskeeper.Keeper) {
+	// Setup the ICS4Wrapper used by the hooks middleware
+	wasmHooks := ibchooks.NewWasmHooks(hooksKeeper, nil) // The contract keeper needs to be set later
+	app.Ics20WasmHooks = &wasmHooks
+	app.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
+		app.IBCKeeper.ChannelKeeper,
+		app.Ics20WasmHooks,
+	)
+
+	// ChannelKeeper wrapper for rate limiting SendPacket(). The wasmKeeper needs to be added after it's created
+	rateLimitingParams := app.GetSubspace(commercioibcratelimittypes.ModuleName)
+	rateLimitingParams = rateLimitingParams.WithKeyTable(commercioibcratelimittypes.ParamKeyTable())
+	rateLimitingICS4Wrapper := commercioibcratelimit.NewICS4Middleware(
+		app.HooksICS4Wrapper,
+		&app.AccountKeeper,
+		// wasm keeper we set later.
+		nil,
+		&app.BankKeeper,
+		rateLimitingParams,
+	)
+	app.RateLimitingICS4Wrapper = &rateLimitingICS4Wrapper
+
+	// Create Transfer Keepers
+	transferKeeper := ibctransferkeeper.NewKeeper(
+		appCodec,
+		app.keys[ibctransfertypes.StoreKey],
+		app.GetSubspace(ibctransfertypes.ModuleName),
+		// The ICS4Wrapper is replaced by the rateLimitingICS4Wrapper instead of the channel
+		app.RateLimitingICS4Wrapper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.ScopedTransferKeeper,
+	)
+	app.TransferKeeper = transferKeeper
+	app.RawIcs20TransferAppModule = transfer.NewAppModule(app.TransferKeeper)
+	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+
+	// RateLimiting IBC Middleware
+	rateLimitingTransferModule := commercioibcratelimit.NewIBCModule(transferIBCModule, app.RateLimitingICS4Wrapper)
+	// Hooks Middleware
+	hooksTransferModule := ibchooks.NewIBCMiddleware(&rateLimitingTransferModule, &app.HooksICS4Wrapper)
+	app.TransferStack = &hooksTransferModule
+}*/
+
 // Name returns the name of the App
 func (app *App) Name() string { return app.BaseApp.Name() }
 
@@ -1059,6 +1130,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(documentstypes.ModuleName)
 	paramsKeeper.Subspace(commerciomintTypes.ModuleName)
 	paramsKeeper.Subspace(commerciokycTypes.ModuleName)
+	paramsKeeper.Subspace(commercioibcratelimittypes.ModuleName)
 
 	return paramsKeeper
 }
