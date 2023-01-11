@@ -1,0 +1,90 @@
+accounts:
+  - name: alice
+    coins: ["20000000000uccc", "200000000000ucommercio"]
+    #address: "did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"
+    mnemonic: "gaze apart pen defense tomorrow index again pool earth force napkin noble elevator payment hawk trip cute gown fade wear swallow alert lemon people"
+  - name: bob
+    coins: ["10000000000uccc", "100000000000ucommercio"]
+    #address: "did:com:1829s409tjju2luhudq5dfeus6je3vfdnjv9tpn"
+    mnemonic: "special chest leaf section reunion inflict busy blouse inflict kid alcohol hazard embody mosquito green turkey street very lab forest gain disease hollow bomb"
+  - name: gov
+    coins: ["10000000000uccc", "100000000000ucommercio"]
+    #address: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
+    mnemonic: "bonus raccoon material jump tired under cup senior wash peace cook mansion nice rely outside atom surface maid dune poet hold forum electric accuse"
+validator:
+  name: alice
+  staked: "100000000ucommercio"
+client:
+  vuex:
+    path: "vue/src/store"
+  openapi:
+    path: "docs_3_0/static/openapi.yml"
+faucet:
+  host: ":4501"
+  name: bob
+  coins: ["5uccc", "100000ucommercio"]
+host:
+  rpc: ":26659"
+  p2p: ":26658"
+  prof: ":6061"
+  grpc: ":9092"
+  grpc-web: ":9093"
+  api: ":1318"
+genesis:
+  chain_id: "commercio2"
+  app_state:
+    gov:
+      deposit_params:
+        min_deposit:
+        -
+          denom: "ucommercio"
+          amount: "10000000"
+      voting_params:
+        voting_period: "120s"
+    crisis:
+      constant_fee:
+        denom: "ucommercio"
+    government:
+      governmentAddress: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
+    vbr:
+      poolAmount:
+        -
+          denom: "ucommercio"
+          amount: "10000000.000000000000000000"
+      params: 
+        distr_epoch_identifier: "minute"
+        earn_rate: "0.500000000000000000"
+    staking:
+      params:
+        bond_denom: "ucommercio"
+    commerciokyc:
+      trusted_service_providers: ["did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"]
+      memberships:
+        -
+          expiry_at: "2022-03-21T00:00:00Z"
+          membership_type: "black"
+          owner: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
+          tsp_address: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
+      liquidity_pool_amount:
+        -
+          amount: "1000000000000"
+          denom: "ucommercio"
+    transfer:
+      params:
+        allowed_addresses: ["did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd"]
+    commerciomint:
+      Positions:
+        -
+          ID: "090ca0c2-cf00-4119-8307-b51413a00cf4"
+          collateral: "7"
+          created_at: "2021-07-22T13:18:44.598560074Z"
+          credits: 
+            amount: "10"
+            denom: "uccc"
+          exchange_rate: "0.610000000000000000"
+          owner: "did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm"
+      params:
+        conversion_rate: "0.610000000000000000"
+        freeze_period: "1814400s"
+init:
+  home: "$HOME/.commercio2"
