@@ -164,8 +164,8 @@ func (m *Invite) GetStatus() uint64 {
 }
 
 type TrustedServiceProviders struct {
-	// option (gogoproto.goproto_stringer) = false;
-	// option (gogoproto.stringer)         = true;
+	//option (gogoproto.goproto_stringer) = false;
+	//option (gogoproto.stringer)         = true;
 	Addresses []string `protobuf:"bytes,1,rep,name=addresses,proto3" json:"addresses,omitempty"`
 }
 
