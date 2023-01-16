@@ -14,8 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	ibcratelimitcli "github.com/commercionetwork/commercionetwork/x/ibc-rate-limit/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/ibc-rate-limit/types"
+	ibcaddresslimitercli "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/client/cli"
+	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
 
 var (
@@ -33,7 +33,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return nil
 }
 
-// ValidateGenesis performs genesis state validation for the ibc-rate-limit module.
+// ValidateGenesis performs genesis state validation for the ibc-address-limiter module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	return nil
 }
@@ -52,9 +52,9 @@ func (b AppModuleBasic) GetTxCmd() *cobra.Command {
 }
 
 func (b AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return ibcratelimitcli.GetQueryCmd()
+	return ibcaddresslimitercli.GetQueryCmd()
 }
 
-// RegisterInterfaces registers interfaces and implementations of the ibc-rate-limit module.
+// RegisterInterfaces registers interfaces and implementations of the ibc-address-limiter module.
 func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 }

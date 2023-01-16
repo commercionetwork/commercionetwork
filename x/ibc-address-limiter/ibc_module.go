@@ -12,7 +12,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/commercionetwork/commercionetwork/x/ibc-rate-limit/types"
+	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
 
 type IBCModule struct {

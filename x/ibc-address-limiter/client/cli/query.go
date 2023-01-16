@@ -2,10 +2,8 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-
 	/*"github.com/commercionetwork/commercionetwork/osmoutils/osmocli"
-	"github.com/commercionetwork/commercionetwork/x/ibc-rate-limit/types"*/
-)
+	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"*/)
 
 // GetQueryCmd returns the cli query commands for this module.
 func GetQueryCmd() *cobra.Command {

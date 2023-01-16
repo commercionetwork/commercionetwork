@@ -1,0 +1,12 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.ibcaddresslimiter;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types";
+
+import "gogoproto/gogo.proto";
+
+// Params defines the parameters for the ibc-address-limiter module.
+message Params {
+  string contract_address = 1
+      [ (gogoproto.moretags) = "yaml:\"contract_address\"" ];
+}

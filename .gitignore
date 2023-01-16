@@ -38,7 +38,7 @@ tools-stamp
 *.out
 
 # Sources
-src
+#src
 
 # Mac OSX noises
 .DS_Store

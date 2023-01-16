@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
-	"github.com/commercionetwork/commercionetwork/x/ibc-rate-limit/types"
 )
 
 var (
@@ -51,42 +51,14 @@ type UndoPacketMsg struct {
 	Packet UnwrappedPacket `json:"packet"`
 }
 
-func UndoSendRateLimit(ctx sdk.Context, contractKeeper *wasmkeeper.PermissionedKeeper,
-	contract string,
-	packet exported.PacketI,
-) error {
-	contractAddr, err := sdk.AccAddressFromBech32(contract)
-	if err != nil {
-		return err
-	}
-
-	unwrapped, err := unwrapPacket(packet)
-	if err != nil {
-		return err
-	}
-
-	msg := UndoSendMsg{UndoSend: UndoPacketMsg{Packet: unwrapped}}
-	asJson, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
-
-	_, err = contractKeeper.Sudo(ctx, contractAddr, asJson)
-	if err != nil {
-		return sdkerrors.Wrap(types.ErrContractError, err.Error())
-	}
-
-	return nil
-}
-
 type SendPacketMsg struct {
-	SendPacket PacketMsg `json:"send_packet"`
-	Sender		sdk.Address	`json:"sender"`
+	SendPacket PacketMsg   `json:"send_packet"`
+	Sender     sdk.Address `json:"sender"`
 }
 
 type RecvPacketMsg struct {
-	RecvPacket PacketMsg `json:"recv_packet"`
-	Sender 		sdk.Address	`json:"sender"`
+	RecvPacket PacketMsg   `json:"recv_packet"`
+	Sender     sdk.Address `json:"sender"`
 }
 
 type PacketMsg struct {

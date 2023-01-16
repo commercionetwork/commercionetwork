@@ -2355,14 +2355,14 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /commercionetwork/ibc-rate-limit/params:
+  /commercionetwork/ibc-address-limiter/params:
     get:
       summary: >-
-        Params defines a gRPC query method that returns the ibc-rate-limit
+        Params defines a gRPC query method that returns the ibc-address-limiter
         module's
 
         parameters.
-      operationId: CommercionetworkCommercionetworkIbcratelimitParams
+      operationId: CommercionetworkCommercionetworkIbcaddresslimiterParams
       responses:
         '200':
           description: A successful response.
@@ -37238,13 +37238,13 @@ definitions:
     properties:
       governmentAddress:
         type: string
-  commercionetwork.commercionetwork.ibcratelimit.Params:
+  commercionetwork.commercionetwork.ibcaddresslimiter.Params:
     type: object
     properties:
       contract_address:
         type: string
-    description: Params defines the parameters for the ibc-rate-limit module.
-  commercionetwork.commercionetwork.ibcratelimit.QueryParamsResponse:
+    description: Params defines the parameters for the ibc-address-limiter module.
+  commercionetwork.commercionetwork.ibcaddresslimiter.QueryParamsResponse:
     type: object
     properties:
       params:
