@@ -11,19 +11,18 @@ CommercioAPI is a RESTful web service  that  allows anyone to create transaction
 
 Querying and interacting with the blockchain  Commercio Network is free. 
 
-In order to send messages to the chain however You need first to control a wallet 
+In order to send messages to the chain, however, You need first to control a wallet 
 
 
 ### What is a wallet
 
 A wallet (digital) is a software (Encryption) that provide a virtual equivalent of a wallet.
 
-In the common sense a wallet is an instrumental where you can storage your coins. 
+In the common sense a wallet is tool where you can storage your coins. 
 
-You don’t actually store any cryptocurrency in your wallet. You just manage the `keys` to access 
-it on the blockchain.
+You don’t actually store any cryptocurrency in your wallet. With the wallet you just manage the `keys` that permit to handle the cryptocurrency you own in the blockchain.
 
-Attention:
+Be careful:
 > The blockchain records the amount of coins associated with a key pair (your identity on the blockchain).
 It calculates the amount of money the keys have access to based on all the transactions on the blockchain. 
 Remember: the main function of a blockchain is to store all transactions in the correct order.
@@ -59,9 +58,9 @@ Thus the only way to get coins in your wallet is to receive them from another on
 The way a user decide to manage the crypto keys of his wallet have two main scenarios 
 
 #### 1. Non-custodial wallets
-Those wallets provide an interface to check your funds or create transactions in your web browser, but you have to provide the keys with each login.
+Those wallets provide an interface to check your funds or create transactions for example ttrough your web browser (example Kepler, Metamask ecc), but you have to provide the keys with each login.
 
-Registering with a central authority is not needed to create a wallet. This comes at the cost of you being responsible for the safety of your coins Nobody can help you recover your keys if you lose them. 
+Registering with a central authority is not needed to create a wallet. This comes at the cost of you being responsible for the safety of your coins. Nobody can help you recover your keys if you lose them. 
 If anybody were able to recover it they would also be able to steal your funds. 
 
 This would eliminate the trustless aspect of blockchains
@@ -96,7 +95,7 @@ https://www.coinbase.com/it/learn/tips-and-tutorials/how-to-set-up-a-crypto-wall
 
 
 ## The Commercio.app 
-The Commercio App is a platform that provide You through a web app a <strong>hosted wallet</strong>.
+The Commercio App is a platform that provide you a <strong>hosted wallet</strong> through a web app .
 
 Moreover the Commercio.app provides you web functionality for 
 
@@ -107,24 +106,24 @@ Associate identity data to your wallett address through specific procedures
 Manage CCC associated to your wallet
 
 ### API
-Gain access to a set of rest API some of which permit You to interact in the blockchain throught your hosted wallet account
+Gain access to a set of rest API some of which permit You to interact in the blockchain through your hosted wallet account
 
 
 ## Getting Started
 
-In order to operate with the CommercioAPI two environements are available 
+In order to operate with the CommercioAPI two environments are available 
 * <strong>Develop & Test </strong>: to test the API and get familiar with the system in the Test-net
 * <strong>Official </strong>: to operate with the real CommercioAPI in the Main-net
 
-The following services are envolved with the CommercioAPI usage
+The following services are involved with the CommercioAPI usage
 
 *  <strong>Web App</strong>: to obtain and manage your membership, generate and manage your hostedwallet, get your account address, see the accountability of your transactions
 *  <strong>CommercioAPI base url</strong>: to have access to the documentation of the Web RESTful services and interact with the API in the proper subpath
-*  <strong>IDM(OpenID)</strong>: The IDentity Management service to be used for  auhentication in the APIs services 
+*  <strong>IDM(OpenID)</strong>: The IDentity Management service to be used for  authentication in the APIs services 
 *  <strong>Explorer</strong>: The web application "**Almerico**" that permits to get the transaction information from the Commercio.network blockchain ledger
 
 ### Develop & Test
-Is a playground where everyone can test the characteristics of the commercio.network blockchain.
+It is a playground where everyone can test the characteristics of the commercio.network blockchain.
 
 
 | Develop & Test | Official  | Note |
@@ -141,7 +140,7 @@ Reed <a href="https://stripe.com/docs/testing#cards" target="_blank">Stripe Card
 
 
 ### Official
-Is the real-world environment where real credit card transactions are requested and real tokens (COM and CCC) are spent
+It is the real-world environment where real credit card transactions are requested and real tokens (COM and CCC) are spent
 
 
 | Endpoint | Official  | Note |
@@ -175,26 +174,27 @@ To use the APIs you need to:
 
 Sending message in the blockchain has a "protocol" 's  cost that is due in order to  support Validators expenses.
 
-The cost in Commercio blockchain for each message coul be paid with [CCC](/#the-commercio-cash-credit-ccc) eihter with [COM](/#the-commercio-token-com) 
-and it correspont to : 
+The cost in Commercio blockchain for each message could be paid with [CCC](/#the-commercio-cash-credit-ccc) either with [COM](/#the-commercio-token-com) 
+and it corresponds to : 
 * 0.01 COM per message sent
 * 0.01 CCC per message sent
 
-Anyway due to its nature it is better to bay with CCC due to the fact that CCC has a fix 
-value of 1 Euro intead of COM that has a VARIABLE Euro value and is determined according supply and demand by the market
+Anyway due to its nature it is better to pay with CCC due to the fact that CCC has a fix  value of 1 Euro instead COM has a variable Euro value that is determined according to supply and demand by the market.
 
-You can easily make your own wallet management and send messages to the chain 
-at protocol's costs using the [following procedure](/docs2.2.0/developers/create-sign-broadcast-tx.html#_1-message-creation) but obviusly this need to be done by developer experts   
+You can easily make your own wallet management and send messages to the chain at protocol's costs using the [following procedure](/docs2.2.0/developers/create-sign-broadcast-tx.html#_1-message-creation) but obviously this need to be done by developer experts   
 
-Anotehr way is using Restfull commercio API 
+Another way is using Restfull commercio API 
 
 
 #### Platform costs  
-Moreover sending messages autonoumously could also be done with Resfull API of the commercio.app
+Moreover sending messages autonomously could also be done with Resfull API of the commercio.app
 
 Using the platform comes with a cost for the usage that depends on the type of [Membrship you subscribe](modules/commerciokyc/#membership-types) 
 
-Costs of membership expressed in Euro when bought from commercio.app IVA not included
+Costs of membership expressed in Euro when bought from commercio.app VAT not included.
+
+`Green Mebership` is free of charge when obtained from commercio.app through a simple registration
+moreover a 1 CCC will be available for free in your wallet with first registration.
 
 
 |Membersip| Platform cost| Chain fee | Total cost per msg |
@@ -209,7 +209,7 @@ Costs of membership expressed in Euro when bought from commercio.app IVA not inc
 
 NB: ACTUAL COST OF PLATFORM is 0 CCC thus actually you are paying only Chain fee. Platform Surcharge will be actuated at the end of 1Q 2023 
 
-
+Membership upgrade tool (Example from Green to Bronze) will be available in commercio app soon. 
 
 
 
@@ -219,7 +219,7 @@ Brief overview of the available functions. Refer to the specific APIs guide for 
 For any support or questions regarding the APIs or the documentation, please open an <a href="https://github.com/commercionetwork/commercionetwork/issues" target="_blank">Issue </a>
 
 
-### Swagger environement
+### Swagger environment
 In the **CommercioAPI base url**  in the path `/swagger/` the documentation of the set of released API is available, and a Tryout is possible through the Swagger interface.
 
 Example 
@@ -230,7 +230,7 @@ https://dev-api.commercio.app/v1/swagger/
 <img src="./img/swagger.png"> 
 
 <br><br>
-NB: Any Examples in the documentation refers to the **Develop & Test environement**
+`NB: Any Examples in the documentation refers to the **Develop & Test environment**`
 
 
 #### Hint : Basic Client for Major script Languages 
@@ -242,7 +242,7 @@ Using the Generate Client menu you can obtain a basic stack software for the lan
 
 
 ### Authentication process  
-In order to gain proper access to the API an authetication process should be performed.
+In order to gain proper access to the API an authentication process should be performed.
 
 * <a href="/app_developers/commercioapi-authentication.html">AUTHORIZE</a> : Permit to authenticate through the IDM and get permission to API usage
 
@@ -250,7 +250,7 @@ In order to gain proper access to the API an authetication process should be per
 
 The following APIs are available
 
-* <a href="/app_developers/commercioapi-wallet.html">Wallet</a> to manage the basic operations on your Wallet/s throught the <a href="/x/bank/#sending-tokens">Bank</a>  Module
+* <a href="/app_developers/commercioapi-wallet.html">Wallet</a> to manage the basic operations on your Wallet/s through the <a href="/x/bank/#sending-tokens">Bank</a>  Module
 
 * <a href="/app_developers/commercioapi-sharedoc.html">Sharedoc</a> to manage the <a href="/x/documents/#sending-a-document">MsgShareDocument</a> eDelivery Digital Time Stamping to certify document integrity using the <a href="/x/documents/#docs">DOCS MODULE</a> 
 

@@ -132,7 +132,7 @@ The Commercio Cash Credit (CCC)  ha an unlimited supply and can be minted only b
 
 Unlike testnet which is an open network for testing purposes, mainnet is the real deal. Tokens on the Commercio.network mainnet have real economic value, be careful.
 
-A view of the status of mainnet is possible throught the Explorer , a Webapp  named <strong>Almerico</strong> (whose code is Opensource and available <a href="https://github.com/commercionetwork/almerico" target="_blank">here</a> ) that query the mainnet chain.  
+A view of the status of mainnet is possible throught the Explorer, a Webapp  named <strong>Almerico</strong> (whose code is Opensource and available <a href="https://github.com/commercionetwork/almerico" target="_blank">here</a> ) that query the mainnet chain.  
 
 
 Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.network)
@@ -182,14 +182,11 @@ Test-net Almerico: [testnet.commercio.network](https://testnet.commercio.network
 
 ### Keplr wallet extension 
 
-Keplr is a browser extension wallet for the Inter blockchain ecosystem.
+Keplr is a `Chrome` browser extension wallet for the `Cosmos` interchain ecosystem.
 
-Is possible to connect your Keplr wallet to Almerico explorer and perform 
+Is possible to connect your Keplr wallet to Almerico explorer and perform some action such as delegate, claim, undelegate, redelegate, vote message.
 
-
-some action such as delegate, claim , undelegate ,redelegate message 
-
-Connecting keplr is easy throught a simple function button 
+Connecting keplr is easy throught a simple function button. 
 
 <img src="/keplr_connection.png">
 
@@ -198,8 +195,7 @@ More details avaialble  <a href="https://www.keplr.app/#starters" target="_blank
 
 ### Commercio Wallet App 
 Is a Mobile app available in the store that provide a wallet to the user and 
-permit to intercat with the blockchain form some spesicif function such as 
-some action such as send tokens ,delegate, claim , undelegate ,redelegate messages
+permit to interact with the blockchain for some specific function such as send tokens, delegate, claim, undelegate, redelegate messages
 
 The wallet app can connect both to main-net and test-net
 
@@ -210,14 +206,14 @@ The wallet app can connect both to main-net and test-net
 ### LCD 
 Light Client Daemon (LCD REST Server) is a piece of software that connects to a full node to interact with the blockchain
 
-Thus is also possible to query the Commercio blockchain through LCD rest API  available at specific endpoint 
+Thus you can also query the Commercio blockchain through LCD rest API  available at specific endpoint 
 
 *  <a href="https://lcd-mainnet.commercio.network/ " target="_blank">Main-net LCD</a>   
 *  <a href="https://lcd-testnet.commercio.network/ " target="_blank">Test-net LCD</a>
 
 
 ### Commercio app
-Is a hosted wallet platform that permit to interact with the blockchain throught its API
+Is a hosted wallet platform that permit to interact with the blockchain throught its API :
 <a href="./app_developers/commercioapi-introduction.html#the-commercio-app " target="_blank">documentation available here</a>
 
 ##  Support
@@ -231,4 +227,4 @@ report bugs opening specific issues on the following Repository
 
 Support could be also asked to the community subscribing into our [Discord](https://discord.com/invite/N7DxaDj5sW) 
 
-Keep in touch with us throught our socialmedia channel ses link above  
+Keep in touch with us throught our socialmedia channels available on top menu  
