@@ -222,11 +222,11 @@ moreover a 1 CCC bonus will be available for free in your wallet with first regi
 
 * <sub>All costs in CCC.</sub> 
 * <sub>Platform cost is  comprehensive of a Chain fee (0.01) for sending Platform costs to a wallet of Commercio Platform</sub> 
+* <sub>Only writing message in the chain has a cost (POST). Querying tha chain is free of charge </sub> 
 
 NB: ACTUAL COST OF PLATFORM is 0 CCC thus actually you are paying only Chain fee. Platform Surcharge will be actuated at the end of 1Q 2023 
 
 Membership upgrade tool (Example from Green to Bronze) will be available in commercio app soon. 
-
 
 
 ## CommercioAPIs overview
