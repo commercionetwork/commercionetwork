@@ -191,10 +191,26 @@ Moreover sending messages autonomously could also be done with Resfull API of th
 
 Using the platform comes with a cost for the usage that depends on the type of [Membrship you subscribe](modules/commerciokyc/#membership-types) 
 
-Costs of membership expressed in Euro when bought from commercio.app VAT not included.
+
+**Costs of membership subscription €** 
+
+
+| Membersip|  Annual subscription **VAT not included** | CCC Bonus | 
+| --- | --- | --- | 
+| Green | 0 €| 1 CCC  | 
+| Bronze | 25 € | 25 CCC | 
+| Silver | 250 € | 250 CCC |  
+| Gold | 2500 € | 2500 CCC | 
+
+
+First year membership subscription comes with a bonus in your wallet equivalent to the cost
+of Membership ( bonus in CCC)
 
 `Green Mebership` is free of charge when obtained from commercio.app through a simple registration
-moreover a 1 CCC will be available for free in your wallet with first registration.
+moreover a 1 CCC bonus will be available for free in your wallet with first registration.
+
+
+**Costs for each message CCC** 
 
 
 |Membersip| Platform cost| Chain fee | Total cost per msg |
