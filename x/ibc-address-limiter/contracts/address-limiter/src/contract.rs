@@ -9,7 +9,7 @@ use crate::state::{FlowType, Whitelist, GOVMODULE, IBCMODULE, ADDRS_WHITELIST};
 use crate::{execute, query, sudo};
 
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:rate-limiter";
+const CONTRACT_NAME: &str = "crates.io:address-limiter";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]
