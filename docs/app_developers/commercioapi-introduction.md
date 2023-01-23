@@ -129,8 +129,8 @@ It is a playground where everyone can test the characteristics of the commercio.
 | Develop & Test | Official  | Note |
 | --- | --- | ---|
 | <a href="https://dev.commercio.app" target="_blank">dev.commercio.app</a> | Web App   |
-| [dev-api.commercio.app/v1/](https://dev-api.commercio.app/v1/) | CommercioAPI base url  |
-| [dev-api.commercio.app/v1/swagger/index.html](https://dev-api.commercio.app/v1/swagger/index.html) | Swagger  |
+| [dev-api.commercio.app/commercionetwork/v1/](https://dev-api.commercio.app/v1/) | CommercioAPI base url  |
+| [dev-api.commercio.app/commercionetwork/v1/swagger/index.html](https://dev-api.commercio.app/commercionetwork/v1/swagger/index.html) | Swagger  |
 | devlogin.commercio.app/auth/realms/commercio/protocol/openid-connect/token | IDM(OpenID) authentication URL |
 | <a href="https://testnet.commercio.network" target="_blank">testnet.commercio.network</a> | Explorer |
 
