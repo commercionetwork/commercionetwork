@@ -99,13 +99,13 @@ The Commercio App is a platform that provide you a <strong>hosted wallet</strong
 
 Moreover the Commercio.app provides you web functionality for 
 
-### eID Module
+### 1. eID Module
 Associate identity data to your wallett address through specific procedures
 
-### Credits Module
+### 2. Credits Module
 Manage CCC associated to your wallet
 
-### API
+### 3. API
 Gain access to a set of rest API some of which permit You to interact in the blockchain through your hosted wallet account
 
 

@@ -9,28 +9,37 @@ The  CommercioAPI Wallet permit to manage the basic operations on your Wallet/s
 ### Wallet with the commercio app 
 The commercio app provide You with a hosted wallet 
 
-
-## Wallet address 
-The Api path permit you to obtain your wallet address and informations.
-
-A wallet address in the form :
+A wallet address is in the form :
 
 `did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl`
 
-It permit to 
+It has a double function in commercio.network 
 
-a) view the public information of your wallet 
+a) identifiy uniquely your account as per an IBAN
+
+b) identifiy uniquely your identity as per an ID card code
+
+You could view the public information of your wallet 
 the easiest way is to search for it in the explorer 
 
-[https://testnet.commercio.network/validators/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl](https://testnet.commercio.network/validators/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl)
+[https://testnet.commercio.network/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl/](https://testnet.commercio.network/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl/)
 
-### Api path 
 
-`GET /wallet/address`
+The Api `/wallet/` path permit you to interact with your wallet  and obtain some basic informations.
+
+
+
+## Get your address and balance
+It permit to obtain your wallet address associated to your account in the commercio.app and its balance in terms of token
+
+
+### Path
+
+ `GET /wallet/address`
 
 
 ### Step by step example
-Let's create a new transaction  
+Let's use the API
 
 #### Step 1 - Send the message  
 
@@ -48,7 +57,7 @@ curl -X 'GET' \
 
 
 **API : Body response**
-THe body response is a json containing  the following important entity 
+THe body response is a json containing  the following imortant entity 
 
 
 * `address`:  The wallet id address associated to the authorized user the  example did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx
@@ -81,7 +90,7 @@ Example
 
 
 
-## Wallet balance
+## Get Wallet balance
 The Api  permit you to obtain the tokens balance value associated with your wallet address 
 
 ### Api path 
@@ -90,7 +99,7 @@ GET ` /wallet/balance`
 
 
 ### Step by step example
-Let's create a new transaction  
+Let's use the API  
 
 #### Step 1 - Send the message  
 
@@ -132,8 +141,12 @@ Example
 
 
 
-## Wallet transfers POST
-The Api  permit you to send tokens to another wallet address 
+## Send token from your wallet
+The Api  basically permits you to send tokens to another wallet address from your wallet as per a wire transfer. 
+
+In detail the Api permits to instatiate a process for sending tokens to another wallet in the commercio.app queue. The process request will be executed by the commercio.app in the blockchain. 
+
+The process istantiated could have a positive or negative outcome so it should be checked.
 
 
 ### Api path 
@@ -141,7 +154,7 @@ The Api  permit you to send tokens to another wallet address
 POST  `/wallet/transfers`
 
 ### Step by step example
-Let's create a new transaction.
+Let's use the API
 
 We try to send
 *  Amount = 1 ccc
@@ -206,7 +219,7 @@ Is an important data that could be used later with the API Wallet transfers GET 
 
 --- 
 
-## Wallet transfers GET by send_token_id
+## Check sent token process 
 The Api  permit you obtaini details on the process generated with a specific `send_token_id`
 
 
@@ -215,7 +228,7 @@ The Api  permit you obtaini details on the process generated with a specific `se
 GET  `/wallet/transfers/{send_token_id}`
 
 ### Step by step example
-Let's create a new transaction 
+Let's use the API
 
 
 #### Step 1 - Send the message  
@@ -276,8 +289,8 @@ Direct Link
 
 
 
-## Wallet transfers GET
-The Api  permit you obtaini details on all the transfer process of sending token (from) associated to the did of the authenticated user .
+## Sent token process list
+The Api  permit you obtaini details on all the sending token processes istantiated by  your wallet (of the authenticated user).
 
 
 ### Api path 
@@ -285,7 +298,7 @@ The Api  permit you obtaini details on all the transfer process of sending token
 GET  `/wallet/transfers/`
 
 ### Step by step example
-Let's create a new transaction 
+Let's use the API 
 
 
 #### Step 1 - Send the message  
