@@ -189,7 +189,7 @@ Another way is using Restfull commercio API
 #### Platform costs  
 Moreover sending messages autonomously could also be done with Resfull API of the commercio.app
 
-Using the platform comes with a cost for the usage that depends on the type of [Membrship you subscribe](modules/commerciokyc/#membership-types) 
+Using the platform comes with a cost for the usage that depends on the type of [Membership you subscribe](/modules/commerciokyc/#membership-types) 
 
 
 **Costs of membership subscription € through commercio.app** 
