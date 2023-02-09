@@ -192,7 +192,7 @@ Moreover sending messages autonomously could also be done with Resfull API of th
 Using the platform comes with a cost for the usage that depends on the type of [Membrship you subscribe](modules/commerciokyc/#membership-types) 
 
 
-**Costs of membership subscription €** 
+**Costs of membership subscription € through commercio.app** 
 
 
 | Membersip|  Annual subscription **VAT not included** | CCC Bonus | 
@@ -208,6 +208,9 @@ of Membership ( bonus in CCC)
 
 `Green Mebership` is free of charge when obtained from commercio.app through a simple registration
 moreover a 1 CCC bonus will be available for free in your wallet with first registration.
+This type of membership is actually not still available in commercio.app . We are developing this option . 
+Actually user can choose only to buy Bronze,Silver,Gold membership. The green membership **is programmed to be delivered  at the end of 1Q 2023** 
+
 
 
 **Costs for each message CCC** 
@@ -224,7 +227,7 @@ moreover a 1 CCC bonus will be available for free in your wallet with first regi
 * <sub>Platform cost is  comprehensive of a Chain fee (0.01) for sending Platform costs to a wallet of Commercio Platform</sub> 
 * <sub>Only writing message in the chain has a cost (POST). Querying tha chain is free of charge </sub> 
 
-NB: ACTUAL COST OF PLATFORM is 0 CCC thus actually you are paying only Chain fee. Platform Surcharge will be actuated at the end of 1Q 2023 
+NB: ACTUAL COST OF PLATFORM is 0 CCC thus actually you are paying only Chain fee independently from your Membership. Platform Surcharge will be actuated at the end of 1Q 2023 
 
 Membership upgrade tool (Example from Green to Bronze) will be available in commercio app soon. 
 
