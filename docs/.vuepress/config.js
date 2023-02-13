@@ -71,7 +71,7 @@ module.exports = {
                     ["app_developers/commercioapi-authentication", "Authentication process"],
                     ["app_developers/commercioapi-wallet", "eID"],
                     ["app_developers/commercioapi-ekyc", "eKyc"],
-                    ["app_developers/commercioapi-sharedoc", "eDocs"],
+                    ["app_developers/commercioapi-sharedoc", "eDelivery"],
                     ["app_developers/commercioapi-esign", "eSign"],
                 ]
             },

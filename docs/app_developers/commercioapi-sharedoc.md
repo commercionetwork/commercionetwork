@@ -1,6 +1,20 @@
-# CommercioAPI DOCS
+# CommercioAPI eDelivery
 
-The  CommercioAPI DOCS allows you to share a document with another user, and retrieve the list of documents that you have received.
+The  CommercioAPI eDelivery allows you to operate with two type messages available in the Custom  `documents` module 
+
+* [MsgShareDocument](/modules/documents/03_messages.html#share-a-document-with-msgsharedocument)
+* [MsgSendDocumentReceipt](/modules/documents/03_messages.html#send-a-document-receipt-with-msgsenddocumentreceipt)
+
+share a document with another user, and retrieve the list of documents that you have received.
+
+## MsgShareDocument
+
+In review - Cooming soon 
+
+
+## MsgSendDocumentReceipt
+
+In review - Cooming soon 
 
 
 ## What is an Electronic Cerified Delivery?
