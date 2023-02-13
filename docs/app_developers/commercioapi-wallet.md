@@ -1,8 +1,7 @@
-# CommercioAPI Wallet 
+# CommercioAPI eID 
 
 
-The  CommercioAPI Wallet permit to manage the basic operations on your Wallet/s
-
+The  CommercioAPI eID permit to manage the basic operations on your in commercio chain  
 
 
 
@@ -15,9 +14,9 @@ A wallet address is in the form :
 
 It has a double function in commercio.network 
 
-a) identifiy uniquely your account as per an IBAN
+a) identifiy uniquely your identity as per an ID card code
 
-b) identifiy uniquely your identity as per an ID card code
+b)  identifiy uniquely your account as per an IBAN
 
 You could view the public information of your wallet 
 the easiest way is to search for it in the explorer 
@@ -383,4 +382,8 @@ Direct Link using your did address
 [https://testnet.commercio.network/validators/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx](https://testnet.commercio.network/validators/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx)
 
 
+
+## Manage your DDO
+
+Cooming soon 
 

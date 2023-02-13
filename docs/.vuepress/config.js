@@ -69,9 +69,10 @@ module.exports = {
                 children: [
                     ["app_developers/commercioapi-introduction", "Introduction to CommercioAPI"],
                     ["app_developers/commercioapi-authentication", "Authentication process"],
-                    ["app_developers/commercioapi-wallet", "Wallet"],
-                    ["app_developers/commercioapi-sharedoc", "Docs"],
-                    ["app_developers/commercioapi-eID", "eID"],
+                    ["app_developers/commercioapi-wallet", "eID"],
+                    ["app_developers/commercioapi-ekyc", "eKyc"],
+                    ["app_developers/commercioapi-sharedoc", "eDocs"],
+                    ["app_developers/commercioapi-esign", "eSign"],
                 ]
             },
             {
