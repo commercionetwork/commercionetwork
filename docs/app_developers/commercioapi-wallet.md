@@ -281,7 +281,7 @@ B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2
 
 Direct Link 
 
-[https://testnet.commercio.network/tx/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2](https://testnet.commercio.network/tx/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2)
+[https://testnet.commercio.network/transactions/detail/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2](https://testnet.commercio.network/transactions/detail/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2)
 
 
 
@@ -379,7 +379,7 @@ Obviously You can always look at all the transactions associated to your wallet 
 
 Direct Link using your did address 
 
-[https://testnet.commercio.network/validators/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx](https://testnet.commercio.network/validators/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx)
+[https://testnet.commercio.network/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx/](https://testnet.commercio.network/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx)
 
 
 
