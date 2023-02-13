@@ -47,11 +47,9 @@ pub enum QueryMsg {
 pub enum SudoMsg {
     SendPacket {
         packet: Packet,
-        sender: Addr,
     },
     RecvPacket {
         packet: Packet,
-        sender: Addr,
     },
 }
 

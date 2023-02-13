@@ -19,6 +19,7 @@ pub const GOVMODULE: Item<Addr> = Item::new("gov_module");
 /// IBC transfer module, but could be set to something else if needed
 pub const IBCMODULE: Item<Addr> = Item::new("ibc_module");
 
+//may use map<,>
 pub const ADDRS_WHITELIST: Item<Whitelist> = Item::new("addrs_whitelist");
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
@@ -37,8 +38,8 @@ impl Whitelist {
     ) -> Result<Whitelist, ContractError> {
 
         match direction.clone() {
-            _In => Ok(self.clone()),
-            _Out => {
+            FlowType::In => Ok(self.clone()),
+            FlowType::Out => {
                 if !self.wl.contains(&sender) {
                     return Err(ContractError::Unauthorized {addr:sender.into()});
                 }

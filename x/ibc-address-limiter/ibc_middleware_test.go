@@ -1,5 +1,4 @@
 package ibc_rate_limit_test
-
 /*
 import (
 	"fmt"
@@ -19,8 +18,8 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/osmosis-labs/osmosis/v13/app/apptesting"
-	osmosisibctesting "github.com/osmosis-labs/osmosis/v13/x/ibc-address-limiter/testutil"
-	"github.com/osmosis-labs/osmosis/v13/x/ibc-address-limiter/types"
+	osmosisibctesting "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/testutil"
+	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
 
 type MiddlewareTestSuite struct {

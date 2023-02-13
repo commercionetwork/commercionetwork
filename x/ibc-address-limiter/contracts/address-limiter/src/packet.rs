@@ -19,7 +19,7 @@ pub struct Height {
 pub struct FungibleTokenData {
     pub denom: String,
     amount: Uint256,
-    sender: Addr,
+    pub sender: Addr,
     receiver: Addr,
 }
 

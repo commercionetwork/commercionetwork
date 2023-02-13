@@ -1,4 +1,4 @@
-use cosmwasm_std::{DepsMut, Response, Addr};
+use cosmwasm_std::{DepsMut, Response};
 
 use crate::{
     packet::Packet,
@@ -8,9 +8,8 @@ use crate::{
 
 pub fn process_packet(
     deps: DepsMut,
-    _packet: Packet,
+    packet: Packet,
     direction: FlowType,
-    sender: Addr,
 ) -> Result<Response, ContractError> {
     // Sudo call. Only go modules should be allowed to access this
     let mut whitelist = ADDRS_WHITELIST.load(deps.storage)?;
@@ -23,12 +22,14 @@ pub fn process_packet(
             .add_attribute("whitelist", "empty"));
     }
 
+    let packet_data = packet.data;
     // If it fails, allow_transfer() will return
     // ContractError::Unauthorized, which we'll propagate out
-   _ = whitelist.allow_transfer(&direction, sender)?;
+   _ = whitelist.allow_transfer(&direction,  packet_data.sender.clone())?;
 
     let response = Response::new()
-        .add_attribute("method", "try_transfer");
+        .add_attribute("method", "try_transfer")
+        .add_attribute("sender_address", packet_data.sender.into_string());
 
     Ok(response)
 }

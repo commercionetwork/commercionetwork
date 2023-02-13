@@ -47,21 +47,17 @@ pub fn sudo(deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, Contract
     match msg {
         SudoMsg::SendPacket {
             packet,
-            sender,
         } => sudo::process_packet(
             deps,
             packet,
             FlowType::Out,
-            sender,
         ),
         SudoMsg::RecvPacket {
             packet,
-            sender,
         } => sudo::process_packet(
             deps,
             packet,
             FlowType::In,
-            sender,
         ),
     }
 }
@@ -69,7 +65,6 @@ pub fn sudo(deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, Contract
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        //QueryMsg::GetQuotas { channel_id, denom } => query::get_quotas(deps, channel_id, denom),
         QueryMsg::GetWhitelist {  } => query::get_whitelist(deps),
     }
 }

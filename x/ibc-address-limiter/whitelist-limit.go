@@ -18,7 +18,7 @@ var (
 )
 
 func CheckSenderAuth(ctx sdk.Context, contractKeeper *wasmkeeper.PermissionedKeeper,
-	msgType, contract string, packet exported.PacketI, sender string,
+	msgType, contract string, packet exported.PacketI,
 ) error {
 	contractAddr, err := sdk.AccAddressFromBech32(contract)
 	if err != nil {
@@ -28,7 +28,6 @@ func CheckSenderAuth(ctx sdk.Context, contractKeeper *wasmkeeper.PermissionedKee
 	sendPacketMsg, err := BuildWasmExecMsg(
 		msgType,
 		packet,
-		sender,
 	)
 	if err != nil {
 		return err
@@ -53,12 +52,10 @@ type UndoPacketMsg struct {
 
 type SendPacketMsg struct {
 	SendPacket PacketMsg   `json:"send_packet"`
-	Sender     sdk.Address `json:"sender"`
 }
 
 type RecvPacketMsg struct {
 	RecvPacket PacketMsg   `json:"recv_packet"`
-	Sender     sdk.Address `json:"sender"`
 }
 
 type PacketMsg struct {
@@ -98,13 +95,8 @@ func unwrapPacket(packet exported.PacketI) (UnwrappedPacket, error) {
 	}, nil
 }
 
-func BuildWasmExecMsg(msgType string, packet exported.PacketI, sender string) ([]byte, error) {
+func BuildWasmExecMsg(msgType string, packet exported.PacketI) ([]byte, error) {
 	unwrapped, err := unwrapPacket(packet)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	senderAddr, err := sdk.AccAddressFromBech32(sender)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -116,7 +108,6 @@ func BuildWasmExecMsg(msgType string, packet exported.PacketI, sender string) ([
 			SendPacket: PacketMsg{
 				Packet: unwrapped,
 			},
-			Sender: senderAddr,
 		}
 		asJson, err = json.Marshal(msg)
 	case msgType == msgRecv:
@@ -124,7 +115,6 @@ func BuildWasmExecMsg(msgType string, packet exported.PacketI, sender string) ([
 			RecvPacket: PacketMsg{
 				Packet: unwrapped,
 			},
-			Sender: senderAddr,
 		}
 		asJson, err = json.Marshal(msg)
 	default:

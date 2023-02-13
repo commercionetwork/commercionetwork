@@ -443,6 +443,8 @@ func New(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
+	app.ScopedTransferKeeper = scopedTransferKeeper
+
 	// -----------------------------------------
 	// add keepers
 
@@ -514,7 +516,7 @@ func New(
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 
 	// Create Transfer Keepers
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
+	/*app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		keys[ibctransfertypes.StoreKey],
 		app.GetSubspace(ibctransfertypes.ModuleName),
@@ -527,7 +529,7 @@ func New(
 	)
 
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)*/
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -609,7 +611,7 @@ func New(
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, /*transferIBCModule*/ app.TransferStack)
 	//ibcRouter.AddRoute(documentstypes.ModuleName, documentsModule)
 
 	// Wasm keeper support
@@ -642,6 +644,10 @@ func New(
 	app.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(app.WasmKeeper)
 	app.AddressLimitingICS4Wrapper.ContractKeeper = app.ContractKeeper
 
+	// wire up x/wasm to IBC
+	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper))
+	app.IBCKeeper.SetRouter(ibcRouter)
+
 	// The gov proposal types can be individually enabled
 	if len(enabledProposals) != 0 {
 		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, enabledProposals))
@@ -650,12 +656,6 @@ func New(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
 	)
-	// Pass the contract keeper to all the structs (generally ICS4Wrappers for ibc middlewares) that need it
-	app.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(app.WasmKeeper)
-	app.AddressLimitingICS4Wrapper.ContractKeeper = app.ContractKeeper
-	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper))
-
-	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/****  Module Options ****/
 
@@ -688,7 +688,8 @@ func New(
 		//wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		params.NewAppModule(app.ParamsKeeper),
-		transferModule,
+		app.RawIcs20TransferAppModule,
+		//transferModule,
 		// custoum modules
 		governmentModule,
 		vbrModule,
@@ -730,6 +731,7 @@ func New(
 		didTypes.ModuleName,
 		governmentmoduletypes.ModuleName,
 		vbrmoduletypes.ModuleName,
+		ibcaddresslimittypes.ModuleName,
 	)
 
 	// TODO: check order for End Blockers
@@ -763,6 +765,7 @@ func New(
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
 		wasm.ModuleName,
+		ibcaddresslimittypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -797,6 +800,7 @@ func New(
 		epochstypes.ModuleName,
 		authz.ModuleName,
 		wasm.ModuleName,
+		ibcaddresslimittypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -921,7 +925,6 @@ func New(
 	}
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
-	app.ScopedTransferKeeper = scopedTransferKeeper
 	app.ScopedWasmKeeper = scopedWasmKeeper
 
 	return app
@@ -930,22 +933,15 @@ func New(
 // Create the IBC Transfer Stack from bottom to top:
 //
 // * SendPacket. Originates from the transferKeeper and and goes up the stack:
-// transferKeeper.SendPacket -> ibc_rate_limit.SendPacket -> ibc_hooks.SendPacket -> channel.SendPacket
+// transferKeeper.SendPacket -> ibc_address_limit.SendPacket -> channel.SendPacket
 // * RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
-// channel.RecvPacket -> ibc_hooks.OnRecvPacket -> ibc_rate_limit.OnRecvPacket -> transfer.OnRecvPacket
+// channel.RecvPacket -> ibc_rate_limit.OnRecvPacket -> transfer.OnRecvPacket
 //
 // After this, the wasm keeper is required to be set on both
 // appkeepers.WasmHooks AND appKeepers.AddressLimitingICS4Wrapper
 func (appKeepers *App) WireICS20PreWasmKeeper(
 	appCodec codec.Codec,
 	bApp *baseapp.BaseApp) {
-	// Setup the ICS4Wrapper used by the hooks middleware
-	//wasmHooks := ibchooks.NewWasmHooks(nil) // The contract keeper needs to be set later
-	//appKeepers.Ics20WasmHooks = &wasmHooks
-	/*appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.Ics20WasmHooks,
-	)*/
 
 	// ChannelKeeper wrapper for address limiting SendPacket(). The wasmKeeper needs to be added after it's created
 	addressLimitingParams := appKeepers.GetSubspace(ibcaddresslimittypes.ModuleName)
@@ -979,8 +975,6 @@ func (appKeepers *App) WireICS20PreWasmKeeper(
 
 	// AddressLimiting IBC Middleware
 	addressLimitingTransferModule := ibcaddresslimit.NewIBCModule(transferIBCModule, appKeepers.AddressLimitingICS4Wrapper)
-	// Hooks Middleware
-	//hooksTransferModule := ibchooks.NewIBCMiddleware(&addressLimitingTransferModule, &appKeepers.HooksICS4Wrapper)
 	appKeepers.TransferStack = &addressLimitingTransferModule
 }
 

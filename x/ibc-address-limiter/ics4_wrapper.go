@@ -1,8 +1,6 @@
 package ibc_rate_limit
 
 import (
-	"encoding/json"
-
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -13,7 +11,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 )
 
 var (
@@ -61,15 +58,15 @@ func (i *ICS4Wrapper) SendPacket(ctx sdk.Context, chanCap *capabilitytypes.Capab
 	if !ok {
 		return sdkerrors.ErrInvalidRequest
 	}
-
+	/*
 	var packetData transfertypes.FungibleTokenPacketData
 	if err := json.Unmarshal(packet.GetData(), &packetData); err != nil {
 		return err
-	}
+	}*/
 
-	err := CheckSenderAuth(ctx, i.ContractKeeper, "send_packet", contract, fullPacket, packetData.Sender)
+	err := CheckSenderAuth(ctx, i.ContractKeeper, "send_packet", contract, fullPacket)
 	if err != nil {
-		return sdkerrors.Wrap(err, "Sender does not have authorization to transfer")
+		return err
 	}
 
 	return i.channel.SendPacket(ctx, chanCap, packet)
