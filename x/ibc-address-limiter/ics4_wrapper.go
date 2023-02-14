@@ -58,11 +58,6 @@ func (i *ICS4Wrapper) SendPacket(ctx sdk.Context, chanCap *capabilitytypes.Capab
 	if !ok {
 		return sdkerrors.ErrInvalidRequest
 	}
-	/*
-	var packetData transfertypes.FungibleTokenPacketData
-	if err := json.Unmarshal(packet.GetData(), &packetData); err != nil {
-		return err
-	}*/
 
 	err := CheckSenderAuth(ctx, i.ContractKeeper, "send_packet", contract, fullPacket)
 	if err != nil {

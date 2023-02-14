@@ -16,4 +16,7 @@ pub enum ContractError {
 
     #[error("Whitelist not found")]
     WhitelistNotFound {},
+
+    #[error("Empy list of addresses")]
+    EmptyList {},
 }

@@ -191,7 +191,7 @@ const Name = "commercionetwork"
 
 var (
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
-	ProposalsEnabled = "false"
+	ProposalsEnabled = "true"
 
 	// If set to non-empty string it must be comma-separated list of values that are all a subset
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
@@ -515,22 +515,6 @@ func New(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 
-	// Create Transfer Keepers
-	/*app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec,
-		keys[ibctransfertypes.StoreKey],
-		app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		scopedTransferKeeper,
-	)
-
-	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)*/
-
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
@@ -611,8 +595,7 @@ func New(
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, /*transferIBCModule*/ app.TransferStack)
-	//ibcRouter.AddRoute(documentstypes.ModuleName, documentsModule)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, app.TransferStack)
 
 	// Wasm keeper support
 	wasmDir := filepath.Join(homePath, "data")
@@ -689,7 +672,6 @@ func New(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		app.RawIcs20TransferAppModule,
-		//transferModule,
 		// custoum modules
 		governmentModule,
 		vbrModule,
@@ -935,10 +917,9 @@ func New(
 // * SendPacket. Originates from the transferKeeper and and goes up the stack:
 // transferKeeper.SendPacket -> ibc_address_limit.SendPacket -> channel.SendPacket
 // * RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
-// channel.RecvPacket -> ibc_rate_limit.OnRecvPacket -> transfer.OnRecvPacket
+// channel.RecvPacket -> ibc_address_limit.OnRecvPacket -> transfer.OnRecvPacket
 //
-// After this, the wasm keeper is required to be set on both
-// appkeepers.WasmHooks AND appKeepers.AddressLimitingICS4Wrapper
+// After this, the wasm keeper is required to be set on appKeepers.AddressLimitingICS4Wrapper
 func (appKeepers *App) WireICS20PreWasmKeeper(
 	appCodec codec.Codec,
 	bApp *baseapp.BaseApp) {

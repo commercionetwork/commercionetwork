@@ -1,5 +1,3 @@
-use std::ops::Index;
-
 use crate::msg::{ExecWhitelist};
 use crate::state::{Whitelist, GOVMODULE, IBCMODULE, ADDRS_WHITELIST};
 use crate::ContractError;
@@ -15,10 +13,10 @@ pub fn try_manage_whitelist(
     if sender != ibc_module && sender != gov_module {
         return Err(ContractError::Unauthorized {addr: sender.into()});
     }
-    let mut actual_whitelist = ADDRS_WHITELIST.load(deps.storage)?;
 
     match exec_whitelist {
         ExecWhitelist::AddAddrs { addresses } => {
+            let mut actual_whitelist = ADDRS_WHITELIST.load(deps.storage)?;
             addresses.iter().for_each(|addr|{
                 if !actual_whitelist.wl.contains(addr){
                     actual_whitelist.wl.push((*addr).clone());
@@ -29,18 +27,17 @@ pub fn try_manage_whitelist(
 
         ExecWhitelist::RemoveAddrs { addresses } => {
             ADDRS_WHITELIST.update(deps.storage, |mut whitelist| {
-                let len = whitelist.wl.len();
-                if len == 0{
+                if whitelist.wl.len() == 0{
                     return Err(ContractError::EmptyWhitelist {});
                 }
                 addresses.iter().for_each(|addr| {
-                    let mut i = 0;
-                    while  i <len {
-                        if *whitelist.wl.index(i) == *addr {
-                            whitelist.wl.remove(i);
-                        };
-                        i += 1;
-                    };
+                    let index = whitelist.wl.iter().position(|x| *x == *addr);
+                    match index {
+                        Some(i) => {
+                            _ = whitelist.wl.swap_remove(i)
+                        },
+                        None => (),
+                    }
                 });
 
                 Ok(whitelist)
@@ -53,6 +50,9 @@ pub fn try_manage_whitelist(
         },
 
         ExecWhitelist::New { whitelist } => {
+            if whitelist.len() == 0 {
+                return Err(ContractError::EmptyList {});
+            }
             let new_list = Whitelist{wl: whitelist};
             ADDRS_WHITELIST.save(deps.storage, &new_list)?;
         },
