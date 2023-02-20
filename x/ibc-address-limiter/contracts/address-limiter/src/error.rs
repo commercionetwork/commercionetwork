@@ -11,12 +11,12 @@ pub enum ContractError {
         addr: String
     },
 
-    #[error("Empy whitelist")]
+    #[error("Empty whitelist")]
     EmptyWhitelist {},
 
     #[error("Whitelist not found")]
     WhitelistNotFound {},
 
-    #[error("Empy list of addresses")]
+    #[error("Empty list of addresses")]
     EmptyList {},
 }

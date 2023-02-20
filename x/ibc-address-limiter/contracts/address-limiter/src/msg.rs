@@ -21,7 +21,7 @@ pub enum ExecWhitelist {
     RemoveAddrs{
         addresses: Vec<Addr>,
     },
-    //empy whitelist
+    //empty whitelist
     ResetWhitelist{},
     //Remove previous list if set and creat new one.
     New{

@@ -17,6 +17,10 @@ pub fn try_manage_whitelist(
     match exec_whitelist {
         ExecWhitelist::AddAddrs { addresses } => {
             let mut actual_whitelist = ADDRS_WHITELIST.load(deps.storage)?;
+            if addresses.is_empty() {
+                return Err(ContractError::EmptyList {  });
+            }
+
             addresses.iter().for_each(|addr|{
                 if !actual_whitelist.wl.contains(addr){
                     actual_whitelist.wl.push((*addr).clone());
@@ -62,142 +66,203 @@ pub fn try_manage_whitelist(
         .add_attribute("method", "try_manage_whitelist"))
 }
 
-/*#[cfg(test)]
+#[cfg(test)]
 mod tests {
     use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-    use cosmwasm_std::{from_binary, Addr, StdError};
+    use cosmwasm_std::{from_binary, Addr};
 
-    use crate::contract::{execute, query};
-    use crate::helpers::tests::verify_query_response;
-    use crate::msg::{ExecuteMsg, QueryMsg, QuotaMsg};
-    use crate::state::{RateLimit, GOVMODULE, IBCMODULE};
+    use crate::contract::{instantiate, execute, query};
+    use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg, ExecWhitelist};
+    use crate::state::Whitelist;
 
     const IBC_ADDR: &str = "IBC_MODULE";
     const GOV_ADDR: &str = "GOV_MODULE";
 
-    #[test] // Tests AddPath and RemovePath messages
-    fn management_add_and_remove_path() {
-        let mut deps = mock_dependencies();
-        IBCMODULE
-            .save(deps.as_mut().storage, &Addr::unchecked(IBC_ADDR))
-            .unwrap();
-        GOVMODULE
-            .save(deps.as_mut().storage, &Addr::unchecked(GOV_ADDR))
-            .unwrap();
+    const TESTING_ADDR1: &str = "did:com:18h03de6awcjk4u9gaz8s5l0xxl8ulxjctzsytd";
+    const TESTING_ADDR2: &str = "did:com:1829s409tjju2luhudq5dfeus6je3vfdnjv9tpn";
+   
+#[test]
+fn execute_add_addrs() {
+    let mut deps = mock_dependencies();
+    let addr1 = Addr::unchecked(TESTING_ADDR1);
+    let addr3 = Addr::unchecked("sender");
 
-        let msg = ExecuteMsg::AddPath {
-            channel_id: format!("channel"),
-            denom: format!("denom"),
-            quotas: vec![QuotaMsg {
-                name: "daily".to_string(),
-                duration: 1600,
-                send_recv: (3, 5),
-            }],
-        };
-        let info = mock_info(IBC_ADDR, &vec![]);
+    let msg = InstantiateMsg {
+        gov_module: Addr::unchecked(GOV_ADDR),
+        ibc_module: Addr::unchecked(IBC_ADDR),
+        addrs_whitelist: vec![addr1.clone()],
+    };
+    let info = mock_info(GOV_ADDR, &vec![]);
+    let env = mock_env();
+    instantiate(deps.as_mut(), env.clone(), info.clone(), msg).unwrap();
 
-        let env = mock_env();
-        let res = execute(deps.as_mut(), env.clone(), info, msg).unwrap();
-        assert_eq!(0, res.messages.len());
+    //add empty list to whitelist
+    let add_addr_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::AddAddrs { addresses: vec![] });
+    let err = execute(deps.as_mut(), mock_env(), info.clone(), add_addr_msg).unwrap_err();
+    assert_eq!(err.to_string(), "Empty list of addresses");
 
-        let query_msg = QueryMsg::GetQuotas {
-            channel_id: format!("channel"),
-            denom: format!("denom"),
-        };
+    let query_msg = QueryMsg::GetWhitelist {};
+    let mut res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    let mut actual_whitelist: Whitelist = from_binary(&res).unwrap();
 
-        let res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    assert_eq!(actual_whitelist.wl.len(), 1);
+    assert_eq!(actual_whitelist.wl[0], addr1.clone());
 
-        let value: Vec<RateLimit> = from_binary(&res).unwrap();
-        verify_query_response(
-            &value[0],
-            "daily",
-            (3, 5),
-            1600,
-            0_u32.into(),
-            0_u32.into(),
-            env.block.time.plus_seconds(1600),
-        );
+    //add one address to whitelist
+    let add_addr_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::AddAddrs {
+        addresses: vec![addr3.clone()],
+    });
+    execute(deps.as_mut(), mock_env(), info.clone(), add_addr_msg).unwrap();
 
-        assert_eq!(value.len(), 1);
+    res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    actual_whitelist = from_binary(&res).unwrap();
 
-        // Add another path
-        let msg = ExecuteMsg::AddPath {
-            channel_id: format!("channel2"),
-            denom: format!("denom"),
-            quotas: vec![QuotaMsg {
-                name: "daily".to_string(),
-                duration: 1600,
-                send_recv: (3, 5),
-            }],
-        };
-        let info = mock_info(IBC_ADDR, &vec![]);
+    assert_eq!(actual_whitelist.wl.len(), 2);
+    assert!(actual_whitelist.wl.contains(&addr1));
+    assert!(actual_whitelist.wl.contains(&addr3));
 
-        let env = mock_env();
-        execute(deps.as_mut(), env.clone(), info, msg).unwrap();
+    //Duplications are not allowed
+    let add_addr_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::AddAddrs {
+        addresses: vec![addr3.clone()],
+    });
+    execute(deps.as_mut(), mock_env(), info.clone(), add_addr_msg).unwrap();
 
-        // remove the first one
-        let msg = ExecuteMsg::RemovePath {
-            channel_id: format!("channel"),
-            denom: format!("denom"),
-        };
+    res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    actual_whitelist = from_binary(&res).unwrap();
 
-        let info = mock_info(IBC_ADDR, &vec![]);
-        let env = mock_env();
-        execute(deps.as_mut(), env.clone(), info, msg).unwrap();
+    assert_eq!(actual_whitelist.wl.len(), 2);
+    assert!(actual_whitelist.wl.contains(&addr1));
+    assert!(actual_whitelist.wl.contains(&addr3));
+}
 
-        // The channel is not there anymore
-        let err = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap_err();
-        assert!(matches!(err, StdError::NotFound { .. }));
+#[test]
+fn execute_remove_addrs() {
+    let mut deps = mock_dependencies();
+    let addr1 = Addr::unchecked(TESTING_ADDR1);
+    let addr2 = Addr::unchecked(TESTING_ADDR2);
+    let addr3 = Addr::unchecked("sender");
 
-        // The second channel is still there
-        let query_msg = QueryMsg::GetQuotas {
-            channel_id: format!("channel2"),
-            denom: format!("denom"),
-        };
-        let res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
-        let value: Vec<RateLimit> = from_binary(&res).unwrap();
-        assert_eq!(value.len(), 1);
-        verify_query_response(
-            &value[0],
-            "daily",
-            (3, 5),
-            1600,
-            0_u32.into(),
-            0_u32.into(),
-            env.block.time.plus_seconds(1600),
-        );
+    let msg = InstantiateMsg {
+        gov_module: Addr::unchecked(GOV_ADDR),
+        ibc_module: Addr::unchecked(IBC_ADDR),
+        addrs_whitelist: vec![addr1.clone(), addr2.clone()],
+    };
+    let info = mock_info(GOV_ADDR, &vec![]);
+    let env = mock_env();
+    instantiate(deps.as_mut(), env.clone(), info.clone(), msg).unwrap();
 
-        // Paths are overriden if they share a name and denom
-        let msg = ExecuteMsg::AddPath {
-            channel_id: format!("channel2"),
-            denom: format!("denom"),
-            quotas: vec![QuotaMsg {
-                name: "different".to_string(),
-                duration: 5000,
-                send_recv: (50, 30),
-            }],
-        };
-        let info = mock_info(IBC_ADDR, &vec![]);
+    //remove unknown address from whitelist
+    let remove_addr_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::RemoveAddrs {
+        addresses: vec![addr3],
+    });
+    execute(deps.as_mut(), mock_env(), info.clone(), remove_addr_msg).unwrap();
 
-        let env = mock_env();
-        execute(deps.as_mut(), env.clone(), info, msg).unwrap();
+    let query_msg = QueryMsg::GetWhitelist {};
 
-        let query_msg = QueryMsg::GetQuotas {
-            channel_id: format!("channel2"),
-            denom: format!("denom"),
-        };
-        let res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
-        let value: Vec<RateLimit> = from_binary(&res).unwrap();
-        assert_eq!(value.len(), 1);
+    let mut res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    let mut actual_whitelist : Whitelist = from_binary(&res).unwrap();
 
-        verify_query_response(
-            &value[0],
-            "different",
-            (50, 30),
-            5000,
-            0_u32.into(),
-            0_u32.into(),
-            env.block.time.plus_seconds(5000),
-        );
-    }
-}*/
+    assert_eq!(actual_whitelist.wl.len(), 2);
+
+    //remove addresses from whitelist
+    let remove_addr_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::RemoveAddrs {
+        addresses: vec![addr1.clone(), addr2.clone()],
+    });
+    execute(deps.as_mut(), mock_env(), info.clone(), remove_addr_msg).unwrap();
+
+    res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    actual_whitelist = from_binary(&res).unwrap();
+
+    assert_eq!(actual_whitelist.wl.len(), 0);
+
+    //remove from empty whitelist
+    let remove_addr_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::RemoveAddrs { 
+        addresses: vec![addr2.clone()] ,
+    });
+    let err = execute(deps.as_mut(), mock_env(), info.clone(), remove_addr_msg).unwrap_err();
+    assert_eq!(err.to_string(), "Empty whitelist");
+}
+
+#[test]
+fn execute_reset_whiltelist() {
+    let mut deps = mock_dependencies();
+    let addr1 = Addr::unchecked(TESTING_ADDR1);
+    let addr2 = Addr::unchecked(TESTING_ADDR2);
+
+    let msg = InstantiateMsg {
+        gov_module: Addr::unchecked(GOV_ADDR),
+        ibc_module: Addr::unchecked(IBC_ADDR),
+        addrs_whitelist: vec![addr1.clone(), addr2.clone()],
+    };
+    let info = mock_info(GOV_ADDR, &vec![]);
+    let env = mock_env();
+    instantiate(deps.as_mut(), env.clone(), info.clone(), msg).unwrap();
+
+    let query_msg = QueryMsg::GetWhitelist {};
+    let mut res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    let mut actual_whitelist: Whitelist = from_binary(&res).unwrap();
+
+    assert_eq!(actual_whitelist.wl.len(), 2);
+    assert!(actual_whitelist.wl.contains(&addr1));
+    assert!(actual_whitelist.wl.contains(&addr2));
+
+    //reset whitelist
+    let reset_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::ResetWhitelist {});
+    execute(deps.as_mut(), mock_env(), info.clone(), reset_msg).unwrap();
+
+    res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    actual_whitelist = from_binary(&res).unwrap();
+
+    assert!(actual_whitelist.wl.is_empty());
+}
+
+#[test]
+fn execute_new_whitelist() {
+    let mut deps = mock_dependencies();
+    let addr1 = Addr::unchecked(TESTING_ADDR1);
+    let addr2 = Addr::unchecked(TESTING_ADDR2);
+    let addr3 = Addr::unchecked("sender");
+
+    let msg = InstantiateMsg {
+        gov_module: Addr::unchecked(GOV_ADDR),
+        ibc_module: Addr::unchecked(IBC_ADDR),
+        addrs_whitelist: vec![],
+    };
+    let info = mock_info(GOV_ADDR, &vec![]);
+    let env = mock_env();
+    instantiate(deps.as_mut(), env.clone(), info.clone(), msg).unwrap();
+
+    let query_msg = QueryMsg::GetWhitelist {};
+    let mut res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    let mut actual_whitelist: Whitelist = from_binary(&res).unwrap();
+
+    assert_eq!(actual_whitelist.wl.len(), 0);
+
+    //set new whitelist
+    let new_wl_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::New {
+        whitelist: vec![addr1.clone(), addr3.clone(), addr2.clone()],
+    });
+    execute(deps.as_mut(), mock_env(), info.clone(), new_wl_msg).unwrap();
+
+    res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    actual_whitelist = from_binary(&res).unwrap();
+
+    assert_eq!(actual_whitelist.wl.len(), 3);
+    assert!(actual_whitelist.wl.contains(&addr1));
+    assert!(actual_whitelist.wl.contains(&addr3));
+    assert!(actual_whitelist.wl.contains(&addr2));
+
+    //empty new whitelist
+    let new_wl_msg = ExecuteMsg::ManageWhitelist(ExecWhitelist::New {
+        whitelist: vec![],
+    });
+    let err = execute(deps.as_mut(), mock_env(), info.clone(), new_wl_msg).unwrap_err();
+    assert_eq!(err.to_string(), "Empty list of addresses");
+
+    res = query(deps.as_ref(), mock_env(), query_msg.clone()).unwrap();
+    actual_whitelist = from_binary(&res).unwrap();
+
+    assert_eq!(actual_whitelist.wl.len(), 3);
+}
+
+}
