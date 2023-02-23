@@ -7,10 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v4/modules/core/exported"
 
 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
@@ -36,7 +36,7 @@ func (im *IBCModule) OnChanOpenInit(ctx sdk.Context,
 	channelCap *capabilitytypes.Capability,
 	counterparty channeltypes.Counterparty,
 	version string,
-) error {
+) (string, error) {
 	return im.app.OnChanOpenInit(
 		ctx,
 		order,
@@ -123,7 +123,7 @@ func (im *IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) exported.Acknowledgement {
 	if err := ValidateReceiverAddress(packet); err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	// if this returns an Acknowledgement that isn't successful, all state changes are discarded
@@ -200,4 +200,8 @@ func (im *IBCModule) WriteAcknowledgement(
 	ack exported.Acknowledgement,
 ) error {
 	return im.ics4Middleware.WriteAcknowledgement(ctx, chanCap, packet, ack)
+}
+
+func (im *IBCModule) GetAppVersion(ctx sdk.Context, portID, channelID string) (string, bool) {
+	return im.ics4Middleware.GetAppVersion(ctx, portID, channelID)
 }
