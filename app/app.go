@@ -959,6 +959,10 @@ func (appKeepers *App) WireICS20PreWasmKeeper(
 	appKeepers.TransferStack = &addressLimitingTransferModule
 }
 
+func (app *App) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
 // Name returns the name of the App
 func (app *App) Name() string { return app.BaseApp.Name() }
 
@@ -1085,6 +1089,23 @@ func GetMaccPerms() map[string][]string {
 		dupMaccPerms[k] = v
 	}
 	return dupMaccPerms
+}
+
+// Required for ibctesting
+func (app *App) GetStakingKeeper() stakingkeeper.Keeper {
+	return app.StakingKeeper 
+}
+
+func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper // This is a *ibckeeper.Keeper
+}
+
+func (app *App) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+func (app *App) GetTxConfig() client.TxConfig {
+	return MakeEncodingConfig().TxConfig
 }
 
 // initParamsKeeper init params keeper and its subspaces

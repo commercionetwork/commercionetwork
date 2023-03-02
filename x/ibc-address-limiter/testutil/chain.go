@@ -1,19 +1,20 @@
-package osmosisibctesting
-/*
+package commercionetworkibctesting
+
 import (
 	"encoding/json"
-	"time"
+	//"time"
 
+	"github.com/commercionetwork/commercionetwork/app/params"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v3/testing"
-	"github.com/cosmos/ibc-go/v3/testing/simapp/helpers"
+	ibctesting "github.com/cosmos/ibc-go/v4/testing"
+	"github.com/cosmos/ibc-go/v4/testing/simapp/helpers"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/osmosis-labs/osmosis/v13/app"
+	"github.com/commercionetwork/commercionetwork/app"
 )
 
 type TestChain struct {
@@ -21,8 +22,10 @@ type TestChain struct {
 }
 
 func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	osmosisApp := app.Setup(false)
-	return osmosisApp, app.NewDefaultGenesisState()
+	encodingConfig := params.MakeEncodingConfig()
+	cdc := encodingConfig.Marshaler
+	commercionetworkApp := app.Setup(false)
+	return commercionetworkApp, app.NewDefaultGenesisState(cdc)
 }
 
 // SendMsgsNoCheck overrides ibctesting.TestChain.SendMsgs so that it doesn't check for errors. That should be handled by the caller
@@ -86,23 +89,22 @@ func SignAndDeliver(
 }
 
 // Move epochs to the future to avoid issues with minting
-func (chain *TestChain) MoveEpochsToTheFuture() error {
-	epochsKeeper := chain.GetOsmosisApp().EpochsKeeper
+/*func (chain *TestChain) MoveEpochsToTheFuture() error {
+	epochsKeeper := chain.GetApp().EpochsKeeper
 	ctx := chain.GetContext()
 	for _, epoch := range epochsKeeper.AllEpochInfos(ctx) {
 		epoch.StartTime = ctx.BlockTime().Add(time.Hour * 24 * 30)
 		epochsKeeper.DeleteEpochInfo(chain.GetContext(), epoch.Identifier)
-		err := epochsKeeper.AddEpochInfo(ctx, epoch)
-		if err != nil {
+		epochsKeeper.SetEpochInfo(ctx, epoch)
+		/*if err != nil {
 			return err
-		}
+		}*
 	}
 	return nil
-}
+}*/
 
-// GetOsmosisApp returns the current chain's app as an OsmosisApp
-func (chain *TestChain) GetOsmosisApp() *app.OsmosisApp {
-	v, _ := chain.App.(*app.OsmosisApp)
+// GetApp returns the current chain's app 
+func (chain *TestChain) GetApp() *app.App {
+	v, _ := chain.App.(*app.App)
 	return v
 }
-*/
