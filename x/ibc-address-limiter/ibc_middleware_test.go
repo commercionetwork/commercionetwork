@@ -1,11 +1,11 @@
 package ibc_address_limit_test
 
 import (
-	//"fmt"
+	"fmt"
 	//"strconv"
 	"strings"
 	"testing"
-//	"time"
+	//"time"
 
 	//bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
@@ -20,7 +20,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/app/apptesting"
 	commercionetworkibctesting "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/testutil"
-	//"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
+	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 
 	//"github.com/commercionetwork/commercionetwork/app"
 )
@@ -52,7 +52,7 @@ func NewTransferPath(chainA, chainB *commercionetworkibctesting.TestChain) *ibct
 
 func (suite *MiddlewareTestSuite) SetupTest() {
 	suite.Setup()
-	ibctesting.DefaultTestingAppInit = commercionetworkibctesting.SetupTestingApp
+	//ibctesting.DefaultTestingAppInit = commercionetworkibctesting.SetupTestingApp
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)
 	suite.chainA = &commercionetworkibctesting.TestChain{
 		TestChain: suite.coordinator.GetChain(ibctesting.GetChainID(1)),
@@ -108,6 +108,7 @@ func (suite *MiddlewareTestSuite) MessageFromBToA(denom string, amount sdk.Int) 
 
 // Tests that a receiver address longer than 4096 is not accepted
 func (suite *MiddlewareTestSuite) TestInvalidReceiver() {
+	suite.Setup()
 	msg := transfertypes.NewMsgTransfer(
 		suite.path.EndpointB.ChannelConfig.PortID,
 		suite.path.EndpointB.ChannelID,
@@ -184,7 +185,7 @@ func (suite *MiddlewareTestSuite) FullSendAToB(msg sdk.Msg) (*sdk.Result, string
 
 	return sendResult, string(ack), nil
 }
-/*
+
 func (suite *MiddlewareTestSuite) AssertReceive(success bool, msg sdk.Msg) (string, error) {
 	_, ack, err := suite.FullSendBToA(msg)
 	if success {
@@ -194,7 +195,7 @@ func (suite *MiddlewareTestSuite) AssertReceive(success bool, msg sdk.Msg) (stri
 	} else {
 		suite.Require().Contains(string(ack), "error",
 			"acknowledgment is not an error")
-		suite.Require().Contains(string(ack), types.ErrRateLimitExceeded.Error(),
+		suite.Require().Contains(string(ack), types.ErrUnauthorized.Error(),
 			"acknowledgment error is not of the right type")
 	}
 	return ack, err
@@ -218,7 +219,7 @@ func (suite *MiddlewareTestSuite) BuildChannelQuota(name, channel, denom string,
 }
 
 // Tests
-
+*/
 // Test that Sending IBC messages works when the middleware isn't configured
 func (suite *MiddlewareTestSuite) TestSendTransferNoContract() {
 	one := sdk.NewInt(1)
@@ -278,7 +279,7 @@ func (suite *MiddlewareTestSuite) fullSendTest(native bool) {
 	//fmt.Printf("Testing send rate limiting for denom=%s, channelValue=%s, quota=%s, sendAmount=%s\n", denom, channelValue, quota, sendAmount)
 
 	// Setup contract
-	suite.chainA.StoreContractCode(&suite.Suite, "./bytecode/rate_limiter.wasm")
+	suite.chainA.StoreContractCode(&suite.Suite, "./bytecode/address_limiter.wasm")
 	/*quotas := suite.BuildChannelQuota("weekly", channel, denom, 604800, 5, 5)
 	fmt.Println(quotas)
 	addr := suite.chainA.InstantiateALContract(&suite.Suite, []sdk.Address{})
@@ -298,7 +299,7 @@ func (suite *MiddlewareTestSuite) fullSendTest(native bool) {
 	/*used, ok := sdk.NewIntFromString(attrs["weekly_used_out"])
 	suite.Require().True(ok)
 
-	suite.Require().Equal(used, sendAmount.MulRaw(2))
+	suite.Require().Equal(used, sendAmount.MulRaw(2))*/
 
 	// Sending above the quota should fail. We use 2 instead of 1 here to avoid rounding issues
 	suite.AssertSend(false, suite.MessageFromAToB(denom, sdk.NewInt(2)))
@@ -464,10 +465,10 @@ func (suite *MiddlewareTestSuite) TestFailedSendTransfer() {
 	// We should be able to send again because the packet that exceeded the quota failed and has been reverted
 	suite.AssertSend(true, suite.MessageFromAToB(sdk.DefaultBondDenom, sdk.NewInt(1)))
 }
-
+*/
 func (suite *MiddlewareTestSuite) TestUnsetAddressLimitingContract() {
 	// Setup contract
-	suite.chainA.StoreContractCode(&suite.Suite, "./bytecode/rate_limiter.wasm")
+	suite.chainA.StoreContractCode(&suite.Suite, "./bytecode/address_limiter.wasm")
 	addr := suite.chainA.InstantiateALContract(&suite.Suite, []sdk.Address{})
 	suite.chainA.RegisterAddressLimitingContract(addr)
 
@@ -475,9 +476,8 @@ func (suite *MiddlewareTestSuite) TestUnsetAddressLimitingContract() {
 	params, err := types.NewParams("")
 	suite.Require().NoError(err)
 	app := suite.chainA.GetApp()
-	paramSpace, ok := app.AppKeepers.ParamsKeeper.GetSubspace(types.ModuleName)
+	paramSpace, ok := app.ParamsKeeper.GetSubspace(types.ModuleName)
 	suite.Require().True(ok)
 	// N.B.: this panics if validation fails.
 	paramSpace.SetParamSet(suite.chainA.GetContext(), &params)
 }
-*/

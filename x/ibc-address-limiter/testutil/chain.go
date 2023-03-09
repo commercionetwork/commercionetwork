@@ -5,6 +5,7 @@ import (
 	//"time"
 
 	"github.com/commercionetwork/commercionetwork/app/params"
+	"github.com/commercionetwork/commercionetwork/testutil/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -15,7 +16,10 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/commercionetwork/commercionetwork/app"
+	
 )
+
+//var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
 
 type TestChain struct {
 	*ibctesting.TestChain
@@ -24,7 +28,9 @@ type TestChain struct {
 func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	encodingConfig := params.MakeEncodingConfig()
 	cdc := encodingConfig.Marshaler
-	commercionetworkApp := app.Setup(false)
+	commercionetworkApp := /*app.Setup(false)*/simapp.New("")
+	//ctx := commercionetworkApp.BaseApp.NewContext(false, tmproto.Header{})
+	//commercionetworkApp.GovernmentKeeper.SetGovernmentAddress(ctx, testUser3)
 	return commercionetworkApp, app.NewDefaultGenesisState(cdc)
 }
 
@@ -82,8 +88,8 @@ func SignAndDeliver(
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 	gInfo, res, err := app.Deliver(txCfg.TxEncoder(), tx)
 
-	app.EndBlock(abci.RequestEndBlock{})
-	app.Commit()
+	//app.EndBlock(abci.RequestEndBlock{})
+	//app.Commit()
 
 	return gInfo, res, err
 }

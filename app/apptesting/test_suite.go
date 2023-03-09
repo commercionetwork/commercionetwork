@@ -31,6 +31,8 @@ import (
 	"github.com/commercionetwork/commercionetwork/testutil/simapp"
 )
 
+//var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
+
 type KeeperTestHelper struct {
 	suite.Suite
 
@@ -57,7 +59,8 @@ func (s *KeeperTestHelper) Setup() {
 		Ctx:             s.Ctx,
 	}
 
-	//s.SetEpochStartTime()
+	s.SetEpochStartTime()
+	//s.App.GovernmentKeeper.SetGovernmentAddress(s.Ctx, testUser3)
 	s.TestAccs = CreateRandomAccounts(3)
 }
 
@@ -66,7 +69,7 @@ func (s *KeeperTestHelper) SetupTestForInitGenesis() {
 	s.App = app.Setup(true)
 	s.Ctx = s.App.BaseApp.NewContext(true, tmtypes.Header{})
 }
-/*
+
 func (s *KeeperTestHelper) SetEpochStartTime() {
 	epochsKeeper := s.App.EpochsKeeper
 
@@ -76,9 +79,9 @@ func (s *KeeperTestHelper) SetEpochStartTime() {
 		epochsKeeper.SetEpochInfo(s.Ctx, epoch)
 		/*if err != nil {
 			panic(err)
-		}*
+		}*/
 	}
-}*/
+}
 
 // CreateTestContext creates a test context.
 func (s *KeeperTestHelper) CreateTestContext() sdk.Context {

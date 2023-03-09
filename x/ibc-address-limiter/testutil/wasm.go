@@ -17,7 +17,7 @@ import (
 )
 
 func (chain *TestChain) StoreContractCode(suite *suite.Suite, path string) {
-	commercionetworkApp := chain.GetApp()
+	commercionetworkApp := chain.TestChain.GetSimApp()
 
 	govKeeper := commercionetworkApp.GovKeeper
 	wasmCode, err := ioutil.ReadFile(path)
