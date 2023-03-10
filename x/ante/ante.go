@@ -138,7 +138,7 @@ func checkMinimumFees(
 		return nil
 	}
 	// NB: if user pay insufficent fiat amount plus enough stake denom, fiat amount will be withdraw from the wallet anyway.
-
+	//return nil
 	// stakeDenom must always equal 10000
 	comAmount := sdk.ZeroDec()
 	comRequiredQty := requiredFees.MulInt64(1000000)

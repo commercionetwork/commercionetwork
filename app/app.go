@@ -24,7 +24,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	// ------------------------------------------
 	// Cosmos SDK utils
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -129,16 +129,19 @@ import (
 	// ------------------------------------------
 	// IBC v3
 	//  Transfer
-	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+
+	ibcaddresslimit "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter"
+	ibcaddresslimittypes "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 
 	//  Core
-	ibc "github.com/cosmos/ibc-go/v3/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
-	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
+	ibc "github.com/cosmos/ibc-go/v4/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v4/modules/core/02-client"
+	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
 
 	// ------------------------------------------
 	// Commercio.Network
@@ -188,7 +191,7 @@ const Name = "commercionetwork"
 
 var (
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
-	ProposalsEnabled = "false"
+	ProposalsEnabled = "true"
 
 	// If set to non-empty string it must be comma-separated list of values that are all a subset
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
@@ -263,6 +266,7 @@ var (
 		commerciomintmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		epochs.AppModuleBasic{},
+		ibcaddresslimit.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -316,7 +320,7 @@ type App struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
+	BankKeeper       bankkeeper.BaseKeeper
 	AuthzKeeper      authzkeeper.Keeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
@@ -331,6 +335,7 @@ type App struct {
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	TransferKeeper   ibctransferkeeper.Keeper
 	WasmKeeper       wasm.Keeper
+	ContractKeeper   *wasmkeeper.PermissionedKeeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -348,6 +353,10 @@ type App struct {
 	// the module manager
 	mm           *module.Manager
 	EpochsKeeper epochskeeper.Keeper
+
+	AddressLimitingICS4Wrapper   *ibcaddresslimit.ICS4Wrapper
+	RawIcs20TransferAppModule transfer.AppModule
+	TransferStack             *ibcaddresslimit.IBCModule
 }
 
 // Remove assertNoPrefix
@@ -434,6 +443,8 @@ func New(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
+	app.ScopedTransferKeeper = scopedTransferKeeper
+
 	// -----------------------------------------
 	// add keepers
 
@@ -492,6 +503,8 @@ func New(
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
 	)
+	app.WireICS20PreWasmKeeper(appCodec, bApp)
+
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	// register the proposal types
@@ -501,22 +514,6 @@ func New(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
-
-	// Create Transfer Keepers
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec,
-		keys[ibctransfertypes.StoreKey],
-		app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		scopedTransferKeeper,
-	)
-
-	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -598,8 +595,7 @@ func New(
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
-	//ibcRouter.AddRoute(documentstypes.ModuleName, documentsModule)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, app.TransferStack)
 
 	// Wasm keeper support
 	wasmDir := filepath.Join(homePath, "data")
@@ -627,6 +623,13 @@ func New(
 		supportedFeatures,
 		wasmOpts...,
 	)
+	// Pass the contract keeper to all the structs (generally ICS4Wrappers for ibc middlewares) that need it
+	app.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(app.WasmKeeper)
+	app.AddressLimitingICS4Wrapper.ContractKeeper = app.ContractKeeper
+
+	// wire up x/wasm to IBC
+	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
+	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// The gov proposal types can be individually enabled
 	if len(enabledProposals) != 0 {
@@ -636,9 +639,6 @@ func New(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
 	)
-	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper))
-
-	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/****  Module Options ****/
 
@@ -671,7 +671,7 @@ func New(
 		//wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		params.NewAppModule(app.ParamsKeeper),
-		transferModule,
+		app.RawIcs20TransferAppModule,
 		// custoum modules
 		governmentModule,
 		vbrModule,
@@ -713,6 +713,7 @@ func New(
 		didTypes.ModuleName,
 		governmentmoduletypes.ModuleName,
 		vbrmoduletypes.ModuleName,
+		ibcaddresslimittypes.ModuleName,
 	)
 
 	// TODO: check order for End Blockers
@@ -746,6 +747,7 @@ func New(
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
 		wasm.ModuleName,
+		ibcaddresslimittypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -780,6 +782,7 @@ func New(
 		epochstypes.ModuleName,
 		authz.ModuleName,
 		wasm.ModuleName,
+		ibcaddresslimittypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -904,10 +907,60 @@ func New(
 	}
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
-	app.ScopedTransferKeeper = scopedTransferKeeper
 	app.ScopedWasmKeeper = scopedWasmKeeper
 
 	return app
+}
+
+// Create the IBC Transfer Stack from bottom to top:
+//
+// * SendPacket. Originates from the transferKeeper and and goes up the stack:
+// transferKeeper.SendPacket -> ibc_address_limit.SendPacket -> channel.SendPacket
+// * RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
+// channel.RecvPacket -> ibc_address_limit.OnRecvPacket -> transfer.OnRecvPacket
+//
+// After this, the wasm keeper is required to be set on appKeepers.AddressLimitingICS4Wrapper
+func (appKeepers *App) WireICS20PreWasmKeeper(
+	appCodec codec.Codec,
+	bApp *baseapp.BaseApp) {
+
+	// ChannelKeeper wrapper for address limiting SendPacket(). The wasmKeeper needs to be added after it's created
+	addressLimitingParams := appKeepers.GetSubspace(ibcaddresslimittypes.ModuleName)
+	addressLimitingParams = addressLimitingParams.WithKeyTable(ibcaddresslimittypes.ParamKeyTable())
+	AddressLimitingICS4Wrapper := ibcaddresslimit.NewICS4Middleware(
+		appKeepers.IBCKeeper.ChannelKeeper,
+		&appKeepers.AccountKeeper,
+		// wasm keeper we set later.
+		nil,
+		&appKeepers.BankKeeper,
+		addressLimitingParams,
+	)
+	appKeepers.AddressLimitingICS4Wrapper = &AddressLimitingICS4Wrapper
+
+	// Create Transfer Keepers
+	transferKeeper := ibctransferkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[ibctransfertypes.StoreKey],
+		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
+		// The ICS4Wrapper is replaced by the addressLimitingICS4Wrapper instead of the channel
+		appKeepers.AddressLimitingICS4Wrapper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		&appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.ScopedTransferKeeper,
+	)
+	appKeepers.TransferKeeper = transferKeeper
+	appKeepers.RawIcs20TransferAppModule = transfer.NewAppModule(appKeepers.TransferKeeper)
+	transferIBCModule := transfer.NewIBCModule(appKeepers.TransferKeeper)
+
+	// AddressLimiting IBC Middleware
+	addressLimitingTransferModule := ibcaddresslimit.NewIBCModule(transferIBCModule, appKeepers.AddressLimitingICS4Wrapper)
+	appKeepers.TransferStack = &addressLimitingTransferModule
+}
+
+func (app *App) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
 }
 
 // Name returns the name of the App
@@ -1038,6 +1091,23 @@ func GetMaccPerms() map[string][]string {
 	return dupMaccPerms
 }
 
+// Required for ibctesting
+func (app *App) GetStakingKeeper() stakingkeeper.Keeper {
+	return app.StakingKeeper 
+}
+
+func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper // This is a *ibckeeper.Keeper
+}
+
+func (app *App) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+func (app *App) GetTxConfig() client.TxConfig {
+	return MakeEncodingConfig().TxConfig
+}
+
 // initParamsKeeper init params keeper and its subspaces
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
@@ -1059,6 +1129,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(documentstypes.ModuleName)
 	paramsKeeper.Subspace(commerciomintTypes.ModuleName)
 	paramsKeeper.Subspace(commerciokycTypes.ModuleName)
+	paramsKeeper.Subspace(ibcaddresslimittypes.ModuleName)
 
 	return paramsKeeper
 }

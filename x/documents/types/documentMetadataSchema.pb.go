@@ -77,7 +77,7 @@ func (m *DocumentMetadataSchema) GetVersion() string {
 
 type DocumentMetadata struct {
 	ContentURI string `protobuf:"bytes,1,opt,name=contentURI,proto3" json:"contentURI,omitempty"`
-	// string schemaType = 2;
+	//string schemaType = 2;
 	Schema *DocumentMetadataSchema `protobuf:"bytes,2,opt,name=schema,proto3" json:"schema,omitempty"`
 }
 

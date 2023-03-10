@@ -9,8 +9,8 @@ import (
 	sdkLegacy "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v3/modules/core/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v4/modules/core/types"
 
 	v220government "github.com/commercionetwork/commercionetwork/x/government/legacy/v2.2.0"
 	v300government "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
