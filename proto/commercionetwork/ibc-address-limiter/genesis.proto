@@ -1,0 +1,13 @@
+syntax = "proto3";
+package commercionetwork.commercionetwork.ibcaddresslimiter;
+
+option go_package = "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types";
+
+import "gogoproto/gogo.proto";
+import "commercionetwork/ibc-address-limiter/params.proto";
+
+// GenesisState defines the ibc-address-limit module's genesis state.
+message GenesisState {
+  // params are all the parameters of the module
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}

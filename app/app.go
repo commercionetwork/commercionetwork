@@ -680,6 +680,7 @@ func New(
 		didModule,
 		documentsModule,
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
+		ibcaddresslimit.NewAppModule(*app.AddressLimitingICS4Wrapper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -868,6 +869,14 @@ func New(
 		},
 	)
 
+	upgradeNameV5 := "v5.0.0"
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeNameV5,
+		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			return vm, nil
+		},
+	)
+
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
 		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
@@ -888,6 +897,15 @@ func New(
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV4))
+	}
+
+	if upgradeInfo.Name == upgradeNameV5 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		storeUpgradesV5 := storetypes.StoreUpgrades{
+			Added: []string{ibcaddresslimittypes.ModuleName},
+		}
+
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV5))
 	}
 
 	if loadLatest {
