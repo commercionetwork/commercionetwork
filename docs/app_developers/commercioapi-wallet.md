@@ -28,7 +28,7 @@ The Api `/wallet/` path permit you to interact with your wallet  and obtain some
 
 
 
-## Get your address and balance
+## Get your wallet address and balance
 It permit to obtain your wallet address associated to your account in the commercio.app and its balance in terms of token
 
 
@@ -51,7 +51,7 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/address' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTQxNjcsImlhdCI6MTYyNDM1MzI2NywiYXV0aF90aW1lIjowLCJqdGkiOiI2YTk4ZjIyZi02ZTNkLTQ4MzQtYmMwYy03MzhmZTI1ZWM1Y2MiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImVjYTg3ZWIwLWZmYWItNGMzMi05YzFlLWQ0MDE3ZTE4YmRhZSIsImF0X2hhc2giOiJieXFLRE5WLXowVUlfOGFHRVp6bkV3IiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.VSPIg8fefKfP2rShWVTvap1IvGx-A64FPYUsV19lHF4KFl8oZq7AyP6ePXTbkI2G1ifiA7a8mVr7g3O8b8MofRbUHSxrzPLSh_eSSQYP618f4G1sTYPGOIZuRjzTX_liywryejvEXGBzt50E-KFpGwUA99CTyG2q8s1Z-gBpDbzTY5Wd7Kc_1GkbYsTKSx1hs1-4OiCCFJ8cTRkYgVq01JqdX-Ghf8KF9yrpvORIPvvKBo9ZjoqszVSJFOgm51Zp0NuxL3Vb9FsLIIuEjlR4ocdLNXJ6qeFKa2xUWKtxwdFL-sredJgiQyt-tixcGFtVKpivVNV7KoMuSlgikjDr-g'
+  -H 'Authorization: Bearer eyJhbG....jDr-g'
 ```
 
 
@@ -111,7 +111,7 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/balance' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTQ0MzcsImlhdCI6MTYyNDM1MzUzNywiYXV0aF90aW1lIjowLCJqdGkiOiJhZDdmNzBhMi1iMDI2LTRhNmYtOTgzMC1iMjA4MmVlMzQwMDEiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6IjdmZGNiY2Y1LTRkMGYtNGUwYi1hOTRiLTc1ODQ5ZmMxNTk2YiIsImF0X2hhc2giOiJCVU9Ndjg3djNEUDVmZ0xHd1FuVjhBIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.i3NbUWvwB4NNLfPSmUrfziwA4lJOzbsT6J0Ngc8QfEHfZd7R2U_GlQSv_e94v-Hac-97bBGUHhdeqZCreieW2wc_6Gbwyi3CvbglBRcNWGNbbtX78aU0K5gOLBR0_KfJxMxZuZe4AcWKjdQ3urq85-A-_AGoq8OWvcGkzAzA1Pi8UX4q30imTaW3m-N2cvK9fAxSLCnf5c9XPKDMaHWF-ACi30_GM4Yrubzev8I7Dg6Jaf24jqZKBzKOL0MmOk2Iw7SuR2XoqaiUUkKk7iuI0fnrIhUDaGy88bXj9pwoQtrtw9_kPXIQSp3pXvsRjCfqoOGMVpks7sFVNh6oc72i3g'
+  -H 'Authorization: Bearer eyJhbG....72i3g'
 
 ```
 
@@ -171,7 +171,7 @@ Example
 curl -X 'POST' \
   'https://dev-api.commercio.app/v1/wallet/transfers' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTgwMDEsImlhdCI6MTYyNDM1NzEwMSwiYXV0aF90aW1lIjowLCJqdGkiOiIxNTA5M2IwMS05MmYxLTRjMjctYWFlNi00ZGZlM2M3MGM0NDciLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6IjkyMDkxMzdkLTYxYzYtNDkwZS1iMjRlLTIyOTU0OGZkNGI5OSIsImF0X2hhc2giOiJYY1hZLWxFYjNTSERRbmg0N1dmUDZBIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.GXcDC-HviuylBqryyeFQnR1g_sMZG70utlKr6OVUEkoJ4ysQGfLVMuptZUlkxEebHSspGLtB2vTPtuMaY6D7jN3AKLJbW0ceRTg1u1lfWbWJrqG7Ly2zKlklvcDK-VBcW38OLqi3JjJkQYgLJ6P_YuWqH6K9N0Jz6CHHNP1iGPM6T4Yx-AIihfVfy85xtbG4NnHHKm25FElh-PTUUCTXatsP8CTwWrA2CVPfKNoSttJJ3GYJSc7hq-Qf7pv8g7NTe2PWaZdeaOhGQwLKZSfrIN_Pxu1FeHjfTg0jyENSiBxPhJDdlWDnk1jZforMiXXu9WD294z-7E6vULDAGguDwg' \
+  -H 'Authorization: Bearer eyJhbGciOiJSU.....AGguDwg' \
   -H 'Content-Type: application/json' \
   -d '{
   "amount": [
@@ -244,7 +244,7 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/transfers/af5b3a65-9c60-4241-9186-b655a1091dcc' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTgwMDEsImlhdCI6MTYyNDM1NzEwMSwiYXV0aF90aW1lIjowLCJqdGkiOiIxNTA5M2IwMS05MmYxLTRjMjctYWFlNi00ZGZlM2M3MGM0NDciLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6IjkyMDkxMzdkLTYxYzYtNDkwZS1iMjRlLTIyOTU0OGZkNGI5OSIsImF0X2hhc2giOiJYY1hZLWxFYjNTSERRbmg0N1dmUDZBIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.GXcDC-HviuylBqryyeFQnR1g_sMZG70utlKr6OVUEkoJ4ysQGfLVMuptZUlkxEebHSspGLtB2vTPtuMaY6D7jN3AKLJbW0ceRTg1u1lfWbWJrqG7Ly2zKlklvcDK-VBcW38OLqi3JjJkQYgLJ6P_YuWqH6K9N0Jz6CHHNP1iGPM6T4Yx-AIihfVfy85xtbG4NnHHKm25FElh-PTUUCTXatsP8CTwWrA2CVPfKNoSttJJ3GYJSc7hq-Qf7pv8g7NTe2PWaZdeaOhGQwLKZSfrIN_Pxu1FeHjfTg0jyENSiBxPhJDdlWDnk1jZforMiXXu9WD294z-7E6vULDAGguDwg'
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cC....GguDwg'
 ```
 
 
@@ -310,7 +310,7 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/transfers' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTk2MzYsImlhdCI6MTYyNDM1ODczNiwiYXV0aF90aW1lIjowLCJqdGkiOiJjZjYxNDhkMi0yNWJkLTQyY2MtYWIyYy1iZGM4ZDFlN2EzY2IiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImM5NjVkOTc0LTZkMGYtNDU3Mi05NTNmLTJiZjM4NWFiNjBiYSIsImF0X2hhc2giOiI0eGVoS3RKTkZVMzlPSy1NRE9XMTF3IiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.B-gllJgvQhO2aEKv38eviYihsb0R2TCSTVQL5K2LTpKVnARye3pIBo7vJ-DeOjs48e0y_y0usD0_I-XocZxIGNupsRFcK46nKmiwJg289QSu-b4J0o2sDoDe3OpjUxBhtuZgO9zkfbTDcI1F3DSfAD9fhZV-LddNHlzOx7nbShmZ7mY0voR4d4xwMt-1QpE1Y_H43UXfFlvdFLeCr7mv8HI2yAFPGJ2B8BY6_eqXj-PIZzbgGzNgfe4JwjsYqYXuhgnbgp52TlNccIfWGHw1rCoB5doUzusdJ2K3gg-5EWPAapMZcwdfbsaRKx936mL9LxeGq5-iZkFJDyvm7ZDmig'
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR......ZDmig'
 
 ```
 
@@ -385,5 +385,100 @@ Direct Link using your did address
 
 ## Manage your DDO
 
-Cooming soon 
+A DID Document is a digital document that describes a Decentralized Identifier (DID) and contains information about the DID's associated public keys, authentication mechanisms, and service endpoints.
 
+A Decentralized Identifier (DID) is a unique identifier that is not dependent on any centralized authority or registry. It is designed to provide a decentralized, secure, and privacy-preserving way to identify and interact with people, organizations, and things on the internet.
+
+A DID Document provides a standardized way for different systems to interact with each other using DIDs, making it easier to build decentralized applications and services that rely on the secure and private exchange of information. The information contained in a DID Document can be used to verify the authenticity and integrity of a DID and to establish secure communication channels between different parties.
+
+For details on DID documents refers to [DID module](/modules/did/)
+
+Through API is possible to interact with the DID Document of a user present in the chain knowing the eID ((Wallet address) or to manage your DID Document updating it  associated to your eID (Wallet address)
+
+Mainly a DDO contains public keys of the user that can be used 
+by applications for many scope
+
+There are two type of keys that are directly managed by the hosted wallet 
+* `RsaVerificationKey2018`
+* `RsaSignature2018`
+
+Public version are created in DDO at first generation
+
+This type of kes are intended for encrypting method described [here](/modules/documents/03_messages.html#encryption-data-field-requirements)
+not still implemented in commercio.app
+
+
+### Get DDO of a user 
+In Review - cooming soon
+
+#### Api path 
+
+GET ` /ddo/{wallet_address}`
+
+
+#### Step by step example
+Let's use the API  
+
+
+
+
+### Get DDO history of a user 
+
+In Review - cooming soon
+
+
+
+### Update your DDO 
+
+#### Api path 
+
+POST ` /ddo/process`
+
+
+##### Step by step example
+Let's create a new process to create the first version of DDO   
+
+**Step 1 - Define the first query**
+
+
+**Step 2 - Use the API to istantiate the process**
+Use the tryout
+
+
+Corresponding Cli request
+
+
+API : Body response
+
+
+S
+
+
+
+
+### Get your DDO Updating  process status
+
+
+Step 3 - Check the process status
+Use the API Get : /sharedoc/process with process_id = 34669051-707f-4230-a960-e0ef8e517e43
+
+see for more details below in the guide
+
+API : Body response
+
+
+Acquire the "doc_tx_hash": "78733941DE98F4D39424DD082F3516438E397A236BA28C0BBE2AC3CD3A66E94F"
+
+#Step 4 - Check the transaction in the explorer
+Use the doc_tx_hash in the explorer filter
+
+Modal
+
+Check the trasaction
+
+Modal
+
+#Common error
+The following are common error composing using a POST Sharedocument message
+
+#
