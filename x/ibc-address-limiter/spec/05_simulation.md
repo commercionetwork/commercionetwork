@@ -1,3 +1,7 @@
+<!--
+order: 5
+-->
+
 # Simulation
 
 This document aims to illustrate the stack creation or setup of two chains with `ignite` for testing the behaviour we may expect from the module and the contract.
