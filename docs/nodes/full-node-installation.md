@@ -151,33 +151,49 @@ Select open rpc services of chains
 * Testnet: 
   * With name: rpc-testnet.commercio.network, rpc2-testnet.commercio.network
   * With ip: 157.230.110.18:26657, 46.101.146.48:26657
-* Mainnet: (WIP)
-  * https://rpc-mainnet.commercio.network, https://rpc2-mainnet.commercio.network (WIP)
+* Mainnet:
+  * https://rpc-mainnet.commercio.network, https://rpc2-mainnet.commercio.network
 
 
-
+**Testnet**
 ```bash
 TRUST_RPC1="157.230.110.18:26657"
 TRUST_RPC2="46.101.146.48:26657"
-curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height + "\n" + .result.block_id.hash'
+CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
+TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
+TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
+# CONFIG OUTPUT
+printf "\n\nenable = true\nrpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n\n"
 ```
 
-The command should be return block height and hash of block as follow:
-```
-5075021
-EB1032C6DFC9F2708B16DF8163CAB2258B0F1E1452AEF031CA3F32004F54C9D1
+**Mainnet**
+```bash
+TRUST_RPC1="rpc-mainnet.commercio.network:80"
+TRUST_RPC2="rpc2-mainnet.commercio.network:80"
+CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
+TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
+TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
+# CONFIG OUTPUT
+printf "\n\nenable = true\nrpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n\n"
 ```
 
-Edit these settings accordingly:
-
+The command should be return somthing like follow:
 ```
+enable = true
+rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
+trust_height = 6240000
+trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
+```
+
+Edit `~/.commercionetwork/config/config.toml` with these settings accordingly:
+
+```toml
 [statesync]
 
 enable = true
-
-rpc_servers = "$TRUST_RPC1,$TRUST_RPC2"
-trust_height = 5075021
-trust_hash = "EB1032C6DFC9F2708B16DF8163CAB2258B0F1E1452AEF031CA3F32004F54C9D1"
+rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
+trust_height = 6240000
+trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
 ```
 
 
