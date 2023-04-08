@@ -15,6 +15,5 @@ mod sudo;
 
 // Tests
 mod contract_tests;
-mod integration_tests;
 
 pub use crate::error::ContractError;

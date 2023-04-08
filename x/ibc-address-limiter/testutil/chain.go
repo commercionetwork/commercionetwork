@@ -2,7 +2,6 @@ package commercionetworkibctesting
 
 import (
 	"encoding/json"
-	//"time"
 
 	"github.com/commercionetwork/commercionetwork/app/params"
 	"github.com/commercionetwork/commercionetwork/testutil/simapp"
@@ -19,7 +18,6 @@ import (
 	
 )
 
-//var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
 
 type TestChain struct {
 	*ibctesting.TestChain
@@ -29,8 +27,7 @@ func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	encodingConfig := params.MakeEncodingConfig()
 	cdc := encodingConfig.Marshaler
 	commercionetworkApp := /*app.Setup(false)*/simapp.New("")
-	//ctx := commercionetworkApp.BaseApp.NewContext(false, tmproto.Header{})
-	//commercionetworkApp.GovernmentKeeper.SetGovernmentAddress(ctx, testUser3)
+	
 	return commercionetworkApp, app.NewDefaultGenesisState(cdc)
 }
 
