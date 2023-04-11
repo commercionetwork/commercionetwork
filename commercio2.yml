@@ -1,0 +1,104 @@
+version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
+accounts:
+- name: alice2
+  coins:
+  - 20000000000uccc
+  - 200000000000ucommercio
+  mnemonic: gaze apart pen defense tomorrow index again pool earth force napkin noble
+    elevator payment hawk trip cute gown fade wear swallow alert lemon people
+- name: bob2
+  coins:
+  - 10000000000uccc
+  - 100000000000ucommercio
+  mnemonic: special chest leaf section reunion inflict busy blouse inflict kid alcohol
+    hazard embody mosquito green turkey street very lab forest gain disease hollow
+    bomb
+- name: gov2
+  coins:
+  - 10000000000uccc
+  - 100000000000ucommercio
+  mnemonic: bonus raccoon material jump tired under cup senior wash peace cook mansion
+    nice rely outside atom surface maid dune poet hold forum electric accuse
+faucet:
+  name: bob2
+  coins:
+  - 5uccc
+  - 100000ucommercio
+  host: :4501
+client:
+  vuex:
+    path: vue/src/store
+  openapi:
+    path: docs_3_0/static/openapi2.yml
+genesis:
+  app_state:
+    commerciokyc:
+      liquidity_pool_amount:
+      - amount: "1000000000000"
+        denom: ucommercio
+      memberships:
+      - expiry_at: "2022-03-21T00:00:00Z"
+        membership_type: black
+        owner: did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm
+        tsp_address: did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm
+      trusted_service_providers:
+      - did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm
+    commerciomint:
+      Positions:
+      - ID: 090ca0c2-cf00-4119-8307-b51413a00cf4
+        collateral: "7"
+        created_at: "2021-07-22T13:18:44.598560074Z"
+        credits:
+          amount: "10"
+          denom: uccc
+        exchange_rate: "0.610000000000000000"
+        owner: did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm
+      params:
+        conversion_rate: "0.610000000000000000"
+        freeze_period: 1814400s
+    crisis:
+      constant_fee:
+        denom: ucommercio
+    gov:
+      deposit_params:
+        min_deposit:
+        - amount: "10000000"
+          denom: ucommercio
+      voting_params:
+        voting_period: 120s
+    government:
+      governmentAddress: did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm
+    staking:
+      params:
+        bond_denom: ucommercio
+    vbr:
+      params:
+        distr_epoch_identifier: minute
+        earn_rate: "0.500000000000000000"
+      poolAmount:
+      - amount: "10000000.000000000000000000"
+        denom: ucommercio
+  chain_id: commercio2
+validators:
+- name: alice2
+  bonded: 100000000ucommercio
+  app:
+    api:
+      address: :1318
+    grpc:
+      address: :9094
+    grpc-web:
+      address: :9095
+  config:
+    p2p:
+      laddr: :26658
+    rpc:
+      laddr: :26659
+      pprof_laddr: :6061
+  home: $HOME/.commercio2

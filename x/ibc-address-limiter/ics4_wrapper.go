@@ -11,6 +11,8 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v4/modules/core/exported"
+
+	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
 
 var (
@@ -79,4 +81,8 @@ func (i *ICS4Wrapper) GetParams(ctx sdk.Context) (contract string) {
 func (i *ICS4Wrapper) GetAppVersion(ctx sdk.Context, portID, channelID string) (string, bool) {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (i *ICS4Wrapper) SetParams(ctx sdk.Context, params types.Params) {
+	i.paramSpace.SetParamSet(ctx, &params)
 }
