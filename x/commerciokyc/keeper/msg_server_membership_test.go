@@ -4,9 +4,11 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -20,41 +22,72 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		//want    *types.MsgBuyMembershipResponse
-		wantErr bool
+		wantErr string
 	}{
-		// TODO: Add test cases.
 		{
 			name: "Invalid membership type returns error",
 			args: args{
 				msg:    types.NewMsgBuyMembership("gren", testUser, testTsp),
 				invite: types.NewInvite(testInviteSender, testUser, "bronze"),
 			},
-			//want: types.MsgBuyMembershipResponse{ExpiryAt: }
-			wantErr: true,
-		},
-		/*{
-			name:    "Invalid message returns error",
-			wantErr: true,
+			wantErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", testInvalidMembership)).Error(),
 		},
 		{
-			name: "Valid membership allows buying",
+			name: "Downgrade from black membership returns error",
+			args: args{
+				msg:    types.NewMsgBuyMembership("silver", testUser, testTsp),
+				invite: types.NewInvite(testInviteSender, testUser, "silver"),
+			},
+			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot downgrade from Black membership").Error(),
 		},
 		{
 			name: "Buying without invite returns error",
+			args: args{
+				msg:    types.NewMsgBuyMembership("bronze", testUser, testTsp),
+				invite: types.Invite{},
+			},
+			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited").Error(),
 		},
 		{
-			name: "Buying with invalid invite returns error",
+			name: "Valid membership allows buying",
+			args: args{
+				msg:    types.NewMsgBuyMembership("silver", testUser, testTsp),
+				invite: types.NewInvite(testInviteSender, testUser, "silver"),
+			},
+			wantErr: "",
 		},
 		{
 			name: "Valid upgrade works properly",
+			args: args{
+				msg:    types.NewMsgBuyMembership("gold", testUser, testTsp),
+				invite: types.NewInvite(testInviteSender, testUser, "gold"),
+			},
+			wantErr: "",
 		},
 		{
 			name: "Valid downgrade works properly",
+			args: args{
+				msg:    types.NewMsgBuyMembership("green", testUser, testTsp),
+				invite: types.NewInvite(testInviteSender, testUser, "green"),
+			},
+			wantErr: "",
 		},
 		{
-			name: "Invalid buying memebership with diffrent denom",
-		},*/
+			name: "Normal user buying for other user as tsp returns error",
+			args: args{
+				msg:    types.NewMsgBuyMembership("silver", testUser2, testUser),
+				invite: types.NewInvite(testInviteSender, testUser2, "silver"),
+			},
+			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you can buy membership only for yourself").Error(),
+		},
+		{
+			name: "Normal user buy membership for himself",
+			args: args{
+				msg:    types.NewMsgBuyMembership("green", testUser, testUser),
+				invite: types.NewInvite(testInviteSender, testUser, "green"),
+			},
+			wantErr: "",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -64,22 +97,44 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 			_ = bk
 			_ = msg
 			_ = ctx
+			k.AddTrustedServiceProvider(ctx, testTsp)
 			if !tt.args.invite.Empty() {
 				inviteSender, _ := sdk.AccAddressFromBech32(tt.args.invite.Sender)
+				//assign membership to inviter
 				err := k.AssignMembership(ctx, inviteSender, types.MembershipTypeBlack, testTsp, testExpiration)
 				require.NoError(t, err)
 				k.SaveInvite(ctx, tt.args.invite)
+				//send coins to tsp
+				msgTsp, _ := sdk.AccAddressFromBech32(tt.args.msg.Tsp)
+				membershipPrice := membershipCosts[tt.args.msg.MembershipType] * 1000000
+				membershipCost := sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, membershipPrice))
+				bk.MintCoins(ctx, types.ModuleName, membershipCost)
+				bk.SendCoinsFromModuleToAccount(ctx,types.ModuleName, msgTsp, membershipCost)
+			}
+			
+			name := "Downgrade from black membership returns error"
+			if tt.name == name {
+				err := k.AssignMembership(ctx, testUser, types.MembershipTypeBlack, testTsp, testExpiration)
+				require.NoError(t, err)
 			}
 
-			got, err := msg.BuyMembership(sdk.WrapSDKContext(ctx), tt.args.msg)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("msgServer.BuyMembership() error = %v, wantErr %v", err, tt.wantErr)
+			name = "Valid upgrade works properly"
+			if tt.name == name {
+				err := k.AssignMembership(ctx, testUser, types.MembershipTypeSilver, testTsp, testExpiration)
+				require.NoError(t, err)
+			}
+
+			name = "Valid downgrade works properly"
+			if tt.name == name {
+				err := k.AssignMembership(ctx, testUser, types.MembershipTypeSilver, testTsp, testExpiration)
+				require.NoError(t, err)
+			}
+
+			_, err := msg.BuyMembership(sdk.WrapSDKContext(ctx), tt.args.msg)
+			if err != nil {
+				require.Equal(t, tt.wantErr, err.Error())
 				return
 			}
-			_ = got
-			/*if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("msgServer.BuyMembership() = %v, want %v", got, tt.want)
-			}*/
 		})
 	}
 }

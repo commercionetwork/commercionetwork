@@ -31,7 +31,8 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
 	}
 
-	if !k.IsTrustedServiceProvider(ctx, msgBuyer) && msg.Buyer != msg.Tsp{
+	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
+	if !k.IsTrustedServiceProvider(ctx, msgTsp) && msg.Buyer != msg.Tsp{
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you can buy membership only for yourself")
 	}
 
@@ -51,7 +52,6 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 
 	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	// TODO Not send coins but control if account has enough
-	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
 	if err := k.bankKeeper.SendCoins(ctx, msgTsp, govAddr, membershipCost); err != nil {
 		return &types.MsgBuyMembershipResponse{}, err
 	}
