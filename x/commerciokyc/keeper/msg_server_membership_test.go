@@ -78,15 +78,15 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 				msg:    types.NewMsgBuyMembership("silver", testUser2, testUser),
 				invite: types.NewInvite(testInviteSender, testUser2, "silver"),
 			},
-			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you can buy membership only for yourself").Error(),
+			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership").Error(),
 		},
 		{
-			name: "Normal user buy membership for himself",
+			name: "Normal user buy membership for himself returns error",
 			args: args{
 				msg:    types.NewMsgBuyMembership("green", testUser, testUser),
 				invite: types.NewInvite(testInviteSender, testUser, "green"),
 			},
-			wantErr: "",
+			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership").Error(),
 		},
 	}
 	for _, tt := range tests {

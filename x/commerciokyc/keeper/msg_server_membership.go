@@ -32,8 +32,8 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 	}
 
 	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
-	if !k.IsTrustedServiceProvider(ctx, msgTsp) && msg.Buyer != msg.Tsp{
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you can buy membership only for yourself")
+	if !k.IsTrustedServiceProvider(ctx, msgTsp) {
+		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership")
 	}
 
 	// Forbidden black membership buying
