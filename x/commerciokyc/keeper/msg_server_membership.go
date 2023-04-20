@@ -31,9 +31,20 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
 	}
 
+	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
+	if !k.IsTrustedServiceProvider(ctx, msgTsp) {
+		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership")
+	}
+
 	// Forbidden black membership buying
 	if msg.MembershipType == types.MembershipTypeBlack {
 		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot buy black membership")
+	}
+
+	//Forbidden to downgrade user from black membership
+	buyerMembership, err := k.GetMembership(ctx, msgBuyer)
+	if err == nil && buyerMembership.MembershipType == types.MembershipTypeBlack {
+		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot downgrade from Black membership")
 	}
 
 	membershipPrice := membershipCosts[msg.MembershipType] * 1000000 // Always multiply by one million
@@ -41,14 +52,13 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 
 	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	// TODO Not send coins but control if account has enough
-	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
 	if err := k.bankKeeper.SendCoins(ctx, msgTsp, govAddr, membershipCost); err != nil {
 		return &types.MsgBuyMembershipResponse{}, err
 	}
 
 	expirationAt := k.ComputeExpiryHeight(ctx.BlockTime())
 
-	err := k.AssignMembership(
+	err = k.AssignMembership(
 		ctx,
 		msgBuyer,
 		msg.MembershipType,
