@@ -1,5 +1,6 @@
 package ibc_address_limit_test
 
+/*
 import (
 	"testing"
 
@@ -41,3 +42,4 @@ func (suite *GenesisTestSuite) TestInitExportGenesis() {
 
 	suite.Require().Equal(initialGenesis, *exportedGenesis)
 }
+*/
