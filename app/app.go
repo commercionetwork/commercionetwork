@@ -23,8 +23,9 @@ import (
 	// Cosmwasm module
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	// ------------------------------------------
 	// Cosmos SDK utils
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -354,9 +355,9 @@ type App struct {
 	mm           *module.Manager
 	EpochsKeeper epochskeeper.Keeper
 
-	AddressLimitingICS4Wrapper   *ibcaddresslimit.ICS4Wrapper
-	RawIcs20TransferAppModule transfer.AppModule
-	TransferStack             *ibcaddresslimit.IBCModule
+	AddressLimitingICS4Wrapper *ibcaddresslimit.ICS4Wrapper
+	RawIcs20TransferAppModule  transfer.AppModule
+	TransferStack              *ibcaddresslimit.IBCModule
 }
 
 // Remove assertNoPrefix
@@ -924,7 +925,18 @@ func New(
 		app.CapabilityKeeper.Seal()
 	}
 
+	if manager := app.SnapshotManager(); manager != nil {
+		err := manager.RegisterExtensions(
+			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper),
+		)
+		if err != nil {
+			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
+
+		}
+	}
+
 	app.ScopedIBCKeeper = scopedIBCKeeper
+	app.ScopedTransferKeeper = scopedTransferKeeper
 	app.ScopedWasmKeeper = scopedWasmKeeper
 
 	return app
@@ -1111,7 +1123,7 @@ func GetMaccPerms() map[string][]string {
 
 // Required for ibctesting
 func (app *App) GetStakingKeeper() stakingkeeper.Keeper {
-	return app.StakingKeeper 
+	return app.StakingKeeper
 }
 
 func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
