@@ -58,6 +58,7 @@ module.exports = {
                     ["nodes/", "Commercio.network overview"],
                     ["nodes/hardware-requirements", "Hardware requirements"],
                     ["nodes/full-node-installation", "Installing a full node"],
+                    ["nodes/statesync-node-installation", "Installing a statesynced node"],
                     ["nodes/validator-node-installation", "Becoming a validator"],
                     ["nodes/validator-node-handling", "Handling a validator"],
                     ["nodes/validator-node-update", "Updating a validator"]
