@@ -1,4 +1,13 @@
 # Installing a full node with statesync method
+
+## Background
+
+This guide focuses on installing a node with the statesync and cosmovisor method. The guide is very useful in case the purpose is to install a validator node: if you do not have special requirements for querying the chain about states or past transactions with your node, precisely as in the case of a validator node, then this procedure is the recommended one.
+
+
+
+
+
 After you've setup your hardware following the [hardware requirements](hardware-requirements.md) you are now ready to
 become a Commercio.network full node. 
 
