@@ -14,15 +14,19 @@
 
 ## Scenario
 
-Schema di base/scenario
-Per semplicità nella spiegazione possiamo supporre di avere una vpn che collega il Data Center con il Cloud con la classe di ip 10.1.1.0/24.
-L’ip del nodo validatore sarà 10.1.1.254.
-L’ip del kms sarà 10.1.1.1.
-Inoltre supponiamo che i sentry node siano su delle altre classi di ip, 10.1.2.0/24 per Regione 1 e 10.1.3.0/24 per Regione 2
-La protezione a livello di apertura porta sarà la seguente
-KMS: nessuna porta aperta, solo accesso alla vpn verso il Validator node
-Validator Node: porta in ascolto sulla vpn limitata al KMS 26658. Porta 26656 in ascolto sulle reti interne dei sentry node.
-Sentry Node: Porta 26656 in ascolto su tutti gli IP. Porta 26657 in ascolto in locale o su tutte gli ip ma con accesso limitato a specifici client o mediata con un reverse proxy
+
+![Kms Validator connection](../.vuepress/public/kms_validator_schema.png)
+
+For simplicity in the explanation we can assume that we have a vpn that connects the Data Center with the Cloud with the ip class
+
+- **KMS**: `10.1.1.1`
+- **Validator node**: `10.1.1.254`
+
+The protection at the door opening level will be the following
+- **KMS**: no open ports, only access to the lan or vpn towards the Validator node
+- **Validator node**: 
+     - port `26656` open on all ip
+     - port `26658` open on all ip but with access limited to the KMS
 
 
 ## Installation
@@ -164,23 +168,14 @@ serial_number = "9876543210" # identify serial number of a specific YubiHSM to c
 ```
 
 For the creation of the file you need to have the following data
-- Chain-id: is the identifier of the chain for which the node is being configured. In the case of testnet it will be commercio-testnet6002, in the case of mainnet commercio-mainnet
-- Prefix of public addresses of the chain: in the case of commercio it will be did:com:
-- Prefix of the public addresses of the nodes: in the case of commercio it will be did:com:valconspub
-- Address within the vpn of the validator node: for simplicity we have assumed to have the address
-- The password of our HSM device: initially the password is "password"
+- Chain-id is the identifier of the chain for which the node is being configured. In the case of mainnet it will be `commercio-3`
+- Prefix of public addresses of the chain: in the case of commercio it will be `did:com:`
+- Prefix of the public addresses of the nodes: in the case of commercio it will be `did:com:valconspub`
+- Address within the lan or vpn of the validator node: for simplicity we have assumed to have the address `10.1.1.254`
+- The password of our HSM device: initially the password is **"password"**
 - The id of the key to use of the HSM: for the single configuration is `1`
 - The serial Number of our device: generally it is what is indicated on the label of the YubiHSM2. They must be 10 digits. For the missing digits add zeros at the beginning
-- The ip of the validator node: in the case of the example
-- 
-- Chain-id: è l’identificativo della chain per cui si sta configurando il nodo. Nel caso di testnet sarà commercio-testnet6002, nel caso di mainnet commercio-mainnet
-- Prefisso degli indirizzi pubblici della chain: nel caso di commercio sarà did:com:
-- Prefisso degli indirizzi pubblici dei nodi: nel caso di commercio sarà did:com:valconspub
-- Indirizzo all’interno della vpn del nodo validatore: per semplicità abbiamo supposto di avere l’indirizzo 10.1.1.254.
-- La password del nostro dispositivo HSM: inizialmente la password è “password”
-- L’id della chiave da utilizzare del HSM: per la configurazione singola è 1
-- Il serial Number del nostro dispositivo: generalmente è quanto indicato nell’etichetta dello YubiHSM2. Devono essere 10 cifre. Per le cifre mancanti aggiungere degli zeri davanti al seriale.
-- Path delle configurazioni: configurare il path /data_tmkms/tmkms/kms/commercio.
+ 
 
 Create the file /data_tmkms/tmkms/kms/password and enter the password "password" inside it
 
@@ -190,7 +185,9 @@ printf "password" > /data_tmkms/tmkms/kms/password
 
 
 #### HSM Reset
-:warning:  Warning :warning: : this procedure will do a complete reset of the device. It must not be done for a possible second installation of another node that uses the same hsm
+:::danger
+:warning: This procedure will do a complete reset of the device. It must not be done for a possible second installation of another node that uses the same hsm
+:::
 
 ```bash
 tmkms yubihsm setup -c /data_tmkms/tmkms/kms/commercio/tmkms.toml
@@ -290,3 +287,52 @@ Mar 05 12:20:59.683  INFO tmkms::connection::tcp: KMS node ID: 4248B5C7755600D69
 Se l’output riporta errori diversi dal semplice fallimento della connessione allora deve essere controllata l’installazione.
 NB: Il tentativo di connessione fallisce perché non abbiamo ancora configurato il nodo a cui il kms dovrebbe connettersi.
 crtl+c per interrompere il processo.
+
+
+### Config the service
+
+```bash
+sudo tee /etc/systemd/system/tmkms.service > /dev/null <<EOF 
+[Unit]
+Description=Commercio tmkms
+After=network.target
+
+[Service]
+User=tmkms
+WorkingDirectory=/data_tmkms/tmkms/.cargo/bin
+ExecStart=/data_tmkms/tmkms/.cargo/bin/tmkms start -c /data_tmkms/tmkms/kms/commercio/tmkms.toml
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=tmkms
+RestartSec=3
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable tmkms
+sudo systemctl start tmkms
+```
+### Config the validator node
+
+To allow the validator node to access the private key, the `.commercionetworkd/config/config.toml` file must be modified.
+Edit the parameter by putting the ip of the validator node
+
+```toml
+priv_validator_laddr = "tcp://10.1.1.254:26658"
+```
+
+Restart the service of the node
+
+```bash
+systemctl restart commercionetworkd
+```
+
+Check the output of the kms logs should vary in this way
+
+```bash
+Jan 11 09:23:14.389  INFO tmkms::session: [commercio-3@tcp://10.1.1.254:26658] connected to validator successfully
+Jan 11 09:23:14.389  WARN tmkms::session: [commercio-3] tcp:/10.1.1.254:26658: unverified validator peer ID! (A312D8F64C9FC71A1A947C377F64B7302C951361)
+```
