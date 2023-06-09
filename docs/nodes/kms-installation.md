@@ -155,14 +155,14 @@ key_format = { type = "bech32", account_key_prefix = "did:com:", consensus_key_p
 state_file = "/data_tmkms/tmkms/kms/commercio/commercio_priv_validator_state.json"
 
 [[validator]]
-addr = "tcp://10.1.1.254:26658" #ip del Validator Node
+addr = "tcp://10.1.1.254:26658" # The ip of Validator Node
 chain_id = "commercio-3"
 reconnect = true # true is the default
 secret_key = "/data_tmkms/tmkms/kms/commercio/secret_connection.key"
 
 [[providers.yubihsm]]
 adapter = { type = "http", addr = "tcp://127.0.0.1:12345" }
-auth = { key = 1, password_file = "/data_tmkms/tmkms/kms/password" } # it is possible to enter the password directly using the password parameter instead of password_file
+auth = { key = 1, password_file = "/data_tmkms/tmkms/kms/password" } # It is possible to enter the password directly using the password parameter instead of password_file
 keys = [{ chain_ids = ["commercio-3"], key = 1 }]
 serial_number = "9876543210" # identify serial number of a specific YubiHSM to connect to
 ```

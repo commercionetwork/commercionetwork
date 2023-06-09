@@ -15,6 +15,12 @@ Once you've properly set up a [validator node](validator-node-installation.md), 
     - [Resume validator after break down with `priv_validator_key.json` file](#resume-validator-after-break-down-with-priv_validator_keyjson-file)
     - [Resume validator after break down with `kms`](#resume-validator-after-break-down-with-kms)
   - [x% Loss of blocks](#x-loss-of-blocks)
+  - [Disk consumption growth](#disk-consumption-growth)
+    - [Add a new disk to the node](#add-a-new-disk-to-the-node)
+    - [Increase disk space](#increase-disk-space)
+    - [Split the content of `data` folder](#split-the-content-of-data-folder)
+    - [Prune the node](#prune-the-node)
+    - [State sync the node](#state-sync-the-node)
   - [Add identity to your validator](#add-identity-to-your-validator)
     - [References keybase](#references-keybase)
     - [1. Registration](#1-registration)
@@ -269,6 +275,167 @@ To resume a validator after break down or some other terrible issue that destroy
 
  Losing a block for a validator means that this validator was inactive at the time of the committee's choice or that it did not vote towards the execution of the block. Thus, having a validator with an x% loss of blocks means that the validator is only active (100 - x)% of the time when the Bt block is assigned.
 
+## Disk consumption growth
+
+The disk consumption of a node is mainly due to the storage of the blockchain and the state of the application. The blockchain is the sequence of blocks that are created over time and that are linked together by the hash of the previous block. The state of the application is the set of all the data that the application stores in the blockchain. The state of the application is stored in the `data` folder of the node.     
+Time after time the space occupied by the blockchain and the state of the application increases, and you need to increase the disk space of the node or reduce the space occupied by the blockchain and the state of the application. 
+
+
+### Add a new disk to the node
+
+The node can be configured to use a new disk to store the blockchain and the state of the application. You need to transfer the `data` folder of the node to the new disk, and after linking the new folder to the `data` folder of the node. The following steps must be performed to add a new disk to the node:
+
+1. Create a new disk in the vm provider (depending on the vm provider)
+2. Mount the new disk in the node
+   ```bash
+   sudo su -
+   mkdir /mnt/data
+   mount /dev/sdb /mnt/data
+   ```
+3. Transfer the `data` folder of the node to the new disk
+   ```bash
+   rsync -av --delete ~/.commercionetwork/data/ /mnt/data/
+   ```
+4. Stop the node service and finalize the transfer of the `data` folder of the node to the new disk
+   ```bash
+   systemctl stop commercionetworkd
+   rsync -av --delete ~/.commercionetwork/data/ /mnt/data/
+   ```
+5. Link the new `data` folder to the `data` folder of the node
+   ```bash
+   cd ~/.commercionetwork
+   mv data data_old
+   ln -s /mnt/data data
+   ```
+6. Restart the node service
+   ```bash
+   systemctl start commercionetworkd
+   ```
+7. Verify if the node is working
+   ```bash
+   journalctl -u commercionetworkd -f
+   ```
+8. Remove the old `data` folder
+   ```bash
+   rm -rf ~/.commercionetwork/data_old
+   ```
+
+### Increase disk space
+
+The vm provider allows you to increase the disk space of the node. The following steps must be performed to increase the disk space of the node (depending on the vm provider. **Based on DigitalOcean Provider**):
+
+1. Increase the disk space of the node from the vm provider console
+2. Enter in the node and stop the node service
+   ```bash
+   systemctl stop commercionetworkd
+   ```
+3. Check the mount point of the disk
+   ```bash
+   df -h
+   ```
+   Output example:
+   ```bash
+   filesystem      size  used  avail  use%  mounted on
+   /dev/sda        25G   5G    20G    20%   /
+   /dev/sdb        25G   5G    20G    20%   /mnt/data
+   ```
+   Get the mount point of the disk. In this example the mount point is `/dev/sdb`
+3. Umount the disk
+   ```bash
+   sudo su -
+   umount /mnt/data
+   ```
+4. Resize the disk
+   ```bash
+   sudo su -
+   e2fsck -f /dev/sdb
+   resize2fs /dev/sdb
+   ```
+5. Mount the disk
+   ```bash
+   sudo su -
+   mount /dev/sdb /mnt/data
+   ```
+6. Check the size of the disk
+   ```bash
+   df -h
+   ```
+7. Restart the node service
+   ```bash
+   systemctl start commercionetworkd
+   ```
+8. Verify if the node is working
+   ```bash
+   journalctl -u commercionetworkd -f
+   ```
+
+### Split the content of `data` folder
+
+The blockchain and the state of the application can be split into different folders. The following steps must be performed to split the blockchain and the state of the application into different folders:
+
+1. Add a new disk to the node
+2. Check the mount point of the disk
+   ```bash
+   df -h
+   ```
+   Output example:
+   ```bash
+   filesystem      size  used  avail  use%  mounted on
+   /dev/sda        25G   5G    20G    20%   /
+   /dev/sdb        25G   5G    20G    20%   /mnt/data
+   ```
+   Get the mount point of the disk. In this example the mount point is `/dev/sdb`
+3. Select a sub-folder of `data` to move to the new disk. In this example the sub-folder is `data/application.db`
+4. Transfer the sub-folder to the new disk
+   ```bash
+   rsync -av --delete ~/.commercionetwork/data/application.db/ /mnt/data/application.db/
+   ```
+5. Stop the node service and finalize the transfer of the sub-folder to the new disk
+   ```bash
+   systemctl stop commercionetworkd
+   rsync -av --delete ~/.commercionetwork/data/application.db/ /mnt/data/application.db/
+   ```
+6. Link the new sub-folder to the `data` folder of the node
+   ```bash
+   cd ~/.commercionetwork/data
+   mv application.db application.db_old
+   ln -s /mnt/data/application.db application.db
+   ```
+7. Restart the node service
+   ```bash
+   systemctl start commercionetworkd
+   ```
+8. Verify if the node is working
+   ```bash
+   journalctl -u commercionetworkd -f
+   ```
+9. Remove the old sub-folder
+   ```bash
+   rm -rf ~/.commercionetwork/data/application.db_old
+   ```
+10. Repeat the steps from 3 to 9 for each sub-folder of `data` you want to move to the new disk
+
+
+### Prune the node
+
+The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.      
+To increase the pruning process it is possible to set the `pruning` parameter in the `config.toml` file to `everything`. The pruning setting can be applied restarting the node service.
+
+**WIP**      
+The pruning process can be performed manually by running the following command: 
+```bash
+
+
+```
+**WIP**
+
+
+### State sync the node
+
+The blockchain and the state of the application can be reduced by state syncing the node. State syncing is the process of downloading the state of the application from a trusted node. The state syncing process is performed automatically by the node. The default state syncing process can be changed by setting the `[statesync]` section in the `~/.commmercionetwork/config/config.toml` file.   
+Read more about state syncing [here](https://docs.tendermint.com/v0.34/tendermint-core/state-sync.html).    
+You can install a statesynced node following the instructions [here](statesync-node-installation.md).     
+After the node is synced, you can move your validator to the new node following the instructions [here](move-validator-to-new-node.md).     
 
 ## Add identity to your validator
 

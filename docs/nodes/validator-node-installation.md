@@ -166,7 +166,7 @@ If you use private key with file `~/.commercionetwork/config/priv_validator_key.
 export VALIDATOR_PUBKEY=$(commercionetworkd tendermint show-validator)
 ```
 
-If you have a **kms** you got the value of the public address in the node from the keys registered in your **hsm**. If you have it put that value in the `pubkey` transaction parameter for creating the validator
+If you have a [**kms**](kms-installation.md) you got the value of the public address in the node from the keys registered in your **hsm**. If you have it put that value in the `pubkey` transaction parameter for creating the validator
 
 ```bash
 export VALIDATOR_PUBKEY="did:com:valconspub1zcjduepq592mn5xucyqvfrvjegruhnx15rruffkrfq0rryu809fzkgwg684qmetxxs"
@@ -175,7 +175,7 @@ export VALIDATOR_PUBKEY="did:com:valconspub1zcjduepq592mn5xucyqvfrvjegruhnx15rru
 
 
 :::warning
-Warning: the `<CREATOR ADDRESS>` account can create one and only one validator and a validator can have one and only one creation address
+:warning: The `<CREATOR ADDRESS>` **account can create one and only one validator** and **a validator can have one and only one creator address**
 :::
 
 
