@@ -435,7 +435,7 @@ The pruning process can be performed manually by running the following command:
 The blockchain and the state of the application can be reduced by state syncing the node. State syncing is the process of downloading the state of the application from a trusted node. The state syncing process is performed automatically by the node. The default state syncing process can be changed by setting the `[statesync]` section in the `~/.commmercionetwork/config/config.toml` file.   
 Read more about state syncing [here](https://docs.tendermint.com/v0.34/tendermint-core/state-sync.html).    
 You can install a statesynced node following the instructions [here](statesync-node-installation.md).     
-After the node is synced, you can move your validator to the new node following the instructions [here](move-validator-to-new-node.md).     
+After the node is synced, you can move your validator to the new node following the instructions [here](#move-validator-to-another-server-with-priv_validator_keyjson-file).     
 
 ## Add identity to your validator
 
