@@ -220,7 +220,7 @@ systemctl enable commercionetworkd
 systemctl start commercionetworkd
 ```
 
-Check if the sync has started. Use `Ctrl + C` to interrupt the `journalctl` command
+Check if the sync has been started. Use `Ctrl + C` to interrupt the `journalctl` command
 
 ```bash
 journalctl -u commercionetworkd -f
@@ -356,7 +356,7 @@ systemctl enable commercionetworkd
 systemctl start commercionetworkd
 ```
 
-Check if the sync has started. Use `Ctrl + C` to interrupt the `journalctl` command:
+Check if the sync has been started. Use `Ctrl + C` to interrupt the `journalctl` command:
 ```bash
 journalctl -u commercionetworkd -f
 ```
