@@ -145,6 +145,7 @@ mkdir $HOME/kms/commercio
 touch $HOME/kms/commercio/tmkms.toml
 
 ```
+When using the `tmkms` user, the value of the `$HOME` variable is `/data_tmkms/tmkms`.
 
 ```toml
 [[chain]]
