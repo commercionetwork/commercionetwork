@@ -134,8 +134,8 @@ Edit `~/.commercionetwork/config/config.toml`, search `priv_validator_laddr`, an
 
 
 
-Under the state sync section in `$HOME/.commercionetwork/config/config.toml` you will find multiple settings that need to be configured in order for your node to use state sync.
-You need get information from chain about trusted block using
+Under the state sync section in `$HOME/.commercionetwork/config/config.toml` you find multiple settings that need to be configured in order for your node to use state sync.
+You need get information from the chain about trusted block using
 
 Select open rpc services of chains
 
@@ -168,7 +168,7 @@ TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.r
 printf "\n\nenable = true\nrpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n\n"
 ```
 
-The command should be return somthing like follow:
+The command should return somthing like the following:
 ```
 enable = true
 rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
@@ -294,13 +294,13 @@ source ~/.profile
 ## 6. Start service and sync the node
 
 
-Now you can start your full node. Enable the newly created server and try to start it using:
+Now you can start your full node. Enable the newly created service and try to start it using:
 ```bash
 systemctl enable commercionetworkd  
 systemctl start commercionetworkd
 ```
 
-Control if the sync was started. Use `Ctrl + C` to interrupt the `journalctl` command:
+Check if the sync has been started. Use `Ctrl + C` to interrupt the `journalctl` command:
 ```bash
 journalctl -u commercionetworkd -f
 ```

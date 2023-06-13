@@ -284,10 +284,9 @@ Mar 05 12:20:59.683  INFO tmkms::connection::tcp: KMS node ID: 4248B5C7755600D69
 ...
 ```
 
-Se l’output riporta errori diversi dal semplice fallimento della connessione allora deve essere controllata l’installazione.
-NB: Il tentativo di connessione fallisce perché non abbiamo ancora configurato il nodo a cui il kms dovrebbe connettersi.
-crtl+c per interrompere il processo.
-
+If the output reports errors other than simple connection failure then the installation should be checked.
+**Please note**: The connection attempt fails because we have not yet configured the node to which the kms should connect.
+crtl+c to abort the process.
 
 ### Config the service
 
