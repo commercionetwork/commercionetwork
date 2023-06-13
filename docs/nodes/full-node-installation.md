@@ -75,7 +75,7 @@ EOF
 Init the `.commercionetwork` folder with the basic configuration
 
 :::warning  
-At this point there might be some differences if you are using `KMS` with `HSM`. Specifications will be published shortly.
+At this point there may be some differences if you are using `KMS` with `HSM`. Specifications will be published shortly.
 :::
 
 ```bash
