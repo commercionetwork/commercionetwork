@@ -7,8 +7,8 @@
 
 
 - SO: Ubuntu 18.04 (64-bit) or later  (preferably LTS version)
-- Minimun amount of RAM: 4Gb
-- Avaiable disk space: 100 Gb
+- Minimum amount of RAM: 4Gb
+- Available disk space: 100 Gb
 - Connect to the your validator node in private network (LAN or VPN)
 
 
@@ -22,7 +22,7 @@ For simplicity in the explanation we can assume that we have a vpn that connects
 - **KMS**: `10.1.1.1`
 - **Validator node**: `10.1.1.254`
 
-The protection at the door opening level will be the following
+The protection is at the port opening level and it's the following
 - **KMS**: no open ports, only access to the lan or vpn towards the Validator node
 - **Validator node**: 
      - port `26656` open on all ip
@@ -48,7 +48,7 @@ echo 'SUBSYSTEMS=="usb", ATTRS{product}=="YubiHSM", GROUP=="tmkms"' >> /etc/udev
 reboot
 ```
 
-NB: it may be necessary to restart the server several times to apply the rules
+**Please note**: it might be necessary to restart the server several times to apply the rules
 
 Install the components
 
@@ -137,7 +137,7 @@ Insert yubiHSM 2 into the usb slot. If the device has been used previously, rese
 
 You need to create a configuration file tmkms.toml containing the information of the validator node to which the Kms must connect.
 
-You can find an example file below
+You can find an example file below.       
 Create the folder for the configuration
 
 ```bash
@@ -145,7 +145,7 @@ mkdir $HOME/kms/commercio
 touch $HOME/kms/commercio/tmkms.toml
 
 ```
-Using the tmkms user the `$HOME` variable corresponds to the `/data_tmkms/tmkms` directory. Eventually use the full path /data_tmkms/tmkms.
+Using the `tmkms` user the `$HOME` variable value is `/data_tmkms/tmkms`. Eventually use the full path `/data_tmkms/tmkms`.
  
 
 ```toml
@@ -265,7 +265,7 @@ Should be presented an output like the following
 Listing keys in YubiHSM #9876543210:
 - 0x0001: did:com:valconspub1zcjduepq592mn6xucyqvfrvjegruhnx55cruffkrfq0rryu809fzkgwg684qmetxxs
 ```
-`did:com:valconspub1zcjduepq592mn6xucyqvfrvjegruhnx55cruffkrfq0rryu809fzkgwg684qmetxxs` will be the public key of the validator node. This key will be needed to perform the validator node creation transaction
+`did:com:valconspub1zcjduepq592mn6xucyqvfrvjegruhnx55cruffkrfq0rryu809fzkgwg684qmetxxs` is the public key of the validator node. This key will be needed to perform the validator node creation transaction
 
 
 At this point the KMS can be connected to the Node
@@ -329,7 +329,7 @@ Restart the service of the node
 systemctl restart commercionetworkd
 ```
 
-Check the output of the kms logs should vary in this way
+Check the output of the kms. Logs should vary in this way
 
 ```bash
 Jan 11 09:23:14.389  INFO tmkms::session: [commercio-3@tcp://10.1.1.254:26658] connected to validator successfully

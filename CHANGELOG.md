@@ -1,3 +1,12 @@
+# Version 4.2.1
+
+* Updated documentations
+  * Added api documentation
+  * Added documentation on installing kms (tmkms)
+  * Added documentation on installing StateSync node
+* Updated golang tools: improved node stability
+* Updated yarn dependencies
+
 # Version 4.2.0
 
 * Upgraded cosmos sdk to version 0.45.11 
