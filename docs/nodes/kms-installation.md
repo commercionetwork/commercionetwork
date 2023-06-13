@@ -145,7 +145,7 @@ mkdir $HOME/kms/commercio
 touch $HOME/kms/commercio/tmkms.toml
 
 ```
-When using the 'tmkms' user, the value of the '$HOME' variable is '/data_tmkms/tmkms'. Make sure to use the complete path '/data_tmkms/tmkms'.
+When using the `tmkms` user, the value of the `$HOME` variable is `/data_tmkms/tmkms`. Make sure to use the complete path `/data_tmkms/tmkms`.
  
 
 ```toml
@@ -177,7 +177,7 @@ For the creation of the file you need to have the following data
 - The serial Number of our device: generally it is what is indicated on the label of the YubiHSM2. They must be 10 digits. For the missing digits add zeros at the beginning
  
 
-Create the file /data_tmkms/tmkms/kms/password and enter the password "password" inside it
+Create the file `/data_tmkms/tmkms/kms/password` and enter the password "password" inside it
 
 ```bash
 printf "password" > /data_tmkms/tmkms/kms/password
