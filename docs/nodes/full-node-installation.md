@@ -75,7 +75,7 @@ EOF
 Init the `.commercionetwork` folder with the basic configuration
 
 :::warning  
-At this point there may be some differences if you are using `KMS` with `HSM`. Specifications will be published shortly.
+At this point there might be some differences if you are using `KMS` with `HSM`. Specifications will be published shortly.
 :::
 
 ```bash
@@ -147,7 +147,7 @@ If you intend to syncronize eveything from the start you can skip this part and 
 ### Using the state sync feature
 
 Under the state sync section in `~/.commercionetwork/config/config.toml` you will find multiple settings that need to be configured in order for your node to use state sync.
-You need get information from chain about trusted block using
+You need get information from the chain about the trusted block using
 
 Select open rpc services of chains
 
@@ -180,7 +180,7 @@ TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.r
 printf "\n\nenable = true\nrpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n\n"
 ```
 
-The command should be return somthing like follow:
+The command should be return something like the following:
 ```
 enable = true
 rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
@@ -220,7 +220,7 @@ systemctl enable commercionetworkd
 systemctl start commercionetworkd
 ```
 
-Control if the sync was started. Use `Ctrl + C` to interrupt the `journalctl` command
+Check if the sync has started. Use `Ctrl + C` to interrupt the `journalctl` command
 
 ```bash
 journalctl -u commercionetworkd -f
@@ -235,7 +235,7 @@ journalctl -u commercionetworkd -f
 
 ## 6. Start the REST API
 Each full node can start up its own REST API service. 
-This will allow it to expose some endpoints that can be used in order to query the chain state at any moment. 
+This allows it to expose some endpoints that can be used in order to query the chain state at any moment. 
 
 If you want to start such a service, you need to change the parameters of your `~/.commercionetwork/config/app.toml` as follow
 
@@ -261,7 +261,7 @@ systemctl restart commercionetworkd
 ```
 
 
-This will start up the REST server and make it reachable using the port `1317`.     
+This starts up the REST server making it reachable on port `1317`.     
 **From here, if you want you can use services such as [Nginx](https://www.nginx.com/) in order to make it available to other devices.**
 
 
@@ -356,12 +356,12 @@ systemctl enable commercionetworkd
 systemctl start commercionetworkd
 ```
 
-Control if the sync was started. Use `Ctrl + C` to interrupt the `journalctl` command:
+Check if the sync has started. Use `Ctrl + C` to interrupt the `journalctl` command:
 ```bash
 journalctl -u commercionetworkd -f
 ```
 
-Set env of cosmovisor for you convenience
+Set the enviorment variables of cosmovisor for you convenience
 
 ```bash
 echo 'export DAEMON_NAME=commercionetworkd' >> ~/.profile

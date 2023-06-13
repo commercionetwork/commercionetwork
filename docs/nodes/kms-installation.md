@@ -145,7 +145,7 @@ mkdir $HOME/kms/commercio
 touch $HOME/kms/commercio/tmkms.toml
 
 ```
-Using the `tmkms` user the `$HOME` variable value is `/data_tmkms/tmkms`. Eventually use the full path `/data_tmkms/tmkms`.
+When using the 'tmkms' user, the value of the '$HOME' variable is '/data_tmkms/tmkms'. Make sure to use the complete path '/data_tmkms/tmkms'.
  
 
 ```toml
@@ -168,9 +168,9 @@ serial_number = "9876543210" # identify serial number of a specific YubiHSM to c
 ```
 
 For the creation of the file you need to have the following data
-- Chain-id is the identifier of the chain for which the node is being configured. In the case of mainnet it will be `commercio-3`
-- Prefix of public addresses of the chain: in the case of commercio it will be `did:com:`
-- Prefix of the public addresses of the nodes: in the case of commercio it will be `did:com:valconspub`
+- Chain-id is the identifier of the chain for which the node is being configured. In the case of mainnet it is `commercio-3`
+- Prefix of public addresses of the chain: in the case of commercio it is `did:com:`
+- Prefix of the public addresses of the nodes: in the case of commercio it is `did:com:valconspub`
 - Address within the lan or vpn of the validator node: for simplicity we have assumed to have the address `10.1.1.254`
 - The password of our HSM device: initially the password is **"password"**
 - The id of the key to use of the HSM: for the single configuration is `1`
