@@ -38,7 +38,7 @@ module.exports = {
                     { text: 'ver 2.1.2', link: '/docs2.1.2/' }
                 ]
             },
-            {text: "Commercio.network", link: "https://commercio.network"},
+            {text: "Site", link: "https://commercio.network"},
             {text: "Discord", link: "https://discord.gg/N7DxaDj5sW"},
             {text: "Telegram", link: "https://t.me/CommercioNetwork"},
             {text: "Twitter", link: "https://twitter.com/commercionet?s=21&t=8FTpg5f7kurZ1d7LOb9YXw"},
@@ -58,9 +58,11 @@ module.exports = {
                     ["nodes/", "Commercio.network overview"],
                     ["nodes/hardware-requirements", "Hardware requirements"],
                     ["nodes/full-node-installation", "Installing a full node"],
+                    ["nodes/statesync-node-installation", "Installing a statesynced node"],
                     ["nodes/validator-node-installation", "Becoming a validator"],
                     ["nodes/validator-node-handling", "Handling a validator"],
-                    ["nodes/validator-node-update", "Updating a validator"]
+                    ["nodes/validator-node-update", "Updating a validator"],
+                    ["nodes/kms-installation", "KMS installation"],
                 ]
             },
             {
