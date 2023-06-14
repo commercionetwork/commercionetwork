@@ -30,6 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
+	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
@@ -119,6 +120,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	//authclient.Codec = encodingConfig.Marshaler
 	cfg := sdk.GetConfig()
 	cfg.Seal()
+	a := appCreator{encodingConfig}
 
 	rootCmd.AddCommand(
 		commgenutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
@@ -133,11 +135,12 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		tmcmd.ResetAllCmd,
+		pruning.PruningCmd(a.newApp),
+		forceprune(),
 		debug.Cmd(),
 		config.Cmd(),
 	)
 
-	a := appCreator{encodingConfig}
 	server.AddCommands(rootCmd, app.DefaultNodeHome, a.newApp, a.appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
