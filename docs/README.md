@@ -61,7 +61,8 @@ The CommercioAPI removes the complexity and the security of managing your users'
 
 **SDK**
 
-Sdks are deprecated e no longer mantained. If you want to move forward the develop of the follow packages you can fork them and pull request upgrades.
+
+If you want to move forward the develop of the follow packages you can fork them and pull request upgrades.
 
 We have released SDK in 4 main languages 
 
@@ -69,6 +70,11 @@ We have released SDK in 4 main languages
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 | **Sacco**  | [Repo](https://github.com/commercionetwork/sacco.dart) | [Repo](https://github.com/commercionetwork/sacco.kt) | [Repo](https://github.com/commercionetwork/sacco.cs) |  [Repo](https://github.com/commercionetwork/sacco.go) | 
 | **CommercioSDK**  | [Repo](https://github.com/commercionetwork/commercio-sdk.dart) | [Repo](https://github.com/commercionetwork/commercio-sdk.kt) | [Repo](https://github.com/commercionetwork/commercio-sdk.cs) | Later |
+
+<span style="color:red">Actual Sdks available are deprecated e no longer mantained.</span> 
+
+Basic procedure for sending autonomusly a message is decribed here [Create, sign and send a transaction](/developers/create-sign-broadcast-tx.html#_1-message-creation)
+
 
 
 ## What is eIDAS Compliance ?
@@ -115,25 +121,110 @@ The Commercio Cash Credit (CCC)  ha an unlimited supply and can be minted only b
   
 **NB**: transaction fees could be paid with COM, but the cost is fixed to 0.01 COM.
 
-##  Test-net Vs Main-Net
-
-## The Test-Net
-
-[testnet.commercio.network](https://testnet.commercio.network)
-
-Testnet, as the name suggests, is an alternative network for the developers for testing purposes. You can view a testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value. You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
+##  Main-net Vs Test-net  
 
 
-## The Main-net
 
-[mainnet.commercio.network](https://mainnet.commercio.network)
 
-Mainnet is the complete opposite of the testnet. Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
+### The Main-net
+
+ Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
 
 Unlike testnet which is an open network for testing purposes, mainnet is the real deal. Tokens on the Commercio.network mainnet have real economic value, be careful.
 
+A view of the status of mainnet is possible throught the Explorer, a Webapp  named <strong>Almerico</strong> (whose code is Opensource and available <a href="https://github.com/commercionetwork/almerico" target="_blank">here</a> ) that query the mainnet chain.  
+
+
+Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.network)
+
+
+### The Test-net
+
+Testnet, as the name suggests, is an alternative network for the developers for testing purposes. It's a playground. You can use testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value. You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
+
+
+#### Faucet 
+In the testnet a tool that allows to recharge a wallet  (with COM token) is available. 
+
+A destination address (`addr`) and the amount to be recharged with  (`amount` expressed in ucommercio) must be provided to the faucet endpoint (https://faucet-testnet.commercio.network/give).
+
+**Example** 
+Suppose you want to recharge with `10 COM` your wallet address `did:com:1fjqvugs6dfwtax3k4zzh46pswmwryc8ff7f0mv`
+
+This is the request you need to make: 
+
+```
+https://faucet-testnet.commercio.network/give?addr=did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&amount=10000000
+``` 
+
+**Limits**
+
+`amount` : There is a limit in the amount value of `100000000 ucommercio`
+
+
+ATTENTION : A `faucet` for CCC is not available. The Buy function (`coming soon`) in the dev.commercio.app must be used  
+
+
+Test-net Almerico: [testnet.commercio.network](https://testnet.commercio.network)
 
 
 
+##  Tools  
+
+### Explorer Almerico
+
+Is an online Web app that enables you to search for real-time and historical information about Commercio blockchain, including data related to blocks, transactions, addresses, and more.
 
 
+Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.network)
+
+Test-net Almerico: [testnet.commercio.network](https://testnet.commercio.network)
+
+### Keplr wallet extension 
+
+Keplr is a `Chrome` browser extension wallet for the `Cosmos` interchain ecosystem.
+
+Is possible to connect your Keplr wallet to Almerico explorer and perform some action such as delegate, claim, undelegate, redelegate, vote message.
+
+Connecting keplr is easy throught a simple function button. 
+
+<img src="/keplr_connection.png">
+
+More details avaialble  <a href="https://www.keplr.app/#starters" target="_blank">here</a>
+
+
+### Commercio Wallet App 
+Is a Mobile app available in the store that provide a wallet to the user and 
+permit to interact with the blockchain for some specific function such as send tokens, delegate, claim, undelegate, redelegate messages
+
+The wallet app can connect both to main-net and test-net
+
+* <a href="https://apps.apple.com/it/app/commerc-io/id1397387586" target="_blank">Apple store IOS Mobile</a> 
+* <a href="https://play.google.com/store/apps/details?id=io.commerc.preview.one" target="_blank">Google play store Android Mobile</a> 
+
+
+### LCD 
+Light Client Daemon (LCD REST Server) is a piece of software that connects to a full node to interact with the blockchain
+
+Thus you can also query the Commercio blockchain through LCD rest API  available at specific endpoint 
+
+*  <a href="https://lcd-mainnet.commercio.network/ " target="_blank">Main-net LCD</a>   
+*  <a href="https://lcd-testnet.commercio.network/ " target="_blank">Test-net LCD</a>
+
+
+### Commercio app
+Is a hosted wallet platform that permit to interact with the blockchain throught its API :
+<a href="./app_developers/commercioapi-introduction.html#the-commercio-app " target="_blank">documentation available here</a>
+
+##  Support
+In order to suppor the community feel free to suggest enhancement or 
+report bugs opening specific issues on the following Repository 
+
+* [Present documentation](https://github.com/commercionetwork/commercionetwork/issues)
+* [Explorer - Almerico](https://github.com/commercionetwork/almerico/issues) 
+* [Commercio Wallet App](https://github.com/commercionetwork/Commercio-Wallet-App/issues) 
+* [Commercio App](https://github.com/commercionetwork/Commercio-app/issues)
+
+Support could be also asked to the community subscribing into our [Discord](https://discord.com/invite/N7DxaDj5sW) 
+
+Keep in touch with us throught our socialmedia channels available on top menu  

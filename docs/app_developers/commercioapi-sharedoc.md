@@ -1,43 +1,100 @@
-# CommercioAPI DOCS
+# CommercioAPI eDelivery
 
-The  CommercioAPI DOCS allows you to share a document with another user, and retrieve the list of documents that you have received.
+The  CommercioAPI eDelivery allows you to operate with two type messages available in the Custom  `documents` module 
+
+* [MsgShareDocument](/modules/documents/03_messages.html#share-a-document-with-msgsharedocument)
+* [MsgSendDocumentReceipt](/modules/documents/03_messages.html#send-a-document-receipt-with-msgsenddocumentreceipt)
 
 
-## What is an Electronic Cerified Delivery?
+## MsgShareDocument
+
+The message permit to
+* Store in the blockchain an `hash of a document` you own in a precise time.
+* Associate the message to your identity account (your wallett address) . 
+* Indicate a receiver identity account ( wallett address of the receiver). 
+* Indicate some basic metadata.  
+* Sign (raw) the message with your account (You only control)
+
+This features are knonw as `Notarization of a document in the blockchain`
+
+
+### Check the hash of a document 
+
+In order to check if a file you own correspond to the one notarized in the blockchain  you can perform a verification directly with <b>Almerico</b> throught a simple widget that permit  to  drag&drop a file  using a specific tool and verify if the calculated footprint of the file (`hash`) correspond to the one notarized in the message.
+
+To perform the validation check:
+
+**1) Open message**
+ Open the spacific page of message for the specific transaction.
+
+Example 
+
+```
+
+https://testnet.commercio.network/transactions/sharedoc/1348F1AB13E473A94D5656445D0F49FE1924CC3340B533C5C24EA8E2D7FACC43/uuid/6c509472-ead2-4f6f-89c3-f30206c7a737
+
+```
+
+<small>Nb: the url page is composed by tx has and uuid of the message</small>
+<small>https://testnet.commercio.network/transactions/sharedoc/#TXHASH#/uuid/#MESSAGE_UUID#</small>
+
+<br><br><br>
+
+**2) Use the tool**
+Drag&drop your file in the widget as asked  
+
+![Modal](./dragNdrop_hash_check.png)
+
+**3) Check result** 
+You could get the following results 
+
+**Success**
+
+![Modal](./verification_success.png)
+
+It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&Drop area correspond to the one certified in the message
+
+
+**Failure**
+
+It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&Drop area <b>DO NOT</b> correspond to the one certified in the message
+
+![Modal](./verification_failure.png)
+
+
+<small>Same check could be obviuolsy done with other public hashing site or localy with internal hashing tools for example through the shell's functions</small>
+
+
+
+
+## MsgSendDocumentReceipt
+The message permit to 
+* store in the blockchain a message in a precise time associated to a `MsgShareDocument` previously stored  in order to certify you have checked the corrispondance of the `hash of a document` in the  
+`MsgShareDocument` message of the document yopu have revevied off the chain 
+*  Sign (raw) the message with your account (You only control) as recevier of the `MsgShareDocument` to the Sender
+
+
 
 **IMPORTANT!!!**
 
 * We are not actually sharing Documents on a blockchain. 
 * We are sharing a transaction on a blockchain with a document footprint (HASH) 
 
-An hash is the output of a hashing algorithm like SHA (Secure Hash Algorithm). These algorithms essentially aim to produce a unique, fixed-length string – the hash value, or “message digest” – for any given piece of data or “message”. 
-
-As every electronic file is just data that can be represented in binary form, a hashing algorithm can take that data and run a complex calculation on it and output a fixed-length string as the result of the calculation. 
-
-The result is the file’s hash value or message digest.
-
-'Sharing a Document' on Commercio.network means sending a shareDoc transaction on a blockchain with your document hash.
+For more detail refers to the [Document Module](/modules/documents/#documents)
 
 
-### ShareDoc real world use cases
-
-* Legally prove a document was shared with a third party
-* Timestamp a document 
-* Prove the existence of document 
-* Notarize a document  
 
 
-## ShareDoc trasaction processes 
-
-See folowing guides for more technical details on  <a href="/x/documents/#sending-a-document">MsgShareDocument</a> using the <a href="/x/documents/#docs">DOCS MODULE</a>
+## ShareDoc processes 
 
 
-### Send a shareDoc 
-
-Use the API POST : `/sharedoc/process`
-
+### Send a shareDoc Message
 Permit to create a process to send a message in the block chain named `MsgShareDocument` or Sharedoc message throught the DOCS  Module
 
+
+#### PATH
+
+POST : `/sharedoc/process`
 
 
 #### Step by step Example
@@ -244,9 +301,14 @@ It implies that the wallet of the sender has not enough CCC to pay the chain fee
 
 
 ### Sent Processes
-Use the API GET : `/sharedoc/process`
 
 Permit to get all the process of sharedoc sent by the authenticated user 
+
+
+#### PATH
+
+GET : `/sharedoc/process`
+
 
 Moreover throught the following  parameters the API  permit to paginate and order the result.
 
@@ -374,8 +436,11 @@ In order to get the following processes use the value of `next_cursor` ( that is
 
 
 
-### Sent specific process details
-Use the API GET : /sharedoc/process{process_id} 
+### Specific sent process details
+
+#### PATH
+
+GET :  `/sharedoc/process{process_id}`
 
 Permit to check the status of a specific process knowing its process_id assigned by the system
 
@@ -435,11 +500,15 @@ curl -X 'GET' \
 
 
 ## Sent Sharedoc
-Use the API GET : `/sharedoc/sent`
 
-Permit to get all sharedocs messages sent by the did of the authenticated user. Alse messages not sent
-throught an  APi process [Send Sharedoc process](commercioapi-sharedoc.html#send-a-sharedoc)
+Permit to get all sharedocs messages sent by the did of the authenticated user.
 
+Alse messages not sent throught an  APi process [Send Sharedoc process](commercioapi-sharedoc.html#send-a-sharedoc)
+
+
+### PATH
+
+GET :  `/sharedoc/sent`
 
 Moreover throught the following  parameters the API  permit to paginate and order the result.
 
@@ -643,10 +712,16 @@ Use in the tryout the value
 
 
 ## Received Sharedoc
-Use the API GET : `/sharedoc/received`
+
+Permit to get all sharedocs messages received (sent to the did of the authenticated user).
+
+### PATH
+
+GET :
+
+ `/sharedoc/received`
 
 
-Permit to get all sharedocs messages received (sent to)  the did of the authenticated user.
 
 Moreover throught the following  parameters the API  permit to paginate and order the result.
 
@@ -761,19 +836,60 @@ This API permit to manage the reading receipt message  `MsgSendDocumentReceipt` 
 
 ### Send a Receipt Message process
 
-Use the API POST : cooming soon
+Permit to create a receipt message relative to a Sharedocument Message received (the did of the authenticated user is a receipient) 
 
-Permit to create a recipt message relative to a Sharedocument Message recived (the did of the authenticaded user is a receipient) 
+#### PATH
+
+POST : `/receipts/`
+
+#### Step by step Example
+
+Let's create a query to get all messages received by the authenticatd user with the did   `did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr` 
+
+##### Step 1 - Define the first query
+
+
+Let's create a new process to send a Receipt  relative to a `MsgShareDocument`
+where your address is in the set of `recipients` 
+
+In Review - Coming soon 
+
+
+
+##### Step 2 - Define the first query 
+
+
+
+
 
 
 ### Sent Receipts processes
-Coming soon 
+
+
+
+
+
+In Review - Coming soon 
 
 ### Sent Receipt Message specific process details
-Coming soon 
+In Review - Coming soon 
 
 ### Received Receipt Message
-Coming soon 
+In Review - Coming soon
 
 
 
+## Use cases examples
+
+
+### Timestamp a document
+
+### Prove the existence of document
+
+### Notarize a document
+
+### Legally prove a document was shared with a third party
+
+
+
+#
