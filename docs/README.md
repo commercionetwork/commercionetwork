@@ -128,7 +128,7 @@ The Commercio Cash Credit (CCC)  ha an unlimited supply and can be minted only b
 
 ### The Main-net
 
- Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
+Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
 
 Unlike testnet which is an open network for testing purposes, mainnet is the real deal. Tokens on the Commercio.network mainnet have real economic value, be careful.
 
@@ -137,10 +137,37 @@ A view of the status of mainnet is possible throught the Explorer, a Webapp  nam
 
 Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.network)
 
+#### Endpoint & resources
+
+|Description| Endpoint |
+| --- | --- | 
+| Explorer | https://mainnet.commercio.network/  | 
+| LCD |  https://lcd-mainnet.commercio.network/  | 
+| RPC |  https://rpc-mainnet.commercio.network/  | 
+| GRPC |  grpc-mainnet.commercio.network:9090  |
+|Commercio wallet app IOS  |   https://apps.apple.com/it/app/commerc-io/id1397387586  |
+|Commercio wallet app Android |  https://play.google.com/store/apps/details?id=io.commerc.preview.one   |
+|Commercio  app |  https://commercio.app  |
+|Commercio  app API |   https://api.commercio.app/v1/swagger/index.html   |
+
+
 
 ### The Test-net
 
 Testnet, as the name suggests, is an alternative network for the developers for testing purposes. It's a playground. You can use testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value. You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
+
+#### Endpoint & resources
+|Description| Endpoint |
+| --- | --- | 
+| Explorer |  https://testnet.commercio.network/  | 
+| LCD |  https://lcd-testnet.commercio.network/  | 
+| RPC |  https://rpc-testnet.commercio.network/  |
+| GRPC |  grpc-testnet.commercio.network:9090  |
+| Faucet |   https://faucet-testnet.commercio.network/  |
+|Commercio wallet app IOS  |  https://apps.apple.com/it/app/commerc-io/id1397387586   |
+|Commercio wallet app Android |  https://play.google.com/store/apps/details?id=io.commerc.preview.one   |
+|Commercio  app |   https://dev.commercio.app/   |
+|Commercio  app API |   https://dev-api.commercio.app/v1/swagger/index.html   |
 
 
 #### Faucet 
