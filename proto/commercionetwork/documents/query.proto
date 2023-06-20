@@ -27,7 +27,12 @@ service Query {
     option (google.api.http).get =
         "/commercionetwork/documents/document/{address}/sent";
   }
-
+  // Queries a list of UUIDs of the sent Document items.
+  rpc UUIDDocuments(QueryGetUUIDDocumentsRequest)
+      returns (QueryGetUUIDDocumentsResponse) {
+    option (google.api.http).get =
+        "/commercionetwork/documents/document/{address}/uuid";
+  }
   // Queries a list of received Document items.
   rpc ReceivedDocument(QueryGetReceivedDocumentRequest)
       returns (QueryGetReceivedDocumentResponse) {
@@ -52,6 +57,12 @@ service Query {
       returns (QueryGetDocumentsReceiptsResponse) {
     option (google.api.http).get =
         "/commercionetwork/documents/document/{UUID}/receipts";
+  }
+
+  rpc DocumentsUUIDReceipts(QueryGetDocumentsUUIDReceiptsRequest)
+      returns (QueryGetDocumentsUUIDReceiptsResponse) {
+    option (google.api.http).get =
+        "/commercionetwork/documents/document/{UUID}/uuid/receipts";
   }
 }
 
@@ -79,6 +90,16 @@ message QueryGetSentDocumentsRequest {
 
 message QueryGetSentDocumentsResponse {
   repeated Document Document = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetUUIDDocumentsRequest {
+  string address = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryGetUUIDDocumentsResponse {
+  repeated string UUIDs = 1;
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
@@ -123,5 +144,15 @@ message QueryGetDocumentsReceiptsRequest {
 
 message QueryGetDocumentsReceiptsResponse {
   repeated DocumentReceipt Receipts = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetDocumentsUUIDReceiptsRequest {
+  string UUID = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryGetDocumentsUUIDReceiptsResponse {
+  repeated string UUIDs = 1;
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

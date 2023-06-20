@@ -79,6 +79,44 @@ func CmdSentDocuments() *cobra.Command {
 	return cmd
 }
 
+func CmdUUIDDocuments() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "uuid-documents [user-address]",
+		Short: "Get all documents sent by the user",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			queryClient := types.NewQueryClient(clientCtx)
+			// use err name for variable
+			addr, e := sdk.AccAddressFromBech32(args[0])
+			if e != nil {
+				return e
+			}
+
+			// missing AddPaginationFlagsToCmd below!
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+			params := &types.QueryGetUUIDDocumentsRequest{
+				Address:    addr.String(),
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.UUIDDocuments(context.Background(), params)
+			if err != nil {
+				return sdkErr.Wrap(sdkErr.ErrLogic, fmt.Sprintf("could not get any sent document for the given address: \n %s", err))
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
 func CmdReceivedDocuments() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "received-documents [user-address]",
