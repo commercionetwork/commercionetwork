@@ -68,6 +68,10 @@ func forceprune() *cobra.Command {
 				return err
 			}
 
+			if fullHeight <= 282000 {
+				return fmt.Errorf("full height should be greater than 282000")
+			}
+
 			minHeight, err := strconv.ParseInt(minHeightFlag, 10, 64)
 			if err != nil {
 				return err
