@@ -32,6 +32,7 @@ const (
 	fullHeight        = "full_height"
 	minHeight         = "min_height"
 	defaultFullHeight = "282000"
+	limitFullHeight   = 282000
 	defaultMinHeight  = "1000"
 )
 
@@ -68,8 +69,8 @@ func forceprune() *cobra.Command {
 				return err
 			}
 
-			if fullHeight < 282000 {
-				return fmt.Errorf("full height should be equal or greater than 282000")
+			if fullHeight < limitFullHeight {
+				return fmt.Errorf("full height should be equal or greater than %d", limitFullHeight)
 			}
 
 			minHeight, err := strconv.ParseInt(minHeightFlag, 10, 64)
