@@ -75,6 +75,7 @@ func CmdSentDocuments() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "sent-documents")
 
 	return cmd
 }
@@ -113,6 +114,7 @@ func CmdUUIDDocuments() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "uuid-documents")
 
 	return cmd
 }
@@ -149,6 +151,7 @@ func CmdReceivedDocuments() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "received-documents")
 
 	return cmd
 }

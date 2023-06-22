@@ -43,6 +43,7 @@ func CmdSentReceipts() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "sent-receipts")
 
 	return cmd
 }
@@ -82,6 +83,7 @@ func CmdReceivedReceipts() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "received-receipts")
 
 	return cmd
 }
@@ -117,6 +119,7 @@ func CmdDocumentsReceipts() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "documents-receipts")
 
 	return cmd
 }
@@ -150,6 +153,7 @@ func CmdDocumentsUUIDReceipts() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "documents-uuid-receipts")
 
 	return cmd
 }
