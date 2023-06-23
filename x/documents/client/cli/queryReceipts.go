@@ -43,6 +43,7 @@ func CmdSentReceipts() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "sent-receipts")
 
 	return cmd
 }
@@ -82,6 +83,7 @@ func CmdReceivedReceipts() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "received-receipts")
 
 	return cmd
 }
@@ -117,6 +119,41 @@ func CmdDocumentsReceipts() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "documents-receipts")
+
+	return cmd
+}
+
+func CmdDocumentsUUIDReceipts() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "documents-uuid-receipts [documentUUID]",
+		Short: "Get all uuid receipts associated with the given document ID",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			params := &types.QueryGetDocumentsUUIDReceiptsRequest{
+				UUID:       args[0],
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.DocumentsUUIDReceipts(context.Background(), params)
+			if err != nil {
+				fmt.Printf("could not get any received receipt for the given document UUID: \n %s", err)
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "documents-uuid-receipts")
 
 	return cmd
 }

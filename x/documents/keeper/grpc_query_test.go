@@ -206,6 +206,48 @@ func TestSentDocuments(t *testing.T) {
 	}
 }
 
+func TestUUIDDocuments(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	msgs := createNDocument(keeper, ctx, 5)
+
+	for _, tc := range []struct {
+		desc     string
+		request  *types.QueryGetUUIDDocumentsRequest
+		response *types.QueryGetUUIDDocumentsResponse
+		err      error
+	}{
+		{
+			desc:     "First",
+			request:  &types.QueryGetUUIDDocumentsRequest{Address: msgs[0].Sender},
+			response: &types.QueryGetUUIDDocumentsResponse{UUIDs: []string{msgs[0].UUID, msgs[1].UUID, msgs[2].UUID, msgs[3].UUID, msgs[4].UUID}},
+		},
+		{
+			desc:    "Invalid address",
+			request: &types.QueryGetUUIDDocumentsRequest{},
+			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+		},
+		{
+			desc: "InvalidRequest",
+			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+		// TODO add test for invalidPagination (easier if we use require.NoError)
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			response, err := keeper.UUIDDocuments(wctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.Len(t, tc.response.UUIDs, len(response.UUIDs))
+				for i := range tc.response.UUIDs {
+					require.Contains(t, response.UUIDs, tc.response.UUIDs[i])
+				}
+			}
+		})
+	}
+}
+
 func TestReceivedDocument(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
@@ -403,4 +445,78 @@ func TestKeeper_DocumentsReceipts(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestKeeper_DocumentsUUIDReceipts(t *testing.T) {
+	tests := []struct {
+		name           string
+		storedDocs     []types.Document
+		storedReceipts []types.DocumentReceipt
+		request        *types.QueryGetDocumentsUUIDReceiptsRequest
+		response       *types.QueryGetDocumentsUUIDReceiptsResponse
+		wantErr        bool
+	}{
+		{
+			name:    "invalid request",
+			wantErr: true,
+		},
+		{
+			name: "invalid pagination",
+			request: &types.QueryGetDocumentsUUIDReceiptsRequest{
+				UUID:       types.ValidDocument.UUID,
+				Pagination: &invalidPagination,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty store",
+			request: &types.QueryGetDocumentsUUIDReceiptsRequest{
+				UUID: types.ValidDocument.UUID,
+			},
+			response: &types.QueryGetDocumentsUUIDReceiptsResponse{},
+			wantErr:  false,
+		},
+		{
+			name:       "one receipt for document",
+			storedDocs: []types.Document{types.ValidDocument},
+			storedReceipts: []types.DocumentReceipt{
+				types.ValidDocumentReceiptRecipient1,
+			},
+			request: &types.QueryGetDocumentsUUIDReceiptsRequest{
+				UUID: types.ValidDocument.UUID,
+			},
+			response: &types.QueryGetDocumentsUUIDReceiptsResponse{
+				UUIDs: []string{
+					types.ValidDocumentReceiptRecipient1.UUID,
+				},
+				Pagination: nil,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			keeper, ctx := setupKeeper(t)
+			wctx := sdk.WrapSDKContext(ctx)
+
+			for _, document := range tt.storedDocs {
+				keeper.SaveDocument(ctx, document)
+			}
+
+			for _, receipt := range tt.storedReceipts {
+				keeper.SaveReceipt(ctx, receipt)
+			}
+
+			got, err := keeper.DocumentsUUIDReceipts(wctx, tt.request)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Keeper.DocumentsReceipts() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr {
+				require.ElementsMatch(t, tt.response.UUIDs, got.UUIDs)
+			}
+		})
+	}
+
 }
