@@ -102,6 +102,50 @@ func testCmdSentDocuments(t *testing.T) {
 	}
 }
 
+func testCmdUUIDDocuments(t *testing.T) {
+
+	for _, tt := range []struct {
+		name     string
+		args     []string
+		flags    []string
+		expected []string
+		wantErr  bool
+	}{
+		{
+			name:     "ok",
+			args:     []string{types.ValidDocument.Sender},
+			expected: genesisDocumentsUUUIDs,
+		},
+		{
+			name:    "invalid address",
+			args:    []string{"abc"},
+			wantErr: true,
+		},
+		{
+			name: "no documents expected",
+			args: []string{types.ValidDocumentReceiptRecipient1.Sender},
+		},
+		{
+			name:    "no args",
+			args:    []string{},
+			wantErr: true,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			commandArgs := append(tt.args, tt.flags...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdUUIDDocuments(), commandArgs)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				var response types.QueryGetUUIDDocumentsResponse
+				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				require.ElementsMatch(t, tt.expected, response.UUIDs)
+			}
+		})
+	}
+}
+
 func testCmdReceivedDocuments(t *testing.T) {
 
 	for _, tt := range []struct {

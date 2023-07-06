@@ -83,7 +83,7 @@ func CmdSentDocuments() *cobra.Command {
 func CmdUUIDDocuments() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "uuid-documents [user-address]",
-		Short: "Get all documents sent by the user",
+		Short: "Get all uuid-documents sent by the user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
