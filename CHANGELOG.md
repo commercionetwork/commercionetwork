@@ -1,3 +1,16 @@
+# Version 5.0.0
+
+* Upgraded cosmos sdk to version v0.45.16
+* Upgraded wasmd to version v0.31.0
+* Upgraded ibc to version v4.4.2
+* Used cometbft instead of tendermint
+* Added ibc middleware limiter
+* Fixed membership module downgrade bug
+* Added documents module queries
+* Added forceprune command
+* Enabled wasm snapshoter
+* Updated and improved documentations
+
 # Version 4.2.1
 
 * Updated documentations
