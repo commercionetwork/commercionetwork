@@ -21,6 +21,9 @@ var documentsGenesisState = types.GenesisState{
 	},
 }
 
+var genesisDocumentsUUUIDs []string
+var genesisReceiptsUUUIDs []string
+
 var ctx client.Context
 
 func TestQueries(t *testing.T) {
@@ -39,11 +42,21 @@ func TestQueries(t *testing.T) {
 	val := net.Validators[0]
 	ctx = val.ClientCtx
 
+	for _, doc := range documentsGenesisState.Documents {
+		genesisDocumentsUUUIDs = append(genesisDocumentsUUUIDs, doc.UUID)
+	}
+
+	for _, recp := range documentsGenesisState.Receipts {
+		genesisReceiptsUUUIDs = append(genesisReceiptsUUUIDs, recp.UUID)
+	}
+
 	t.Run("CmdShowDocument", testCmdShowDocument)
 	t.Run("CmdSentDocuments", testCmdSentDocuments)
+	t.Run("CmdUUIDDocuments", testCmdUUIDDocuments)
 	t.Run("CmdReceivedDocuments", testCmdReceivedDocuments)
 
 	t.Run("CmdSentReceipts", testCmdSentReceipts)
 	t.Run("CmdReceivedReceipts", testCmdReceivedReceipts)
 	t.Run("CmdDocumentsReceipts", testCmdDocumentsReceipts)
+	t.Run("CmdDocumentsUUIDReceipts", testCmdDocumentsUUIDReceipts)
 }

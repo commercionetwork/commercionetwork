@@ -38,7 +38,7 @@ tools-stamp
 *.out
 
 # Sources
-src
+#src
 
 # Mac OSX noises
 .DS_Store
@@ -66,3 +66,6 @@ vagrant
 build
 vue/src
 ts-client
+
+debug/
+target/

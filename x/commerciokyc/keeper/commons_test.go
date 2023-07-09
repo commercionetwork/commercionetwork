@@ -111,6 +111,8 @@ var testUser2, _ = sdk.AccAddressFromBech32("cosmos1h7tw92a66gr58pxgmf6cc336lgxa
 var testUser3, _ = sdk.AccAddressFromBech32("cosmos14lultfckehtszvzw4ehu0apvsr77afvyhgqhwh")
 var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
+var testInvalidMembership = "gren"
+
 //var stableCreditDenom = "uccc"
 var testExpiration = time.Now().Add(time.Hour * 24 * 365).UTC()
 var testExpirationNegative = time.Now()
