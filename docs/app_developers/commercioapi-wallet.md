@@ -1,111 +1,44 @@
-# CommercioAPI Wallet 
+# CommercioAPI eID 
 
 
-The  CommercioAPI Wallet permit to manage the basic operations on your Wallet/s
+The  CommercioAPI eID permit to manage the basic operations on your in commercio chain  
 
 
-## What is a wallet
-
-A wallet (digital) is a software (Encryption) that provide a virtual equivalent of a wallet.
-
-In the common sense a wallet is an instrumental where you can storage your coins. 
-
-You don’t actually store any cryptocurrency in your wallet. You just store the keys to access 
-them on the blockchain.
-
-Attention:
-> The blockchain records the amount of coins associated with a key pair (your identity on the blockchain).
-It calculates the amount of money the keys have access to based on all the transactions on the blockchain. 
-Remember: the main function of a blockchain is to store all transactions in the correct order.
-
-Thorugh this calculation of past transaction you are able to check your balance, receive, and 
-send funds with another wallet registering transfer transaction in the blockchain
-
-A keychain concept is similar to what a wallet does. To spend your money, you need the private
-key stored in your wallet. 
-Is not needed to understand how public-key cryptography works in detail but 
-is important to understand that <strong>if you don’t control your keys, you don’t control your funds.</strong>
-
-In summary a wallet is a program that has three main functions:
-
-* Generating, storing and handling your keys and addresses
-* Showing you your balance
-* Creating and signing transactions to send funds
-
-Mainly however it permit to generate, manage and store cryptographic keys - your public and private key
-
-Another important things is that wallets generally don’t allow you to buy cryptocurrencies;
-Exchanges perform this for you.All exchanges propose you wallets where store the coins you buy,
-but wallets usually DON'T provide you any exchange service.
-
-Thus the only way to get coins in your wallet is to receive them from another one.  
-
-
-## Manage the key - types of wallet 
-The way a user decide to manage the crypto keys
-of his wallet have two main scenarios 
-
-### 1. Non-custodial wallets
-Those wallets provide an interface to check your funds or create transactions in your web browser, but you have to provide the keys with each login.
-
-Registering with a central authority is not needed to create a wallet. This comes at the cost of you being responsible for the safety of your coins Nobody can help you recover your keys if you lose them. 
-If anybody were able to recover it they would also be able to steal your funds. 
-
-This would eliminate the trustless aspect of blockchains
-
-There is a sort of recovery mechanism with many wallets called a mnemonic phrase or backup phrase. A mnemonic phrase usually consists of 12 or 24 words. With these words, you can recover your keys. You receive your mnemonic phrase when you install and set up your wallet. Be sure to write it down on a piece of paper and keep it in a safe place. You should have at least two versions of your backup phrase stored in different locations.
-
-
-
-
-### 2. Custodial wallets or hosted wallet
-It’s called hosted because a third party keeps your 
-crypto for you, similar to how a bank keeps your money in a checking or savings account.
-
-With hosted web wallets, your keys are stored online by a trusted third party.
-
-Is the most popular and easy-to-set-up crypto wallet
-
-You may have heard about people searching for old hard drives because they have “lost their bitcoins”. More accurately, they lost the keys to access their bitcoin.
-but with a hosted wallet you don’t have to worry about any of that.
-
-
-<div style="color:red;">
-
-
-<!-- 
-https://academy.horizen.io/technology/advanced/types-of-wallets/ 
-
-https://www.coinbase.com/it/learn/tips-and-tutorials/how-to-set-up-a-crypto-wallet
--->
-
-</div>
 
 ### Wallet with the commercio app 
 The commercio app provide You with a hosted wallet 
 
-
-## Wallet address 
-The Api path permit you to obtain your wallet address and informations.
-
-A wallet address in the form :
+A wallet address is in the form :
 
 `did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl`
 
-It permit to 
+It has a double function in commercio.network 
 
-a) view the public information of your wallet 
+a) identifiy uniquely your identity as per an ID card code
+
+b)  identifiy uniquely your account as per an IBAN
+
+You could view the public information of your wallet 
 the easiest way is to search for it in the explorer 
 
-[https://testnet.commercio.network/validators/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl](https://testnet.commercio.network/validators/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl)
+[https://testnet.commercio.network/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl/](https://testnet.commercio.network/account/did:com:1r0sk6stfm6d5jtfcne2jxd7s7n2whp35tjm7zl/)
 
-### Api path 
 
-`GET /wallet/address`
+The Api `/wallet/` path permit you to interact with your wallet  and obtain some basic informations.
+
+
+
+## Get your wallet address and balance
+It permit to obtain your wallet address associated to your account in the commercio.app and its balance in terms of token
+
+
+### Path
+
+ `GET /wallet/address`
 
 
 ### Step by step example
-Let's create a new transaction  
+Let's use the API
 
 #### Step 1 - Send the message  
 
@@ -118,12 +51,12 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/address' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTQxNjcsImlhdCI6MTYyNDM1MzI2NywiYXV0aF90aW1lIjowLCJqdGkiOiI2YTk4ZjIyZi02ZTNkLTQ4MzQtYmMwYy03MzhmZTI1ZWM1Y2MiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImVjYTg3ZWIwLWZmYWItNGMzMi05YzFlLWQ0MDE3ZTE4YmRhZSIsImF0X2hhc2giOiJieXFLRE5WLXowVUlfOGFHRVp6bkV3IiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.VSPIg8fefKfP2rShWVTvap1IvGx-A64FPYUsV19lHF4KFl8oZq7AyP6ePXTbkI2G1ifiA7a8mVr7g3O8b8MofRbUHSxrzPLSh_eSSQYP618f4G1sTYPGOIZuRjzTX_liywryejvEXGBzt50E-KFpGwUA99CTyG2q8s1Z-gBpDbzTY5Wd7Kc_1GkbYsTKSx1hs1-4OiCCFJ8cTRkYgVq01JqdX-Ghf8KF9yrpvORIPvvKBo9ZjoqszVSJFOgm51Zp0NuxL3Vb9FsLIIuEjlR4ocdLNXJ6qeFKa2xUWKtxwdFL-sredJgiQyt-tixcGFtVKpivVNV7KoMuSlgikjDr-g'
+  -H 'Authorization: Bearer eyJhbG....jDr-g'
 ```
 
 
 **API : Body response**
-THe body response is a json containing  the following important entity 
+THe body response is a json containing  the following imortant entity 
 
 
 * `address`:  The wallet id address associated to the authorized user the  example did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx
@@ -156,7 +89,7 @@ Example
 
 
 
-## Wallet balance
+## Get Wallet balance
 The Api  permit you to obtain the tokens balance value associated with your wallet address 
 
 ### Api path 
@@ -165,7 +98,7 @@ GET ` /wallet/balance`
 
 
 ### Step by step example
-Let's create a new transaction  
+Let's use the API  
 
 #### Step 1 - Send the message  
 
@@ -178,7 +111,7 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/balance' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTQ0MzcsImlhdCI6MTYyNDM1MzUzNywiYXV0aF90aW1lIjowLCJqdGkiOiJhZDdmNzBhMi1iMDI2LTRhNmYtOTgzMC1iMjA4MmVlMzQwMDEiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6IjdmZGNiY2Y1LTRkMGYtNGUwYi1hOTRiLTc1ODQ5ZmMxNTk2YiIsImF0X2hhc2giOiJCVU9Ndjg3djNEUDVmZ0xHd1FuVjhBIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.i3NbUWvwB4NNLfPSmUrfziwA4lJOzbsT6J0Ngc8QfEHfZd7R2U_GlQSv_e94v-Hac-97bBGUHhdeqZCreieW2wc_6Gbwyi3CvbglBRcNWGNbbtX78aU0K5gOLBR0_KfJxMxZuZe4AcWKjdQ3urq85-A-_AGoq8OWvcGkzAzA1Pi8UX4q30imTaW3m-N2cvK9fAxSLCnf5c9XPKDMaHWF-ACi30_GM4Yrubzev8I7Dg6Jaf24jqZKBzKOL0MmOk2Iw7SuR2XoqaiUUkKk7iuI0fnrIhUDaGy88bXj9pwoQtrtw9_kPXIQSp3pXvsRjCfqoOGMVpks7sFVNh6oc72i3g'
+  -H 'Authorization: Bearer eyJhbG....72i3g'
 
 ```
 
@@ -207,8 +140,12 @@ Example
 
 
 
-## Wallet transfers POST
-The Api  permit you to send tokens to another wallet address 
+## Send token from your wallet
+The Api  basically permits you to send tokens to another wallet address from your wallet as per a wire transfer. 
+
+In detail the Api permits to instatiate a process for sending tokens to another wallet in the commercio.app queue. The process request will be executed by the commercio.app in the blockchain. 
+
+The process istantiated could have a positive or negative outcome so it should be checked.
 
 
 ### Api path 
@@ -216,7 +153,7 @@ The Api  permit you to send tokens to another wallet address
 POST  `/wallet/transfers`
 
 ### Step by step example
-Let's create a new transaction.
+Let's use the API
 
 We try to send
 *  Amount = 1 ccc
@@ -234,7 +171,7 @@ Example
 curl -X 'POST' \
   'https://dev-api.commercio.app/v1/wallet/transfers' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTgwMDEsImlhdCI6MTYyNDM1NzEwMSwiYXV0aF90aW1lIjowLCJqdGkiOiIxNTA5M2IwMS05MmYxLTRjMjctYWFlNi00ZGZlM2M3MGM0NDciLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6IjkyMDkxMzdkLTYxYzYtNDkwZS1iMjRlLTIyOTU0OGZkNGI5OSIsImF0X2hhc2giOiJYY1hZLWxFYjNTSERRbmg0N1dmUDZBIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.GXcDC-HviuylBqryyeFQnR1g_sMZG70utlKr6OVUEkoJ4ysQGfLVMuptZUlkxEebHSspGLtB2vTPtuMaY6D7jN3AKLJbW0ceRTg1u1lfWbWJrqG7Ly2zKlklvcDK-VBcW38OLqi3JjJkQYgLJ6P_YuWqH6K9N0Jz6CHHNP1iGPM6T4Yx-AIihfVfy85xtbG4NnHHKm25FElh-PTUUCTXatsP8CTwWrA2CVPfKNoSttJJ3GYJSc7hq-Qf7pv8g7NTe2PWaZdeaOhGQwLKZSfrIN_Pxu1FeHjfTg0jyENSiBxPhJDdlWDnk1jZforMiXXu9WD294z-7E6vULDAGguDwg' \
+  -H 'Authorization: Bearer eyJhbGciOiJSU.....AGguDwg' \
   -H 'Content-Type: application/json' \
   -d '{
   "amount": [
@@ -281,7 +218,7 @@ Is an important data that could be used later with the API Wallet transfers GET 
 
 --- 
 
-## Wallet transfers GET by send_token_id
+## Check sent token process 
 The Api  permit you obtaini details on the process generated with a specific `send_token_id`
 
 
@@ -290,7 +227,7 @@ The Api  permit you obtaini details on the process generated with a specific `se
 GET  `/wallet/transfers/{send_token_id}`
 
 ### Step by step example
-Let's create a new transaction 
+Let's use the API
 
 
 #### Step 1 - Send the message  
@@ -307,7 +244,7 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/transfers/af5b3a65-9c60-4241-9186-b655a1091dcc' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTgwMDEsImlhdCI6MTYyNDM1NzEwMSwiYXV0aF90aW1lIjowLCJqdGkiOiIxNTA5M2IwMS05MmYxLTRjMjctYWFlNi00ZGZlM2M3MGM0NDciLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6IjkyMDkxMzdkLTYxYzYtNDkwZS1iMjRlLTIyOTU0OGZkNGI5OSIsImF0X2hhc2giOiJYY1hZLWxFYjNTSERRbmg0N1dmUDZBIiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.GXcDC-HviuylBqryyeFQnR1g_sMZG70utlKr6OVUEkoJ4ysQGfLVMuptZUlkxEebHSspGLtB2vTPtuMaY6D7jN3AKLJbW0ceRTg1u1lfWbWJrqG7Ly2zKlklvcDK-VBcW38OLqi3JjJkQYgLJ6P_YuWqH6K9N0Jz6CHHNP1iGPM6T4Yx-AIihfVfy85xtbG4NnHHKm25FElh-PTUUCTXatsP8CTwWrA2CVPfKNoSttJJ3GYJSc7hq-Qf7pv8g7NTe2PWaZdeaOhGQwLKZSfrIN_Pxu1FeHjfTg0jyENSiBxPhJDdlWDnk1jZforMiXXu9WD294z-7E6vULDAGguDwg'
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cC....GguDwg'
 ```
 
 
@@ -344,15 +281,15 @@ B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2
 
 Direct Link 
 
-[https://testnet.commercio.network/tx/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2](https://testnet.commercio.network/tx/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2)
+[https://testnet.commercio.network/transactions/detail/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2](https://testnet.commercio.network/transactions/detail/B6F551947DF246C1E35A8DBAC01DFD8371F0AEF286AEE1B37386035E6FB382C2)
 
 
 
 
 
 
-## Wallet transfers GET
-The Api  permit you obtaini details on all the transfer process of sending token (from) associated to the did of the authenticated user .
+## Sent token process list
+The Api  permit you obtaini details on all the sending token processes istantiated by  your wallet (of the authenticated user).
 
 
 ### Api path 
@@ -360,7 +297,7 @@ The Api  permit you obtaini details on all the transfer process of sending token
 GET  `/wallet/transfers/`
 
 ### Step by step example
-Let's create a new transaction 
+Let's use the API 
 
 
 #### Step 1 - Send the message  
@@ -373,7 +310,7 @@ Example
 curl -X 'GET' \
   'https://dev-api.commercio.app/v1/wallet/transfers' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJwSnpWTkVBa1JieGJvazJGajZPenlmR3RNR25IRVhYNjA4bEVDOXJyNTlRIn0.eyJleHAiOjE2MjQzNTk2MzYsImlhdCI6MTYyNDM1ODczNiwiYXV0aF90aW1lIjowLCJqdGkiOiJjZjYxNDhkMi0yNWJkLTQyY2MtYWIyYy1iZGM4ZDFlN2EzY2IiLCJpc3MiOiJodHRwczovL2RldmxvZ2luLmNvbW1lcmNpby5hcHAvYXV0aC9yZWFsbXMvY29tbWVyY2lvIiwiYXVkIjoiZGV2LmNvbW1lcmNpby5hcHAiLCJzdWIiOiI0OWFhZjQ3OS1hMjE4LTRhZjItOWY3MS1kMTI2OThmNjk5YjkiLCJ0eXAiOiJJRCIsImF6cCI6ImRldi5jb21tZXJjaW8uYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImM5NjVkOTc0LTZkMGYtNDU3Mi05NTNmLTJiZjM4NWFiNjBiYSIsImF0X2hhc2giOiI0eGVoS3RKTkZVMzlPSy1NRE9XMTF3IiwiYWNyIjoiMSIsInRlcm1zX2FuZF9jb25kaXRpb25zIjoiMTYyMTUyNDY0NyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhZGRyZXNzIjp7fSwibmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIEVudGVycHJpc2V1c2VyMDAzIiwicGhvbmVfbnVtYmVyIjoiMzQ4NTI0MTY0OSIsInByZWZlcnJlZF91c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIiwiZ2l2ZW5fbmFtZSI6IkVudGVycHJpc2V1c2VyMDAzIiwiZmFtaWx5X25hbWUiOiJFbnRlcnByaXNldXNlcjAwMyIsImVtYWlsIjoiZW50ZXJwcmlzZXVzZXIwMDNAem90c2VsbC5jb20iLCJ1c2VybmFtZSI6ImVudGVycHJpc2V1c2VyMDAzQHpvdHNlbGwuY29tIn0.B-gllJgvQhO2aEKv38eviYihsb0R2TCSTVQL5K2LTpKVnARye3pIBo7vJ-DeOjs48e0y_y0usD0_I-XocZxIGNupsRFcK46nKmiwJg289QSu-b4J0o2sDoDe3OpjUxBhtuZgO9zkfbTDcI1F3DSfAD9fhZV-LddNHlzOx7nbShmZ7mY0voR4d4xwMt-1QpE1Y_H43UXfFlvdFLeCr7mv8HI2yAFPGJ2B8BY6_eqXj-PIZzbgGzNgfe4JwjsYqYXuhgnbgp52TlNccIfWGHw1rCoB5doUzusdJ2K3gg-5EWPAapMZcwdfbsaRKx936mL9LxeGq5-iZkFJDyvm7ZDmig'
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR......ZDmig'
 
 ```
 
@@ -442,7 +379,106 @@ Obviously You can always look at all the transactions associated to your wallet 
 
 Direct Link using your did address 
 
-[https://testnet.commercio.network/validators/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx](https://testnet.commercio.network/validators/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx)
+[https://testnet.commercio.network/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx/](https://testnet.commercio.network/account/did:com:1cjatcdv2uf20803mt2c5mwdrj87tjnuvk3rvsx)
 
 
 
+## Manage your DDO
+
+A DID Document is a digital document that describes a Decentralized Identifier (DID) and contains information about the DID's associated public keys, authentication mechanisms, and service endpoints.
+
+A Decentralized Identifier (DID) is a unique identifier that is not dependent on any centralized authority or registry. It is designed to provide a decentralized, secure, and privacy-preserving way to identify and interact with people, organizations, and things on the internet.
+
+A DID Document provides a standardized way for different systems to interact with each other using DIDs, making it easier to build decentralized applications and services that rely on the secure and private exchange of information. The information contained in a DID Document can be used to verify the authenticity and integrity of a DID and to establish secure communication channels between different parties.
+
+For details on DID documents refers to [DID module](/modules/did/)
+
+Through API is possible to interact with the DID Document of a user present in the chain knowing the eID ((Wallet address) or to manage your DID Document updating it  associated to your eID (Wallet address)
+
+Mainly a DDO contains public keys of the user that can be used 
+by applications for many scope
+
+There are two type of keys that are directly managed by the hosted wallet 
+* `RsaVerificationKey2018`
+* `RsaSignature2018`
+
+Public version are created in DDO at first generation
+
+This type of kes are intended for encrypting method described [here](/modules/documents/03_messages.html#encryption-data-field-requirements)
+not still implemented in commercio.app
+
+
+### Get DDO of a user 
+In Review - cooming soon
+
+#### Api path 
+
+GET ` /ddo/{wallet_address}`
+
+
+#### Step by step example
+Let's use the API  
+
+
+
+
+### Get DDO history of a user 
+
+In Review - cooming soon
+
+
+
+### Update your DDO 
+
+#### Api path 
+
+POST ` /ddo/process`
+
+
+##### Step by step example
+Let's create a new process to create the first version of DDO   
+
+**Step 1 - Define the first query**
+
+
+**Step 2 - Use the API to istantiate the process**
+Use the tryout
+
+
+Corresponding Cli request
+
+
+API : Body response
+
+
+S
+
+
+
+
+### Get your DDO Updating  process status
+
+
+Step 3 - Check the process status
+Use the API Get : /sharedoc/process with process_id = 34669051-707f-4230-a960-e0ef8e517e43
+
+see for more details below in the guide
+
+API : Body response
+
+
+Acquire the "doc_tx_hash": "78733941DE98F4D39424DD082F3516438E397A236BA28C0BBE2AC3CD3A66E94F"
+
+#Step 4 - Check the transaction in the explorer
+Use the doc_tx_hash in the explorer filter
+
+Modal
+
+Check the trasaction
+
+Modal
+
+#Common error
+The following are common error composing using a POST Sharedocument message
+
+#
