@@ -138,6 +138,21 @@ A view of the status of mainnet is possible throught the Explorer, a Webapp  nam
 Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.network)
 
 
+#### How can I Get COM token 
+
+COM Token are reserved to the founders of the chain and infrastructure operators (Validators)
+If you are interested in becoming a validator contact info@commercio.network  
+
+
+
+#### How can I Get CCC Token
+
+CCC can be minted creating a position with COM tokens through the commercio wallet app.
+The function is available in the CCC Menu 
+
+CCC can be bought directly from commercio.network contacting info@commercio.network .The Buy function in the commercio.app  actually is not available
+
+
 ### The Test-net
 
 Testnet, as the name suggests, is an alternative network for the developers for testing purposes. It's a playground. You can use testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value. You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
