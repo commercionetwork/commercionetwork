@@ -228,19 +228,20 @@ Check the trasaction
 ![Modal](./explorer_transaction_doc_tx_hash.png)
 
 
-##### Step 5  - Check the Message in the store of the chain 
+##### Step 5  - Check the Message in the store (DB) of the chain 
 
-Througt the public api of the chain (lcd) is also possible check directly in the DB of the chain if the Sharedoc message has been registered 
+Through the public API of the chain (LCD), it is also possible to directly check in the chain's database whether the Sharedoc message has been registered.
 
-To perform this verification use the following path 
+To perform this verification, use the following path:
 
 https://lcd-testnet.commercio.network/#/Query/CommercionetworkCommercionetworkDocumentsDocument
 
-You only need to know the uuid of the message
+You only need to know the UUID of the message.
+
+Here's an example URL using the UUID "b03c6c6e-90e4-49ae-a582-e6a3ff4726a3":
 
 https://lcd-testnet.commercio.network/commercionetwork/documents/document/b03c6c6e-90e4-49ae-a582-e6a3ff4726a3
 
-Reply
 
 ```
 {
