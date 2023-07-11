@@ -171,10 +171,10 @@ curl -X 'POST' \
   "doc_hash_alg": "sha-256",
   "doc_tx_hash": "",
   "doc_metadata": {
-    "content_uri": "-",
+    "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
     "schema": {
-      "uri": "-",
-      "version": "-"
+      "uri": "http://example.com/schema.xml",
+      "version": "1.0.0"
     }
   },
   "timestamp": "2021-05-20T08:27:56Z",
@@ -204,10 +204,10 @@ see for more details below in the guide
   "doc_hash_alg": "sha-256",
   "doc_tx_hash": "78733941DE98F4D39424DD082F3516438E397A236BA28C0BBE2AC3CD3A66E94F",
   "doc_metadata": {
-    "content_uri": "-",
+    "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
     "schema": {
-      "uri": "-",
-      "version": "-"
+      "uri": "http://example.com/schema.xml",
+      "version": "1.0.0"
     }
   },
   "timestamp": "2021-05-20T08:27:56Z",
@@ -366,10 +366,10 @@ Example Value
       "tx_timestamp": "2021-06-30T09:49:32Z",
       "tx_type": "commercio/MsgShareDocument",
       "doc_metadata": {
-        "content_uri": "-",
+        "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
         "schema": {
-          "uri": "-",
-          "version": "-"
+          "uri": "http://example.com/schema.xml",
+           "version": "1.0.0"
         }
       },
       "chain_id": "commercio-testnet10k2",
@@ -389,10 +389,10 @@ Example Value
       "tx_timestamp": "2021-06-30T09:49:32Z",
       "tx_type": "commercio/MsgShareDocument",
       "doc_metadata": {
-        "content_uri": "-",
+        "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
         "schema": {
-          "uri": "-",
-          "version": "-"
+          "uri": "http://example.com/schema.xml",
+           "version": "1.0.0"
         }
       },
       "chain_id": "commercio-testnet10k2",
@@ -482,13 +482,13 @@ curl -X 'GET' \
   "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
   "tx_timestamp": "2021-06-30T09:49:32Z",
   "tx_type": "commercio/MsgShareDocument",
-  "doc_metadata": {
-    "content_uri": "-",
-    "schema": {
-      "uri": "-",
-      "version": "-"
-    }
-  },
+      "doc_metadata": {
+        "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
+        "schema": {
+          "uri": "http://example.com/schema.xml",
+           "version": "1.0.0"
+        }
+      },
   "chain_id": "commercio-testnet10k2",
   "timestamp": "2021-06-30T09:46:25Z",
   "status": "success"

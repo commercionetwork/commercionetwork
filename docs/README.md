@@ -152,24 +152,28 @@ Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.networ
 
 
 
-#### How can I Get COM token 
+#### How can I get COM tokens?
 
-COM Token are reserved to the founders of the chain and infrastructure operators (Validators)
+COM Token are reserved to the founders of the chain , infrastructure operators (Validators)
+
 If you are interested in becoming a validator contact info@commercio.network  
 
 
 
-#### How can I Get CCC Token
+#### How can I get CCC tokens?
 
-CCC can be minted creating a position with COM tokens through the commercio wallet app.
-The function is available in the CCC Menu 
+CCC tokens can be minted by owner of COM tokens creating a position with COM tokens through the Commercio wallet app. The function is available in the CCC Menu and corresponds to the "Mint" button.
 
-CCC can be bought directly from commercio.network contacting info@commercio.network .The Buy function in the commercio.app  actually is not available
+CCC tokens can also be purchased directly from commercio.network by contacting info@commercio.network. Please note that the "Buy" function in the commercio.app is currently unavailable.
 
 
 ### The Test-net
 
 Testnet, as the name suggests, is an alternative network for the developers for testing purposes. It's a playground. You can use testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value. You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
+
+
+Test-net Almerico: [testnet.commercio.network](https://testnet.commercio.network)
+
 
 #### Endpoint & resources
 |Description| Endpoint |
@@ -185,8 +189,11 @@ Testnet, as the name suggests, is an alternative network for the developers for 
 |Commercio  app API |   https://dev-api.commercio.app/v1/swagger/index.html   |
 
 
-#### Faucet 
-In the testnet a tool that allows to recharge a wallet  (with COM token) is available. 
+####  How can I get COM tokens?
+Getting COM token in testnet is quite easy and free. It is possible throught a function named 
+<strong>Faucet</strong>. Is a tool that allows to recharge a wallet  (with COM token).
+
+Getting COM tokens in the testnet is quite easy and free. It is possible through a function called the "<strong>Faucet</strong>." The Faucet is a tool that allows you to recharge a wallet with COM tokens.
 
 A destination address (`addr`) and the amount to be recharged with  (`amount` expressed in ucommercio) must be provided to the faucet endpoint (https://faucet-testnet.commercio.network/give).
 
@@ -207,8 +214,22 @@ https://faucet-testnet.commercio.network/give?addr=did:com:1tq5mvp7j4vtew08htasw
 ATTENTION : A `faucet` for CCC is not available. The Buy function (`coming soon`) in the dev.commercio.app must be used  
 
 
-Test-net Almerico: [testnet.commercio.network](https://testnet.commercio.network)
+####  How can I Get CCC  
 
+A faucet for CCC is not available. The easiest way is to use a non hosted wallet 
+in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) 
+
+**Procedure**
+
+1. Create a wallet in testnet in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) 
+
+2. Check for your wallet address 
+
+3. Send to it some COM throught the faucet  
+
+4. Perform a Mint CCC  function in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App)  with the COM obtained 
+
+5. Form the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) send the CCC minted to any the address you want in testnet
 
 
 ##  Tools  
