@@ -228,6 +228,48 @@ Check the trasaction
 ![Modal](./explorer_transaction_doc_tx_hash.png)
 
 
+##### Step 5  - Check the Message in the store of the chain 
+
+Througt the public api of the chain (lcd) is also possible check directly in the DB of the chain if the Sharedoc message has been registered 
+
+To perform this verification use the following path 
+
+https://lcd-testnet.commercio.network/#/Query/CommercionetworkCommercionetworkDocumentsDocument
+
+You only need to know the uuid of the message
+
+https://lcd-testnet.commercio.network/commercionetwork/documents/document/b03c6c6e-90e4-49ae-a582-e6a3ff4726a3
+
+Reply
+
+```
+{
+  "Document": {
+    "sender": "did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t",
+    "recipients": [
+      "did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t"
+    ],
+    "UUID": "b03c6c6e-90e4-49ae-a582-e6a3ff4726a3",
+    "metadata": {
+      "contentURI": "-",
+      "schema": {
+        "URI": "-",
+        "version": "-"
+      }
+    },
+    "contentURI": "8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9",
+    "checksum": {
+      "value": "3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+      "algorithm": "sha-256"
+    },
+    "encryptionData": null,
+    "doSign": null
+  }
+}
+```
+
+
+
 #### Common error
 
 The following are common error composing using a  POST Sharedocument message 
