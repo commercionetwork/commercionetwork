@@ -210,7 +210,7 @@ https://faucet-testnet.commercio.network/give?addr=did:com:1tq5mvp7j4vtew08htasw
 
 `amount` : There is a limit in the amount value of `100000000 ucommercio`
 
-**Use in Discord**
+**Use on Discord**
 
 
 Faucet is also available in [Discord](https://discord.com/channels/973149882032468029/984721374843121664)
