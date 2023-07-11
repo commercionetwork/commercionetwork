@@ -154,7 +154,7 @@ Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.networ
 
 #### How can I get COM tokens?
 
-COM Token are reserved to the founders of the chain , infrastructure operators (Validators)
+COM Token are reserved to infrastructure operators (aka Validators) and power users 
 
 If you are interested in becoming a validator contact info@commercio.network  
 
@@ -162,9 +162,9 @@ If you are interested in becoming a validator contact info@commercio.network
 
 #### How can I get CCC tokens?
 
-CCC tokens can be minted by owner of COM tokens creating a position with COM tokens through the Commercio wallet app. The function is available in the CCC Menu and corresponds to the "Mint" button.
+CCC tokens can be minted by owner of COM tokens creating a position with COM tokens through the [Commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) . The function is available in the CCC Menu and corresponds to the "Mint" button.
 
-CCC tokens can also be purchased directly from commercio.network by contacting info@commercio.network. Please note that the "Buy" function in the commercio.app is currently unavailable.
+CCC tokens can also be purchased directly from commercio.network SPA by contacting info@commercio.network. Please note that the "Buy" function in the commercio.app is currently unavailable.
 
 
 ### The Test-net
@@ -210,8 +210,26 @@ https://faucet-testnet.commercio.network/give?addr=did:com:1tq5mvp7j4vtew08htasw
 
 `amount` : There is a limit in the amount value of `100000000 ucommercio`
 
+**Use in Discord**
+
+
+Faucet is also available in [Discord](https://discord.com/channels/973149882032468029/984721374843121664)
+
+
+Simply post a message like this 
+
+$request #WALLET_ADDRESS#
+
+Example 
+
+$request did:com:17chk7ldgk99xdxqxszwsvm2ee64rut5dmtuawr
+
+
 
 ATTENTION : A `faucet` for CCC is not available. The Buy function (`coming soon`) in the dev.commercio.app must be used  
+
+
+
 
 
 ####  How can I Get CCC  
