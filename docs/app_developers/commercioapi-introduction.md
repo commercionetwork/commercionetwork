@@ -206,10 +206,7 @@ Using the platform comes with a cost for the usage that depends on the type of [
 First year membership subscription comes with a bonus in your wallet equivalent to the cost
 of Membership ( bonus in CCC)
 
-`Green Mebership` is free of charge when obtained from commercio.app through a simple registration
-moreover a 1 CCC bonus will be available for free in your wallet with first registration.
-This type of membership is actually not still available in commercio.app . We are developing this option . 
-Actually user can choose only to buy Bronze,Silver,Gold membership. The green membership **is programmed to be delivered  at the end of 1Q 2023** 
+`Green Mebership` is free of charge when obtained from commercio.app through a simple registration. Moreover, a 1 CCC bonus will be available for free in your wallet upon the first registration. However, this type of membership has a limitation regarding its functionality in using the "/wallet/transfers" API. This operation is inhibited due to the possibility of malicious users draining CCC using the free subscription.
 
 
 
