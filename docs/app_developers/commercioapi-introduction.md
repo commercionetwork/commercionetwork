@@ -222,7 +222,7 @@ of Membership ( bonus in CCC)
 
 * <sub>All costs in CCC.</sub> 
 * <sub>Platform cost is  comprehensive of a Chain fee (0.01) for sending Platform costs to a wallet of Commercio Platform</sub> 
-* <sub>Only writing message in the chain has a cost (POST). Querying tha chain is free of charge </sub> 
+* <sub>All POST method in the API has a msg cost . Querying tha chain is free of charge (All GET method in the API are free of charge) </sub> 
 
 
 ## CommercioAPIs overview

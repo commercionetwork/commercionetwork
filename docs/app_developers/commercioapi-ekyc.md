@@ -56,7 +56,7 @@ curl -X 'POST' \
 **API : Body response**
 
 
-**Not Existing user**
+**A) Not Existing user**
 
 
 In case the user doesn't exist in the platform (unkown user) the paltfrom instatiate an invitation process
@@ -68,34 +68,8 @@ In case the user doesn't exist in the platform (unkown user) the paltfrom instat
 }
 ``` 
 
-An invitation email will be sent to the user containing a magick link 
 
-![Modal](./invitation_email.png)
-
-
-As the user click the link will be onboarded in the commercio.app 
-
-**a) He has to accept the Term of services**
-
-![Modal](./accept_tos.png)
-
-
-
-**b) He has to choose a password for future login in the app and use of the api services**
-
-![Modal](./choose_a_password.png)
-
-**c) He has to wait for the account setup and membership assignement**
-
-![Modal](./setup_account_and_assigning_membership_green.png)
-
-**d) He will receive a Green Membership  with a 1CCC in his wallet for free**
-
-![Modal](./account_and_membership_assigned.png)
-
-
-
-**Existing user**
+**B) Existing user**
 
 Simply will be returned the wallet address associated to the email user account of the platform  indicated as payload of the APi Request
 
@@ -106,9 +80,44 @@ Simply will be returned the wallet address associated to the email user account 
 ``` 
 
 
-#### Common error
+### Not Existing user workflow 
 
-The APi obviuosly return datas relative to  users account with a hosted wallet in the commercio.app platform. 
+When a A) Not Existing user reply is received by the api an oboarding workflow start 
+
+1) An invitation email will be sent to the user containing a magick link 
+
+![Modal](./invitation_email.png)
+
+
+2) As the user click the link will be onboarded in the commercio.app 
+
+**2.a) He has to accept the Term of services**
+
+![Modal](./accept_tos.png)
+
+
+
+**2.b) He has to choose a password for future login in the app and use of the api services**
+
+![Modal](./choose_a_password.png)
+
+**2.c) He has to wait for the account setup and membership assignement**
+
+![Modal](./setup_account_and_assigning_membership_green.png)
+
+**2.d) He will receive a Green Membership  with a 1CCC in his wallet for free**
+
+![Modal](./account_and_membership_assigned.png)
+
+
+
+#### Common Question
+
+<strong>Which are the user recognized by the API ? </strong>
+
+The APi obviuosly return datas relative only to existing users account with a hosted wallet in the commercio.app platform. 
+
+
 
 
 
