@@ -113,12 +113,9 @@ When a A) Not Existing user reply is received by the api an oboarding workflow s
 
 #### Common Question
 
-<strong>Which are the user recognized by the API ? </strong>
+<strong>Which are the users recognized by the APIs ? </strong>
 
-The APi obviuosly return datas relative only to existing users account with a hosted wallet in the commercio.app platform. 
-
-
-
+The API obviuosly return datas relative only to existing users account with a hosted wallet in the commercio.app platform. 
 
 
 ## Verify Credentials 

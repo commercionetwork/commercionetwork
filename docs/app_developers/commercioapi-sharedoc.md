@@ -993,9 +993,6 @@ In Review - Coming soon
 ### Sent Receipts processes
 
 
-
-
-
 In Review - Coming soon 
 
 ### Sent Receipt Message specific process details

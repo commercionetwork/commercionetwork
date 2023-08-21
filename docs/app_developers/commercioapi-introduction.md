@@ -168,9 +168,11 @@ To use the APIs you need to:
 * Own enough CCCs (Commerce Cash Credits) to pay for the transaction fees.
 
 
-### Message Chain fee vs Commercio.app costs
+## Costs 
 
-#### Chain costs  
+Must be distinguished between Message Chain fee (Chain costs) vs Commercio.app costs (Platfrom Costs)
+
+### Chain costs  
 
 Sending message in the blockchain has a "protocol" 's  cost that is due in order to  support Validators expenses.
 
@@ -186,7 +188,7 @@ You can easily make your own wallet management and send messages to the chain at
 Another way is using Restfull commercio API 
 
 
-#### Platform costs  
+### Platform costs  
 Moreover sending messages autonomously could also be done with Resfull API of the commercio.app
 
 Using the platform comes with a cost for the usage that depends on the type of [Membership you subscribe](/modules/commerciokyc/#membership-types) 
@@ -232,17 +234,19 @@ For any support or questions regarding the APIs or the documentation, please ope
 
 
 ### Swagger environment
-In the **CommercioAPI base url**  in the path `/swagger/` the documentation of the set of released API is available, and a Tryout is possible through the Swagger interface.
+The documentation for the set of released APIs is available through a Swagger environment, and it's possible to try them out using the interface.
 
 Example 
 
-https://dev-api.commercio.app/v1/swagger/
+https://dev-api.commercio.app/commercionetwork/v1/swagger/index.html
 <br><br>
 
 <img src="./img/swagger.png"> 
 
 <br><br>
 `NB: Any Examples in the documentation refers to the **Develop & Test environment**`
+
+For the tryout authentication is needed (see specific section)
 
 
 #### Hint : Basic Client for Major script Languages 
@@ -251,24 +255,16 @@ Downloading the `openapi.yaml` file from the Swagger interface page you can uplo
 
 Using the Generate Client menu you can obtain a basic stack software for the language you choose 
 
-
-
 ### Authentication process  
 In order to gain proper access to the API an authentication process should be performed.
 
 * <a href="/app_developers/commercioapi-authentication.html">AUTHORIZE</a> : Permit to authenticate through the IDM and get permission to API usage
 
-### Available API
 
-The following APIs are available
+## Common questions 
 
-* <a href="/app_developers/commercioapi-wallet.html">Wallet</a> to manage the basic operations on your Wallet/s through the <a href="/x/bank/#sending-tokens">Bank</a>  Module
+<strong>Does the API have a cost ? </strong>
 
-* <a href="/app_developers/commercioapi-sharedoc.html">Sharedoc</a> to manage the <a href="/x/documents/#sending-a-document">MsgShareDocument</a> eDelivery Digital Time Stamping to certify document integrity using the <a href="/x/documents/#docs">DOCS MODULE</a> 
-
-
-* ID (coming next): the eID. To Create and manage Self Sovereign Identities
-
-* SIGN  (coming next) : the eSignature. to Electronically Sign any PDF e XML digital document
-
+Each POST process of the api have a cost (Platform costs + chain costs). All Gett process are free of charge
+see [Costs](/app_developers/commercioapi-introduction.html#costs)
 

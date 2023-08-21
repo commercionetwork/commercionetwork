@@ -12,16 +12,15 @@ It is assumed that an external software is in place to handle the logic and sequ
 In the examples, this software stack is referred to as the 'Client App', which could be either a mobile or web application supported by a backend
 
 
+## Basic document notarization 
+`In Review  - cooming soon`
+
 ## Edelivery process with sharedoc and Receipt
-In Review  - cooming soon
-
-
-
-
+`In Review  - cooming soon`
 
 
 ## User invitation with document notarization
-In Review  - cooming soon
+`In Review  - cooming soon`
 
 Suppose the target is to provide a function within the `Client App` (An app developed externally) that enables users NOT accredited in commercio.app to notarize a document to an existing eID, (suppose an administration's wallet address), while being authenticated in the `Client App` .
 
@@ -52,10 +51,10 @@ A `workflow_completed_redirect_uri` could be set in the [Invite user api](/app_d
 
 
 #### Present the sharedoc form 
+At this point the user is registered in commercio.app  
 
 
-
-
+..... 
 
 
 ## User invitation with Spid recognition and request for document notarization 
@@ -96,8 +95,10 @@ Appropriete warning for exchanging personal data with the `Client App` app must 
 As registered user the process is similar to the previous one  except from the fact that after asking the user to enter his password of the commercio.app this workflow start from point 3. 
 
 
+## Use sharedoc as a signature process 
 
 
+## Use sharedoc and receipt as acceptance signature process 
 
 
 ## User request for pades like signatureand notarization 
