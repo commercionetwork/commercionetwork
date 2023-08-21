@@ -9,11 +9,12 @@ The  CommercioAPI eDelivery allows you to operate with two type messages availab
 ## MsgShareDocument
 
 The message permit to
-* Store in the blockchain an `hash of a document` you own in a precise time.
-* Associate the message to your identity account (your wallett address) . 
-* Indicate a receiver identity account ( wallett address of the receiver). 
-* Indicate some basic metadata.  
-* Sign (raw) the message with your account (You only control)
+* Store a `hash of a document` you own in the blockchain at a specific time.
+* Link the message to your identity account (your wallet address).
+* Specify the recipient's identity account (receiver's wallet address).
+* Provide basic metadata.
+* Digitally sign (raw signature) the message using your account (which you exclusively control).
+
 
 This features are knonw as `Notarization of a document in the blockchain`
 
@@ -96,8 +97,27 @@ For example if you have data or similar information that is smaller than 512 byt
 
 In summary, the protocol allows flexibility in how you handle and encrypt the data, and you have full control over the content of metadata entities  and application logic required to work with the data within the metadata section.
 
+### Questions an answers 
 
-### Check the hash of a document 
+**IMPORTANT!!!**
+
+* We are not actually sharing Documents on a blockchain. 
+* We are Storing a Message through a transaction on a blockchain with a document footprint indicated (HASH) 
+
+**Can I notarize only PDF file ?**
+
+No, you can notarize any digital file for which you can generate a hash using the permitted algorithm. Therefore, you can notarize file extensions such as .pdf, .txt, .doc, .docx, .xls, .json, .xml, .zip, .ppt, etc.
+
+
+
+
+
+
+
+
+
+
+## Check the hash of a document 
 
 In order to check if a file you own correspond to the one notarized in the blockchain  you can perform a verification directly with <b>Almerico</b> throught a simple widget that permit  to  drag&drop a file  using a specific tool and verify if the calculated footprint of the file (`hash`) correspond to the one notarized in the message.
 
@@ -154,10 +174,6 @@ The message permit to
 
 
 
-**IMPORTANT!!!**
-
-* We are not actually sharing Documents on a blockchain. 
-* We are sharing a transaction on a blockchain with a document footprint (HASH) 
 
 For more detail refers to the [Document Module](/modules/documents/#documents)
 
