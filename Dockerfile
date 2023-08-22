@@ -1,46 +1,89 @@
 # Dockerfile References: https://docs.docker.com/engine/reference/builder/
 
-# Start from the latest golang base image
-FROM golang:latest
 
-# Add Maintainer Info
-LABEL maintainer="Gianguido Sorà <me@gsora.xyz>"
+ARG GO_VERSION="1.20"
+
+# -------------------------------------------
+# Build Stage
+# -------------------------------------------
+
+FROM golang:${GO_VERSION}-alpine as builder
+
+RUN apk add --no-cache \
+    ca-certificates \
+    build-base \
+    git
 
 # Set the Current Working Directory inside the container
-WORKDIR /app
+WORKDIR /commercionetwork
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download
+
+RUN set -eux; \    
+    export ARCH=$(uname -m); \
+    WASM_VERSION=$(go list -m all | grep github.com/CosmWasm/wasmvm | awk '{print $2}'); \
+    if [ ! -z "${WASM_VERSION}" ]; then \
+      wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.${ARCH}.a; \      
+    fi;
 
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
-# Build the Go app
-#RUN make build-linux
-RUN make install
+# Build commercionetworkd binary
+# without ledger support
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/root/go/pkg/mod \
+    GOWORK=off go build \
+        -mod=readonly \
+        -tags "netgo,muslc" \
+        -ldflags \
+            "-X github.com/cosmos/cosmos-sdk/version.Name="commercionetwork" \
+            -X github.com/cosmos/cosmos-sdk/version.AppName="commercionetworkd" \
+            -X github.com/cosmos/cosmos-sdk/version.Version=${GIT_VERSION} \
+            -X github.com/cosmos/cosmos-sdk/version.Commit=${GIT_COMMIT} \
+            -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,muslc \
+            -w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
+        -trimpath \
+        -o /commercionetwork/build/commercionetworkd \
+        /commercionetwork/cmd/commercionetworkd/main.go
 
 
-ARG LOG_DIR=/app/logs
-ARG CHAIN_DIR=/app/chain
-ARG GENESIS_DIR=/app/genesis
+# -------------------------------------------
+# Build Final Image
+# -------------------------------------------
+FROM alpine:3.16
+# FROM gcr.io/distroless/static-debian11
 
-# Create Log Directory
-RUN mkdir -p ${LOG_DIR}
-RUN mkdir -p ${CHAIN_DIR}
-RUN mkdir -p ${GENESIS_DIR}
+# Add Maintainer Info
+LABEL maintainer="Commercio Network <developer@commercio.network>"
 
-# Copy the Pre-built binary file from the previous stage
-#COPY --from=builder /app/build/Linux-AMD64/commercionetworkd .
-COPY container_exec.sh .
-RUN chmod +x container_exec.sh
+COPY --from=builder /commercionetwork/build/commercionetworkd /bin/commercionetworkd
 
-# Declare volumes to mount
-VOLUME [${LOG_DIR}]
-VOLUME [${CHAIN_DIR}]
-VOLUME [${GENESIS_DIR}]
+ENV HOME /commercionetwork
+WORKDIR $HOME
+
+# ARG LOG_DIR=${HOME}/logs
+# ARG CHAIN_DIR=${HOME}/chain
+# ARG GENESIS_DIR=${HOME}/genesis
+
+# # Create Directories
+# RUN mkdir -p ${LOG_DIR}
+# RUN mkdir -p ${CHAIN_DIR}
+# RUN mkdir -p ${GENESIS_DIR}
+
+# # Declare volumes to mount
+# VOLUME [${LOG_DIR}]
+# VOLUME [${CHAIN_DIR}]
+# VOLUME [${GENESIS_DIR}]
+
+# Expose ports
+EXPOSE 26656 26657 1317 9090 9091
 
 # Command to run the executable
-CMD ./container_exec.sh
+ENTRYPOINT ["commercionetworkd"]
