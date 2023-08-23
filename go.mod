@@ -178,4 +178,8 @@ replace (
 
 	// use grpc compatible with cosmos protobufs
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
+
+	// Replace wasmd with custom fork fix ibc commercionetwork bug
+	github.com/CosmWasm/wasmd => github.com/commercionetwork/wasmd v0.31.0-commercio.1
+
 )
