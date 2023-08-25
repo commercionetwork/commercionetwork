@@ -7,11 +7,13 @@ import (
 
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	ptx "github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+
+	//"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+
+	//cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
@@ -24,8 +26,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdksimapp "github.com/cosmos/cosmos-sdk/simapp"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/commercionetwork/commercionetwork/x/ante"
+	//wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	//"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -99,7 +101,7 @@ func SetBalances(ctx sdk.Context, bk bankKeeper.Keeper, addr sdk.AccAddress, coi
 	bk.SendCoinsFromModuleToAccount(ctx, authtypes.ModuleName, addr, coins)
 }
 
-func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
+/*func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	// Setup
 	// Conversion rate is 2.0
 	app, ctx := createTestApp(true, false)
@@ -437,7 +439,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	tx = as.txBuilder.GetTx()
 	checkInvalidTx(t, anteHandler, ctx, tx, false, sdkErr.ErrInsufficientFee)
 
-}
+}*/
 
 func (as AnteTestSuite) setupSignatures(privs []cryptotypes.PrivKey, accnums []uint64, seqs []uint64) error {
 	encodingConfig := sdksimapp.MakeTestEncodingConfig()

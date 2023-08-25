@@ -812,6 +812,9 @@ func New(
 			DefaultBondDenom,
 			StableCreditsDenom,
 			app.FeeGrantKeeper,
+			app.IBCKeeper,
+			&wasmConfig,
+			keys[wasm.StoreKey],
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
