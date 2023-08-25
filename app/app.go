@@ -128,7 +128,7 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	// ------------------------------------------
-	// IBC v3
+	// IBC v4
 	//  Transfer
 	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
