@@ -105,6 +105,8 @@ func NewMinFeeDecorator(govKeeper government.Keeper, mintk commerciomintKeeper.K
 }
 
 func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	return next(ctx, tx, simulate)
+
 	// all transactions must be of type auth.StdTx
 	//stdTx, ok := tx.(types.StdTx)
 	stdTx, ok := tx.(authsigning.SigVerifiableTx)
@@ -188,7 +190,10 @@ func checkMinimumFees(
 func setGasMeter(simulate bool, ctx sdk.Context, gasLimit uint64) sdk.Context {
 	// In various cases such as simulation and during the genesis block, we do not
 	// meter any gas utilization.
-	if simulate || ctx.BlockHeight() == 0 {
+	/*if simulate || ctx.BlockHeight() == 0 {
+		return ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	}*/
+	if ctx.BlockHeight() == 0 {
 		return ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
 	}
 
