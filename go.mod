@@ -35,6 +35,8 @@ require (
 	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
 	github.com/armon/go-metrics v0.4.1
 	github.com/ethereum/go-ethereum v1.10.26
+	github.com/onsi/ginkgo/v2 v2.5.1
+	github.com/onsi/gomega v1.24.1
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d
 )
 
@@ -94,6 +96,7 @@ require (
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.5 // indirect
