@@ -141,11 +141,35 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
 
 	// ------------------------------------------
+	// EVM module
+	srvflags "github.com/evmos/ethermint/server/flags"
+
+	//etherminttypes "github.com/evmos/ethermint/types"
+	//evmrest "github.com/evmos/ethermint/x/evm/client/rest"
+	"github.com/evmos/ethermint/x/evm"
+
+	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
+
+	"github.com/evmos/ethermint/x/feemarket"
+	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+
+	// ------------------------------------------
+	// ERC20 module
+	"github.com/commercionetwork/commercionetwork/x/erc20"
+	erc20client "github.com/commercionetwork/commercionetwork/x/erc20/client"
+	erc20keeper "github.com/commercionetwork/commercionetwork/x/erc20/keeper"
+	erc20types "github.com/commercionetwork/commercionetwork/x/erc20/types"
+
+	// ------------------------------------------
 	// Commercio.Network
 	appparams "github.com/commercionetwork/commercionetwork/app/params"
 	docs "github.com/commercionetwork/commercionetwork/docs_3_0"
 	"github.com/commercionetwork/commercionetwork/x/ante"
 
+	"github.com/ethereum/go-ethereum/core/vm"
+	evmvm "github.com/evmos/ethermint/x/evm/vm"
 	// ------------------------------------------
 	// Commercio.Network Modules
 	//  Kyc
@@ -224,6 +248,9 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		distrclient.ProposalHandler,
 		//upgradeclient.ProposalHandler,
 		//upgradeclient.CancelProposalHandler,
+		erc20client.RegisterCoinProposalHandler,
+		erc20client.RegisterERC20ProposalHandler,
+		erc20client.ToggleTokenConversionProposalHandler,
 	)
 
 	return govProposalHandlers
@@ -263,6 +290,9 @@ var (
 		commerciomintmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		epochs.AppModuleBasic{},
+		evm.AppModuleBasic{},
+		feemarket.AppModuleBasic{},
+		erc20.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -280,6 +310,8 @@ var (
 		didTypes.ModuleName:              nil,
 		ibctransfertypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 		wasm.ModuleName:                  {authtypes.Burner},
+		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -332,6 +364,11 @@ type App struct {
 	TxFeeChecker     comosante.TxFeeChecker
 	TransferKeeper   ibctransferkeeper.Keeper
 	WasmKeeper       wasm.Keeper
+
+	// Ethermint keepers
+	EvmKeeper       *evmkeeper.Keeper
+	FeeMarketKeeper feemarketkeeper.Keeper
+	Erc20Keeper  erc20keeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -403,9 +440,14 @@ func New(
 		governmentmoduletypes.StoreKey,
 		documentstypes.StoreKey,
 		epochstypes.StoreKey,
+		// ethermint keys
+		evmtypes.StoreKey, 
+		feemarkettypes.StoreKey,
+		erc20types.StoreKey,
 	)
 
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
+	// Add the EVM transient store key
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
 	app := &App{
@@ -501,6 +543,23 @@ func New(
 	// -----------------------------------------
 	// ... other modules keepers
 
+	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
+
+	// Create Ethermint keepers
+	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+		appCodec, app.GetSubspace(feemarkettypes.ModuleName), keys[feemarkettypes.StoreKey], tkeys[feemarkettypes.TransientKey],
+	)
+
+	var constructor evmvm.Constructor;
+	// Create Ethermint keepers
+	app.EvmKeeper = evmkeeper.NewKeeper(
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.FeeMarketKeeper,
+		vm.PrecompiledContractsHomestead,
+		constructor,
+		tracer,
+	)
+	
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
@@ -519,7 +578,8 @@ func New(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper))
 
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
@@ -544,6 +604,11 @@ func New(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+	)
+
 	// Government keeper must be set before other modules keeper that depend on it
 	app.GovernmentKeeper = *governmentmodulekeeper.NewKeeper(
 		appCodec,
@@ -551,6 +616,12 @@ func New(
 		keys[governmentmoduletypes.MemStoreKey],
 	)
 	governmentModule := governmentmodule.NewAppModule(appCodec, app.GovernmentKeeper)
+
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.Erc20Keeper.Hooks(),
+		),
+	)
 
 	// Create Vbr keeper
 	app.VbrKeeper = *vbrmodulekeeper.NewKeeper(
@@ -693,6 +764,10 @@ func New(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
+		// Ethermint app modules
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
+		feemarket.NewAppModule(app.FeeMarketKeeper),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		// custoum modules
 		governmentModule,
 		vbrModule,
@@ -712,6 +787,8 @@ func New(
 		epochstypes.ModuleName,
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
+		feemarkettypes.ModuleName,
+		evmtypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -734,6 +811,7 @@ func New(
 		didTypes.ModuleName,
 		governmentmoduletypes.ModuleName,
 		vbrmoduletypes.ModuleName,
+		erc20types.ModuleName,
 	)
 
 	// TODO: check order for End Blockers
@@ -741,6 +819,8 @@ func New(
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+		evmtypes.ModuleName,
+		feemarkettypes.ModuleName,
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		distrtypes.ModuleName,
@@ -767,6 +847,7 @@ func New(
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
 		wasm.ModuleName,
+		erc20types.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -785,6 +866,11 @@ func New(
 		govtypes.ModuleName,
 		crisistypes.ModuleName,
 		ibchost.ModuleName, // Required if your application uses the localhost client (opens new window) to connect two different modules from the same chain
+		// evm module denomination is used by the fees module, in AnteHandle
+		evmtypes.ModuleName,
+		// NOTE: fees need to be initialized before genutil module:
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
+		feemarkettypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -801,6 +887,7 @@ func New(
 		epochstypes.ModuleName,
 		authz.ModuleName,
 		wasm.ModuleName,
+		erc20types.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -1010,6 +1097,8 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	clientCtx := apiSvr.ClientCtx
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
+	//evmrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
+
 	//rpc.RegisterRoutes(clientCtx, apiSvr.Router)
 	// Register legacy tx routes.
 	//authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
@@ -1067,6 +1156,10 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(documentstypes.ModuleName)
 	paramsKeeper.Subspace(commerciomintTypes.ModuleName)
 	paramsKeeper.Subspace(commerciokycTypes.ModuleName)
+	// ethermint subspaces
+	paramsKeeper.Subspace(evmtypes.ModuleName)
+	paramsKeeper.Subspace(feemarkettypes.ModuleName)
+	paramsKeeper.Subspace(erc20types.ModuleName)
 
 	return paramsKeeper
 }
