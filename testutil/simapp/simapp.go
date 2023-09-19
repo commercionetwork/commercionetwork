@@ -5,12 +5,12 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
-	tmdb "github.com/tendermint/tm-db"
+	"cosmossdk.io/simapp"
+	tmdb "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/commercionetwork/commercionetwork/app"
 )

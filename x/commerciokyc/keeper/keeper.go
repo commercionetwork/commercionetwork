@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cometbft/cometbft/libs/log"
 	mint "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"

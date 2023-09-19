@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
+	"cosmossdk.io/simapp"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 func TestNewQuerier_queryGetLastIdentityOfAddress(t *testing.T) {

@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
+	"cosmossdk.io/simapp"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 func Test_NewQuerier_default(t *testing.T) {

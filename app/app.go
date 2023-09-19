@@ -14,15 +14,15 @@ import (
 
 	// ------------------------------------------
 	// Tendermint base
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmos "github.com/cometbft/cometbft/libs/os"
 
 	// ------------------------------------------
 	// Cosmwasm module
 	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client/cli"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// ------------------------------------------
@@ -73,7 +73,7 @@ import (
 
 	//  Distribution
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
+	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -116,11 +116,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	//  Upgrade
+	tmjson "github.com/cometbft/cometbft/libs/json"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	//  Vesting
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -129,16 +129,16 @@ import (
 	// ------------------------------------------
 	// IBC v3
 	//  Transfer
-	transfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	transfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	//  Core
-	ibc "github.com/cosmos/ibc-go/v5/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
-	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	ibc "github.com/cosmos/ibc-go/v7/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v7/modules/core/02-client"
+	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	// ------------------------------------------
 	// EVM module
@@ -169,7 +169,8 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/ante"
 
 	"github.com/ethereum/go-ethereum/core/vm"
-	evmvm "github.com/evmos/ethermint/x/evm/vm"
+	//evmvm "github.com/evmos/ethermint/x/evm/vm"
+
 	// ------------------------------------------
 	// Commercio.Network Modules
 	//  Kyc
@@ -212,7 +213,7 @@ const Name = "commercionetwork"
 
 var (
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
-	ProposalsEnabled = "false"
+	ProposalsEnabled = "true"
 
 	// If set to non-empty string it must be comma-separated list of values that are all a subset
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
@@ -310,8 +311,8 @@ var (
 		didTypes.ModuleName:              nil,
 		ibctransfertypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 		wasm.ModuleName:                  {authtypes.Burner},
-		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		evmtypes.ModuleName:              {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		erc20types.ModuleName:            {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -368,7 +369,7 @@ type App struct {
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
-	Erc20Keeper  erc20keeper.Keeper
+	Erc20Keeper     erc20keeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -441,7 +442,7 @@ func New(
 		documentstypes.StoreKey,
 		epochstypes.StoreKey,
 		// ethermint keys
-		evmtypes.StoreKey, 
+		evmtypes.StoreKey,
 		feemarkettypes.StoreKey,
 		erc20types.StoreKey,
 	)
@@ -550,16 +551,16 @@ func New(
 		appCodec, app.GetSubspace(feemarkettypes.ModuleName), keys[feemarkettypes.StoreKey], tkeys[feemarkettypes.TransientKey],
 	)
 
-	var constructor evmvm.Constructor;
+	//var constructor evmvm.Constructor
 	// Create Ethermint keepers
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.FeeMarketKeeper,
 		vm.PrecompiledContractsHomestead,
-		constructor,
+		//constructor,
 		tracer,
 	)
-	
+
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
@@ -844,10 +845,10 @@ func New(
 		didTypes.ModuleName,
 		governmentmoduletypes.ModuleName,
 		vbrmoduletypes.ModuleName,
+		erc20types.ModuleName,
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
 		wasm.ModuleName,
-		erc20types.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are

@@ -2340,6 +2340,83 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
+  /commercionetwork/erc20/token_pair/{token}:
+    get:
+      summary: TokenPair retrieves a registered token pair
+      operationId: CommercionetworkCommercionetworkErc20TokenPair
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              token_pair:
+                type: object
+                properties:
+                  erc20_address:
+                    type: string
+                    title: address of ERC20 contract token
+                  denom:
+                    type: string
+                    title: cosmos base denomination to be mapped to
+                  enabled:
+                    type: boolean
+                    title: shows token mapping enable status
+                  contract_owner:
+                    title: >-
+                      ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2
+                      external address)
+                    type: string
+                    enum:
+                      - OWNER_UNSPECIFIED
+                      - OWNER_MODULE
+                      - OWNER_EXTERNAL
+                    default: OWNER_UNSPECIFIED
+                    description: |-
+                      Owner enumerates the ownership of a ERC20 contract.
+
+                       - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
+                       - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
+                       - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
+                description: >-
+                  TokenPair defines an instance that records a pairing
+                  consisting of a native
+                   Cosmos Coin and an ERC20 token address.
+            description: >-
+              QueryTokenPairResponse is the response type for the
+              Query/TokenPair RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: token
+          description: >-
+            token identifier can be either the hex contract address of the ERC20
+            or the
+
+            Cosmos base denomination
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
   /commercionetwork/erc20/token_pairs:
     get:
       summary: TokenPairs retrieves registered token pairs
@@ -2483,83 +2560,6 @@ paths:
           in: query
           required: false
           type: boolean
-      tags:
-        - Query
-  /commercionetwork/erc20/token_pairs/{token}:
-    get:
-      summary: TokenPair retrieves a registered token pair
-      operationId: CommercionetworkCommercionetworkErc20TokenPair
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              token_pair:
-                type: object
-                properties:
-                  erc20_address:
-                    type: string
-                    title: address of ERC20 contract token
-                  denom:
-                    type: string
-                    title: cosmos base denomination to be mapped to
-                  enabled:
-                    type: boolean
-                    title: shows token mapping enable status
-                  contract_owner:
-                    title: >-
-                      ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2
-                      external address)
-                    type: string
-                    enum:
-                      - OWNER_UNSPECIFIED
-                      - OWNER_MODULE
-                      - OWNER_EXTERNAL
-                    default: OWNER_UNSPECIFIED
-                    description: |-
-                      Owner enumerates the ownership of a ERC20 contract.
-
-                       - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
-                       - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
-                       - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
-                description: >-
-                  TokenPair defines an instance that records a pairing
-                  consisting of a native
-                   Cosmos Coin and an ERC20 token address.
-            description: >-
-              QueryTokenPairResponse is the response type for the
-              Query/TokenPair RPC
-
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      parameters:
-        - name: token
-          description: >-
-            token identifier can be either the hex contract address of the ERC20
-            or the
-
-            Cosmos base denomination
-          in: path
-          required: true
-          type: string
       tags:
         - Query
   /commercionetwork/government/governmentAddress:

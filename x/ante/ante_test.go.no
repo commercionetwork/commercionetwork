@@ -22,14 +22,14 @@ import (
 	"github.com/commercionetwork/commercionetwork/testutil/simapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	sdksimapp "github.com/cosmos/cosmos-sdk/simapp"
+	sdksimapp "cosmossdk.io/simapp"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
 const (

@@ -4,7 +4,6 @@ package commercionetwork.commercionetwork.erc20;
 option go_package = "github.com/commercionetwork/commercionetwork/x/erc20/types";
 
 import "gogoproto/gogo.proto";
-//import "cosmos/bank/v1beta1/bank.proto";
 
 // Owner enumerates the ownership of a ERC20 contract.
 enum Owner {

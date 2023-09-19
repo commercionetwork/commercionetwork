@@ -10,7 +10,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {

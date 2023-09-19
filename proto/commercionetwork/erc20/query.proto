@@ -19,7 +19,7 @@ service Query {
 
   // TokenPair retrieves a registered token pair
   rpc TokenPair(QueryTokenPairRequest) returns (QueryTokenPairResponse) {
-    option (google.api.http).get = "/commercionetwork/erc20/token_pairs/{token}";
+    option (google.api.http).get = "/commercionetwork/erc20/token_pair/{token}";
   }
 
   // Params retrieves the erc20 module params
