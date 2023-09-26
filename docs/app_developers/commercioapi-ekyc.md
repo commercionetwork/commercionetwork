@@ -109,7 +109,12 @@ When a A) Not Existing user reply is received by the api an oboarding workflow s
 
 ![Modal](./account_and_membership_assigned.png)
 
+### send_email parameter 
 
+Is a parameter permitted only for invites from Gold membership members that allows deactivation of the email sending invitation . The invite URL will be displayed as a response to the API.
+
+### password parameter 
+Is a parameter permitted only for invites from Gold membership members that allows to directly set the password for the invited user. The password to the user must be comunicated out of the platform or the user could use the forgot password procedire in the platform login page  
 
 #### Common Question
 

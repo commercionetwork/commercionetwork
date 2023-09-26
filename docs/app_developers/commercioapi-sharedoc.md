@@ -97,7 +97,7 @@ For example if you have data or similar information that is smaller than 512 byt
 
 In summary, the protocol allows flexibility in how you handle and encrypt the data, and you have full control over the content of metadata entities  and application logic required to work with the data within the metadata section.
 
-### Questions an answers 
+### Questions and answers 
 
 **IMPORTANT!!!**
 
