@@ -15,6 +15,6 @@
   "license": "MIT",
   "devDependencies": {
     "@renovamen/vuepress-plugin-katex": "^0.2.0",
-    "vuepress": "^1.9.9"
+    "vuepress": "^1.9.10"
   }
 }

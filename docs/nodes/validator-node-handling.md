@@ -421,21 +421,108 @@ The blockchain and the state of the application can be split into different fold
 The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.      
 To increase the pruning process it is possible to set the `pruning` parameter in the `config.toml` file to `everything`. The pruning setting can be applied restarting the node service.
 
-**WIP**      
-The pruning process can be performed manually by running the following command: 
-```bash
+In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by pruning the database. Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
 
+1. Stop `commercionetworkd`
+   ```bash
+   systemctl stop commercionetworkd
+   ```
 
-```
-**WIP**
+2. Prune the node
+   ```bash
+   /root/.commercionetwork/cosmovisor/current/bin/commercionetworkd forceprune -f 282000 -m 1000 --home /root/.commercionetwork
+   ```
+
+3. Start the node
+   ```bash
+   systemctl start commercionetworkd
+   ```
 
 
 ### State sync the node
 
-The blockchain and the state of the application can be reduced by state syncing the node. State syncing is the process of downloading the state of the application from a trusted node. The state syncing process is performed automatically by the node. The default state syncing process can be changed by setting the `[statesync]` section in the `~/.commmercionetwork/config/config.toml` file.   
+The blockchain and the state of the application can be reduced by state syncing the node. State syncing is the process of downloading the state of the application from a trusted node.
 Read more about state syncing [here](https://docs.tendermint.com/v0.34/tendermint-core/state-sync.html).    
-You can install a statesynced node following the instructions [here](statesync-node-installation.md).     
-After the node is synced, you can move your validator to the new node following the instructions [here](#move-validator-to-another-server-with-priv_validator_keyjson-file).     
+If you're looking for how to install a statesynced node follow the instructions [here](statesync-node-installation.md).
+
+In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by state syncing it to the blockchain. Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
+
+1. Prepare the setup for the statesync
+   ```bash
+   TRUST_RPC1="rpc-mainnet.commercio.network:80"
+   TRUST_RPC2="rpc2-mainnet.commercio.network:80"
+
+   # Get the current height of the blockchain.
+   CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
+
+   # Calculate the trust height.
+   TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
+
+   # Get the trust hash.
+   TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
+   ```
+
+2. Verify the output
+   ```bash
+   printf "rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n"
+   ```
+
+   The output should be similar to the following:
+   ```
+   rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
+   trust_height = 10520000
+   trust_hash = "2A3B7444CD097C556FD1D1AA4D259E99E9F7513041C02EF3B7DCF8F39FFA21F8"
+   ```
+
+3. Write the parameters in the config file
+   ```bash
+   sed -i -e "s/enable = .*/enable = true/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/rpc_servers = \".*\"/rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/trust_height = .*/trust_height = $TRUST_HEIGHT/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/trust_hash = \".*\"/trust_hash = \"$TRUST_HASH\"/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/trust_period = \".*\"/trust_period = \"168h0m0s\"/" /root/.commercionetwork/config/config.toml
+   ```
+
+4. Stop the `commercionetworkd` process
+   ```bash
+   systemctl stop commercionetworkd
+   ```
+
+5. Backup state file
+   ```bash
+   cp /root/.commercionetwork/data/priv_validator_state.json /root/.commercionetwork/priv_validator_state.json.backup
+   ```
+
+6. Reset node database
+   ```bash
+   commercionetworkd unsafe-reset-all --home /root/.commercionetwork --keep-addr-book
+   ```
+
+7. Copy back the backupped state file
+   ```bash
+   cp /root/.commercionetwork/priv_validator_state.json.backup /root/.commercionetwork/data/priv_validator_state.json
+   ```
+
+8. **If you're not operating with root** change the permission accordingly
+   ```bash
+   chown [USER]:[USER] /root/.commercionetwork/data/priv_validator_state.json
+   ```
+
+9. Start the node
+   ```bash
+   systemctl start commercionetworkd
+   ```
+
+10. Check the node alignment
+      ```bash
+      journalctl -u commercionetworkd -f | grep height=
+      ```
+
+11. Clean up operations
+      ```bash
+      rm /root/.commercionetwork/priv_validator_state.json.backup
+      ```
+
 
 ## Add identity to your validator
 
