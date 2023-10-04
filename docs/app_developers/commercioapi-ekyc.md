@@ -116,6 +116,23 @@ Is a parameter permitted only for invites from Gold membership members that allo
 ### password parameter 
 Is a parameter permitted only for invites from Gold membership members that allows to directly set the password for the invited user. The password to the user must be comunicated out of the platform or the user could use the forgot password procedire in the platform login page  
 
+### workflow_completed_webhook_callback
+
+At the end of the onboarding process, which occurs after the user has accepted the invitation throught a magic link and completed the onboarding procedure (Tos acceptance,assignment of membership) , a POST call is made to the URL specified in the workflow_completed_webhook_callback parameter.
+
+The body of the POST request is as follows:
+
+```json
+{
+  "message": "The user has successfully completed the onboarding workflow.",
+  "wallet_address": "did:com:1ffsmvvt29r....a5gwdre46tkz22n7vdj",
+  "user": "john.doe@userdomain.com",
+  "success": true
+}
+```
+
+Where user is the email provided as a parameter to the invite endpoint, and thus the email of the new user.
+
 #### Common Question
 
 <strong>Which are the users recognized by the APIs ? </strong>
