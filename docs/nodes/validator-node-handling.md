@@ -421,7 +421,11 @@ The blockchain and the state of the application can be split into different fold
 The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.      
 To increase the pruning process it is possible to set the `pruning` parameter in the `config.toml` file to `everything`. The pruning setting can be applied restarting the node service.
 
-In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by pruning the database. Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
+In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by pruning the database.
+
+:::warning
+Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
+:::
 
 1. Stop `commercionetworkd`
    ```bash
@@ -445,7 +449,11 @@ The blockchain and the state of the application can be reduced by state syncing 
 Read more about state syncing [here](https://docs.tendermint.com/v0.34/tendermint-core/state-sync.html).    
 If you're looking for how to install a statesynced node follow the instructions [here](statesync-node-installation.md).
 
-In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by state syncing it to the blockchain. Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
+In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by state syncing it to the blockchain. 
+
+:::warning
+Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
+:::
 
 1. Prepare the setup for the statesync
    ```bash
