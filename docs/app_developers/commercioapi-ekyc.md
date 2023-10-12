@@ -133,6 +133,29 @@ The body of the POST request is as follows:
 
 Where user is the email provided as a parameter to the invite endpoint, and thus the email of the new user.
 
+###  requires_spid_identification
+
+If this parameter is set = true the user after onboarding will be redirected to SPID authentication process 
+
+
+Example Body Payload
+
+```json
+{
+  "email_address": "john.doe@yourdomain.com",
+  "requires_spid_identification": true,
+  "password": "JhonDOe8",
+  "workflow_completed_redirect_uri": "https://www.yourdomain.com"
+}
+
+```
+
+With these parameters in the payload, the user, after clicking the invitation link and accepting the TOS, will be redirected to the SPID authentication process. After completing it, they will be directed to the URL 'https://www.yourdomain.com.'"
+
+
+
+
+
 #### Common Question
 
 <strong>Which are the users recognized by the APIs ? </strong>
@@ -250,17 +273,24 @@ Example :
 
 The `content` data is base 64 encoded. 
 
-Thus decoding it will appear somthing like this 
+Thus decoding it will appear somthing like this depending on the data received form de IDP provider  
 
 
 
 ``` 
 {
-  "address": "Via  Mariani 40 36015  Melbourne VI",
-  "company_fiscal_number": "",
-  "company_name": "-",
-  "country_of_birth": "VI",
+  "name": "Jim",
+  "family_name": "Morrison",
+  "fiscal_number": "TINIT-JMMMRS43L08L840R",
   "date_of_birth": "1943-12-08",
+  "country_of_birth": "IT",
+  "gender": "M",
+  "company_name": "-",
+  "company_fiscal_number": "",
+  "iva_code": "-",
+.... ....
+
+  "address": "Via  Mariani 40 36015  Melbourne VI",
   "digital_address": "-",
   "domicile_municipality": " Melbourne",
   "domicile_nation": "USA",
@@ -268,19 +298,85 @@ Thus decoding it will appear somthing like this
   "domicile_province": "VI",
   "domicile_street_address": "Via  Mariani 40",
   "email": "john.doe@emaill.com",
-  "family_name": "Morrison",
-  "fiscal_number": "TINIT-JMMMRS43L08L840R",
-  "gender": "M",
   "id_card": "cartaIdentita CA2311345HP comune Melbourne 2031-07-23",
-  "iva_code": "-",
   "mobile_phone": "+39348111111111",
-  "name": "Jim",
   "registered_office": "-"
 }
 
 
 
 ``` 
+
+
+#### Common error
+
+
+
+
+## Request SPID session   
+
+This API permit to obtain a direct link for a spid session for the user logged in the api 
+
+### PATH
+
+POST : `/ekyc/spid`
+
+
+### Step by step Example
+Let's create a request to obtain the spid session url 
+
+
+#### Step 1 - Define the first query and payload
+
+
+Parameter value :
+* success_url : es `"https://www.yourlandingurl.com`
+
+Is the url where the user are redirected at the end of Spid recognition process (Spid authentication)
+
+
+#### Step 2 - Use the API to Send the message 
+
+
+**Use the tryout**
+
+Fill the swagger tryout with the Body payload
+
+```
+{
+  "success_url": "https://www.yourlandingurl.com"
+}
+```
+
+**Corresponding Cli request**
+
+
+```
+curl -X 'GET' \
+curl -X 'POST' \
+  'https://dev-api.commercio.app/v1/eKYC/spid' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1....54Eg' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "success_url": "https://www.yourlandingurl.com"
+}'
+
+```
+
+
+**API : Body response**
+
+``````
+
+{
+  "authentication_url": "https://spid.commercio.app/?subject_id=19fcd4f6-80cc-42ce-8eac-3b276d9794eb&success_redirect_uri=https://www.yourlandingurl.com&attributes_uri=https://commercio.app"
+}
+
+```
+
+The URL can be used by the user to perform SPID authentication and save data on the platform for recognition. After the SPID authentication, the user will be redirected to 'https://www.yourlandingurl.com.'
+
 
 
 #### Common error
