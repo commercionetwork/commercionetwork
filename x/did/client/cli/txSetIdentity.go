@@ -2,7 +2,7 @@ package cli
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -26,7 +26,7 @@ func CmdSetIdentity() *cobra.Command {
 			}
 
 			// read DID document proposal from path
-			ddoData, err := ioutil.ReadFile(argsDDOpath)
+			ddoData, err := os.ReadFile(argsDDOpath)
 			if err != nil {
 				return err
 			}
