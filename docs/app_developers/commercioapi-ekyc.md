@@ -163,6 +163,25 @@ With these parameters in the payload, the user, after clicking the invitation li
 The API obviuosly return datas relative only to existing users account with a hosted wallet in the commercio.app platform. 
 
 
+<strong>Does the invitation has a validity time ? </strong>
+
+Yes, the invitation lasts for 24 hours. When it expires and is clicked, the application will show this page.
+
+![Modal](./expired_invite.png)
+
+
+Regardless, the user is created and can retrieve the password through the 'Forgot Password' link.
+
+
+
+
+
+
+
+
+
+
+
 ## Verify Credentials 
 
 This API permit to check a user level of accreditation 
