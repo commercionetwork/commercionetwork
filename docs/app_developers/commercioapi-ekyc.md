@@ -118,7 +118,7 @@ Is a parameter permitted only for invites from Gold membership members that allo
 
 ### workflow_completed_webhook_callback
 
-At the end of the onboarding process, which occurs after the user has accepted the invitation throught a magic link and completed the onboarding procedure (Tos acceptance,assignment of membership) , a POST call is made to the URL specified in the workflow_completed_webhook_callback parameter.
+At the end of the workflow  process istantiated through the API parameters , a POST call is made to the URL specified in the workflow_completed_webhook_callback parameter.
 
 The body of the POST request is as follows:
 
@@ -132,6 +132,8 @@ The body of the POST request is as follows:
 ```
 
 Where user is the email provided as a parameter to the invite endpoint, and thus the email of the new user.
+This Post Call is invoked at the end of all steps of the workflow defined. Differently from other parameter 
+`workflow_wallet_created_callback` invoked just after wallet creation and membership assignement
 
 ###  requires_spid_identification
 
@@ -153,7 +155,25 @@ Example Body Payload
 With these parameters in the payload, the user, after clicking the invitation link and accepting the TOS, will be redirected to the SPID authentication process. After completing it, they will be directed to the URL 'https://www.yourdomain.com.'"
 
 
+###  workflow_wallet_created_callback
+At the end of the onboarding process, which occurs after the user has accepted the invitation throught a magic link and completed the onboarding procedure (Tos acceptance,assignment of membership) , a POST call is made to the URL specified in the workflow_wallet_created_callback parameter.
 
+
+The body of the POST request is as follows:
+
+```json
+{
+....
+
+  "user": "john.doe@userdomain.com",
+  "success": true
+}
+```
+
+Where user is the email provided as a parameter to the invite endpoint, and thus the email of the new user.
+
+Pay attention this POST is invoked just after wallet creation and membership assignement even if the workflow 
+defined by other parameters is not completed
 
 
 #### Common Question
