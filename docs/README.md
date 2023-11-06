@@ -235,7 +235,7 @@ ATTENTION : A `faucet` for CCC is not available. The Buy function (`coming soon`
 ####  How can I Get CCC  
 
 A faucet for CCC is not available. The easiest way is to use a non hosted wallet 
-in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) 
+in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App)  and mint CCC using COM obtained from the faucet. Then send CCC to any wallett you need 
 
 **Procedure**
 
