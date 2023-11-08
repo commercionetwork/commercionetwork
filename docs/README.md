@@ -329,7 +329,7 @@ When discussing on  the Nominal Processing Capacity of a blockchain, non-technic
 
 This distinction is crucial because messages come in various types, such as MsgShareDocument, MsgSendDocumentReceipt, MsgSend, and more, each with different weights. Consequently, the evaluation will vary depending on the specific message or messages chosen for assessment. 
 
-### Premesse  
+### Premisis  
 
 The estimation of the maximum processing capacity of the chain depends on several factors, with the main ones being:
 
@@ -355,7 +355,7 @@ It is not possible to define an exact benchmark, but it is possible to define a 
 * In one day, 72,000,000.
 * In one year, 26,280,000,000.
 
-The nominal estimate is based on a single message in a transaction (4K weight). Two MsgShareDocument messages in the same transaction weigh approximately 7K, and more messages in a transaction weigh even less . Other message types roughly weigh:
+The nominal estimate is based on a single message in a transaction (4K weight). Two MsgShareDocument messages in the same transaction weigh approximately 7K (3.5k per message), and more messages in a transaction will have a  even less per message weight. Other message types roughly weigh:
 
 * send 5K 
 * receipt 4K 
@@ -364,7 +364,7 @@ Estimating a volume of messages of this size at 4K, it should be noted that in a
 
 Economic evaluations:
 
-The nominal value would correspond to a mere fee expense for the chain of 262,800,000 CCC/Euro. Also, considering any surcharges applied by the commercio app or similar software, assuming they were all executed using Gold Membership, it would result in a yield of 262 million  CCC per year.
+The nominal value would correspond to a mere fee expense to the chain of 262,800,000 CCC/Euro. Also, considering any surcharges applied by the commercio app or similar software, assuming they were all executed using Gold Membership, it would result in a yield of 262 million  CCC per year.
 
 * Green: 0.24 Surcharge per Year: 6307M
 * Bronze: 0.11 Surcharge per Year: 2891M
