@@ -309,3 +309,63 @@ report bugs opening specific issues on the following Repository
 Support could be also asked to the community subscribing into our [Discord](https://discord.com/invite/N7DxaDj5sW) 
 
 Keep in touch with us throught our socialmedia channels available on top menu  
+
+
+##  Nominal Processing Capacity of commercio.network Blockchain
+
+
+### Definitions  
+  
+
+Before proceeding, it is necessary to clarify some concepts and values explained below in a "simplified" manner related to Cøsmos blockchains.
+
+* Block: A "container" of transactions processed by the chain.
+* Transaction: A "container" of messages sent to the chain.
+* Message: An "atomic unit" that is recorded once the block is processed in the chain's store (DB).
+
+So, each block processed by the chain nodes can contain multiple transactions, which, in turn, can contain multiple messages.
+
+When discussing on  the Nominal Processing Capacity of a blockchain, non-technical audiences typically refer to TPS (transactions per second). However, in the Cøsmos environment, we refer to MPS (messages per second) rather than TPS.
+
+This distinction is crucial because messages come in various types, such as MsgShareDocument, MsgSendDocumentReceipt, MsgSend, and more, each with different weights. Consequently, the evaluation will vary depending on the specific message or messages chosen for assessment. 
+
+### Premesse  
+
+The estimation of the maximum processing capacity of the chain depends on several factors, with the main ones being:
+
+* Maximum block size (Currently Max 21 Mb, the base value used by Cøsmos chains)
+* Block processing time (approximately one every 5/6 seconds)
+* Message type (MsgShareDocument, MsgSendDocumentReceipt, MsgSend, etc.)
+* Processing capacity of the validator nodes
+
+
+
+### 15K TPS 
+
+By acting on the first parameter (increasing the block size), there is a theoretical possibility of achieving values of up to 15K TPS. For example, with a block size of 378 Mb, it would be possible to transmit 90K messages per block, resulting in 3.7 gigabytes per minute and 222 gigabytes per hour. Of course, this requires adjusting the "Processing capacity of the nodes," and these are values that would make sense only when the economic return justifies enhancing the servers on which the nodes reside.
+
+
+
+### Analysis
+
+It is not possible to define an exact benchmark, but it is possible to define a theoretical nominal value based on the current values of the relevant parameters (Actual Maximum block size,Block processing time,mean weight of messages, Processing capacity of the nodes) . Taking a single "atomic unit" as one MsgShareDocument, which is the most frequent message type in the network, it can weigh approximately 4 Kb. Within a block (21 Mb), there can be around 5000 messages. Considering that a block is processed every 5/6 seconds:
+
+* In one minute, approximately 50,000 can be estimated.
+* In one hour, 3,000,000.
+* In one day, 72,000,000.
+* In one year, 26,280,000,000.
+
+The nominal estimate is based on a single message in a transaction (4K weight). Two MsgShareDocument messages in the same transaction weigh approximately 7K, and more messages in a transaction weigh even less . Other message types roughly weigh:
+
+* send 5K 
+* receipt 4K 
+
+Estimating a volume of messages of this size at 4K, it should be noted that in a year, the chain's store would weigh approximately 105 terabytes. 
+
+Economic evaluations:
+
+The nominal value would correspond to a mere fee expense for the chain of 262,800,000 CCC/Euro. Also, considering any surcharges applied by the commercio app or similar software, assuming they were all executed using Gold Membership, it would result in a yield of 262 million  CCC per year.
+
+* Green: 0.24 Surcharge per Year: 6307M
+* Bronze: 0.11 Surcharge per Year: 2891M
+* Silver: 0.05 Surcharge per Year: 1314M
