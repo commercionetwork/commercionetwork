@@ -466,7 +466,7 @@ func (m *MockEVMKeeper) GetParams(ctx sdk.Context) evmtypes.Params {
 	return args.Get(0).(evmtypes.Params)
 }
 
-func (m *MockEVMKeeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account {
+func (m *MockEVMKeeper) GetAccount(ctx sdk.Context, addr common.Address) *statedb.Account {
 	args := m.Called(mock.Anything, mock.Anything)
 	if args.Get(0) == nil {
 		return nil
