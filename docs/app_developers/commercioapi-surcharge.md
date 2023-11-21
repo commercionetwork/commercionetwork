@@ -96,7 +96,7 @@ Practically this permit to avoid to pay the Platform cost for sending the Surcha
 
 **TOTAL = 2.45 CCC**  
 
-For other cases of platform costs based on membership, see [Platfrom Costs for each message CCC section](https://docs.commercio.network/app_developers/commercioapi-introduction.html#platform-costs) .
+For other cases of platform costs based on membership, see [Platfrom Costs for each message section](https://docs.commercio.network/app_developers/commercioapi-introduction.html#platform-costs) .
 
 
 
