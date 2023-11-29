@@ -206,13 +206,13 @@ var (
 // HexIBCPortNameGenerator uses Hex address string
 type CommercioIBCPortNameGenerator struct{}
 
-var AccountPubKeyPrefixTranslation = "did.com."
+var AccountAddressPrefixTranslation = "did.com."
 
 // PortIDForContract coverts contract into port-id in the format "wasm.<hex-address>"
 func (CommercioIBCPortNameGenerator) PortIDForContract(ctx sdk.Context, addr sdk.AccAddress) string {
 	addrStr := addr.String()
-	if strings.HasPrefix(addrStr, AccountPubKeyPrefix) {
-		addrStr = AccountPubKeyPrefixTranslation + addrStr[len(AccountAddressPrefix):]
+	if strings.HasPrefix(addrStr, AccountAddressPrefix) {
+		addrStr = AccountAddressPrefixTranslation + addrStr[len(AccountAddressPrefix):]
 	}
 	return wasmkeeper.GetPortIDPrefix() + addrStr
 }
@@ -223,8 +223,8 @@ func (CommercioIBCPortNameGenerator) ContractFromPortID(ctx sdk.Context, portID 
 		return nil, sdkerrors.Wrapf(wasmtypes.ErrInvalid, "without prefix")
 	}
 	portIDaddr := portID[len(wasmkeeper.GetPortIDPrefix()):]
-	if strings.HasPrefix(portIDaddr, AccountPubKeyPrefixTranslation) {
-		portIDaddr = AccountAddressPrefix + portIDaddr[len(AccountPubKeyPrefixTranslation):]
+	if strings.HasPrefix(portIDaddr, AccountAddressPrefixTranslation) {
+		portIDaddr = AccountAddressPrefix + portIDaddr[len(AccountAddressPrefixTranslation):]
 	}
 	return sdk.AccAddressFromBech32(portIDaddr)
 }
