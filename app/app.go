@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -38,6 +39,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -201,6 +203,22 @@ var (
 	DefaultBondDenom        = "ucommercio"
 	StableCreditsDenom      = "uccc"
 )
+
+// HexIBCPortNameGenerator uses Hex address string
+type HexIBCPortNameGenerator struct{}
+
+// PortIDForContract coverts contract into port-id in the format "wasm.<hex-address>"
+func (HexIBCPortNameGenerator) PortIDForContract(ctx sdk.Context, addr sdk.AccAddress) string {
+	return wasmkeeper.GetPortIDPrefix() + hex.EncodeToString(addr)
+}
+
+// ContractFromPortID reads the contract address from hex address in the port-id.
+func (HexIBCPortNameGenerator) ContractFromPortID(ctx sdk.Context, portID string) (sdk.AccAddress, error) {
+	if !strings.HasPrefix(portID, wasmkeeper.GetPortIDPrefix()) {
+		return nil, sdkerrors.Wrapf(wasmtypes.ErrInvalid, "without prefix")
+	}
+	return sdk.AccAddressFromHex(portID[len(wasmkeeper.GetPortIDPrefix()):])
+}
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
 // produce a list of enabled proposals to pass into wasmd app.
@@ -605,6 +623,9 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 	supportedFeatures := "iterator,staking,stargate"
+
+	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(HexIBCPortNameGenerator{}))
+
 	app.WasmKeeper = wasm.NewKeeper(
 		appCodec,
 		keys[wasm.StoreKey],
