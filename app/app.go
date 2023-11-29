@@ -1,7 +1,6 @@
 package app
 
 import (
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -205,19 +204,29 @@ var (
 )
 
 // HexIBCPortNameGenerator uses Hex address string
-type HexIBCPortNameGenerator struct{}
+type CommercioIBCPortNameGenerator struct{}
+
+var AccountPubKeyPrefixTranslation = "did.com."
 
 // PortIDForContract coverts contract into port-id in the format "wasm.<hex-address>"
-func (HexIBCPortNameGenerator) PortIDForContract(ctx sdk.Context, addr sdk.AccAddress) string {
-	return wasmkeeper.GetPortIDPrefix() + hex.EncodeToString(addr)
+func (CommercioIBCPortNameGenerator) PortIDForContract(ctx sdk.Context, addr sdk.AccAddress) string {
+	addrStr := addr.String()
+	if strings.HasPrefix(addrStr, AccountPubKeyPrefix) {
+		addrStr = AccountPubKeyPrefixTranslation + addrStr[len(AccountAddressPrefix):]
+	}
+	return wasmkeeper.GetPortIDPrefix() + addrStr
 }
 
 // ContractFromPortID reads the contract address from hex address in the port-id.
-func (HexIBCPortNameGenerator) ContractFromPortID(ctx sdk.Context, portID string) (sdk.AccAddress, error) {
+func (CommercioIBCPortNameGenerator) ContractFromPortID(ctx sdk.Context, portID string) (sdk.AccAddress, error) {
 	if !strings.HasPrefix(portID, wasmkeeper.GetPortIDPrefix()) {
 		return nil, sdkerrors.Wrapf(wasmtypes.ErrInvalid, "without prefix")
 	}
-	return sdk.AccAddressFromHex(portID[len(wasmkeeper.GetPortIDPrefix()):])
+	portIDaddr := portID[len(wasmkeeper.GetPortIDPrefix()):]
+	if strings.HasPrefix(portIDaddr, AccountPubKeyPrefixTranslation) {
+		portIDaddr = AccountAddressPrefix + portIDaddr[len(AccountPubKeyPrefixTranslation):]
+	}
+	return sdk.AccAddressFromBech32(portIDaddr)
 }
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
@@ -624,7 +633,7 @@ func New(
 	}
 	supportedFeatures := "iterator,staking,stargate"
 
-	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(HexIBCPortNameGenerator{}))
+	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(CommercioIBCPortNameGenerator{}))
 
 	app.WasmKeeper = wasm.NewKeeper(
 		appCodec,
