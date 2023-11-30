@@ -606,8 +606,7 @@ func New(
 	}
 	supportedFeatures := "iterator,staking,stargate"
 
-	//wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(CommercioIBCPortNameGenerator{}))
-	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(wasmkeeper.HexIBCPortNameGenerator{}))
+	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(CommercioIBCPortNameGenerator{}))
 
 	app.WasmKeeper = wasm.NewKeeper(
 		appCodec,
