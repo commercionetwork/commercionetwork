@@ -38,7 +38,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -202,32 +201,6 @@ var (
 	DefaultBondDenom        = "ucommercio"
 	StableCreditsDenom      = "uccc"
 )
-
-// HexIBCPortNameGenerator uses Hex address string
-type CommercioIBCPortNameGenerator struct{}
-
-var AccountAddressPrefixTranslation = "did.com."
-
-// PortIDForContract coverts contract into port-id in the format "wasm.<hex-address>"
-func (CommercioIBCPortNameGenerator) PortIDForContract(ctx sdk.Context, addr sdk.AccAddress) string {
-	addrStr := addr.String()
-	if strings.HasPrefix(addrStr, AccountAddressPrefix) {
-		addrStr = AccountAddressPrefixTranslation + addrStr[len(AccountAddressPrefix):]
-	}
-	return wasmkeeper.GetPortIDPrefix() + addrStr
-}
-
-// ContractFromPortID reads the contract address from hex address in the port-id.
-func (CommercioIBCPortNameGenerator) ContractFromPortID(ctx sdk.Context, portID string) (sdk.AccAddress, error) {
-	if !strings.HasPrefix(portID, wasmkeeper.GetPortIDPrefix()) {
-		return nil, sdkerrors.Wrapf(wasmtypes.ErrInvalid, "without prefix")
-	}
-	portIDaddr := portID[len(wasmkeeper.GetPortIDPrefix()):]
-	if strings.HasPrefix(portIDaddr, AccountAddressPrefixTranslation) {
-		portIDaddr = AccountAddressPrefix + portIDaddr[len(AccountAddressPrefixTranslation):]
-	}
-	return sdk.AccAddressFromBech32(portIDaddr)
-}
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
 // produce a list of enabled proposals to pass into wasmd app.
@@ -633,7 +606,8 @@ func New(
 	}
 	supportedFeatures := "iterator,staking,stargate"
 
-	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(CommercioIBCPortNameGenerator{}))
+	//wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(CommercioIBCPortNameGenerator{}))
+	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(wasmkeeper.HexIBCPortNameGenerator{}))
 
 	app.WasmKeeper = wasm.NewKeeper(
 		appCodec,
