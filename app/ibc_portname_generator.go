@@ -1,5 +1,7 @@
 package app
 
+/*package app
+
 import (
 	"strings"
 
@@ -35,3 +37,4 @@ func (CommercioIBCPortNameGenerator) ContractFromPortID(ctx sdk.Context, portID 
 	}
 	return sdk.AccAddressFromBech32(portIDaddr)
 }
+*/
