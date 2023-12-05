@@ -6,7 +6,7 @@
 <!-- https://lcd-testnet.commercio.network/docs/did:com:1ug9j7hgaxu6mvfu2kgfdt3hqxn4mrwuztxc7nu/received -->
 
 
-In the POST methd API is available the possibility to indicate a surcharege.
+In the POST methd API is available the possibility to indicate a surcharge.
 
 The surcharge is intended to allow those implementing external applications that rely on APIs to send an arbitrary surcharge value to their own wallet, in addition to the standard platform fee for the process execution.
 
@@ -70,7 +70,7 @@ https://testnet.commercio.network/transactions/detail/8718836DB8545935D3B3B603C0
 
 ## Total cost of the process execution   
 
-Il costo totale del processo per l'utente Green membership sarà quindi la somma di 
+The total cost of each process (POST) for a Green membership user will therefore be the sum of
 
 * Chain fee for the sharedoc Message 
 * Platform cost for the sharedoc Message as 
