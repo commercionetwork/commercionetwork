@@ -168,7 +168,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
 	// Replace wasmd with custom fork fix ibc commercionetwork bug
-	github.com/CosmWasm/wasmd => github.com/commercionetwork/wasmd v0.31.0-commercio.7
+	github.com/CosmWasm/wasmd => github.com/commercionetwork/wasmd v0.31.0-commercio.8
 
 	// dragonberry
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0

@@ -214,8 +214,8 @@ github.com/cometbft/cometbft v0.34.29 h1:Q4FqMevP9du2pOgryZJHpDV2eA6jg/kMYxBj9ZT
 github.com/cometbft/cometbft v0.34.29/go.mod h1:L9shMfbkZ8B+7JlwANEr+NZbBcn+hBpwdbeYvA5rLCw=
 github.com/cometbft/cometbft-db v0.7.0 h1:uBjbrBx4QzU0zOEnU8KxoDl18dMNgDh+zZRUE0ucsbo=
 github.com/cometbft/cometbft-db v0.7.0/go.mod h1:yiKJIm2WKrt6x8Cyxtq9YTEcIMPcEe4XPxhgX59Fzf0=
-github.com/commercionetwork/wasmd v0.31.0-commercio.7 h1:/iKKtZ9q7DdoH5HnLx+soVu+0C/uyfZdyz6TjY1clW0=
-github.com/commercionetwork/wasmd v0.31.0-commercio.7/go.mod h1:VcyDGk/ISVlMUeW+1GGL0zdHWBS2FPwLEV2qZ86l7l8=
+github.com/commercionetwork/wasmd v0.31.0-commercio.8 h1:3+wzGBW20m7zj2c5uKcqWuDBSDmD6zIzgabNnXGCAzg=
+github.com/commercionetwork/wasmd v0.31.0-commercio.8/go.mod h1:VcyDGk/ISVlMUeW+1GGL0zdHWBS2FPwLEV2qZ86l7l8=
 github.com/consensys/bavard v0.1.8-0.20210406032232-f3452dc9b572/go.mod h1:Bpd0/3mZuaj6Sj+PqrmIquiOKy397AKGThQPaGzNXAQ=
 github.com/consensys/bavard v0.1.8-0.20210915155054-088da2f7f54a/go.mod h1:9ItSMtA/dXMAiL7BG6bqW2m3NdSEObYWoH223nGHukI=
 github.com/consensys/gnark-crypto v0.4.1-0.20210426202927-39ac3d4b3f1f/go.mod h1:815PAHg3wvysy0SyIqanF8gZ0Y1wjk/hrDHD/iT88+Q=

@@ -25,7 +25,15 @@ func New(dir string) *app.App {
 	appOpts := simapp.EmptyAppOptions{}
 	var wasmOpts []wasm.Option
 
-	a := app.New(logger, db, nil, true, map[int64]bool{}, dir, 0, encoding,
+	a := app.New(
+		logger,
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		dir,
+		0,
+		encoding,
 		appOpts,
 		app.GetEnabledProposals(),
 		wasmOpts,
