@@ -33,9 +33,9 @@ Once you've properly set up a [validator node](validator-node-installation.md), 
 
 ## Downtime rules
 The node can only stay offline for a certain amount of time.   
-In the case of **Commercio Network** this period has been fixed at 10,000 blocks lost, approximately corresponding to 17/18 hours. 
-Validator must validate at least 5% of the 10,000 blocks.
-If the node remains offline or fails to produce blocks for a period longer than the limit, it will incur slashing, i.e. an immediate loss of a certain amount of the staked tokens.    
+In the case of **Commercio Network** this period has been fixed at 19,000 blocks lost, approximately corresponding to 27/28 hours.   
+Validator must validate at least 5% of a window of 20000 blocks, i.e. 19000 blocks.    
+If the node remains offline or fails to produce blocks for a period longer than the limit, it will incur slashing, i.e. an immediate loss of a certain amount of the staked tokens and the exit from the active validator set    
 **For "Commercio Network" the slashing percentage for downtime is set at `1%`.**     
 
 ## Double sign rules
@@ -145,19 +145,19 @@ Your node structure should be something like below
 │   └── app.toml
 │   └── config.toml
 │   └── genesis.json
-│   └── node_id.json
+│   └── node_key.json
 │   └── priv_validator_key.json
 ├── data
 │   └── priv_validator_state.json
 └── cosmovisor
-    └── current
+    └── current -> /path/to/the/current/version/of/commercionetworkd
     └── genesis
-    └── bin
-    │   └── commercionetworkd
+    │   └── bin
+    │      └── commercionetworkd
     └── upgrades
-    └── <name>
-        └── bin
-            └── commercionetworkd
+        └── <name>
+           └── bin
+               └── commercionetworkd
 
 ```
 If you don't use `kms` the private key of your validator is saved in `priv_validator_key.json` file.     
@@ -165,29 +165,34 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
 ### Move validator to another server with `priv_validator_key.json` file
 
 1. Install a full node in the new server
-2. Stop the full node `commercionetworkd` service in the new server 
+2. Stop the full node `commercionetworkd` service in the **new server** 
    ```bash
    systemctl stop commercionetworkd
    ```
 3. Copy `data` folder to the new server
    ```bash
-   rsync -av --delete ~/.commercionetwork/data/ <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
+   rsync -av --delete \
+     ~/.commercionetwork/data/ \
+     <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
-4. Stop and disable the `commercionetworkd` service in the current server of validator node
+4. Stop and disable the `commercionetworkd` service in the **current (old) server** of validator node
    ```bash
    systemctl stop commercionetworkd
    systemctl disable commercionetworkd
    ```
 1. Sync again your new node `data` folder
    ```bash
-   rsync -av --delete ~/.commercionetwork/data/ <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
+   rsync -av --delete \
+     ~/.commercionetwork/data/ \
+     <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
-2. Copy your `priv_validator_key.json` in the new server
+2. Copy your `priv_validator_key.json` in the **new server**
    ```bash
-   scp ~/.commercionetwork/config/priv_validator_key.json <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/config/priv_validator_key.json
+   scp ~/.commercionetwork/config/priv_validator_key.json \
+     <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/config/priv_validator_key.json
    ```
 3. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node.
-4. Remove the `priv_validator_key.json` file from old server
+4. Remove the `priv_validator_key.json` file from **old server**
    ```bash
    rm ~/.commercionetwork/config/priv_validator_key.json
    ```
@@ -195,7 +200,10 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again
+1. Verify if your validator signs again checking the explorer
+
+
+
 ### Move validator to another server with `kms`
 
 1. Install a full node in the new server
@@ -205,27 +213,31 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
    ```
 3. Copy `data` folder to the new server
    ```bash
-   rsync -av --delete ~/.commercionetwork/data/ <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
+   rsync -av --delete  \
+     ~/.commercionetwork/data/ \
+     <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
-1. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node. Especially setup your `priv_val_addr` in `config.toml` using the setup of your server. 
-1. Enter in your `kms` server and stop the `tmkms` service
+4. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node. Especially setup your `priv_val_addr` in `config.toml` using the setup of your server. 
+5. Enter in your `kms` server and stop the `tmkms` service
    ```bash
    systemctl stop tmkms
    ```
-1. Modify `tmkms` config using `priv_val_addr` value of your validator 
+6. Modify `tmkms` config using `priv_val_addr` value of your validator 
    ```toml
    [[validator]]
    addr = "tcp://<VALIDATOR_IP>:26658"
    ``` 
-1. Restart `tmkms` service
+7. Restart `tmkms` service
    ```bash
    systemctl start tmkms
    ```
-1. Restart the node in your new server
+8. Restart the node in your new server
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again
+9. Verify if your validator signs again checking the explorer
+   
+
 ### Resume validator after break down with `priv_validator_key.json` file
 
 To resume a validator after break down or some other terrible issue that destroy your server you need to have the `priv_validator_key.json` saved in a secure place.
@@ -235,12 +247,12 @@ To resume a validator after break down or some other terrible issue that destroy
    ```bash
    systemctl stop commercionetworkd
    ```
-3. Copy your saved `priv_validator_key.json` file in the new server
+3. Copy your saved `priv_validator_key.json` file in the new server in `~/.commercionetwork/config/` folder
 4. Restart the node in your new server
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again
+5. Verify if your validator signs again checking the explorer
 
 ### Resume validator after break down with `kms`
 1. Install a full node in the new server
@@ -266,7 +278,8 @@ To resume a validator after break down or some other terrible issue that destroy
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again
+1. Verify if your validator signs again checking the explorer
+
 ## x% Loss of blocks
 
  What does an x% loss of blocks mean for a validator? 
@@ -294,12 +307,16 @@ The node can be configured to use a new disk to store the blockchain and the sta
    ```
 3. Transfer the `data` folder of the node to the new disk
    ```bash
-   rsync -av --delete ~/.commercionetwork/data/ /mnt/data/
+   rsync -av --delete \
+     ~/.commercionetwork/data/ \
+     /mnt/data/
    ```
 4. Stop the node service and finalize the transfer of the `data` folder of the node to the new disk
    ```bash
    systemctl stop commercionetworkd
-   rsync -av --delete ~/.commercionetwork/data/ /mnt/data/
+   rsync -av --delete \
+     ~/.commercionetwork/data/ \
+     /mnt/data/
    ```
 5. Link the new `data` folder to the `data` folder of the node
    ```bash
@@ -388,12 +405,16 @@ The blockchain and the state of the application can be split into different fold
 3. Select a sub-folder of `data` to move to the new disk. In this example the sub-folder is `data/application.db`
 4. Transfer the sub-folder to the new disk
    ```bash
-   rsync -av --delete ~/.commercionetwork/data/application.db/ /mnt/data/application.db/
+   rsync -av --delete \
+     ~/.commercionetwork/data/application.db/ \
+     /mnt/data/application.db/
    ```
 5. Stop the node service and finalize the transfer of the sub-folder to the new disk
    ```bash
    systemctl stop commercionetworkd
-   rsync -av --delete ~/.commercionetwork/data/application.db/ /mnt/data/application.db/
+   rsync -av --delete \
+     ~/.commercionetwork/data/application.db/ \
+     /mnt/data/application.db/
    ```
 6. Link the new sub-folder to the `data` folder of the node
    ```bash
@@ -421,7 +442,7 @@ The blockchain and the state of the application can be split into different fold
 The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.      
 To increase the pruning process it is possible to set the `pruning` parameter in the `config.toml` file to `everything`. The pruning setting can be applied restarting the node service.
 
-In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by **manually** pruning the database.
+You can apply pruning **manually** once in a while with the follow procedure.
 
 :::warning
 Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
@@ -434,7 +455,8 @@ Please note that the following commands assume you are acting as the root user. 
 
 2. Prune the node
    ```bash
-   /root/.commercionetwork/cosmovisor/current/bin/commercionetworkd forceprune -f 282000 -m 1000 --home /root/.commercionetwork
+   /root/.commercionetwork/cosmovisor/current/bin/commercionetworkd \
+     forceprune -f 282000 -m 1000 --home /root/.commercionetwork
    ```
 
 3. Start the node
@@ -476,7 +498,7 @@ Please note that the following commands assume you are acting as the root user. 
    ```
 
    The output should be similar to the following:
-   ```
+   ```toml
    rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
    trust_height = 10520000
    trust_hash = "2A3B7444CD097C556FD1D1AA4D259E99E9F7513041C02EF3B7DCF8F39FFA21F8"
@@ -498,17 +520,20 @@ Please note that the following commands assume you are acting as the root user. 
 
 5. Backup state file
    ```bash
-   cp /root/.commercionetwork/data/priv_validator_state.json /root/.commercionetwork/priv_validator_state.json.backup
+   cp /root/.commercionetwork/data/priv_validator_state.json \
+     /root/.commercionetwork/priv_validator_state.json.backup
    ```
 
 6. Reset node database
    ```bash
-   commercionetworkd unsafe-reset-all --home /root/.commercionetwork --keep-addr-book
+   commercionetworkd unsafe-reset-all \
+     --home /root/.commercionetwork --keep-addr-book
    ```
 
 7. Copy back the backupped state file
    ```bash
-   cp /root/.commercionetwork/priv_validator_state.json.backup /root/.commercionetwork/data/priv_validator_state.json
+   cp /root/.commercionetwork/priv_validator_state.json.backup \
+     /root/.commercionetwork/data/priv_validator_state.json
    ```
 
 8. **If you're not operating with root** change the permission accordingly

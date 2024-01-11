@@ -233,19 +233,19 @@ After installation your `.commercionetwork` folder should be structured like bel
 │   └── app.toml
 │   └── config.toml
 │   └── genesis.json
-│   └── node_id.json
+│   └── node_key.json
 │   └── priv_validator_key.json
 ├── data
 │   └── priv_validator_state.json
 └── cosmovisor
-    └── current
+    └── current -> /path/to/the/current/version/of/commercionetworkd
     └── genesis
-    └── bin
-    │   └── commercionetworkd
+    │   └── bin
+    │      └── commercionetworkd
     └── upgrades
-    └── <name>
-        └── bin
-            └── commercionetworkd
+        └── <name>
+           └── bin
+               └── commercionetworkd
 ```
 
 
