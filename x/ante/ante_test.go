@@ -125,7 +125,6 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 		&wasmConfig,
 		app.GetKey(wasm.StoreKey),
 	)
-	//anteHandler.SetNextAnteHandler(nil)
 
 	// Keys and addresses
 	priv1, _, addr1 := testdata.KeyTestPubAddr()
