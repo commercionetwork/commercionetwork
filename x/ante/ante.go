@@ -44,6 +44,7 @@ func NewAnteHandler(
 	wasmConfig *wasmTypes.WasmConfig,
 	txCounterStoreKey sdk.StoreKey,
 ) sdk.AnteHandler {
+	// TODO: add check for nil
 	/*
 		if bankKeeper == nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrLogic, "bank keeper is required for AnteHandler")
@@ -53,14 +54,6 @@ func NewAnteHandler(
 		}
 		if wasmConfig == nil {
 			return nil, sdkErr.Wrap(sdkErr.ErrLogic, "wasm config is required for ante builder")
-		}
-		if txCounterStoreKey == nil {
-			return nil, sdkErr.Wrap(sdkErr.ErrLogic, "tx counter key is required for ante builder")
-		}
-
-		sigGasConsumer := options.SigGasConsumer
-		if sigGasConsumer == nil {
-			sigGasConsumer = ante.DefaultSigVerificationGasConsumer
 		}
 	*/
 	return sdk.ChainAnteDecorators(
