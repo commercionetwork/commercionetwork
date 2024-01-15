@@ -90,6 +90,12 @@ genesis:
     ibc-address-limiter:
       params:
         contract_address: "did:com:14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9sh7yll8"
+    wasm:
+      params:
+        code_upload_access:
+          addresses: 
+            - did:com:1zg4jreq2g57s4efrl7wnh2swtrz3jt9nfaumcm
+          permission: AnyOfAddresses
 validators:
 - name: alice
   bonded: 100000000ucommercio
