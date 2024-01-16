@@ -73,7 +73,7 @@ We have released SDK in 4 main languages
 
 <span style="color:red">Actual Sdks available are deprecated e no longer mantained.</span> 
 
-Basic procedure for sending autonomusly a message is decribed here [Create, sign and send a transaction](/developers/create-sign-broadcast-tx.html#_1-message-creation)
+Basic procedure for sending autonomusly a message is decribed here [Create, sign and send a transaction](/docs2.2.0/developers/create-sign-broadcast-tx.html#_1-message-creation)
 
 
 
@@ -128,7 +128,7 @@ The Commercio Cash Credit (CCC)  ha an unlimited supply and can be minted only b
 
 ### The Main-net
 
- Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
+Mainnet is the main blockchain of Commercio.network. If someone says Commercio mainnet, it means the real Commercio.network blockchain.
 
 Unlike testnet which is an open network for testing purposes, mainnet is the real deal. Tokens on the Commercio.network mainnet have real economic value, be careful.
 
@@ -137,14 +137,63 @@ A view of the status of mainnet is possible throught the Explorer, a Webapp  nam
 
 Main-net Almerico:  [mainnet.commercio.network](https://mainnet.commercio.network)
 
+#### Endpoint & resources
+
+|Description| Endpoint |
+| --- | --- | 
+| Explorer | https://mainnet.commercio.network/  | 
+| LCD |  https://lcd-mainnet.commercio.network/  | 
+| RPC |  https://rpc-mainnet.commercio.network/  | 
+| GRPC |  grpc-mainnet.commercio.network:9090  |
+|Commercio wallet app IOS  |   https://apps.apple.com/it/app/commerc-io/id1397387586  |
+|Commercio wallet app Android |  https://play.google.com/store/apps/details?id=io.commerc.preview.one   |
+|Commercio  app |  https://commercio.app  |
+|Commercio  app API |   https://api.commercio.app/v1/swagger/index.html   |
+
+
+
+#### How can I get COM tokens?
+
+COM Token are reserved to infrastructure operators (aka Validators) and power users 
+
+If you are interested in becoming a validator contact info@commercio.network  
+
+
+
+#### How can I get CCC tokens?
+
+CCC tokens can be minted by owner of COM tokens creating a position with COM tokens through the [Commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) . The function is available in the CCC Menu and corresponds to the "Mint" button.
+
+CCC tokens can also be purchased directly from commercio.network SPA by contacting info@commercio.network. Please note that the "Buy" function in the commercio.app is currently unavailable.
+
 
 ### The Test-net
 
 Testnet, as the name suggests, is an alternative network for the developers for testing purposes. It's a playground. You can use testnet as a demo network for experimenting. It’s like the beta stage of a blockchain network. A testnet is a blockchain made available for developers. It allows anyone to conduct experiments without wasting real tokens. A testnet is like a demo network where tokens do not have any value. You can easily test out any app on a testnet because it provides you a sandbox environment separate from the main blockchain.
 
 
-#### Faucet 
-In the testnet a tool that allows to recharge a wallet  (with COM token) is available. 
+Test-net Almerico: [testnet.commercio.network](https://testnet.commercio.network)
+
+
+#### Endpoint & resources
+|Description| Endpoint |
+| --- | --- | 
+| Explorer |  https://testnet.commercio.network/  | 
+| LCD |  https://lcd-testnet.commercio.network/  | 
+| RPC |  https://rpc-testnet.commercio.network/  |
+| GRPC |  grpc-testnet.commercio.network:9090  |
+| Faucet |   https://faucet-testnet.commercio.network/  |
+|Commercio wallet app IOS  |  https://apps.apple.com/it/app/commerc-io/id1397387586   |
+|Commercio wallet app Android |  https://play.google.com/store/apps/details?id=io.commerc.preview.one   |
+|Commercio  app |   https://dev.commercio.app/   |
+|Commercio  app API |   https://dev-api.commercio.app/v1/swagger/index.html   |
+
+
+####  How can I get COM tokens?
+Getting COM token in testnet is quite easy and free. It is possible throught a function named 
+<strong>Faucet</strong>. Is a tool that allows to recharge a wallet  (with COM token).
+
+Getting COM tokens in the testnet is quite easy and free. It is possible through a function called the "<strong>Faucet</strong>." The Faucet is a tool that allows you to recharge a wallet with COM tokens.
 
 A destination address (`addr`) and the amount to be recharged with  (`amount` expressed in ucommercio) must be provided to the faucet endpoint (https://faucet-testnet.commercio.network/give).
 
@@ -161,12 +210,44 @@ https://faucet-testnet.commercio.network/give?addr=did:com:1tq5mvp7j4vtew08htasw
 
 `amount` : There is a limit in the amount value of `100000000 ucommercio`
 
+**Use on Discord**
+
+
+Faucet is also available in [Discord](https://discord.com/channels/973149882032468029/984721374843121664)
+
+
+Simply post a message like this 
+
+$request #WALLET_ADDRESS#
+
+Example 
+
+$request did:com:17chk7ldgk99xdxqxszwsvm2ee64rut5dmtuawr
+
+
 
 ATTENTION : A `faucet` for CCC is not available. The Buy function (`coming soon`) in the dev.commercio.app must be used  
 
 
-Test-net Almerico: [testnet.commercio.network](https://testnet.commercio.network)
 
+
+
+####  How can I Get CCC  
+
+A faucet for CCC is not available. The easiest way is to use a non hosted wallet 
+in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App)  and mint CCC using COM obtained from the faucet. Then send CCC to any wallett you need 
+
+**Procedure**
+
+1. Create a wallet in testnet in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) 
+
+2. Check for your wallet address 
+
+3. Send to it some COM throught the faucet  
+
+4. Perform a Mint CCC  function in the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App)  with the COM obtained 
+
+5. Form the [commercio wallet app](https://github.com/commercionetwork/Commercio-Wallet-App) send the CCC minted to any the address you want in testnet
 
 
 ##  Tools  
@@ -228,3 +309,63 @@ report bugs opening specific issues on the following Repository
 Support could be also asked to the community subscribing into our [Discord](https://discord.com/invite/N7DxaDj5sW) 
 
 Keep in touch with us throught our socialmedia channels available on top menu  
+
+
+##  Nominal Processing Capacity of commercio.network Blockchain
+
+
+### Definitions  
+  
+
+Before proceeding, it is necessary to clarify some concepts and values explained below in a "simplified" manner related to Cøsmos blockchains.
+
+* Block: A "container" of transactions processed by the chain.
+* Transaction: A "container" of messages sent to the chain.
+* Message: An "atomic unit" that is recorded once the block is processed in the chain's store (DB).
+
+So, each block processed by the chain nodes can contain multiple transactions, which, in turn, can contain multiple messages.
+
+When discussing on  the Nominal Processing Capacity of a blockchain, non-technical audiences typically refer to TPS (transactions per second). However, in the Cøsmos environment, we refer to MPS (messages per second) rather than TPS.
+
+This distinction is crucial because messages come in various types, such as MsgShareDocument, MsgSendDocumentReceipt, MsgSend, and more, each with different weights. Consequently, the evaluation will vary depending on the specific message or messages chosen for assessment. 
+
+### Premisis  
+
+The estimation of the maximum processing capacity of the chain depends on several factors, with the main ones being:
+
+* Maximum block size (Currently Max 21 Mb, the base value used by Cøsmos chains)
+* Block processing time (approximately one every 5/6 seconds)
+* Message type (MsgShareDocument, MsgSendDocumentReceipt, MsgSend, etc.)
+* Processing capacity of the validator nodes
+
+
+
+### 15K TPS 
+
+By acting on the first parameter (increasing the block size), there is a theoretical possibility of achieving values of up to 15K TPS. For example, with a block size of 378 Mb, it would be possible to transmit 90K messages per block, resulting in 3.7 gigabytes per minute and 222 gigabytes per hour. Of course, this requires adjusting the "Processing capacity of the nodes," and these are values that would make sense only when the economic return justifies enhancing the servers on which the nodes reside.
+
+
+
+### Analysis
+
+It is not possible to define an exact benchmark, but it is possible to define a theoretical nominal value based on the current values of the relevant parameters (Actual Maximum block size,Block processing time,mean weight of messages, Processing capacity of the nodes) . Taking a single "atomic unit" as one MsgShareDocument, which is the most frequent message type in the network, it can weigh approximately 4 Kb. Within a block (21 Mb), there can be around 5000 messages. Considering that a block is processed every 5/6 seconds:
+
+* In one minute, approximately 50,000 can be estimated.
+* In one hour, 3,000,000.
+* In one day, 72,000,000.
+* In one year, 26,280,000,000.
+
+The nominal estimate is based on a single message in a transaction (4K weight). Two MsgShareDocument messages in the same transaction weigh approximately 7K (3.5k per message), and more messages in a transaction will have a  even little less less per message weight. Other types of messages weigh roughly:
+
+* send 5K 
+* receipt 4K 
+
+Estimating a volume of messages of this size at 4K, it should be noted that in a year, the chain's store would weigh approximately 105 terabytes. 
+
+Economic evaluations:
+
+The nominal value would correspond to a mere fee expense to the chain of 262,800,000 CCC (equivalent Euro value since 1 CCC = 1 Euro) . Also, considering any surcharges applied by the commercio app or similar software, assuming they were all executed using Gold Membership, it would result in a yield of 262 million  CCC per year.
+
+* Green: 0.24 Surcharge per Year: 6,307M
+* Bronze: 0.11 Surcharge per Year: 2,891M
+* Silver: 0.05 Surcharge per Year: 1,314M

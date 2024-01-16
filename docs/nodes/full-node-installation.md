@@ -7,11 +7,16 @@ Make sure you have read the [hardware requirements](hardware-requirements.md) be
 :::
 
 ## 1. Installing the software requirements
+
+:::tip
+You can try to install the node with our installation tool [commercionetwork-installer](https://github.com/commercionetwork/chain-installer)
+:::
+
 In order to update the OS so that you can work properly, execute the following commands:
 
 ```bash
 apt update && apt upgrade -y
-apt install -y git gcc make unzip
+apt install -y git gcc make unzip jq tree 
 snap install --classic go
 
 export NODENAME="<your-moniker>"
@@ -79,10 +84,10 @@ At this point there may be some differences if you are using `KMS` with `HSM`. S
 :::
 
 ```bash
-commercionetworkd unsafe-reset-all
+commercionetworkd unsafe-reset-all --home ~/.commercionetwork
 # If you get a error because .commercionetwork folder is not present don't worry 
 
-commercionetworkd init $NODENAME
+commercionetworkd init $NODENAME --home ~/.commercionetwork
 # If you get a error because .commercionetwork folder is present don't worry 
 ```
 
@@ -152,16 +157,19 @@ You need get information from the chain about the trusted block using
 Select open rpc services of chains
 
 * Testnet: 
-  * With name: rpc-testnet.commercio.network, rpc2-testnet.commercio.network
-  * With ip: 157.230.110.18:26657, 46.101.146.48:26657
+  * rpc-testnet.commercio.network, rpc2-testnet.commercio.network
 * Mainnet:
   * https://rpc-mainnet.commercio.network, https://rpc2-mainnet.commercio.network
+
+:::tip
+You can get informations about rpc services at [chain data](https://github.com/commercionetwork/chains) repository
+:::
 
 
 **Testnet**
 ```bash
-TRUST_RPC1="157.230.110.18:26657"
-TRUST_RPC2="46.101.146.48:26657"
+TRUST_RPC1="rpc-testnet.commercio.network:80"
+TRUST_RPC2="rpc2-testnet.commercio.network:80"
 CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
 TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
 TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
@@ -200,7 +208,7 @@ trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
 ```
 
 
-### Using the quicksync dump:
+### Using the quicksync dump
 
 ```bash
 wget "https://quicksync.commercio.network/$CHAINID.latest.tgz" -P ~/.commercionetwork/
@@ -279,7 +287,7 @@ Download and compile cosmovisor:
 cd $HOME
 git clone https://github.com/cosmos/cosmos-sdk.git
 cd cosmos-sdk
-git checkout cosmovisor/v1.1.0
+git checkout cosmovisor/v1.3.0
 cd cosmovisor
 make cosmovisor
 cp cosmovisor $HOME/go/bin
@@ -304,19 +312,19 @@ After installation your `.commercionetwork` folder should be structured like bel
 │   └── app.toml
 │   └── config.toml
 │   └── genesis.json
-│   └── node_id.json
+│   └── node_key.json
 │   └── priv_validator_key.json
 ├── data
 │   └── priv_validator_state.json
 └── cosmovisor
-    └── current
+    └── current -> /path/to/the/current/version/of/commercionetworkd
     └── genesis
-    └── bin
-    │   └── commercionetworkd
+    │   └── bin
+    │      └── commercionetworkd
     └── upgrades
-    └── <name>
-        └── bin
-            └── commercionetworkd
+        └── <name>
+           └── bin
+               └── commercionetworkd
 ```
 
 

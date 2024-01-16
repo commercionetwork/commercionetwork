@@ -56,7 +56,7 @@ curl -X 'POST' \
 **API : Body response**
 
 
-**Not Existing user**
+**A) Not Existing user**
 
 
 In case the user doesn't exist in the platform (unkown user) the paltfrom instatiate an invitation process
@@ -68,34 +68,8 @@ In case the user doesn't exist in the platform (unkown user) the paltfrom instat
 }
 ``` 
 
-An invitation email will be sent to the user containing a magick link 
 
-![Modal](./invitation_email.png)
-
-
-As the user click the link will be onboarded in the commercio.app 
-
-**a) He has to accept the Term of services**
-
-![Modal](./accept_tos.png)
-
-
-
-**b) He has to choose a password for future login in the app and use of the api services**
-
-![Modal](./choose_a_password.png)
-
-**c) He has to wait for the account setup and membership assignement**
-
-![Modal](./setup_account_and_assigning_membership_green.png)
-
-**d) He will receive a Green Membership  with a 1CCC in his wallet for free**
-
-![Modal](./account_and_membership_assigned.png)
-
-
-
-**Existing user**
+**B) Existing user**
 
 Simply will be returned the wallet address associated to the email user account of the platform  indicated as payload of the APi Request
 
@@ -106,9 +80,125 @@ Simply will be returned the wallet address associated to the email user account 
 ``` 
 
 
-#### Common error
+### Not Existing user workflow 
 
-The APi obviuosly return datas relative to  users account with a hosted wallet in the commercio.app platform. 
+When a A) Not Existing user reply is received by the api an oboarding workflow start 
+
+1) An invitation email will be sent to the user containing a magick link 
+
+![Modal](./invitation_email.png)
+
+
+2) As the user click the link will be onboarded in the commercio.app 
+
+**2.a) He has to accept the Term of services**
+
+![Modal](./accept_tos.png)
+
+
+
+**2.b) He has to choose a password for future login in the app and use of the api services**
+
+![Modal](./choose_a_password.png)
+
+**2.c) He has to wait for the account setup and membership assignement**
+
+![Modal](./setup_account_and_assigning_membership_green.png)
+
+**2.d) He will receive a Green Membership  with a 1CCC in his wallet for free**
+
+![Modal](./account_and_membership_assigned.png)
+
+### send_email parameter 
+
+Is a parameter permitted only for invites from Gold membership members that allows deactivation of the email sending invitation . The invite URL will be displayed as a response to the API.
+
+### password parameter 
+Is a parameter permitted only for invites from Gold membership members that allows to directly set the password for the invited user. The password to the user must be comunicated out of the platform or the user could use the forgot password procedire in the platform login page  
+
+### workflow_completed_webhook_callback
+
+At the end of the workflow  process istantiated through the API parameters , a POST call is made to the URL specified in the workflow_completed_webhook_callback parameter.
+
+The body of the POST request is as follows:
+
+```json
+{
+  "message": "The user has successfully completed the onboarding workflow.",
+  "wallet_address": "did:com:1ffsmvvt29r....a5gwdre46tkz22n7vdj",
+  "user": "john.doe@userdomain.com",
+  "success": true
+}
+```
+
+Where user is the email provided as a parameter to the invite endpoint, and thus the email of the new user.
+This Post Call is invoked at the end of all steps of the workflow defined. Differently from other parameter 
+`workflow_wallet_created_callback` invoked just after wallet creation and membership assignement
+
+###  requires_spid_identification
+
+If this parameter is set = true the user after onboarding will be redirected to SPID authentication process 
+
+
+Example Body Payload
+
+```json
+{
+  "email_address": "john.doe@yourdomain.com",
+  "requires_spid_identification": true,
+  "password": "JhonDOe8",
+  "workflow_completed_redirect_uri": "https://www.yourdomain.com"
+}
+
+```
+
+With these parameters in the payload, the user, after clicking the invitation link and accepting the TOS, will be redirected to the SPID authentication process. After completing it, they will be directed to the URL 'https://www.yourdomain.com.'"
+
+
+###  workflow_wallet_created_callback
+At the end of the onboarding process, which occurs after the user has accepted the invitation throught a magic link and completed the onboarding procedure (Tos acceptance,assignment of membership) , a POST call is made to the URL specified in the workflow_wallet_created_callback parameter.
+
+
+The body of the POST request is as follows:
+
+```json
+{
+....
+
+  "user": "john.doe@userdomain.com",
+  "success": true
+}
+```
+
+Where user is the email provided as a parameter to the invite endpoint, and thus the email of the new user.
+
+Pay attention this POST is invoked just after wallet creation and membership assignement even if the workflow 
+defined by other parameters is not completed
+
+
+#### Common Question
+
+<strong>Which are the users recognized by the APIs ? </strong>
+
+The API obviuosly return datas relative only to existing users account with a hosted wallet in the commercio.app platform. 
+
+
+<strong>Does the invitation has a validity time ? </strong>
+
+Yes, the invitation lasts for 24 hours. When it expires and is clicked, the application will show this page.
+
+![Modal](./expired_invite.png)
+
+
+Regardless, the user is created and can retrieve the password through the 'Forgot Password' link.
+
+
+
+
+
+
+
+
 
 
 
@@ -222,17 +312,24 @@ Example :
 
 The `content` data is base 64 encoded. 
 
-Thus decoding it will appear somthing like this 
+Thus decoding it will appear somthing like this depending on the data received form de IDP provider  
 
 
 
 ``` 
 {
-  "address": "Via  Mariani 40 36015  Melbourne VI",
-  "company_fiscal_number": "",
-  "company_name": "-",
-  "country_of_birth": "VI",
+  "name": "Jim",
+  "family_name": "Morrison",
+  "fiscal_number": "TINIT-JMMMRS43L08L840R",
   "date_of_birth": "1943-12-08",
+  "country_of_birth": "IT",
+  "gender": "M",
+  "company_name": "-",
+  "company_fiscal_number": "",
+  "iva_code": "-",
+.... ....
+
+  "address": "Via  Mariani 40 36015  Melbourne VI",
   "digital_address": "-",
   "domicile_municipality": " Melbourne",
   "domicile_nation": "USA",
@@ -240,19 +337,85 @@ Thus decoding it will appear somthing like this
   "domicile_province": "VI",
   "domicile_street_address": "Via  Mariani 40",
   "email": "john.doe@emaill.com",
-  "family_name": "Morrison",
-  "fiscal_number": "TINIT-JMMMRS43L08L840R",
-  "gender": "M",
   "id_card": "cartaIdentita CA2311345HP comune Melbourne 2031-07-23",
-  "iva_code": "-",
   "mobile_phone": "+39348111111111",
-  "name": "Jim",
   "registered_office": "-"
 }
 
 
 
 ``` 
+
+
+#### Common error
+
+
+
+
+## Request SPID session   
+
+This API permit to obtain a direct link for a spid session for the user logged in the api 
+
+### PATH
+
+POST : `/ekyc/spid`
+
+
+### Step by step Example
+Let's create a request to obtain the spid session url 
+
+
+#### Step 1 - Define the first query and payload
+
+
+Parameter value :
+* success_url : es `"https://www.yourlandingurl.com`
+
+Is the url where the user are redirected at the end of Spid recognition process (Spid authentication)
+
+
+#### Step 2 - Use the API to Send the message 
+
+
+**Use the tryout**
+
+Fill the swagger tryout with the Body payload
+
+```
+{
+  "success_url": "https://www.yourlandingurl.com"
+}
+```
+
+**Corresponding Cli request**
+
+
+```
+curl -X 'GET' \
+curl -X 'POST' \
+  'https://dev-api.commercio.app/v1/eKYC/spid' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1....54Eg' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "success_url": "https://www.yourlandingurl.com"
+}'
+
+```
+
+
+**API : Body response**
+
+``````
+
+{
+  "authentication_url": "https://spid.commercio.app/?subject_id=19fcd4f6-80cc-42ce-8eac-3b276d9794eb&success_redirect_uri=https://www.yourlandingurl.com&attributes_uri=https://commercio.app"
+}
+
+```
+
+The URL can be used by the user to perform SPID authentication and save data on the platform for recognition. After the SPID authentication, the user will be redirected to 'https://www.yourlandingurl.com.'
+
 
 
 #### Common error

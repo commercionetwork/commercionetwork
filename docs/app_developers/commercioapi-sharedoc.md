@@ -9,16 +9,115 @@ The  CommercioAPI eDelivery allows you to operate with two type messages availab
 ## MsgShareDocument
 
 The message permit to
-* Store in the blockchain an `hash of a document` you own in a precise time.
-* Associate the message to your identity account (your wallett address) . 
-* Indicate a receiver identity account ( wallett address of the receiver). 
-* Indicate some basic metadata.  
-* Sign (raw) the message with your account (You only control)
+* Store a `hash of a document` you own in the blockchain at a specific time.
+* Link the message to your identity account (your wallet address).
+* Specify the recipient's identity account (receiver's wallet address).
+* Provide basic metadata.
+* Digitally sign (raw signature) the message using your account (which you exclusively control).
+
 
 This features are knonw as `Notarization of a document in the blockchain`
 
+### How a MsgShareDocument is structured and entites usage
 
-### Check the hash of a document 
+The MsgShareDocument message is used to certify/notarize the existence of a file at a specific moment in time (the sharedoc's date) through its footprint (document's hash)
+
+
+The complete structure of the message registered in the chain is documented [here](/modules/documents/03_messages.html#transaction-message) 
+
+The following explains the use of some of the main entities of the message.
+
+**sender** : The wallet address of the creator of the MsgShareDocument
+
+**recipients** : The list of wallet addresses of the recipients of the MsgShareDocument
+
+**uuid** : The unique identification code of the MsgShareDocument in the chain 
+
+**checksum.value** : is the hash of the fisical document associated with the MsgShareDocument
+
+**checksum.algorithm** : is the hashing method used to calculate `checksum.value`
+
+**content_uri** : This is the URI where the document associated with MsgShareDocument is stored (usually an encrypted URI path and document).
+
+**metadata** : The metadata section is designed and intended to provide additional functional information on how to 'handle' the file for which the MsgShareDocument is being performed. It is entirely at the discretion of the developer and creator of the message to determine what to indicate and how to use the entities that have been prepared for this purpose. There is no specific usage defined at the protocol level.
+
+The aim is to make a file available, for example, hosted out of the chain, where you can indicate categorization information about the file for which you are creating a MsgShareDocument.
+
+For example, a file (this is purely an example) could be a .json file containing a series of information.
+
+
+```
+{
+  "creator": "Administration ACME ltd",  
+  "user_code": "3452SFTa",
+  "creation_date": "2023-07-12T13:27:17Z",
+  "sender_email": "administration@acme.com",
+  "receiver_email": "johndoe@user.com,
+  "category": "orders,
+  "file_format": "pdf/A",
+    "product_category": [
+    "trousers",
+    "Tshirts",
+  ],
+  .....
+  
+  "delivery_date": "2023-07-30T13:27:17Z",
+}
+```
+
+
+The **metadata** section allows you to indicate
+
+``````
+ "metadata": {
+      "content_uri": "<Metadata content URI>",
+      "schema": {
+        "uri": "<Metadata schema definition URI>",
+        "version": "<Metadata schema version>"
+      },
+    },
+
+``````
+
+**metadata.content_uri** : the URI where the metadata file is stored
+
+**metadata.schema.uri** : the URI where an optional schema file that describes the content structure of the content file is stored
+
+**metadata.schema.version** : the version of the schema file indicated  in **metadata.schema.uri**
+
+In reference to the example, the URL to retrieve the file can be indicated in **metadata.content_uri**, preferably in an encrypted manner to avoid exposing the endpoint too much since the message is public.
+
+Of course, the contents of the file could be change over time, and the **MsgShareDocument** only certifies the content of the hashed file, not the content of the .json file itself.
+
+The important thing to understand is that whatever is indicated in the external metadata file has no certification, as it can still be externally manipulated.
+
+Having said that, there are no rules or restrictions that prohibit using the entities in a different manner. It suggests that users have the freedom to use the entities as they see fit, without any specific limitations or guidelines. You could indicate custom information with total creativity and applying encryption as desired in the application.
+
+For example if you have data or similar information that is smaller than 512 bytes and you wish to save it in a fixed manner within the MsgShareDocument, you can encrypt it and indicate it in the metadata/content_uri field.
+
+In summary, the protocol allows flexibility in how you handle and encrypt the data, and you have full control over the content of metadata entities  and application logic required to work with the data within the metadata section.
+
+### Questions and answers 
+
+**IMPORTANT!!!**
+
+* We are not actually sharing Documents on a blockchain. 
+* We are Storing a Message through a transaction on a blockchain with a document footprint indicated (HASH) 
+
+**Can I notarize only PDF file ?**
+
+No, you can notarize any digital file for which you can generate a hash using the permitted algorithm. Therefore, you can notarize file extensions such as .pdf, .txt, .doc, .docx, .xls, .json, .xml, .zip, .ppt, etc.
+
+
+
+
+
+
+
+
+
+
+## Check the hash of a document 
 
 In order to check if a file you own correspond to the one notarized in the blockchain  you can perform a verification directly with <b>Almerico</b> throught a simple widget that permit  to  drag&drop a file  using a specific tool and verify if the calculated footprint of the file (`hash`) correspond to the one notarized in the message.
 
@@ -75,10 +174,6 @@ The message permit to
 
 
 
-**IMPORTANT!!!**
-
-* We are not actually sharing Documents on a blockchain. 
-* We are sharing a transaction on a blockchain with a document footprint (HASH) 
 
 For more detail refers to the [Document Module](/modules/documents/#documents)
 
@@ -121,6 +216,11 @@ Parameter value :
   "type": "basic"
 }
 ```
+
+
+
+
+
 
 #### Step 2 - Use the API to Send the message 
 
@@ -171,10 +271,10 @@ curl -X 'POST' \
   "doc_hash_alg": "sha-256",
   "doc_tx_hash": "",
   "doc_metadata": {
-    "content_uri": "-",
+    "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
     "schema": {
-      "uri": "-",
-      "version": "-"
+      "uri": "http://example.com/schema.xml",
+      "version": "1.0.0"
     }
   },
   "timestamp": "2021-05-20T08:27:56Z",
@@ -204,10 +304,10 @@ see for more details below in the guide
   "doc_hash_alg": "sha-256",
   "doc_tx_hash": "78733941DE98F4D39424DD082F3516438E397A236BA28C0BBE2AC3CD3A66E94F",
   "doc_metadata": {
-    "content_uri": "-",
+    "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
     "schema": {
-      "uri": "-",
-      "version": "-"
+      "uri": "http://example.com/schema.xml",
+      "version": "1.0.0"
     }
   },
   "timestamp": "2021-05-20T08:27:56Z",
@@ -226,6 +326,49 @@ Use the `doc_tx_hash`  in the explorer filter
 Check the trasaction
 
 ![Modal](./explorer_transaction_doc_tx_hash.png)
+
+
+##### Step 5  - Check the Message in the store (DB) of the chain 
+
+Through the public API of the chain (LCD), it is also possible to directly check in the chain's database whether the Sharedoc message has been registered.
+
+To perform this verification, use the following path:
+
+https://lcd-testnet.commercio.network/#/Query/CommercionetworkCommercionetworkDocumentsDocument
+
+You only need to know the UUID of the message.
+
+Here's an example URL using the UUID "b03c6c6e-90e4-49ae-a582-e6a3ff4726a3":
+
+https://lcd-testnet.commercio.network/commercionetwork/documents/document/b03c6c6e-90e4-49ae-a582-e6a3ff4726a3
+
+
+```
+{
+  "Document": {
+    "sender": "did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t",
+    "recipients": [
+      "did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t"
+    ],
+    "UUID": "b03c6c6e-90e4-49ae-a582-e6a3ff4726a3",
+    "metadata": {
+      "contentURI": "-",
+      "schema": {
+        "URI": "-",
+        "version": "-"
+      }
+    },
+    "contentURI": "8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9",
+    "checksum": {
+      "value": "3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+      "algorithm": "sha-256"
+    },
+    "encryptionData": null,
+    "doSign": null
+  }
+}
+```
+
 
 
 #### Common error
@@ -366,10 +509,10 @@ Example Value
       "tx_timestamp": "2021-06-30T09:49:32Z",
       "tx_type": "commercio/MsgShareDocument",
       "doc_metadata": {
-        "content_uri": "-",
+        "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
         "schema": {
-          "uri": "-",
-          "version": "-"
+          "uri": "http://example.com/schema.xml",
+           "version": "1.0.0"
         }
       },
       "chain_id": "commercio-testnet10k2",
@@ -389,10 +532,10 @@ Example Value
       "tx_timestamp": "2021-06-30T09:49:32Z",
       "tx_type": "commercio/MsgShareDocument",
       "doc_metadata": {
-        "content_uri": "-",
+        "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
         "schema": {
-          "uri": "-",
-          "version": "-"
+          "uri": "http://example.com/schema.xml",
+           "version": "1.0.0"
         }
       },
       "chain_id": "commercio-testnet10k2",
@@ -482,13 +625,13 @@ curl -X 'GET' \
   "doc_tx_hash": "390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2",
   "tx_timestamp": "2021-06-30T09:49:32Z",
   "tx_type": "commercio/MsgShareDocument",
-  "doc_metadata": {
-    "content_uri": "-",
-    "schema": {
-      "uri": "-",
-      "version": "-"
-    }
-  },
+      "doc_metadata": {
+        "content_uri": "55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f",
+        "schema": {
+          "uri": "http://example.com/schema.xml",
+           "version": "1.0.0"
+        }
+      },
   "chain_id": "commercio-testnet10k2",
   "timestamp": "2021-06-30T09:46:25Z",
   "status": "success"
@@ -864,9 +1007,6 @@ In Review - Coming soon
 
 
 ### Sent Receipts processes
-
-
-
 
 
 In Review - Coming soon 
