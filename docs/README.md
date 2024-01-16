@@ -73,7 +73,7 @@ We have released SDK in 4 main languages
 
 <span style="color:red">Actual Sdks available are deprecated e no longer mantained.</span> 
 
-Basic procedure for sending autonomusly a message is decribed here [Create, sign and send a transaction](/developers/create-sign-broadcast-tx.html#_1-message-creation)
+Basic procedure for sending autonomusly a message is decribed here [Create, sign and send a transaction](/docs2.2.0/developers/create-sign-broadcast-tx.html#_1-message-creation)
 
 
 

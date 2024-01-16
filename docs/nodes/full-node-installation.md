@@ -7,6 +7,11 @@ Make sure you have read the [hardware requirements](hardware-requirements.md) be
 :::
 
 ## 1. Installing the software requirements
+
+:::tip
+You can try to install the node with our installation tool [commercionetwork-installer](https://github.com/commercionetwork/chain-installer)
+:::
+
 In order to update the OS so that you can work properly, execute the following commands:
 
 ```bash
