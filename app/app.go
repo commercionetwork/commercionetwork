@@ -128,7 +128,7 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	// ------------------------------------------
-	// IBC v3
+	// IBC v4
 	//  Transfer
 	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
@@ -372,10 +372,17 @@ func NewKVStoreKeys(names ...string) map[string]*sdk.KVStoreKey {
 // New returns a reference to an initialized Commercionetwork.
 // NewSimApp returns a reference to an initialized SimApp.
 func New(
-	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
-	homePath string, invCheckPeriod uint, encodingConfig appparams.EncodingConfig,
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	loadLatest bool,
+	skipUpgradeHeights map[int64]bool,
+	homePath string,
+	invCheckPeriod uint,
+	encodingConfig appparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
-	enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option,
+	enabledProposals []wasm.ProposalType,
+	wasmOpts []wasm.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
 
@@ -605,6 +612,9 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 	supportedFeatures := "iterator,staking,stargate"
+
+	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(wasmkeeper.HexIBCPortNameGenerator{}))
+
 	app.WasmKeeper = wasm.NewKeeper(
 		appCodec,
 		keys[wasm.StoreKey],
@@ -812,6 +822,9 @@ func New(
 			DefaultBondDenom,
 			StableCreditsDenom,
 			app.FeeGrantKeeper,
+			app.IBCKeeper,
+			&wasmConfig,
+			keys[wasm.StoreKey],
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
@@ -878,6 +891,14 @@ func New(
 		},
 	)
 
+	upgradeNameV51 := "v5.1.0"
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeNameV51,
+		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			return vm, nil
+		},
+	)
+
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
 		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
@@ -907,6 +928,15 @@ func New(
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV5))
+	}
+
+	if upgradeInfo.Name == upgradeNameV51 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		storeUpgradesV51 := storetypes.StoreUpgrades{
+			Added: []string{ibcaddresslimittypes.ModuleName},
+		}
+
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV51))
 	}
 
 	if loadLatest {

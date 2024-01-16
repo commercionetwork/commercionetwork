@@ -7,10 +7,12 @@ import (
 
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	ptx "github.com/cosmos/cosmos-sdk/client/tx"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -24,11 +26,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdksimapp "github.com/cosmos/cosmos-sdk/simapp"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
@@ -103,6 +107,7 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 	// Setup
 	// Conversion rate is 2.0
 	app, ctx := createTestApp(true, false)
+	wasmConfig, _ := wasm.ReadWasmConfig(sdksimapp.EmptyAppOptions{})
 
 	encodingConfig := sdksimapp.MakeTestEncodingConfig()
 
@@ -116,6 +121,9 @@ func TestAnteHandlerFees_MsgShareDoc(t *testing.T) {
 		stakeDenom,
 		stableCreditsDenom,
 		app.FeeGrantKeeper,
+		app.IBCKeeper,
+		&wasmConfig,
+		app.GetKey(wasm.StoreKey),
 	)
 
 	// Keys and addresses
@@ -490,7 +498,11 @@ func createTestApp(isCheckTx bool, isBlockZero bool) (*app.App, sdk.Context) {
 		header.Height = 1
 	}
 
-	ctx := app.BaseApp.NewContext(isCheckTx, header)
+	ctx := app.BaseApp.NewContext(isCheckTx, header).
+		WithConsensusParams(&abci.ConsensusParams{
+			Block: &abci.BlockParams{MaxGas: 200000},
+		})
+
 	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
 
 	// TODO shall we drop the following?

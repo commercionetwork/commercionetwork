@@ -13,10 +13,14 @@ import (
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	ibcante "github.com/cosmos/ibc-go/v4/modules/core/ante"
 
 	//"github.com/cosmos/cosmos-sdk/x/auth/types"
 	//bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	ibcKeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
@@ -36,12 +40,31 @@ func NewAnteHandler(
 	stakeDenom string,
 	stableCreditsDemon string,
 	feegrantKeeper cosmosante.FeegrantKeeper,
+	ibcKeeper *ibcKeeper.Keeper,
+	wasmConfig *wasmTypes.WasmConfig,
+	txCounterStoreKey sdk.StoreKey,
 ) sdk.AnteHandler {
+	// TODO: add check for nil
+	/*
+		if bankKeeper == nil {
+			return nil, sdkErr.Wrap(sdkErr.ErrLogic, "bank keeper is required for AnteHandler")
+		}
+		if signModeHandler == nil {
+			return nil, sdkErr.Wrap(sdkErr.ErrLogic, "sign mode handler is required for ante builder")
+		}
+		if wasmConfig == nil {
+			return nil, sdkErr.Wrap(sdkErr.ErrLogic, "wasm config is required for ante builder")
+		}
+	*/
 	return sdk.ChainAnteDecorators(
-		cosmosante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+		cosmosante.NewSetUpContextDecorator(),                                    // outermost AnteDecorator. SetUpContext must be called first
+		wasmkeeper.NewLimitSimulationGasDecorator(wasmConfig.SimulationGasLimit), // after setup context to enforce limits early
+		wasmkeeper.NewCountTXDecorator(txCounterStoreKey),
+
 		cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
+		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		NewMinFeeDecorator(govKeeper, mintKeeper, stakeDenom, stableCreditsDemon),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
@@ -50,6 +73,7 @@ func NewAnteHandler(
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),
+		ibcante.NewAnteDecorator(ibcKeeper),
 	)
 }
 

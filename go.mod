@@ -167,6 +167,9 @@ replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
+	// Replace wasmd with custom fork fix ibc commercionetwork bug
+	github.com/CosmWasm/wasmd => github.com/commercionetwork/wasmd v0.31.0-commercio.8
+
 	// dragonberry
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 
@@ -178,4 +181,5 @@ replace (
 
 	// use grpc compatible with cosmos protobufs
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
+
 )
