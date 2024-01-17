@@ -3,7 +3,7 @@ package commercionetworkibctesting
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/stretchr/testify/require"
 
@@ -20,7 +20,7 @@ func (chain *TestChain) StoreContractCode(suite *suite.Suite, path string) {
 	commercionetworkApp := chain.TestChain.GetSimApp()
 
 	govKeeper := commercionetworkApp.GovKeeper
-	wasmCode, err := ioutil.ReadFile(path)
+	wasmCode, err := os.ReadFile(path)
 	suite.Require().NoError(err)
 
 	addr := commercionetworkApp.AccountKeeper.GetModuleAddress(govtypes.ModuleName)

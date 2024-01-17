@@ -6,7 +6,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -453,13 +452,13 @@ func collectGenFiles(
 		return err
 	}
 
-	bytesRead, err := ioutil.ReadFile(genesis_src)
+	bytesRead, err := os.ReadFile(genesis_src)
 
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(genesis_dest, bytesRead, nodeDirPerm)
+	err = os.WriteFile(genesis_dest, bytesRead, nodeDirPerm)
 	if err != nil {
 		return err
 	}
