@@ -1,3 +1,12 @@
+# Version 5.1.0
+
+* Added wasmd IBC with customization port conversion by @marcotradenet in https://github.com/commercionetwork/commercionetwork/pull/414
+   * Fixed wasmd ibc bug adding ibc port customization function Hex IBC port conversion
+   * Fixed update-instantiate-config wasmd issue
+   * Added wasm decorator and gas meter to ante 
+* Docs update by @marcotradenet in https://github.com/commercionetwork/commercionetwork/pull/415
+* Removed refs to deprecated io/ioutil by @testwill in https://github.com/commercionetwork/commercionetwork/pull/410
+
 # Version 5.0.0
 
 * Upgraded cosmos sdk to version v0.45.16
