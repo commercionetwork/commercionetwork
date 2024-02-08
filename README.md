@@ -19,7 +19,7 @@ business documents using the blockchain technology.
 
 ## Version
 
-Current Software Version is `v5.0.0`
+Current Software Version is `v5.1.0`
 
 
 Current Chain Version is `commercio-3`
@@ -40,7 +40,7 @@ echo 'export PATH="$PATH:/snap/bin"' >> ~/.profile
 source ~/.profile
 
 git remote clone https://github.com/commercionetwork/commercionetwork.git
-git checkout tags/v5.0.0
+git checkout tags/v5.1.0
 go mod verify
 make install
 ```
