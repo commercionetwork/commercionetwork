@@ -611,9 +611,10 @@ func New(
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
 	}
-	supportedFeatures := "iterator,staking,stargate"
+	supportedFeatures := "iterator,staking,stargate,commercionetwork"
 
 	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(wasmkeeper.HexIBCPortNameGenerator{}))
+	wasmOpts = append([]wasm.Option{wasmkeeper.WithQueryPlugins(commercioPlugins(app.CommercioKycKeeper))}, wasmOpts...)
 
 	app.WasmKeeper = wasm.NewKeeper(
 		appCodec,
