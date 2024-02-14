@@ -245,8 +245,8 @@ Copy the value of `operatoraddress`.
 Also verify that the validator is active and that the `operator_addres` is correct by browsing the 
 
 
-- [Commercio.network explorer Testnet validators](https://testnet.commercio.network/it/validators).       
-- [Commercio.network explorer Mainnet validators](https://mainnet.commercio.network/it/validators).       
+- [Commercio.network explorer Testnet validators](https://testnet.commercio.network/validators).       
+- [Commercio.network explorer Mainnet validators](https://mainnet.commercio.network/validators).       
 
 
 If you see your validator in the list click on its name.     
