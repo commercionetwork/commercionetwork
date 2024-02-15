@@ -373,7 +373,7 @@ Enter `Com` menu and use `Stake your token` function
 
 ### Delegate tokens with `Keplr` 
 
-With your browser with Keplr extension installed go in in validators menu and use `Manage` button
+With your browser with Keplr extension installed go in validators menu and use `Manage` button
 
 
 
