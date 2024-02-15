@@ -218,8 +218,8 @@ timestamp: ""
 
 The key thing is the transaction hash. In the example above it is `C41B87615308550F867D42BB404B64343CB62D453A69F11302A68B02FAFB557C`. Check on the 
 
-- [Commercio.network explorer Testnet](https://testnet.commercio.network/it/validators).       
-- [Commercio.network explorer Mainnet](https://mainnet.commercio.network/it/validators).  
+- [Commercio.network explorer Testnet](https://testnet.commercio.network/validators/).       
+- [Commercio.network explorer Mainnet](https://mainnet.commercio.network/validators/).  
 
 
 ## 4. Delegate tokens to the validator
