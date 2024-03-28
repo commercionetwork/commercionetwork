@@ -9,6 +9,8 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/documents/document.proto";
 import "commercionetwork/documents/documentReceipt.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/query/v1/query.proto";
 
 /*
 rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
@@ -18,49 +20,50 @@ rpc DocumentAll(QueryAllDocumentRequest) returns (QueryAllDocumentResponse) {
 service Query {
   // Queries a Document by id.
   rpc Document(QueryGetDocumentRequest) returns (QueryGetDocumentResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/document/{UUID}";
   }
   // Queries a list of sent Document items.
-  rpc SentDocuments(QueryGetSentDocumentsRequest)
-      returns (QueryGetSentDocumentsResponse) {
+  rpc SentDocuments(QueryGetSentDocumentsRequest) returns (QueryGetSentDocumentsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/document/{address}/sent";
   }
   // Queries a list of UUIDs of the sent Document items.
-  rpc UUIDDocuments(QueryGetUUIDDocumentsRequest)
-      returns (QueryGetUUIDDocumentsResponse) {
+  rpc UUIDDocuments(QueryGetUUIDDocumentsRequest) returns (QueryGetUUIDDocumentsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/document/{address}/uuid";
   }
   // Queries a list of received Document items.
-  rpc ReceivedDocument(QueryGetReceivedDocumentRequest)
-      returns (QueryGetReceivedDocumentResponse) {
+  rpc ReceivedDocument(QueryGetReceivedDocumentRequest) returns (QueryGetReceivedDocumentResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/document/{address}/received";
   }
 
-  rpc SentDocumentsReceipts(QueryGetSentDocumentsReceiptsRequest)
-      returns (QueryGetSentDocumentsReceiptsResponse) {
+  rpc SentDocumentsReceipts(QueryGetSentDocumentsReceiptsRequest) returns (QueryGetSentDocumentsReceiptsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/receipts/{address}/sent";
   }
 
   // Queries a list of Document items.
-  rpc ReceivedDocumentsReceipts(QueryGetReceivedDocumentsReceiptsRequest)
-      returns (QueryGetReceivedDocumentsReceiptsResponse) {
+  rpc ReceivedDocumentsReceipts(QueryGetReceivedDocumentsReceiptsRequest) returns (QueryGetReceivedDocumentsReceiptsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/receipts/{address}/received";
   }
 
-  rpc DocumentsReceipts(QueryGetDocumentsReceiptsRequest)
-      returns (QueryGetDocumentsReceiptsResponse) {
+  rpc DocumentsReceipts(QueryGetDocumentsReceiptsRequest) returns (QueryGetDocumentsReceiptsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/document/{UUID}/receipts";
   }
 
-  rpc DocumentsUUIDReceipts(QueryGetDocumentsUUIDReceiptsRequest)
-      returns (QueryGetDocumentsUUIDReceiptsResponse) {
+  rpc DocumentsUUIDReceipts(QueryGetDocumentsUUIDReceiptsRequest) returns (QueryGetDocumentsUUIDReceiptsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/documents/document/{UUID}/uuid/receipts";
   }  
@@ -84,7 +87,7 @@ message QueryAllDocumentResponse {
 // ----------------------------------
 
 message QueryGetSentDocumentsRequest {
-  string address = 1;
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -94,7 +97,7 @@ message QueryGetSentDocumentsResponse {
 }
 
 message QueryGetUUIDDocumentsRequest {
-  string address = 1;
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -104,7 +107,7 @@ message QueryGetUUIDDocumentsResponse {
 }
 
 message QueryGetReceivedDocumentRequest {
-  string address = 1;
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -118,7 +121,7 @@ message QueryGetReceivedDocumentResponse {
 // ----------------------------------
 
 message QueryGetSentDocumentsReceiptsRequest {
-  string address = 1;
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -128,7 +131,7 @@ message QueryGetSentDocumentsReceiptsResponse {
 }
 
 message QueryGetReceivedDocumentsReceiptsRequest {
-  string address = 1;
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 

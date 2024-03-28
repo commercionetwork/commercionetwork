@@ -9,15 +9,24 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
 
 message Position {
-  string owner = 1;
+  option (amino.name)           = "commercionetwork/Position";
+
+  string owner = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   int64 collateral = 2;
-  cosmos.base.v1beta1.Coin credits = 3;
+  cosmos.base.v1beta1.Coin credits = 3 [
+    (gogoproto.nullable) = false,
+    (amino.encoding)         = "legacy_coins", 
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   google.protobuf.Timestamp created_at = 4 [ (gogoproto.stdtime) = true ];
   string ID = 5;
   string exchange_rate = 6 [
     (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
 }

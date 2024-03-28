@@ -10,10 +10,13 @@ import "commercionetwork/documents/documentDoSign.proto";
 import "commercionetwork/documents/documentEncryptionData.proto";
 import "commercionetwork/documents/documentMetadataSchema.proto";
 import "commercionetwork/documents/documentChecksum.proto";
-
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 message Document {
-  string sender = 1; 
+  option (amino.name)           = "commercionetwork/Document";
+
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"]; 
   repeated string recipients = 2; 
   string UUID = 3; 
   documents.DocumentMetadata metadata = 4; 

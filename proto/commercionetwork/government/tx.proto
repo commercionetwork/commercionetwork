@@ -4,7 +4,11 @@ package commercionetwork.commercionetwork.government;
 // Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";
 
+import "cosmos/msg/v1/msg.proto";
+
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+  
   rpc SetGovAddress(MsgSetGovAddress) returns (MsgSetGovAddressResponse);
 }
 

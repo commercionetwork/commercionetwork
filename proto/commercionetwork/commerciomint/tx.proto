@@ -8,36 +8,62 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 import "gogoproto/gogo.proto";
 import "commercionetwork/commerciomint/params.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
 
 
 // Msg defines the Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc MintCCC(MsgMintCCC) returns (MsgMintCCCResponse);
   rpc BurnCCC(MsgBurnCCC) returns (MsgBurnCCCResponse);
   rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
 }
 
 message MsgMintCCC {
-  string depositor = 1;
-  repeated cosmos.base.v1beta1.Coin deposit_amount = 2;
+  option (cosmos.msg.v1.signer) = "depositor";
+  option (amino.name)           = "commercionetwork/MsgMintCCC";
+
+  string depositor = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  repeated cosmos.base.v1beta1.Coin deposit_amount = 2 [
+    (gogoproto.nullable) = false,
+    (amino.encoding)         = "legacy_coins", 
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   string ID = 3;
 }
 
 message MsgMintCCCResponse { string ID = 1; }
 
 message MsgBurnCCC {
-  string signer = 1;
-  cosmos.base.v1beta1.Coin amount = 2;
+  option (cosmos.msg.v1.signer) = "signer";
+  option (amino.name)           = "commercionetwork/MsgBurnCCC";
+
+  string signer = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (amino.encoding)         = "legacy_coins", 
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   string ID = 3;
 }
 
 message MsgBurnCCCResponse {
   string ID = 1;
-  cosmos.base.v1beta1.Coin residual = 2;
+  cosmos.base.v1beta1.Coin residual = 2 [
+    (gogoproto.nullable) = false,
+    (amino.encoding)         = "legacy_coins", 
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 message MsgSetParams {
-  string signer = 1;
+  option (cosmos.msg.v1.signer) = "signer";
+  option (amino.name)           = "commercionetwork/MsgSetParams";
+
+  string signer = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   Params params = 2;
 }
 

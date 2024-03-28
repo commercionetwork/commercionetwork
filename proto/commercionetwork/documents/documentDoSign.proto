@@ -8,6 +8,8 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 import "gogoproto/gogo.proto";
 
 message DocumentDoSign {
+  option (amino.name)           = "commercionetwork/DocumentDoSign";
+
   string storageURI = 1;
   string signerInstance = 2;
   repeated string sdnData = 3; 

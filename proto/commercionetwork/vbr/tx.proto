@@ -5,32 +5,55 @@ package commercionetwork.commercionetwork.vbr;
 // Import section
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
 
 // Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/vbr/types";
 
 // Msg defines the Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc IncrementBlockRewardsPool(MsgIncrementBlockRewardsPool) returns (MsgIncrementBlockRewardsPoolResponse);
   rpc SetParams(MsgSetParams) returns (MsgSetParamsResponse);
 }
 
 message MsgIncrementBlockRewardsPool {
-  string funder = 1 [(gogoproto.moretags) = "yaml:\"funder\""];
-  repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.moretags) = "yaml:\"amount\"",
-  (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-  (gogoproto.nullable) = false] ;
+  option (cosmos.msg.v1.signer) = "funder";
+  option (amino.name)           = "commercionetwork/MsgIncrementBlockRewardsPool";
+
+  string funder = 1 [
+    (gogoproto.moretags) = "yaml:\"funder\"",
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
+  repeated cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.moretags) = "yaml:\"amount\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.encoding)         = "legacy_coins",
+    (gogoproto.nullable) = false
+  ] ;
 }
 
 message MsgIncrementBlockRewardsPoolResponse {
 }
 
 message MsgSetParams{
-  string Government = 1 [(gogoproto.moretags) = "yaml:\"government\""];
+  option (cosmos.msg.v1.signer) = "Government";
+  option (amino.name)           = "commercionetwork/MsgSetParams";
+
+  string Government = 1 [
+    (gogoproto.moretags) = "yaml:\"government\"",
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
   string distr_epoch_identifier = 2 [(gogoproto.moretags) = "yaml:\"distr_epoch_identifier\""];
-  string earn_rate = 3 [(gogoproto.moretags) = "yaml:\"earn_rate\"",
-  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-  (gogoproto.nullable) = false];
+  string earn_rate = 3 [
+    (gogoproto.moretags) = "yaml:\"earn_rate\"",
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message MsgSetParamsResponse{

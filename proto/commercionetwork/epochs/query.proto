@@ -9,16 +9,18 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/epochs/genesis.proto";
+import "cosmos/query/v1/query.proto";
 
 // Query defines the gRPC querier service.
 service Query {
   // EpochInfos provide running epochInfos
   rpc EpochInfos(QueryEpochsInfoRequest) returns (QueryEpochsInfoResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/commercionetwork/epochs/epochs";
   }
   // CurrentEpoch provide current epoch of specified identifier
-  rpc CurrentEpoch(QueryCurrentEpochRequest)
-      returns (QueryCurrentEpochResponse) {
+  rpc CurrentEpoch(QueryCurrentEpochRequest) returns (QueryCurrentEpochResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/commercionetwork/epochs/current_epoch";
   }
 }

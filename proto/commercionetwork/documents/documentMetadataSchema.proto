@@ -6,13 +6,18 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 
 // Import section
 import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 
 message DocumentMetadataSchema {
+	option (amino.name)           = "commercionetwork/DocumentMetadataSchema";
+
   string URI = 1;
   string version = 2;
 }
 
 message DocumentMetadata {
+	option (amino.name)           = "commercionetwork/DocumentMetadata";
+
 	string contentURI = 1;
 	//string schemaType = 2;
 	DocumentMetadataSchema schema = 2;

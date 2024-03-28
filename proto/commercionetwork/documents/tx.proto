@@ -10,15 +10,23 @@ import "commercionetwork/documents/documentDoSign.proto";
 import "commercionetwork/documents/documentEncryptionData.proto";
 import "commercionetwork/documents/documentMetadataSchema.proto";
 import "commercionetwork/documents/documentChecksum.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
 
 // Msg defines the Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc ShareDocument(MsgShareDocument) returns (MsgShareDocumentResponse);
   rpc SendDocumentReceipt(MsgSendDocumentReceipt) returns (MsgSendDocumentReceiptResponse);
 }
 
 message MsgShareDocument {
-  string sender = 1;
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "commercionetwork/MsgShareDocument";
+
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   repeated string recipients = 2;
   string UUID = 3;
   documents.DocumentMetadata metadata = 4;
@@ -33,9 +41,12 @@ message MsgShareDocumentResponse {
 }
 
 message MsgSendDocumentReceipt {
-  string UUID = 1;
-  string sender = 2;
-  string recipient = 3;
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "commercionetwork/MsgSendDocumentReceipt";
+
+  string UUID = 1 ;
+  string sender = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string recipient = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string txHash = 4;
   string DocumentUUID = 5;
   string proof = 6;  // Optional

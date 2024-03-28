@@ -6,8 +6,11 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 
 // Import section
 import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 
 message DocumentChecksum {
+  option (amino.name)           = "commercionetwork/DocumentChecksum";
+
   string value = 1;
   string algorithm = 2;
 }

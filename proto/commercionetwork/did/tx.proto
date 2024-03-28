@@ -7,12 +7,20 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 // Import section
 import "commercionetwork/did/identity.proto";
 import "gogoproto/gogo.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
 
 // Msg defines the Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc UpdateIdentity(MsgSetIdentity) returns (MsgSetIdentityResponse);
 }
 
-message MsgSetIdentity { DidDocument didDocument = 1; }
+message MsgSetIdentity { 
+  option (amino.name)           = "commercionetwork/MsgSetIdentity";
+
+  DidDocument didDocument = 1; 
+}
 
 message MsgSetIdentityResponse {}

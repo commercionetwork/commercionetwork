@@ -7,8 +7,11 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 // Import section
 import "gogoproto/gogo.proto";
 import "commercionetwork/documents/documentEncryptionKey.proto";
+import "amino/amino.proto";
 
 message DocumentEncryptionData {
+  option (amino.name)           = "commercionetwork/DocumentEncryptionData";
+  
   repeated documents.DocumentEncryptionKey keys = 1;
   repeated string encryptedData = 2;
 }

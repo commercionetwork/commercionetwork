@@ -10,24 +10,32 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/commerciomint/position.proto";
 import "commercionetwork/commerciomint/params.proto";
+import "google/api/annotations.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/query/v1/query.proto";
+import "amino/amino.proto";
 
 // Query defines the gRPC querier service.
 service Query {
   // Queries a Etp by id.
   rpc Etp(QueryEtpRequest) returns (QueryEtpResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/commercionetwork/commerciomint/{ID}/etp";
   }
 
   rpc EtpsByOwner(QueryEtpsByOwnerRequest) returns (QueryEtpsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get =
         "/commercionetwork/commerciomint/{Owner}/etpsOwner";
   }
 
   rpc Etps(QueryEtpsRequest) returns (QueryEtpsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/commercionetwork/commerciomint/etps";
   }
 
   rpc Params(QueryParams) returns (QueryParamsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/commercionetwork/commerciomint/params";
   }
 
@@ -36,7 +44,7 @@ service Query {
 message QueryEtpRequest { string ID = 1; }
 
 message QueryEtpsByOwnerRequest {
-  string Owner = 1;
+  string Owner = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 

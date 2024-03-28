@@ -7,18 +7,22 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc
 // Import section
 import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 message Membership {
-  string owner = 1;
-  string tsp_address = 2;
+  option (amino.name)           = "commercionetwork/Membership";
+
+  string owner = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string tsp_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string membership_type = 3;
   google.protobuf.Timestamp expiry_at = 4 [(gogoproto.stdtime) = true];
 }
 
 message Invite {
-  string sender = 1;
-  string sender_membership = 2;
-  string user = 3;
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string sender_membership = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string user = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   uint64 status = 4;
 }
 

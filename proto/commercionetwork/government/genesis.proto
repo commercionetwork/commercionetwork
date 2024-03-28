@@ -4,7 +4,9 @@ package commercionetwork.commercionetwork.government;
 // Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";
 
+import "cosmos_proto/cosmos.proto";
+
 // GenesisState defines the id module's genesis state.
 message GenesisState {
-    string governmentAddress = 1;
+    string governmentAddress = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }

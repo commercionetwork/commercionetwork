@@ -4,9 +4,15 @@ package commercionetwork.commercionetwork.ibcaddresslimiter;
 option go_package = "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types";
 
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 // Params defines the parameters for the ibc-address-limiter module.
 message Params {
-  string contract_address = 1
-      [ (gogoproto.moretags) = "yaml:\"contract_address\"" ];
+  option (amino.name)           = "commercionetwork/Params";
+
+  string contract_address = 1 [ 
+    (gogoproto.moretags) = "yaml:\"contract_address\"",
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+    ];
 }

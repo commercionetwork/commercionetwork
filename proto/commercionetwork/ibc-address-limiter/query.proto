@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "commercionetwork/ibc-address-limiter/params.proto";
+import "cosmos/query/v1/query.proto";
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types";
 
@@ -13,6 +14,7 @@ service Query {
   // Params defines a gRPC query method that returns the ibc-address-limiter module's
   // parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/commercionetwork/ibc-address-limiter/params";
   }
 }

@@ -6,11 +6,15 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 
 // Import section
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 message DocumentReceipt {
+    option (amino.name)           = "commercionetwork/DocumentReceipt";
+
     string UUID = 1; 
-    string sender = 2; 
-    string recipient = 3; 
+    string sender = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"]; 
+    string recipient = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"]; 
     string txHash = 4; 
     string documentUUID = 5;
     string proof = 6;

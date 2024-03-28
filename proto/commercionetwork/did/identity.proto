@@ -8,14 +8,18 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 
 message Identity {
+  option (amino.name)           = "commercionetwork/Identity";
+
   DidDocument didDocument = 1;
   Metadata metadata = 2;
 }
 
 message DidDocument {
   option (gogoproto.equal) = true;
+  option (amino.name)           = "commercionetwork/DidDocument";
 
   repeated string context = 1 [ (gogoproto.jsontag) = "@context,omitempty" ];
   string ID = 2;
@@ -29,12 +33,15 @@ message DidDocument {
 }
 
 message Metadata {
+  option (amino.name)           = "commercionetwork/Metadata";
+
   string created = 1;
   string updated = 2;
 }
 
 message VerificationMethod {
   option (gogoproto.equal) = true;
+  option (amino.name)           = "commercionetwork/VerificationMethod";
 
   string ID = 1;
   string Type = 2;
@@ -44,6 +51,7 @@ message VerificationMethod {
 
 message Service {
   option (gogoproto.equal) = true;
+  option (amino.name)           = "commercionetwork/Service";
 
   string ID = 1;
   string type = 2;

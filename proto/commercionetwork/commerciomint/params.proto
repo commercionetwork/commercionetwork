@@ -8,13 +8,17 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "google/protobuf/duration.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
 
 message Params {
+  option (amino.name)           = "commercionetwork/Params";
   option (gogoproto.equal) = true;
 
   string conversion_rate = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
   google.protobuf.Duration freeze_period = 2
       [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];

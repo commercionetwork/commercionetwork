@@ -3,12 +3,12 @@ module github.com/commercionetwork/commercionetwork
 go 1.19
 
 require (
-	github.com/CosmWasm/wasmd v0.31.0
+	github.com/CosmWasm/wasmd v0.50.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/cometbft/cometbft-db v0.7.0
-	github.com/cosmos/cosmos-sdk v0.45.16
+	github.com/cosmos/cosmos-sdk v0.50.5
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v4 v4.4.2
+	github.com/cosmos/ibc-go/v8 v8.0.1
 	github.com/gofrs/uuid v4.3.0+incompatible
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.3
@@ -167,9 +167,6 @@ replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
-	// Replace wasmd with custom fork fix ibc commercionetwork bug
-	github.com/CosmWasm/wasmd => github.com/commercionetwork/wasmd v0.31.0-commercio.8
-
 	// dragonberry
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 
@@ -177,7 +174,7 @@ replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 	// Comet
-	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.29
+	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.38.0
 
 	// use grpc compatible with cosmos protobufs
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
