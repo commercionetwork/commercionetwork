@@ -439,7 +439,7 @@ The blockchain and the state of the application can be split into different fold
 
 ### Prune the node
 
-The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.      
+The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.
 To increase the pruning process it is possible to set the `pruning` parameter in the `config.toml` file to `everything`. The pruning setting can be applied restarting the node service.
 
 You can apply pruning **manually** once in a while with the follow procedure.
@@ -538,7 +538,7 @@ Please note that the following commands assume you are acting as the root user. 
 
 8. **If you're not operating with root** change the permission accordingly
    ```bash
-   chown [USER]:[USER] /root/.commercionetwork/data/priv_validator_state.json
+   chown -R [USER]:[USER] /home/[USER]/.commercionetwork/
    ```
 
 9. Start the node
