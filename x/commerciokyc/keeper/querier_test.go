@@ -4,14 +4,14 @@ import (
 	"testing"
 	"time"
 
+	//"cosmossdk.io/simapp"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var request abci.RequestQuery

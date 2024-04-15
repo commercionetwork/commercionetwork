@@ -3,10 +3,10 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/log"
 	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 type (

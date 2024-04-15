@@ -3,10 +3,10 @@ package keeper
 import (
 	"testing"
 
+	//"cosmossdk.io/simapp"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 func Test_NewQuerier_default(t *testing.T) {

@@ -3,10 +3,10 @@ package keeper
 import (
 	"testing"
 
+	//"cosmossdk.io/simapp"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/simapp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

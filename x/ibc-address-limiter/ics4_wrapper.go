@@ -6,11 +6,11 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	//capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v4/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 
 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
@@ -44,7 +44,7 @@ func NewICS4Middleware(
 
 // SendPacket implements the ICS4 interface and is called when sending packets.
 // This method retrieves the contract from the middleware's parameters and checks if the sender has the permission to
-//transfer or not, in which case it returns an error preventing the IBC send from taking place.
+// transfer or not, in which case it returns an error preventing the IBC send from taking place.
 // If the contract param is not configured, transfers are not prevented and handled by the wrapped IBC app
 func (i *ICS4Wrapper) SendPacket(ctx sdk.Context, chanCap *capabilitytypes.Capability, packet exported.PacketI) error {
 	contract := i.GetParams(ctx)

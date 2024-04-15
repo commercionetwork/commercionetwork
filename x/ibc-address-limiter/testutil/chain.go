@@ -3,21 +3,19 @@ package commercionetworkibctesting
 import (
 	"encoding/json"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/commercionetwork/commercionetwork/app/params"
 	"github.com/commercionetwork/commercionetwork/testutil/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v4/testing"
-	"github.com/cosmos/ibc-go/v4/testing/simapp/helpers"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	//"github.com/cosmos/ibc-go/v8/testing/simapp/helpers"
 
 	"github.com/commercionetwork/commercionetwork/app"
-	
 )
-
 
 type TestChain struct {
 	*ibctesting.TestChain
@@ -26,8 +24,8 @@ type TestChain struct {
 func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	encodingConfig := params.MakeEncodingConfig()
 	cdc := encodingConfig.Marshaler
-	commercionetworkApp := /*app.Setup(false)*/simapp.New("")
-	
+	commercionetworkApp := /*app.Setup(false)*/ simapp.New("")
+
 	return commercionetworkApp, app.NewDefaultGenesisState(cdc)
 }
 
@@ -106,7 +104,7 @@ func SignAndDeliver(
 	return nil
 }*/
 
-// GetApp returns the current chain's app 
+// GetApp returns the current chain's app
 func (chain *TestChain) GetApp() *app.App {
 	v, _ := chain.App.(*app.App)
 	return v

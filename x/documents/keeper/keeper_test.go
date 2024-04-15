@@ -3,16 +3,16 @@ package keeper
 import (
 	"testing"
 
+	"cosmossdk.io/log"
+	"cosmossdk.io/store"
+	storetypes "cosmossdk.io/store/types"
+	tmdb "github.com/cometbft/cometbft-db"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/store"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmdb "github.com/tendermint/tm-db"
 )
 
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {

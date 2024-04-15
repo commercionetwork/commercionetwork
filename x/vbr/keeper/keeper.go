@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/log"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"

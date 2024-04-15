@@ -12,16 +12,16 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/commercionetwork/commercionetwork/app/params"
-	"github.com/cosmos/cosmos-sdk/snapshots"
+	//"github.com/cosmos/cosmos-sdk/snapshots"
 
+	"cosmossdk.io/log"
+	dbm "github.com/cometbft/cometbft-db"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	tmcmd "github.com/tendermint/tendermint/cmd/cometbft/commands"
-	tmcli "github.com/tendermint/tendermint/libs/cli"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 
+	"cosmossdk.io/store"
 	"github.com/commercionetwork/commercionetwork/app"
 	commgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -34,7 +34,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -94,6 +93,15 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		flags.FlagKeyringBackend: "test",
 	})
 
+	// add keyring to autocli opts
+	autoCliOpts := tempApp.AutoCliOpts()
+	initClientCtx, _ = config.ReadFromClientConfig(initClientCtx)
+	autoCliOpts.Keyring = initClientCtx.Keyring
+
+	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
+		panic(err)
+	}
+	
 	return rootCmd, encodingConfig
 }
 

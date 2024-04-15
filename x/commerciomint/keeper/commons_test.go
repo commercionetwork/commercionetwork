@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
+	//"cosmossdk.io/simapp"
+	"cosmossdk.io/store"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -16,9 +16,9 @@ import (
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	db "github.com/tendermint/tm-db"
+	"cosmossdk.io/log"
+	db "github.com/cometbft/cometbft-db"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 

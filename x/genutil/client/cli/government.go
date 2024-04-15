@@ -7,19 +7,19 @@ import (
 
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 
+	"github.com/cometbft/cometbft/libs/cli"
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
-	"github.com/tendermint/tendermint/libs/cli"
 
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/spf13/cobra"
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
+	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
 )
 
 // SetGenesisGovernmentAddressCmd returns set-genesis-government-address cobra Command.

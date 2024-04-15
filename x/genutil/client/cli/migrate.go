@@ -8,16 +8,16 @@ import (
 
 	v300 "github.com/commercionetwork/commercionetwork/x/genutil/legacy/v3.0.0"
 
+	"github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
+	tmjson "github.com/cometbft/cometbft/libs/json"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	extypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
 )
 
 var migrationMap = map[string][]extypes.MigrationCallback{

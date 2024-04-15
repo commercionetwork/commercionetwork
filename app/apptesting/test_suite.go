@@ -8,23 +8,26 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+
 	//cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	//"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/store/rootmulti"
+	//"cosmossdk.io/simapp"
+	"cosmossdk.io/store/rootmulti"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	//"github.com/stretchr/testify/require"
+	"cosmossdk.io/log"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/ed25519"
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
+
 	//"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 
 	"github.com/commercionetwork/commercionetwork/app"
@@ -40,14 +43,13 @@ type KeeperTestHelper struct {
 	Ctx         sdk.Context
 	QueryHelper *baseapp.QueryServiceTestHelper
 	//queryClient types.QueryClient
-	TestAccs    []sdk.AccAddress
+	TestAccs []sdk.AccAddress
 }
 
 var (
 	SecondaryDenom  = "uccc"
 	SecondaryAmount = sdk.NewInt(100000000)
 )
-
 
 // Setup sets up basic environment for suite (App, Ctx, and test accounts)
 func (s *KeeperTestHelper) Setup() {
@@ -106,9 +108,10 @@ func (s *KeeperTestHelper) Commit() {
 	s.App.Commit()
 	newHeader := tmtypes.Header{Height: oldHeight + 1, ChainID: oldHeader.ChainID, Time: oldHeader.Time.Add(time.Second)}
 	s.App.BeginBlock(abci.RequestBeginBlock{Header: newHeader})
-	s.Ctx = s.App.NewContext(false,newHeader)
-	
+	s.Ctx = s.App.NewContext(false, newHeader)
+
 }
+
 /*
 // FundAcc funds target address with specified amount.
 func (s *KeeperTestHelper) FundAcc(acc sdk.AccAddress, amounts sdk.Coins) {
@@ -176,6 +179,7 @@ func (s *KeeperTestHelper) SetupMultipleValidators(numValidator int) []string {
 	}
 	return valAddrs
 }
+
 /*
 // BeginNewBlock starts a new block.
 func (s *KeeperTestHelper) BeginNewBlock(executeNextEpoch bool) {
@@ -282,6 +286,7 @@ func (s *KeeperTestHelper) BuildTx(
 
 	return txBuilder.GetTx()
 }
+
 /*
 // StateNotAltered validates that app state is not altered. Fails if it is.
 func (s *KeeperTestHelper) StateNotAltered() {
@@ -301,6 +306,7 @@ func CreateRandomAccounts(numAccts int) []sdk.AccAddress {
 
 	return testAddrs
 }
+
 /*
 func TestMessageAuthzSerialization(t *testing.T, msg sdk.Msg) {
 	someDate := time.Date(1, 1, 1, 1, 1, 1, 1, time.UTC)

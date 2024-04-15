@@ -3,11 +3,14 @@ package keeper
 import (
 	"time"
 
+	"cosmossdk.io/log"
+	//"cosmossdk.io/simapp"
+	"cosmossdk.io/store"
+	db "github.com/cometbft/cometbft-db"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -15,9 +18,6 @@ import (
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	db "github.com/tendermint/tm-db"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
@@ -113,7 +113,7 @@ var testTsp, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apk
 
 var testInvalidMembership = "gren"
 
-//var stableCreditDenom = "uccc"
+// var stableCreditDenom = "uccc"
 var testExpiration = time.Now().Add(time.Hour * 24 * 365).UTC()
 var testExpirationNegative = time.Now()
 var depositStableCoin = sdk.NewCoins(sdk.NewInt64Coin(stableCreditDenom, 50000000))

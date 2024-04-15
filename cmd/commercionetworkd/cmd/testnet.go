@@ -39,11 +39,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
 
-	tmconfig "github.com/tendermint/tendermint/config"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
+	tmconfig "github.com/cometbft/cometbft/config"
+	tmos "github.com/cometbft/cometbft/libs/os"
+	"github.com/cometbft/cometbft/types"
+	tmtime "github.com/cometbft/cometbft/types/time"
 
 	"github.com/spf13/cobra"
 	//"github.com/spf13/viper"
@@ -145,7 +144,7 @@ func InitTestnet(
 
 	// Setup chain-id
 	if chainID == "" {
-		chainID = "chain-" + tmrand.NewRand().Str(6)
+		chainID = "chain-" + crand.NewRand().Str(6)
 	}
 
 	monikers := make([]string, numValidators)

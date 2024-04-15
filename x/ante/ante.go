@@ -13,14 +13,14 @@ import (
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	ibcante "github.com/cosmos/ibc-go/v4/modules/core/ante"
+	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 
 	//"github.com/cosmos/cosmos-sdk/x/auth/types"
 	//bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	ibcKeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
+	ibcKeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.

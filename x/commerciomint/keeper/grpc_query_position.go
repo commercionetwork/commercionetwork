@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"

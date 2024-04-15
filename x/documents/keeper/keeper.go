@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/tendermint/tendermint/libs/log"
+	"cosmossdk.io/log"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/codec"

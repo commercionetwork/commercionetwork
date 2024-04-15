@@ -1,10 +1,10 @@
 package v400
 
 import (
+	"cosmossdk.io/store/prefix"
 	v300 "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v3.0.0"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -9,7 +9,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/commercionetwork/commercionetwork/x/did/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/did/client/rest"
@@ -24,6 +24,7 @@ import (
 
 var (
 	_ module.AppModule      = AppModule{}
+	_ module.HasBeginBlocker = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 

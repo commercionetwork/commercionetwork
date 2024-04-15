@@ -13,24 +13,25 @@ import (
 	"github.com/tendermint/spm/openapiconsole"
 
 	// ------------------------------------------
-	// Tendermint base
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
+	// Comet base
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"cosmossdk.io/log"
+	tmos "github.com/cometbft/cometbft/libs/os"
 
 	// ------------------------------------------
 	// Cosmwasm module
 	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	//wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// ------------------------------------------
 	// Cosmos SDK utils
+	"cosmossdk.io/x/feegrant"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -41,13 +42,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
+
+
 
 	// ------------------------------------------
 	// Cosmos SDK modules
 	//  Auth
 	comosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+	//authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -63,9 +69,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	//  Capability
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	"github.com/cosmos/ibc-go/modules/capability"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	//  Crisis
 	"github.com/cosmos/cosmos-sdk/x/crisis"
@@ -74,18 +80,18 @@ import (
 
 	//  Distribution
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
+	//distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	//  Evidence
-	"github.com/cosmos/cosmos-sdk/x/evidence"
-	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"cosmossdk.io/x/evidence"
+	evidencekeeper "cosmossdk.io/x/evidence/keeper"
+	evidencetypes "cosmossdk.io/x/evidence/types"
 
 	//  Feegrant
-	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
+	feegrantmodule "cosmossdk.io/x/feegrant/module"
 
 	//  Genesis Utilities
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -115,13 +121,13 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	//  Upgrade
-	storetypes "github.com/cosmos/cosmos-sdk/store/types" //TODO: is this the correct place for the import?
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
-	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	storetypes "cosmossdk.io/store/types" //TODO: is this the correct place for the import?
+	"cosmossdk.io/x/upgrade"
+	//upgradeclient "cosmossdk.io/x/upgrade/client"
+	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+	tmjson "github.com/cometbft/cometbft/libs/json"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	//  Vesting
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -130,19 +136,19 @@ import (
 	// ------------------------------------------
 	// IBC v4
 	//  Transfer
-	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	transfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
 	ibcaddresslimit "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter"
 	ibcaddresslimittypes "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 
 	//  Core
-	ibc "github.com/cosmos/ibc-go/v4/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v4/modules/core/02-client"
-	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
+	ibc "github.com/cosmos/ibc-go/v8/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v8/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
 	// ------------------------------------------
 	// Commercio.Network
@@ -337,6 +343,7 @@ type App struct {
 	TransferKeeper   ibctransferkeeper.Keeper
 	WasmKeeper       wasm.Keeper
 	ContractKeeper   *wasmkeeper.PermissionedKeeper
+	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -441,6 +448,9 @@ func New(
 	app.ParamsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
 
 	// set the BaseApp's parameter store
+	app.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(keys[consensusparamtypes.StoreKey]), authtypes.NewModuleAddress(govtypes.ModuleName).String(), runtime.EventService{})
+
+	// set the BaseApp's parameter store
 	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
 
 	// add capability keeper and ScopeToModule for ibc module
@@ -461,7 +471,7 @@ func New(
 	)
 
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
-		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
+		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(), logger,
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(
@@ -694,6 +704,10 @@ func New(
 		ibcaddresslimit.NewAppModule(*app.AddressLimitingICS4Wrapper),
 	)
 
+	app.mm.SetOrderPreBlockers(
+		upgradetypes.ModuleName,
+	)
+
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
@@ -701,7 +715,6 @@ func New(
 	app.mm.SetOrderBeginBlockers(
 		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
 		epochstypes.ModuleName,
-		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -727,6 +740,8 @@ func New(
 		vbrmoduletypes.ModuleName,
 		ibcaddresslimittypes.ModuleName,
 	)
+
+	app.SetPreBlocker(app.PreBlocker)
 
 	// TODO: check order for End Blockers
 	app.mm.SetOrderEndBlockers(
@@ -970,6 +985,10 @@ func New(
 	app.ScopedWasmKeeper = scopedWasmKeeper
 
 	return app
+}
+
+func (app *SimApp) PreBlocker(ctx sdk.Context, req *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	return app.mm.PreBlock(ctx, req)
 }
 
 // Create the IBC Transfer Stack from bottom to top:
