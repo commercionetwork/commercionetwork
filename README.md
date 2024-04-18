@@ -39,7 +39,8 @@ echo 'export PATH="$PATH:/snap/bin"' >> ~/.profile
 
 source ~/.profile
 
-git remote clone https://github.com/commercionetwork/commercionetwork.git
+git clone https://github.com/commercionetwork/commercionetwork.git
+cd commercionetwork
 git checkout tags/v5.1.0
 go mod verify
 make install
