@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/gofrs/uuid"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -29,7 +30,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryDocumentReceipts:
 			return queryGetDocumentsReceipts(ctx, path[1:], k, legacyQuerierCdc)
 		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint: %s", types.ModuleName, path[0]))
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint: %s", types.ModuleName, path[0]))
 		}
 	}
 }
@@ -42,7 +43,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQ
 	addr := path[0]
 	address, err := sdk.AccAddressFromBech32(addr)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+		return nil, errorsmod.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
 	ri := k.UserReceivedDocumentsIterator(ctx, address)
@@ -55,7 +56,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQ
 		document, err := k.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
 			// consider using sdk.ErrKeyNotFound
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document with UUID %s even though the user has an associated received document",
 					documentUUID,
@@ -69,7 +70,7 @@ func queryGetReceivedDocuments(ctx sdk.Context, path []string, k Keeper, legacyQ
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, documents)
 	if err != nil {
 		// consider using sdk.ErrJSONMarshal
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -79,7 +80,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, k Keeper, legacyQueri
 	addr := path[0]
 	address, err := sdk.AccAddressFromBech32(addr)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+		return nil, errorsmod.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
 	usdi := k.UserSentDocumentsIterator(ctx, address)
@@ -91,7 +92,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, k Keeper, legacyQueri
 
 		document, err := k.GetDocumentByID(ctx, documentUUID)
 		if err != nil {
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document with UUID %s even though the user has an associated received document",
 					documentUUID,
@@ -104,7 +105,7 @@ func queryGetSentDocuments(ctx sdk.Context, path []string, k Keeper, legacyQueri
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, documents)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -118,7 +119,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, k Keeper, lega
 	addr := path[0]
 	address, err := sdk.AccAddressFromBech32(addr)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+		return nil, errorsmod.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
 	ri := k.UserReceivedReceiptsIterator(ctx, address)
@@ -130,7 +131,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, k Keeper, lega
 
 		receipt, err := k.GetReceiptByID(ctx, receiptUUID)
 		if err != nil {
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document receipt with UUID %s even though the user has an associated received document with it",
 					receiptUUID,
@@ -143,7 +144,7 @@ func queryGetReceivedDocsReceipts(ctx sdk.Context, path []string, k Keeper, lega
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, receipts)
 
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -153,7 +154,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQu
 	addr := path[0]
 	address, err := sdk.AccAddressFromBech32(addr)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, addr)
+		return nil, errorsmod.Wrap(sdkErr.ErrInvalidAddress, addr)
 	}
 
 	receipts := []types.DocumentReceipt{}
@@ -166,7 +167,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQu
 
 		receipt, err := k.GetReceiptByID(ctx, receiptUUID)
 		if err != nil {
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document receipt with UUID %s even though the user has an associated received document with it",
 					receiptUUID,
@@ -180,7 +181,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQu
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, receipts)
 
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -189,7 +190,7 @@ func queryGetSentDocsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQu
 func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	documentUUID, err := uuid.FromString(path[0])
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid UUID: %s", path[0]))
+		return nil, errorsmod.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid UUID: %s", path[0]))
 	}
 
 	receipts := []types.DocumentReceipt{}
@@ -202,7 +203,7 @@ func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQ
 
 		receipt, err := k.GetReceiptByID(ctx, receiptUUID)
 		if err != nil {
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"could not find document receipt with UUID %s even though there is a document associated with it",
 					receiptUUID,
@@ -216,7 +217,7 @@ func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQ
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, receipts)
 
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return bz, nil

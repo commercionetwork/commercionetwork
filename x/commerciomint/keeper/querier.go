@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,7 +30,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryGetParamsRest:
 			return queryGetParams(ctx, k, legacyQuerierCdc)
 		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint", types.ModuleName))
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -38,12 +39,12 @@ func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *cod
 	id := path[0]
 	etp, ok := k.GetPositionById(ctx, id)
 	if !ok {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("position with id: %s not found!", id))
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("position with id: %s not found!", id))
 	}
 
 	etpbz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etp)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return etpbz, nil
@@ -52,12 +53,12 @@ func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *cod
 func queryGetEtpsByOwner(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	ownerAddr, e := sdk.AccAddressFromBech32(path[0])
 	if e != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("invalid address %s", path[0]))
+		return nil, errorsmod.Wrap(sdkErr.ErrInvalidAddress, fmt.Sprintf("invalid address %s", path[0]))
 	}
 	etps := k.GetAllPositionsOwnedBy(ctx, ownerAddr)
 	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return etpsBz, nil
@@ -67,7 +68,7 @@ func queryGetAllEtps(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAm
 	etps := k.GetAllPositions(ctx)
 	etpsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, etps)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "could not marshal result to JSON")
 	}
 
 	return etpsBz, nil
@@ -86,7 +87,7 @@ func queryGetParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmi
 
 	paramsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, params)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return paramsBz, nil

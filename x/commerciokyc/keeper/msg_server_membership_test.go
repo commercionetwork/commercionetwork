@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -30,7 +31,7 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 				msg:    types.NewMsgBuyMembership("gren", testUser, testTsp),
 				invite: types.NewInvite(testInviteSender, testUser, "bronze"),
 			},
-			wantErr: sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", testInvalidMembership)).Error(),
+			wantErr: errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", testInvalidMembership)).Error(),
 		},
 		{
 			name: "Downgrade from black membership returns error",
@@ -38,7 +39,7 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 				msg:    types.NewMsgBuyMembership("silver", testUser, testTsp),
 				invite: types.NewInvite(testInviteSender, testUser, "silver"),
 			},
-			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot downgrade from Black membership").Error(),
+			wantErr: errorsmod.Wrap(sdkErr.ErrUnauthorized, "cannot downgrade from Black membership").Error(),
 		},
 		{
 			name: "Buying without invite returns error",
@@ -46,7 +47,7 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 				msg:    types.NewMsgBuyMembership("bronze", testUser, testTsp),
 				invite: types.Invite{},
 			},
-			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited").Error(),
+			wantErr: errorsmod.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited").Error(),
 		},
 		{
 			name: "Valid membership allows buying",
@@ -78,7 +79,7 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 				msg:    types.NewMsgBuyMembership("silver", testUser2, testUser),
 				invite: types.NewInvite(testInviteSender, testUser2, "silver"),
 			},
-			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership").Error(),
+			wantErr: errorsmod.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership").Error(),
 		},
 		{
 			name: "Normal user buy membership for himself returns error",
@@ -86,7 +87,7 @@ func Test_msgServer_BuyMembership(t *testing.T) {
 				msg:    types.NewMsgBuyMembership("green", testUser, testUser),
 				invite: types.NewInvite(testInviteSender, testUser, "green"),
 			},
-			wantErr: sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership").Error(),
+			wantErr: errorsmod.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership").Error(),
 		},
 	}
 	for _, tt := range tests {

@@ -17,6 +17,8 @@ import (
 
 	"github.com/cosmos/go-bip39"
 
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cometbft/cometbft/libs/cli"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -116,7 +118,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			}
 			appState, err := json.MarshalIndent(mbm.DefaultGenesis(cdc), "", " ")
 			if err != nil {
-				return errors.Wrap(err, "Failed to marshall default genesis state")
+				return errorsmod.Wrap(err, "Failed to marshall default genesis state")
 			}
 
 			genDoc := &types.GenesisDoc{}
@@ -127,7 +129,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			} else {
 				genDoc, err = types.GenesisDocFromFile(genFile)
 				if err != nil {
-					return errors.Wrap(err, "Failed to read genesis doc from file")
+					return errorsmod.Wrap(err, "Failed to read genesis doc from file")
 				}
 			}
 
@@ -165,7 +167,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			genDoc.Validators = nil
 			genDoc.AppState = appState
 			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
-				return errors.Wrap(err, "Failed to export gensis file")
+				return errorsmod.Wrap(err, "Failed to export gensis file")
 			}
 
 			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)

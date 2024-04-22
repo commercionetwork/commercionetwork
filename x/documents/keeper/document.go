@@ -6,6 +6,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/gofrs/uuid"
 )
 
@@ -13,14 +14,14 @@ import (
 func (keeper Keeper) SaveDocument(ctx sdk.Context, document types.Document) error {
 	// Check the id validity
 	if _, err := uuid.FromString(document.UUID); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document UUID: %s", document.UUID))
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document UUID: %s", document.UUID))
 	}
 
 	store := ctx.KVStore(keeper.storeKey)
 
 	// Check for an existing document
 	if store.Has(getDocumentStoreKey(document.UUID)) {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("document with uuid %s already present", document.UUID))
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("document with uuid %s already present", document.UUID))
 	}
 
 	// Store the document instance

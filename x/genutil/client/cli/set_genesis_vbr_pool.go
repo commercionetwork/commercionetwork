@@ -10,7 +10,7 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -96,7 +96,7 @@ func SetVbrPoolAmount(appState json.RawMessage, coins sdk.Coins) (map[string]jso
 
 	genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)
 	if err != nil {
-		return genState, sdkErrors.Wrap(err, "failed to marshal genesis doc")
+		return genState, errorsmod.Wrap(err, "failed to marshal genesis doc")
 	}
 	genState[vbrTypes.ModuleName] = genesisStateBzVbr
 

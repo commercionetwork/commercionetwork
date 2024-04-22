@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	uuid "github.com/satori/go.uuid"
 
 	"encoding/hex"
@@ -383,44 +384,44 @@ func (doc Document) lengthLimits() error {
 
 func (doc Document) Validate() error {
 	if doc.Sender.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, doc.Sender.String())
+		return errorsmod.Wrap(sdkErr.ErrInvalidAddress, doc.Sender.String())
 	}
 
 	if doc.Recipients.Empty() {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty")
+		return errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty")
 	}
 
 	for _, recipient := range doc.Recipients {
 		if recipient.Empty() {
-			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, recipient.String())
+			return errorsmod.Wrap(sdkErr.ErrInvalidAddress, recipient.String())
 		}
 	}
 
 	if !validateUUID(doc.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
 	}
 
 	err := doc.Metadata.Validate()
 	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 
 	if doc.Checksum != nil {
 		err = doc.Checksum.Validate()
 		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+			return errorsmod.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	} else {
 		errMsg := fmt.Sprintf(
 			"checksum can't be empty",
 		)
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, errMsg)
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, errMsg)
 	}
 
 	if doc.EncryptionData != nil {
 		err = doc.EncryptionData.Validate()
 		if err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+			return errorsmod.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	}
 
@@ -433,7 +434,7 @@ func (doc Document) Validate() error {
 					"%s is a recipient inside the document but not in the encryption data",
 					recipient.String(),
 				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
+				return errorsmod.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 			}
 		}
 
@@ -445,13 +446,13 @@ func (doc Document) Validate() error {
 					"%s is a recipient inside encryption data but not inside the message",
 					encAdd.Recipient.String(),
 				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
+				return errorsmod.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 			}
 		}
 
 		// Check that the `encrypted_data' field name is actually present in doc
 		fNotPresent := func(s string) error {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
+			return errorsmod.Wrap(sdkErr.ErrInvalidRequest,
 				fmt.Sprintf("field \"%s\" not present in document, but marked as encrypted", s),
 			)
 		}
@@ -473,14 +474,14 @@ func (doc Document) Validate() error {
 
 	if doc.DoSign != nil {
 		if doc.Checksum == nil {
-			return sdkErr.Wrap(
+			return errorsmod.Wrap(
 				sdkErr.ErrInvalidRequest,
 				"field \"checksum\" not present in document, but required when using do_sign",
 			)
 		}
 
 		if doc.ContentURI == "" {
-			return sdkErr.Wrap(
+			return errorsmod.Wrap(
 				sdkErr.ErrInvalidRequest,
 				"field \"content_uri\" not present in document, but required when using do_sign",
 			)
@@ -488,7 +489,7 @@ func (doc Document) Validate() error {
 
 		err := doc.DoSign.SdnData.Validate()
 		if err != nil {
-			return sdkErr.Wrap(
+			return errorsmod.Wrap(
 				sdkErr.ErrInvalidRequest,
 				err.Error(),
 			)
@@ -496,7 +497,7 @@ func (doc Document) Validate() error {
 	}
 
 	if err := doc.lengthLimits(); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest,
 			err.Error(),
 		)
 	}

@@ -5,6 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+
 )
 
 // -------------------------
@@ -44,12 +46,12 @@ func (msg *MsgIncrementBlockRewardsPool) GetSignBytes() []byte {
 func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Funder)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid funder address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid funder address (%s)", err)
 	}
 
 	// msg.Amount.IsAnyNegative() is redundant: sdk.Coins are checked to be positive
 	if msg.Amount.IsZero() || msg.Amount.IsAnyNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "You can't transfer a null or negative amount")
+		return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "You can't transfer a null or negative amount")
 	}
 
 	return nil
@@ -93,13 +95,13 @@ func (msg *MsgSetParams) GetSignBytes() []byte {
 func (msg *MsgSetParams) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Government)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address format: %s", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address format: %s", err)
 	}
 
 	params := NewParams(msg.DistrEpochIdentifier, msg.EarnRate)
 
 	if err := params.Validate(); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid params: %s", err))
+		return errorsmod.Wrap(sdkerrors.ErrInvalidType, fmt.Sprintf("invalid params: %s", err))
 	}
 
 	return nil

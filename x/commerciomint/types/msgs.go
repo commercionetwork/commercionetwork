@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errors "github.com/cosmos/cosmos-sdk/types/errors"
 	uuid "github.com/satori/go.uuid"
+	errorsmod "cosmossdk.io/errors"
 )
 
 var _ sdk.Msg = &MsgMintCCC{}
@@ -50,11 +51,11 @@ func (msg *MsgMintCCC) GetSignBytes() []byte {
 func (msg *MsgMintCCC) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Depositor)
 	if err != nil {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor)
+		return errorsmod.Wrap(errors.ErrInvalidAddress, msg.Depositor)
 	}
 
 	if msg.ID == "" {
-		return errors.Wrap(errors.ErrInvalidRequest, "missing position ID")
+		return errorsmod.Wrap(errors.ErrInvalidRequest, "missing position ID")
 	}
 
 	coins := sdk.NewCoins()
@@ -62,7 +63,7 @@ func (msg *MsgMintCCC) ValidateBasic() error {
 		coins = append(coins, *coin)
 	}
 	if !ValidateDeposit(coins) {
-		return errors.Wrap(errors.ErrInvalidCoins, coins.String())
+		return errorsmod.Wrap(errors.ErrInvalidCoins, coins.String())
 	}
 
 	return nil
@@ -107,15 +108,15 @@ func (msg *MsgBurnCCC) GetSignBytes() []byte {
 func (msg *MsgBurnCCC) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
+		return errorsmod.Wrap(errors.ErrInvalidAddress, msg.Signer)
 	}
 
 	if msg.Amount.IsZero() || msg.Amount.IsNegative() || msg.Amount.Denom != CreditsDenom {
-		return errors.Wrap(errors.ErrInvalidRequest, "invalid amount")
+		return errorsmod.Wrap(errors.ErrInvalidRequest, "invalid amount")
 	}
 
 	if _, err := uuid.FromString(msg.ID); err != nil {
-		return errors.Wrap(errors.ErrInvalidRequest, "id must be a well-defined UUID")
+		return errorsmod.Wrap(errors.ErrInvalidRequest, "id must be a well-defined UUID")
 	}
 	return nil
 }
@@ -162,12 +163,12 @@ func (msg *MsgSetParams) GetSignBytes() []byte {
 func (msg *MsgSetParams) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return errors.Wrapf(errors.ErrInvalidAddress, "invalid government address (%s)", err)
+		return errorsmod.Wrapf(errors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
 
 	err = msg.Params.Validate()
 	if err != nil {
-		return errors.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
+		return errorsmod.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
 	}
 
 	return nil

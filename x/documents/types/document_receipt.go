@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -29,23 +30,23 @@ func (receipt DocumentReceipt) Equals(rec DocumentReceipt) bool {
 
 func (receipt DocumentReceipt) Validate() error {
 	if _, err := uuid.FromString(receipt.UUID); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid uuid: %s", receipt.UUID))
+		return errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid uuid: %s", receipt.UUID))
 	}
 
 	if _, err := sdk.AccAddressFromBech32(receipt.Sender); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, receipt.Sender)
+		return errorsmod.Wrap(sdkErr.ErrInvalidAddress, receipt.Sender)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(receipt.Recipient); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, receipt.Recipient)
+		return errorsmod.Wrap(sdkErr.ErrInvalidAddress, receipt.Recipient)
 	}
 
 	if receipt.TxHash == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "transaction hash of sent document cannot be empty")
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, "transaction hash of sent document cannot be empty")
 	}
 
 	if receipt.DocumentUUID == "" {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "document UUID cannot be empty")
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, "document UUID cannot be empty")
 	}
 
 	return nil

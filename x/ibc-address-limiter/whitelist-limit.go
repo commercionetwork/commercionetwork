@@ -6,7 +6,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
@@ -36,7 +36,7 @@ func CheckSenderAuth(ctx sdk.Context, contractKeeper *wasmkeeper.PermissionedKee
 	_, err = contractKeeper.Sudo(ctx, contractAddr, sendPacketMsg)
 
 	if err != nil {
-		return sdkerrors.Wrap(types.ErrUnauthorized, err.Error())
+		return errorsmod.Wrap(types.ErrUnauthorized, err.Error())
 	}
 
 	return nil

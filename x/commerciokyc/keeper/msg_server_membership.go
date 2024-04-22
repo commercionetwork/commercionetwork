@@ -8,6 +8,7 @@ import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 )
 
 const (
@@ -22,29 +23,29 @@ func (k msgServer) BuyMembership(goCtx context.Context, msg *types.MsgBuyMembers
 	msgBuyer, _ := sdk.AccAddressFromBech32(msg.Buyer)
 	invite, found := k.GetInvite(ctx, msgBuyer)
 	if !found {
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited")
+		return &types.MsgBuyMembershipResponse{}, errorsmod.Wrap(sdkErr.ErrUnauthorized, "Cannot buy a membership without being invited")
 	}
 
 	// Verify invite status
 	inviteStatus := types.InviteStatus(invite.Status)
 	if inviteStatus == types.InviteStatusInvalid {
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
+		return &types.MsgBuyMembershipResponse{}, errorsmod.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("invite for account %s has been marked as invalid previously, cannot continue", msg.Buyer))
 	}
 
 	msgTsp, _ := sdk.AccAddressFromBech32(msg.Tsp)
 	if !k.IsTrustedServiceProvider(ctx, msgTsp) {
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership")
+		return &types.MsgBuyMembershipResponse{}, errorsmod.Wrap(sdkErr.ErrUnauthorized, "since you are not a tsp you cannot buy membership")
 	}
 
 	// Forbidden black membership buying
 	if msg.MembershipType == types.MembershipTypeBlack {
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot buy black membership")
+		return &types.MsgBuyMembershipResponse{}, errorsmod.Wrap(sdkErr.ErrUnauthorized, "cannot buy black membership")
 	}
 
 	//Forbidden to downgrade user from black membership
 	buyerMembership, err := k.GetMembership(ctx, msgBuyer)
 	if err == nil && buyerMembership.MembershipType == types.MembershipTypeBlack {
-		return &types.MsgBuyMembershipResponse{}, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot downgrade from Black membership")
+		return &types.MsgBuyMembershipResponse{}, errorsmod.Wrap(sdkErr.ErrUnauthorized, "cannot downgrade from Black membership")
 	}
 
 	membershipPrice := membershipCosts[msg.MembershipType] * 1000000 // Always multiply by one million
@@ -97,7 +98,7 @@ func (k msgServer) RemoveMembership(goCtx context.Context, msg *types.MsgRemoveM
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	if !govAddr.Equals(msg.GetSigners()[0]) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
 		)
 	}
@@ -118,26 +119,26 @@ func (k msgServer) SetMembership(goCtx context.Context, msg *types.MsgSetMembers
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	govAddr := k.GovKeeper.GetGovernmentAddress(ctx)
 	if !govAddr.Equals(msg.GetSigners()[0]) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress,
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownAddress,
 			fmt.Sprintf("%s is government address and %s is not a government address", govAddr.String(), msg.Government),
 		)
 	}
 
 	if !types.IsMembershipTypeValid(msg.NewMembership) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid membership type: %s", msg.NewMembership))
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("invalid membership type: %s", msg.NewMembership))
 	}
 	subscriber, _ := sdk.AccAddressFromBech32(msg.Subscriber)
 
 	invite, err := k.governmentInvitesUser(ctx, subscriber)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("government could not invite user: %s", err.Error()))
+		return nil, errorsmod.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("government could not invite user: %s", err.Error()))
 	}
 
 	expiredAt := k.ComputeExpiryHeight(ctx.BlockTime())
 
 	err = k.AssignMembership(ctx, subscriber, msg.NewMembership, govAddr, expiredAt)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("could not assign membership to user %s: %s", msg.Subscriber, err.Error()),
 		)
 	}

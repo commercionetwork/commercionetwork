@@ -6,6 +6,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
@@ -96,7 +97,7 @@ func TestKeeper_DistributeBlockRewards(t *testing.T) {
 			name:              "Reward not enough funds into pool",
 			pool:              sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 1)},
 			expectedRemaining: sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 1)},
-			expectedError:     sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards"),
+			expectedError:     errorsmod.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards"),
 			expectedValidator: sdk.DecCoins(nil),
 			bonded:            sdk.NewInt(1000000000),
 		},

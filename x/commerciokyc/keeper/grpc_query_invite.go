@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	errorsmod "cosmossdk.io/errors"
 )
 
 func (k Keeper) Invites(c context.Context, req *types.QueryInvitesRequest) (*types.QueryInvitesResponse, error) {
@@ -40,7 +41,7 @@ func (k Keeper) Invites(c context.Context, req *types.QueryInvitesRequest) (*typ
 func (k Keeper) Invite(c context.Context, req *types.QueryInviteRequest) (*types.QueryInviteResponse, error) {
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, req.Address)
+		return nil, errorsmod.Wrap(sdkErr.ErrInvalidAddress, req.Address)
 	}
 	// Search the invite
 	ctx := sdk.UnwrapSDKContext(c)

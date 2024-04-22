@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
@@ -169,19 +170,19 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 	residualAmount := sdk.NewInt(0)
 	if !found {
 		msg := fmt.Sprintf("position for user with address %s and id %s does not exist", user, id)
-		return residualAmount, sdkErr.Wrap(sdkErr.ErrUnknownRequest, msg)
+		return residualAmount, errorsmod.Wrap(sdkErr.ErrUnknownRequest, msg)
 	}
 
 	// Control if position is almost in freezing period
 	freezePeriod := k.GetFreezePeriod(ctx)
 	createdAt := *pos.CreatedAt // TODO CHECK FORMAT AND ERROR
 	if ctx.BlockTime().Sub(createdAt) <= freezePeriod {
-		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
+		return residualAmount, errorsmod.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period")
 	}
 
 	// Control if tokens requested to burn are more than initially requested
 	if pos.Credits.Amount.Sub(burnAmount.Amount).IsNegative() {
-		return residualAmount, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn more tokens that those initially requested")
+		return residualAmount, errorsmod.Wrap(sdkErr.ErrInvalidRequest, "cannot burn more tokens that those initially requested")
 	}
 
 	shouldDeletePos := pos.Credits.Amount.Sub(burnAmount.Amount).IsZero()
@@ -195,12 +196,12 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 	// 1.
 	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, user, types.ModuleName, sdk.NewCoins(burnAmount))
 	if err != nil {
-		return residualAmount, sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "cannot send tokens from sender to module, %s", err.Error())
+		return residualAmount, errorsmod.Wrapf(sdkErr.ErrInvalidRequest, "cannot send tokens from sender to module, %s", err.Error())
 	}
 
 	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(burnAmount))
 	if err != nil {
-		return residualAmount, sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "cannot burn coins, %s", err)
+		return residualAmount, errorsmod.Wrapf(sdkErr.ErrInvalidRequest, "cannot burn coins, %s", err)
 	}
 
 	// 2.
@@ -218,7 +219,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 		collateralAmount,
 	)))
 	if err != nil {
-		return residualAmount, sdkErr.Wrapf(sdkErr.ErrInvalidRequest, "cannot send collateral from module to sender, %s", err.Error())
+		return residualAmount, errorsmod.Wrapf(sdkErr.ErrInvalidRequest, "cannot send collateral from module to sender, %s", err.Error())
 	}
 
 	// 4.

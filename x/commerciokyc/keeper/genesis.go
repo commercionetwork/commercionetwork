@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 )
 
 // InitGenesis sets commerciokyc information for genesis.
@@ -48,10 +49,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
 		// Need use sigle keeper methods in AssignMembership to assign membership avoid expired issue
 		if !types.IsMembershipTypeValid(membership.MembershipType) {
-			panic(sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membership.MembershipType)))
+			panic(errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membership.MembershipType)))
 		}
 		if k.IsTrustedServiceProvider(ctx, mOwner) && membership.MembershipType != types.MembershipTypeBlack {
-			panic(sdkErr.Wrap(sdkErr.ErrUnauthorized,
+			panic(errorsmod.Wrap(sdkErr.ErrUnauthorized,
 				fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", mOwner),
 			))
 		}
@@ -61,7 +62,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		store := ctx.KVStore(k.storeKey)
 		staddr := k.storageForAddr(mOwner)
 		if store.Has(staddr) {
-			panic(sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			panic(errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"cannot add membership \"%s\" for address %s: user already has a membership",
 					membership.MembershipType,

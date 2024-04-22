@@ -8,6 +8,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 )
 
 const (
@@ -68,7 +69,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 	var amountCoins sdk.Coins
 	for _, coin := range amount {
 		if coin.Denom != stakeDenom { // TODO change with constant
-			return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf("deposit into membership pool can only be expressed in %s", stakeDenom))
+			return errorsmod.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf("deposit into membership pool can only be expressed in %s", stakeDenom))
 		}
 		amountCoins = append(amountCoins, coin)
 	}

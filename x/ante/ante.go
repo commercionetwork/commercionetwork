@@ -8,6 +8,7 @@ import (
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	storetypes "cosmossdk.io/store/types"
@@ -156,7 +157,7 @@ func checkMinimumFees(
 	// Extract amount of stable coin from fees
 	feeTx, ok := stdTx.(sdk.FeeTx)
 	if !ok {
-		return sdkErr.Wrap(sdkErr.ErrTxDecode, "Tx must be a FeeTx")
+		return errorsmod.Wrap(sdkErr.ErrTxDecode, "Tx must be a FeeTx")
 	}
 	fiatAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
 	// Check if amount of stable coin is enough
@@ -178,7 +179,7 @@ func checkMinimumFees(
 	}
 
 	msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s, or %s stake denom amount, got %s", stableRequiredQty, fiatAmount, comRequiredQty, comAmount)
-	return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
+	return errorsmod.Wrap(sdkErr.ErrInsufficientFee, msg)
 }
 
 // setGasMeter returns a new context with a gas meter set from a given context.

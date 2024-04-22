@@ -9,6 +9,7 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 )
@@ -22,7 +23,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryResolveIdentityHistory:
 			return queryGetIdentityHistoryOfAddress(ctx, path[1:], k, legacyQuerierCdc)
 		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint", types.ModuleName))
 		}
 	}
 }
@@ -31,12 +32,12 @@ func queryGetLastIdentityOfAddress(ctx sdk.Context, path []string, k Keeper, leg
 
 	identity, err := k.GetLastIdentityOfAddress(ctx, path[0])
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownAddress, err.Error())
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownAddress, err.Error())
 	}
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, identity)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -48,7 +49,7 @@ func queryGetIdentityHistoryOfAddress(ctx sdk.Context, path []string, k Keeper, 
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, identities)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil

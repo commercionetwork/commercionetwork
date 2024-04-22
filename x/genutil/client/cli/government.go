@@ -15,7 +15,8 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+
 
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -81,7 +82,7 @@ func SetGovernmentAddress(clientCtx client.Context, appState json.RawMessage, ad
 
 	genesisStateBzGovernment, err := tmjson.Marshal(genStateGovernment)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal genesis doc")
+		return nil, errorsmod.Wrap(err, "failed to marshal genesis doc")
 	}
 	genState[govTypes.ModuleName] = genesisStateBzGovernment
 
@@ -98,7 +99,7 @@ func SetGovernmentAddress(clientCtx client.Context, appState json.RawMessage, ad
 
 	genesisStateBzMemberships, err := tmjson.Marshal(genStateMemberships)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal genesis doc")
+		return nil, errorsmod.Wrap(err, "failed to marshal genesis doc")
 	}
 	genState[commerciokycTypes.ModuleName] = genesisStateBzMemberships
 

@@ -10,6 +10,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -212,7 +213,7 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		_, err := k.RemoveCCC(ctx, testEtpOwner, "notExists", *testEtp.Credits)
 		errMsg := fmt.Sprintf("position for user with address %s and id %s does not exist", testEtpOwner, "notExists")
 		require.Error(t, err)
-		require.Equal(t, sdkErr.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
+		require.Equal(t, errorsmod.Wrap(sdkErr.ErrUnknownRequest, errMsg).Error(), err.Error())
 	})
 
 	t.Run("Existing ETP can't be modified before freeze period passes", func(t *testing.T) {
@@ -229,7 +230,7 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.Error(t, err)
-		require.EqualError(t, err, sdkErr.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period").Error())
+		require.EqualError(t, err, errorsmod.Wrap(sdkErr.ErrInvalidRequest, "cannot burn position yet in the freeze period").Error())
 	})
 
 	t.Run("Existing ETP but tokens requested to burn are more than initially requested", func(t *testing.T) {

@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -44,7 +45,7 @@ func (k Keeper) SentDocuments(c context.Context, req *types.QueryGetSentDocument
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
 	}
 	documentStore := prefix.NewStore(store, getSentDocumentsIdsStoreKey(userAddress))
 
@@ -83,7 +84,7 @@ func (k Keeper) UUIDDocuments(c context.Context, req *types.QueryGetUUIDDocument
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
 	}
 	documentStore := prefix.NewStore(store, getSentDocumentsIdsStoreKey(userAddress))
 
@@ -117,7 +118,7 @@ func (k Keeper) ReceivedDocument(c context.Context, req *types.QueryGetReceivedD
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
 	}
 	documentStore := prefix.NewStore(store, getReceivedDocumentsIdsStoreKey(userAddress))
 
@@ -152,7 +153,7 @@ func (k Keeper) SentDocumentsReceipts(c context.Context, req *types.QueryGetSent
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", e))
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", e))
 	}
 	documentStore := prefix.NewStore(store, getSentReceiptsIdsStoreKey(userAddress))
 
@@ -187,7 +188,7 @@ func (k Keeper) ReceivedDocumentsReceipts(c context.Context, req *types.QueryGet
 	store := ctx.KVStore(k.storeKey)
 	userAddress, e := sdk.AccAddressFromBech32(req.Address)
 	if e != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", req.Address))
 	}
 	documentStore := prefix.NewStore(store, getReceivedReceiptsIdsStoreKey(userAddress))
 

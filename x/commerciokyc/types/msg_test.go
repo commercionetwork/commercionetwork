@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	errorsmod "cosmossdk.io/errors"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,12 +46,12 @@ func TestMsgInviteUser_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing recipient returns error",
 			msg:   missRecipient,
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address:  (empty address string is not allowed)"),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid recipient address:  (empty address string is not allowed)"),
 		},
 		{
 			name:  "Missing sender returns error",
 			msg:   missSender,
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid sender address:  (empty address string is not allowed)"),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid sender address:  (empty address string is not allowed)"),
 		},
 	}
 
@@ -121,12 +122,12 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing deposit returns error",
 			msg:   types.MsgDepositIntoLiquidityPool{Depositor: "", Amount: amount},
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid depositor address: "),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid depositor address: "),
 		},
 		{
 			name:  "Empty deposit amount returns error",
 			msg:   types.MsgDepositIntoLiquidityPool{Depositor: user.String(), Amount: nil},
-			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: "),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: "),
 		},
 		{
 			name: "Negative deposit amount returns error",
@@ -134,7 +135,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 				Depositor: user.String(),
 				Amount:    sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(-100)}},
 			},
-			error: sdkErr.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: -100uatom"),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: -100uatom"),
 		},
 	}
 
@@ -204,12 +205,12 @@ func TestMsgAddTsp_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing government returns error",
 			msg:   types.MsgAddTsp{Government: "", Tsp: tsp.String()},
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid government address: "),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid government address: "),
 		},
 		{
 			name:  "Missing tsp returns error",
 			msg:   types.MsgAddTsp{Government: government.String(), Tsp: ""},
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid TSP address: "),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid TSP address: "),
 		},
 	}
 
@@ -276,12 +277,12 @@ func TestMsgRemoveTsp_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing government returns error",
 			msg:   types.MsgRemoveTsp{Government: "", Tsp: tsp.String()},
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid government address: "),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid government address: "),
 		},
 		{
 			name:  "Missing tsp returns error",
 			msg:   types.MsgRemoveTsp{Government: government.String(), Tsp: ""},
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid TSP address: "),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid TSP address: "),
 		},
 	}
 
@@ -360,17 +361,17 @@ func TestMsgBuyMembership_ValidateBasic(t *testing.T) {
 		{
 			name:  "Missing buyer returns error",
 			msg:   *types.NewMsgBuyMembership(TestMembershipType, nil, testTsp),
-			error: sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Invalid buyer address: "),
+			error: errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Invalid buyer address: "),
 		},
 		{
 			name:  "Missing membership returns error",
 			msg:   *types.NewMsgBuyMembership("", testBuyer, testTsp),
-			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: "),
+			error: errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: "),
 		},
 		{
 			name:  "Invalid membership returns error",
 			msg:   *types.NewMsgBuyMembership("grn", testBuyer, testTsp),
-			error: sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
+			error: errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 	}
 

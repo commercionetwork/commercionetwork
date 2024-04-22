@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -66,36 +67,36 @@ func (doc Document) lengthLimits() error {
 // fails.
 func (doc Document) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(doc.Sender); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, doc.Sender)
+		return errorsmod.Wrap(sdkErr.ErrInvalidAddress, doc.Sender)
 	}
 
 	if len(doc.Recipients) == 0 {
-		return sdkErr.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty")
+		return errorsmod.Wrap(sdkErr.ErrInvalidAddress, "Recipients cannot be empty")
 	}
 
 	for _, recipient := range doc.Recipients {
 		if _, err := sdk.AccAddressFromBech32(recipient); err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidAddress, recipient)
+			return errorsmod.Wrap(sdkErr.ErrInvalidAddress, recipient)
 		}
 	}
 
 	if !validateUUID(doc.UUID) {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("Invalid document UUID: %s", doc.UUID))
 	}
 
 	if err := doc.Metadata.Validate(); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 	}
 
 	if doc.Checksum != nil {
 		if err := doc.Checksum.Validate(); err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+			return errorsmod.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 	}
 
 	if doc.EncryptionData != nil {
 		if err := doc.EncryptionData.Validate(); err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+			return errorsmod.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
 		// check that each document recipient have some encrypted data
@@ -106,7 +107,7 @@ func (doc Document) Validate() error {
 					"%s is a recipient inside the document but not in the encryption data",
 					recipient,
 				)
-				return sdkErr.Wrap(sdkErr.ErrInvalidAddress, errMsg)
+				return errorsmod.Wrap(sdkErr.ErrInvalidAddress, errMsg)
 			}
 		}
 
@@ -118,7 +119,7 @@ func (doc Document) Validate() error {
 		}
 		for _, encAdd := range doc.EncryptionData.Keys {
 			if _, found := recipients[encAdd.Recipient]; !found {
-				return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("the recipient %s is inside encryption data but not along the recipients", encAdd.Recipient))
+				return errorsmod.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("the recipient %s is inside encryption data but not along the recipients", encAdd.Recipient))
 			}
 		}
 
@@ -126,15 +127,15 @@ func (doc Document) Validate() error {
 			switch fieldName {
 			case "content_uri":
 				if doc.ContentURI == "" {
-					return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "field ContentUri marked as encrypted but not present in document")
+					return errorsmod.Wrap(sdkErr.ErrInvalidRequest, "field ContentUri marked as encrypted but not present in document")
 				}
 			// case "metadata.content_uri":
 			// 	if doc.Metadata == nil || doc.Metadata.ContentURI == "" {
-			// 		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "field Metadata.ContentURI marked as encrypted but not present in document")
+			// 		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, "field Metadata.ContentURI marked as encrypted but not present in document")
 			// 	}
 			case "metadata.schema.uri":
 				if doc.Metadata == nil || doc.Metadata.Schema == nil || doc.Metadata.Schema.URI == "" {
-					return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "field Metadata.Schema.URI marked as encrypted but not present in document")
+					return errorsmod.Wrap(sdkErr.ErrInvalidRequest, "field Metadata.Schema.URI marked as encrypted but not present in document")
 				}
 			}
 		}
@@ -143,28 +144,28 @@ func (doc Document) Validate() error {
 
 	if doc.DoSign != nil {
 		if doc.Checksum == nil {
-			return sdkErr.Wrap(
+			return errorsmod.Wrap(
 				sdkErr.ErrInvalidRequest,
 				"field \"checksum\" not present in document, but required when using do_sign",
 			)
 		}
 
 		if doc.ContentURI == "" {
-			return sdkErr.Wrap(
+			return errorsmod.Wrap(
 				sdkErr.ErrInvalidRequest,
 				"field \"content_uri\" not present in document, but required when using do_sign",
 			)
 		}
 
 		if err := SdnData(doc.DoSign.SdnData).Validate(); err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
+			return errorsmod.Wrap(sdkErr.ErrInvalidRequest,
 				err.Error(),
 			)
 		}
 	}
 
 	if err := doc.lengthLimits(); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest,
+		return errorsmod.Wrap(sdkErr.ErrInvalidRequest,
 			err.Error(),
 		)
 	}

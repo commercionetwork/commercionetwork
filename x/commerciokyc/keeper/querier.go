@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 )
 
 // NewQuerier returns a new sdk.Keeper instance.
@@ -28,7 +29,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryGetTspMemberships:
 			return queryGetTspMemberships(ctx, path[1:], k, legacyQuerierCdc)
 		default:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])
+			return nil, errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])
 		}
 	}
 }
@@ -39,7 +40,7 @@ func queryGetPoolFunds(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQ
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, poolFunds)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+		return nil, errorsmod.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return bz, nil
 }
@@ -54,7 +55,7 @@ func queryGetInvites(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 
 	bz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, invites)
 	if err2 != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -64,17 +65,17 @@ func queryGetInvites(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 func queryGetInvite(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	address, err := sdk.AccAddressFromBech32(path[0])
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, path[0])
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, path[0])
 	}
 	// Search the membership
 	invite, found := keeper.GetInvite(ctx, address)
 	if !found {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "Could not find invitation")
+		return nil, errorsmod.Wrap(sdkerrors.ErrNotFound, "Could not find invitation")
 	}
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, invite)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -86,7 +87,7 @@ func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, signers)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -96,7 +97,7 @@ func queryGetSigners(ctx sdk.Context, _ []string, keeper Keeper, legacyQuerierCd
 func queryGetMembership(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	address, err := sdk.AccAddressFromBech32(path[0])
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, path[0])
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, path[0])
 	}
 	// Search the membership
 	membership, err := keeper.GetMembership(ctx, address)
@@ -106,7 +107,7 @@ func queryGetMembership(ctx sdk.Context, path []string, keeper Keeper, legacyQue
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, membership)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -120,7 +121,7 @@ func queryGetMemberships(ctx sdk.Context, _ []string, keeper Keeper, legacyQueri
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, memberships)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil
@@ -131,11 +132,11 @@ func queryGetMemberships(ctx sdk.Context, _ []string, keeper Keeper, legacyQueri
 func queryGetTspMemberships(ctx sdk.Context, path []string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	tsp, err := sdk.AccAddressFromBech32(path[0])
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, path[0])
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, path[0])
 	}
 
 	if !keeper.IsTrustedServiceProvider(ctx, tsp) {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "Requested address is not a valid tsp")
+		return nil, errorsmod.Wrap(sdkerrors.ErrNotFound, "Requested address is not a valid tsp")
 	}
 
 	// Search the membership
@@ -143,7 +144,7 @@ func queryGetTspMemberships(ctx sdk.Context, path []string, keeper Keeper, legac
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, memberships)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return bz, nil

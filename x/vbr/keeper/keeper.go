@@ -5,10 +5,12 @@ import (
 
 	"cosmossdk.io/log"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "cosmossdk.io/store/types"
 
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -27,8 +29,8 @@ import (
 type (
 	Keeper struct {
 		cdc           codec.Codec
-		storeKey      sdk.StoreKey
-		memKey        sdk.StoreKey
+		storeKey      storetypes.StoreKey
+		memKey        storetypes.StoreKey
 		distKeeper    distKeeper.Keeper
 		bankKeeper    bankKeeper.Keeper
 		accountKeeper accountKeeper.AccountKeeper
@@ -41,8 +43,8 @@ type (
 
 func NewKeeper(
 	cdc codec.Codec,
-	storeKey sdk.StoreKey,
-	memKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
+	memKey storetypes.StoreKey,
 	distKeeper distKeeper.Keeper,
 	bankKeeper bankKeeper.Keeper,
 	accountKeeper accountKeeper.AccountKeeper,
@@ -179,7 +181,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator stakingTypes.V
 		}
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))
 	} else {
-		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
+		return errorsmod.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
 	}
 
 	return nil

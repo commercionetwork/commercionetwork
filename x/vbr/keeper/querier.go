@@ -9,6 +9,7 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
@@ -21,7 +22,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryParams:
 			return queryParams(ctx, k, legacyQuerierCdc)
 		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint: %s", types.ModuleName, path[0]))
+			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Unknown %s query endpoint: %s", types.ModuleName, path[0]))
 		}
 	}
 }
@@ -32,7 +33,7 @@ func queryGetBlockRewardsPoolFunds(ctx sdk.Context, _ []string, k Keeper, legacy
 
 	fundsBz, err2 := codec.MarshalJSONIndent(legacyQuerierCdc, funds)
 	if err2 != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return fundsBz, nil
@@ -43,7 +44,7 @@ func queryParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino)
 
 	paramsBz, err := codec.MarshalJSONIndent(legacyQuerierCdc, params)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
+		return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Could not marshal result to JSON")
 	}
 
 	return paramsBz, nil

@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 )
 
 // GetSigners implements "github.com/cosmos/cosmos-sdk/types".Msg
@@ -34,7 +35,7 @@ func (msg *MsgSetIdentity) Type() string {
 func (msg *MsgSetIdentity) ValidateBasic() error {
 
 	if msg == nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "msgSetDidDocument not defined")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "msgSetDidDocument not defined")
 	}
 
 	if err := msg.DidDocument.Validate(); err != nil {

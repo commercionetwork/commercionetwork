@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
+	errorsmod "cosmossdk.io/errors"
 )
 
 func TestKeeper_AssignMembership(t *testing.T) {
@@ -29,7 +30,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			user:           testUser,
 			tsp:            testTsp,
 			expiredAt:      testExpiration,
-			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
+			error:          errorsmod.Wrap(sdkErr.ErrUnknownRequest, "Invalid membership type: grn"),
 		},
 		{
 			name:           "Membership with invalid expired date",
@@ -37,7 +38,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			tsp:            testTsp,
 			expiredAt:      testExpirationNegative,
 			membershipType: types.MembershipTypeBronze,
-			error:          sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", testExpirationNegative)),
+			error:          errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", testExpirationNegative)),
 		},
 		/*{
 			name:               "Invalid tsp",
@@ -70,7 +71,7 @@ func TestKeeper_AssignMembership(t *testing.T) {
 			expiredAt:          testExpiration,
 			existingMembership: types.MembershipTypeBlack,
 			membershipType:     types.MembershipTypeGold,
-			error:              sdkErr.Wrap(sdkErr.ErrUnauthorized, "account \""+testUser.String()+"\" is a Trust Service Provider: remove from tsps list before"),
+			error:              errorsmod.Wrap(sdkErr.ErrUnauthorized, "account \""+testUser.String()+"\" is a Trust Service Provider: remove from tsps list before"),
 		},
 		/*{
 			name:               "Assign \"none\" membership type to delete membership",
@@ -285,7 +286,7 @@ func TestKeeper_GetMembership(t *testing.T) {
 			user:       testUser,
 			tsp:        testTsp,
 			expiration: testExpiration,
-			expectedError: sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			expectedError: errorsmod.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf("membership not found for user \"%s\"", testUser.String()),
 			),
 		},
