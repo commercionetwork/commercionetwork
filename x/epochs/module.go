@@ -189,8 +189,10 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // BeginBlock executes all ABCI BeginBlock logic respective to the capability module.
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
+func (am AppModule) BeginBlock(context.Context) error {
 	BeginBlocker(ctx, am.keeper)
+	
+	return nil
 }
 
 // EndBlock executes all ABCI EndBlock logic respective to the capability module. It

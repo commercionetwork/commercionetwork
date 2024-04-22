@@ -10,9 +10,12 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "cosmossdk.io/store/types"
+
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	//authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authsigning "cosmossdk.io/x/tx/signing"
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 
 	//"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -36,13 +39,13 @@ func NewAnteHandler(
 	govKeeper government.Keeper,
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
-	signModeHandler authsigning.SignModeHandler,
+	signModeHandler *authsigning.HandlerMap,
 	stakeDenom string,
 	stableCreditsDemon string,
 	feegrantKeeper cosmosante.FeegrantKeeper,
 	ibcKeeper *ibcKeeper.Keeper,
 	wasmConfig *wasmTypes.WasmConfig,
-	txCounterStoreKey sdk.StoreKey,
+	txCounterStoreKey storetypes.StoreKey,
 ) sdk.AnteHandler {
 	// TODO: add check for nil
 	/*

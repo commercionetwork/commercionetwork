@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
-	"time"
+	//"strings"
+	//"time"
 	"encoding/json"
 
 	"github.com/spf13/cast"
@@ -149,7 +149,7 @@ import (
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v8/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
 	// ------------------------------------------
@@ -212,30 +212,30 @@ var (
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
 // produce a list of enabled proposals to pass into wasmd app.
-func GetEnabledProposals() []wasm.ProposalType {
-	if EnableSpecificProposals == "" {
-		if ProposalsEnabled == "true" {
-			return wasm.EnableAllProposals
-		}
-		return wasm.DisableAllProposals
-	}
-	chunks := strings.Split(EnableSpecificProposals, ",")
-	proposals, err := wasm.ConvertToProposals(chunks)
-	if err != nil {
-		panic(err)
-	}
-	return proposals
-}
+// func GetEnabledProposals() []wasm.ProposalType {
+// 	if EnableSpecificProposals == "" {
+// 		if ProposalsEnabled == "true" {
+// 			return wasm.EnableAllProposals
+// 		}
+// 		return wasm.DisableAllProposals
+// 	}
+// 	chunks := strings.Split(EnableSpecificProposals, ",")
+// 	proposals, err := wasm.ConvertToProposals(chunks)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	return proposals
+// }
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
 
-	govProposalHandlers = wasmclient.ProposalHandlers
+	//govProposalHandlers = wasmclient.ProposalHandlers
 	govProposalHandlers = append(govProposalHandlers,
 		paramsclient.ProposalHandler,
-		distrclient.ProposalHandler,
-		upgradeclient.ProposalHandler,
-		upgradeclient.CancelProposalHandler,
+		// distrclient.ProposalHandler,
+		// upgradeclient.ProposalHandler,
+		// upgradeclient.CancelProposalHandler,
 	)
 
 	return govProposalHandlers
@@ -292,7 +292,7 @@ var (
 		documentstypes.ModuleName:        nil,
 		didTypes.ModuleName:              nil,
 		ibctransfertypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
-		wasm.ModuleName:                  {authtypes.Burner},
+		wasmtypes.ModuleName:             {authtypes.Burner},
 	}
 )
 
@@ -343,7 +343,7 @@ type App struct {
 	EvidenceKeeper   evidencekeeper.Keeper
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	TransferKeeper   ibctransferkeeper.Keeper
-	WasmKeeper       wasm.Keeper
+	WasmKeeper       wasmkeeper.Keeper
 	ContractKeeper   *wasmkeeper.PermissionedKeeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -396,8 +396,8 @@ func New(
 	invCheckPeriod uint,
 	encodingConfig appparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
-	enabledProposals []wasm.ProposalType,
-	wasmOpts []wasm.Option,
+	enabledProposals []wasmtypes.ProposalType,
+	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
 
@@ -421,14 +421,14 @@ func New(
 		slashingtypes.StoreKey,
 		govtypes.StoreKey,
 		paramstypes.StoreKey,
-		ibchost.StoreKey,
+		ibcexported.StoreKey,
 		upgradetypes.StoreKey,
 		evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey,
 		capabilitytypes.StoreKey,
 		feegrant.StoreKey,
 		authzkeeper.StoreKey,
-		wasm.StoreKey,
+		wasmtypes.StoreKey,
 		vbrmoduletypes.StoreKey,
 		didTypes.StoreKey,
 		commerciokycTypes.StoreKey,
@@ -466,9 +466,9 @@ func New(
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
 
 	// grant capabilities for the ibc and ibc-transfer modules
-	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
+	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
+	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
 
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
@@ -560,11 +560,13 @@ func New(
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
-		keys[ibchost.StoreKey],
-		app.GetSubspace(ibchost.ModuleName),
+		keys[ibcexported.StoreKey],
+		app.GetSubspace(ibcexported.ModuleName),
 		app.StakingKeeper,
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+
 	)
 	app.WireICS20PreWasmKeeper(appCodec, bApp)
 
@@ -574,9 +576,9 @@ func New(
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
-		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
-		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		//AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
+		//AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
+		AddRoute(ibcexported.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govConfig := govtypes.DefaultConfig()
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -666,20 +668,20 @@ func New(
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
 	}
-	supportedFeatures := "iterator,staking,stargate"
+	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3,cosmwasm_1_4"
 
-	wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(wasmkeeper.HexIBCPortNameGenerator{}))
+	//wasmOpts = append(wasmOpts, wasmkeeper.WithCustomIBCPortNameGenerator(wasmkeeper.HexIBCPortNameGenerator{}))
 
-	app.WasmKeeper = wasm.NewKeeper(
+	app.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
-		keys[wasm.StoreKey],
-		app.GetSubspace(wasm.ModuleName),
+		runtime.NewKVStoreService(keys[wasmtypes.StoreKey]),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
-		app.DistrKeeper,
+		distrkeeper.NewQuerier(app.DistrKeeper),
+		app.AddressLimitingICS4Wrapper,
 		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.PortKeeper,
 		scopedWasmKeeper,
 		app.TransferKeeper,
 		app.MsgServiceRouter(),
@@ -687,6 +689,7 @@ func New(
 		wasmDir,
 		wasmConfig,
 		supportedFeatures,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		wasmOpts...,
 	)
 	// Pass the contract keeper to all the structs (generally ICS4Wrappers for ibc middlewares) that need it
@@ -694,13 +697,13 @@ func New(
 	app.AddressLimitingICS4Wrapper.ContractKeeper = app.ContractKeeper
 
 	// wire up x/wasm to IBC
-	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
+	ibcRouter.AddRoute(wasmtypes.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// The gov proposal types can be individually enabled
-	if len(enabledProposals) != 0 {
-		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, enabledProposals))
-	}
+	// if len(enabledProposals) != 0 {
+	// 	govRouter.AddRoute(wasmtypes.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, enabledProposals))
+	// }
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, runtime.NewKVStoreService(keys[govtypes.StoreKey]), app.AccountKeeper, app.BankKeeper,
 		app.StakingKeeper, app.DistrKeeper, app.MsgServiceRouter(), govConfig, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -744,7 +747,7 @@ func New(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		ibc.NewAppModule(app.IBCKeeper),
 		//wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		params.NewAppModule(app.ParamsKeeper),
 		app.RawIcs20TransferAppModule,
 		// custoum modules
@@ -774,13 +777,13 @@ func New(
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
 		stakingtypes.ModuleName,
-		ibchost.ModuleName,
+		ibcexported.ModuleName,
 		govtypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		crisistypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
-		wasm.ModuleName,
+		wasmtypes.ModuleName,
 		genutiltypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
@@ -809,7 +812,7 @@ func New(
 		evidencetypes.ModuleName,
 		authz.ModuleName,
 		stakingtypes.ModuleName,
-		ibchost.ModuleName,
+		ibcexported.ModuleName,
 		govtypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		crisistypes.ModuleName,
@@ -827,7 +830,7 @@ func New(
 		vbrmoduletypes.ModuleName,
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
-		wasm.ModuleName,
+		wasmtypes.ModuleName,
 		ibcaddresslimittypes.ModuleName,
 	)
 
@@ -846,7 +849,7 @@ func New(
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		crisistypes.ModuleName,
-		ibchost.ModuleName, // Required if your application uses the localhost client (opens new window) to connect two different modules from the same chain
+		ibcexported.ModuleName, // Required if your application uses the localhost client (opens new window) to connect two different modules from the same chain
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -862,7 +865,7 @@ func New(
 		documentstypes.ModuleName,
 		epochstypes.ModuleName,
 		authz.ModuleName,
-		wasm.ModuleName,
+		wasmtypes.ModuleName,
 		ibcaddresslimittypes.ModuleName,
 	)
 
@@ -895,7 +898,7 @@ func New(
 			app.FeeGrantKeeper,
 			app.IBCKeeper,
 			&wasmConfig,
-			keys[wasm.StoreKey],
+			keys[wasmtypes.StoreKey],
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
@@ -910,105 +913,105 @@ func New(
 		},
 	)*/
 
-	upgradeName := "v4.0.0"
-	app.UpgradeKeeper.SetUpgradeHandler(
-		upgradeName,
-		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			// Update modules params
-			// Update gov params
-			app.GovKeeper.SetVotingParams(ctx, govtypes.NewVotingParams(time.Hour*24))
-			app.GovKeeper.SetDepositParams(ctx, govtypes.NewDepositParams(sdk.NewCoins(sdk.NewCoin(DefaultBondDenom, sdk.NewInt(5000000000))), time.Hour*48))
+	// upgradeName := "v4.0.0"
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	upgradeName,
+	// 	func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	// 		// Update modules params
+	// 		// Update gov params
+	// 		app.GovKeeper.SetVotingParams(ctx, govtypes.NewVotingParams(time.Hour*24))
+	// 		app.GovKeeper.SetDepositParams(ctx, govtypes.NewDepositParams(sdk.NewCoins(sdk.NewCoin(DefaultBondDenom, sdk.NewInt(5000000000))), time.Hour*48))
 
-			// Update wasm params
-			wasmParams := wasmtypes.DefaultParams()
-			wasmParams.CodeUploadAccess.Permission = wasmtypes.AccessTypeOnlyAddress
-			wasmParams.CodeUploadAccess.Address = app.GovernmentKeeper.GetGovernment300Address(ctx).String()
-			app.WasmKeeper.SetParams(ctx, wasmParams)
+	// 		// Update wasm params
+	// 		wasmParams := wasmtypes.DefaultParams()
+	// 		wasmParams.CodeUploadAccess.Permission = wasmtypes.AccessTypeOnlyAddress
+	// 		wasmParams.CodeUploadAccess.Address = app.GovernmentKeeper.GetGovernment300Address(ctx).String()
+	// 		app.WasmKeeper.SetParams(ctx, wasmParams)
 
-			// Update slashing params
-			slashingParams := slashingtypes.NewParams(
-				20000,
-				sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
-				time.Minute*10,
-				sdk.NewDecFromIntWithPrec(sdk.NewInt(1), 2),
-				sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
-			)
-			app.SlashingKeeper.SetParams(ctx, slashingParams)
+	// 		// Update slashing params
+	// 		slashingParams := slashingtypes.NewParams(
+	// 			20000,
+	// 			sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+	// 			time.Minute*10,
+	// 			sdk.NewDecFromIntWithPrec(sdk.NewInt(1), 2),
+	// 			sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+	// 		)
+	// 		app.SlashingKeeper.SetParams(ctx, slashingParams)
 
-			fromVM := make(map[string]uint64)
-			for moduleName := range app.mm.Modules {
-				fromVM[moduleName] = 1
-			}
+	// 		fromVM := make(map[string]uint64)
+	// 		for moduleName := range app.mm.Modules {
+	// 			fromVM[moduleName] = 1
+	// 		}
 
-			delete(fromVM, "ibc") // Force delete ibc reference
+	// 		delete(fromVM, "ibc") // Force delete ibc reference
 
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
+	// 		return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+	// 	},
+	// )
 
-	upgradeNameV420 := "v4.2.0"
-	app.UpgradeKeeper.SetUpgradeHandler(
-		upgradeNameV420,
-		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			return vm, nil
-		},
-	)
+	// upgradeNameV420 := "v4.2.0"
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	upgradeNameV420,
+	// 	func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	// 		return vm, nil
+	// 	},
+	// )
 
-	upgradeNameV5 := "v5.0.0"
-	app.UpgradeKeeper.SetUpgradeHandler(
-		upgradeNameV5,
-		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			return vm, nil
-		},
-	)
+	// upgradeNameV5 := "v5.0.0"
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	upgradeNameV5,
+	// 	func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	// 		return vm, nil
+	// 	},
+	// )
 
-	upgradeNameV51 := "v5.1.0"
-	app.UpgradeKeeper.SetUpgradeHandler(
-		upgradeNameV51,
-		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			return vm, nil
-		},
-	)
+	// upgradeNameV51 := "v5.1.0"
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	upgradeNameV51,
+	// 	func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	// 		return vm, nil
+	// 	},
+	// )
 
-	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
-	if err != nil {
-		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
-	}
+	// upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	// if err != nil {
+	// 	panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
+	// }
 
-	// Setup store loader
-	if upgradeInfo.Name == upgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{authz.ModuleName, feegrant.ModuleName},
-		}
+	// // Setup store loader
+	// if upgradeInfo.Name == upgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	// 	storeUpgrades := storetypes.StoreUpgrades{
+	// 		Added: []string{authz.ModuleName, feegrant.ModuleName},
+	// 	}
 
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
-	}
+	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	// }
 
-	if upgradeInfo.Name == upgradeNameV420 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgradesV4 := storetypes.StoreUpgrades{}
+	// if upgradeInfo.Name == upgradeNameV420 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	// 	storeUpgradesV4 := storetypes.StoreUpgrades{}
 
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV4))
-	}
+	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV4))
+	// }
 
-	if upgradeInfo.Name == upgradeNameV5 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgradesV5 := storetypes.StoreUpgrades{
-			Added: []string{ibcaddresslimittypes.ModuleName},
-		}
+	// if upgradeInfo.Name == upgradeNameV5 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	// 	storeUpgradesV5 := storetypes.StoreUpgrades{
+	// 		Added: []string{ibcaddresslimittypes.ModuleName},
+	// 	}
 
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV5))
-	}
+	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV5))
+	// }
 
-	if upgradeInfo.Name == upgradeNameV51 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgradesV51 := storetypes.StoreUpgrades{
-			Added: []string{ibcaddresslimittypes.ModuleName},
-		}
+	// if upgradeInfo.Name == upgradeNameV51 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	// 	storeUpgradesV51 := storetypes.StoreUpgrades{
+	// 		Added: []string{ibcaddresslimittypes.ModuleName},
+	// 	}
 
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV51))
-	}
+	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV51))
+	// }
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -1080,10 +1083,11 @@ func (appKeepers *App) WireICS20PreWasmKeeper(
 		// The ICS4Wrapper is replaced by the addressLimitingICS4Wrapper instead of the channel
 		appKeepers.AddressLimitingICS4Wrapper,
 		appKeepers.IBCKeeper.ChannelKeeper,
-		&appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.ScopedTransferKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	appKeepers.TransferKeeper = transferKeeper
 	appKeepers.RawIcs20TransferAppModule = transfer.NewAppModule(appKeepers.TransferKeeper)
@@ -1256,8 +1260,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(govtypes.ModuleName)
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
-	paramsKeeper.Subspace(ibchost.ModuleName)
-	paramsKeeper.Subspace(wasm.ModuleName)
+	paramsKeeper.Subspace(ibcexported.ModuleName)
+	paramsKeeper.Subspace(wasmtypes.ModuleName)
 
 	paramsKeeper.Subspace(governmentmoduletypes.ModuleName)
 	paramsKeeper.Subspace(vbrmoduletypes.ModuleName)

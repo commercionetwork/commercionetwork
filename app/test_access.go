@@ -3,10 +3,10 @@ package app
 import (
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	//capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
@@ -25,7 +25,7 @@ func (s TestSupport) IBCKeeper() ibckeeper.Keeper {
 	return *s.app.IBCKeeper
 }
 
-func (s TestSupport) WasmKeeper() wasm.Keeper {
+func (s TestSupport) WasmKeeper() wasmkeeper.Keeper {
 	return s.app.WasmKeeper
 }
 
@@ -45,7 +45,7 @@ func (s TestSupport) ScopedTransferKeeper() capabilitykeeper.ScopedKeeper {
 }
 
 func (s TestSupport) StakingKeeper() stakingkeeper.Keeper {
-	return s.app.StakingKeeper
+	return *s.app.StakingKeeper
 }
 
 func (s TestSupport) BankKeeper() bankkeeper.Keeper {
