@@ -6,6 +6,7 @@ import (
 	"time"
 
 	//"cosmossdk.io/simapp"
+	"cosmossdk.io/math"
 	"cosmossdk.io/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +16,7 @@ import (
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/cosmos/ibc-go/v4/testing/simapp"
 
 	"cosmossdk.io/log"
 	db "github.com/cometbft/cometbft-db"
@@ -109,7 +111,7 @@ var testEtp = types.NewPosition(
 	validDepositCoin,
 	testID,
 	time.Now().UTC(),
-	sdk.NewDec(2),
+	math.LegacyNewDec(2),
 )
 
 var validParams = types.Params{
@@ -121,8 +123,8 @@ var validDepositCoin = sdk.NewCoin(types.CreditsDenom, sdk.NewInt(50))
 var inValidDepositCoin = sdk.NewCoin(types.BondDenom, sdk.NewInt(10))
 var validBurnCoin = inValidDepositCoin
 var inValidBurnCoin = validDepositCoin
-var validConversionRate = sdk.NewDec(2)
-var invalidConversionRate = sdk.NewDec(-1)
+var validConversionRate = math.LegacyNewDec(2)
+var invalidConversionRate = math.LegacyNewDec(-1)
 
 var zeroUCCC = sdk.NewCoin(types.CreditsDenom, sdk.ZeroInt())
 

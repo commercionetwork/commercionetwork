@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errorsmod "cosmossdk.io/errors"
+	storetypes "cosmossdk.io/store/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -67,9 +68,9 @@ func (k Keeper) GetInvite(ctx sdk.Context, user sdk.AccAddress) (invite types.In
 }
 
 // InvitesIterator returns an Iterator which iterates over all the invites.
-func (k Keeper) InvitesIterator(ctx sdk.Context) sdk.Iterator {
+func (k Keeper) InvitesIterator(ctx sdk.Context) storetypes.Iterator {
 	store := ctx.KVStore(k.storeKey)
-	return sdk.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
+	return storetypes.KVStorePrefixIterator(store, []byte(types.InviteStorePrefix))
 }
 
 // GetInvites returns all the invites ever made

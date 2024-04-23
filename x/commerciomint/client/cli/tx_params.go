@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/spf13/cobra"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func CmdSetParams() *cobra.Command {
@@ -28,7 +28,7 @@ func CmdSetParams() *cobra.Command {
 
 			gov := clientCtx.GetFromAddress()
 
-			rate, err := sdk.NewDecFromStr(args[0])
+			rate, err := math.LegacyNewDecFromStr(args[0])
 			if err != nil {
 				return fmt.Errorf("cannot parse collateral rate, must be a decimal")
 			}

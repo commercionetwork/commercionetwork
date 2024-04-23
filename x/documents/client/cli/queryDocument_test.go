@@ -5,6 +5,7 @@ import (
 
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/stretchr/testify/require"
+	codec "github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
@@ -41,7 +42,7 @@ func testCmdShowDocument(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetDocumentResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, codec.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.Equal(t, tt.expected, response.Document)
 			}
 		})
@@ -95,7 +96,7 @@ func testCmdSentDocuments(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetSentDocumentsResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, codec.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.Document)
 			}
 		})
@@ -139,7 +140,7 @@ func testCmdUUIDDocuments(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetUUIDDocumentsResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, codec.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.UUIDs)
 			}
 		})
@@ -193,7 +194,7 @@ func testCmdReceivedDocuments(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetReceivedDocumentResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, codec.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.ReceivedDocument)
 			}
 		})

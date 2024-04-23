@@ -5,6 +5,8 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "cosmossdk.io/store/types"
+	"cosmossdk.io/math"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errorsmod "cosmossdk.io/errors"
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -24,41 +26,41 @@ const (
 	eventDeposit          = "deposit_into_pool"
 )
 
-var membershipRewards = map[string]map[string]sdk.Dec{
+var membershipRewards = map[string]map[string]math.LegacyDec{
 	types.MembershipTypeGreen: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(1, 2),   // 1% of 1
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(1, 1),   // 2% of 5
-		types.MembershipTypeSilver: sdk.NewDecWithPrec(15, 1),  // 3% of 50
-		types.MembershipTypeGold:   sdk.NewDecWithPrec(20, 0),  // 4% of 500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(250, 0), // 2.5% of 10000
+		types.MembershipTypeGreen:  math.LegacyNewDecWithPrec(1, 2),   // 1% of 1
+		types.MembershipTypeBronze: math.LegacyNewDecWithPrec(1, 1),   // 2% of 5
+		types.MembershipTypeSilver: math.LegacyNewDecWithPrec(15, 1),  // 3% of 50
+		types.MembershipTypeGold:   math.LegacyNewDecWithPrec(20, 0),  // 4% of 500
+		types.MembershipTypeBlack:  math.LegacyNewDecWithPrec(250, 0), // 2.5% of 10000
 	},
 	types.MembershipTypeBronze: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(25, 3),   // 2.5% of 1
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 2),  // 5% of 25
-		types.MembershipTypeSilver: sdk.NewDecWithPrec(25, 0),   // 10% of 250
-		types.MembershipTypeGold:   sdk.NewDecWithPrec(375, 0),  // 15% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(5000, 0), // 10% of 50000
+		types.MembershipTypeGreen:  math.LegacyNewDecWithPrec(25, 3),   // 2.5% of 1
+		types.MembershipTypeBronze: math.LegacyNewDecWithPrec(125, 2),  // 5% of 25
+		types.MembershipTypeSilver: math.LegacyNewDecWithPrec(25, 0),   // 10% of 250
+		types.MembershipTypeGold:   math.LegacyNewDecWithPrec(375, 0),  // 15% of 2500
+		types.MembershipTypeBlack:  math.LegacyNewDecWithPrec(5000, 0), // 10% of 50000
 	},
 	types.MembershipTypeSilver: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(1, 1),     // 1% of 1
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(5, 0),     // 20% of 25
-		types.MembershipTypeSilver: sdk.NewDecWithPrec(75, 0),    // 30% of 250
-		types.MembershipTypeGold:   sdk.NewDecWithPrec(1000, 0),  // 40% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(12500, 0), // 12.5% of 50000
+		types.MembershipTypeGreen:  math.LegacyNewDecWithPrec(1, 1),     // 1% of 1
+		types.MembershipTypeBronze: math.LegacyNewDecWithPrec(5, 0),     // 20% of 25
+		types.MembershipTypeSilver: math.LegacyNewDecWithPrec(75, 0),    // 30% of 250
+		types.MembershipTypeGold:   math.LegacyNewDecWithPrec(1000, 0),  // 40% of 2500
+		types.MembershipTypeBlack:  math.LegacyNewDecWithPrec(12500, 0), // 12.5% of 50000
 	},
 	types.MembershipTypeGold: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(4, 1),     // 40% of 1
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(125, 1),   // 50% of 25
-		types.MembershipTypeSilver: sdk.NewDecWithPrec(150, 0),   // 60% of 250
-		types.MembershipTypeGold:   sdk.NewDecWithPrec(1750, 0),  // 70% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(20000, 0), // 40% of 50000
+		types.MembershipTypeGreen:  math.LegacyNewDecWithPrec(4, 1),     // 40% of 1
+		types.MembershipTypeBronze: math.LegacyNewDecWithPrec(125, 1),   // 50% of 25
+		types.MembershipTypeSilver: math.LegacyNewDecWithPrec(150, 0),   // 60% of 250
+		types.MembershipTypeGold:   math.LegacyNewDecWithPrec(1750, 0),  // 70% of 2500
+		types.MembershipTypeBlack:  math.LegacyNewDecWithPrec(20000, 0), // 40% of 50000
 	},
 	types.MembershipTypeBlack: {
-		types.MembershipTypeGreen:  sdk.NewDecWithPrec(5, 1),     // 50% of 1
-		types.MembershipTypeBronze: sdk.NewDecWithPrec(175, 2),   // 70% of 25
-		types.MembershipTypeSilver: sdk.NewDecWithPrec(200, 0),   // 80% of 250
-		types.MembershipTypeGold:   sdk.NewDecWithPrec(2250, 0),  // 90% of 2500
-		types.MembershipTypeBlack:  sdk.NewDecWithPrec(25000, 0), // 50% of 50000
+		types.MembershipTypeGreen:  math.LegacyNewDecWithPrec(5, 1),     // 50% of 1
+		types.MembershipTypeBronze: math.LegacyNewDecWithPrec(175, 2),   // 70% of 25
+		types.MembershipTypeSilver: math.LegacyNewDecWithPrec(200, 0),   // 80% of 250
+		types.MembershipTypeGold:   math.LegacyNewDecWithPrec(2250, 0),  // 90% of 2500
+		types.MembershipTypeBlack:  math.LegacyNewDecWithPrec(25000, 0), // 50% of 50000
 	},
 }
 
@@ -177,7 +179,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 
 	// Get the reward amount by searching up inside the matrix.
 	// Multiply the found amount by 1.000.000 as coins are represented as millionth of units, and make it an int
-	var rewardCrossValue sdk.Dec
+	var rewardCrossValue math.LegacyDec
 	var ok bool
 	if rewardCrossValue, ok = membershipRewards[senderMembershipType][recipientMembershipType]; !ok {
 		return errorsmod.Wrap(sdkErr.ErrInvalidRequest, "Invalid reward options")
@@ -192,7 +194,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	// TODO: return immediatly if there is no funds
 	var returnMethod error
 	returnMethod = nil
-	if poolAmount.GT(sdk.ZeroInt()) {
+	if poolAmount.GT(math.ZeroInt()) {
 
 		// If the reward is more than the current pool amount, set the reward as the total pool amount
 		if rewardAmount.GT(poolAmount) {
@@ -205,7 +207,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		rewardCoins := sdk.NewCoins(sdk.NewCoin(stableCreditDenom, rewardAmount))
 		// TODO check calculation mint amount. See calculation of mint
 		// TODO check conversion rate not zero
-		rewardStakeCoinAmount := sdk.NewDecFromInt(rewardAmount).Mul(ucccConversionRate).Ceil().TruncateInt()
+		rewardStakeCoinAmount := math.LegacyNewDecFromInt(rewardAmount).Mul(ucccConversionRate).Ceil().TruncateInt()
 		stakeEquivCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, rewardStakeCoinAmount))
 
 		// Mint coins to module
@@ -296,9 +298,9 @@ func (k Keeper) GetMemberships(ctx sdk.Context) []*types.Membership {
 }
 
 // MembershipIterator returns an Iterator for all the memberships stored.
-func (k Keeper) MembershipIterator(ctx sdk.Context) sdk.Iterator {
+func (k Keeper) MembershipIterator(ctx sdk.Context) storetypes.Iterator {
 	store := ctx.KVStore(k.storeKey)
-	return sdk.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
+	return storetypes.KVStorePrefixIterator(store, []byte(types.MembershipsStorageKey))
 }
 
 // ComputeExpiryHeight compute expiry height of membership.

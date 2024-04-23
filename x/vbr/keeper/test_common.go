@@ -7,7 +7,8 @@ import (
 	//"cosmossdk.io/simapp"
 	"cosmossdk.io/store"
 	storetypes "cosmossdk.io/store/types"
-	tmdb "github.com/cometbft/cometbft-db"
+	dbm "github.com/cosmos/cosmos-db"
+	storemetrics "cosmossdk.io/store/metrics"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
 	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
@@ -39,7 +40,7 @@ var (
 func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	distrAcc := accountTypes.NewEmptyModuleAccount(types.ModuleName)
 
-	storeKeys := sdk.NewKVStoreKeys(
+	storeKeys := storetypes.NewKVStoreKeys(
 		types.StoreKey,
 		paramsTypes.StoreKey,
 		distrTypes.StoreKey,
@@ -49,20 +50,20 @@ func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 		epochsTypes.StoreKey,
 		stakingTypes.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
+	tkeys := storetypes.NewTransientStoreKeys(paramsTypes.TStoreKey)
 
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 	memStoreKeyGov := storetypes.NewMemoryStoreKey(govTypes.MemStoreKey)
 
-	db := tmdb.NewMemDB()
-	stateStore := store.NewCommitMultiStore(db)
+	db := dbm.NewMemDB()
+	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), storemetrics.NewNoOpMetrics())
 	for _, storeKey := range storeKeys {
-		stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+		stateStore.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, db)
 	}
-	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
-	stateStore.MountStoreWithDB(memStoreKeyGov, sdk.StoreTypeMemory, nil)
+	stateStore.MountStoreWithDB(memStoreKey, storetypes.StoreTypeMemory, nil)
+	stateStore.MountStoreWithDB(memStoreKeyGov, storetypes.StoreTypeMemory, nil)
 
-	stateStore.MountStoreWithDB(tkeys[paramsTypes.TStoreKey], sdk.StoreTypeTransient, db)
+	stateStore.MountStoreWithDB(tkeys[paramsTypes.TStoreKey], storetypes.StoreTypeTransient, db)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	//registry := codectypes.NewInterfaceRegistry()
@@ -111,7 +112,7 @@ func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 		*gk,
 		*ek,
 		pk.Subspace(types.ModuleName),
-		sk,
+		*sk,
 	)
 	ek.SetHooks(epochsTypes.NewMultiEpochHooks(keeper.Hooks()))
 

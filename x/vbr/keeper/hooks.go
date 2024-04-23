@@ -12,12 +12,13 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	params := k.GetParamSet(ctx)
 	if epochIdentifier == params.DistrEpochIdentifier {
 		// Get the number of active validators
-		activeValidators := k.stakingKeeper.GetLastValidators(ctx)
+		activeValidators, _ := k.stakingKeeper.GetLastValidators(ctx)
 		valNumber := int64(len(activeValidators))
 
 		for _, validator := range activeValidators {
+			bdedom, _ := k.stakingKeeper.BondDenom(ctx)
 			// Compute the reward based on the number of validators, the validator's staked tokens and the total staked tokens
-			reward := k.ComputeProposerReward(ctx, valNumber, validator, k.stakingKeeper.BondDenom(ctx), params)
+			reward := k.ComputeProposerReward(ctx, valNumber, validator, bdedom, params)
 
 			// Distribute the reward to the block proposer
 			// TODO: Don't panic if pool is empty or not enough to distribute something

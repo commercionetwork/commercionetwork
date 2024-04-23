@@ -5,9 +5,10 @@ import (
 	"time"
 
 	//"cosmossdk.io/simapp"
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/ibc-go/v4/testing/simapp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -208,10 +209,10 @@ func Test_NewQuerier_queryGetAllEtp(t *testing.T) {
 }
 
 func Test_NewQuerier_queryConversionRate(t *testing.T) {
-	t.Run("expected sdk.NewDec(2)", func(t *testing.T) {
+	t.Run("expected math.LegacyNewDec(2)", func(t *testing.T) {
 		ctx, _, _, k := SetupTestInput()
 
-		expected := sdk.NewDec(2)
+		expected := math.LegacyNewDec(2)
 
 		app := simapp.Setup(false)
 		legacyAmino := app.LegacyAmino()
@@ -220,7 +221,7 @@ func Test_NewQuerier_queryConversionRate(t *testing.T) {
 		gotBz, err := querier(ctx, path, abci.RequestQuery{})
 		require.NoError(t, err)
 
-		var got sdk.Dec
+		var got math.LegacyDec
 		legacyAmino.MustUnmarshalJSON(gotBz, &got)
 		require.Equal(t, expected, got)
 	})

@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"cosmossdk.io/math"
 	"time"
 
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -360,9 +361,9 @@ func initGenFiles(
 	var vbrState vbrTypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[vbrTypes.ModuleName], &vbrState)
 	tokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
-	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
+	vbrState.PoolAmount = math.LegacyNewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	vbrState.Params.DistrEpochIdentifier = "minute"
-	vbrState.Params.EarnRate = sdk.NewDecWithPrec(5, 2)
+	vbrState.Params.EarnRate = math.LegacyNewDecWithPrec(5, 2)
 	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(&vbrState)
 
 	// commercionetworkd set-genesis-price ucommercio 1 100000000

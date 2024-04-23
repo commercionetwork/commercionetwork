@@ -7,6 +7,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/ibc-go/v4/testing/simapp"
 	"github.com/stretchr/testify/require"
 )
 

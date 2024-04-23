@@ -5,17 +5,16 @@ import (
 	"errors"
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/cli"
 	tmjson "github.com/cometbft/cometbft/libs/json"
-	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 )
 
 // SetGenesisVbrPoolAmount returns set-genesis-vbr-pool-amount cobra Command.
@@ -40,7 +39,7 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 
 			// retrieve the app state
 			genFile := config.GenesisFile()
-			genDoc, err := tmtypes.GenesisDocFromFile(genFile)
+			_, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
 				return err
 			}
@@ -54,7 +53,7 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 			var genStateVbr vbrTypes.GenesisState
 			json.Unmarshal(genState[vbrTypes.ModuleName], &genStateVbr)
 
-			genStateVbr.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
+			genStateVbr.PoolAmount = math.LegacyNewDecCoinsFromCoins(coins...)
 
 			genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)
 			if err != nil {

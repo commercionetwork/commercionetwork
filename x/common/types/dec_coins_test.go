@@ -2,6 +2,7 @@ package types
 
 import (
 	"testing"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -23,29 +24,29 @@ func TestIsAllGTE(t *testing.T) {
 		{
 			name: "other empty",
 			args: args{
-				coins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, sdk.OneInt())},
+				coins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, math.OneInt())},
 			},
 			want: true,
 		},
 		{
 			name: "coins empty",
 			args: args{
-				otherCoins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, sdk.OneInt())},
+				otherCoins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, math.OneInt())},
 			},
 		},
 		{
 			name: "coins equal to other",
 			args: args{
-				coins:      []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, sdk.OneInt())},
-				otherCoins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, sdk.OneInt())},
+				coins:      []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, math.OneInt())},
+				otherCoins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, math.OneInt())},
 			},
 			want: true,
 		},
 		{
 			name: "coins less than other",
 			args: args{
-				coins:      []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, sdk.ZeroInt())},
-				otherCoins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, sdk.OneInt())},
+				coins:      []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, math.ZeroInt())},
+				otherCoins: []sdk.DecCoin{sdk.NewDecCoin(sdk.DefaultBondDenom, math.OneInt())},
 			},
 		},
 		// {

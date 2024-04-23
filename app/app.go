@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
 	//"strings"
 	//"time"
 	"encoding/json"
@@ -15,10 +16,10 @@ import (
 
 	// ------------------------------------------
 	// Comet base
-	dbm "github.com/cosmos/cosmos-db"
-	abci "github.com/cometbft/cometbft/abci/types"
 	"cosmossdk.io/log"
+	abci "github.com/cometbft/cometbft/abci/types"
 	tmos "github.com/cometbft/cometbft/libs/os"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 
 	// ------------------------------------------
@@ -48,7 +49,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
 
-
 	// ------------------------------------------
 	// Cosmos SDK modules
 	//  Auth
@@ -59,11 +59,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	//  Authz
+	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
-	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 
 	//  Bank
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -126,6 +126,7 @@ import (
 	//  Upgrade
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/upgrade"
+
 	//upgradeclient "cosmossdk.io/x/upgrade/client"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
@@ -328,23 +329,23 @@ type App struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.BaseKeeper
-	AuthzKeeper      authzkeeper.Keeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    *stakingkeeper.Keeper
-	SlashingKeeper   slashingkeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	CrisisKeeper     *crisiskeeper.Keeper
-	UpgradeKeeper    *upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	EvidenceKeeper   evidencekeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
-	TransferKeeper   ibctransferkeeper.Keeper
-	WasmKeeper       wasmkeeper.Keeper
-	ContractKeeper   *wasmkeeper.PermissionedKeeper
+	AccountKeeper         authkeeper.AccountKeeper
+	BankKeeper            bankkeeper.BaseKeeper
+	AuthzKeeper           authzkeeper.Keeper
+	CapabilityKeeper      *capabilitykeeper.Keeper
+	StakingKeeper         *stakingkeeper.Keeper
+	SlashingKeeper        slashingkeeper.Keeper
+	DistrKeeper           distrkeeper.Keeper
+	GovKeeper             govkeeper.Keeper
+	CrisisKeeper          *crisiskeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper
+	IBCKeeper             *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	EvidenceKeeper        evidencekeeper.Keeper
+	FeeGrantKeeper        feegrantkeeper.Keeper
+	TransferKeeper        ibctransferkeeper.Keeper
+	WasmKeeper            wasmkeeper.Keeper
+	ContractKeeper        *wasmkeeper.PermissionedKeeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
 	// make scoped keepers public for test purposes
@@ -461,7 +462,7 @@ func New(
 	app.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(keys[consensusparamtypes.StoreKey]), authtypes.NewModuleAddress(govtypes.ModuleName).String(), runtime.EventService{})
 	// set the BaseApp's parameter store
 	bApp.SetParamStore(app.ConsensusParamsKeeper.ParamsStore)
-	
+
 	// add capability keeper and ScopeToModule for ibc module
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
 
@@ -476,14 +477,14 @@ func New(
 	// add keepers
 
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
-		appCodec, 
-		runtime.NewKVStoreService(keys[authtypes.StoreKey]), 
-		authtypes.ProtoBaseAccount, maccPerms, 
-		authcodec.NewBech32Codec(sdk.Bech32MainPrefix), 
-		sdk.Bech32MainPrefix, 
+		appCodec,
+		runtime.NewKVStoreService(keys[authtypes.StoreKey]),
+		authtypes.ProtoBaseAccount, maccPerms,
+		authcodec.NewBech32Codec(sdk.Bech32MainPrefix),
+		sdk.Bech32MainPrefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	
+
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec,
 		runtime.NewKVStoreService(keys[banktypes.StoreKey]),
@@ -492,60 +493,60 @@ func New(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		logger,
 	)
-	
+
 	app.AuthzKeeper = authzkeeper.NewKeeper(
-		runtime.NewKVStoreService(keys[authzkeeper.StoreKey]), 
-		appCodec, 
-		app.MsgServiceRouter(), 
+		runtime.NewKVStoreService(keys[authzkeeper.StoreKey]),
+		appCodec,
+		app.MsgServiceRouter(),
 		app.AccountKeeper,
 	)
-	
+
 	app.StakingKeeper = stakingkeeper.NewKeeper(
-		appCodec, 
-		runtime.NewKVStoreService(keys[stakingtypes.StoreKey]), 
-		app.AccountKeeper, 
-		app.BankKeeper, 
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(), 
-		authcodec.NewBech32Codec(sdk.Bech32PrefixValAddr), 
+		appCodec,
+		runtime.NewKVStoreService(keys[stakingtypes.StoreKey]),
+		app.AccountKeeper,
+		app.BankKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authcodec.NewBech32Codec(sdk.Bech32PrefixValAddr),
 		authcodec.NewBech32Codec(sdk.Bech32PrefixConsAddr),
 	)
 
 	app.DistrKeeper = distrkeeper.NewKeeper(
-		appCodec, 
-		runtime.NewKVStoreService(keys[distrtypes.StoreKey]), 
-		app.AccountKeeper, 
-		app.BankKeeper, 
-		app.StakingKeeper, 
-		authtypes.FeeCollectorName, 
+		appCodec,
+		runtime.NewKVStoreService(keys[distrtypes.StoreKey]),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		authtypes.FeeCollectorName,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
-		appCodec, 
-		legacyAmino, 
-		runtime.NewKVStoreService(keys[slashingtypes.StoreKey]), 
-		app.StakingKeeper, 
+		appCodec,
+		legacyAmino,
+		runtime.NewKVStoreService(keys[slashingtypes.StoreKey]),
+		app.StakingKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
-		appCodec, 
-		runtime.NewKVStoreService(keys[crisistypes.StoreKey]), 
+		appCodec,
+		runtime.NewKVStoreService(keys[crisistypes.StoreKey]),
 		invCheckPeriod,
-		app.BankKeeper, 
-		authtypes.FeeCollectorName, 
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(), 
+		app.BankKeeper,
+		authtypes.FeeCollectorName,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		app.AccountKeeper.AddressCodec(),
 	)
 
 	app.configurator = module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	// set the governance module account as the authority for conducting upgrades
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(
-		skipUpgradeHeights, 
-		runtime.NewKVStoreService(keys[upgradetypes.StoreKey]), 
-		appCodec, 
-		homePath, 
-		app.BaseApp, 
+		skipUpgradeHeights,
+		runtime.NewKVStoreService(keys[upgradetypes.StoreKey]),
+		appCodec,
+		homePath,
+		app.BaseApp,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	// register the staking hooks
@@ -566,7 +567,6 @@ func New(
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-
 	)
 	app.WireICS20PreWasmKeeper(appCodec, bApp)
 
@@ -717,7 +717,7 @@ func New(
 		// register the governance hooks
 		),
 	)
-	
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -931,10 +931,10 @@ func New(
 	// 		// Update slashing params
 	// 		slashingParams := slashingtypes.NewParams(
 	// 			20000,
-	// 			sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+	// 			math.LegacyNewDecFromIntWithPrec(sdk.NewInt(5), 2),
 	// 			time.Minute*10,
-	// 			sdk.NewDecFromIntWithPrec(sdk.NewInt(1), 2),
-	// 			sdk.NewDecFromIntWithPrec(sdk.NewInt(5), 2),
+	// 			math.LegacyNewDecFromIntWithPrec(sdk.NewInt(1), 2),
+	// 			math.LegacyNewDecFromIntWithPrec(sdk.NewInt(5), 2),
 	// 		)
 	// 		app.SlashingKeeper.SetParams(ctx, slashingParams)
 

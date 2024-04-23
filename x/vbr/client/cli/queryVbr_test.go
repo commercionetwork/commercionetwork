@@ -11,6 +11,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
+	codec "github.com/cosmos/cosmos-sdk/codec"
 )
 
 var governmentGenesisState = govTypes.GenesisState{
@@ -60,7 +61,7 @@ func test_getParams(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetParamsResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				require.NoError(t, codec.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
 				require.Equal(t, vbrGenesisState.Params, response.Params)
 			}
 		})

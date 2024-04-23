@@ -7,14 +7,16 @@ import (
 	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
+
 	//authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsigning "cosmossdk.io/x/tx/signing"
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
@@ -28,8 +30,8 @@ import (
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
-var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
-var storeRequiredFee = sdk.NewDecWithPrec(100, 0)
+var fixedRequiredFee = math.LegacyNewDecWithPrec(1, 2)
+var storeRequiredFee = math.LegacyNewDecWithPrec(100, 0)
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -159,7 +161,7 @@ func checkMinimumFees(
 	if !ok {
 		return errorsmod.Wrap(sdkErr.ErrTxDecode, "Tx must be a FeeTx")
 	}
-	fiatAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
+	fiatAmount = math.LegacyNewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
 	// Check if amount of stable coin is enough
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(fiatAmount) {
 		// If amount of stable coin is enough return without error
@@ -170,7 +172,7 @@ func checkMinimumFees(
 	// stakeDenom must always equal 10000
 	comAmount := sdk.ZeroDec()
 	comRequiredQty := requiredFees.MulInt64(1000000)
-	comAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stakeDenom))
+	comAmount = math.LegacyNewDecFromInt(feeTx.GetFee().AmountOf(stakeDenom))
 
 	// Check if amount of stake coin is enough
 	if !comRequiredQty.IsZero() && comRequiredQty.LTE(comAmount) {

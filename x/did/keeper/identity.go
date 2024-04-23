@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	storetypes "cosmossdk.io/store/types"
 
 	"github.com/commercionetwork/commercionetwork/x/did/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -52,7 +53,7 @@ func (k Keeper) GetIdentity(ctx sdk.Context, address string, timestamp string) (
 func (k Keeper) GetLastIdentityOfAddress(ctx sdk.Context, address string) (*types.Identity, error) {
 
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStoreReversePrefixIterator(store, getIdentityPrefix(address))
+	iter := storetypes.KVStoreReversePrefixIterator(store, getIdentityPrefix(address))
 	defer iter.Close()
 
 	if !iter.Valid() {
@@ -68,7 +69,7 @@ func (k Keeper) GetLastIdentityOfAddress(ctx sdk.Context, address string) (*type
 func (k Keeper) GetIdentityHistoryOfAddress(ctx sdk.Context, address string) []*types.Identity {
 
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, getIdentityPrefix(address))
+	iterator := storetypes.KVStorePrefixIterator(store, getIdentityPrefix(address))
 
 	defer iterator.Close()
 
@@ -86,7 +87,7 @@ func (k Keeper) GetIdentityHistoryOfAddress(ctx sdk.Context, address string) []*
 // GetAllIdentities returns all the stored Identities
 func (k Keeper) GetAllIdentities(ctx sdk.Context) []*types.Identity {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
+	iterator := storetypes.KVStorePrefixIterator(store, []byte(types.IdentitiesStorePrefix))
 
 	defer iterator.Close()
 

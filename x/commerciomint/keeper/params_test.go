@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +14,7 @@ func TestKeeper_GetConversionRate(t *testing.T) {
 	ctx, _, _, k := SetupTestInput()
 
 	params := validParams
-	params.ConversionRate = sdk.NewDec(3)
+	params.ConversionRate = math.LegacyNewDec(3)
 	assert.NotEqual(t, params.ConversionRate, validParams.ConversionRate)
 	require.NoError(t, k.UpdateParams(ctx, params))
 	require.Equal(t, params.ConversionRate, k.GetConversionRate(ctx))
@@ -56,7 +56,7 @@ func TestKeeper_UpdateParams(t *testing.T) {
 			name: "ok",
 			args: args{
 				params: types.Params{
-					ConversionRate: sdk.NewDec(5),
+					ConversionRate: math.LegacyNewDec(5),
 					FreezePeriod:   time.Minute,
 				},
 			},

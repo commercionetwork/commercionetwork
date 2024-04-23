@@ -6,6 +6,7 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errorsmod "cosmossdk.io/errors"
 	"github.com/gofrs/uuid"
+	storetypes "cosmossdk.io/store/types"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -128,29 +129,29 @@ func getDocumentReceiptsIdsUUIDStoreKey(documentUUID string, receiptUUID string)
 }
 
 // DocumentReceiptsIterator returns an Iterator for all Receipts saved in the store.
-func (keeper Keeper) DocumentReceiptsIterator(ctx sdk.Context) sdk.Iterator {
+func (keeper Keeper) DocumentReceiptsIterator(ctx sdk.Context) storetypes.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, []byte(types.ReceiptsStorePrefix))
+	return storetypes.KVStorePrefixIterator(store, []byte(types.ReceiptsStorePrefix))
 }
 
 // UserSentReceiptsIterator returns an Iterator for all the Document Sent Receipts for a user.
-func (keeper Keeper) UserSentReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+func (keeper Keeper) UserSentReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) storetypes.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, getSentReceiptsIdsStoreKey(user))
+	return storetypes.KVStorePrefixIterator(store, getSentReceiptsIdsStoreKey(user))
 }
 
 // UserReceivedReceiptsIterator returns an Iterator for all the Document Received Receipts for a user.
-func (keeper Keeper) UserReceivedReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+func (keeper Keeper) UserReceivedReceiptsIterator(ctx sdk.Context, user sdk.AccAddress) storetypes.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, getReceivedReceiptsIdsStoreKey(user))
+	return storetypes.KVStorePrefixIterator(store, getReceivedReceiptsIdsStoreKey(user))
 }
 
 // UserReceivedReceiptsIterator returns an Iterator for all the Receipts for a Document.
-func (keeper Keeper) UUIDDocumentsReceiptsIterator(ctx sdk.Context, documentUUID string) sdk.Iterator {
+func (keeper Keeper) UUIDDocumentsReceiptsIterator(ctx sdk.Context, documentUUID string) storetypes.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, getDocumentReceiptsIdsStoreKey(documentUUID))
+	return storetypes.KVStorePrefixIterator(store, getDocumentReceiptsIdsStoreKey(documentUUID))
 }

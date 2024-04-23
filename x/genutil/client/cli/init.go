@@ -10,8 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
+	codec "github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/cometbft/cometbft/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -19,6 +19,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cometbft/cometbft/libs/cli"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -75,7 +76,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			cdc := clientCtx.JSONCodec
+			cdc := codec.JSONCodec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
@@ -121,13 +122,13 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 				return errorsmod.Wrap(err, "Failed to marshall default genesis state")
 			}
 
-			genDoc := &types.GenesisDoc{}
+			genDoc := &genutiltypes.AppGenesis{}
 			if _, err := os.Stat(genFile); err != nil {
 				if !os.IsNotExist(err) {
 					return err
 				}
 			} else {
-				genDoc, err = types.GenesisDocFromFile(genFile)
+				_, genDoc, err = genutiltypes.GenesisStateFromGenFile(genFile)
 				if err != nil {
 					return errorsmod.Wrap(err, "Failed to read genesis doc from file")
 				}
@@ -164,7 +165,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			}
 
 			genDoc.ChainID = chainID
-			genDoc.Validators = nil
+			//genDoc.Validators = nil
 			genDoc.AppState = appState
 			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
 				return errorsmod.Wrap(err, "Failed to export gensis file")

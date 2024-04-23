@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errorsmod "cosmossdk.io/errors"
@@ -104,22 +105,22 @@ func getReceivedDocumentsIdsUUIDStoreKey(user sdk.AccAddress, documentUUID strin
 }
 
 // DocumentsIterator returns an Iterator for all the Documents saved in the store.
-func (keeper Keeper) DocumentsIterator(ctx sdk.Context) sdk.Iterator {
+func (keeper Keeper) DocumentsIterator(ctx sdk.Context) storetypes.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, []byte(types.DocumentStorePrefix))
+	return storetypes.KVStorePrefixIterator(store, []byte(types.DocumentStorePrefix))
 }
 
 // UserSentDocumentsIterator returns an Iterator for all the sent Documents of a user.
-func (keeper Keeper) UserSentDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+func (keeper Keeper) UserSentDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) storetypes.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, getSentDocumentsIdsStoreKey(user))
+	return storetypes.KVStorePrefixIterator(store, getSentDocumentsIdsStoreKey(user))
 }
 
 // UserReceivedDocumentsIterator returns an Iterator for all the received Documents of a user.
-func (keeper Keeper) UserReceivedDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) sdk.Iterator {
+func (keeper Keeper) UserReceivedDocumentsIterator(ctx sdk.Context, user sdk.AccAddress) storetypes.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, getReceivedDocumentsIdsStoreKey(user))
+	return storetypes.KVStorePrefixIterator(store, getReceivedDocumentsIdsStoreKey(user))
 }

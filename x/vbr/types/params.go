@@ -3,11 +3,11 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-func NewParams(distrEpochIdentifier string, earnRate sdk.Dec) Params {
+func NewParams(distrEpochIdentifier string, earnRate math.LegacyDec) Params {
 	return Params{
 		DistrEpochIdentifier: distrEpochIdentifier,
 		EarnRate:             earnRate,
@@ -27,7 +27,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // default vbr module params
 func DefaultParams() Params {
-	return NewParams(EpochDay, sdk.NewDecWithPrec(5, 1))
+	return NewParams(EpochDay, math.LegacyNewDecWithPrec(5, 1))
 }
 
 // Params validation
@@ -73,7 +73,7 @@ func ValidateDistrEpochIdentifier(i string) error {
 }
 
 func validateEarnRateParamSetPairs(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -85,7 +85,7 @@ func validateEarnRateParamSetPairs(i interface{}) error {
 	return nil
 }
 
-func ValidateEarnRate(e sdk.Dec) error {
+func ValidateEarnRate(e math.LegacyDec) error {
 	if e.IsNegative() {
 		return fmt.Errorf("earn rate cannot be negative: %+v", e)
 	}

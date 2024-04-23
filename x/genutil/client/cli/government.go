@@ -11,8 +11,8 @@ import (
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/spf13/cobra"
 
 	errorsmod "cosmossdk.io/errors"
@@ -44,7 +44,7 @@ func SetGenesisGovernmentAddressCmd(defaultNodeHome string) *cobra.Command {
 
 			// retrieve the app state
 			genFile := config.GenesisFile()
-			genDoc, err := tmtypes.GenesisDocFromFile(genFile)
+			_, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
 				return err
 			}

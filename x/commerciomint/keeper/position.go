@@ -7,6 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
@@ -93,7 +96,7 @@ func (k Keeper) NewPosition(ctx sdk.Context, depositor string, deposit sdk.Coins
 
 	conversionRate := k.GetConversionRate(ctx)
 
-	uccDec := sdk.NewDecFromInt(ucccRequested)
+	uccDec := math.LegacyNewDecFromInt(ucccRequested)
 	ucommercioAmount := uccDec.Mul(conversionRate).Ceil().TruncateInt()
 
 	// Create ucccEmitted token
@@ -165,9 +168,9 @@ func (k Keeper) GetAllPositions(ctx sdk.Context) []*types.Position {
 
 // RemoveCCC burns burnAmount to the conversion rate stored in the Position identified by id, and returns the
 // resulting collateral amount to user.
-func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmount sdk.Coin) (sdk.Int, error) {
+func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnAmount sdk.Coin) (math.Int, error) {
 	pos, found := k.GetPosition(ctx, user, id)
-	residualAmount := sdk.NewInt(0)
+	residualAmount := math.NewInt(0)
 	if !found {
 		msg := fmt.Sprintf("position for user with address %s and id %s does not exist", user, id)
 		return residualAmount, errorsmod.Wrap(sdkErr.ErrUnknownRequest, msg)
@@ -212,7 +215,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 	)
 
 	// 3.
-	burnAmountDec := sdk.NewDecFromInt(burnAmount.Amount)
+	burnAmountDec := math.LegacyNewDecFromInt(burnAmount.Amount)
 	collateralAmount := burnAmountDec.Mul(pos.ExchangeRate).Ceil().TruncateInt()
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, user, sdk.NewCoins(sdk.NewCoin(
 		types.BondDenom,
@@ -223,7 +226,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 	}
 
 	// 4.
-	posCollateral := sdk.NewInt(pos.Collateral)
+	posCollateral := math.NewInt(pos.Collateral)
 	diffCollateral := posCollateral.Sub(collateralAmount) // TODO CONVERT INT64 TO COIN
 	pos.Collateral = diffCollateral.Int64()               // TODO Should panic
 
@@ -242,7 +245,7 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 
 	// 5.
 	if shouldDeletePos {
-		residualAmount = sdk.NewInt(0)
+		residualAmount = math.NewInt(0)
 		k.deletePosition(ctx, pos)
 		return residualAmount, nil
 	}
@@ -252,9 +255,9 @@ func (k Keeper) RemoveCCC(ctx sdk.Context, user sdk.AccAddress, id string, burnA
 	return residualAmount, nil
 }
 
-func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) sdk.Iterator {
+func (k Keeper) newPositionsByOwnerIterator(ctx sdk.Context, owner sdk.AccAddress) storetypes.Iterator {
 	prefix := append([]byte(types.EtpStorePrefix), owner...)
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefix)
 }
 
 func getEtpsByOwnerStoreKey(user sdk.AccAddress) []byte {
@@ -266,8 +269,8 @@ func makePositionKey(address sdk.AccAddress, id string) []byte {
 	return append(base, []byte(id)...)
 }
 
-func (k Keeper) newPositionsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte(types.EtpStorePrefix))
+func (k Keeper) newPositionsIterator(ctx sdk.Context) storetypes.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte(types.EtpStorePrefix))
 }
 
 func (k Keeper) deletePosition(ctx sdk.Context, pos types.Position) {

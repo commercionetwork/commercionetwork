@@ -8,8 +8,8 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errorsmod "cosmossdk.io/errors"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // refactor error variables names

@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	//capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	//sdkLegacy "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -103,7 +104,7 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 	if appState[govtypes.ModuleName] != nil {
 		var govGenState govtypes.GenesisState
 		v040Codec.MustUnmarshalJSON(appState[govtypes.ModuleName], &govGenState)
-		coins := sdk.NewCoins(sdk.NewCoin("ucommercio", sdk.NewInt(50000000000)))
+		coins := sdk.NewCoins(sdk.NewCoin("ucommercio", math.NewInt(50000000000)))
 		govGenState.DepositParams.MinDeposit = coins
 		appState[govtypes.ModuleName] = v040Codec.MustMarshalJSON(&govGenState)
 	}

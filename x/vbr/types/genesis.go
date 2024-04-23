@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 // DefautGenesis is not valid
@@ -12,7 +12,7 @@ import (
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		Params: NewParams(EpochDay, sdk.NewDecWithPrec(5, 1)),
+		Params: NewParams(EpochDay, math.LegacyNewDecWithPrec(5, 1)),
 	}
 }
 

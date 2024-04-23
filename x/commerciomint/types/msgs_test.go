@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -11,8 +12,8 @@ import (
 var governmentAddress, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50apkfvd53jx0")
 
 func TestMsgBasics(t *testing.T) {
-	coinPos := sdk.NewCoin(CreditsDenom, sdk.NewInt(1))
-	exchangeRate := sdk.NewDec(1)
+	coinPos := sdk.NewCoin(CreditsDenom, math.NewInt(1))
+	exchangeRate := math.LegacyNewDec(1)
 	position := Position{
 		"1",
 		10,
@@ -28,7 +29,7 @@ func TestMsgBasics(t *testing.T) {
 	require.Equal(t, 0, len(msgMint.GetSigners()))
 	require.NotNil(t, msgMint.GetSignBytes())
 
-	msgBurn := NewMsgBurnCCC(nil, "id", sdk.NewCoin("denom", sdk.NewInt(1)))
+	msgBurn := NewMsgBurnCCC(nil, "id", sdk.NewCoin("denom", math.NewInt(1)))
 	require.Equal(t, "commerciomint", msgBurn.Route())
 	require.Equal(t, "burnCCC", msgBurn.Type())
 	require.Equal(t, 0, len(msgBurn.GetSigners()))
@@ -37,12 +38,12 @@ func TestMsgBasics(t *testing.T) {
 
 func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
-	coinPos := sdk.NewCoin(CreditsDenom, sdk.NewInt(1))
-	exchangeRate := sdk.NewDec(1)
+	coinPos := sdk.NewCoin(CreditsDenom, math.NewInt(1))
+	exchangeRate := math.LegacyNewDec(1)
 	position := Position{"", 10, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.Error(t, NewMsgMintCCC(position).ValidateBasic())
-	//require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(sdk.NewInt64Coin(CreditsDenom, 100)), uuid).ValidateBasic())
-	//coinPos = sdk.NewCoin("denom", sdk.NewInt(0))
+	//require.Error(t, NewMsgMintCCC(nil, sdk.NewCoins(math.NewInt64Coin(CreditsDenom, 100)), uuid).ValidateBasic())
+	//coinPos = sdk.NewCoin("denom", math.NewInt(0))
 	position = Position{testOwner.String(), 0, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.Error(t, NewMsgMintCCC(position).ValidateBasic())
 	//require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(), uuid).ValidateBasic())
@@ -53,24 +54,24 @@ func TestMsgMintCCC_ValidateBasic(t *testing.T) {
 	// ---------------------------------------
 	// TODO control mint message
 	/*
-		coinPos = sdk.NewCoin("uatom", sdk.NewInt(1))
+		coinPos = sdk.NewCoin("uatom", math.NewInt(1))
 		position = Position{testOwner.String(), 10, &coinPos, "1", uuid, &exchangeRate}
 		require.Error(t, NewMsgMintCCC(position).ValidateBasic())
 	*/
-	//require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin("atom", 100)), uuid).ValidateBasic())
+	//require.Error(t, NewMsgMintCCC(testOwner, sdk.NewCoins(math.NewInt64Coin("atom", 100)), uuid).ValidateBasic())
 	// ---------------------------------------
 
 	position = Position{testOwner.String(), 10, &coinPos, &time.Time{}, uuid, exchangeRate}
 	require.NoError(t, NewMsgMintCCC(position).ValidateBasic())
-	//require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(sdk.NewInt64Coin(CreditsDenom, 100)), uuid).ValidateBasic())
+	//require.NoError(t, NewMsgMintCCC(testOwner, sdk.NewCoins(math.NewInt64Coin(CreditsDenom, 100)), uuid).ValidateBasic())
 }
 
 func TestMsgBurnCCC_ValidateBasic(t *testing.T) {
 	uuid := "1480ab35-8544-405a-9729-595ae78c8fda"
-	require.Error(t, NewMsgBurnCCC(nil, uuid, sdk.NewCoin(CreditsDenom, sdk.NewInt(100))).ValidateBasic())
-	require.Error(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin("atom", sdk.NewInt(100))).ValidateBasic())
-	require.Error(t, NewMsgBurnCCC(testOwner, "", sdk.NewCoin(CreditsDenom, sdk.NewInt(100))).ValidateBasic())
-	require.NoError(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin(CreditsDenom, sdk.NewInt(100))).ValidateBasic())
+	require.Error(t, NewMsgBurnCCC(nil, uuid, sdk.NewCoin(CreditsDenom, math.NewInt(100))).ValidateBasic())
+	require.Error(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin("atom", math.NewInt(100))).ValidateBasic())
+	require.Error(t, NewMsgBurnCCC(testOwner, "", sdk.NewCoin(CreditsDenom, math.NewInt(100))).ValidateBasic())
+	require.NoError(t, NewMsgBurnCCC(testOwner, uuid, sdk.NewCoin(CreditsDenom, math.NewInt(100))).ValidateBasic())
 }
 
 func TestMsgSetParams_ValidateBasic(t *testing.T) {

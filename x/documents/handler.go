@@ -19,10 +19,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *types.MsgShareDocument:
-			res, err := msgServer.ShareDocument(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.ShareDocument(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgSendDocumentReceipt:
-			res, err := msgServer.SendDocumentReceipt(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.SendDocumentReceipt(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		default:

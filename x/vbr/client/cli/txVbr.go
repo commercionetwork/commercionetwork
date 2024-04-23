@@ -3,6 +3,7 @@ package cli
 import (
 	"strconv"
 
+	"cosmossdk.io/math"
 	"github.com/spf13/cobra"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
@@ -11,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 )
 
 // this can be removed
@@ -61,9 +63,9 @@ func CmdSetParams() *cobra.Command {
 
 			gov := clientCtx.GetFromAddress()
 			epochIdentifier := args[0]
-			earnRate, err := sdk.NewDecFromStr(args[1])
+			earnRate, err := math.LegacyNewDecFromStr(args[1])
 			if err != nil {
-				return sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "invalid earnRate (%s)", err)
+				return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid earnRate (%s)", err)
 			}
 
 			msg := types.NewMsgSetParams(gov.String(), epochIdentifier, earnRate)

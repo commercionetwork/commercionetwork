@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 	"time"
+	"cosmossdk.io/math"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -219,10 +220,10 @@ func TestKeeper_DistributeReward(t *testing.T) {
 		{
 			name:                 "Account correctly rewarded",
 			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
-			pool:                 sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000000000000))),
+			pool:                 sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1000000000000))),
 			expectedInviteStatus: int64(types.InviteStatusRewarded),
-			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, sdk.NewInt(1750000000))),
-			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(998775000001))),
+			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, math.NewInt(1750000000))),
+			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(998775000001))),
 			mustError:            false,
 		},
 	}

@@ -3,14 +3,15 @@ package keeper
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	errorsmod "cosmossdk.io/errors"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	storetypes "cosmossdk.io/store/types"
 
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -100,7 +101,7 @@ func (k Keeper) SetTotalRewardPool(ctx sdk.Context, updatedPool sdk.DecCoins) {
 }
 
 // VbrAccount returns vbr's ModuleAccount
-func (k Keeper) VbrAccount(ctx sdk.Context) accountTypes.ModuleAccountI {
+func (k Keeper) VbrAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
@@ -133,26 +134,26 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 
 	validatorBonded := validator.GetBondedTokens()
 
-	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))
+	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToLegacyDec().Mul(params.EarnRate))
 	// TODO: number of validator should be get from staking module
 	// paramsVal := k.stakingKeeper.GetParams(ctx)
 	// paramsVal.MaxValidators
-	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100))
+	validatorsPerc := math.LegacyNewDec(vCount).QuoInt64(int64(100))
 
 	//compute the annual distribution ((validator's token * 0.5)*(total_validators/100))
 	annualDistribution := sdk.NewDecCoinFromDec(denom, validatorBondedPerc.Amount.Mul(validatorsPerc))
-	var epochDuration sdk.Dec
+	var epochDuration math.LegacyDec
 	switch params.DistrEpochIdentifier {
 	case types.EpochDay:
-		epochDuration = sdk.NewDec(365)
+		epochDuration = math.LegacyNewDec(365)
 	case types.EpochWeek:
-		epochDuration = sdk.NewDec(365).Quo(sdk.NewDec(7))
+		epochDuration = math.LegacyNewDec(365).Quo(math.LegacyNewDec(7))
 	case types.EpochMinute:
-		epochDuration = sdk.NewDec(365 * 24 * 60)
+		epochDuration = math.LegacyNewDec(365 * 24 * 60)
 	case types.EpochHour:
-		epochDuration = sdk.NewDec(365 * 24)
+		epochDuration = math.LegacyNewDec(365 * 24)
 	case types.EpochMonth:
-		epochDuration = sdk.NewDec(12)
+		epochDuration = math.LegacyNewDec(12)
 	default:
 		return nil
 	}

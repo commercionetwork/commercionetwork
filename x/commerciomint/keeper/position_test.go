@@ -7,10 +7,11 @@ import (
 	"testing"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	errorsmod "cosmossdk.io/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -107,7 +108,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 		name            string
 		owner           string
 		id              string
-		amount          sdk.Int
+		amount          math.Int
 		userFunds       sdk.Coins
 		error           error
 		returnedCredits sdk.Coins
@@ -116,19 +117,19 @@ func TestKeeper_NewPosition(t *testing.T) {
 			name:   "invalid owner",
 			owner:  "",
 			id:     testEtp.ID,
-			amount: sdk.NewInt(0),
+			amount: math.NewInt(0),
 			error:  fmt.Errorf("empty address string is not allowed"),
 		},
 		{
 			name:   "no uccc requested",
 			owner:  testEtpOwner.String(),
 			id:     testEtp.ID,
-			amount: sdk.NewInt(0),
+			amount: math.NewInt(0),
 			error:  fmt.Errorf("no uccc requested"),
 		},
 		{
 			name:   "not enough funds inside user wallet",
-			amount: sdk.NewInt(testEtp.Collateral),
+			amount: math.NewInt(testEtp.Collateral),
 			owner:  testEtpOwner.String(),
 			id:     testEtp.ID,
 			error: fmt.Errorf("0"+types.BondDenom+" is smaller than %s: insufficient funds",
@@ -137,7 +138,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 		},
 		{
 			name:            "ok",
-			amount:          sdk.NewInt(testEtp.Collateral),
+			amount:          math.NewInt(testEtp.Collateral),
 			owner:           testEtpOwner.String(),
 			id:              testEtp.ID,
 			userFunds:       sdk.NewCoins(sdk.NewInt64Coin(types.BondDenom, 200)),
@@ -180,7 +181,7 @@ func TestKeeper_NewPosition(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			if !test.returnedCredits.IsEqual(sdk.Coins{}) {
+			if !test.returnedCredits.Equal(sdk.Coins{}) {
 				ownerAddr, err := sdk.AccAddressFromBech32(test.owner)
 				require.NoError(t, err)
 				actual := bk.GetAllBalances(ctx, ownerAddr)
@@ -267,7 +268,7 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		//_ = k.bankKeeper.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.Error(t, err)
-		// require.Equal(t, sdk.NewInt(testEtp.Collateral), bk.GetAllBalances(ctx, testEtpOwner).AmountOf(types.BondDenom))
+		// require.Equal(t, math.NewInt(testEtp.Collateral), bk.GetAllBalances(ctx, testEtpOwner).AmountOf(types.BondDenom))
 	})
 
 	// TODO: control tests and remake them
@@ -282,15 +283,15 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		//_ = k.bankKeeper.AddCoins(ctx, testEtpOwner, sdk.NewCoins(*testEtp.Credits))
 		_, err := k.RemoveCCC(ctx, testEtpOwner, testEtp.ID, *testEtp.Credits)
 		require.NoError(t, err)
-		require.Equal(t, sdk.NewInt(testEtp.Collateral), k.bankKeeper.GetAllBalances(ctx, testEtpOwner).AmountOf(types.BondDenom))
+		require.Equal(t, math.NewInt(testEtp.Collateral), k.bankKeeper.GetAllBalances(ctx, testEtpOwner).AmountOf(types.BondDenom))
 	})*/
 
 	t.Run("Existing ETP returns correct residual", func(t *testing.T) {
 		ctx, bk, _, k := SetupTestInput()
 
 		k.SetPosition(ctx, testEtp)
-		baseUcccAccount := sdk.NewCoin(types.CreditsDenom, sdk.NewInt(50))
-		baseUcommercioAccount := sdk.NewCoin(types.BondDenom, sdk.NewInt(0))
+		baseUcccAccount := sdk.NewCoin(types.CreditsDenom, math.NewInt(50))
+		baseUcommercioAccount := sdk.NewCoin(types.BondDenom, math.NewInt(0))
 		_ = k.bankKeeper.MintCoins(ctx, types.ModuleName, testLiquidityPool)
 		coins := sdk.NewCoins(baseUcommercioAccount, baseUcccAccount)
 		_ = bk.MintCoins(ctx, types.ModuleName, coins)
@@ -300,7 +301,7 @@ func TestKeeper_RemoveCCC(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, baseUcccAccount.Amount.Sub(halfCoinSub.Amount), k.bankKeeper.GetAllBalances(ctx, testEtpOwner).AmountOf(types.CreditsDenom))
 
-		burnAmountDec := sdk.NewDecFromInt(halfCoinSub.Amount)
+		burnAmountDec := math.LegacyNewDecFromInt(halfCoinSub.Amount)
 		collateralAmount := burnAmountDec.Mul(testEtp.ExchangeRate).Ceil().TruncateInt()
 
 		require.Equal(t, collateralAmount, k.bankKeeper.GetAllBalances(ctx, testEtpOwner).AmountOf(types.BondDenom))

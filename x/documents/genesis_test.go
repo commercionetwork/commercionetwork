@@ -6,7 +6,8 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/store"
 	storetypes "cosmossdk.io/store/types"
-	tmdb "github.com/cometbft/cometbft-db"
+	dbm "github.com/cosmos/cosmos-db"
+	storemetrics "cosmossdk.io/store/metrics"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
@@ -17,13 +18,13 @@ import (
 )
 
 func setupKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
-	storeKey := sdk.NewKVStoreKey(types.StoreKey)
+	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
-	db := tmdb.NewMemDB()
-	stateStore := store.NewCommitMultiStore(db)
-	stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
-	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
+	db := dbm.NewMemDB()
+	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), storemetrics.NewNoOpMetrics())
+	stateStore.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, db)
+	stateStore.MountStoreWithDB(memStoreKey, storetypes.StoreTypeMemory, nil)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	commerciomintTypes "github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	ptx "github.com/cosmos/cosmos-sdk/client/tx"
 
@@ -507,12 +508,12 @@ func createTestApp(isCheckTx bool, isBlockZero bool) (*app.App, sdk.Context) {
 
 	// TODO shall we drop the following?
 	app.CommercioMintKeeper.UpdateParams(ctx, validCommercioMintParams)
-	// app.CommercioMintKeeper.UpdateConversionRate(ctx, sdk.NewDec(2))
+	// app.CommercioMintKeeper.UpdateConversionRate(ctx, math.LegacyNewDec(2))
 
 	return app, ctx
 }
 
-var validConversionRate = sdk.NewDec(2)
+var validConversionRate = math.LegacyNewDec(2)
 var validFreezePeriod time.Duration = 0
 var validCommercioMintParams = commerciomintTypes.Params{
 	ConversionRate: validConversionRate,

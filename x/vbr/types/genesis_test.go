@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
-var validPoolAmount = sdk.NewDecCoins(sdk.NewDecCoin(BondDenom, sdk.NewInt(100)))
+var validPoolAmount = sdk.NewDecCoins(sdk.NewDecCoin(BondDenom, math.NewInt(100)))
 var invalidPoolAmount = sdk.DecCoins{
-	sdk.DecCoin{Denom: BondDenom, Amount: sdk.NewDec(-1)},
+	sdk.DecCoin{Denom: BondDenom, Amount: math.LegacyNewDec(-1)},
 }
 
 var validGenesis = GenesisState{

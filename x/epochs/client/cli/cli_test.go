@@ -6,6 +6,7 @@ import (
 
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
+	codec "github.com/cosmos/cosmos-sdk/codec"
 
 	//"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/epochs/client/cli"
@@ -72,7 +73,7 @@ func (s *IntegrationTestSuite) TestGetCmdCurrentEpoch() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONCodec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(codec.JSONCodec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 			}
 		})
 	}
@@ -106,7 +107,7 @@ func (s *IntegrationTestSuite) TestGetCmdEpochsInfos() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONCodec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(codec.JSONCodec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 			}
 		})
 	}

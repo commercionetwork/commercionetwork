@@ -3,30 +3,29 @@ package types
 import (
 	"testing"
 	"time"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 func TestValidateConversionRate(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		rate    sdk.Dec
+		rate    math.LegacyDec
 		wantErr bool
 	}{
 		{
 			name:    "ok",
-			rate:    sdk.NewDec(1),
+			rate:    math.LegacyNewDec(1),
 			wantErr: false,
 		},
 		{
 			name:    "zero",
-			rate:    sdk.NewDec(0),
+			rate:    math.LegacyNewDec(0),
 			wantErr: true,
 		},
 		{
 			name:    "negative",
-			rate:    sdk.NewDec(-1),
+			rate:    math.LegacyNewDec(-1),
 			wantErr: true,
 		},
 	}
@@ -79,8 +78,8 @@ func TestValidateFreezePeriod(t *testing.T) {
 	}
 }
 
-var validConversionRate = sdk.NewDec(2)
-var invalidConversionRate = sdk.NewDec(-1)
+var validConversionRate = math.LegacyNewDec(2)
+var invalidConversionRate = math.LegacyNewDec(-1)
 var validFreezePeriod time.Duration = 0
 var invalidFreezePeriod = -time.Minute
 
@@ -91,7 +90,7 @@ var invalidFreezePeriod = -time.Minute
 
 func TestParams_Validate(t *testing.T) {
 	type fields struct {
-		ConversionRate sdk.Dec
+		ConversionRate math.LegacyDec
 		FreezePeriod   time.Duration
 	}
 	tests := []struct {

@@ -19,13 +19,13 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *types.MsgMintCCC:
-			res, err := msgServer.MintCCC(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.MintCCC(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgBurnCCC:
-			res, err := msgServer.BurnCCC(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.BurnCCC(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgSetParams:
-			res, err := msgServer.SetParams(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.SetParams(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)

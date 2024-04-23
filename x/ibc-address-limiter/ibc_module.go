@@ -11,6 +11,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
@@ -111,7 +112,7 @@ func ValidateReceiverAddress(packet exported.PacketI) error {
 		return err
 	}
 	if len(packetData.Receiver) >= 4096 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "IBC Receiver address too long. Max supported length is %d", 4096)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "IBC Receiver address too long. Max supported length is %d", 4096)
 	}
 	return nil
 }

@@ -4,7 +4,10 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 	//"cosmossdk.io/simapp"
+	storetypes "cosmossdk.io/store/types"
+
 	"cosmossdk.io/store"
 	db "github.com/cometbft/cometbft-db"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -18,6 +21,7 @@ import (
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/cosmos/ibc-go/v4/testing/simapp"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
@@ -30,7 +34,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 	memDB := db.NewMemDB()
 	legacyAmino := codec.NewLegacyAmino()
 
-	keys := sdk.NewKVStoreKeys(
+	keys := storetypes.NewKVStoreKeys(
 		authTypes.StoreKey,
 		bankTypes.StoreKey,
 		paramsTypes.StoreKey,
@@ -38,14 +42,14 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 		types.StoreKey,
 		commerciomintTypes.StoreKey,
 	)
-	tKeys := sdk.NewTransientStoreKeys(paramsTypes.TStoreKey)
+	tKeys := storetypes.NewTransientStoreKeys(paramsTypes.TStoreKey)
 
 	ms := store.NewCommitMultiStore(memDB)
 	for _, key := range keys {
-		ms.MountStoreWithDB(key, sdk.StoreTypeIAVL, memDB)
+		ms.MountStoreWithDB(key, storetypes.StoreTypeIAVL, memDB)
 	}
 	for _, tkey := range tKeys {
-		ms.MountStoreWithDB(tkey, sdk.StoreTypeTransient, memDB)
+		ms.MountStoreWithDB(tkey, storetypes.StoreTypeTransient, memDB)
 	}
 	_ = ms.LoadLatestVersion()
 
@@ -85,7 +89,7 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, government.Keeper, Keeper
 
 	// TODO shall we drop the following?
 	k.mintKeeper.UpdateParams(ctx, validCommercioMintParams)
-	// k.MintKeeper.UpdateConversionRate(ctx, sdk.NewDecWithPrec(7, 1))
+	// k.MintKeeper.UpdateConversionRate(ctx, math.LegacyNewDecWithPrec(7, 1))
 
 	k.GovKeeper.SetGovernmentAddress(ctx, testUser3)
 	return ctx, bk, *govk, *k
@@ -122,7 +126,7 @@ var yearBlocks = int64(4733640)
 
 var testInviteSender, _ = sdk.AccAddressFromBech32("cosmos1005d6lt2wcfuulfpegz656ychljt3k3u4hn5my")
 
-var validConversionRate = sdk.NewDecWithPrec(7, 1)
+var validConversionRate = math.LegacyNewDecWithPrec(7, 1)
 var validFreezePeriod time.Duration = 0
 var validCommercioMintParams = commerciomintTypes.Params{
 	ConversionRate: validConversionRate,

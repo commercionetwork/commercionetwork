@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"cosmossdk.io/math"
 
 	v220commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -43,7 +44,7 @@ func TestMigrate(t *testing.T) {
 					LiquidityPoolAmount: sdk.Coins{
 						sdk.Coin{
 							Denom:  testDenom,
-							Amount: sdk.NewInt(1000000),
+							Amount: math.NewInt(1000000),
 						},
 					},
 					Invites: v220commerciokyc.Invites{
@@ -83,7 +84,7 @@ func TestMigrate(t *testing.T) {
 				LiquidityPoolAmount: sdk.Coins{
 					sdk.Coin{
 						Denom:  testDenom,
-						Amount: sdk.NewInt(1000000),
+						Amount: math.NewInt(1000000),
 					},
 				},
 				Invites: []*types.Invite{

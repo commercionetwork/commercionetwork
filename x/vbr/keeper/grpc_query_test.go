@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"cosmossdk.io/math"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
@@ -31,7 +32,7 @@ func setFunds(keeper *Keeper, ctx sdk.Context, pool sdk.DecCoins) {
 	}
 }
 
-var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(100000)))
+var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, math.NewInt(100000)))
 
 func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	keeper, ctx := SetupKeeper(t)
@@ -65,7 +66,7 @@ func TestGetBlockRewardsPoolFunds(t *testing.T) {
 	}
 }
 
-var params = types.NewParams(types.EpochDay, sdk.NewDecWithPrec(5, 1))
+var params = types.NewParams(types.EpochDay, math.LegacyNewDecWithPrec(5, 1))
 
 func Test_GetParams(t *testing.T) {
 	keeper, ctx := SetupKeeper(t)

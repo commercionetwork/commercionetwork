@@ -2,6 +2,7 @@ package types
 
 import (
 	"time"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -127,7 +128,7 @@ func (msg *MsgBurnCCC) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgSetParams{}
 
-func NewMsgSetParams(government string, conversionRate sdk.Dec, freezePeriod time.Duration) *MsgSetParams {
+func NewMsgSetParams(government string, conversionRate math.LegacyDec, freezePeriod time.Duration) *MsgSetParams {
 	params := Params{
 		ConversionRate: conversionRate,
 		FreezePeriod:   freezePeriod,

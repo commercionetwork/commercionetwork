@@ -12,6 +12,7 @@ import (
 	//cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	//"cosmossdk.io/simapp"
+	"cosmossdk.io/math"
 	"cosmossdk.io/store/rootmulti"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -262,7 +263,7 @@ func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, re
 
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
-	decTokens := sdk.DecCoins{{Denom: sdk.DefaultBondDenom, Amount: sdk.NewDec(20000)}}
+	decTokens := sdk.DecCoins{{Denom: sdk.DefaultBondDenom, Amount: math.LegacyNewDec(20000)}}
 	s.App.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 }
 

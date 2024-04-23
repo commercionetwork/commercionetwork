@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	storetypes "cosmossdk.io/store/types"
 )
 
 func TestKeeper_SetGovernmentAddress(t *testing.T) {
@@ -81,8 +82,8 @@ func TestKeeper_GetGovernmentAddress(t *testing.T) {
 func TestKeeper_GetGovernment300Address(t *testing.T) {
 	type fields struct {
 		cdc      codec.Codec
-		storeKey sdk.StoreKey
-		memKey   sdk.StoreKey
+		storeKey storetypes.StoreKey
+		memKey   storetypes.StoreKey
 	}
 	type args struct {
 		ctx sdk.Context
