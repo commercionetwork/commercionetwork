@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	mrand "math/rand"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
-	codec "github.com/cosmos/cosmos-sdk/codec"
+	//codec "github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -76,7 +77,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			cdc := codec.JSONCodec
+			cdc := clientCtx.Codec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
@@ -85,7 +86,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			if chainID == "" {
-				chainID = fmt.Sprintf("test-chain-%v", crand.Str(6))
+				chainID = fmt.Sprintf("test-chain-%v", mrand.Int())
 			}
 
 			// Get bip39 mnemonic

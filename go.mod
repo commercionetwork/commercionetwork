@@ -26,11 +26,9 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.19.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/swag v1.16.3
@@ -43,6 +41,11 @@ require (
 )
 
 require (
+	github.com/prometheus/client_golang v1.19.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
+)
+
+require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.33.0-20240221180331-f05a6f4403ce.1 // indirect
 	cloud.google.com/go v0.112.2 // indirect
 	cloud.google.com/go/compute v1.25.1 // indirect
@@ -52,14 +55,12 @@ require (
 	connectrpc.com/connect v1.16.0 // indirect
 	connectrpc.com/otelconnect v0.7.0 // indirect
 	cosmossdk.io/api v0.7.3 // indirect
-	cosmossdk.io/client/v2 v2.0.0-beta.1 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
-	cosmossdk.io/core v0.12.0 // indirect
+	cosmossdk.io/core v0.12.0
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
-	cosmossdk.io/errors v1.0.1 // indirect
-	cosmossdk.io/math v1.3.0 // indirect
-	cosmossdk.io/x/circuit v0.1.0 // indirect
-	cosmossdk.io/x/tx v0.13.2 // indirect
+	cosmossdk.io/errors v1.0.1
+	cosmossdk.io/math v1.3.0
+	cosmossdk.io/x/tx v0.13.2
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect

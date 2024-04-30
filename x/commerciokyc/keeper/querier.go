@@ -10,29 +10,29 @@ import (
 	errorsmod "cosmossdk.io/errors"
 )
 
-// NewQuerier returns a new sdk.Keeper instance.
-func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		switch path[0] {
-		case types.QueryGetPoolFunds:
-			return queryGetPoolFunds(ctx, req, k, legacyQuerierCdc)
-		case types.QueryGetInvite:
-			return queryGetInvite(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetInvites:
-			return queryGetInvites(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetTrustedServiceProviders:
-			return queryGetSigners(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetMembership:
-			return queryGetMembership(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetMemberships:
-			return queryGetMemberships(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetTspMemberships:
-			return queryGetTspMemberships(ctx, path[1:], k, legacyQuerierCdc)
-		default:
-			return nil, errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])
-		}
-	}
-}
+// // NewQuerier returns a new sdk.Keeper instance.
+// func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+// 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
+// 		switch path[0] {
+// 		case types.QueryGetPoolFunds:
+// 			return queryGetPoolFunds(ctx, req, k, legacyQuerierCdc)
+// 		case types.QueryGetInvite:
+// 			return queryGetInvite(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryGetInvites:
+// 			return queryGetInvites(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryGetTrustedServiceProviders:
+// 			return queryGetSigners(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryGetMembership:
+// 			return queryGetMembership(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryGetMemberships:
+// 			return queryGetMemberships(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryGetTspMemberships:
+// 			return queryGetTspMemberships(ctx, path[1:], k, legacyQuerierCdc)
+// 		default:
+// 			return nil, errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])
+// 		}
+// 	}
+// }
 
 func queryGetPoolFunds(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
 

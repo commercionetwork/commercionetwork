@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gorilla/mux"
+	//"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	//abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/commerciokyc/client/rest"
+	//"github.com/commercionetwork/commercionetwork/x/commerciokyc/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/keeper"
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -20,12 +20,14 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"cosmossdk.io/core/appmodule"
 )
 
 var (
 	_ module.AppModule       = AppModule{}
-	_ module.HasBeginBlocker = AppModule{}
 	_ module.AppModuleBasic  = AppModuleBasic{}
+	_ module.HasGenesis      = AppModule{}
+
 )
 
 // ----------------------------------------------------------------------------
@@ -74,9 +76,9 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 }
 
 // RegisterRESTRoutes registers the capability module's REST service handlers.
-func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(clientCtx, rtr)
-}
+// func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
+// 	rest.RegisterRoutes(clientCtx, rtr)
+// }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -103,6 +105,11 @@ type AppModule struct {
 
 	keeper keeper.Keeper
 }
+
+var(
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ appmodule.HasEndBlocker = AppModule{}
+)
 
 // IsAppModule implements module.AppModule.
 func (am AppModule) IsAppModule() {
@@ -145,17 +152,17 @@ func (am AppModule) Name() string {
 }
 
 // Route returns the capability module's message routing key.
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
-}
+// func (am AppModule) Route() sdk.Route {
+// 	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
+// }
 
 // QuerierRoute returns the capability module's query routing key.
 func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 
 // LegacyQuerierHandler returns the capability module's Querier.
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
-}
+// func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+// 	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
+// }
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
@@ -173,14 +180,14 @@ func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the capability module's genesis initialization It returns
 // no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state
 	cdc.MustUnmarshalJSON(gs, &genState)
 
 	am.keeper.InitGenesis(ctx, genState)
 
-	return []abci.ValidatorUpdate{}
+	//return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the capability module's exported genesis state as raw JSON bytes.
@@ -196,8 +203,8 @@ func (am AppModule) BeginBlock(context.Context) error {
 
 // EndBlock executes all ABCI EndBlock logic respective to the capability module. It
 // returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx context.Context) error {
+	return nil
 }
 
 func (AppModule) ConsensusVersion() uint64 { return 2 }

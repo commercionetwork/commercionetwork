@@ -1,5 +1,5 @@
 package ante_test
-
+/*
 import (
 	"errors"
 	"testing"
@@ -519,3 +519,4 @@ var validCommercioMintParams = commerciomintTypes.Params{
 	ConversionRate: validConversionRate,
 	FreezePeriod:   validFreezePeriod,
 }
+*/

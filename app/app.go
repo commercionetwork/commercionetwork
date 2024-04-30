@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -21,6 +22,7 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
+	"github.com/cosmos/gogoproto/grpc"
 
 	// ------------------------------------------
 	// Cosmwasm module
@@ -124,6 +126,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	//  Upgrade
+	"cosmossdk.io/store/snapshots"
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/upgrade"
 
@@ -374,6 +377,119 @@ type App struct {
 
 	// module configurator
 	configurator module.Configurator
+}
+
+// ApplySnapshotChunk implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).ApplySnapshotChunk of App.BaseApp.
+func (app *App) ApplySnapshotChunk(*abci.RequestApplySnapshotChunk) (*abci.ResponseApplySnapshotChunk, error) {
+	panic("unimplemented")
+}
+
+// CheckTx implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).CheckTx of App.BaseApp.
+func (app *App) CheckTx(*abci.RequestCheckTx) (*abci.ResponseCheckTx, error) {
+	panic("unimplemented")
+}
+
+// Close implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).Close of App.BaseApp.
+func (app *App) Close() error {
+	panic("unimplemented")
+}
+
+// Commit implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).Commit of App.BaseApp.
+func (app *App) Commit() (*abci.ResponseCommit, error) {
+	panic("unimplemented")
+}
+
+// CommitMultiStore implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).CommitMultiStore of App.BaseApp.
+func (app *App) CommitMultiStore() storetypes.CommitMultiStore {
+	panic("unimplemented")
+}
+
+// ExtendVote implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).ExtendVote of App.BaseApp.
+func (app *App) ExtendVote(context.Context, *abci.RequestExtendVote) (*abci.ResponseExtendVote, error) {
+	panic("unimplemented")
+}
+
+// FinalizeBlock implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).FinalizeBlock of App.BaseApp.
+func (app *App) FinalizeBlock(*abci.RequestFinalizeBlock) (*abci.ResponseFinalizeBlock, error) {
+	panic("unimplemented")
+}
+
+// Info implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).Info of App.BaseApp.
+func (app *App) Info(*abci.RequestInfo) (*abci.ResponseInfo, error) {
+	panic("unimplemented")
+}
+
+// InitChain implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).InitChain of App.BaseApp.
+func (app *App) InitChain(*abci.RequestInitChain) (*abci.ResponseInitChain, error) {
+	panic("unimplemented")
+}
+
+// ListSnapshots implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).ListSnapshots of App.BaseApp.
+func (app *App) ListSnapshots(*abci.RequestListSnapshots) (*abci.ResponseListSnapshots, error) {
+	panic("unimplemented")
+}
+
+// LoadSnapshotChunk implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).LoadSnapshotChunk of App.BaseApp.
+func (app *App) LoadSnapshotChunk(*abci.RequestLoadSnapshotChunk) (*abci.ResponseLoadSnapshotChunk, error) {
+	panic("unimplemented")
+}
+
+// OfferSnapshot implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).OfferSnapshot of App.BaseApp.
+func (app *App) OfferSnapshot(*abci.RequestOfferSnapshot) (*abci.ResponseOfferSnapshot, error) {
+	panic("unimplemented")
+}
+
+// PrepareProposal implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).PrepareProposal of App.BaseApp.
+func (app *App) PrepareProposal(*abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
+	panic("unimplemented")
+}
+
+// ProcessProposal implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).ProcessProposal of App.BaseApp.
+func (app *App) ProcessProposal(*abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
+	panic("unimplemented")
+}
+
+// Query implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).Query of App.BaseApp.
+func (app *App) Query(context.Context, *abci.RequestQuery) (*abci.ResponseQuery, error) {
+	panic("unimplemented")
+}
+
+// RegisterGRPCServer implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).RegisterGRPCServer of App.BaseApp.
+func (app *App) RegisterGRPCServer(grpc.Server) {
+	panic("unimplemented")
+}
+
+// RegisterNodeService implements types.Application.
+func (app *App) RegisterNodeService(client.Context, config.Config) {
+	panic("unimplemented")
+}
+
+// SnapshotManager implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).SnapshotManager of App.BaseApp.
+func (app *App) SnapshotManager() *snapshots.Manager {
+	panic("unimplemented")
+}
+
+// VerifyVoteExtension implements types.Application.
+// Subtle: this method shadows the method (*BaseApp).VerifyVoteExtension of App.BaseApp.
+func (app *App) VerifyVoteExtension(*abci.RequestVerifyVoteExtension) (*abci.ResponseVerifyVoteExtension, error) {
+	panic("unimplemented")
 }
 
 // Remove assertNoPrefix
@@ -898,7 +1014,7 @@ func New(
 			app.FeeGrantKeeper,
 			app.IBCKeeper,
 			&wasmConfig,
-			keys[wasmtypes.StoreKey],
+			runtime.NewKVStoreService(keys[wasmtypes.StoreKey]),
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)

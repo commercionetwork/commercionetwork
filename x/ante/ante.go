@@ -17,8 +17,9 @@ import (
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	//authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	authsigning "cosmossdk.io/x/tx/signing"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	corestoretypes "cosmossdk.io/core/store"
+	signing "cosmossdk.io/x/tx/signing"
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 
 	//"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -42,13 +43,13 @@ func NewAnteHandler(
 	govKeeper government.Keeper,
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
-	signModeHandler *authsigning.HandlerMap,
+	signModeHandler *signing.HandlerMap,
 	stakeDenom string,
 	stableCreditsDemon string,
 	feegrantKeeper cosmosante.FeegrantKeeper,
 	ibcKeeper *ibcKeeper.Keeper,
 	wasmConfig *wasmTypes.WasmConfig,
-	txCounterStoreKey storetypes.StoreKey,
+	txCounterStoreKey corestoretypes.KVStoreService,
 ) sdk.AnteHandler {
 	// TODO: add check for nil
 	/*
@@ -67,7 +68,7 @@ func NewAnteHandler(
 		wasmkeeper.NewLimitSimulationGasDecorator(wasmConfig.SimulationGasLimit), // after setup context to enforce limits early
 		wasmkeeper.NewCountTXDecorator(txCounterStoreKey),
 
-		cosmosante.NewMempoolFeeDecorator(),
+		//cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
@@ -75,11 +76,11 @@ func NewAnteHandler(
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
-		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper),
+		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper, nil),
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),
-		ibcante.NewAnteDecorator(ibcKeeper),
+		ibcante.NewRedundantRelayDecorator(ibcKeeper),
 	)
 }
 
@@ -150,9 +151,9 @@ func checkMinimumFees(
 	mintk commerciomintKeeper.Keeper,
 	stakeDenom string,
 	stableCreditsDenom string,
-	requiredFees sdk.Dec,
+	requiredFees math.LegacyDec,
 ) error {
-	fiatAmount := sdk.ZeroDec()
+	fiatAmount := math.LegacyZeroDec()
 	// Find required quantity of stable coin = number of msg * 10000
 	// Every message need 0.01 ccc
 	stableRequiredQty := requiredFees.MulInt64(1000000)
@@ -170,7 +171,7 @@ func checkMinimumFees(
 	// NB: if user pay insufficent fiat amount plus enough stake denom, fiat amount will be withdraw from the wallet anyway.
 	//return nil
 	// stakeDenom must always equal 10000
-	comAmount := sdk.ZeroDec()
+	comAmount := math.LegacyZeroDec()
 	comRequiredQty := requiredFees.MulInt64(1000000)
 	comAmount = math.LegacyNewDecFromInt(feeTx.GetFee().AmountOf(stakeDenom))
 
@@ -189,8 +190,8 @@ func setGasMeter(simulate bool, ctx sdk.Context, gasLimit uint64) sdk.Context {
 	// In various cases such as simulation and during the genesis block, we do not
 	// meter any gas utilization.
 	if simulate || ctx.BlockHeight() == 0 {
-		return ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		return ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 	}
 
-	return ctx.WithGasMeter(sdk.NewGasMeter(gasLimit))
+	return ctx.WithGasMeter(storetypes.NewGasMeter(gasLimit))
 }

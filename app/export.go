@@ -6,6 +6,7 @@ import (
 
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	storetypes "cosmossdk.io/store/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -118,18 +119,24 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 		if err != nil {
 			panic(err)
 		}
-		feePool := app.DistrKeeper.GetFeePool(ctx)
+		feePool, err := app.DistrKeeper.FeePool.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		app.DistrKeeper.SetFeePool(ctx, feePool)
+		app.DistrKeeper.FeePool.Set(ctx, feePool)
 
-		app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())
+		valAddress, _ := sdk.ValAddressFromBech32(val.GetOperator())
+		app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, valAddress)
 		return false
 	})
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr())
-		app.DistrKeeper.Hooks().AfterDelegationModified(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr())
+		valAddress, _ := sdk.ValAddressFromBech32(del.GetValidatorAddr())
+		delAddress, _ := sdk.AccAddressFromBech32(del.GetDelegatorAddr())
+		app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddress, valAddress)
+		app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddress, valAddress)
 	}
 
 	// reset context height
@@ -158,13 +165,13 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	// Iterate through validators by power descending, reset bond heights, and
 	// update bond intra-tx counters.
 	store := ctx.KVStore(app.keys[stakingtypes.StoreKey])
-	iter := sdk.KVStoreReversePrefixIterator(store, stakingtypes.ValidatorsKey)
+	iter := storetypes.KVStoreReversePrefixIterator(store, stakingtypes.ValidatorsKey)
 	counter := int16(0)
 
 	for ; iter.Valid(); iter.Next() {
 		addr := sdk.ValAddress(iter.Key()[1:])
 		validator, found := app.StakingKeeper.GetValidator(ctx, addr)
-		if !found {
+		if (found != nil) {
 			panic("expected validator, not found")
 		}
 

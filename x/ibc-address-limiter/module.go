@@ -20,11 +20,11 @@ import (
 
 	ibcaddresslimitercli "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
+	"cosmossdk.io/core/appmodule"
 )
 
 var (
 	_ module.AppModule       = AppModule{}
-	_ module.HasBeginBlocker = AppModule{}
 	_ module.AppModuleBasic  = AppModuleBasic{}
 )
 
@@ -80,6 +80,11 @@ type AppModule struct {
 	ics4wrapper ICS4Wrapper
 }
 
+var(
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ appmodule.HasEndBlocker = AppModule{}
+)
+
 // IsAppModule implements module.AppModule.
 func (am AppModule) IsAppModule() {
 	panic("unimplemented")
@@ -121,19 +126,19 @@ func (am AppModule) Name() string {
 }
 
 // Route returns the txfees module's message routing key.
-func (am AppModule) Route() sdk.Route {
-	return sdk.Route{}
-}
+// func (am AppModule) Route() sdk.Route {
+// 	return sdk.Route{}
+// }
 
 // QuerierRoute returns the ibc-address-limiter module's query routing key.
 func (AppModule) QuerierRoute() string { return types.RouterKey }
 
 // LegacyQuerierHandler is a no-op. Needed to meet AppModule interface.
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return func(sdk.Context, []string, abci.RequestQuery) ([]byte, error) {
-		return nil, fmt.Errorf("legacy querier not supported for the x/%s module", types.ModuleName)
-	}
-}
+// func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+// 	return func(sdk.Context, []string, abci.RequestQuery) ([]byte, error) {
+// 		return nil, fmt.Errorf("legacy querier not supported for the x/%s module", types.ModuleName)
+// 	}
+// }
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
@@ -167,8 +172,8 @@ func (am AppModule) BeginBlock(context.Context) error {
 
 // EndBlock executes all ABCI EndBlock logic respective to the txfees module. It
 // returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx context.Context) error {
+	return nil
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.

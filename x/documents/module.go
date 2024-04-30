@@ -5,14 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
-	"github.com/commercionetwork/commercionetwork/x/documents/client/rest"
 	"github.com/commercionetwork/commercionetwork/x/documents/keeper"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -21,11 +19,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	//	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
+	"cosmossdk.io/core/appmodule"
 )
 
 var (
 	_ module.AppModule       = AppModule{}
-	_ module.HasBeginBlocker = AppModule{}
 	_ module.AppModuleBasic  = AppModuleBasic{}
 	//_ porttypes.IBCModule   = AppModule{}
 )
@@ -76,9 +74,9 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 }
 
 // RegisterRESTRoutes registers the capability module's REST service handlers.
-func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(clientCtx, rtr)
-}
+// func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
+// 	rest.RegisterRoutes(clientCtx, rtr)
+// }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -105,6 +103,11 @@ type AppModule struct {
 
 	keeper keeper.Keeper
 }
+
+var(
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ appmodule.HasEndBlocker = AppModule{}
+)
 
 // IsAppModule implements module.AppModule.
 func (am AppModule) IsAppModule() {
@@ -147,17 +150,17 @@ func (am AppModule) Name() string {
 }
 
 // Route returns the capability module's message routing key.
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
-}
+// func (am AppModule) Route() sdk.Route {
+// 	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
+// }
 
 // QuerierRoute returns the capability module's query routing key.
 func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 
 // LegacyQuerierHandler returns the capability module's Querier.
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
-}
+// func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+// 	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
+// }
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
@@ -194,8 +197,8 @@ func (am AppModule) BeginBlock(context.Context) error {
 
 // EndBlock executes all ABCI EndBlock logic respective to the capability module. It
 // returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx context.Context) error {
+	return nil
 }
 
 func (AppModule) ConsensusVersion() uint64 { return 1 }

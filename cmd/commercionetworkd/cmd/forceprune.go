@@ -12,7 +12,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	tmstore "cosmossdk.io/store"
+	"github.com/cometbft/cometbft/state"
+	"github.com/cometbft/cometbft/store"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
@@ -119,12 +120,12 @@ func pruneBlockStoreAndGetHeights(dbPath string, fullHeight int64) (
 
 	defer dbBs.Close()
 
-	bs := tmstore.NewBlockStore(dbBs)
+	bs := store.NewBlockStore(dbBs)
 	startHeight = bs.Base()
 	currentHeight = bs.Height()
 
 	fmt.Println("Pruning Block Store ...")
-	prunedBlocks, err := bs.PruneBlocks(currentHeight - fullHeight)
+	prunedBlocks, _, err := bs.PruneBlocks(currentHeight - fullHeight, state.State{})
 	if err != nil {
 		return 0, 0, err
 	}

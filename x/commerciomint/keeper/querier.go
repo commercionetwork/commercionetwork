@@ -9,31 +9,31 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
+	//"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	//abci "github.com/cometbft/cometbft/abci/types"
 )
 
-func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		switch path[0] {
-		case types.QueryGetEtpRest:
-			return queryGetEtp(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetEtpsByOwnerRest:
-			return queryGetEtpsByOwner(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryGetallEtpsRest:
-			return queryGetAllEtps(ctx, k, legacyQuerierCdc)
-		case types.QueryConversionRateRest:
-			return queryGetConversionRate(ctx, k, legacyQuerierCdc)
-		case types.QueryFreezePeriodRest:
-			return queryGetFreezePeriod(ctx, k, legacyQuerierCdc)
-		case types.QueryGetParamsRest:
-			return queryGetParams(ctx, k, legacyQuerierCdc)
-		default:
-			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint", types.ModuleName))
-		}
-	}
-}
+// func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+// 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
+// 		switch path[0] {
+// 		case types.QueryGetEtpRest:
+// 			return queryGetEtp(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryGetEtpsByOwnerRest:
+// 			return queryGetEtpsByOwner(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryGetallEtpsRest:
+// 			return queryGetAllEtps(ctx, k, legacyQuerierCdc)
+// 		case types.QueryConversionRateRest:
+// 			return queryGetConversionRate(ctx, k, legacyQuerierCdc)
+// 		case types.QueryFreezePeriodRest:
+// 			return queryGetFreezePeriod(ctx, k, legacyQuerierCdc)
+// 		case types.QueryGetParamsRest:
+// 			return queryGetParams(ctx, k, legacyQuerierCdc)
+// 		default:
+// 			return nil, errorsmod.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint", types.ModuleName))
+// 		}
+// 	}
+// }
 
 func queryGetEtp(ctx sdk.Context, path []string, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	id := path[0]

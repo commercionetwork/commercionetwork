@@ -1,7 +1,7 @@
 package cmd
 
 // DONTCOVER
-
+/*
 import (
 	"bufio"
 	"encoding/json"
@@ -250,8 +250,8 @@ func InitTestnet(
 			valPubKeys[i],
 			sdk.NewCoin(app.DefaultBondDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-			sdk.OneInt(),
+			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
+			math.OneInt(),
 		)
 		if err != nil {
 			return err
@@ -361,7 +361,7 @@ func initGenFiles(
 	var vbrState vbrTypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[vbrTypes.ModuleName], &vbrState)
 	tokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
-	vbrState.PoolAmount = math.LegacyNewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
+	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	vbrState.Params.DistrEpochIdentifier = "minute"
 	vbrState.Params.EarnRate = math.LegacyNewDecWithPrec(5, 2)
 	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(&vbrState)
@@ -526,3 +526,4 @@ func writeFile(name string, dir string, contents []byte) error {
 
 	return nil
 }
+*/
