@@ -439,27 +439,29 @@ The blockchain and the state of the application can be split into different fold
 
 ### Prune the node
 
-The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.
+The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.
 To increase the pruning process it is possible to set the `pruning` parameter in the `config.toml` file to `everything`. The pruning setting can be applied restarting the node service.
 
 You can apply pruning **manually** once in a while with the follow procedure.
 
-:::warning
-Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
-:::
 
-1. Stop `commercionetworkd`
+1. Set the home chain path variable to adapt to any chain user
+   ```
+   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
+   ```
+
+2. Stop `commercionetworkd`
    ```bash
    systemctl stop commercionetworkd
    ```
 
-2. Prune the node
+3. Prune the node
    ```bash
-   /root/.commercionetwork/cosmovisor/current/bin/commercionetworkd \
-     forceprune -f 282000 -m 1000 --home /root/.commercionetwork
+   $home_chain/cosmovisor/current/bin/commercionetworkd \
+     forceprune -f 282000 -m 1000 --home $home_chain
    ```
 
-3. Start the node
+4. Start the node
    ```bash
    systemctl start commercionetworkd
    ```
@@ -473,11 +475,18 @@ If you're looking for how to install a statesynced node follow the instructions 
 
 In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by state syncing it to the blockchain. 
 
-:::warning
-Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
-:::
+1. Set the chain variables to adapt the procedure to any chain user (root or cnd)
+   ```
+   # Retrieve the chain home path
+   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
 
-1. Prepare the setup for the statesync
+   # Retrieve the chain user
+   comm_user=$(systemctl show -pUser commercionetworkd.service | awk -F'=' '{print $(NF)}')
+   ```
+
+2. Prepare the setup for the statesync
+
+- Mainnet:
    ```bash
    TRUST_RPC1="rpc-mainnet.commercio.network:80"
    TRUST_RPC2="rpc2-mainnet.commercio.network:80"
@@ -491,8 +500,22 @@ Please note that the following commands assume you are acting as the root user. 
    # Get the trust hash.
    TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
    ```
+- Testnet:
+   ```bash
+   TRUST_RPC1="rpc-testnet.commercio.network:80"
+   TRUST_RPC2="rpc2-testnet.commercio.network:80"
 
-2. Verify the output
+   # Get the current height of the blockchain.
+   CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
+
+   # Calculate the trust height.
+   TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
+
+   # Get the trust hash.
+   TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
+   ```
+
+3. Verify the output
    ```bash
    printf "rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n"
    ```
@@ -504,56 +527,56 @@ Please note that the following commands assume you are acting as the root user. 
    trust_hash = "2A3B7444CD097C556FD1D1AA4D259E99E9F7513041C02EF3B7DCF8F39FFA21F8"
    ```
 
-3. Write the parameters in the config file
+4. Write the parameters in the config file
    ```bash
-   sed -i -e "s/enable = .*/enable = true/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/rpc_servers = \".*\"/rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_height = .*/trust_height = $TRUST_HEIGHT/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_hash = \".*\"/trust_hash = \"$TRUST_HASH\"/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_period = \".*\"/trust_period = \"168h0m0s\"/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/enable = .*/enable = true/" $home_chain/config/config.toml
+   sed -i -e "s/rpc_servers = \".*\"/rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"/" $home_chain/config/config.toml
+   sed -i -e "s/trust_height = .*/trust_height = $TRUST_HEIGHT/" $home_chain/config/config.toml
+   sed -i -e "s/trust_hash = \".*\"/trust_hash = \"$TRUST_HASH\"/" $home_chain/config/config.toml
+   sed -i -e "s/trust_period = \".*\"/trust_period = \"168h0m0s\"/" $home_chain/config/config.toml
    ```
 
-4. Stop the `commercionetworkd` process
+5. Stop the `commercionetworkd` process
    ```bash
    systemctl stop commercionetworkd
    ```
 
-5. Backup state file
+6. Backup state file
    ```bash
-   cp /root/.commercionetwork/data/priv_validator_state.json \
-     /root/.commercionetwork/priv_validator_state.json.backup
+   cp $home_chain/data/priv_validator_state.json \
+     $home_chain/priv_validator_state.json.backup
    ```
 
-6. Reset node database
+7. Reset node database
    ```bash
    commercionetworkd unsafe-reset-all \
-     --home /root/.commercionetwork --keep-addr-book
+     --home $home_chain --keep-addr-book
    ```
 
-7. Copy back the backupped state file
+8. Copy back the backupped state file
    ```bash
-   cp /root/.commercionetwork/priv_validator_state.json.backup \
-     /root/.commercionetwork/data/priv_validator_state.json
+   cp $home_chain/priv_validator_state.json.backup \
+     $home_chain/data/priv_validator_state.json
    ```
 
-8. **If you're not operating with root** change the permission accordingly
+9. **If you're not operating with root** change the permission accordingly
    ```bash
-   chown -R [USER]:[USER] /home/[USER]/.commercionetwork/
+   chown -R $comm_user:$comm_user $home_chain/
    ```
 
-9. Start the node
+10. Start the node
    ```bash
    systemctl start commercionetworkd
    ```
 
-10. Check the node alignment
+11. Check the node alignment
       ```bash
       journalctl -u commercionetworkd -f | grep height=
       ```
 
-11. Clean up operations
+12. Clean up operations
       ```bash
-      rm /root/.commercionetwork/priv_validator_state.json.backup
+      rm $home_chain/priv_validator_state.json.backup
       ```
 
 

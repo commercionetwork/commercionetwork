@@ -181,14 +181,13 @@ trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
 
 Edit `$HOME/.commercionetwork/config/config.toml` with these settings accordingly:
 
-```toml
-[statesync]
+   ```bash
+   sed -i -e "s/enable = .*/enable = true/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/rpc_servers = \".*\"/rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/trust_height = .*/trust_height = $TRUST_HEIGHT/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/trust_hash = \".*\"/trust_hash = \"$TRUST_HASH\"/" /root/.commercionetwork/config/config.toml
+   ```
 
-enable = true
-rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
-trust_height = 6240000
-trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
-```
 
 
 
