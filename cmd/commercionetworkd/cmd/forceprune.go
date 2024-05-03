@@ -15,7 +15,7 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
-	tmstore "github.com/tendermint/tendermint/store"
+	//tmstore "github.com/tendermint/tendermint/store"
 
 	//tmdb "github.com/tendermint/tm-db"
 	cometdb "github.com/cometbft/cometbft-db"

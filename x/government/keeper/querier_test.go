@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
+	//"cosmossdk.io/simapp"
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )

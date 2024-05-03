@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	simapp "github.com/commercionetwork/commercionetwork/testutil/simapp"
 	"github.com/commercionetwork/commercionetwork/x/epochs"
 	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 func TestEpochsExportGenesis(t *testing.T) {

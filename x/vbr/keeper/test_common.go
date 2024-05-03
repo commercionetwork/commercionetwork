@@ -3,13 +3,17 @@ package keeper
 import (
 	"testing"
 
+	//"cosmossdk.io/simapp"
 	epochsKeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
 	epochsTypes "github.com/commercionetwork/commercionetwork/x/epochs/types"
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/ibc-go/testing/simapp"
+
+	//"github.com/cosmos/cosmos-sdk/simapp"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -25,7 +29,6 @@ import (
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 )
 

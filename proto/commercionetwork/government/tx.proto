@@ -1,5 +1,5 @@
 syntax = "proto3";
-package commercionetwork.commercionetwork.government;
+package commercionetwork.government;
 
 // Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/government/types";

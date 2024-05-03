@@ -3,8 +3,8 @@ package keeper
 import (
 	"testing"
 
+	//"cosmossdk.io/simapp"
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )

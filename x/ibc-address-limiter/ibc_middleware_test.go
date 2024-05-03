@@ -1,4 +1,5 @@
 package ibc_address_limit_test
+
 /*
 import (
 	"fmt"
@@ -8,9 +9,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	ibctesting "github.com/cosmos/ibc-go/v4/testing"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/commercionetwork/commercionetwork/app/apptesting"
@@ -199,7 +200,7 @@ func (suite *MiddlewareTestSuite) AssertSend(success bool, msg sdk.Msg) (*sdk.Re
 		suite.Require().NoError(err, "IBC send failed. Expected success. %s", err)
 	} else {
 		suite.Require().Error(err, "IBC send succeeded. Expected failure")
-		
+
 	}
 	return r, err
 }

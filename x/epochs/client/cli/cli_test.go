@@ -1,7 +1,7 @@
 package cli_test
 
 import (
-	"github.com/gogo/protobuf/proto"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/stretchr/testify/suite"
 
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"

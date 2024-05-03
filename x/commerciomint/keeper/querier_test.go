@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
+	//"cosmossdk.io/simapp"
+
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

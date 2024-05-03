@@ -1,5 +1,5 @@
 syntax = "proto3";
-package commercionetwork.commercionetwork.ibcaddresslimiter;
+package commercionetwork.ibcaddresslimiter;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";

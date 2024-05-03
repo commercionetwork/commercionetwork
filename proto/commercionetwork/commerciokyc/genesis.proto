@@ -1,5 +1,5 @@
 syntax = "proto3";
-package commercionetwork.commercionetwork.commerciokyc;
+package commercionetwork.commerciokyc;
 
 // Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/commerciokyc/types";

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package commercionetwork.commercionetwork.ibcaddresslimiter;
+package commercionetwork.ibcaddresslimiter;
 
 option go_package = "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types";
 

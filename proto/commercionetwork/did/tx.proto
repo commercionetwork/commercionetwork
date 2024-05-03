@@ -1,5 +1,5 @@
 syntax = "proto3";
-package commercionetwork.commercionetwork.did;
+package commercionetwork.did;
 
 // Options section
 option go_package = "github.com/commercionetwork/commercionetwork/x/did/types";
