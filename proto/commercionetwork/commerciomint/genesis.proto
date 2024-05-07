@@ -6,14 +6,13 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 
 // Import section
 import "gogoproto/gogo.proto";
-import "google/protobuf/duration.proto";
 import "commercionetwork/commerciomint/position.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "commercionetwork/commerciomint/params.proto";
 
 // GenesisState defines the id module's genesis state.
 message GenesisState {
-  repeated Position Positions = 1;
+  repeated Position positions = 1;
   repeated cosmos.base.v1beta1.Coin pool_amount = 2 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false

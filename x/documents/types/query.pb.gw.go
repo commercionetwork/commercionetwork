@@ -986,21 +986,21 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Document_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"commercionetwork", "documents", "document", "UUID"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Document_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"commercionetwork", "documents", "document", "UUID"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_SentDocuments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "address", "sent"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_SentDocuments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "address", "sent"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_UUIDDocuments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "address", "uuid"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_UUIDDocuments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "address", "uuid"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_ReceivedDocument_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "address", "received"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_ReceivedDocument_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "address", "received"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_SentDocumentsReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "receipts", "address", "sent"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_SentDocumentsReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "receipts", "address", "sent"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_ReceivedDocumentsReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "receipts", "address", "received"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_ReceivedDocumentsReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "receipts", "address", "received"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_DocumentsReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "UUID", "receipts"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_DocumentsReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"commercionetwork", "documents", "document", "UUID", "receipts"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_DocumentsUUIDReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 2, 5}, []string{"commercionetwork", "documents", "document", "UUID", "uuid", "receipts"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_DocumentsUUIDReceipts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 2, 5}, []string{"commercionetwork", "documents", "document", "UUID", "uuid", "receipts"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

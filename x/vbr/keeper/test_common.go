@@ -10,7 +10,7 @@ import (
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/ibc-go/testing/simapp"
+	//"github.com/cosmos/ibc-go/testing/simapp"
 
 	//"github.com/cosmos/cosmos-sdk/simapp"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"

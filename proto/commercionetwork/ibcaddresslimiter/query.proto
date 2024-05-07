@@ -1,12 +1,12 @@
 syntax = "proto3";
 package commercionetwork.ibcaddresslimiter;
 
+option go_package = "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types";
+
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "commercionetwork/ibc-address-limiter/params.proto";
-
-option go_package = "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types";
+import "commercionetwork/ibcaddresslimiter/params.proto";
 
 // Query defines the gRPC querier service.
 service Query {

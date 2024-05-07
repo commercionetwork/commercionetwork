@@ -224,9 +224,9 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_EpochInfos_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 1}, []string{"commercionetwork", "epochs"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_EpochInfos_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 1}, []string{"commercionetwork", "epochs"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_CurrentEpoch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "epochs", "current_epoch"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_CurrentEpoch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "epochs", "current_epoch"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

@@ -6,7 +6,6 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/commerciomin
 
 // Import section
 import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
 import "google/protobuf/duration.proto";
 
 message Params {
@@ -14,7 +13,7 @@ message Params {
 
   string conversion_rate = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
   google.protobuf.Duration freeze_period = 2
       [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
