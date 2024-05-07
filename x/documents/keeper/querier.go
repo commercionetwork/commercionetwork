@@ -10,29 +10,29 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 
+	//abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 // NewQuerier is the module level router for state queries
-func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		switch path[0] {
-		case types.QueryReceivedDocuments:
-			return queryGetReceivedDocuments(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QuerySentDocuments:
-			return queryGetSentDocuments(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryReceivedReceipts:
-			return queryGetReceivedDocsReceipts(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QuerySentReceipts:
-			return queryGetSentDocsReceipts(ctx, path[1:], k, legacyQuerierCdc)
-		case types.QueryDocumentReceipts:
-			return queryGetDocumentsReceipts(ctx, path[1:], k, legacyQuerierCdc)
-		default:
-			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint: %s", types.ModuleName, path[0]))
-		}
-	}
-}
+// func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+// 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
+// 		switch path[0] {
+// 		case types.QueryReceivedDocuments:
+// 			return queryGetReceivedDocuments(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QuerySentDocuments:
+// 			return queryGetSentDocuments(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryReceivedReceipts:
+// 			return queryGetReceivedDocsReceipts(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QuerySentReceipts:
+// 			return queryGetSentDocsReceipts(ctx, path[1:], k, legacyQuerierCdc)
+// 		case types.QueryDocumentReceipts:
+// 			return queryGetDocumentsReceipts(ctx, path[1:], k, legacyQuerierCdc)
+// 		default:
+// 			return nil, sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("unknown %s query endpoint: %s", types.ModuleName, path[0]))
+// 		}
+// 	}
+// }
 
 // ----------------------------------
 // --- Documents

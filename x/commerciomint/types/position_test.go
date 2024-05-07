@@ -97,7 +97,7 @@ func TestPosition_Equals(t *testing.T) {
 			name: "different Collateral",
 			etp: func() Position {
 				etp := testEtp
-				etp.Collateral = sdk.NewInt(150).ToDec().RoundInt64()
+				etp.Collateral = sdk.NewInt(150).ToLegacyDec().RoundInt64()
 				return etp
 			},
 			shouldBeEqual: false,

@@ -8,9 +8,10 @@ import (
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -29,8 +30,8 @@ var membershipCosts = map[string]int64{
 
 type Keeper struct {
 	cdc           codec.Codec
-	storeKey      sdk.StoreKey
-	memKey        sdk.StoreKey
+	storeKey      storetypes.StoreKey
+	memKey        storetypes.StoreKey
 	bankKeeper    bank.Keeper
 	GovKeeper     government.Keeper
 	accountKeeper auth.AccountKeeper
@@ -40,7 +41,7 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.Codec,
 	storeKey,
-	memKey sdk.StoreKey,
+	memKey storetypes.StoreKey,
 	bankKeeper bank.Keeper,
 	govKeeper government.Keeper,
 	accountKeeper auth.AccountKeeper,

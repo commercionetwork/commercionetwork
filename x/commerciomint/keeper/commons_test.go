@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -17,10 +18,11 @@ import (
 	paramsKeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramsTypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	//"github.com/cosmos/ibc-go/testing/simapp"
-
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/tendermint/tendermint/libs/log"
-	db "github.com/tendermint/tm-db"
+	"github.com/cometbft/cometbft/libs/log"
+	cometbftdb "github.com/cometbft/cometbft-db"
+
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 
@@ -29,10 +31,11 @@ import (
 )
 
 func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, Keeper) {
-	memDB := db.NewMemDB()
+	memDB := cometbftdb.NewMemDB()
 	app := simapp.Setup(false)
 	cdc := app.AppCodec()
-
+	Bech32Prefix := "did:com"
+	
 	keys := sdk.NewKVStoreKeys(
 		authTypes.StoreKey,
 		bankTypes.StoreKey,
@@ -44,10 +47,10 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 
 	ms := store.NewCommitMultiStore(memDB)
 	for _, key := range keys {
-		ms.MountStoreWithDB(key, sdk.StoreTypeIAVL, memDB)
+		ms.MountStoreWithDB(key, storetypes.StoreTypeIAVL, memDB)
 	}
 	for _, tkey := range tkeys {
-		ms.MountStoreWithDB(tkey, sdk.StoreTypeTransient, nil)
+		ms.MountStoreWithDB(tkey, storetypes.StoreTypeTransient, nil)
 	}
 	_ = ms.LoadLatestVersion()
 
@@ -63,9 +66,10 @@ func SetupTestInput() (sdk.Context, bankKeeper.Keeper, governmentKeeper.Keeper, 
 
 	pk := paramsKeeper.NewKeeper(cdc, codec.NewLegacyAmino(), keys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
 
-	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], pk.Subspace(authTypes.DefaultParams().String()), authTypes.ProtoBaseAccount, maccPerms)
-	bk := bankKeeper.NewBaseKeeper(cdc, keys[bankTypes.StoreKey], ak, pk.Subspace(bankTypes.DefaultParams().String()), nil)
-
+	ak := authKeeper.NewAccountKeeper(cdc, keys[authTypes.StoreKey], authTypes.ProtoBaseAccount, maccPerms, Bech32Prefix, authTypes.NewModuleAddress(govtypes.ModuleName).String())
+	bk := bankKeeper.NewBaseKeeper(
+		cdc, keys[bankTypes.StoreKey], app.AccountKeeper, app.BlockedAddresses(), authTypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
 	govkeeper := governmentKeeper.NewKeeper(cdc, keys[governmentTypes.StoreKey], keys[governmentTypes.StoreKey])
 
 	//bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(*testEtp.Credits)))

@@ -1,5 +1,5 @@
 package rest
-
+/*
 import (
 	"fmt"
 	"net/http"
@@ -135,3 +135,4 @@ func getSoldForTsp(cliCtx client.Context) http.HandlerFunc {
 		restTypes.PostProcessResponse(w, cliCtx, res)
 	}
 }
+*/

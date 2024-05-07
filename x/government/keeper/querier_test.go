@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	//"cosmossdk.io/simapp"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/ibc-go/testing/simapp"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 func TestNewQuerier(t *testing.T) {

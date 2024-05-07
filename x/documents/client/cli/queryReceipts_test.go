@@ -7,6 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/stretchr/testify/require"
+	"github.com/cosmos/cosmos-sdk/codec"
 )
 
 func testCmdSentReceipts(t *testing.T) {
@@ -58,7 +59,8 @@ func testCmdSentReceipts(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetSentDocumentsReceiptsResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				var marshaller codec.JSONCodec
+				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.Receipt)
 			}
 		})
@@ -112,7 +114,8 @@ func testCmdReceivedReceipts(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetReceivedDocumentsReceiptsResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				var marshaller codec.JSONCodec
+				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.ReceiptReceived)
 			}
 		})
@@ -166,7 +169,8 @@ func testCmdDocumentsReceipts(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetDocumentsReceiptsResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				var marshaller codec.JSONCodec
+				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.Receipts)
 			}
 		})
@@ -205,7 +209,8 @@ func testCmdDocumentsUUIDReceipts(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var response types.QueryGetDocumentsUUIDReceiptsResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &response))
+				var marshaller codec.JSONCodec
+				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &response))
 				require.ElementsMatch(t, tt.expected, response.UUIDs)
 			}
 		})

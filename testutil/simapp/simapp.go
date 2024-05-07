@@ -4,12 +4,13 @@ import (
 	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/cosmos/ibc-go/testing/simapp"
 	//"github.com/cosmos/ibc-go/testing/simapp"
 	//"github.com/cosmos/cosmos-sdk/simapp"
 	//"cosmossdk.io/simapp"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"

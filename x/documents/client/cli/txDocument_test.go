@@ -10,6 +10,7 @@ import (
 	// sdkNetwork "github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/commercionetwork/commercionetwork/testutil/network"
 	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
@@ -52,7 +53,7 @@ func TestCmdShareDocument(t *testing.T) {
 			args: []string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
 			code: codeInsufficientFees,
@@ -64,7 +65,7 @@ func TestCmdShareDocument(t *testing.T) {
 			args: []string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
 			wantErr: true,
@@ -76,7 +77,7 @@ func TestCmdShareDocument(t *testing.T) {
 			args: []string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
 			wantErr: true,
@@ -90,7 +91,8 @@ func TestCmdShareDocument(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &resp))
+				var marshaller codec.JSONCodec
+				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tt.code, resp.Code)
 			}
 		})
@@ -127,7 +129,7 @@ func TestCmdSendDocumentReceipt(t *testing.T) {
 			args: []string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
 			code: codeInsufficientFees,
@@ -139,7 +141,7 @@ func TestCmdSendDocumentReceipt(t *testing.T) {
 			args: []string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
 			},
 			wantErr: true,
@@ -153,7 +155,8 @@ func TestCmdSendDocumentReceipt(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &resp))
+				var marshaller codec.JSONCodec
+				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tt.code, resp.Code)
 			}
 		})

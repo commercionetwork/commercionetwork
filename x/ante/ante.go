@@ -10,6 +10,7 @@ import (
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -42,7 +43,7 @@ func NewAnteHandler(
 	feegrantKeeper cosmosante.FeegrantKeeper,
 	ibcKeeper *ibcKeeper.Keeper,
 	wasmConfig *wasmTypes.WasmConfig,
-	txCounterStoreKey sdk.StoreKey,
+	txCounterStoreKey storetypes.StoreKey,
 ) sdk.AnteHandler {
 	// TODO: add check for nil
 	/*

@@ -21,12 +21,13 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	//"github.com/stretchr/testify/require"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
-	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
 
 	//"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 
@@ -55,7 +56,7 @@ var (
 func (s *KeeperTestHelper) Setup() {
 	//s.App = app.Setup(false)
 	s.App = simapp.New("")
-	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{})
+	s.Ctx = s.App.BaseApp.NewContext(false, tmproto.Header{})
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),
 		Ctx:             s.Ctx,
@@ -69,7 +70,7 @@ func (s *KeeperTestHelper) Setup() {
 func (s *KeeperTestHelper) SetupTestForInitGenesis() {
 	// Setting to True, leads to init genesis not running
 	s.App = app.Setup(true)
-	s.Ctx = s.App.BaseApp.NewContext(true, tmtypes.Header{})
+	s.Ctx = s.App.BaseApp.NewContext(true, tmproto.Header{})
 }
 
 func (s *KeeperTestHelper) SetEpochStartTime() {
@@ -98,7 +99,7 @@ func (s *KeeperTestHelper) CreateTestContextWithMultiStore() (sdk.Context, sdk.C
 
 	ms := rootmulti.NewStore(db, logger)
 
-	return sdk.NewContext(ms, tmtypes.Header{}, false, logger), ms
+	return sdk.NewContext(ms, tmproto.Header{}, false, logger), ms
 }
 
 // CreateTestContext creates a test context.

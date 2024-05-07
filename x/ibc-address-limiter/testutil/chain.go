@@ -13,8 +13,8 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 
 	//"github.com/cosmos/ibc-go/v7/testing/simapp/helpers"
+	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/commercionetwork/commercionetwork/app"
 )

@@ -12,7 +12,7 @@ func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id s
 
 	return Position{
 		Owner:        owner.String(),
-		Collateral:   deposit.ToDec().RoundInt64(), // TODO FIX THIS
+		Collateral:   deposit.ToLegacyDec().RoundInt64(), // TODO FIX THIS
 		Credits:      &liquidity,
 		ID:           id,
 		CreatedAt:    &createdAt, // TODO FIX THIS

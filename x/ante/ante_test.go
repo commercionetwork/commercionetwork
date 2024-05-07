@@ -29,12 +29,12 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/commercionetwork/commercionetwork/x/ante"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	docsTypes "github.com/commercionetwork/commercionetwork/x/documents/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 const (

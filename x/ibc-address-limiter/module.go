@@ -1,9 +1,9 @@
 package ibc_address_limit
 
 import (
-	"fmt"
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -16,7 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	ibcaddresslimitercli "github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
