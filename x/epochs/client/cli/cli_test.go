@@ -5,7 +5,8 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
-	"github.com/cosmos/cosmos-sdk/testutil/network"
+	"github.com/commercionetwork/commercionetwork/testutil/network"
+	"github.com/cosmos/cosmos-sdk/codec"
 
 	//"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/epochs/client/cli"
@@ -62,6 +63,7 @@ func (s *IntegrationTestSuite) TestGetCmdCurrentEpoch() {
 		s.Run(tc.name, func() {
 			cmd := cli.GetCmdCurrentEpoch()
 			clientCtx := val.ClientCtx
+			var marshaller codec.JSONCodec
 
 			args := []string{
 				tc.identifier,
@@ -72,7 +74,7 @@ func (s *IntegrationTestSuite) TestGetCmdCurrentEpoch() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONCodec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(marshaller.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 			}
 		})
 	}
@@ -98,6 +100,7 @@ func (s *IntegrationTestSuite) TestGetCmdEpochsInfos() {
 		s.Run(tc.name, func() {
 			cmd := cli.GetCmdCurrentEpoch()
 			clientCtx := val.ClientCtx
+			var marshaller codec.JSONCodec
 
 			args := []string{}
 
@@ -106,7 +109,7 @@ func (s *IntegrationTestSuite) TestGetCmdEpochsInfos() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONCodec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(marshaller.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 			}
 		})
 	}

@@ -13,13 +13,13 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/spf13/cobra"
-	tmtypes "github.com/tendermint/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
+	cometjson "github.com/cometbft/cometbft/libs/json"
 )
 
 // SetGenesisGovernmentAddressCmd returns set-genesis-government-address cobra Command.
@@ -79,7 +79,7 @@ func SetGovernmentAddress(clientCtx client.Context, appState json.RawMessage, ad
 
 	genStateGovernment.GovernmentAddress = address.String()
 
-	genesisStateBzGovernment, err := tmjson.Marshal(genStateGovernment)
+	genesisStateBzGovernment, err := cometjson.Marshal(genStateGovernment)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal genesis doc")
 	}
@@ -96,7 +96,7 @@ func SetGovernmentAddress(clientCtx client.Context, appState json.RawMessage, ad
 	membership := commerciokycTypes.NewMembership(commerciokycTypes.MembershipTypeBlack, address, address, initExpirationDate)
 	genStateMemberships.Memberships = append(genStateMemberships.Memberships, &membership)
 
-	genesisStateBzMemberships, err := tmjson.Marshal(genStateMemberships)
+	genesisStateBzMemberships, err := cometjson.Marshal(genStateMemberships)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal genesis doc")
 	}

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/cosmos/ibc-go/testing/simapp"
+	//"github.com/cosmos/ibc-go/testing/simapp"
 	//"github.com/cosmos/ibc-go/testing/simapp"
 	//"github.com/cosmos/cosmos-sdk/simapp"
 	//"cosmossdk.io/simapp"

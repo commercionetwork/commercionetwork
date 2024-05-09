@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	govKeeper "github.com/commercionetwork/commercionetwork/x/government/keeper"
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -27,8 +28,8 @@ import (
 type (
 	Keeper struct {
 		cdc           codec.Codec
-		storeKey      sdk.StoreKey
-		memKey        sdk.StoreKey
+		storeKey      storetypes.StoreKey
+		memKey        storetypes.StoreKey
 		distKeeper    distKeeper.Keeper
 		bankKeeper    bankKeeper.Keeper
 		accountKeeper accountKeeper.AccountKeeper
@@ -41,8 +42,8 @@ type (
 
 func NewKeeper(
 	cdc codec.Codec,
-	storeKey sdk.StoreKey,
-	memKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
+	memKey storetypes.StoreKey,
 	distKeeper distKeeper.Keeper,
 	bankKeeper bankKeeper.Keeper,
 	accountKeeper accountKeeper.AccountKeeper,
@@ -131,7 +132,7 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 
 	validatorBonded := validator.GetBondedTokens()
 
-	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToDec().Mul(params.EarnRate))
+	validatorBondedPerc := sdk.NewDecCoinFromDec(denom, validatorBonded.ToLegacyDec().Mul(params.EarnRate))
 	// TODO: number of validator should be get from staking module
 	// paramsVal := k.stakingKeeper.GetParams(ctx)
 	// paramsVal.MaxValidators

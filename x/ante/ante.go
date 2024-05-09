@@ -71,6 +71,7 @@ func NewAnteHandler(
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
 		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper),
+		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper, TxFeeChecker),
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),

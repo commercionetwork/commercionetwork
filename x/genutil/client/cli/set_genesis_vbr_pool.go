@@ -11,9 +11,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/tendermint/tendermint/libs/cli"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/cometbft/cometbft/libs/cli"
+	cometjson "github.com/cometbft/cometbft/libs/json"
+	comettypes "github.com/cometbft/cometbft/types"
 
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
 )
@@ -40,7 +40,7 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 
 			// retrieve the app state
 			genFile := config.GenesisFile()
-			genDoc, err := tmtypes.GenesisDocFromFile(genFile)
+			genDoc, err := comettypes.GenesisDocFromFile(genFile)
 			if err != nil {
 				return err
 			}
@@ -56,7 +56,7 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 
 			genStateVbr.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
 
-			genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)
+			genesisStateBzVbr, err := cometjson.Marshal(genStateVbr)
 			if err != nil {
 				return sdkErrors.Wrap(err, "failed to marshal genesis doc")
 			}
@@ -94,7 +94,7 @@ func SetVbrPoolAmount(appState json.RawMessage, coins sdk.Coins) (map[string]jso
 	json.Unmarshal(genState[vbrTypes.ModuleName], &genStateVbr)
 	genStateVbr.PoolAmount = sdk.NewDecCoinsFromCoins(coins...)
 
-	genesisStateBzVbr, err := tmjson.Marshal(genStateVbr)
+	genesisStateBzVbr, err := cometjson.Marshal(genStateVbr)
 	if err != nil {
 		return genState, sdkErrors.Wrap(err, "failed to marshal genesis doc")
 	}

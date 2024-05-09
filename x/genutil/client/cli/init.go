@@ -10,10 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
+	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/types"
+	"github.com/cometbft/cometbft/types"
 
 	"github.com/cosmos/go-bip39"
 
@@ -22,11 +23,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	gencli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	"github.com/tendermint/tendermint/libs/cli"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
+	"github.com/cometbft/cometbft/libs/cli"
+	cometos "github.com/cometbft/cometbft/libs/os"
+	cometrand "github.com/cometbft/cometbft/libs/rand"
 
-	cfg "github.com/tendermint/tendermint/config"
+	cfg "github.com/cometbft/cometbft/config"
 )
 
 const (
@@ -74,7 +75,8 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			cdc := clientCtx.JSONCodec
+			var marshaller codec.JSONCodec
+			//cdc := clientCtx.JSONCodec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
@@ -83,7 +85,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			if chainID == "" {
-				chainID = fmt.Sprintf("test-chain-%v", tmrand.Str(6))
+				chainID = fmt.Sprintf("test-chain-%v", cometrand.Str(6))
 			}
 
 			// Get bip39 mnemonic
@@ -112,10 +114,10 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			genFile := config.GenesisFile()
 			overwrite, _ := cmd.Flags().GetBool(gencli.FlagOverwrite)
 
-			if !overwrite && tmos.FileExists(genFile) {
+			if !overwrite && cometos.FileExists(genFile) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
-			appState, err := json.MarshalIndent(mbm.DefaultGenesis(cdc), "", " ")
+			appState, err := json.MarshalIndent(mbm.DefaultGenesis(marshaller), "", " ")
 			if err != nil {
 				return errors.Wrap(err, "Failed to marshall default genesis state")
 			}
