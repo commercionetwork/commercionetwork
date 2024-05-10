@@ -3,17 +3,15 @@ package simapp
 import (
 	"time"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	//"github.com/cosmos/ibc-go/testing/simapp"
-	//"github.com/cosmos/ibc-go/testing/simapp"
-	//"github.com/cosmos/cosmos-sdk/simapp"
-	//"cosmossdk.io/simapp"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	sims "github.com/cosmos/cosmos-sdk/testutil/sims"
+
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/types"
-	tmdb "github.com/tendermint/tm-db"
+	"github.com/cometbft/cometbft/libs/log"
+	tmtypes "github.com/cometbft/cometbft/types"
+	tmdb "github.com/cometbft/cometbft-db"
 
 	"github.com/commercionetwork/commercionetwork/app"
 )
@@ -25,8 +23,8 @@ func New(dir string) *app.App {
 
 	encoding := app.MakeEncodingConfig()
 
-	appOpts := simapp.EmptyAppOptions{}
-	var wasmOpts []wasm.Option
+	appOpts := sims.EmptyAppOptions{}
+	var wasmOpts []wasmkeeper.Option
 
 	a := app.New(
 		logger,
@@ -50,8 +48,8 @@ func New(dir string) *app.App {
 	return a
 }
 
-var defaultConsensusParams = &abci.ConsensusParams{
-	Block: &abci.BlockParams{
+var defaultConsensusParams = &tmproto.ConsensusParams{
+	Block: &tmproto.BlockParams{
 		MaxBytes: 200000,
 		MaxGas:   2000000,
 	},

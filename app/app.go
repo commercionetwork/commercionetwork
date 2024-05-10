@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cast"
 	//"github.com/tendermint/spm/openapiconsole"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	// ------------------------------------------
 	// Tendermint base
@@ -210,7 +212,7 @@ var (
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
 // produce a list of enabled proposals to pass into wasmd app.
-/*func GetEnabledProposals() []wasmtypes.ProposalType {
+func GetEnabledProposals() []wasmtypes.ProposalType {
 	if EnableSpecificProposals == "" {
 		if ProposalsEnabled == "true" {
 			return wasmtypes.EnableAllProposals
@@ -218,12 +220,30 @@ var (
 		return wasmtypes.DisableAllProposals
 	}
 	chunks := strings.Split(EnableSpecificProposals, ",")
-	proposals, err := wasm.ConvertToProposals(chunks)
+	proposals, err := ConvertToProposals(chunks)
 	if err != nil {
 		panic(err)
 	}
 	return proposals
-}*/
+}
+
+// ConvertToProposals maps each key to a ProposalType and returns a typed list.
+// If any string is not a valid type (in this file), then return an error
+func ConvertToProposals(keys []string) ([]wasmtypes.ProposalType, error) {
+	valid := make(map[string]bool, len(wasmtypes.EnableAllProposals))
+	for _, key := range wasmtypes.EnableAllProposals {
+		valid[string(key)] = true
+	}
+
+	proposals := make([]wasmtypes.ProposalType, len(keys))
+	for i, key := range keys {
+		if _, ok := valid[key]; !ok {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "'%s' is not a valid ProposalType", key)
+		}
+		proposals[i] = wasmtypes.ProposalType(key)
+	}
+	return proposals, nil
+}
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler

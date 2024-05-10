@@ -14,7 +14,7 @@ import (
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
+	//ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 
 	//"github.com/cosmos/cosmos-sdk/x/auth/types"
 	//bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -62,7 +62,7 @@ func NewAnteHandler(
 		wasmkeeper.NewLimitSimulationGasDecorator(wasmConfig.SimulationGasLimit), // after setup context to enforce limits early
 		wasmkeeper.NewCountTXDecorator(txCounterStoreKey),
 
-		cosmosante.NewMempoolFeeDecorator(),
+		//cosmosante.NewMempoolFeeDecorator(),
 		cosmosante.NewValidateBasicDecorator(),
 		cosmosante.NewValidateMemoDecorator(ak),
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
@@ -70,12 +70,12 @@ func NewAnteHandler(
 		cosmosante.NewConsumeGasForTxSizeDecorator(ak),
 		cosmosante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		cosmosante.NewValidateSigCountDecorator(ak),
-		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper),
-		cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper, TxFeeChecker),
+		//cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper),
+		//cosmosante.NewDeductFeeDecorator(ak, bankKeeper, feegrantKeeper, TxFeeChecker),
 		cosmosante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		cosmosante.NewSigVerificationDecorator(ak, signModeHandler),
 		cosmosante.NewIncrementSequenceDecorator(ak),
-		ibcante.NewAnteDecorator(ibcKeeper),
+		//ibcante.NewAnteDecorator(ibcKeeper),
 	)
 }
 

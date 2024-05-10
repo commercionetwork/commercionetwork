@@ -7,21 +7,21 @@ import (
 
 	//"cosmossdk.io/simapp"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/commercionetwork/commercionetwork/app/params"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	//"github.com/cosmos/cosmos-sdk/simapp"
+	sims "github.com/cosmos/cosmos-sdk/testutil/sims"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	pruningstoretypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
-	tmdb "github.com/tendermint/tm-db"
-
+	dbm "github.com/cometbft/cometbft-db"
+	
 	"github.com/commercionetwork/commercionetwork/app"
 )
 
@@ -48,17 +48,19 @@ func New(t *testing.T, configs ...network.Config) *network.Network {
 }
 
 func NewAppConstructor(encodingCfg params.EncodingConfig) network.AppConstructor {
-	return func(val network.Validator) servertypes.Application {
-		var wasmOpts []wasm.Option
+	return func(val network.ValidatorI) servertypes.Application {
+		var wasmOpts []wasmkeeper.Option
+		valCtx := val.GetCtx()
+		appConfig := val.GetAppConfig()
 
 		return app.New(
-			val.Ctx.Logger, tmdb.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
+			valCtx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), valCtx.Config.RootDir, 0,
 			encodingCfg,
-			simapp.EmptyAppOptions{},
+			sims.EmptyAppOptions{},
 			app.GetEnabledProposals(),
 			wasmOpts,
-			baseapp.SetPruning(storetypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
-			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
+			baseapp.SetPruning(pruningstoretypes.NewPruningOptionsFromString(appConfig.Pruning)),
+			baseapp.SetMinGasPrices(appConfig.MinGasPrices),
 		)
 	}
 }
@@ -95,7 +97,7 @@ func DefaultConfig() network.Config {
 		AccountTokens:   sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction),
 		StakingTokens:   sdk.TokensFromConsensusPower(500, sdk.DefaultPowerReduction),
 		BondedTokens:    sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
-		PruningStrategy: storetypes.PruningOptionNothing,
+		PruningStrategy: pruningstoretypes.PruningOptionNothing,
 		CleanupDir:      true,
 		SigningAlgo:     string(hd.Secp256k1Type),
 		KeyringOptions:  []keyring.Option{},

@@ -23,6 +23,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -34,16 +35,16 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	//govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
 
-	tmconfig "github.com/tendermint/tendermint/config"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/types"
-	//tmtime "github.com/tendermint/tendermint/types/time"
+	tmconfig "github.com/cometbft/cometbft/config"
+	tmos "github.com/cometbft/cometbft/libs/os"
+	tmrand "github.com/cometbft/cometbft/libs/rand"
+	"github.com/cometbft/cometbft/types"
+	tmtime "github.com/cometbft/cometbft/types/time"
 
 	"github.com/spf13/cobra"
 	//"github.com/spf13/viper"
@@ -56,6 +57,9 @@ var (
 	flagNodeDaemonHome    = "node-daemon-home"
 	flagNodeCLIHome       = "node-cli-home"
 	flagStartingIPAddress = "starting-ip-address"
+	flagKeyAlgorithm      = "key-algorithm"
+
+	emptyMnemonic = ""
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -90,7 +94,7 @@ Example:
 			nodeDaemonHome, _ := cmd.Flags().GetString(flagNodeDaemonHome)
 			startingIPAddress, _ := cmd.Flags().GetString(flagStartingIPAddress)
 			numValidators, _ := cmd.Flags().GetInt(flagNumValidators)
-			algo, _ := cmd.Flags().GetString(flags.FlagKeyAlgorithm)
+			algo, _ := cmd.Flags().GetString(flagKeyAlgorithm)
 
 			return InitTestnet(
 				clientCtx, cmd, config, mbm, genBalIterator, outputDir, chainID, minGasPrices,
@@ -118,7 +122,7 @@ Example:
 		server.FlagMinGasPrices, fmt.Sprintf("0.000001%s,0.000001%s", app.DefaultBondDenom, app.StableCreditsDenom),
 		"Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
-	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.Secp256k1Type), "Key signing algorithm to generate keys for")
+	cmd.Flags().String(flagKeyAlgorithm, string(hd.Secp256k1Type), "Key signing algorithm to generate keys for")
 
 	return cmd
 }
@@ -203,6 +207,7 @@ func InitTestnet(
 			keyringBackend,
 			nodeDir,
 			inBuf,
+			clientCtx.Codec,
 		)
 		if err != nil {
 			return err
@@ -215,7 +220,7 @@ func InitTestnet(
 			return err
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, algo)
+		addr, secret, err := testutil.GenerateSaveCoinKey(kb, nodeDirName, emptyMnemonic, true, algo)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
@@ -311,7 +316,7 @@ func initGenFiles(
 	genFiles []string, numValidators int,
 ) error {
 
-	cdc := clientCtx.JSONCodec
+	cdc := clientCtx.Codec
 
 	appGenState := mbm.DefaultGenesis(cdc)
 
@@ -346,10 +351,10 @@ func initGenFiles(
 	crisisState.ConstantFee.Denom = app.DefaultBondDenom
 	appGenState[crisistypes.ModuleName] = cdc.MustMarshalJSON(&crisisState)
 
-	var govState govtypes.GenesisState
-	cdc.MustUnmarshalJSON(appGenState[govtypes.ModuleName], &govState)
-	govState.DepositParams.MinDeposit[0].Denom = app.DefaultBondDenom
-	appGenState[govtypes.ModuleName] = cdc.MustMarshalJSON(&govState)
+	// var govState govtypes.GenesisState
+	// cdc.MustUnmarshalJSON(appGenState[govtypes.ModuleName], &govState)
+	// govState.DepositParams.MinDeposit[0].Denom = app.DefaultBondDenom
+	// appGenState[govtypes.ModuleName] = cdc.MustMarshalJSON(&govState)
 
 	// commercionetworkd set-genesis-government-address
 	var governmentState governmentTypes.GenesisState
@@ -424,7 +429,7 @@ func collectGenFiles(
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.JSONCodec, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator)
+		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator, genutiltypes.DefaultMessageValidator)
 		if err != nil {
 			return err
 		}
@@ -474,7 +479,7 @@ func collectGenFiles(
 	}
 
 	_, persistentPeers, _ := genutil.CollectTxs(
-		clientCtx.JSONCodec, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
+		clientCtx.Codec, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator, genutiltypes.DefaultMessageValidator,
 	)
 
 	writeFile("persistent.txt", filepath.Join(outputDir, "base_config"), []byte(persistentPeers))
