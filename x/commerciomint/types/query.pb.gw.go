@@ -436,13 +436,13 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Etp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciomint", "ID", "etp"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Etp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciomint", "ID", "etp"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_EtpsByOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciomint", "Owner", "etpsOwner"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_EtpsByOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciomint", "Owner", "etpsOwner"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Etps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciomint", "etps"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Etps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciomint", "etps"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciomint", "params"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciomint", "params"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

@@ -558,17 +558,17 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Invites_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "invites"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Invites_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "invites"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Invite_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciokyc", "address", "invite"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Invite_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciokyc", "address", "invite"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Tsps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "tsps"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Tsps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "tsps"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Memberships_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "memberships"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Memberships_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "memberships"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Membership_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciokyc", "address", "membership"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Membership_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"commercionetwork", "commerciokyc", "address", "membership"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Funds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "funds"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Funds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"commercionetwork", "commerciokyc", "funds"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
