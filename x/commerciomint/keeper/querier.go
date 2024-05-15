@@ -1,5 +1,5 @@
 package keeper
-
+/*
 import (
 	"fmt"
 
@@ -91,3 +91,4 @@ func queryGetParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmi
 
 	return paramsBz, nil
 }
+*/

@@ -1,5 +1,5 @@
 package keeper
-
+/*
 import (
 	"fmt"
 
@@ -221,3 +221,4 @@ func queryGetDocumentsReceipts(ctx sdk.Context, path []string, k Keeper, legacyQ
 
 	return bz, nil
 }
+*/

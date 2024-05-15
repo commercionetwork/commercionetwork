@@ -7,10 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 
-	// sdkNetwork "github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/commercionetwork/commercionetwork/testutil/network"
 	"github.com/commercionetwork/commercionetwork/x/documents/client/cli"
@@ -19,9 +17,6 @@ import (
 )
 
 const codeInsufficientFees = 13
-
-// var txNet *sdkNetwork.Network
-// var txVal *sdkNetwork.Validator
 
 func TestCmdShareDocument(t *testing.T) {
 
@@ -91,8 +86,7 @@ func TestCmdShareDocument(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				var marshaller codec.JSONCodec
-				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &resp))
+				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tt.code, resp.Code)
 			}
 		})
@@ -155,8 +149,7 @@ func TestCmdSendDocumentReceipt(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				var marshaller codec.JSONCodec
-				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &resp))
+				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tt.code, resp.Code)
 			}
 		})

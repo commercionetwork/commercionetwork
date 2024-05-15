@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/cometbft/cometbft/types"
 
-	"github.com/cosmos/cosmos-sdk/types/errors"
+	"cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"

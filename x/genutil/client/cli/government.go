@@ -14,8 +14,7 @@ import (
 
 	"github.com/spf13/cobra"
 	tmtypes "github.com/cometbft/cometbft/types"
-
-	"github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -54,6 +53,9 @@ func SetGenesisGovernmentAddressCmd(defaultNodeHome string) *cobra.Command {
 			}
 
 			genDoc.AppState, err = json.Marshal(genState)
+			if err != nil {
+				return err
+			}
 
 			return genutil.ExportGenesisFile(genDoc, genFile)
 		},

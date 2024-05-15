@@ -1,13 +1,11 @@
 package cli
 
-// x/commerciomint/client/cli/tx.go
 import (
 	"fmt"
 
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	// "github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 )
 

@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	//"cosmossdk.io/simapp"
-
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/commercionetwork/commercionetwork/app/params"
 	"github.com/cosmos/cosmos-sdk/baseapp"

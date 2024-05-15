@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 const (
@@ -16,9 +16,9 @@ const (
 )
 
 var (
-	ErrInvalidDIDFormat        = sdkerrors.Register(ModuleName, 1102, "input not compliant with the DID specifications (crf. https://www.w3.org/TR/did-core/#did-syntax)")
-	ErrInvalidDIDURLFormat     = sdkerrors.Register(ModuleName, 1103, "input not compliant with the DID URL specifications (crf. https://www.w3.org/TR/did-core/#did-url-syntax)")
-	ErrInvalidRFC3986UriFormat = sdkerrors.Register(ModuleName, 1104, "input not compliant with the RFC3986 URI specifications (crf. https://datatracker.ietf.org/doc/html/rfc3986)")
+	ErrInvalidDIDFormat        = errors.Register(ModuleName, 1102, "input not compliant with the DID specifications (crf. https://www.w3.org/TR/did-core/#did-syntax)")
+	ErrInvalidDIDURLFormat     = errors.Register(ModuleName, 1103, "input not compliant with the DID URL specifications (crf. https://www.w3.org/TR/did-core/#did-url-syntax)")
+	ErrInvalidRFC3986UriFormat = errors.Register(ModuleName, 1104, "input not compliant with the RFC3986 URI specifications (crf. https://datatracker.ietf.org/doc/html/rfc3986)")
 )
 
 var (

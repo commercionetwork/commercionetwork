@@ -7,6 +7,7 @@ import (
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 // InviteUser handle message MsgInviteUser
@@ -16,7 +17,7 @@ func (k msgServer) InviteUser(goCtx context.Context, msg *types.MsgInviteUser) (
 	// Verify that the user that is invited is not present on the chain
 	msgRecipient, _ := sdk.AccAddressFromBech32(msg.Recipient)
 	if k.accountKeeper.GetAccount(ctx, msgRecipient) != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, "cannot invite existing user")
+		return nil, errors.Wrap(sdkErr.ErrUnauthorized, "cannot invite existing user")
 	}
 
 	msgSender, _ := sdk.AccAddressFromBech32(msg.Sender)

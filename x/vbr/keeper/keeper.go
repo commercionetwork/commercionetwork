@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
@@ -180,7 +181,7 @@ func (k Keeper) DistributeBlockRewards(ctx sdk.Context, validator stakingTypes.V
 		}
 		k.distKeeper.AllocateTokensToValidator(ctx, validator, sdk.NewDecCoinsFromCoins(rewardInt...))
 	} else {
-		return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
+		return errors.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards")
 	}
 
 	return nil

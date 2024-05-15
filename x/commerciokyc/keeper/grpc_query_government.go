@@ -10,8 +10,7 @@ import (
 
 func (k Keeper) Tsps(c context.Context, req *types.QueryTspsRequest) (*types.QueryTspsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	var tsps []string
-	tsps = k.GetTrustedServiceProviders(ctx).Addresses
+	var tsps []string = k.GetTrustedServiceProviders(ctx).Addresses
 	return &types.QueryTspsResponse{Tsps: tsps}, nil
 }
 

@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 )
@@ -25,13 +26,13 @@ func (k Keeper) SetInvite(ctx sdk.Context, recipient, sender sdk.AccAddress) err
 	// Check if the user has already been invited
 	inviteKey := k.getInviteStoreKey(recipient)
 	if store.Has(inviteKey) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", recipient))
+		return errors.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("%s has already been invited", recipient))
 	}
 
 	// Verify that the user that is inviting has already a membership
 	inviterMembership, err := k.GetMembership(ctx, sender)
 	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Cannot send an invitation without having a membership: %s", err.Error()))
+		return errors.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("Cannot send an invitation without having a membership: %s", err.Error()))
 
 	}
 

@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -68,7 +69,7 @@ func CmdSentDocuments() *cobra.Command {
 
 			res, err := queryClient.SentDocuments(context.Background(), params)
 			if err != nil {
-				return sdkErr.Wrap(sdkErr.ErrLogic, fmt.Sprintf("could not get any sent document for the given address: \n %s", err))
+				return errors.Wrap(sdkErr.ErrLogic, fmt.Sprintf("could not get any sent document for the given address: \n %s", err))
 			}
 
 			return clientCtx.PrintProto(res)
@@ -107,7 +108,7 @@ func CmdUUIDDocuments() *cobra.Command {
 
 			res, err := queryClient.UUIDDocuments(context.Background(), params)
 			if err != nil {
-				return sdkErr.Wrap(sdkErr.ErrLogic, fmt.Sprintf("could not get any sent document for the given address: \n %s", err))
+				return errors.Wrap(sdkErr.ErrLogic, fmt.Sprintf("could not get any sent document for the given address: \n %s", err))
 			}
 
 			return clientCtx.PrintProto(res)

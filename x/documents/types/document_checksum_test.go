@@ -26,10 +26,7 @@ func TestDocumentChecksum_Validate(t *testing.T) {
 	}{
 		{
 			name: "invalid algorithm length",
-			fields: fields{
-				Value:     validDocumentChecksum.Value,
-				Algorithm: validDocumentChecksum.Algorithm,
-			},
+			fields: fields(validDocumentChecksum),
 			wantErr: false,
 		},
 		{
@@ -102,10 +99,7 @@ func TestDocumentChecksum_Equals(t *testing.T) {
 	}{
 		{
 			name: "equal",
-			fields: fields{
-				Value:     validDocumentChecksum.Value,
-				Algorithm: validDocumentChecksum.Algorithm,
-			},
+			fields: fields(validDocumentChecksum),
 			args: args{
 				other: validDocumentChecksum,
 			},

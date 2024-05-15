@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 // InitGenesis sets commerciokyc information for genesis.
@@ -48,10 +49,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		mTsp, _ := sdk.AccAddressFromBech32(membership.TspAddress)
 		// Need use sigle keeper methods in AssignMembership to assign membership avoid expired issue
 		if !types.IsMembershipTypeValid(membership.MembershipType) {
-			panic(sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membership.MembershipType)))
+			panic(errors.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membership.MembershipType)))
 		}
 		if k.IsTrustedServiceProvider(ctx, mOwner) && membership.MembershipType != types.MembershipTypeBlack {
-			panic(sdkErr.Wrap(sdkErr.ErrUnauthorized,
+			panic(errors.Wrap(sdkErr.ErrUnauthorized,
 				fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", mOwner),
 			))
 		}
@@ -61,7 +62,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		store := ctx.KVStore(k.storeKey)
 		staddr := k.storageForAddr(mOwner)
 		if store.Has(staddr) {
-			panic(sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+			panic(errors.Wrap(sdkErr.ErrUnknownRequest,
 				fmt.Sprintf(
 					"cannot add membership \"%s\" for address %s: user already has a membership",
 					membership.MembershipType,
@@ -71,7 +72,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		}
 		// Save membership
 		membership := types.NewMembership(membership.MembershipType, mOwner, mTsp, membership.ExpiryAt.UTC())
-		//store.Set(staddr, k.cdc.MustMarshalBinaryBare(&membership))
 		store.Set(staddr, k.cdc.MustMarshal(&membership))
 	}
 
@@ -80,9 +80,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	var trustedServiceProviders []string
-	for _, tsp := range k.GetTrustedServiceProviders(ctx).Addresses {
-		trustedServiceProviders = append(trustedServiceProviders, tsp)
-	}
+	trustedServiceProviders = append(trustedServiceProviders, k.GetTrustedServiceProviders(ctx).Addresses...)
 
 	return &types.GenesisState{
 		LiquidityPoolAmount:     k.GetPoolFunds(ctx),

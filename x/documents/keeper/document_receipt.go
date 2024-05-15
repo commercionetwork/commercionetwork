@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	"github.com/gofrs/uuid"
 
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
@@ -15,13 +16,13 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	// Check the id validity
 	if _, err := uuid.FromString(receipt.UUID); err != nil {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document receipt UUID: %s", receipt.UUID))
+		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid document receipt UUID: %s", receipt.UUID))
 	}
 	store := ctx.KVStore(keeper.storeKey)
 
 	// Check for an existing document
 	if !store.Has(getDocumentStoreKey(receipt.DocumentUUID)) {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("receipt points to a non-existing document UUID: %s", receipt.DocumentUUID))
+		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("receipt points to a non-existing document UUID: %s", receipt.DocumentUUID))
 	}
 
 	marshaledReceiptID := []byte(receipt.UUID)
@@ -29,19 +30,19 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	// Check for usage of same ID
 	if store.Has(receiptStoreKey) {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
 
 	senderAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Sender)
 
 	// check if Sender is included among the recipients of the document
 	if !store.Has(getReceivedDocumentsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)) {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", receipt.Sender, receipt.UUID))
+		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", receipt.Sender, receipt.UUID))
 	}
 
 	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)
 	if store.Has(sentReceiptsIdsStoreKey) {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
+		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
 
 	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)

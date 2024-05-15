@@ -8,6 +8,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/documents/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
@@ -183,7 +184,7 @@ func TestSentDocuments(t *testing.T) {
 		{
 			desc:    "Invalid address",
 			request: &types.QueryGetSentDocumentsRequest{},
-			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+			err:     errors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
 		},
 		{
 			desc: "InvalidRequest",
@@ -225,7 +226,7 @@ func TestUUIDDocuments(t *testing.T) {
 		{
 			desc:    "Invalid address",
 			request: &types.QueryGetUUIDDocumentsRequest{},
-			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+			err:     errors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
 		},
 		{
 			desc: "InvalidRequest",
@@ -267,7 +268,7 @@ func TestReceivedDocument(t *testing.T) {
 		{
 			desc:    "Invalid address",
 			request: &types.QueryGetReceivedDocumentRequest{},
-			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+			err:     errors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
 		},
 		{
 			desc: "InvalidRequest",
@@ -309,7 +310,7 @@ func TestSentDocumentsReceipts(t *testing.T) {
 		{
 			desc:    "Invalid address",
 			request: &types.QueryGetSentDocumentsReceiptsRequest{},
-			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+			err:     errors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
 		},
 		{
 			desc: "InvalidRequest",
@@ -351,7 +352,7 @@ func TestReceivedDocumentsReceipts(t *testing.T) {
 		{
 			desc:    "Invalid address",
 			request: &types.QueryGetReceivedDocumentsReceiptsRequest{},
-			err:     sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
+			err:     errors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address: "),
 		},
 		{
 			desc: "InvalidRequest",

@@ -1,5 +1,5 @@
 package keeper
-
+/*
 import (
 //	"fmt"
 
@@ -53,3 +53,4 @@ func queryGetIdentityHistoryOfAddress(ctx sdk.Context, path []string, k Keeper, 
 
 	return bz, nil
 }
+*/

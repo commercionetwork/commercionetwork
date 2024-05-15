@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	accTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -66,12 +67,12 @@ var membershipRewards = map[string]map[string]sdk.Dec{
 func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershipType string, tsp sdk.AccAddress, expited_at time.Time) error {
 	// Check the membership type validity.
 	if !types.IsMembershipTypeValid(membershipType) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
+		return errors.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid membership type: %s", membershipType))
 	}
 
 	// TODO resolve problems in init genesis to remove membershipType != types.MembershipTypeBlack
 	if k.IsTrustedServiceProvider(ctx, user) && membershipType != types.MembershipTypeBlack {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
+		return errors.Wrap(sdkErr.ErrUnauthorized,
 			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user),
 		)
 	}
@@ -79,7 +80,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	// Check if the expired at is greater then current time
 	// Blocktime maybe better with ctx.BlockHeader().Time
 	if expited_at.Before(ctx.BlockTime()) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", expited_at))
+		return errors.Wrap(sdkErr.ErrUnknownRequest, fmt.Sprintf("Invalid expiry date: %s is before current block time", expited_at))
 	}
 
 	// Delete membership if exists
@@ -91,7 +92,7 @@ func (k Keeper) AssignMembership(ctx sdk.Context, user sdk.AccAddress, membershi
 	store := ctx.KVStore(k.storeKey)
 	staddr := k.storageForAddr(user)
 	if store.Has(staddr) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+		return errors.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf(
 				"cannot add membership \"%s\" for address %s: user already has a membership",
 				membershipType,
@@ -125,14 +126,14 @@ func (k Keeper) DeleteMembership(ctx sdk.Context, user sdk.AccAddress) error {
 
 	// Check if membership must be deleted is owned user by a trust service provider
 	if k.IsTrustedServiceProvider(ctx, user) {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized,
+		return errors.Wrap(sdkErr.ErrUnauthorized,
 			fmt.Sprintf("account \"%s\" is a Trust Service Provider: remove from tsps list before", user.String()),
 		)
 	}
 
 	// Check if user has a membership
 	if !store.Has(k.storageForAddr(user)) {
-		return sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+		return errors.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("account \"%s\" does not have any membership", user.String()),
 		)
 	}
@@ -162,13 +163,13 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	inviteSender, _ := sdk.AccAddressFromBech32(invite.Sender)
 	_, err := k.GetMembership(ctx, inviteSender)
 	if err != nil || invite.SenderMembership == "" {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership")
+		return errors.Wrap(sdkErr.ErrUnauthorized, "Invite sender does not have a membership")
 	}
 
 	inviteUser, _ := sdk.AccAddressFromBech32(invite.User)
 	recipientMembership, err := k.GetMembership(ctx, inviteUser)
 	if err != nil {
-		return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership")
+		return errors.Wrap(sdkErr.ErrUnauthorized, "Invite recipient does not have a membership")
 	}
 
 	senderMembershipType := invite.SenderMembership
@@ -179,7 +180,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 	var rewardCrossValue sdk.Dec
 	var ok bool
 	if rewardCrossValue, ok = membershipRewards[senderMembershipType][recipientMembershipType]; !ok {
-		return sdkErr.Wrap(sdkErr.ErrInvalidRequest, "Invalid reward options")
+		return errors.Wrap(sdkErr.ErrInvalidRequest, "Invalid reward options")
 	}
 	rewardAmount := rewardCrossValue.MulInt64(1000000).TruncateInt()
 	//rewardAmount := membershipRewards[senderMembershipType][recipientMembershipType].MulInt64(1000000).TruncateInt()
@@ -209,16 +210,16 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 
 		// Mint coins to module
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, rewardCoins); err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+			return errors.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, inviteSender, rewardCoins); err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+			return errors.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
 		// Burn com tokens after ccc tokens are sent
 		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, stakeEquivCoins); err != nil {
-			return sdkErr.Wrap(sdkErr.ErrInvalidRequest, err.Error())
+			return errors.Wrap(sdkErr.ErrInvalidRequest, err.Error())
 		}
 
 		// Emits events
@@ -232,7 +233,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, invite types.Invite) error {
 		))
 
 	} else {
-		returnMethod = sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens")
+		returnMethod = errors.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens")
 	}
 
 	// Set the invitation as rewarded
@@ -269,7 +270,7 @@ func (k Keeper) GetMembership(ctx sdk.Context, user sdk.AccAddress) (types.Membe
 	var ms types.Membership
 	k.cdc.MustUnmarshal(membershipRaw, &ms)
 	if !IsValidMembership(ctx, *ms.ExpiryAt, ms.MembershipType) {
-		return types.Membership{}, sdkErr.Wrap(sdkErr.ErrUnknownRequest,
+		return types.Membership{}, errors.Wrap(sdkErr.ErrUnknownRequest,
 			fmt.Sprintf("membership for user \"%s\" has expired", user.String()),
 		)
 	}

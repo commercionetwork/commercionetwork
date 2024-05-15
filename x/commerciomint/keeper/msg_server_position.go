@@ -6,7 +6,8 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	ctypes "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types.MsgMintCCCResponse, error) {
@@ -23,7 +24,7 @@ func (k msgServer) MintCCC(goCtx context.Context, msg *types.MsgMintCCC) (*types
 		msg.ID,
 	)
 	if err != nil {
-		return nil, errors.Wrap(errors.ErrInvalidRequest, err.Error())
+		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	ctypes.EmitCommonEvents(ctx, msg.Depositor)
 	return &types.MsgMintCCCResponse{

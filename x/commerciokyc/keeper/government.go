@@ -8,6 +8,7 @@ import (
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 const (
@@ -21,8 +22,7 @@ func (k Keeper) AddTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
-	var signers ctypes.Strings
-	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	var signers ctypes.Strings = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, inserted := signers.AppendIfMissing(tsp.String()); inserted {
 		trustedServiceProviders.Addresses = signersNew
 		newSignersBz, _ := k.cdc.Marshal(&trustedServiceProviders)
@@ -45,8 +45,7 @@ func (k Keeper) RemoveTrustedServiceProvider(ctx sdk.Context, tsp sdk.AccAddress
 	store := ctx.KVStore(k.storeKey)
 
 	var trustedServiceProviders types.TrustedServiceProviders
-	var signers ctypes.Strings
-	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	var signers ctypes.Strings = k.GetTrustedServiceProviders(ctx).Addresses
 	if signersNew, find := signers.RemoveIfExisting(tsp.String()); find {
 		trustedServiceProviders.Addresses = signersNew
 		newSignersBz := k.cdc.MustMarshal(&trustedServiceProviders)
@@ -68,7 +67,7 @@ func (k Keeper) DepositIntoPool(ctx sdk.Context, depositor sdk.AccAddress, amoun
 	var amountCoins sdk.Coins
 	for _, coin := range amount {
 		if coin.Denom != stakeDenom { // TODO change with constant
-			return sdkErr.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf("deposit into membership pool can only be expressed in %s", stakeDenom))
+			return errors.Wrap(sdkErr.ErrInsufficientFunds, fmt.Sprintf("deposit into membership pool can only be expressed in %s", stakeDenom))
 		}
 		amountCoins = append(amountCoins, coin)
 	}
@@ -103,8 +102,7 @@ func (k Keeper) GetTrustedServiceProviders(ctx sdk.Context) (signers types.Trust
 
 // IsTrustedServiceProvider tells if the given signer is a trusted one or not
 func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bool {
-	var signers ctypes.Strings
-	signers = k.GetTrustedServiceProviders(ctx).Addresses
+	var signers ctypes.Strings = k.GetTrustedServiceProviders(ctx).Addresses
 	return signers.Contains(signer.String()) || signer.Equals(k.GovKeeper.GetGovernmentAddress(ctx))
 }
 
@@ -112,8 +110,6 @@ func (k Keeper) IsTrustedServiceProvider(ctx sdk.Context, signer sdk.Address) bo
 func (k Keeper) GetPoolFunds(ctx sdk.Context) sdk.Coins {
 	moduleAccount := k.GetMembershipModuleAccount(ctx)
 	var coins sdk.Coins
-	for _, coin := range k.bankKeeper.GetAllBalances(ctx, moduleAccount.GetAddress()) {
-		coins = append(coins, coin)
-	}
+	coins = append(coins, k.bankKeeper.GetAllBalances(ctx, moduleAccount.GetAddress())...)
 	return coins
 }

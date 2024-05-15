@@ -7,7 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkErrors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

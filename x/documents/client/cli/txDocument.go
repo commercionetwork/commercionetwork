@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -39,7 +40,7 @@ func CmdShareDocument() *cobra.Command {
 
 			// this check could be improved by reading args[6] and args[7]
 			if len(args) == 7 {
-				return sdkErr.Wrap(sdkErr.ErrUnauthorized, "Unauthorized number of arguments. If you specify [checksum-value] you have to specify [checksum-algorithm] too")
+				return errors.Wrap(sdkErr.ErrUnauthorized, "Unauthorized number of arguments. If you specify [checksum-value] you have to specify [checksum-algorithm] too")
 			}
 
 			sender := cliCtx.GetFromAddress()

@@ -3,12 +3,12 @@ package types
 import (
 	"fmt"
 	"time"
-
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	uuid "github.com/satori/go.uuid"
 )
 
-func NewPosition(owner sdk.AccAddress, deposit sdk.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Dec) Position {
+func NewPosition(owner sdk.AccAddress, deposit math.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Dec) Position {
 
 	return Position{
 		Owner:        owner.String(),
@@ -40,7 +40,7 @@ func (pos Position) Validate() error {
 	}
 
 	if pos.CreatedAt != nil {
-		if *pos.CreatedAt == (time.Time{}) {
+		if (*pos.CreatedAt).Equal((time.Time{})) {
 			return fmt.Errorf("cannot have empty creation time")
 		}
 	}

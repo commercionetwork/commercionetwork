@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cast"
 	//"github.com/tendermint/spm/openapiconsole"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 
 	// ------------------------------------------
 	// Comet base
@@ -22,7 +23,6 @@ import (
 	// ------------------------------------------
 	// Cosmwasm module
 	"github.com/CosmWasm/wasmd/x/wasm"
-	//wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -121,7 +121,6 @@ import (
 
 	//  Upgrade
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	//upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -132,7 +131,7 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	// ------------------------------------------
-	// IBC v4
+	// IBC v7
 	//  Transfer
 	transfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
@@ -236,7 +235,7 @@ func ConvertToProposals(keys []string) ([]wasmtypes.ProposalType, error) {
 	proposals := make([]wasmtypes.ProposalType, len(keys))
 	for i, key := range keys {
 		if _, ok := valid[key]; !ok {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "'%s' is not a valid ProposalType", key)
+			return nil, errors.Wrapf(sdkerrors.ErrInvalidRequest, "'%s' is not a valid ProposalType", key)
 		}
 		proposals[i] = wasmtypes.ProposalType(key)
 	}
@@ -246,12 +245,8 @@ func ConvertToProposals(keys []string) ([]wasmtypes.ProposalType, error) {
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
 
-	//govProposalHandlers = wasmclient.ProposalHandlers
 	govProposalHandlers = append(govProposalHandlers,
 		paramsclient.ProposalHandler,
-		//distrclient.ProposalHandler,
-		//upgradeclient.ProposalHandler,
-		//upgradeclient.CancelProposalHandler,
 	)
 
 	return govProposalHandlers
@@ -425,7 +420,6 @@ func New(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	//keys := sdk.NewKVStoreKeys(
 	keys := NewKVStoreKeys(
 		authtypes.StoreKey,
 		banktypes.StoreKey,
@@ -475,7 +469,6 @@ func New(
 	// set the BaseApp's parameter store
 	app.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, keys[consensusparamtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
 	bApp.SetParamStore(&app.ConsensusParamsKeeper)
-	//bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
 
 	// add capability keeper and ScopeToModule for ibc module
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
@@ -570,7 +563,6 @@ func New(
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
-		//AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 
@@ -1020,7 +1012,7 @@ func New(
 		// that in-memory capabilities get regenerated on app restart.
 		// Note that since this reads from the store, we can only perform it when
 		// `loadLatest` is set to true.
-		app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		app.NewUncachedContext(true, tmproto.Header{})
 		app.CapabilityKeeper.Seal()
 	}
 

@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 // refactor error variables names
@@ -60,13 +61,13 @@ func (k msgServer) SetParams(goCtx context.Context, msg *types.MsgSetParams) (*t
 		return nil, e
 	}
 	if !(gov.Equals(msgGovAddr)) {
-		return nil, sdkErr.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set params", msg.Government))
+		return nil, errors.Wrap(sdkErr.ErrUnauthorized, fmt.Sprintf("%s cannot set params", msg.Government))
 	}
 
 	params := types.NewParams(msg.DistrEpochIdentifier, msg.EarnRate)
 
 	if err := k.SetParamSet(ctx, params); err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid params: %s", msg.EarnRate))
+		return nil, errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("invalid params: %s", msg.EarnRate))
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(

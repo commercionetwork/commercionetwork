@@ -90,8 +90,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 
 			customTemplate, customCommercioConfig := initAppConfig()
-			//_ , customTMConfig := initAppConfig()
-			//return server.InterceptConfigsPreRunHandler(cmd)
 			return server.InterceptConfigsPreRunHandler(cmd, customTemplate, customCommercioConfig,  tmcfg.DefaultConfig())
 		},
 	}
@@ -124,7 +122,6 @@ func initAppConfig() (string, interface{}) {
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
-	//authclient.Codec = encodingConfig.Marshaler
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 	a := appCreator{encodingConfig}
@@ -245,7 +242,6 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	snapshotDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", "snapshots")
-	//snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
 	if err != nil {
 		panic(err)
@@ -298,8 +294,6 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(server.FlagIndexEvents))),
 		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
 		baseapp.SetChainID(chainID),
-		//baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
-		//baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
 	)
 }
 

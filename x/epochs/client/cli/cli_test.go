@@ -7,7 +7,6 @@ import (
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/commercionetwork/commercionetwork/testutil/network"
 
-	//"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/x/epochs/client/cli"
 	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 )

@@ -7,6 +7,7 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 // NewHandler ...
@@ -20,7 +21,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
-			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
+			return nil, errors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 		}
 	}
 }

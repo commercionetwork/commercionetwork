@@ -8,7 +8,6 @@ import (
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/commercionetwork/commercionetwork/testutil/network"
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
@@ -80,8 +79,7 @@ func TestIncrementBlockRewardsPool(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				var marshaller codec.JSONCodec
-				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &resp))
+				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tc.code, resp.Code)
 			}
 		})
@@ -152,8 +150,7 @@ func TestSetParams(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				var marshaller codec.JSONCodec
-				require.NoError(t, marshaller.UnmarshalJSON(out.Bytes(), &resp))
+				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tc.code, resp.Code)
 			}
 		})

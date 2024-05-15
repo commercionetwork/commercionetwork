@@ -6,13 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	//"math/rand"
 	"strconv"
 	"testing"
 	"time"
 	"cosmossdk.io/math"
 
-	//"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/commercionetwork/commercionetwork/app/params"
@@ -24,19 +22,14 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cometbft/cometbft-db"
 
-	//"cosmossdk.io/simapp/helpers"
-
-	//bam "github.com/cosmos/cosmos-sdk/baseapp"
-	//"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	//"github.com/cosmos/ibc-go/testing/simapp/helpers"
 
-	//"github.com/cosmos/cosmos-sdk/simapp/helpers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -450,7 +443,7 @@ func NewPubKeyFromHex(pk string) (res cryptotypes.PubKey) {
 		panic(err)
 	}
 	if len(pkBytes) != ed25519.PubKeySize {
-		panic(errors.Wrap(errors.ErrInvalidPubKey, "invalid pubkey size"))
+		panic(errors.Wrap(sdkerrors.ErrInvalidPubKey, "invalid pubkey size"))
 	}
 	return &ed25519.PubKey{Key: pkBytes}
 }

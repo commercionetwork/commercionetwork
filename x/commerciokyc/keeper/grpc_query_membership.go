@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -42,7 +43,7 @@ func (k Keeper) Memberships(c context.Context, req *types.QueryMembershipsReques
 func (k Keeper) Membership(c context.Context, req *types.QueryMembershipRequest) (*types.QueryMembershipResponse, error) {
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdkErr.Wrap(sdkErr.ErrInvalidAddress, req.Address)
+		return nil, errors.Wrap(sdkErr.ErrInvalidAddress, req.Address)
 	}
 	// Search  membership
 	ctx := sdk.UnwrapSDKContext(c)

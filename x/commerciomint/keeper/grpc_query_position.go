@@ -7,7 +7,8 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,7 +21,7 @@ func (k Keeper) EtpsByOwner(c context.Context, req *types.QueryEtpsByOwnerReques
 
 	owner, err := sdk.AccAddressFromBech32(req.Owner)
 	if err != nil {
-		return nil, errors.Wrap(errors.ErrInvalidAddress, fmt.Sprintf("could not convert address: %s", err.Error()))
+		return nil, errors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("could not convert address: %s", err.Error()))
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)

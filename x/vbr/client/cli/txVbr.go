@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 // this can be removed
@@ -63,7 +64,7 @@ func CmdSetParams() *cobra.Command {
 			epochIdentifier := args[0]
 			earnRate, err := sdk.NewDecFromStr(args[1])
 			if err != nil {
-				return sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "invalid earnRate (%s)", err)
+				return errors.Wrapf(sdkerrors.ErrInvalidType, "invalid earnRate (%s)", err)
 			}
 
 			msg := types.NewMsgSetParams(gov.String(), epochIdentifier, earnRate)

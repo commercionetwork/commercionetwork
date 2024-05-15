@@ -145,6 +145,9 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 					return err
 				}
 				appState, err = json.Marshal(genState)
+				if err != nil {
+					return err
+				}
 			}
 
 			// Verify vbr pool amount flag
@@ -159,7 +162,9 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 					return err
 				}
 				appState, err = json.Marshal(genState)
-
+				if err != nil {
+					return err
+				}
 			}
 
 			genDoc.ChainID = chainID

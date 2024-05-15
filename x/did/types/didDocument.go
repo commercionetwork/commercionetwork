@@ -3,12 +3,13 @@ package types
 import (
 	commons "github.com/commercionetwork/commercionetwork/x/common/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 )
 
 func (ddo *DidDocument) Validate() error {
 
 	if ddo == nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "didDocument not defined")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "didDocument not defined")
 	}
 
 	// validate @context
@@ -20,10 +21,10 @@ func (ddo *DidDocument) Validate() error {
 
 	// validate ID
 	if IsEmpty(ddo.ID) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"id\" is required")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "verificationMethod field \"id\" is required")
 	}
 	if err := Validate(ddo.ID); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid ID %s: %e", ddo.ID, err)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid ID %s: %e", ddo.ID, err)
 	}
 
 	// validate VerificationMethod
@@ -41,51 +42,51 @@ func (ddo *DidDocument) Validate() error {
 
 	// validate authentication
 	if !commons.Strings(ddo.Authentication).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication %s found elements with the same ID", ddo.Authentication)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication %s found elements with the same ID", ddo.Authentication)
 	}
 	for _, a := range ddo.Authentication {
 		if !ddo.hasVerificationMethod(a) {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication: %s is not among the verification methods", a)
+			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authentication: %s is not among the verification methods", a)
 		}
 	}
 
 	// validate assertionMethod
 	if !commons.Strings(ddo.AssertionMethod).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod %s found elements with the same ID", ddo.AssertionMethod)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod %s found elements with the same ID", ddo.AssertionMethod)
 	}
 	for _, am := range ddo.AssertionMethod {
 		if !ddo.hasVerificationMethod(am) {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod: %s is not among the verification methods", am)
+			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid assertionMethod: %s is not among the verification methods", am)
 		}
 	}
 
 	// validate capabilityDelegation
 	if !commons.Strings(ddo.CapabilityDelegation).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation %s found elements with the same ID", ddo.CapabilityDelegation)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation %s found elements with the same ID", ddo.CapabilityDelegation)
 	}
 	for _, cd := range ddo.CapabilityDelegation {
 		if !ddo.hasVerificationMethod(cd) {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation: %s is not among the verification methods", cd)
+			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityDelegation: %s is not among the verification methods", cd)
 		}
 	}
 
 	// validate capabilityInvocation
 	if !commons.Strings(ddo.CapabilityInvocation).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation %s found elements with the same ID", ddo.CapabilityInvocation)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation %s found elements with the same ID", ddo.CapabilityInvocation)
 	}
 	for _, ci := range ddo.CapabilityInvocation {
 		if !ddo.hasVerificationMethod(ci) {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation: %s is not among the verification methods", ci)
+			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid capabilityInvocation: %s is not among the verification methods", ci)
 		}
 	}
 
 	// validate keyAgreement
 	if !commons.Strings(ddo.KeyAgreement).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement %s found elements with the same ID", ddo.KeyAgreement)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement %s found elements with the same ID", ddo.KeyAgreement)
 	}
 	for _, ka := range ddo.KeyAgreement {
 		if !ddo.hasVerificationMethod(ka) {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement: %s is not among the verification methods", ka)
+			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid keyAgreement: %s is not among the verification methods", ka)
 		}
 	}
 
@@ -94,13 +95,13 @@ func (ddo *DidDocument) Validate() error {
 
 func validateContextSlice(context []string) error {
 	if !commons.Strings(context).IsSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid @context %s found elements with the same ID", context)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid @context %s found elements with the same ID", context)
 	}
 	if len(context) == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid @context, must include %s", ContextDidV1)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid @context, must include %s", ContextDidV1)
 	}
 	if context[0] != ContextDidV1 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid @context, %s must be the first element", ContextDidV1)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid @context, %s must be the first element", ContextDidV1)
 	}
 
 	return nil
@@ -116,12 +117,12 @@ func validateVerificationMethodSlice(verificationMethod []*VerificationMethod, s
 		return commons.Strings(keys).IsSet()
 	}
 	if !isVerificationMethodSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s found elements with the same ID", verificationMethod)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s found elements with the same ID", verificationMethod)
 	}
 	var containsRsaSignature2018, containsRsaVerificationKey2018 bool
 	for _, vm := range verificationMethod {
 		if err := vm.Validate(subject); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s %e", vm, err)
+			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s %e", vm, err)
 		}
 		if vm.Type == RsaSignature2018 {
 			containsRsaSignature2018 = true
@@ -131,7 +132,7 @@ func validateVerificationMethodSlice(verificationMethod []*VerificationMethod, s
 		}
 	}
 	if !containsRsaSignature2018 || !containsRsaVerificationKey2018 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s types %s and %s are required", verificationMethod, RsaSignature2018, RsaVerificationKey2018)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid verificationMethod %s types %s and %s are required", verificationMethod, RsaSignature2018, RsaVerificationKey2018)
 	}
 
 	return nil
@@ -147,7 +148,7 @@ func validateServiceSlice(service []*Service) error {
 		return commons.Strings(keys).IsSet()
 	}
 	if !isServiceSet() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid service %s found elements with the same ID", service)
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid service %s found elements with the same ID", service)
 	}
 	for _, s := range service {
 		if err := s.Validate(); err != nil {

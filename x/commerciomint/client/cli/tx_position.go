@@ -43,9 +43,6 @@ func mintCCCCmdFunc(cmd *cobra.Command, args []string) error {
 	}
 
 	mintUUID := uuid.NewV4().String()
-	if err != nil {
-		return err
-	}
 	postion := types.Position{
 		Owner:      sender.String(),
 		Collateral: deposit.Int64(),

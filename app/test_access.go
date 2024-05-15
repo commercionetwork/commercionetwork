@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -25,7 +25,7 @@ func (s TestSupport) IBCKeeper() ibckeeper.Keeper {
 	return *s.app.IBCKeeper
 }
 
-func (s TestSupport) WasmKeeper() wasm.Keeper {
+func (s TestSupport) WasmKeeper() wasmkeeper.Keeper {
 	return s.app.WasmKeeper
 }
 

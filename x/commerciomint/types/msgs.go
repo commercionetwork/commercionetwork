@@ -4,7 +4,8 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errors "cosmossdk.io/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -50,11 +51,11 @@ func (msg *MsgMintCCC) GetSignBytes() []byte {
 func (msg *MsgMintCCC) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Depositor)
 	if err != nil {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Depositor)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Depositor)
 	}
 
 	if msg.ID == "" {
-		return errors.Wrap(errors.ErrInvalidRequest, "missing position ID")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "missing position ID")
 	}
 
 	coins := sdk.NewCoins()
@@ -62,7 +63,7 @@ func (msg *MsgMintCCC) ValidateBasic() error {
 		coins = append(coins, *coin)
 	}
 	if !ValidateDeposit(coins) {
-		return errors.Wrap(errors.ErrInvalidCoins, coins.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, coins.String())
 	}
 
 	return nil
@@ -107,15 +108,15 @@ func (msg *MsgBurnCCC) GetSignBytes() []byte {
 func (msg *MsgBurnCCC) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return errors.Wrap(errors.ErrInvalidAddress, msg.Signer)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Signer)
 	}
 
 	if msg.Amount.IsZero() || msg.Amount.IsNegative() || msg.Amount.Denom != CreditsDenom {
-		return errors.Wrap(errors.ErrInvalidRequest, "invalid amount")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "invalid amount")
 	}
 
 	if _, err := uuid.FromString(msg.ID); err != nil {
-		return errors.Wrap(errors.ErrInvalidRequest, "id must be a well-defined UUID")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "id must be a well-defined UUID")
 	}
 	return nil
 }
@@ -162,12 +163,12 @@ func (msg *MsgSetParams) GetSignBytes() []byte {
 func (msg *MsgSetParams) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return errors.Wrapf(errors.ErrInvalidAddress, "invalid government address (%s)", err)
+		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid government address (%s)", err)
 	}
 
 	err = msg.Params.Validate()
 	if err != nil {
-		return errors.Wrapf(errors.ErrUnknownRequest, "invalid params (%s)", err)
+		return errors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid params (%s)", err)
 	}
 
 	return nil

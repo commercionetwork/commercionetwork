@@ -1,5 +1,5 @@
 package keeper
-
+/*
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
-
+*/
 // NewQuerier returns a new sdk.Keeper instance.
 /*func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
@@ -32,7 +32,7 @@ import (
 		}
 	}
 }*/
-
+/*
 func queryGetPoolFunds(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) (res []byte, err error) {
 
 	poolFunds := k.GetPoolFunds(ctx)
@@ -149,3 +149,4 @@ func queryGetTspMemberships(ctx sdk.Context, path []string, keeper Keeper, legac
 	return bz, nil
 
 }
+*/
