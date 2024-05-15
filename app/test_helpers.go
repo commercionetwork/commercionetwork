@@ -69,7 +69,7 @@ var DefaultConsensusParams = &tmproto.ConsensusParams{
 func setup(withGenesis bool, invCheckPeriod uint, opts ...wasmkeeper.Option) (*App, GenesisState) {
 	encodingConfig := params.MakeEncodingConfig()
 	db := dbm.NewMemDB()
-	cdc := encodingConfig.Marshaler
+	cdc := encodingConfig.Codec
 	app := New(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, invCheckPeriod, encodingConfig, EmptyBaseAppOptions{}, wasmtypes.EnableAllProposals, opts)
 	if withGenesis {
 		return app, NewDefaultGenesisState(cdc)

@@ -10,14 +10,14 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/types"
+	"github.com/cometbft/cometbft/types"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	extypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
+	cometjson "github.com/cometbft/cometbft/libs/json"
 )
 
 var migrationMap = map[string][]extypes.MigrationCallback{
@@ -129,7 +129,7 @@ $ %s migrate v3.0.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --gen
 			initialHeight, _ := cmd.Flags().GetInt(flagInitialHeight)
 			genDoc.InitialHeight = int64(initialHeight)
 
-			bz, err := tmjson.Marshal(genDoc)
+			bz, err := cometjson.Marshal(genDoc)
 			if err != nil {
 				return errors.Wrap(err, "failed to marshal genesis doc")
 			}

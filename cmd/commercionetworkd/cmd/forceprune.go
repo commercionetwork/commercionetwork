@@ -21,7 +21,7 @@ import (
 	cometdb "github.com/cometbft/cometbft-db"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/tendermint/tendermint/config"
+	"github.com/cometbft/cometbft/config"
 )
 
 const (
