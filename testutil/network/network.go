@@ -13,13 +13,13 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sims "github.com/cosmos/cosmos-sdk/testutil/sims"
 
-	pruningstoretypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
+	pruningstoretypes "cosmossdk.io/store/pruning/types"
+	dbm "github.com/cometbft/cometbft-db"
+	cometrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	cometrand "github.com/cometbft/cometbft/libs/rand"
-	dbm "github.com/cometbft/cometbft-db"
-	
+
 	"github.com/commercionetwork/commercionetwork/app"
 )
 

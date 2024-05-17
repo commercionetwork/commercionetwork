@@ -14,8 +14,8 @@ package keeper
 
 // 	//"github.com/cosmos/cosmos-sdk/simapp"
 // 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-// 	"github.com/cosmos/cosmos-sdk/store"
-// 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+// 	"cosmossdk.io/store"
+// 	storetypes "cosmossdk.io/store/types"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 // 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 // 	accountTypes "github.com/cosmos/cosmos-sdk/x/auth/types"

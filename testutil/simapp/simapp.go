@@ -6,12 +6,11 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	sims "github.com/cosmos/cosmos-sdk/testutil/sims"
 
-
+	"cosmossdk.io/log"
+	tmdb "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/types"
-	tmdb "github.com/cometbft/cometbft-db"
 
 	"github.com/commercionetwork/commercionetwork/app"
 )

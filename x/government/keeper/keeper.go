@@ -3,16 +3,16 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 
 	"errors"
 
 	v300 "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 type (

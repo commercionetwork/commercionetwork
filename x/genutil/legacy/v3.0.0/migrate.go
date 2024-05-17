@@ -1,40 +1,32 @@
 package v3_0_0
 
- import (
- 	"github.com/cosmos/cosmos-sdk/client"
-// 	"github.com/cosmos/cosmos-sdk/codec"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-// 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-// 	//sdkLegacy "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
-"github.com/cosmos/cosmos-sdk/x/genutil/types"
-// 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-// 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-// 	ibc "github.com/cosmos/ibc-go/v7/modules/core/types"
-
-// 	v220government "github.com/commercionetwork/commercionetwork/x/government/legacy/v2.2.0"
-// 	v300government "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
-
-// 	v220docs "github.com/commercionetwork/commercionetwork/x/documents/legacy/v2.2.0"
-// 	v300docs "github.com/commercionetwork/commercionetwork/x/documents/legacy/v3.0.0"
-
-// 	v220did "github.com/commercionetwork/commercionetwork/x/did/legacy/v2.2.0"
-// 	v300did "github.com/commercionetwork/commercionetwork/x/did/legacy/v3.0.0"
-
-// 	v220commerciomint "github.com/commercionetwork/commercionetwork/x/commerciomint/legacy/v2.2.0"
-// 	v300commerciomint "github.com/commercionetwork/commercionetwork/x/commerciomint/legacy/v3.0.0"
-
-// 	v220commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.2.0"
-// 	v300commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v3.0.0"
-
-// 	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
-// 	v300vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v3.0.0"
-
-// 	v300epochs "github.com/commercionetwork/commercionetwork/x/epochs/types"
-
-// 	"github.com/CosmWasm/wasmd/x/wasm"
-// 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
- )
+import (
+	"github.com/cosmos/cosmos-sdk/client"
+	// "github.com/cosmos/cosmos-sdk/codec"
+	// sdk "github.com/cosmos/cosmos-sdk/types"
+	// capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	// evidencetypes "cosmossdk.io/x/evidence/types"
+	// //sdkLegacy "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
+	"github.com/cosmos/cosmos-sdk/x/genutil/types"
+	// 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	// 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	// 	ibc "github.com/cosmos/ibc-go/v8/modules/core/types"
+	// 	v220government "github.com/commercionetwork/commercionetwork/x/government/legacy/v2.2.0"
+	// 	v300government "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
+	// 	v220docs "github.com/commercionetwork/commercionetwork/x/documents/legacy/v2.2.0"
+	// 	v300docs "github.com/commercionetwork/commercionetwork/x/documents/legacy/v3.0.0"
+	// 	v220did "github.com/commercionetwork/commercionetwork/x/did/legacy/v2.2.0"
+	// 	v300did "github.com/commercionetwork/commercionetwork/x/did/legacy/v3.0.0"
+	// 	v220commerciomint "github.com/commercionetwork/commercionetwork/x/commerciomint/legacy/v2.2.0"
+	// 	v300commerciomint "github.com/commercionetwork/commercionetwork/x/commerciomint/legacy/v3.0.0"
+	// 	v220commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v2.2.0"
+	// 	v300commerciokyc "github.com/commercionetwork/commercionetwork/x/commerciokyc/legacy/v3.0.0"
+	// 	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
+	// 	v300vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v3.0.0"
+	// 	v300epochs "github.com/commercionetwork/commercionetwork/x/epochs/types"
+	// 	"github.com/CosmWasm/wasmd/x/wasm"
+	// 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+)
 
 func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 	// v039Codec := codec.NewLegacyAmino()

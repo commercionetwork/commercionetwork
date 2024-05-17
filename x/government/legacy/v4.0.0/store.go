@@ -1,12 +1,12 @@
 package v400
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	v300 "github.com/commercionetwork/commercionetwork/x/government/legacy/v3.0.0"
 	"github.com/commercionetwork/commercionetwork/x/government/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.BinaryCodec) error {

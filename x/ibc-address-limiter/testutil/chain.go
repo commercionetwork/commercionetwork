@@ -10,9 +10,9 @@ package commercionetworkibctesting
 // 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 // 	"github.com/cosmos/ibc-go/testing/simapp/helpers"
-// 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+// 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 
-// 	//"github.com/cosmos/ibc-go/v7/testing/simapp/helpers"
+// 	//"github.com/cosmos/ibc-go/v8/testing/simapp/helpers"
 // 	abci "github.com/cometbft/cometbft/abci/types"
 // 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 

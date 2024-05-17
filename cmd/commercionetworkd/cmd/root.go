@@ -11,9 +11,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/commercionetwork/commercionetwork/app/params"
-	"github.com/cosmos/cosmos-sdk/snapshots"
-	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
-
+	"cosmossdk.io/store/snapshots"
+	snapshottypes "cosmossdk.io/store/snapshots/types"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -21,11 +20,13 @@ import (
 
 	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 
+	"cosmossdk.io/log"
 	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
-	"github.com/cometbft/cometbft/libs/log"
 
+	"cosmossdk.io/store"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/commercionetwork/commercionetwork/app"
 	commgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -38,8 +39,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -90,7 +89,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 
 			customTemplate, customCommercioConfig := initAppConfig()
-			return server.InterceptConfigsPreRunHandler(cmd, customTemplate, customCommercioConfig,  tmcfg.DefaultConfig())
+			return server.InterceptConfigsPreRunHandler(cmd, customTemplate, customCommercioConfig, tmcfg.DefaultConfig())
 		},
 	}
 

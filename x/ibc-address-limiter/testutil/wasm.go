@@ -11,7 +11,7 @@ package commercionetworkibctesting
 // 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 // 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-// 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+// 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 // 	"github.com/stretchr/testify/suite"
 // )
 
