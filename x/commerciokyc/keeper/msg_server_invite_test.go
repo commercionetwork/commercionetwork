@@ -61,14 +61,14 @@ package keeper
 
 // 			if tt.existingUser {
 // 				require.NoError(t,
-// 					bk.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
+// 					bk.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1)))),
 // 				)
 // 				require.NoError(t,
-// 					bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
+// 					bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1)))),
 // 				)
 // 				/*
 // 					require.NoError(t,
-// 						bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))),
+// 						bk.SetBalances(ctx, tt.invitedUser, sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1)))),
 // 					)
 // 				*/
 // 			}

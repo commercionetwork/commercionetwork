@@ -3,6 +3,7 @@ package types
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -62,7 +63,7 @@ func TestMsgIncrementBlockRewardsPool_ValidateBasic(t *testing.T) {
 			name: "invalid amount: zero",
 			fields: fields{
 				Funder: funderAddr.String(),
-				Amount: sdk.NewCoins(sdk.NewCoin(BondDenom, sdk.ZeroInt())),
+				Amount: sdk.NewCoins(sdk.NewCoin(BondDenom, math.ZeroInt())),
 			},
 			wantErr: true,
 		},
@@ -117,7 +118,7 @@ func TestMsgSetParams_ValidateBasic(t *testing.T) {
 	type fields struct {
 		Government           string
 		DistrEpochIdentifier string
-		EarnRate             sdk.Dec
+		EarnRate             math.LegacyDec
 	}
 	tests := []struct {
 		name    string

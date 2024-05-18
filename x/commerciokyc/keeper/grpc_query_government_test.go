@@ -59,7 +59,7 @@ package keeper
 // 	app := suite.app
 // 	ctx := suite.ctx
 
-// 	coins := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000)))
+// 	coins := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1000)))
 // 	app.CommercioKycKeeper.SetLiquidityPoolToAccount(ctx, coins)
 
 // 	var req *types.QueryFundsRequest
@@ -87,7 +87,7 @@ package keeper
 // 			if testCase.expPass {
 // 				suite.Require().NoError(err)
 // 				suite.Require().NotNil(res)
-// 				coins = coins.Add(sdk.NewCoin(stakeDenom, sdk.NewInt(1)))
+// 				coins = coins.Add(sdk.NewCoin(stakeDenom, math.NewInt(1)))
 // 				suite.Require().Equal(coins, res.Funds)
 // 			} else {
 // 				suite.Require().Error(err)

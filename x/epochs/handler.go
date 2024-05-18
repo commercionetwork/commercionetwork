@@ -1,5 +1,5 @@
 package epochs
-
+/*
 import (
 	"fmt"
 
@@ -22,3 +22,4 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		}
 	}
 }
+*/

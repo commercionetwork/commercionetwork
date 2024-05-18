@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 var (
-	DefaultConversionRate               = sdk.NewDec(1)
+	DefaultConversionRate               = math.LegacyNewDec(1)
 	DefaultFreezePeriod   time.Duration = time.Hour * 24 * 7 * 3
 	KeyConversionRate                   = []byte("ConversionRate")
 	KeyFreezePeriod                     = []byte("FreezePeriod")
@@ -20,7 +20,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-func NewParams(conversionRate sdk.Dec, freezePeriod time.Duration) Params {
+func NewParams(conversionRate math.LegacyDec, freezePeriod time.Duration) Params {
 	return Params{
 		ConversionRate: conversionRate,
 		FreezePeriod:   freezePeriod,
@@ -48,7 +48,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 }
 
 func validateConversionRateParamSetPairs(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -65,7 +65,7 @@ func validateFreezePeriodParamSetPairs(i interface{}) error {
 	return ValidateFreezePeriod(fp)
 }
 
-func ValidateConversionRate(conversionRate sdk.Dec) error {
+func ValidateConversionRate(conversionRate math.LegacyDec) error {
 	if !conversionRate.IsPositive() {
 		return fmt.Errorf("conversion rate must be positive")
 	}

@@ -7,8 +7,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	sdkErrors "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/cometbft/cometbft/libs/cli"
@@ -74,8 +74,9 @@ func SetGenesisVbrPoolAmount() *cobra.Command {
 
 			// export app state
 			genDoc.AppState = appStateJSON
+			_, err = genutiltypes.AppGenesisFromFile(genFile)
 
-			return genutil.ExportGenesisFile(genDoc, genFile)
+			return err
 		},
 	}
 

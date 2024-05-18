@@ -1,5 +1,5 @@
 package cli
-
+/*
 import (
 	"encoding/json"
 	"fmt"
@@ -101,7 +101,7 @@ $ %s migrate v3.0.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --gen
 
 			newGenState := initialState
 			for _, migration := range migrations {
-				newGenState = migration(newGenState, clientCtx)
+				newGenState, _ = migration(newGenState, clientCtx)
 			}
 
 			genDoc.AppState, err = json.Marshal(newGenState)
@@ -150,3 +150,4 @@ $ %s migrate v3.0.0 /path/to/genesis.json --chain-id=commercio-testnetXXXX --gen
 
 	return cmd
 }
+*/

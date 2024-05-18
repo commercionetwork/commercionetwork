@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"cosmossdk.io/math"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -37,7 +38,7 @@ func mintCCCCmdFunc(cmd *cobra.Command, args []string) error {
 	}
 
 	sender := cliCtx.GetFromAddress()
-	deposit, ok := sdk.NewIntFromString(args[0])
+	deposit, ok := math.NewIntFromString(args[0])
 	if !ok {
 		return fmt.Errorf("amount must be an integer")
 	}

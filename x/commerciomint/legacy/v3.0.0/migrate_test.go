@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	v220commerciomint "github.com/commercionetwork/commercionetwork/x/commerciomint/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,34 +42,34 @@ func TestMigrate(t *testing.T) {
 					Positions: []v220commerciomint.Position{
 						v220commerciomint.Position{
 							Owner:      testUser01,
-							Collateral: sdk.NewInt(10),
+							Collateral: math.NewInt(10),
 							Credits: sdk.Coin{
 								Denom:  v220commerciomint.BondDenom,
-								Amount: sdk.NewInt(5),
+								Amount: math.NewInt(5),
 							},
 							CreatedAt:    cAt01,
 							ID:           "some-id-01",
-							ExchangeRate: sdk.NewDec(2),
+							ExchangeRate: math.LegacyNewDec(2),
 						},
 						v220commerciomint.Position{
 							Owner:      testUser02,
-							Collateral: sdk.NewInt(1000),
+							Collateral: math.NewInt(1000),
 							Credits: sdk.Coin{
 								Denom:  v220commerciomint.BondDenom,
-								Amount: sdk.NewInt(500),
+								Amount: math.NewInt(500),
 							},
 							CreatedAt:    cAt02,
 							ID:           "some-id-02",
-							ExchangeRate: sdk.NewDec(2),
+							ExchangeRate: math.LegacyNewDec(2),
 						},
 					},
 					LiquidityPoolAmount: sdk.Coins{
 						sdk.Coin{
 							Denom:  v220commerciomint.BondDenom,
-							Amount: sdk.NewInt(1000000),
+							Amount: math.NewInt(1000000),
 						},
 					},
-					CollateralRate: sdk.NewDec(2),
+					CollateralRate: math.LegacyNewDec(2),
 					FreezePeriod:   timeDuration,
 				},
 			},
@@ -79,32 +80,32 @@ func TestMigrate(t *testing.T) {
 						Collateral: 10,
 						Credits: &sdk.Coin{
 							Denom:  types.BondDenom,
-							Amount: sdk.NewInt(5),
+							Amount: math.NewInt(5),
 						},
 						CreatedAt:    &cAt01,
 						ID:           "some-id-01",
-						ExchangeRate: sdk.NewDec(2),
+						ExchangeRate: math.LegacyNewDec(2),
 					},
 					&types.Position{
 						Owner:      testUser02.String(),
 						Collateral: 1000,
 						Credits: &sdk.Coin{
 							Denom:  types.BondDenom,
-							Amount: sdk.NewInt(500),
+							Amount: math.NewInt(500),
 						},
 						CreatedAt:    &cAt02,
 						ID:           "some-id-02",
-						ExchangeRate: sdk.NewDec(2),
+						ExchangeRate: math.LegacyNewDec(2),
 					},
 				},
 				PoolAmount: sdk.Coins{
 					sdk.Coin{
 						Denom:  types.BondDenom,
-						Amount: sdk.NewInt(1000000),
+						Amount: math.NewInt(1000000),
 					},
 				},
 				Params: types.Params{
-					ConversionRate: sdk.NewDec(2),
+					ConversionRate: math.LegacyNewDec(2),
 					FreezePeriod:   timeDuration,
 				},
 			},

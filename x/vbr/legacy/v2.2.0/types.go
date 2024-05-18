@@ -1,6 +1,7 @@
 package v2_2_0
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -13,9 +14,9 @@ const (
 // ---------------
 // v2.2.0 vbr genesis state
 type GenesisState struct {
-	PoolAmount        sdk.DecCoins `json:"pool_amount"`
-	RewardRate        sdk.Dec      `json:"reward_rate"`
-	AutomaticWithdraw bool         `json:"automatic_withdraw"`
+	PoolAmount        sdk.DecCoins   `json:"pool_amount"`
+	RewardRate        math.LegacyDec `json:"reward_rate"`
+	AutomaticWithdraw bool           `json:"automatic_withdraw"`
 }
 
 type MsgIncrementBlockRewardsPool struct {
@@ -25,7 +26,7 @@ type MsgIncrementBlockRewardsPool struct {
 
 type MsgSetRewardRate struct {
 	Government sdk.AccAddress `json:"government"`
-	RewardRate sdk.Dec        `json:"reward_rate"`
+	RewardRate math.LegacyDec `json:"reward_rate"`
 }
 
 type MsgSetAutomaticWithdraw struct {

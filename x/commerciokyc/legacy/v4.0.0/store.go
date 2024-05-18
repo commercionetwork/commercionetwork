@@ -15,7 +15,7 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Binar
 	return nil
 }
 
-func migrateMembershipKeys(store sdk.KVStore, cdc codec.BinaryCodec) {
+func migrateMembershipKeys(store storetypes.KVStore, cdc codec.BinaryCodec) {
 	oldStore := prefix.NewStore(store, []byte(v300.MembershipsStorageKey))
 	oldStoreIter := oldStore.Iterator(nil, nil)
 	defer oldStoreIter.Close()

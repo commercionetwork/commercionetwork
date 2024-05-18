@@ -79,6 +79,34 @@ type AppModule struct {
 	ics4wrapper ICS4Wrapper
 }
 
+// IsAppModule implements module.AppModule.
+func (am AppModule) IsAppModule() {
+	panic("unimplemented")
+}
+
+// IsOnePerModuleType implements module.AppModule.
+func (am AppModule) IsOnePerModuleType() {
+	panic("unimplemented")
+}
+
+// RegisterGRPCGatewayRoutes implements module.AppModule.
+// Subtle: this method shadows the method (AppModuleBasic).RegisterGRPCGatewayRoutes of AppModule.AppModuleBasic.
+func (am AppModule) RegisterGRPCGatewayRoutes(client.Context, *runtime.ServeMux) {
+	panic("unimplemented")
+}
+
+// RegisterInterfaces implements module.AppModule.
+// Subtle: this method shadows the method (AppModuleBasic).RegisterInterfaces of AppModule.AppModuleBasic.
+func (am AppModule) RegisterInterfaces(codectypes.InterfaceRegistry) {
+	panic("unimplemented")
+}
+
+// RegisterLegacyAminoCodec implements module.AppModule.
+// Subtle: this method shadows the method (AppModuleBasic).RegisterLegacyAminoCodec of AppModule.AppModuleBasic.
+func (am AppModule) RegisterLegacyAminoCodec(*codec.LegacyAmino) {
+	panic("unimplemented")
+}
+
 func NewAppModule(ics4wrapper ICS4Wrapper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
@@ -132,12 +160,14 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // BeginBlock executes all ABCI BeginBlock logic respective to the txfees module.
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+func (am AppModule) BeginBlock(_ sdk.Context) error {
+	return nil
+}
 
 // EndBlock executes all ABCI EndBlock logic respective to the txfees module. It
 // returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(_ sdk.Context) ([]abci.ValidatorUpdate, error) {
+	return []abci.ValidatorUpdate{}, nil
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.

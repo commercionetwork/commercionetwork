@@ -210,7 +210,7 @@ package keeper
 // 		/*{
 // 			name:      "Account has not sufficient funds (pool is small then expected reward)",
 // 			invite:    types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
-// 			pool:      sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10000000))),
+// 			pool:      sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(10000000))),
 // 			mustError: true,
 // 			//expectedError: sdkErr.Wrap(sdkErr.ErrUnauthorized, "ABR pool has zero tokens"),
 // 			// could not move collateral amount to module account, 43478261ucommercio is smaller than 100000001ucommercio: insufficient funds
@@ -218,10 +218,10 @@ package keeper
 // 		{
 // 			name:                 "Account correctly rewarded",
 // 			invite:               types.Invite{Sender: testTsp.String(), SenderMembership: "gold", User: testUser2.String(), Status: uint64(types.InviteStatusPending)},
-// 			pool:                 sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000000000000))),
+// 			pool:                 sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1000000000000))),
 // 			expectedInviteStatus: int64(types.InviteStatusRewarded),
-// 			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, sdk.NewInt(1750000000))),
-// 			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(998775000001))),
+// 			expectedUserBalance:  sdk.NewCoins(sdk.NewCoin(stableCreditDenom, math.NewInt(1750000000))),
+// 			expectedPoolBalance:  sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(998775000001))),
 // 			mustError:            false,
 // 		},
 // 	}

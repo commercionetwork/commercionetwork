@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"cosmossdk.io/math"
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	governmentTypes "github.com/commercionetwork/commercionetwork/x/government/types"
 	vbrTypes "github.com/commercionetwork/commercionetwork/x/vbr/types"
@@ -23,8 +24,8 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/testutil"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -255,7 +256,7 @@ func InitTestnet(
 			sdk.NewCoin(app.DefaultBondDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-			sdk.OneInt(),
+			math.OneInt(),
 		)
 		if err != nil {
 			return err

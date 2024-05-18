@@ -1,7 +1,7 @@
 package v3_0_0
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 
 	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
@@ -15,6 +15,6 @@ func Migrate(genVbr v220vbr.GenesisState) *types.GenesisState {
 func migrateVbr(genVbr v220vbr.GenesisState) *types.GenesisState {
 	return &types.GenesisState{
 		PoolAmount: genVbr.PoolAmount,
-		Params:     types.NewParams(types.EpochDay, sdk.NewDecWithPrec(5, 1)),
+		Params:     types.NewParams(types.EpochDay, math.LegacyNewDecWithPrec(5, 1)),
 	}
 }

@@ -12,14 +12,14 @@ import (
 
 	"github.com/spf13/cobra"
 
+	tmstore "github.com/cometbft/cometbft/store"
+	cometdb "github.com/cosmos/cosmos-db"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
-	tmstore "github.com/cometbft/cometbft/store"
-	cometdb "github.com/cometbft/cometbft-db"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cometbft/cometbft/config"
+	"github.com/cosmos/cosmos-sdk/client"
 )
 
 const (

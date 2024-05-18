@@ -31,7 +31,7 @@ package keeper
 // 	}
 // }
 
-// var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, sdk.NewInt(100000)))
+// var testFunds1 sdk.DecCoins = sdk.NewDecCoins(sdk.NewDecCoin(types.BondDenom, math.NewInt(100000)))
 
 // func TestGetBlockRewardsPoolFunds(t *testing.T) {
 // 	keeper, ctx := SetupKeeper(t)

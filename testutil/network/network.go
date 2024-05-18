@@ -14,8 +14,8 @@ import (
 	sims "github.com/cosmos/cosmos-sdk/testutil/sims"
 
 	pruningstoretypes "cosmossdk.io/store/pruning/types"
-	dbm "github.com/cometbft/cometbft-db"
 	cometrand "github.com/cometbft/cometbft/libs/rand"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

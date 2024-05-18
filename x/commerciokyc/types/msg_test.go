@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 	errors "cosmossdk.io/errors"
+	"cosmossdk.io/math"
+	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -97,7 +98,7 @@ func TestMsgInviteUser_UnmarshalJson(t *testing.T) {
 // --- MsgDepositIntoLiquidityPool
 // --------------------------------
 
-var amount = sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100)))
+var amount = sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(100)))
 var msgDepositIntoLiquidityPool = types.NewMsgDepositIntoLiquidityPool(amount, user.String())
 
 func TestMsgDepositIntoLiquidityPool_Route(t *testing.T) {
@@ -133,7 +134,7 @@ func TestMsgDepositIntoLiquidityPool_ValidateBasic(t *testing.T) {
 			name: "Negative deposit amount returns error",
 			msg: types.MsgDepositIntoLiquidityPool{
 				Depositor: user.String(),
-				Amount:    sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(-100)}},
+				Amount:    sdk.Coins{sdk.Coin{Denom: "uatom", Amount: math.NewInt(-100)}},
 			},
 			error: errors.Wrap(sdkErr.ErrInvalidCoins, "Invalid deposit amount: -100uatom"),
 		},

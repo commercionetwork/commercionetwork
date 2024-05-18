@@ -14,7 +14,7 @@ package keeper
 // 	ctx, _, _, k := SetupTestInput()
 
 // 	params := validParams
-// 	params.ConversionRate = sdk.NewDec(3)
+// 	params.ConversionRate = math.LegacyNewDec(3)
 // 	assert.NotEqual(t, params.ConversionRate, validParams.ConversionRate)
 // 	require.NoError(t, k.UpdateParams(ctx, params))
 // 	require.Equal(t, params.ConversionRate, k.GetConversionRate(ctx))
@@ -56,7 +56,7 @@ package keeper
 // 			name: "ok",
 // 			args: args{
 // 				params: types.Params{
-// 					ConversionRate: sdk.NewDec(5),
+// 					ConversionRate: math.LegacyNewDec(5),
 // 					FreezePeriod:   time.Minute,
 // 				},
 // 			},

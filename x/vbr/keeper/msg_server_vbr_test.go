@@ -71,7 +71,7 @@ package keeper
 // 	}
 // }
 
-// var oldParams = types.NewParams(types.ValidMsgSetParams.DistrEpochIdentifier, types.ValidMsgSetParams.EarnRate.Mul(sdk.NewDec(2)))
+// var oldParams = types.NewParams(types.ValidMsgSetParams.DistrEpochIdentifier, types.ValidMsgSetParams.EarnRate.Mul(math.LegacyNewDec(2)))
 
 // func Test_msgServer_SetParams(t *testing.T) {
 // 	tests := []struct {

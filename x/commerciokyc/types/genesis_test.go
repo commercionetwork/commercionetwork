@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
@@ -24,7 +25,7 @@ func TestValidateGenesis(t *testing.T) {
 	var coin sdk.Coin
 	var coins sdk.Coins
 	coin.Denom = "somecoin"
-	coin.Amount = sdk.NewInt(-1)
+	coin.Amount = math.NewInt(-1)
 	coins = append(coins, coin)
 	defGenNegativeLiquidity.LiquidityPoolAmount = coins
 	errNeg := defGenNegativeLiquidity.Validate()

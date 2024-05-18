@@ -1,5 +1,5 @@
 package vbr
-
+/*
 import (
 	"fmt"
 
@@ -28,4 +28,4 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 		}
 	}
-}
+}*/

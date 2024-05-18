@@ -21,7 +21,7 @@ package keeper
 // 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 // 	//"github.com/cosmos/ibc-go/testing/simapp"
 // 	"cosmossdk.io/log"
-// 	cometbftdb "github.com/cometbft/cometbft-db"
+// 	cometbftdb "github.com/cosmos/cosmos-db"
 
 // 	"github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 // 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"

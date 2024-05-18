@@ -16,35 +16,35 @@ package keeper
 // func TestKeeper_ComputeProposerReward(t *testing.T) {
 // 	tests := []struct {
 // 		name           string
-// 		bonded         sdk.Int
+// 		bonded         math.Int
 // 		vNumber        int64
 // 		expectedReward string
 // 		params         types.Params
 // 	}{
 // 		{
 // 			"Compute reward with 100 validators",
-// 			sdk.NewInt(100000000),
+// 			math.NewInt(100000000),
 // 			100,
 // 			"136986.301369863013698630",
 // 			params_test,
 // 		},
 // 		{
 // 			"Compute reward with 50 validators",
-// 			sdk.NewInt(100000000),
+// 			math.NewInt(100000000),
 // 			50,
 // 			"68493.150684931506849315",
 // 			params_test,
 // 		},
 // 		{
 // 			"Compute reward with small bonded",
-// 			sdk.NewInt(1),
+// 			math.NewInt(1),
 // 			100,
 // 			"0.001369863013698630",
 // 			params_test,
 // 		},
 // 		{
 // 			"Compute reward per minute",
-// 			sdk.NewInt(100000000),
+// 			math.NewInt(100000000),
 // 			50,
 // 			"47.564687975646879756",
 // 			types.NewParams(types.EpochMinute, sdk.NewDecWithPrec(5, 1)),
@@ -59,7 +59,7 @@ package keeper
 
 // 			reward := k.ComputeProposerReward(ctx, tt.vNumber, testVal, types.BondDenom, tt.params)
 
-// 			expectedDecReward, _ := sdk.NewDecFromStr(tt.expectedReward)
+// 			expectedDecReward, _ := math.LegacyNewDecFromStr(tt.expectedReward)
 
 // 			expected := sdk.DecCoins{sdk.NewDecCoinFromDec(types.BondDenom, expectedDecReward)}
 
@@ -76,21 +76,21 @@ package keeper
 // 		expectedValidator sdk.DecCoins
 // 		expectedRemaining sdk.DecCoins
 // 		expectedError     error
-// 		bonded            sdk.Int
+// 		bonded            math.Int
 // 	}{
 // 		{
 // 			name:              "Reward with enough pool",
 // 			pool:              sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 100000)},
 // 			expectedRemaining: sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 86302)},
 // 			expectedValidator: sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 13698)},
-// 			bonded:            sdk.NewInt(1000000000),
+// 			bonded:            math.NewInt(1000000000),
 // 		},
 // 		{
 // 			name:              "Reward with empty pool",
 // 			pool:              sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 0)},
 // 			expectedRemaining: sdk.DecCoins{},
 // 			expectedValidator: sdk.DecCoins(nil),
-// 			bonded:            sdk.NewInt(1000000000),
+// 			bonded:            math.NewInt(1000000000),
 // 		},
 // 		{
 // 			name:              "Reward not enough funds into pool",
@@ -98,7 +98,7 @@ package keeper
 // 			expectedRemaining: sdk.DecCoins{sdk.NewInt64DecCoin(types.BondDenom, 1)},
 // 			expectedError:     sdkErr.Wrap(sdkErr.ErrInsufficientFunds, "Pool hasn't got enough funds to supply validator's rewards"),
 // 			expectedValidator: sdk.DecCoins(nil),
-// 			bonded:            sdk.NewInt(1000000000),
+// 			bonded:            math.NewInt(1000000000),
 // 		},
 // 	}
 // 	for _, tt := range tests {
@@ -162,7 +162,7 @@ package keeper
 // 		{
 // 			"a vbr account with coins in it",
 // 			"vbr",
-// 			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.BondDenom}),
+// 			sdk.NewCoins(sdk.Coin{Amount: math.NewInt(100000), Denom: types.BondDenom}),
 // 			false,
 // 		},
 // 	}
@@ -174,7 +174,7 @@ package keeper
 // 			require.Equal(t, macc.GetName(), tt.wantModName)
 
 // 			if !tt.emptyPool {
-// 				coins := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: types.BondDenom})
+// 				coins := sdk.NewCoins(sdk.Coin{Amount: math.NewInt(100000), Denom: types.BondDenom})
 // 				//k.bankKeeper.MintCoins(ctx, macc.GetAddress().String(), coins)
 // 				k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 // 				//k.bankKeeper.SetBalances(ctx, macc.GetAddress(), coins)
@@ -192,7 +192,7 @@ package keeper
 // 	}{
 // 		{
 // 			"add 10ucommercio",
-// 			sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom}),
+// 			sdk.NewCoins(sdk.Coin{Amount: math.NewInt(10), Denom: types.BondDenom}),
 // 		},
 // 		{
 // 			"add no ucommercio",
@@ -202,7 +202,7 @@ package keeper
 // 	for _, tt := range tests {
 // 		t.Run(tt.name, func(t *testing.T) {
 // 			k, ctx := SetupKeeper(t)
-// 			//k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(10), Denom: types.BondDenom})))
+// 			//k.bankKeeper.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: math.NewInt(10), Denom: types.BondDenom})))
 
 // 			k.MintVBRTokens(ctx, tt.wantAmount)
 // 			macc := k.VbrAccount(ctx)

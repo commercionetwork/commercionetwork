@@ -7,10 +7,10 @@ import (
 	sims "github.com/cosmos/cosmos-sdk/testutil/sims"
 
 	"cosmossdk.io/log"
-	tmdb "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+	tmdb "github.com/cosmos/cosmos-db"
 
 	"github.com/commercionetwork/commercionetwork/app"
 )
@@ -39,7 +39,7 @@ func New(dir string) *app.App {
 		wasmOpts,
 	)
 	// InitChain updates deliverState which is required when app.NewContext is called
-	a.InitChain(abci.RequestInitChain{
+	a.InitChain(&abci.RequestInitChain{
 		ConsensusParams: defaultConsensusParams,
 		AppStateBytes:   []byte("{}"),
 		ChainId:         "commercionetwork",

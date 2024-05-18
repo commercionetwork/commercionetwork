@@ -1,12 +1,15 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 var (
 	funderAddr, _ = sdk.AccAddressFromBech32("cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae")
 	validAmount   = sdk.NewCoins(sdk.Coin{
 		Denom:  BondDenom,
-		Amount: sdk.NewInt(100),
+		Amount: math.NewInt(100),
 	})
 
 	ValidMsgIncrementBlockRewardsPool = *NewMsgIncrementBlockRewardsPool(
@@ -18,8 +21,8 @@ var (
 var (
 	validDistrEpochIdentifier = EpochDay
 
-	validEarnRate   = sdk.NewDecWithPrec(5, 1)
-	InvalidEarnRate = sdk.NewDecWithPrec(-5, 1)
+	validEarnRate   = math.LegacyNewDecWithPrec(5, 1)
+	InvalidEarnRate = math.LegacyNewDecWithPrec(-5, 1)
 
 	validParams = DefaultParams()
 

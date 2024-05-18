@@ -3,22 +3,22 @@ package ante
 import (
 	"errors"
 	"fmt"
+	"cosmossdk.io/math"
 
 	commerciomintKeeper "github.com/commercionetwork/commercionetwork/x/commerciomint/keeper"
 	government "github.com/commercionetwork/commercionetwork/x/government/keeper"
 
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
 
+	"cosmossdk.io/core/store"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	txsigning "cosmossdk.io/x/tx/signing"
 
-	//ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
-
-	//"github.com/cosmos/cosmos-sdk/x/auth/types"
-	//bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -26,8 +26,8 @@ import (
 )
 
 // fixedRequiredFee is the amount of fee we apply/require for each transaction processed.
-var fixedRequiredFee = sdk.NewDecWithPrec(1, 2)
-var storeRequiredFee = sdk.NewDecWithPrec(100, 0)
+var fixedRequiredFee = math.LegacyNewDecWithPrec(1, 2)
+var storeRequiredFee = math.LegacyNewDecWithPrec(100, 0)
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -38,13 +38,13 @@ func NewAnteHandler(
 	govKeeper government.Keeper,
 	mintKeeper commerciomintKeeper.Keeper,
 	sigGasConsumer cosmosante.SignatureVerificationGasConsumer,
-	signModeHandler authsigning.SignModeHandler,
+	signModeHandler *txsigning.HandlerMap,
 	stakeDenom string,
 	stableCreditsDemon string,
 	feegrantKeeper cosmosante.FeegrantKeeper,
 	ibcKeeper *ibcKeeper.Keeper,
 	wasmConfig *wasmTypes.WasmConfig,
-	txCounterStoreKey storetypes.StoreKey,
+	txCounterStoreKey store.KVStoreService,
 ) sdk.AnteHandler {
 	// TODO: add check for nil
 	/*
@@ -147,18 +147,18 @@ func checkMinimumFees(
 	mintk commerciomintKeeper.Keeper,
 	stakeDenom string,
 	stableCreditsDenom string,
-	requiredFees sdk.Dec,
+	requiredFees math.LegacyDec,
 ) error {
-	fiatAmount := sdk.ZeroDec()
+	fiatAmount := math.LegacyZeroDec()
 	// Find required quantity of stable coin = number of msg * 10000
 	// Every message need 0.01 ccc
 	stableRequiredQty := requiredFees.MulInt64(1000000)
 	// Extract amount of stable coin from fees
 	feeTx, ok := stdTx.(sdk.FeeTx)
 	if !ok {
-		return sdkErr.Wrap(sdkErr.ErrTxDecode, "Tx must be a FeeTx")
+		return errorsmod.Wrap(sdkErr.ErrTxDecode, "Tx must be a FeeTx")
 	}
-	fiatAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
+	fiatAmount = math.LegacyNewDecFromInt(feeTx.GetFee().AmountOf(stableCreditsDenom))
 	// Check if amount of stable coin is enough
 	if !stableRequiredQty.IsZero() && stableRequiredQty.LTE(fiatAmount) {
 		// If amount of stable coin is enough return without error
@@ -167,9 +167,9 @@ func checkMinimumFees(
 	// NB: if user pay insufficent fiat amount plus enough stake denom, fiat amount will be withdraw from the wallet anyway.
 	//return nil
 	// stakeDenom must always equal 10000
-	comAmount := sdk.ZeroDec()
+	comAmount := math.LegacyZeroDec()
 	comRequiredQty := requiredFees.MulInt64(1000000)
-	comAmount = sdk.NewDecFromInt(feeTx.GetFee().AmountOf(stakeDenom))
+	comAmount = math.LegacyNewDecFromInt(feeTx.GetFee().AmountOf(stakeDenom))
 
 	// Check if amount of stake coin is enough
 	if !comRequiredQty.IsZero() && comRequiredQty.LTE(comAmount) {
@@ -178,7 +178,7 @@ func checkMinimumFees(
 	}
 
 	msg := fmt.Sprintf("insufficient fees. Expected %s fiat amount, got %s, or %s stake denom amount, got %s", stableRequiredQty, fiatAmount, comRequiredQty, comAmount)
-	return sdkErr.Wrap(sdkErr.ErrInsufficientFee, msg)
+	return errorsmod.Wrap(sdkErr.ErrInsufficientFee, msg)
 }
 
 // setGasMeter returns a new context with a gas meter set from a given context.
@@ -186,8 +186,8 @@ func setGasMeter(simulate bool, ctx sdk.Context, gasLimit uint64) sdk.Context {
 	// In various cases such as simulation and during the genesis block, we do not
 	// meter any gas utilization.
 	if simulate || ctx.BlockHeight() == 0 {
-		return ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		return ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 	}
 
-	return ctx.WithGasMeter(sdk.NewGasMeter(gasLimit))
+	return ctx.WithGasMeter(storetypes.NewGasMeter(gasLimit))
 }

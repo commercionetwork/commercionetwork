@@ -5,6 +5,7 @@ import (
 
 	errors "cosmossdk.io/errors"
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 	sdkErr "github.com/cosmos/cosmos-sdk/types/errors"
 
 	storetypes "cosmossdk.io/store/types"
@@ -137,22 +138,22 @@ func (k Keeper) ComputeProposerReward(ctx sdk.Context, vCount int64, validator s
 	// TODO: number of validator should be get from staking module
 	// paramsVal := k.stakingKeeper.GetParams(ctx)
 	// paramsVal.MaxValidators
-	validatorsPerc := sdk.NewDec(vCount).QuoInt64(int64(100))
+	validatorsPerc := math.LegacyNewDec(vCount).QuoInt64(int64(100))
 
 	//compute the annual distribution ((validator's token * 0.5)*(total_validators/100))
 	annualDistribution := sdk.NewDecCoinFromDec(denom, validatorBondedPerc.Amount.Mul(validatorsPerc))
-	var epochDuration sdk.Dec
+	var epochDuration math.LegacyDec
 	switch params.DistrEpochIdentifier {
 	case types.EpochDay:
-		epochDuration = sdk.NewDec(365)
+		epochDuration = math.LegacyNewDec(365)
 	case types.EpochWeek:
-		epochDuration = sdk.NewDec(365).Quo(sdk.NewDec(7))
+		epochDuration = math.LegacyNewDec(365).Quo(math.LegacyNewDec(7))
 	case types.EpochMinute:
-		epochDuration = sdk.NewDec(365 * 24 * 60)
+		epochDuration = math.LegacyNewDec(365 * 24 * 60)
 	case types.EpochHour:
-		epochDuration = sdk.NewDec(365 * 24)
+		epochDuration = math.LegacyNewDec(365 * 24)
 	case types.EpochMonth:
-		epochDuration = sdk.NewDec(12)
+		epochDuration = math.LegacyNewDec(12)
 	default:
 		return nil
 	}

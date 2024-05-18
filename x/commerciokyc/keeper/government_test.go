@@ -193,26 +193,26 @@ package keeper
 // 		{
 // 			name:      "Deposit with different token",
 // 			depositor: testUser,
-// 			amount:    sdk.NewCoins(sdk.NewCoin("somecoin", sdk.NewInt(1))),
+// 			amount:    sdk.NewCoins(sdk.NewCoin("somecoin", math.NewInt(1))),
 // 			wantErr:   true,
 // 		},
 // 		{
 // 			name:      "Insufficient funds of user",
 // 			depositor: testUser,
-// 			amount:    sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1000000000000000000))),
+// 			amount:    sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1000000000000000000))),
 // 			wantErr:   true,
 // 		},
 // 		{
 // 			name:      "Correct deposit into pool",
 // 			depositor: testUser,
-// 			amount:    sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1))),
+// 			amount:    sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1))),
 // 			wantErr:   false,
 // 		},
 // 	}
 // 	for _, tt := range tests {
 // 		t.Run(tt.name, func(t *testing.T) {
 // 			ctx, _, _, k := SetupTestInput()
-// 			coins := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(10)))
+// 			coins := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(10)))
 // 			k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 // 			k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, testUser, coins)
 // 			if err := k.DepositIntoPool(ctx, tt.depositor, tt.amount); (err != nil) != tt.wantErr {

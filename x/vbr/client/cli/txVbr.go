@@ -5,13 +5,14 @@ import (
 
 	"github.com/spf13/cobra"
 
+	errors "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	errors "cosmossdk.io/errors"
 )
 
 // this can be removed
@@ -62,7 +63,7 @@ func CmdSetParams() *cobra.Command {
 
 			gov := clientCtx.GetFromAddress()
 			epochIdentifier := args[0]
-			earnRate, err := sdk.NewDecFromStr(args[1])
+			earnRate, err := math.LegacyNewDecFromStr(args[1])
 			if err != nil {
 				return errors.Wrapf(sdkerrors.ErrInvalidType, "invalid earnRate (%s)", err)
 			}

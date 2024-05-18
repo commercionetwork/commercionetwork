@@ -12,6 +12,7 @@ import (
 	//cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	//"cosmossdk.io/simapp"
+	"cosmossdk.io/math"
 	"cosmossdk.io/store/rootmulti"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -23,10 +24,10 @@ import (
 
 	//"github.com/stretchr/testify/require"
 	"cosmossdk.io/log"
-	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/suite"
 
 	//"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
@@ -49,7 +50,7 @@ type KeeperTestHelper struct {
 
 var (
 	SecondaryDenom  = "uccc"
-	SecondaryAmount = sdk.NewInt(100000000)
+	SecondaryAmount = math.NewInt(100000000)
 )
 
 // Setup sets up basic environment for suite (App, Ctx, and test accounts)
@@ -136,14 +137,14 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 	valPub := secp256k1.GenPrivKey().PubKey()
 	valAddr := sdk.ValAddress(valPub.Address())
 	//bondDenom := s.App.StakingKeeper.GetParams(s.Ctx).BondDenom
-	//selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
+	//selfBond := sdk.NewCoins(sdk.Coin{Amount: math.NewInt(100), Denom: bondDenom})
 
 	//s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
 	//stakingHandler := staking.NewHandler(s.App.StakingKeeper)
 	//stakingCoin := sdk.NewCoin(sdk.DefaultBondDenom, selfBond[0].Amount)
 	//ZeroCommission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-	//msg, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, sdk.OneInt())
+	//msg, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, math.OneInt())
 	//s.Require().NoError(err)
 	//res, err := stakingHandler(s.Ctx, msg)
 	//s.Require().NoError(err)
@@ -252,7 +253,7 @@ func (s *KeeperTestHelper) RunMsg(msg sdk.Msg) (*sdk.Result, error) {
 }
 
 // AllocateRewardsToValidator allocates reward tokens to a distribution module then allocates rewards to the validator address.
-func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, rewardAmt sdk.Int) {
+func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, rewardAmt math.Int) {
 	validator, found := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)
 	s.Require().True(found)
 
@@ -263,7 +264,7 @@ func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, re
 
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
-	decTokens := sdk.DecCoins{{Denom: sdk.DefaultBondDenom, Amount: sdk.NewDec(20000)}}
+	decTokens := sdk.DecCoins{{Denom: sdk.DefaultBondDenom, Amount: math.LegacyNewDec(20000)}}
 	s.App.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 }
 

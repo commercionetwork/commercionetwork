@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,11 +18,11 @@ var testOwner, _ = sdk.AccAddressFromBech32("cosmos1lwmppctrr6ssnrmuyzu554dzf50a
 
 var testEtp = NewPosition(
 	testOwner,
-	sdk.NewInt(100),
-	sdk.NewCoin(CreditsDenom, sdk.NewInt(50)),
+	math.NewInt(100),
+	sdk.NewCoin(CreditsDenom, math.NewInt(50)),
 	"E95613F1-8407-4B28-9B66-25AB5F4A5FD9",
 	testCreatedAt,
-	sdk.NewDec(2),
+	math.LegacyNewDec(2),
 )
 var ownerAddr, _ = sdk.AccAddressFromBech32(testEtp.Owner)
 
@@ -33,37 +34,37 @@ func TestPosition_Validate(t *testing.T) {
 	}{
 		{
 			name:          "Invalid etp owner",
-			etp:           NewPosition(sdk.AccAddress{}, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
+			etp:           NewPosition(sdk.AccAddress{}, math.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 		{
 			name:          "Invalid collateral amount",
-			etp:           NewPosition(ownerAddr, sdk.ZeroInt(), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, math.ZeroInt(), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 		{
 			name:          "Invalid liquidity amount",
-			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), sdk.Coin{}, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, math.NewInt(testEtp.Collateral), sdk.Coin{}, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 		{
 			name:          "Invalid timestamp",
-			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, time.Time{}, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, math.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, time.Time{}, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 		{
 			name:          "Invalid exchange rate",
-			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, sdk.NewDec(-1)),
+			etp:           NewPosition(ownerAddr, math.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, math.LegacyNewDec(-1)),
 			shouldBeValid: false,
 		},
 		{
 			name:          "Invalid id",
-			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, "abcd", testCreatedAt, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, math.NewInt(testEtp.Collateral), *testEtp.Credits, "abcd", testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: false,
 		},
 		{
 			name:          "ok",
-			etp:           NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
+			etp:           NewPosition(ownerAddr, math.NewInt(testEtp.Collateral), *testEtp.Credits, testEtp.ID, testCreatedAt, testEtp.ExchangeRate),
 			shouldBeValid: true,
 		},
 	}
@@ -97,7 +98,7 @@ func TestPosition_Equals(t *testing.T) {
 			name: "different Collateral",
 			etp: func() Position {
 				etp := testEtp
-				etp.Collateral = sdk.NewInt(150).ToLegacyDec().RoundInt64()
+				etp.Collateral = math.NewInt(150).ToLegacyDec().RoundInt64()
 				return etp
 			},
 			shouldBeEqual: false,
@@ -169,8 +170,8 @@ func TestPosition_Equals(t *testing.T) {
 	}
 }
 
-var validDepositCoin = sdk.NewCoin(CreditsDenom, sdk.NewInt(50))
-var inValidDenomDepositCoin = sdk.NewCoin(BondDenom, sdk.NewInt(10))
+var validDepositCoin = sdk.NewCoin(CreditsDenom, math.NewInt(50))
+var inValidDenomDepositCoin = sdk.NewCoin(BondDenom, math.NewInt(10))
 
 func TestValidateDeposit(t *testing.T) {
 	type args struct {

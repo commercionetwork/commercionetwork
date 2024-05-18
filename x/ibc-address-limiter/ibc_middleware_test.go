@@ -63,7 +63,7 @@ func (suite *MiddlewareTestSuite) SetupTest() {
 }
 
 // Helpers
-func (suite *MiddlewareTestSuite) MessageFromAToB(denom string, amount sdk.Int) sdk.Msg {
+func (suite *MiddlewareTestSuite) MessageFromAToB(denom string, amount math.Int) sdk.Msg {
 	coin := sdk.NewCoin(denom, amount)
 	port := suite.path.EndpointA.ChannelConfig.PortID
 	channel := suite.path.EndpointA.ChannelID
@@ -81,7 +81,7 @@ func (suite *MiddlewareTestSuite) MessageFromAToB(denom string, amount sdk.Int) 
 	)
 }
 
-func (suite *MiddlewareTestSuite) MessageFromBToA(denom string, amount sdk.Int) sdk.Msg {
+func (suite *MiddlewareTestSuite) MessageFromBToA(denom string, amount math.Int) sdk.Msg {
 	coin := sdk.NewCoin(denom, amount)
 	port := suite.path.EndpointB.ChannelConfig.PortID
 	channel := suite.path.EndpointB.ChannelID
@@ -105,7 +105,7 @@ func (suite *MiddlewareTestSuite) TestInvalidReceiver() {
 	msg := transfertypes.NewMsgTransfer(
 		suite.path.EndpointB.ChannelConfig.PortID,
 		suite.path.EndpointB.ChannelID,
-		sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(1)),
+		sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(1)),
 		suite.chainB.SenderAccount.GetAddress().String(),
 		strings.Repeat("x", 4097),
 		clienttypes.NewHeight(0, 100),
@@ -208,13 +208,13 @@ func (suite *MiddlewareTestSuite) AssertSend(success bool, msg sdk.Msg) (*sdk.Re
 // Tests
 // Test that Sending IBC messages works when the middleware isn't configured
 func (suite *MiddlewareTestSuite) TestSendTransferNoContract() {
-	one := sdk.NewInt(1)
+	one := math.NewInt(1)
 	suite.AssertSend(true, suite.MessageFromAToB(sdk.DefaultBondDenom, one))
 }
 
 // Test that Receiving IBC messages works when the middleware isn't configured
 func (suite *MiddlewareTestSuite) TestReceiveTransferNoContract() {
-	one := sdk.NewInt(1)
+	one := math.NewInt(1)
 	suite.AssertReceive(true, suite.MessageFromBToA(sdk.DefaultBondDenom, one))
 }
 

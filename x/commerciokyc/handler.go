@@ -1,5 +1,5 @@
 package commerciokyc
-
+/*
 import (
 	"fmt"
 
@@ -46,3 +46,4 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		}
 	}
 }
+*/

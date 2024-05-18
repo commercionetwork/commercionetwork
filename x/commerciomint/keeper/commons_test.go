@@ -21,7 +21,7 @@ package keeper
 // 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 // 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 // 	"cosmossdk.io/log"
-// 	cometbftdb "github.com/cometbft/cometbft-db"
+// 	cometbftdb "github.com/cosmos/cosmos-db"
 
 // 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 
@@ -106,15 +106,15 @@ package keeper
 // var government = ownerAnother
 
 // var testID = "2908006A-93D4-4517-A8F5-393EEEBDDB61"
-// var halfCoinSub = sdk.NewCoin(types.CreditsDenom, sdk.NewInt(10))
+// var halfCoinSub = sdk.NewCoin(types.CreditsDenom, math.NewInt(10))
 
 // var testEtp = types.NewPosition(
 // 	testEtpOwner,
-// 	sdk.NewInt(100),
+// 	math.NewInt(100),
 // 	validDepositCoin,
 // 	testID,
 // 	time.Now().UTC(),
-// 	sdk.NewDec(2),
+// 	math.LegacyNewDec(2),
 // )
 
 // var validParams = types.Params{
@@ -122,14 +122,14 @@ package keeper
 // 	FreezePeriod:   validFreezePeriod,
 // }
 
-// var validDepositCoin = sdk.NewCoin(types.CreditsDenom, sdk.NewInt(50))
-// var inValidDepositCoin = sdk.NewCoin(types.BondDenom, sdk.NewInt(10))
+// var validDepositCoin = sdk.NewCoin(types.CreditsDenom, math.NewInt(50))
+// var inValidDepositCoin = sdk.NewCoin(types.BondDenom, math.NewInt(10))
 // var validBurnCoin = inValidDepositCoin
 // var inValidBurnCoin = validDepositCoin
-// var validConversionRate = sdk.NewDec(2)
-// var invalidConversionRate = sdk.NewDec(-1)
+// var validConversionRate = math.LegacyNewDec(2)
+// var invalidConversionRate = math.LegacyNewDec(-1)
 
-// var zeroUCCC = sdk.NewCoin(types.CreditsDenom, sdk.ZeroInt())
+// var zeroUCCC = sdk.NewCoin(types.CreditsDenom, math.ZeroInt())
 
 // var validFreezePeriod time.Duration = 0
 // var invalidFreezePeriod = -time.Minute

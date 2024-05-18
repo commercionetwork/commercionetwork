@@ -57,7 +57,7 @@ package keeper
 // 	memStoreKeyGov := storetypes.NewMemoryStoreKey(govTypes.MemStoreKey)
 
 // 	db := tmdb.NewMemDB()
-// 	stateStore := store.NewCommitMultiStore(db)
+// 	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), storemetrics.NewNoOpMetrics() )
 // 	for _, storeKey := range storeKeys {
 // 		stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
 // 	}
@@ -94,8 +94,8 @@ package keeper
 // 	pk := paramsKeeper.NewKeeper(cdc, codec.NewLegacyAmino(), storeKeys[paramsTypes.StoreKey], tkeys[paramsTypes.TStoreKey])
 // 	ak := accountKeeper.NewAccountKeeper(cdc, storeKeys[accountTypes.StoreKey], pk.Subspace("auth"), accountTypes.ProtoBaseAccount, maccPerms)
 // 	bk := bankKeeper.NewBaseKeeper(cdc, storeKeys[bankTypes.StoreKey], ak, pk.Subspace("bank"), blacklistedAddrs)
-// 	//bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"})))
-// 	//bk.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100000), Denom: "stake"}))
+// 	//bk.SetSupply(ctx, bankTypes.NewSupply(sdk.NewCoins(sdk.Coin{Amount: math.NewInt(100000), Denom: "stake"})))
+// 	//bk.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.Coin{Amount: math.NewInt(100000), Denom: "stake"}))
 
 // 	sk := stakingKeeper.NewKeeper(cdc, storeKeys[stakingTypes.StoreKey], ak, bk, pk.Subspace("staking"))
 // 	sk.SetParams(ctx, stakingTypes.DefaultParams())

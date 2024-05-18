@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"time"
+	"cosmossdk.io/math"
 
 	"github.com/commercionetwork/commercionetwork/x/commerciomint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,7 +25,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 }
 
 // GetConversionRate retrieves the conversion rate param.
-func (k Keeper) GetConversionRate(ctx sdk.Context) sdk.Dec {
+func (k Keeper) GetConversionRate(ctx sdk.Context) math.LegacyDec {
 	return k.GetParams(ctx).ConversionRate
 }
 

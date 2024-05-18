@@ -6,6 +6,7 @@ import (
 	"time"
 
 	govTypes "github.com/commercionetwork/commercionetwork/x/government/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	commerciokycTypes "github.com/commercionetwork/commercionetwork/x/commerciokyc/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -13,7 +14,6 @@ import (
 	"github.com/cometbft/cometbft/libs/cli"
 
 	"github.com/spf13/cobra"
-	tmtypes "github.com/cometbft/cometbft/types"
 	errors "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/server"
@@ -42,7 +42,7 @@ func SetGenesisGovernmentAddressCmd(defaultNodeHome string) *cobra.Command {
 
 			// retrieve the app state
 			genFile := config.GenesisFile()
-			genDoc, err := tmtypes.GenesisDocFromFile(genFile)
+			genDoc, err := genutiltypes.AppGenesisFromFile(genFile)
 			if err != nil {
 				return err
 			}

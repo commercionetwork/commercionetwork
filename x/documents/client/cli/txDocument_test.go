@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 
@@ -49,7 +50,7 @@ func TestCmdShareDocument(t *testing.T) {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, math.NewInt(10))).String()),
 			},
 			code: codeInsufficientFees,
 		},
@@ -61,7 +62,7 @@ func TestCmdShareDocument(t *testing.T) {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, math.NewInt(10))).String()),
 			},
 			wantErr: true,
 		},
@@ -73,7 +74,7 @@ func TestCmdShareDocument(t *testing.T) {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, math.NewInt(10))).String()),
 			},
 			wantErr: true,
 		},
@@ -124,7 +125,7 @@ func TestCmdSendDocumentReceipt(t *testing.T) {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, math.NewInt(10))).String()),
 			},
 			code: codeInsufficientFees,
 		},
@@ -136,7 +137,7 @@ func TestCmdSendDocumentReceipt(t *testing.T) {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, txVal.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(txNet.Config.BondDenom, math.NewInt(10))).String()),
 			},
 			wantErr: true,
 		},

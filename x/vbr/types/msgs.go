@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	errors "cosmossdk.io/errors"
@@ -62,7 +62,7 @@ func (msg *MsgIncrementBlockRewardsPool) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgSetParams{}
 
-func NewMsgSetParams(government string, epochIdentifier string, earnRate sdk.Dec) *MsgSetParams {
+func NewMsgSetParams(government string, epochIdentifier string, earnRate math.LegacyDec) *MsgSetParams {
 	return &MsgSetParams{
 		Government:           government,
 		DistrEpochIdentifier: epochIdentifier,

@@ -22,6 +22,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	gencli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cometbft/cometbft/libs/cli"
 	cometos "github.com/cometbft/cometbft/libs/os"
 	cometrand "github.com/cometbft/cometbft/libs/rand"
@@ -170,7 +171,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			genDoc.ChainID = chainID
 			genDoc.Validators = nil
 			genDoc.AppState = appState
-			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
+			if _, err = genutiltypes.AppGenesisFromFile(genFile); err != nil {
 				return errors.Wrap(err, "Failed to export gensis file")
 			}
 

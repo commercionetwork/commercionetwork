@@ -4,12 +4,13 @@ import (
 	"reflect"
 	"testing"
 
+	"cosmossdk.io/math"
 	v220vbr "github.com/commercionetwork/commercionetwork/x/vbr/legacy/v2.2.0"
 	"github.com/commercionetwork/commercionetwork/x/vbr/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var params = types.NewParams(types.EpochDay, sdk.NewDecWithPrec(5, 1))
+var params = types.NewParams(types.EpochDay, math.LegacyNewDecWithPrec(5, 1))
 
 func TestMigrate(t *testing.T) {
 	type args struct {
@@ -34,10 +35,10 @@ func TestMigrate(t *testing.T) {
 					PoolAmount: sdk.DecCoins{
 						{
 							Denom:  types.BondDenom,
-							Amount: sdk.NewDec(1000000),
+							Amount: math.LegacyNewDec(1000000),
 						},
 					},
-					RewardRate:        sdk.NewDecWithPrec(112, 5),
+					RewardRate:        math.LegacyNewDecWithPrec(112, 5),
 					AutomaticWithdraw: true,
 				},
 			},
@@ -45,7 +46,7 @@ func TestMigrate(t *testing.T) {
 				PoolAmount: sdk.DecCoins{
 					{
 						Denom:  types.BondDenom,
-						Amount: sdk.NewDec(1000000),
+						Amount: math.LegacyNewDec(1000000),
 					},
 				},
 				Params: params,

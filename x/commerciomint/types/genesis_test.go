@@ -3,6 +3,7 @@ package types
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -28,7 +29,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "invalid positions",
 			genesisState: func() GenesisState {
 				gs := *DefaultGenesis()
-				invalidPosition := NewPosition(ownerAddr, sdk.NewInt(testEtp.Collateral), *testEtp.Credits, "abcd", testCreatedAt, testEtp.ExchangeRate)
+				invalidPosition := NewPosition(ownerAddr, math.NewInt(testEtp.Collateral), *testEtp.Credits, "abcd", testCreatedAt, testEtp.ExchangeRate)
 				gs.Positions = []*Position{&invalidPosition}
 				return gs
 			},
@@ -47,7 +48,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			name: "invalid pool amount",
 			genesisState: func() GenesisState {
 				gs := *DefaultGenesis()
-				gs.PoolAmount = sdk.Coins{sdk.Coin{Denom: BondDenom, Amount: sdk.NewInt(-1)}}
+				gs.PoolAmount = sdk.Coins{sdk.Coin{Denom: BondDenom, Amount: math.NewInt(-1)}}
 				return gs
 			},
 			wantErr: true,

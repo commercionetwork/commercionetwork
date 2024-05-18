@@ -3,12 +3,13 @@ package types
 import (
 	"fmt"
 	"time"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	uuid "github.com/satori/go.uuid"
 )
 
-func NewPosition(owner sdk.AccAddress, deposit math.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate sdk.Dec) Position {
+func NewPosition(owner sdk.AccAddress, deposit math.Int, liquidity sdk.Coin, id string, createdAt time.Time, exchangeRate math.LegacyDec) Position {
 
 	return Position{
 		Owner:        owner.String(),
@@ -77,8 +78,8 @@ func ValidateCredits(credits sdk.Coin) bool {
 func (pos Position) Equals(etp Position) bool {
 	posOwner, _ := sdk.AccAddressFromBech32(pos.Owner)
 	etpOwner, _ := sdk.AccAddressFromBech32(etp.Owner)
-	posCollateral := sdk.NewInt(pos.Collateral)
-	etpCollateral := sdk.NewInt(etp.Collateral)
+	posCollateral := math.NewInt(pos.Collateral)
+	etpCollateral := math.NewInt(etp.Collateral)
 
 	return posOwner.Equals(etpOwner) &&
 		posCollateral.Equal(etpCollateral) &&

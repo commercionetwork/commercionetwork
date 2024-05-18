@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"testing"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/commercionetwork/commercionetwork/app"
 	"github.com/commercionetwork/commercionetwork/testutil/simapp"
 	"github.com/commercionetwork/commercionetwork/x/epochs"
@@ -23,7 +22,7 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	suite.app = simapp.New("")
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{})
+	suite.ctx = suite.app.BaseApp.NewContext(false)
 
 	genState := types.DefaultGenesis()
 	epochs.InitGenesis(suite.ctx, suite.app.EpochsKeeper, *genState)

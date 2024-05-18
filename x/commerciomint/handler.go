@@ -1,5 +1,5 @@
 package commerciomint
-
+/*
 import (
 	"fmt"
 
@@ -32,3 +32,4 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		}
 	}
 }
+*/

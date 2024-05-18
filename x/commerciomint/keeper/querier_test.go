@@ -210,10 +210,10 @@ package keeper
 // }
 
 // func Test_NewQuerier_queryConversionRate(t *testing.T) {
-// 	t.Run("expected sdk.NewDec(2)", func(t *testing.T) {
+// 	t.Run("expected math.LegacyNewDec(2)", func(t *testing.T) {
 // 		ctx, _, _, k := SetupTestInput()
 
-// 		expected := sdk.NewDec(2)
+// 		expected := math.LegacyNewDec(2)
 
 // 		app := simapp.Setup(false)
 // 		legacyAmino := app.LegacyAmino()

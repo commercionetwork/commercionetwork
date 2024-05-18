@@ -508,12 +508,12 @@ package ante_test
 
 // 	// TODO shall we drop the following?
 // 	app.CommercioMintKeeper.UpdateParams(ctx, validCommercioMintParams)
-// 	// app.CommercioMintKeeper.UpdateConversionRate(ctx, sdk.NewDec(2))
+// 	// app.CommercioMintKeeper.UpdateConversionRate(ctx, math.LegacyNewDec(2))
 
 // 	return app, ctx
 // }
 
-// var validConversionRate = sdk.NewDec(2)
+// var validConversionRate = math.LegacyNewDec(2)
 // var validFreezePeriod time.Duration = 0
 // var validCommercioMintParams = commerciomintTypes.Params{
 // 	ConversionRate: validConversionRate,
