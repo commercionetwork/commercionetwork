@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -19,13 +19,16 @@ import (
 	"github.com/spf13/pflag"
 
 	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
+	"cosmossdk.io/core/address"
 
 	"cosmossdk.io/log"
+	confixcmd "cosmossdk.io/tools/confix/cmd"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 	dbm "github.com/cosmos/cosmos-db"
 
 	"cosmossdk.io/store"
+	storetypes "cosmossdk.io/store/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/commercionetwork/commercionetwork/app"
 	commgenutilcli "github.com/commercionetwork/commercionetwork/x/genutil/client/cli"
@@ -94,6 +97,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	}
 
 	initRootCmd(rootCmd, encodingConfig)
+	rootCmd.AddCommand(
+		confixcmd.ConfigCommand(),
+	)
 	overwriteFlagDefaults(rootCmd, map[string]string{
 		flags.FlagChainID:        ChainID,
 		flags.FlagKeyringBackend: "test",
@@ -124,6 +130,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 	a := appCreator{encodingConfig}
+	var addressCodec address.Codec
 
 	gentxModule, ok := app.ModuleBasics[genutiltypes.ModuleName].(genutil.AppModuleBasic)
 	if !ok {
@@ -132,12 +139,12 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 	rootCmd.AddCommand(
 		commgenutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
-		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, gentxModule.GenTxValidator),
-		commgenutilcli.MigrationsListCmd(),
-		commgenutilcli.MigrateGenesisCmd(),
-		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
+		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, gentxModule.GenTxValidator, addressCodec),
+		//commgenutilcli.MigrationsListCmd(),
+		//commgenutilcli.MigrateGenesisCmd(),
+		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, addressCodec),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
-		testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
+		//testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		commgenutilcli.SetGenesisGovernmentAddressCmd(app.DefaultNodeHome),
 		commgenutilcli.SetGenesisVbrPoolAmount(),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
@@ -145,19 +152,18 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		tmcmd.ResetAllCmd,
 		forceprune(),
 		debug.Cmd(),
-		config.Cmd(),
 	)
 
 	server.AddCommands(rootCmd, app.DefaultNodeHome, a.newApp, a.appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
-		rpc.StatusCommand(),
+		server.StatusCommand(),
 		queryCommand(),
 		flags.LineBreak,
 		txCommand(),
 		flags.LineBreak,
-		keys.Commands(app.DefaultNodeHome),
+		keys.Commands(),
 		//preUpgradeCommand(),
 	)
 }
@@ -177,9 +183,10 @@ func queryCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		authcmd.GetAccountCmd(),
+		authcmd.QueryTxsByEventsCmd(),
+		authcmd.QueryTxCmd(),
 		rpc.ValidatorCommand(),
-		rpc.BlockCommand(),
+		server.QueryBlockCmd(),
 		authcmd.QueryTxsByEventsCmd(),
 		authcmd.QueryTxCmd(),
 	)
@@ -198,6 +205,7 @@ func txCommand() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
+	var addressCodec address.Codec
 
 	cmd.AddCommand(
 		authcmd.GetSignCommand(),
@@ -209,7 +217,7 @@ func txCommand() *cobra.Command {
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
 		flags.LineBreak,
-		vestingcli.GetTxCmd(),
+		vestingcli.GetTxCmd(addressCodec),
 	)
 
 	app.ModuleBasics.AddTxCommands(cmd)
@@ -224,7 +232,7 @@ type appCreator struct {
 
 // newApp is an AppCreator
 func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
-	var cache sdk.MultiStorePersistentCache
+	var cache storetypes.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
 		cache = store.NewCommitKVStoreCacheManager()

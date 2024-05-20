@@ -1,7 +1,7 @@
 package cmd
 
 // DONTCOVER
-
+/*
 import (
 	"bufio"
 	"encoding/json"
@@ -255,7 +255,7 @@ func InitTestnet(
 			valPubKeys[i],
 			sdk.NewCoin(app.DefaultBondDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
+			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
 			math.OneInt(),
 		)
 		if err != nil {
@@ -368,7 +368,7 @@ func initGenFiles(
 	tokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
 	vbrState.PoolAmount = sdk.NewDecCoinsFromCoins(sdk.NewCoin(app.DefaultBondDenom, tokens))
 	vbrState.Params.DistrEpochIdentifier = "minute"
-	vbrState.Params.EarnRate = sdk.NewDecWithPrec(5, 2)
+	vbrState.Params.EarnRate = math.LegacyNewDecWithPrec(5, 2)
 	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(&vbrState)
 
 	// commercionetworkd set-genesis-price ucommercio 1 100000000
@@ -531,3 +531,4 @@ func writeFile(name string, dir string, contents []byte) error {
 
 	return nil
 }
+*/

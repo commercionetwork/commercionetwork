@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"log"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	storetypes "cosmossdk.io/store/types"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
@@ -20,7 +19,7 @@ func (app *App) ExportAppStateAndValidators(
 ) (servertypes.ExportedApp, error) {
 
 	// as if they could withdraw from the start of the next block
-	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
+	ctx := app.NewContext(true)
 
 	// We export at last height + 1, because that's the height at which
 	// Tendermint will start InitChain.
@@ -30,7 +29,10 @@ func (app *App) ExportAppStateAndValidators(
 		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
-	genState := app.mm.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
+	genState, error := app.mm.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
+	if error != nil {
+		return servertypes.ExportedApp{}, error
+	}
 
 	appState, err := json.MarshalIndent(genState, "", "  ")
 	if err != nil {
@@ -77,7 +79,8 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 
 	// withdraw all validator commission
 	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
-		_, err := app.DistrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
+		addr, _ := sdk.ValAddressFromBech32(val.GetOperator());
+		_, err := app.DistrKeeper.WithdrawValidatorCommission(ctx, addr)
 		if err != nil {
 			panic(err)
 		}
@@ -85,9 +88,11 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	})
 
 	// withdraw all delegator rewards
-	dels := app.StakingKeeper.GetAllDelegations(ctx)
+	dels, _ := app.StakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		_, err := app.DistrKeeper.WithdrawDelegationRewards(ctx, delegation.GetDelegatorAddr(), delegation.GetValidatorAddr())
+		delAddr, _ := sdk.AccAddressFromBech32(delegation.GetDelegatorAddr())
+		valAddr, _ := sdk.AccAddressFromBech32(delegation.GetValidatorAddr())
+		_, err := app.DistrKeeper.WithdrawDelegationRewards(ctx, delAddr, sdk.ValAddress(valAddr))
 		if err != nil {
 			panic(err)
 		}
@@ -106,19 +111,29 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	// reinitialize all validators
 	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
-		scraps := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, val.GetOperator())
-		feePool := app.DistrKeeper.GetFeePool(ctx)
+		addr, _ := sdk.ValAddressFromBech32(val.GetOperator());
+		scraps, err := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, addr)
+		if err != nil {
+			panic(err)
+		}
+		feePool, err := app.DistrKeeper.FeePool.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		app.DistrKeeper.SetFeePool(ctx, feePool)
+		app.DistrKeeper.FeePool.Set(ctx, feePool)
 
-		app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())
+		valAddress, _ := sdk.ValAddressFromBech32(val.GetOperator())
+		app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, valAddress)
 		return false
 	})
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr())
-		app.DistrKeeper.Hooks().AfterDelegationModified(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr())
+		valAddress, _ := sdk.ValAddressFromBech32(del.GetValidatorAddr())
+		delAddress, _ := sdk.AccAddressFromBech32(del.GetDelegatorAddr())
+		app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddress, valAddress)
+		app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddress, valAddress)
 	}
 
 	// reset context height
@@ -147,13 +162,13 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	// Iterate through validators by power descending, reset bond heights, and
 	// update bond intra-tx counters.
 	store := ctx.KVStore(app.keys[stakingtypes.StoreKey])
-	iter := sdk.KVStoreReversePrefixIterator(store, stakingtypes.ValidatorsKey)
+	iter := storetypes.KVStoreReversePrefixIterator(store, stakingtypes.ValidatorsKey)
 	counter := int16(0)
 
 	for ; iter.Valid(); iter.Next() {
 		addr := sdk.ValAddress(iter.Key()[1:])
 		validator, found := app.StakingKeeper.GetValidator(ctx, addr)
-		if !found {
+		if found != nil {
 			panic("expected validator, not found")
 		}
 
