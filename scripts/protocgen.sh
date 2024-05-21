@@ -26,10 +26,10 @@ for dir in $proto_dirs; do
   for file in $(find "${dir}" -maxdepth 1 -name '*.proto'); do
     if grep "option go_package" $file &> /dev/null ; then
       buf generate --template buf.gen.gogo.yaml $file
-      protoc --proto_path=. \
-             --grpc-gateway_out=logtostderr=true,paths=source_relative:./ \
-             --go-grpc_out=paths=source_relative:./ \
-             $file
+      # protoc --proto_path=. \
+      #        --grpc-gateway_out=logtostderr=true,paths=source_relative:./ \
+      #        --go-grpc_out=paths=source_relative:./ \
+      #        $file
     fi
   done
 done

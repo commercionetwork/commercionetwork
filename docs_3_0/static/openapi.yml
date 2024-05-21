@@ -1107,6 +1107,10 @@ paths:
                         type: string
                       certificateProfile:
                         type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                title: Document
         default:
           description: An unexpected error response.
           schema:
@@ -1158,6 +1162,9 @@ paths:
                       type: string
                     proof:
                       type: string
+                    timestamp:
+                      type: string
+                      format: date-time
               pagination:
                 type: object
                 properties:
@@ -1465,6 +1472,10 @@ paths:
                           type: string
                         certificateProfile:
                           type: string
+                    timestamp:
+                      type: string
+                      format: date-time
+                  title: Document
               pagination:
                 type: object
                 properties:
@@ -1650,6 +1661,10 @@ paths:
                           type: string
                         certificateProfile:
                           type: string
+                    timestamp:
+                      type: string
+                      format: date-time
+                  title: Document
               pagination:
                 type: object
                 properties:
@@ -1909,6 +1924,9 @@ paths:
                       type: string
                     proof:
                       type: string
+                    timestamp:
+                      type: string
+                      format: date-time
               pagination:
                 type: object
                 properties:
@@ -2044,6 +2062,9 @@ paths:
                       type: string
                     proof:
                       type: string
+                    timestamp:
+                      type: string
+                      format: date-time
               pagination:
                 type: object
                 properties:
@@ -47715,6 +47736,10 @@ definitions:
             type: string
           certificateProfile:
             type: string
+      timestamp:
+        type: string
+        format: date-time
+    title: Document
   commercionetwork.documents.DocumentChecksum:
     type: object
     properties:
@@ -47795,6 +47820,9 @@ definitions:
         type: string
       proof:
         type: string
+      timestamp:
+        type: string
+        format: date-time
   commercionetwork.documents.MsgSendDocumentReceiptResponse:
     type: object
     properties:
@@ -47872,6 +47900,10 @@ definitions:
                 type: string
               certificateProfile:
                 type: string
+          timestamp:
+            type: string
+            format: date-time
+        title: Document
   commercionetwork.documents.QueryGetDocumentsReceiptsResponse:
     type: object
     properties:
@@ -47892,6 +47924,9 @@ definitions:
               type: string
             proof:
               type: string
+            timestamp:
+              type: string
+              format: date-time
       pagination:
         type: object
         properties:
@@ -48020,6 +48055,10 @@ definitions:
                   type: string
                 certificateProfile:
                   type: string
+            timestamp:
+              type: string
+              format: date-time
+          title: Document
       pagination:
         type: object
         properties:
@@ -48066,6 +48105,9 @@ definitions:
               type: string
             proof:
               type: string
+            timestamp:
+              type: string
+              format: date-time
       pagination:
         type: object
         properties:
@@ -48112,6 +48154,9 @@ definitions:
               type: string
             proof:
               type: string
+            timestamp:
+              type: string
+              format: date-time
       pagination:
         type: object
         properties:
@@ -48207,6 +48252,10 @@ definitions:
                   type: string
                 certificateProfile:
                   type: string
+            timestamp:
+              type: string
+              format: date-time
+          title: Document
       pagination:
         type: object
         properties:

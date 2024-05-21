@@ -6,6 +6,7 @@ option go_package = "github.com/commercionetwork/commercionetwork/x/documents/ty
 
 // Import section
 import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 
 message DocumentReceipt {
     string UUID = 1; 
@@ -14,4 +15,5 @@ message DocumentReceipt {
     string txHash = 4; 
     string documentUUID = 5;
     string proof = 6;
+    google.protobuf.Timestamp timestamp = 7 [(gogoproto.stdtime) = true];
 }

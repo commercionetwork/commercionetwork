@@ -23,8 +23,20 @@ var _ types.MsgServer = msgServer{}
 
 func (k msgServer) ShareDocument(goCtx context.Context, msg *types.MsgShareDocument) (*types.MsgShareDocumentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	timestamp := ctx.BlockTime()
+	doc := types.Document{
+		ContentURI: msg.ContentURI,
+		UUID: msg.UUID,
+		Metadata: msg.Metadata,
+		Checksum: msg.Checksum,
+		Sender:  msg.Sender,
+		Recipients: msg.Recipients,
+		EncryptionData: msg.EncryptionData,
+		DoSign: msg.DoSign,
+		Timestamp: &timestamp,
+	}
 
-	if err := k.SaveDocument(ctx, types.Document(*msg)); err != nil {
+	if err := k.SaveDocument(ctx, doc); err != nil {
 		return nil, err
 	}
 
@@ -34,8 +46,17 @@ func (k msgServer) ShareDocument(goCtx context.Context, msg *types.MsgShareDocum
 
 func (k msgServer) SendDocumentReceipt(goCtx context.Context, msg *types.MsgSendDocumentReceipt) (*types.MsgSendDocumentReceiptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if err := k.SaveReceipt(ctx, types.DocumentReceipt(*msg)); err != nil {
+	timestamp := ctx.BlockTime()
+	docReceipts := types.DocumentReceipt{
+		UUID: msg.UUID,
+		Sender: msg.Sender,
+		Recipient: msg.Recipient,
+		TxHash: msg.TxHash,
+		DocumentUUID: msg.DocumentUUID,
+		Proof: msg.Proof,
+		Timestamp: &timestamp,
+	}
+	if err := k.SaveReceipt(ctx, docReceipts); err != nil {
 		return nil, err
 	}
 
