@@ -49,7 +49,7 @@ The unbond period is 21 days, so is necessary to wait this period to get back in
 :::
 
 ## Unjail procedure
-In case a validator ended up jail for downtime, it is necessary that the wallet that created the validator performs a ujail transaction.   
+In case a validator ended up jailed for downtime, it is necessary that the wallet that created the validator performs an unjail transaction.   
 The follow command must be performed 
 
 ```bash
