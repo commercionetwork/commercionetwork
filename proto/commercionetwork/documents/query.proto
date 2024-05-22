@@ -40,6 +40,12 @@ service Query {
         "/commercionetwork/documents/document/{address}/received";
   }
 
+  // Query a Receipt by it's uuid
+  rpc Receipt(QueryGetReceiptRequest) returns (QueryReceiptResponse) {
+    option (google.api.http).get =
+        "/commercionetwork/documents/receipts/{UUID}";
+  }
+
   rpc SentDocumentsReceipts(QueryGetSentDocumentsReceiptsRequest)
       returns (QueryGetSentDocumentsReceiptsResponse) {
     option (google.api.http).get =
@@ -116,6 +122,14 @@ message QueryGetReceivedDocumentResponse {
 // ----------------------------------
 // --- Document receipts
 // ----------------------------------
+
+message QueryGetReceiptRequest { 
+  string UUID = 1;
+}
+
+message QueryReceiptResponse { 
+  DocumentReceipt receipt = 1;
+}
 
 message QueryGetSentDocumentsReceiptsRequest {
   string address = 1;

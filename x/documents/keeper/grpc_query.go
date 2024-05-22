@@ -267,3 +267,18 @@ func (k Keeper) DocumentsUUIDReceipts(c context.Context, req *types.QueryGetDocu
 		Pagination: pageRes,
 	}, nil
 }
+
+func (k Keeper) Receipt(c context.Context, req *types.QueryGetReceiptRequest) (*types.QueryReceiptResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	receipt, err := k.GetReceiptByID(ctx, req.UUID)
+	if err != nil {
+		return nil, sdkerrors.ErrKeyNotFound
+	}
+
+	return &types.QueryReceiptResponse{Receipt: &receipt}, nil
+}

@@ -1897,6 +1897,59 @@ paths:
           type: boolean
       tags:
         - Query
+  /commercionetwork/documents/receipts/{UUID}:
+    get:
+      summary: Query a Receipt by it's uuid
+      operationId: CommercionetworkDocumentsReceipt
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              receipt:
+                type: object
+                properties:
+                  UUID:
+                    type: string
+                  sender:
+                    type: string
+                  recipient:
+                    type: string
+                  txHash:
+                    type: string
+                  documentUUID:
+                    type: string
+                  proof:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: UUID
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
   /commercionetwork/documents/receipts/{address}/received:
     get:
       summary: Queries a list of Document items.
@@ -48315,6 +48368,27 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
+  commercionetwork.documents.QueryReceiptResponse:
+    type: object
+    properties:
+      receipt:
+        type: object
+        properties:
+          UUID:
+            type: string
+          sender:
+            type: string
+          recipient:
+            type: string
+          txHash:
+            type: string
+          documentUUID:
+            type: string
+          proof:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
   commercionetwork.epochs.EpochInfo:
     type: object
     properties:
