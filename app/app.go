@@ -960,6 +960,15 @@ func New(
 		},
 	)
 
+	upgradeNameV6 := "v6.0.0"
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeNameV6,
+		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			// TODO
+			return vm, nil
+		},
+	)
+
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
 		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
@@ -998,6 +1007,15 @@ func New(
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV51))
+	}
+
+	if upgradeInfo.Name == upgradeNameV6 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		storeUpgradesV6 := storetypes.StoreUpgrades{
+			Added: []string{ibcaddresslimittypes.ModuleName},
+		}
+
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgradesV6))
 	}
 
 	if loadLatest {

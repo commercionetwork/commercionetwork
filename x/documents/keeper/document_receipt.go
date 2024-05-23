@@ -37,7 +37,14 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 
 	// check if Sender is included among the recipients of the document
 	if !store.Has(getReceivedDocumentsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)) {
-		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", receipt.Sender, receipt.UUID))
+		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sender for document receipt with address %s not among the recipients of the document: %s", receipt.Sender, receipt.DocumentUUID))
+	}
+
+	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
+
+	// check if the Recipient is the sender of the document
+	if !store.Has(getSentDocumentsIdsUUIDStoreKey(recipientAccAdrr, receipt.DocumentUUID)) {
+		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("recipient of the document receipt with address %s is not the Sender of the document: %s", receipt.Recipient, receipt.DocumentUUID))
 	}
 
 	sentReceiptsIdsStoreKey := getSentReceiptsIdsUUIDStoreKey(senderAccAdrr, receipt.DocumentUUID)
@@ -45,7 +52,6 @@ func (keeper Keeper) SaveReceipt(ctx sdk.Context, receipt types.DocumentReceipt)
 		return errors.Wrap(sdkErr.ErrInvalidRequest, fmt.Sprintf("sent receipt for document with UUID %s already present: %s", receipt.DocumentUUID, receipt.UUID))
 	}
 
-	recipientAccAdrr, _ := sdk.AccAddressFromBech32(receipt.Recipient)
 	receivedReceiptIdsStoreKey := getReceivedReceiptsIdsUUIDStoreKey(recipientAccAdrr, receipt.UUID)
 
 	documentsReceiptsIdsStoreKey := getDocumentReceiptsIdsUUIDStoreKey(receipt.DocumentUUID, receipt.UUID)
