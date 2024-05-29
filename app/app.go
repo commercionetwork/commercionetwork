@@ -1011,7 +1011,7 @@ func New(
 
 	if upgradeInfo.Name == upgradeNameV6 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		storeUpgradesV6 := storetypes.StoreUpgrades{
-			Added: []string{ibcaddresslimittypes.ModuleName},
+			//Added: []string{ibcaddresslimittypes.ModuleName},
 		}
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
