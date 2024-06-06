@@ -55,7 +55,38 @@ func migrateDocument(doc v300.Document) *types.Document {
 			EncryptedData: doc.EncryptionData.EncryptedData,
 		}
 	}
+
+	var metadata *types.DocumentMetadata
+	if doc.Metadata != nil {
+		metadata = &types.DocumentMetadata{
+			ContentURI: doc.Metadata.ContentURI,
+		}
+		if doc.Metadata.Schema != nil {
+			metadata.Schema = &types.DocumentMetadataSchema{
+				URI: doc.Metadata.Schema.URI,
+				Version: doc.Metadata.Schema.Version,
+			}
+		}
+	}
+
+	var checksum *types.DocumentChecksum
+	if doc.Checksum != nil {
+		checksum = &types.DocumentChecksum{
+			Value: doc.Checksum.Value,
+			Algorithm: doc.Checksum.Algorithm,
+		}
+	}
 	
+	var doSign *types.DocumentDoSign
+	if doc.DoSign != nil {
+		doSign = &types.DocumentDoSign{
+			StorageURI: doc.DoSign.StorageURI,
+			SignerInstance: doc.DoSign.SignerInstance,
+			SdnData: doc.DoSign.SdnData,
+			VcrID: doc.DoSign.VcrID,
+			CertificateProfile: doc.DoSign.CertificateProfile,
+		}
+	}
 	//Set the time to the symbolic unix epoch 01/01/1970
 	var timestamp time.Time = time.Unix(0, 0).UTC()
 
@@ -64,26 +95,11 @@ func migrateDocument(doc v300.Document) *types.Document {
 		Sender:     doc.Sender,
 		Recipients: doc.Recipients,
 		UUID:       doc.UUID,
-		Metadata: &types.DocumentMetadata{
-			ContentURI: doc.Metadata.ContentURI,
-			Schema:     &types.DocumentMetadataSchema{
-				URI: doc.Metadata.Schema.URI,
-				Version: doc.Metadata.Schema.Version,
-			},
-		},
+		Metadata: metadata,
 		ContentURI:     doc.ContentURI,
-		Checksum:       &types.DocumentChecksum{
-			Value: doc.Checksum.Value,
-			Algorithm: doc.Checksum.Algorithm,
-		},
+		Checksum:      checksum,
 		EncryptionData: encryptionData,
-		DoSign: &types.DocumentDoSign{
-			StorageURI: doc.DoSign.StorageURI,
-			SignerInstance: doc.DoSign.SignerInstance,
-			SdnData: doc.DoSign.SdnData,
-			VcrID: doc.DoSign.VcrID,
-			CertificateProfile: doc.DoSign.CertificateProfile,
-		},
+		DoSign: doSign,
 		Timestamp: &timestamp,
 	}
 }

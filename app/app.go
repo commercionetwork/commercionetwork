@@ -45,6 +45,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	consensus "github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
@@ -101,6 +102,7 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	//  Params
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -287,6 +289,7 @@ var (
 		wasm.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		ibcaddresslimit.AppModuleBasic{},
+		consensus.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -742,6 +745,7 @@ func New(
 		documentsModule,
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		ibcaddresslimit.NewAppModule(*app.AddressLimitingICS4Wrapper),
+		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them
 	)
 
@@ -787,6 +791,7 @@ func New(
 		governmentmoduletypes.ModuleName,
 		vbrmoduletypes.ModuleName,
 		ibcaddresslimittypes.ModuleName,
+		consensusparamtypes.ModuleName,
 	)
 
 	// TODO: check order for End Blockers
@@ -821,6 +826,7 @@ func New(
 		epochstypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibcaddresslimittypes.ModuleName,
+		consensusparamtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -856,6 +862,7 @@ func New(
 		authz.ModuleName,
 		wasmtypes.ModuleName,
 		ibcaddresslimittypes.ModuleName,
+		consensusparamtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(app.CrisisKeeper)
@@ -899,6 +906,41 @@ func New(
 
 		},
 	)*/
+	for _, subspace := range app.ParamsKeeper.GetSubspaces() {
+		subspace := subspace
+
+		var keyTable paramstypes.KeyTable
+		switch subspace.Name() {
+		case authtypes.ModuleName:
+			keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
+			subspace.WithKeyTable(keyTable)
+		case banktypes.ModuleName:
+			keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
+			subspace.WithKeyTable(keyTable)
+		case stakingtypes.ModuleName:
+			keyTable = stakingtypes.ParamKeyTable() //nolint:staticcheck
+			subspace.WithKeyTable(keyTable)
+		case distrtypes.ModuleName:
+			keyTable = distrtypes.ParamKeyTable() //nolint:staticcheck
+			subspace.WithKeyTable(keyTable)
+		case slashingtypes.ModuleName:
+			keyTable = slashingtypes.ParamKeyTable() //nolint:staticcheck
+			subspace.WithKeyTable(keyTable)
+		case govtypes.ModuleName:
+			keyTable = govv1.ParamKeyTable() //nolint:staticcheck
+			subspace.WithKeyTable(keyTable)
+		case crisistypes.ModuleName:
+			keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
+			subspace.WithKeyTable(keyTable)
+		case wasmtypes.ModuleName:
+			keyTable = wasmtypes.ParamKeyTable()
+			subspace.WithKeyTable(keyTable)
+		}
+
+		// if !subspace.HasKeyTable() {
+		// 	subspace.WithKeyTable(keyTable)
+		// }
+	}
 
 	upgradeName := "v4.0.0"
 	/*app.UpgradeKeeper.SetUpgradeHandler(
@@ -960,12 +1002,19 @@ func New(
 		},
 	)
 
+	baseAppLegacySS := app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable())
+
 	upgradeNameV6 := "v6.0.0"
 	app.UpgradeKeeper.SetUpgradeHandler(
 		upgradeNameV6,
-		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			// TODO
-			return vm, nil
+		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			// Migrate Tendermint consensus parameters from x/params module to a dedicated x/consensus module.
+			baseapp.MigrateParams(ctx, baseAppLegacySS, &app.ConsensusParamsKeeper)
+
+			// Note: this migration is optional,
+			// You can include x/gov proposal migration documented in [UPGRADING.md](https://github.com/cosmos/cosmos-sdk/blob/main/UPGRADING.md)
+
+			return app.mm.RunMigrations(ctx, cfg, fromVM)
 		},
 	)
 
@@ -1011,7 +1060,10 @@ func New(
 
 	if upgradeInfo.Name == upgradeNameV6 && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		storeUpgradesV6 := storetypes.StoreUpgrades{
-			//Added: []string{ibcaddresslimittypes.ModuleName},
+			Added: []string{
+				consensusparamtypes.ModuleName,
+				crisistypes.ModuleName,
+			},
 		}
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
