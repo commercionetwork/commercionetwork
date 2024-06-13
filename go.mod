@@ -32,6 +32,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240415180920-8c6c420018be
 	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.34.0
+	github.com/commercionetwork/commercionetwork/x/epochs v1.5.1-0.20240418100131-e8252c364a4e
 )
 
 require (
