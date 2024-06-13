@@ -3,29 +3,30 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/commercionetwork/commercionetwork/x/epochs/types"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cometbft/cometbft/libs/log"
+
+	"github.com/commercionetwork/commercionetwork/x/epochs/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 type (
 	Keeper struct {
-		cdc      codec.Codec
 		storeKey storetypes.StoreKey
 		hooks    types.EpochHooks
 	}
 )
 
-func NewKeeper(cdc codec.Codec, storeKey storetypes.StoreKey) *Keeper {
+// NewKeeper returns a new keeper by codec and storeKey inputs.
+func NewKeeper(storeKey storetypes.StoreKey) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
 		storeKey: storeKey,
 	}
 }
 
-// Set the gamm hooks
+// Set the gamm hooks.
 func (k *Keeper) SetHooks(eh types.EpochHooks) *Keeper {
 	if k.hooks != nil {
 		panic("cannot set epochs hooks twice")

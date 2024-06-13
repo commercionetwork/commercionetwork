@@ -6,31 +6,91 @@ import (
 	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 )
 
-func (suite *KeeperTestSuite) TestEpochLifeCycle() {
-	suite.SetupTest()
-
-	epochInfo := types.EpochInfo{
-		Identifier:            "month",
-		StartTime:             time.Time{},
-		Duration:              time.Hour * 24 * 30,
-		CurrentEpoch:          0,
-		CurrentEpochStartTime: time.Time{},
-		EpochCountingStarted:  false,
-		CurrentEpochEnded:     true,
+func (s *KeeperTestSuite) TestAddEpochInfo() {
+	defaultIdentifier := "default_add_epoch_info_id"
+	defaultDuration := time.Hour
+	startBlockHeight := int64(100)
+	startBlockTime := time.Unix(1656907200, 0).UTC()
+	tests := map[string]struct {
+		addedEpochInfo types.EpochInfo
+		expErr         bool
+		expEpochInfo   types.EpochInfo
+	}{
+		"simple_add": {
+			addedEpochInfo: types.EpochInfo{
+				Identifier:              defaultIdentifier,
+				StartTime:               time.Time{},
+				Duration:                defaultDuration,
+				CurrentEpoch:            0,
+				CurrentEpochStartHeight: 0,
+				CurrentEpochStartTime:   time.Time{},
+				EpochCountingStarted:    false,
+			},
+			expErr: false,
+			expEpochInfo: types.EpochInfo{
+				Identifier:              defaultIdentifier,
+				StartTime:               startBlockTime,
+				Duration:                defaultDuration,
+				CurrentEpoch:            0,
+				CurrentEpochStartHeight: startBlockHeight,
+				CurrentEpochStartTime:   time.Time{},
+				EpochCountingStarted:    false,
+			},
+		},
+		"zero_duration": {
+			addedEpochInfo: types.EpochInfo{
+				Identifier:              defaultIdentifier,
+				StartTime:               time.Time{},
+				Duration:                time.Duration(0),
+				CurrentEpoch:            0,
+				CurrentEpochStartHeight: 0,
+				CurrentEpochStartTime:   time.Time{},
+				EpochCountingStarted:    false,
+			},
+			expErr: true,
+		},
 	}
-	suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epochInfo)
-	epochInfoSaved := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "month")
-	suite.Require().Equal(epochInfo, epochInfoSaved)
+	for name, test := range tests {
+		s.Run(name, func() {
+			s.SetupTest()
+			s.Ctx = s.Ctx.WithBlockHeight(startBlockHeight).WithBlockTime(startBlockTime)
+			err := s.EpochsKeeper.AddEpochInfo(s.Ctx, test.addedEpochInfo)
+			if !test.expErr {
+				s.Require().NoError(err)
+				actualEpochInfo := s.EpochsKeeper.GetEpochInfo(s.Ctx, test.addedEpochInfo.Identifier)
+				s.Require().Equal(test.expEpochInfo, actualEpochInfo)
+			} else {
+				s.Require().Error(err)
+			}
+		})
+	}
+}
 
-	allEpochs := suite.app.EpochsKeeper.AllEpochInfos(suite.ctx)
-	suite.Require().Len(allEpochs, 5)
-	suite.Require().Equal(allEpochs[0].Identifier, "day") // alphabetical order
-	suite.Require().Equal(allEpochs[1].Identifier, "hour")
-	suite.Require().Equal(allEpochs[2].Identifier, "minute")
-	suite.Require().Equal(allEpochs[3].Identifier, "month")
-	suite.Require().Equal(allEpochs[4].Identifier, "week")
+func (s *KeeperTestSuite) TestDuplicateAddEpochInfo() {
+	identifier := "duplicate_add_epoch_info"
+	epochInfo := types.NewGenesisEpochInfo(identifier, time.Hour*24*30)
+	err := s.EpochsKeeper.AddEpochInfo(s.Ctx, epochInfo)
+	s.Require().NoError(err)
+	err = s.EpochsKeeper.AddEpochInfo(s.Ctx, epochInfo)
+	s.Require().Error(err)
+}
 
-	suite.app.EpochsKeeper.DeleteEpochInfo(suite.ctx, "month")
-	epochInfomonth := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "month")
-	suite.Require().Equal(types.EpochInfo{}, epochInfomonth)
+func (s *KeeperTestSuite) TestEpochLifeCycle() {
+	s.SetupTest()
+
+	epochInfo := types.NewGenesisEpochInfo("monthly", time.Hour*24*30)
+	s.EpochsKeeper.AddEpochInfo(s.Ctx, epochInfo)
+	epochInfoSaved := s.EpochsKeeper.GetEpochInfo(s.Ctx, "monthly")
+	// setup expected epoch info
+	expectedEpochInfo := epochInfo
+	expectedEpochInfo.StartTime = s.Ctx.BlockTime()
+	expectedEpochInfo.CurrentEpochStartHeight = s.Ctx.BlockHeight()
+	s.Require().Equal(expectedEpochInfo, epochInfoSaved)
+
+	allEpochs := s.EpochsKeeper.AllEpochInfos(s.Ctx)
+	s.Require().Len(allEpochs, 4)
+	s.Require().Equal(allEpochs[0].Identifier, "day") // alphabetical order
+	s.Require().Equal(allEpochs[1].Identifier, "hour")
+	s.Require().Equal(allEpochs[2].Identifier, "monthly")
+	s.Require().Equal(allEpochs[3].Identifier, "week")
 }

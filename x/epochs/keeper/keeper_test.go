@@ -2,38 +2,64 @@ package keeper_test
 
 import (
 	"testing"
+	"time"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/commercionetwork/commercionetwork/app"
-	"github.com/commercionetwork/commercionetwork/testutil/simapp"
-	"github.com/commercionetwork/commercionetwork/x/epochs"
-	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+
 	"github.com/stretchr/testify/suite"
+
+	epochskeeper "github.com/commercionetwork/commercionetwork/x/epochs/keeper"
+	"github.com/commercionetwork/commercionetwork/x/epochs/types"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
-
-	app         *app.App
-	ctx         sdk.Context
-	queryClient types.QueryClient
+	Ctx          sdk.Context
+	EpochsKeeper *epochskeeper.Keeper
+	queryClient  types.QueryClient
 }
 
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.app = simapp.New("")
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{})
-
-	genState := types.DefaultGenesis()
-	epochs.InitGenesis(suite.ctx, suite.app.EpochsKeeper, *genState)
-
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.app.EpochsKeeper)
-	suite.queryClient = types.NewQueryClient(queryHelper)
-
+func (s *KeeperTestSuite) SetupTest() {
+	ctx, epochsKeeper := Setup()
+	s.Ctx = ctx
+	s.EpochsKeeper = epochsKeeper
+	queryRouter := baseapp.NewGRPCQueryRouter()
+	cfg := module.NewConfigurator(nil, nil, queryRouter)
+	types.RegisterQueryServer(cfg.QueryServer(), epochskeeper.NewQuerier(*s.EpochsKeeper))
+	// grpcQueryService := &baseapp.QueryServiceTestHelper{
+	// 	GRPCQueryRouter: queryRouter,
+	// 	Ctx:             s.Ctx,
+	// }
+	// encCfg := app.MakeEncodingConfig()
+	// grpcQueryService.SetInterfaceRegistry(encCfg.InterfaceRegistry)
+	// s.queryClient = types.NewQueryClient(grpcQueryService)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
+}
+
+func Setup() (sdk.Context, *epochskeeper.Keeper) {
+	epochsStoreKey := sdk.NewKVStoreKey(types.StoreKey)
+	ctx := testutil.DefaultContext(epochsStoreKey, sdk.NewTransientStoreKey("transient_test"))
+	epochsKeeper := epochskeeper.NewKeeper(epochsStoreKey)
+	epochsKeeper = epochsKeeper.SetHooks(types.NewMultiEpochHooks())
+	ctx.WithBlockHeight(1).WithChainID("osmosis-1").WithBlockTime(time.Now().UTC())
+	epochsKeeper.InitGenesis(ctx, *types.DefaultGenesis())
+	SetEpochStartTime(ctx, epochsKeeper)
+	return ctx, epochsKeeper
+}
+
+func SetEpochStartTime(ctx sdk.Context, epochsKeeper *epochskeeper.Keeper) {
+	for _, epoch := range epochsKeeper.AllEpochInfos(ctx) {
+		epoch.StartTime = ctx.BlockTime()
+		epochsKeeper.DeleteEpochInfo(ctx, epoch.Identifier)
+		err := epochsKeeper.AddEpochInfo(ctx, epoch)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
