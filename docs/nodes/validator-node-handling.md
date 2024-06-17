@@ -21,6 +21,7 @@ Once you've properly set up a [validator node](validator-node-installation.md), 
     - [Split the content of `data` folder](#split-the-content-of-data-folder)
     - [Prune the node](#prune-the-node)
     - [State sync the node](#state-sync-the-node)
+    - [State sync the node with snapshot](#state-sync-the-node-with-snapshot)
   - [Add identity to your validator](#add-identity-to-your-validator)
     - [References keybase](#references-keybase)
     - [1. Registration](#1-registration)
@@ -180,27 +181,27 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
    systemctl stop commercionetworkd
    systemctl disable commercionetworkd
    ```
-1. Sync again your new node `data` folder
+5. Sync again your new node `data` folder
    ```bash
    rsync -av --delete \
      ~/.commercionetwork/data/ \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
-2. Copy your `priv_validator_key.json` in the **new server**
+6. Copy your `priv_validator_key.json` in the **new server**
    ```bash
    scp ~/.commercionetwork/config/priv_validator_key.json \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/config/priv_validator_key.json
    ```
-3. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node.
-4. Remove the `priv_validator_key.json` file from **old server**
+7. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node.
+8. Remove the `priv_validator_key.json` file from **old server**
    ```bash
    rm ~/.commercionetwork/config/priv_validator_key.json
    ```
-1. Restart the node in your new server
+9. Restart the node in your new server
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again checking the explorer
+10. Verify if your validator signs again checking the explorer
 
 
 
@@ -260,25 +261,25 @@ To resume a validator after break down or some other terrible issue that destroy
    ```bash
    systemctl stop commercionetworkd
    ```
-1. Setup your `priv_val_addr` in `config.toml` using the setup of your server. 
-1. Enter in your `kms` server and stop the `tmkms` service
+3. Setup your `priv_val_addr` in `config.toml` using the setup of your server. 
+4. Enter in your `kms` server and stop the `tmkms` service
    ```bash
    systemctl stop tmkms
    ```
-1. Modify `tmkms` config using `priv_val_addr` value of your validator 
+5. Modify `tmkms` config using `priv_val_addr` value of your validator 
    ```toml
    [[validator]]
    addr = "tcp://<VALIDATOR_IP>:26658"
    ``` 
-1. Restart `tmkms` service
+6. Restart `tmkms` service
    ```bash
    systemctl start tmkms
    ```
-1. Restart the node in your new server
+7. Restart the node in your new server
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again checking the explorer
+8. Verify if your validator signs again checking the explorer
 
 ## x% Loss of blocks
 
@@ -357,31 +358,31 @@ The vm provider allows you to increase the disk space of the node. The following
    /dev/sdb        25G   5G    20G    20%   /mnt/data
    ```
    Get the mount point of the disk. In this example the mount point is `/dev/sdb`
-3. Umount the disk
+4. Umount the disk
    ```bash
    sudo su -
    umount /mnt/data
    ```
-4. Resize the disk
+5. Resize the disk
    ```bash
    sudo su -
    e2fsck -f /dev/sdb
    resize2fs /dev/sdb
    ```
-5. Mount the disk
+6. Mount the disk
    ```bash
    sudo su -
    mount /dev/sdb /mnt/data
    ```
-6. Check the size of the disk
+7. Check the size of the disk
    ```bash
    df -h
    ```
-7. Restart the node service
+8. Restart the node service
    ```bash
    systemctl start commercionetworkd
    ```
-8. Verify if the node is working
+9. Verify if the node is working
    ```bash
    journalctl -u commercionetworkd -f
    ```
@@ -578,7 +579,60 @@ In this guide, we will walk you through the process of reducing the disk usage o
       ```bash
       rm $home_chain/priv_validator_state.json.backup
       ```
+### State sync the node with snapshot
 
+In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by using a Mainnet statesync node snapshot from quicksync.commercio.network website:
+
+1. Set the chain variables to adapt the procedure to any chain user (root or cnd)
+   ```
+   # Retrieve the chain home path
+   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
+
+   # Retrieve the chain user
+   comm_user=$(systemctl show -pUser commercionetworkd.service | awk -F'=' '{print $(NF)}')
+   ```
+2. Stop the `commercionetworkd` process
+   ```bash
+   systemctl stop commercionetworkd
+   ```
+
+3. Backup state file
+   ```bash
+   cp $home_chain/data/priv_validator_state.json \
+     $home_chain/priv_validator_state.json.backup
+   ```
+4. Download the snapshot and extract it
+   ```bash
+   wget "https://quicksync.commercio.network/$(echo $CHAINID)-statesync.latest.tgz" -P $home_chain/
+   # Check if the checksum matches the one present inside https://quicksync.commercio.network
+   cd $home_chain/
+   tar -zxf $(echo $CHAINID).latest.tgz
+   rm $(echo $CHAINID)-statesync.latest.tgz
+   ```   
+5. Copy back the backupped state file
+   ```bash
+   cp $home_chain/priv_validator_state.json.backup \
+     $home_chain/data/priv_validator_state.json
+   ```
+6. **If you're not operating with root** change the permission accordingly
+   ```bash
+   chown -R $comm_user:$comm_user $home_chain/
+   ```
+
+7. Start the node
+   ```bash
+   systemctl start commercionetworkd
+   ```
+
+8. Check the node alignment
+      ```bash
+      journalctl -u commercionetworkd -f | grep height=
+      ```
+
+9. Clean up operations
+      ```bash
+      rm $home_chain/priv_validator_state.json.backup
+      ```
 
 ## Add identity to your validator
 
