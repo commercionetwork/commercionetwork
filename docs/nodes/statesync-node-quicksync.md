@@ -122,9 +122,9 @@ Edit `~/.commercionetwork/config/config.toml`, search `priv_validator_laddr`, an
 **WARN**: the configuration of KMS must already be done. 
 
 
-## 4. Set the statesync configuration
+## 4. Download the statesynced node snapshot
 
-Download the statesyync and extract the data folder
+Download the statesynced node snapshot and extract the data folder
 ```
 wget "https://quicksync.commercio.network/$(echo $CHAINID)-statesync.latest.tgz" -P ~/.commercionetwork/
 # Check if the checksum matches the one present inside https://quicksync.commercio.network
