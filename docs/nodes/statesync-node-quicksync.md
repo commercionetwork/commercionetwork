@@ -125,12 +125,12 @@ Edit `~/.commercionetwork/config/config.toml`, search `priv_validator_laddr`, an
 ## 4. Download the statesynced node snapshot
 
 Download the statesynced node snapshot and extract the data folder
-```
-wget "https://quicksync.commercio.network/$(echo $CHAINID)-statesync.latest.tgz" -P ~/.commercionetwork/
+```bash
+wget "https://quicksync.commercio.network/$CHAINID-statesync.latest.tgz" -P ~/.commercionetwork/
 # Check if the checksum matches the one present inside https://quicksync.commercio.network
 cd ~/.commercionetwork/
-tar -zxf $(echo $CHAINID).latest.tgz
-rm $(echo $CHAINID)-statesync.latest.tgz
+tar -zxf $CHAINID-statesync.latest.tgz
+rm $CHAINID-statesync.latest.tgz
 ```
 
 ## 5. Install and config cosmovisor

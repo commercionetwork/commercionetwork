@@ -447,7 +447,7 @@ You can apply pruning **manually** once in a while with the follow procedure.
 
 
 1. Set the home chain path variable to adapt to any chain user
-   ```
+   ```bash
    home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
    ```
 
@@ -477,7 +477,7 @@ If you're looking for how to install a statesynced node follow the instructions 
 In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by state syncing it to the blockchain. 
 
 1. Set the chain variables to adapt the procedure to any chain user (root or cnd)
-   ```
+   ```bash
    # Retrieve the chain home path
    home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
 
@@ -603,11 +603,11 @@ In this guide, we will walk you through the process of reducing the disk usage o
    ```
 4. Download the snapshot and extract it
    ```bash
-   wget "https://quicksync.commercio.network/$(echo $CHAINID)-statesync.latest.tgz" -P $home_chain/
+   wget "https://quicksync.commercio.network/$CHAINID-statesync.latest.tgz" -P ~/.commercionetwork/
    # Check if the checksum matches the one present inside https://quicksync.commercio.network
-   cd $home_chain/
-   tar -zxf $(echo $CHAINID).latest.tgz
-   rm $(echo $CHAINID)-statesync.latest.tgz
+   cd ~/.commercionetwork/
+   tar -zxf $CHAINID-statesync.latest.tgz
+   rm $CHAINID-statesync.latest.tgz
    ```   
 5. Copy back the backupped state file
    ```bash

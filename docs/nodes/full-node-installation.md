@@ -214,8 +214,8 @@ trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
 wget "https://quicksync.commercio.network/$CHAINID.latest.tgz" -P ~/.commercionetwork/
 # Check if the checksum matches the one present inside https://quicksync.commercio.network
 cd ~/.commercionetwork/
-tar -zxf $(echo $CHAINID).latest.tgz
-rm $(echo $CHAINID).latest.tgz
+tar -zxf $CHAINID.latest.tgz
+rm $CHAINID.latest.tgz
 ```
 
 
