@@ -215,6 +215,7 @@ wget "https://quicksync.commercio.network/$CHAINID.latest.tgz" -P ~/.commercione
 # Check if the checksum matches the one present inside https://quicksync.commercio.network
 cd ~/.commercionetwork/
 tar -zxf $(echo $CHAINID).latest.tgz
+rm $(echo $CHAINID).latest.tgz
 ```
 
 
