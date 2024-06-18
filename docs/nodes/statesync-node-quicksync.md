@@ -1,6 +1,6 @@
-# Installing a full node with statesync
+# Installing a full node with statesync dump
 
-This guide  provides instructions for installing a node in mainnet with statesync and using a dump snapshot from https://quicksync.commercio.network/ as a node data.
+This guide  provides instructions for installing a CommercioNetwork node in Mainnet with statesync and using a dump snapshot from https://quicksync.commercio.network/ as a node data.
 
 After you've setup your hardware following the [hardware requirements](hardware-requirements.md) you are now ready to
 become a Commercio.network full node. 
