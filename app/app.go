@@ -127,6 +127,8 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	cometjson "github.com/cometbft/cometbft/libs/json"
+	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
+
 
 	//  Vesting
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -249,6 +251,8 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 
 	govProposalHandlers = append(govProposalHandlers,
 		paramsclient.ProposalHandler,
+		upgradeclient.LegacyProposalHandler,
+		upgradeclient.LegacyCancelProposalHandler,
 	)
 
 	return govProposalHandlers
@@ -705,6 +709,8 @@ func New(
 		govConfig,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
+	app.GovKeeper.SetLegacyRouter(govRouter)
 
 	/****  Module Options ****/
 
