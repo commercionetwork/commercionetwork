@@ -1,6 +1,7 @@
 package ibc_address_limit
 
 import (
+	"log"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -59,6 +60,8 @@ func (i *ICS4Wrapper) SendPacket(
 	data []byte,
 ) (uint64, error) {
 
+	log.Printf("Raw packet data: %x\n", data)
+
 	contract := i.GetParams(ctx)
 	if contract == "" {
 		// The contract has not been configured. Continue as usual
@@ -83,6 +86,7 @@ func (i *ICS4Wrapper) SendPacket(
 			return 0, errors.Wrap(sdkerrors.ErrInvalidRequest, "cannot unmarshal packet data")
 		}
 	}
+	log.Printf("Unmarshalled packet: %+v\n", fullPacket)
 
 	err := CheckSenderAuth(ctx, i.ContractKeeper, "send_packet", contract, fullPacket)
 	if err != nil {
