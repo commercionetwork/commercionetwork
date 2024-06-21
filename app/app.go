@@ -1133,6 +1133,7 @@ func (appKeepers *App) WireICS20PreWasmKeeper(
 		nil,
 		&appKeepers.BankKeeper,
 		addressLimitingParams,
+		appCodec,
 	)
 	appKeepers.AddressLimitingICS4Wrapper = &AddressLimitingICS4Wrapper
 
