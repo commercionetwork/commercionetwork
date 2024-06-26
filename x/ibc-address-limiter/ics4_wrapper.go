@@ -1,7 +1,6 @@
 package ibc_address_limit
 
 import (
-	"log"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -14,8 +13,8 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/commercionetwork/commercionetwork/x/ibc-address-limiter/types"
 )
@@ -60,35 +59,32 @@ func (i *ICS4Wrapper) SendPacket(
 	data []byte,
 ) (uint64, error) {
 
-	log.Printf("Raw packet data: %x\n", data)
-
 	contract := i.GetParams(ctx)
 	if contract == "" {
 		// The contract has not been configured. Continue as usual
 		return i.channel.SendPacket(ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 	}
 
-	var fullPacket channeltypes.Packet
+	var transferPacketData transfertypes.FungibleTokenPacketData
 	if unmarshaler, ok := i.channel.(porttypes.PacketDataUnmarshaler); ok {
 		// Use the PacketDataUnmarshaler interface to unmarshal the data
 		packetData, err := unmarshaler.UnmarshalPacketData(data)
 		if err != nil {
-			return 0, errors.Wrap(sdkerrors.ErrInvalidRequest, "cannot unmarshal packet data")
+			return 0, errors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot unmarshal packet data: %v", err)
 		}
 
-		fullPacket, ok = packetData.(channeltypes.Packet)
+		transferPacketData, ok = packetData.(transfertypes.FungibleTokenPacketData)
 		if !ok {
 			return 0, errors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet data type")
 		}
 	} else {
 		// Fall back to manual unmarshalling if the interface is not implemented
-		if err := i.codec.Unmarshal(data, &fullPacket); err != nil {
-			return 0, errors.Wrap(sdkerrors.ErrInvalidRequest, "cannot unmarshal packet data")
+		if err := i.codec.Unmarshal(data, &transferPacketData); err != nil {
+			return 0, errors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot unmarshal packet data: %v", err)
 		}
 	}
-	log.Printf("Unmarshalled packet: %+v\n", fullPacket)
 
-	err := CheckSenderAuth(ctx, i.ContractKeeper, "send_packet", contract, fullPacket)
+	err := CheckSenderAuth(ctx, i.ContractKeeper, "send_packet", contract, transferPacketData)
 	if err != nil {
 		return 0, err
 	}
@@ -96,14 +92,15 @@ func (i *ICS4Wrapper) SendPacket(
 	return i.channel.SendPacket(ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 }
 
-// UnmarshalPacketData implements types.PacketDataUnmarshaler.
-func (i *ICS4Wrapper) UnmarshalPacketData(data []byte) (interface{}, error) {
-	var packet channeltypes.Packet
-	err := i.codec.Unmarshal(data, &packet)
-	if err != nil {
-		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, "cannot unmarshal packet data")
+// UnmarshalPacketData attempts to unmarshal the provided packet data bytes
+// into a FungibleTokenPacketData
+func (i *ICS4Wrapper) UnmarshalPacketData(bz []byte) (interface{}, error) {
+	var packetData transfertypes.FungibleTokenPacketData
+	if err := i.codec.UnmarshalJSON(bz, &packetData); err != nil {
+		return nil, err
 	}
-	return packet, nil
+
+	return packetData, nil
 }
 
 func (i *ICS4Wrapper) WriteAcknowledgement(ctx sdk.Context, chanCap *capabilitytypes.Capability, packet exported.PacketI, ack exported.Acknowledgement) error {

@@ -18,7 +18,7 @@ var (
 )
 
 func CheckSenderAuth(ctx sdk.Context, contractKeeper *wasmkeeper.PermissionedKeeper,
-	msgType, contract string, packet exported.PacketI,
+	msgType, contract string, packet transfertypes.FungibleTokenPacketData,
 ) error {
 	contractAddr, err := sdk.AccAddressFromBech32(contract)
 	if err != nil {
@@ -59,7 +59,7 @@ type RecvPacketMsg struct {
 }
 
 type PacketMsg struct {
-	Packet UnwrappedPacket `json:"packet"`
+	PacketData transfertypes.FungibleTokenPacketData `json:"data"`
 }
 
 type UnwrappedPacket struct {
@@ -95,25 +95,26 @@ func unwrapPacket(packet exported.PacketI) (UnwrappedPacket, error) {
 	}, nil
 }
 
-func BuildWasmExecMsg(msgType string, packet exported.PacketI) ([]byte, error) {
-	unwrapped, err := unwrapPacket(packet)
-	if err != nil {
-		return []byte{}, err
-	}
+func BuildWasmExecMsg(msgType string, packet transfertypes.FungibleTokenPacketData) ([]byte, error) {
+	// unwrapped, err := unwrapPacket(packet)
+	// if err != nil {
+	// 	return []byte{}, err
+	// }
 
 	var asJson []byte
-	switch {
-	case msgType == msgSend:
+	var err error
+	switch msgType {
+	case msgSend:
 		msg := SendPacketMsg{
 			SendPacket: PacketMsg{
-				Packet: unwrapped,
+				PacketData: packet,
 			},
 		}
 		asJson, err = json.Marshal(msg)
-	case msgType == msgRecv:
+	case msgRecv:
 		msg := RecvPacketMsg{
 			RecvPacket: PacketMsg{
-				Packet: unwrapped,
+				PacketData: packet,
 			},
 		}
 		asJson, err = json.Marshal(msg)

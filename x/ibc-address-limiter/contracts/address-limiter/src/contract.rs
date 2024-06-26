@@ -46,17 +46,17 @@ pub fn execute(
 pub fn sudo(deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, ContractError> {
     match msg {
         SudoMsg::SendPacket {
-            packet,
+            packet_data,
         } => sudo::process_packet(
             deps,
-            packet,
+            packet_data,
             FlowType::Out,
         ),
         SudoMsg::RecvPacket {
-            packet,
+            packet_data,
         } => sudo::process_packet(
             deps,
-            packet,
+            packet_data,
             FlowType::In,
         ),
     }
