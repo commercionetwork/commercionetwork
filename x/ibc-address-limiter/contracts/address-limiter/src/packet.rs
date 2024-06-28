@@ -20,6 +20,7 @@ pub struct FungibleTokenData {
     amount: Uint256,
     pub sender: Addr,
     receiver: Addr,
+    memo: Option<String>,
 }
 
 // An IBC packet
@@ -62,6 +63,7 @@ impl Packet {
                 amount: funds,
                 sender: Addr::unchecked("senderAddress"),
                 receiver: Addr::unchecked("receiverAddress"),
+                memo: None
             },
             timeout_height: crate::packet::Height {
                 revision_number: None,

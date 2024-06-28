@@ -59,7 +59,7 @@ type RecvPacketMsg struct {
 }
 
 type PacketMsg struct {
-	PacketData transfertypes.FungibleTokenPacketData `json:"data"`
+	PacketData transfertypes.FungibleTokenPacketData `json:"packet_data"`
 }
 
 type UnwrappedPacket struct {
@@ -101,20 +101,29 @@ func BuildWasmExecMsg(msgType string, packet transfertypes.FungibleTokenPacketDa
 	// 	return []byte{}, err
 	// }
 
+	// Ensure the packet data is correctly wrapped with the expected structure
+	packetData := transfertypes.FungibleTokenPacketData{
+		Denom:    packet.Denom,
+		Amount:   packet.Amount,
+		Sender:   packet.Sender,
+		Receiver: packet.Receiver,
+		Memo:     packet.Memo,
+	}
+
 	var asJson []byte
 	var err error
 	switch msgType {
 	case msgSend:
 		msg := SendPacketMsg{
 			SendPacket: PacketMsg{
-				PacketData: packet,
+				PacketData: packetData,
 			},
 		}
 		asJson, err = json.Marshal(msg)
 	case msgRecv:
 		msg := RecvPacketMsg{
 			RecvPacket: PacketMsg{
-				PacketData: packet,
+				PacketData: packetData,
 			},
 		}
 		asJson, err = json.Marshal(msg)
