@@ -18,7 +18,7 @@ var (
 )
 
 func CheckSenderAuth(ctx sdk.Context, contractKeeper *wasmkeeper.PermissionedKeeper,
-	msgType, contract string, packet transfertypes.FungibleTokenPacketData,
+	msgType, contract string, packet exported.PacketI,
 ) error {
 	contractAddr, err := sdk.AccAddressFromBech32(contract)
 	if err != nil {
@@ -59,7 +59,7 @@ type RecvPacketMsg struct {
 }
 
 type PacketMsg struct {
-	PacketData transfertypes.FungibleTokenPacketData `json:"packet_data"`
+	Packet UnwrappedPacket `json:"packet"`
 }
 
 type UnwrappedPacket struct {
@@ -95,35 +95,25 @@ func unwrapPacket(packet exported.PacketI) (UnwrappedPacket, error) {
 	}, nil
 }
 
-func BuildWasmExecMsg(msgType string, packet transfertypes.FungibleTokenPacketData) ([]byte, error) {
-	// unwrapped, err := unwrapPacket(packet)
-	// if err != nil {
-	// 	return []byte{}, err
-	// }
-
-	// Ensure the packet data is correctly wrapped with the expected structure
-	packetData := transfertypes.FungibleTokenPacketData{
-		Denom:    packet.Denom,
-		Amount:   packet.Amount,
-		Sender:   packet.Sender,
-		Receiver: packet.Receiver,
-		Memo:     packet.Memo,
+func BuildWasmExecMsg(msgType string, packet exported.PacketI) ([]byte, error) {
+	unwrapped, err := unwrapPacket(packet)
+	if err != nil {
+		return []byte{}, err
 	}
 
 	var asJson []byte
-	var err error
-	switch msgType {
-	case msgSend:
+	switch {
+	case msgType == msgSend:
 		msg := SendPacketMsg{
 			SendPacket: PacketMsg{
-				PacketData: packetData,
+				Packet: unwrapped,
 			},
 		}
 		asJson, err = json.Marshal(msg)
-	case msgRecv:
+	case msgType == msgRecv:
 		msg := RecvPacketMsg{
 			RecvPacket: PacketMsg{
-				PacketData: packetData,
+				Packet: unwrapped,
 			},
 		}
 		asJson, err = json.Marshal(msg)

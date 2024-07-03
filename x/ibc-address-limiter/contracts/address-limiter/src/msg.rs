@@ -1,7 +1,7 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::Addr;
 
-use crate::packet::FungibleTokenData;
+use crate::packet::Packet;
 
 /// Initialize the contract with the address of the IBC module.
 /// Only the ibc module is allowed to execute actions on this contract
@@ -46,10 +46,10 @@ pub enum QueryMsg {
 #[cw_serde]
 pub enum SudoMsg {
     SendPacket {
-        packet_data: FungibleTokenData,
+        packet: Packet,
     },
     RecvPacket {
-        packet_data: FungibleTokenData,
+        packet: Packet,
     },
 }
 
