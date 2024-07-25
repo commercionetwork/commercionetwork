@@ -33,7 +33,7 @@ make build-image-libraries-cached localnet-start-daemon
 You can see logs with
 
 ```bash
-docker-compose logs
+docker compose logs
 ```
 
 

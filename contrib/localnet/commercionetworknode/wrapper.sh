@@ -26,7 +26,7 @@ fi
 export CNDHOME="/commercionetwork/node${ID}/commercionetwork"
 
 if [ -d "$(dirname "${CNDHOME}"/"${LOG}")" ]; then
-  "/app/build/commercionetworkd" --home "${CNDHOME}" "$@" | tee "${CNDHOME}/${LOG}"
+  "/app/build/commercionetworkd" --minimum-gas-prices 0.01ucommercio --home "${CNDHOME}" "$@" | tee "${CNDHOME}/${LOG}"
 else
-  "/app/build/commercionetworkd" --home "${CNDHOME}" "$@"
+  "/app/build/commercionetworkd" --minimum-gas-prices 0.01ucommercio --home "${CNDHOME}" "$@"
 fi

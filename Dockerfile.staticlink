@@ -1,7 +1,7 @@
 # Dockerfile References: https://docs.docker.com/engine/reference/builder/
 
 
-ARG GO_VERSION="1.20"
+ARG GO_VERSION="1.21"
 
 # -------------------------------------------
 # Build Stage
@@ -69,18 +69,18 @@ ENV HOME /commercionetwork
 WORKDIR $HOME
 
 # ARG LOG_DIR=${HOME}/logs
-# ARG CHAIN_DIR=${HOME}/chain
-# ARG GENESIS_DIR=${HOME}/genesis
+ARG CHAIN_DIR=${HOME}/chain
+ARG GENESIS_DIR=${HOME}/genesis
 
 # # Create Directories
 # RUN mkdir -p ${LOG_DIR}
-# RUN mkdir -p ${CHAIN_DIR}
-# RUN mkdir -p ${GENESIS_DIR}
+RUN mkdir -p ${CHAIN_DIR}
+RUN mkdir -p ${GENESIS_DIR}
 
 # # Declare volumes to mount
 # VOLUME [${LOG_DIR}]
-# VOLUME [${CHAIN_DIR}]
-# VOLUME [${GENESIS_DIR}]
+VOLUME [${CHAIN_DIR}]
+VOLUME [${GENESIS_DIR}]
 
 # Expose ports
 EXPOSE 26656 26657 1317 9090 9091
