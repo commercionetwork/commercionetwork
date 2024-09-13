@@ -386,35 +386,25 @@ echo 'export DAEMON_LOG_BUFFER_SIZE=512' >> ~/.profile
 echo 'export UNSAFE_SKIP_BACKUP=true' >> ~/.profile
 ```
 
-## Verify Node Synchronization with Blockchain 
+## Verify node synchronization with the Blockchain 
 
-To verify if your node is properly synchronized with the blockchain, you can compare its height with the current blockchain height by following steps below:
+To verify if your node is properly synchronized with the blockchain, you can compare its height with the current blockchain height by following the steps below:
 
-First, ensure you have `curl` and `jq` installed on your server. While `curl` is usually installed by default, you may need to install `jq` using the command:
 
-```bash
-sudo apt install jq
-```
+- Check your node's current height by running the following command:
 
-Then, run these two commands:
-```bash
-curl -s 127.0.0.1:26657/block | jq -r '.result.block.header.height'
-```
-> The number returned represents the current height of your node.
+    ```bash
+    curl -s 127.0.0.1:26657/block | jq -r '.result.block.header.height'
+    ```
+-  Check the blockchain's current height by running the following command:
 
-```bash
-curl -s https://rpc-mainnet.commercio.network/block | jq -r '.result.block.header.height'
-```
-> The number returned represents the height of the blockchain.
+    ```bash
+    curl -s https://rpc-mainnet.commercio.network/block | jq -r '.result.block.header.height'
+    ```
 
 The two values can differ by a few blocks; this depends on when the commands are executed. For example, if you run the second command a minute later, you should expect a difference of approximately 10 blocks. However, if the difference is significantly larger, it means your node is not aligned.
 
-You can also check the node's operation through logs, using the following command:
 
-```bash
-journalctl -u commercionetworkd.service -f
-```
-You should see the node logs and block production. To stop the log output, press Control + C.
 
 ## Next step
 Now that you are a Commercio.network full node, if you want you can become a validator.
