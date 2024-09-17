@@ -1,12 +1,6 @@
-# Installing a full node with statesync method
+# Installing a full node with statesync dump
 
-## Background
-
-This guide focuses on installing a node with the statesync and cosmovisor method. The guide is very useful in case the purpose is to install a validator node: if you do not have special requirements for querying the chain about states or past transactions with your node, precisely as in the case of a validator node, then this procedure is the recommended one.
-
-
-
-
+This guide  provides instructions for installing a CommercioNetwork node in Mainnet with statesync and using a dump snapshot from https://quicksync.commercio.network/ as a node data.
 
 After you've setup your hardware following the [hardware requirements](hardware-requirements.md) you are now ready to
 become a Commercio.network full node. 
@@ -35,10 +29,8 @@ source ~/.profile
 ```
 
 ## 2. Chain selection
-Before installing the node, please select which chain you would like to connect to
-- **Mainnet**: commercio-3
-- **Testnet**: commercio-testnet11k
 
+Select the mainnet chain and clone its repository
 
 ```bash
 CHAINVERSION=commercio-3
@@ -130,70 +122,16 @@ Edit `~/.commercionetwork/config/config.toml`, search `priv_validator_laddr`, an
 **WARN**: the configuration of KMS must already be done. 
 
 
-## 4. Set the statesync configuration
+## 4. Download the statesynced node snapshot
 
-
-
-Under the state sync section in `$HOME/.commercionetwork/config/config.toml` you find multiple settings that need to be configured in order for your node to use state sync.
-You need get information from the chain about trusted block using
-
-Select open rpc services of chains
-
-* Testnet: 
-  * rpc-testnet.commercio.network, rpc2-testnet.commercio.network
-* Mainnet:
-  * https://rpc-mainnet.commercio.network, https://rpc2-mainnet.commercio.network
-
-
-:::tip
-You can get informations about rpc services at [chain data](https://github.com/commercionetwork/chains) repository
-:::
-
-**Testnet**
+Download the statesynced node snapshot and extract the data folder
 ```bash
-TRUST_RPC1="rpc-testnet.commercio.network:80"
-TRUST_RPC2="rpc2-testnet.commercio.network:80"
-CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
-TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
-TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
-# CONFIG OUTPUT
-printf "\n\nenable = true\nrpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n\n"
+wget "https://quicksync.commercio.network/$CHAINID-statesync.latest.tgz" -P ~/.commercionetwork/
+# Check if the checksum matches the one present inside https://quicksync.commercio.network
+cd ~/.commercionetwork/
+tar -zxf $CHAINID-statesync.latest.tgz
+rm $CHAINID-statesync.latest.tgz
 ```
-
-**Mainnet**
-```bash
-TRUST_RPC1="rpc-mainnet.commercio.network:80"
-TRUST_RPC2="rpc2-mainnet.commercio.network:80"
-CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
-TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
-TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
-# CONFIG OUTPUT
-printf "\n\nenable = true\nrpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n\n"
-```
-
-The command should return somthing like the following:
-```
-enable = true
-rpc_servers = "rpc-mainnet.commercio.network:80,rpc2-mainnet.commercio.network:80"
-trust_height = 6240000
-trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
-```
-
-Edit `$HOME/.commercionetwork/config/config.toml` with these settings accordingly:
-
-   ```bash
-   sed -i -e "s/enable = .*/enable = true/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/rpc_servers = \".*\"/rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_height = .*/trust_height = $TRUST_HEIGHT/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_hash = \".*\"/trust_hash = \"$TRUST_HASH\"/" /root/.commercionetwork/config/config.toml
-   ```
-
-
-
-
-
-
-
 
 ## 5. Install and config cosmovisor
 
@@ -306,9 +244,3 @@ Check if the sync has been started. Use `Ctrl + C` to interrupt the `journalctl`
 ```bash
 journalctl -u commercionetworkd -f
 ```
-
-Wait until the node aligns with the height of the chain
-
-## Next step
-Now that you are a Commercio.network node with the statesync, if you want you can become a validator.
-If you wish to do so, please read the [*Becoming a validator* guide](validator-node-installation.md).

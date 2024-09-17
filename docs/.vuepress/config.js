@@ -59,6 +59,7 @@ module.exports = {
                     ["nodes/hardware-requirements", "Hardware requirements"],
                     ["nodes/full-node-installation", "Installing a full node"],
                     ["nodes/statesync-node-installation", "Installing a statesynced node"],
+                    ["nodes/statesync-node-quicksync", "Installing a statesynced node with a snapshot"],
                     ["nodes/validator-node-installation", "Becoming a validator"],
                     ["nodes/validator-node-handling", "Handling a validator"],
                     ["nodes/validator-node-update", "Updating a validator"],

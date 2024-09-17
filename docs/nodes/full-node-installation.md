@@ -142,7 +142,7 @@ EOF
 
 Choose 1 of these 3 ways to syncronize your node to the blockchain:
 1. [From the start](#from-the-start)
-2. [Using the state sync future](#using-the-state-sync-feature)
+2. [Using the state sync feature](#using-the-state-sync-feature)
 3. [Using the quicksync dump](#using-the-quicksync-dump)
 ### From the start
 
@@ -151,15 +151,20 @@ If you intend to syncronize eveything from the start you can skip this part and 
 
 ### Using the state sync feature
 
-Under the state sync section in `~/.commercionetwork/config/config.toml` you will find multiple settings that need to be configured in order for your node to use state sync.
-You need get information from the chain about the trusted block using
+State sync is a Cosmos SDK module that allows validators to quickly join the network by syncing their node with a snapshot-enabled RPC from a trusted block height. This reduces the sync time from days to minutes but provides only the most recent state, not the full transaction history.
 
-Select open rpc services of chains
+Under the state sync section in `~/.commercionetwork/config/config.toml`, you will find multiple settings that need to be configured for your node to use state sync. The following pieces of information must be obtained for light client verification:
 
-* Testnet: 
-  * rpc-testnet.commercio.network, rpc2-testnet.commercio.network
-* Mainnet:
-  * https://rpc-mainnet.commercio.network, https://rpc2-mainnet.commercio.network
+- At least 2 available RPC servers
+- A trusted height.
+- The block ID hash of the trusted height.
+
+**RPC servers:**
+
+- Testnet:
+  https://rpc-testnet.commercio.network, http://rpc2-testnet.commercio.network
+- Mainnet:
+  https://rpc-mainnet.commercio.network, https://rpc2-mainnet.commercio.network
 
 :::tip
 You can get informations about rpc services at [chain data](https://github.com/commercionetwork/chains) repository
@@ -214,7 +219,8 @@ trust_hash = "FCA27CBCAC3EECAEEBC3FFBB5B5433A421EF4EA873EB2A573719B0AA5093EF4C"
 wget "https://quicksync.commercio.network/$CHAINID.latest.tgz" -P ~/.commercionetwork/
 # Check if the checksum matches the one present inside https://quicksync.commercio.network
 cd ~/.commercionetwork/
-tar -zxf $(echo $CHAINID).latest.tgz
+tar -zxf $CHAINID.latest.tgz
+rm $CHAINID.latest.tgz
 ```
 
 
@@ -379,6 +385,25 @@ echo 'export DAEMON_ALLOW_DOWNLOAD_BINARIES=false' >> ~/.profile
 echo 'export DAEMON_LOG_BUFFER_SIZE=512' >> ~/.profile
 echo 'export UNSAFE_SKIP_BACKUP=true' >> ~/.profile
 ```
+
+## Verify node synchronization with the Blockchain 
+
+To verify if your node is properly synchronized with the blockchain, you can compare its height with the current blockchain height by following the steps below:
+
+
+- Check your node's current height by running the following command:
+
+    ```bash
+    curl -s 127.0.0.1:26657/block | jq -r '.result.block.header.height'
+    ```
+-  Check the blockchain's current height by running the following command:
+
+    ```bash
+    curl -s https://rpc-mainnet.commercio.network/block | jq -r '.result.block.header.height'
+    ```
+
+The two values can differ by a few blocks; this depends on when the commands are executed. For example, if you run the second command a minute later, you should expect a difference of approximately 10 blocks. However, if the difference is significantly larger, it means your node is not aligned.
+
 
 
 ## Next step
