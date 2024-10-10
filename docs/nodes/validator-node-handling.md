@@ -173,6 +173,7 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
 3. Copy `data` folder to the new server
    ```bash
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
@@ -184,6 +185,7 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
 5. Sync again your new node `data` folder
    ```bash
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
@@ -215,6 +217,7 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
 3. Copy `data` folder to the new server
    ```bash
    rsync -av --delete  \
+   --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
@@ -309,6 +312,7 @@ The node can be configured to use a new disk to store the blockchain and the sta
 3. Transfer the `data` folder of the node to the new disk
    ```bash
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      /mnt/data/
    ```
@@ -316,6 +320,7 @@ The node can be configured to use a new disk to store the blockchain and the sta
    ```bash
    systemctl stop commercionetworkd
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      /mnt/data/
    ```
@@ -565,66 +570,12 @@ In this guide, we will walk you through the process of reducing the disk usage o
    chown -R $comm_user:$comm_user $home_chain/
    ```
 
-10. Start the node
+9. Start the node
    ```bash
    systemctl start commercionetworkd
    ```
 
-11. Check the node alignment
-      ```bash
-      journalctl -u commercionetworkd -f | grep height=
-      ```
-
-12. Clean up operations
-      ```bash
-      rm $home_chain/priv_validator_state.json.backup
-      ```
-### State sync the node with snapshot
-
-In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by using a Mainnet statesync node snapshot from quicksync.commercio.network website:
-
-1. Set the chain variables to adapt the procedure to any chain user (root or cnd)
-   ```
-   # Retrieve the chain home path
-   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
-
-   # Retrieve the chain user
-   comm_user=$(systemctl show -pUser commercionetworkd.service | awk -F'=' '{print $(NF)}')
-   ```
-2. Stop the `commercionetworkd` process
-   ```bash
-   systemctl stop commercionetworkd
-   ```
-
-3. Backup state file
-   ```bash
-   cp $home_chain/data/priv_validator_state.json \
-     $home_chain/priv_validator_state.json.backup
-   ```
-4. Download the snapshot and extract it
-   ```bash
-   wget "https://quicksync.commercio.network/$CHAINID-statesync.latest.tgz" -P ~/.commercionetwork/
-   # Check if the checksum matches the one present inside https://quicksync.commercio.network
-   cd ~/.commercionetwork/
-   tar -zxf $CHAINID-statesync.latest.tgz
-   rm $CHAINID-statesync.latest.tgz
-   ```   
-5. Copy back the backupped state file
-   ```bash
-   cp $home_chain/priv_validator_state.json.backup \
-     $home_chain/data/priv_validator_state.json
-   ```
-6. **If you're not operating with root** change the permission accordingly
-   ```bash
-   chown -R $comm_user:$comm_user $home_chain/
-   ```
-
-7. Start the node
-   ```bash
-   systemctl start commercionetworkd
-   ```
-
-8. Check the node alignment
+9. Check the node alignment
       ```bash
       journalctl -u commercionetworkd -f | grep height=
       ```
@@ -633,6 +584,71 @@ In this guide, we will walk you through the process of reducing the disk usage o
       ```bash
       rm $home_chain/priv_validator_state.json.backup
       ```
+### State sync the node with snapshot
+
+In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by using a **Mainnet** statesync node snapshot from https://quicksync.commercio.network website:
+
+1. Set the chain variables to adapt the procedure to any chain user
+   ```
+   # Retrieve the chain home path
+   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
+
+   # Retrieve the chain user
+   comm_user=$(systemctl show -pUser commercionetworkd.service | awk -F'=' '{print $(NF)}')
+
+   # Set up CHAINID
+   CHAINID="commercio-3"
+   ```
+2. Stop the `commercionetworkd` process
+   ```bash
+   sudo systemctl stop commercionetworkd
+   ```
+
+3. Backup state file
+   ```bash
+   cp $home_chain/data/priv_validator_state.json \
+     $home_chain/priv_validator_state.json.backup
+   ```
+   you don't need to perform this step if you have a kms or if the node is not a validator
+
+4. Remove the database
+   ```bash
+   rm -rf $home_chain/data
+   ```
+5. Download the snapshot and extract it
+   ```bash
+   wget "https://quicksync.commercio.network/$CHAINID-statesync.latest.tgz" -P $home_chain/
+   # Check if the checksum matches the one present inside https://quicksync.commercio.network
+   cd $home_chain/
+   tar -zxf $CHAINID-statesync.latest.tgz
+   rm $CHAINID-statesync.latest.tgz
+   ```   
+6. Copy back the backupped state file
+   ```bash
+   cp $home_chain/priv_validator_state.json.backup \
+     $home_chain/data/priv_validator_state.json
+   ```
+   you don't need to perform this step if you have a kms or if the node is not a validator
+
+7. **If you're not operating with root** change the permission accordingly
+   ```bash
+   sudo chown -R $comm_user:$comm_user $home_chain/
+   ```
+8. Start the node
+   ```bash
+   sudo systemctl start commercionetworkd
+   ```
+9. Check the node alignment
+   ```bash
+   journalctl -u commercionetworkd -f | grep height=
+   ```
+9. Clean up operations
+   ```bash
+    rm $home_chain/priv_validator_state.json.backup
+   ```
+
+You can check the alignment using the procedure described [here](full-node-installation.html#verify-node-synchronization-with-the-blockchain)
+
 
 ## Add identity to your validator
 
