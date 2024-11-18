@@ -1,89 +1,58 @@
-# Dockerfile References: https://docs.docker.com/engine/reference/builder/
+# Dockerfile basato su Debian con glibc
+FROM golang:1.21 as builder
 
+# Installazione delle dipendenze necessarie
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    wget \
+    git \
+    && apt-get clean
 
-ARG GO_VERSION="1.20"
-
-# -------------------------------------------
-# Build Stage
-# -------------------------------------------
-
-FROM golang:${GO_VERSION}-alpine as builder
-
-RUN apk add --no-cache \
-    ca-certificates \
-    build-base \
-    git
-
-# Set the Current Working Directory inside the container
 WORKDIR /commercionetwork
 
-# Copy go mod and sum files
+# Copia i file del progetto
 COPY go.mod go.sum ./
 
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    go mod download
+# Scarica le dipendenze Go
+RUN go mod download
 
-RUN set -eux; \    
+# Scarica libwasmvm_muslc.a
+RUN  set -eux; \    
     export ARCH=$(uname -m); \
-    WASM_VERSION=$(go list -m all | grep github.com/CosmWasm/wasmvm | awk '{print $2}'); \
-    if [ ! -z "${WASM_VERSION}" ]; then \
-      wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.${ARCH}.a; \      
-    fi;
+    WASM_VERSION=$(go list -m all | grep github.com/CosmWasm/wasmvm | awk '{print $2}') \
+    && wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.${ARCH}.a
 
-# Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
-# Build commercionetworkd binary
-# without ledger support
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/root/go/pkg/mod \
-    GOWORK=off go build \
-        -mod=readonly \
-        -tags "netgo,muslc" \
-        -ldflags \
-            "-X github.com/cosmos/cosmos-sdk/version.Name="commercionetwork" \
-            -X github.com/cosmos/cosmos-sdk/version.AppName="commercionetworkd" \
-            -X github.com/cosmos/cosmos-sdk/version.Version=${GIT_VERSION} \
-            -X github.com/cosmos/cosmos-sdk/version.Commit=${GIT_COMMIT} \
-            -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,muslc \
-            -w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
-        -trimpath \
-        -o /commercionetwork/build/commercionetworkd \
-        /commercionetwork/cmd/commercionetworkd/main.go
+# Build dell'eseguibile
+RUN go build \
+    -mod=readonly \
+    -tags "netgo" \
+    -ldflags \
+        "-X github.com/cosmos/cosmos-sdk/version.Name=commercionetwork \
+         -X github.com/cosmos/cosmos-sdk/version.AppName=commercionetworkd \
+         -X github.com/cosmos/cosmos-sdk/version.Version=$(git describe --tags) \
+         -X github.com/cosmos/cosmos-sdk/version.Commit=$(git rev-parse HEAD) \
+         -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo \
+         -w -s" \
+    -trimpath \
+    -o /commercionetwork/build/commercionetworkd \
+    ./cmd/commercionetworkd
 
+# Compress the binary to reduce size
+# RUN upx --best /commercionetwork/build/commercionetworkd
 
-# -------------------------------------------
-# Build Final Image
-# -------------------------------------------
-FROM alpine:3.16
-# FROM gcr.io/distroless/static-debian11
+# Final image
+FROM debian:bullseye-slim
 
-# Add Maintainer Info
-LABEL maintainer="Commercio Network <developer@commercio.network>"
-
+# Copia l'eseguibile dal builder
 COPY --from=builder /commercionetwork/build/commercionetworkd /bin/commercionetworkd
 
-ENV HOME /commercionetwork
+# Setup dell'ambiente
+ENV HOME=/commercionetwork
 WORKDIR $HOME
 
-# ARG LOG_DIR=${HOME}/logs
-# ARG CHAIN_DIR=${HOME}/chain
-# ARG GENESIS_DIR=${HOME}/genesis
-
-# # Create Directories
-# RUN mkdir -p ${LOG_DIR}
-# RUN mkdir -p ${CHAIN_DIR}
-# RUN mkdir -p ${GENESIS_DIR}
-
-# # Declare volumes to mount
-# VOLUME [${LOG_DIR}]
-# VOLUME [${CHAIN_DIR}]
-# VOLUME [${GENESIS_DIR}]
-
-# Expose ports
+# Esponi le porte necessarie
 EXPOSE 26656 26657 1317 9090 9091
 
-# Command to run the executable
 ENTRYPOINT ["commercionetworkd"]
