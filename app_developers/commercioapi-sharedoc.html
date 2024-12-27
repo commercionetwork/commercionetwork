@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CommercioAPI eDelivery | Commercio.network Documentation</title>
+    <meta name="generator" content="VuePress 1.9.10">
+    <link rel="icon" href="/icon.png">
+    <meta name="description" content="Documentation for the Commercio.network blockchain.">
+    
+    <link rel="preload" href="/assets/css/0.styles.a31c27c1.css" as="style"><link rel="preload" href="/assets/js/app.0fc4011c.js" as="script"><link rel="preload" href="/assets/js/2.ac32ef9e.js" as="script"><link rel="preload" href="/assets/js/1.da52573b.js" as="script"><link rel="preload" href="/assets/js/13.aed2da28.js" as="script"><link rel="prefetch" href="/assets/js/10.8225404c.js"><link rel="prefetch" href="/assets/js/100.0acd5a63.js"><link rel="prefetch" href="/assets/js/101.3a263092.js"><link rel="prefetch" href="/assets/js/102.4a0dd1ea.js"><link rel="prefetch" href="/assets/js/103.a1dd6497.js"><link rel="prefetch" href="/assets/js/104.8069582e.js"><link rel="prefetch" href="/assets/js/105.fef5cde4.js"><link rel="prefetch" href="/assets/js/106.7c16c16d.js"><link rel="prefetch" href="/assets/js/107.1f9a4e93.js"><link rel="prefetch" href="/assets/js/108.5a210457.js"><link rel="prefetch" href="/assets/js/109.7ca1e947.js"><link rel="prefetch" href="/assets/js/11.b7d42d3c.js"><link rel="prefetch" href="/assets/js/110.153289d5.js"><link rel="prefetch" href="/assets/js/111.a8bd1352.js"><link rel="prefetch" href="/assets/js/112.6fbcf19a.js"><link rel="prefetch" href="/assets/js/113.05dcf3b6.js"><link rel="prefetch" href="/assets/js/114.f6b8c10c.js"><link rel="prefetch" href="/assets/js/115.ed5dafe3.js"><link rel="prefetch" href="/assets/js/116.280996fd.js"><link rel="prefetch" href="/assets/js/117.48230682.js"><link rel="prefetch" href="/assets/js/118.6f04dd1b.js"><link rel="prefetch" href="/assets/js/119.f7843b6d.js"><link rel="prefetch" href="/assets/js/12.63c1f64f.js"><link rel="prefetch" href="/assets/js/120.5a9d9f38.js"><link rel="prefetch" href="/assets/js/121.26279746.js"><link rel="prefetch" href="/assets/js/122.f0bce998.js"><link rel="prefetch" href="/assets/js/123.1e17818a.js"><link rel="prefetch" href="/assets/js/124.97f37d3c.js"><link rel="prefetch" href="/assets/js/125.f54cac5e.js"><link rel="prefetch" href="/assets/js/126.91771e3d.js"><link rel="prefetch" href="/assets/js/127.b77be613.js"><link rel="prefetch" href="/assets/js/128.d1658c32.js"><link rel="prefetch" href="/assets/js/129.961370c1.js"><link rel="prefetch" href="/assets/js/130.23ba8a5e.js"><link rel="prefetch" href="/assets/js/131.017de9d5.js"><link rel="prefetch" href="/assets/js/132.f6bc5db9.js"><link rel="prefetch" href="/assets/js/133.f955cda5.js"><link rel="prefetch" href="/assets/js/134.c7c6bb5c.js"><link rel="prefetch" href="/assets/js/135.48ed81c7.js"><link rel="prefetch" href="/assets/js/136.f338eaa8.js"><link rel="prefetch" href="/assets/js/137.bfd679e4.js"><link rel="prefetch" href="/assets/js/138.0f701fd7.js"><link rel="prefetch" href="/assets/js/139.96f9aa65.js"><link rel="prefetch" href="/assets/js/14.7a8ad4bd.js"><link rel="prefetch" href="/assets/js/140.3b281efd.js"><link rel="prefetch" href="/assets/js/141.0ead1087.js"><link rel="prefetch" href="/assets/js/142.571caa8f.js"><link rel="prefetch" href="/assets/js/143.2fe22d28.js"><link rel="prefetch" href="/assets/js/144.0728b55f.js"><link rel="prefetch" href="/assets/js/145.f6bad734.js"><link rel="prefetch" href="/assets/js/146.d92c2dde.js"><link rel="prefetch" href="/assets/js/147.f728f8e9.js"><link rel="prefetch" href="/assets/js/148.15371f31.js"><link rel="prefetch" href="/assets/js/149.aaa34be9.js"><link rel="prefetch" href="/assets/js/15.ef3206c2.js"><link rel="prefetch" href="/assets/js/150.4fb767ff.js"><link rel="prefetch" href="/assets/js/151.25b5b4f8.js"><link rel="prefetch" href="/assets/js/152.c36e9de7.js"><link rel="prefetch" href="/assets/js/153.0867e4e1.js"><link rel="prefetch" href="/assets/js/154.a78a32f4.js"><link rel="prefetch" href="/assets/js/155.ef8a1c8f.js"><link rel="prefetch" href="/assets/js/156.a5fd8779.js"><link rel="prefetch" href="/assets/js/157.6e278808.js"><link rel="prefetch" href="/assets/js/158.1e7cc8a8.js"><link rel="prefetch" href="/assets/js/159.5b7a8394.js"><link rel="prefetch" href="/assets/js/16.9b6ccbcc.js"><link rel="prefetch" href="/assets/js/160.0b3adc35.js"><link rel="prefetch" href="/assets/js/161.35923700.js"><link rel="prefetch" href="/assets/js/162.c9f78751.js"><link rel="prefetch" href="/assets/js/163.c4a27340.js"><link rel="prefetch" href="/assets/js/164.98f2691a.js"><link rel="prefetch" href="/assets/js/165.22cad993.js"><link rel="prefetch" href="/assets/js/166.3a5ab4e0.js"><link rel="prefetch" href="/assets/js/167.a768e87e.js"><link rel="prefetch" href="/assets/js/168.e28f9615.js"><link rel="prefetch" href="/assets/js/169.4ecd9763.js"><link rel="prefetch" href="/assets/js/17.d9976bfd.js"><link rel="prefetch" href="/assets/js/170.6731ef87.js"><link rel="prefetch" href="/assets/js/171.b6a97052.js"><link rel="prefetch" href="/assets/js/172.299fa75e.js"><link rel="prefetch" href="/assets/js/173.0a24f714.js"><link rel="prefetch" href="/assets/js/174.574532da.js"><link rel="prefetch" href="/assets/js/175.8ab0f73e.js"><link rel="prefetch" href="/assets/js/176.22085d86.js"><link rel="prefetch" href="/assets/js/177.d94f1149.js"><link rel="prefetch" href="/assets/js/178.7b3add9e.js"><link rel="prefetch" href="/assets/js/179.a78af058.js"><link rel="prefetch" href="/assets/js/18.74f5b65e.js"><link rel="prefetch" href="/assets/js/180.845eb298.js"><link rel="prefetch" href="/assets/js/181.e737fa16.js"><link rel="prefetch" href="/assets/js/182.cc6effea.js"><link rel="prefetch" href="/assets/js/183.42354206.js"><link rel="prefetch" href="/assets/js/184.fdc442a1.js"><link rel="prefetch" href="/assets/js/185.2e54cde4.js"><link rel="prefetch" href="/assets/js/186.45063ec3.js"><link rel="prefetch" href="/assets/js/187.c6a92f07.js"><link rel="prefetch" href="/assets/js/188.b49cac65.js"><link rel="prefetch" href="/assets/js/189.9c62b5b8.js"><link rel="prefetch" href="/assets/js/19.1c8ab2a5.js"><link rel="prefetch" href="/assets/js/190.f021414a.js"><link rel="prefetch" href="/assets/js/191.760d2f46.js"><link rel="prefetch" href="/assets/js/20.351ed211.js"><link rel="prefetch" href="/assets/js/21.e2ca7763.js"><link rel="prefetch" href="/assets/js/22.8db7a878.js"><link rel="prefetch" href="/assets/js/23.e51f5581.js"><link rel="prefetch" href="/assets/js/24.5130196f.js"><link rel="prefetch" href="/assets/js/25.56a82d1b.js"><link rel="prefetch" href="/assets/js/26.10942abd.js"><link rel="prefetch" href="/assets/js/27.78f8142f.js"><link rel="prefetch" href="/assets/js/28.ab2474e2.js"><link rel="prefetch" href="/assets/js/29.1585b7fd.js"><link rel="prefetch" href="/assets/js/3.f5570fde.js"><link rel="prefetch" href="/assets/js/30.89a3cde3.js"><link rel="prefetch" href="/assets/js/31.a6e686fa.js"><link rel="prefetch" href="/assets/js/32.b002cf06.js"><link rel="prefetch" href="/assets/js/33.78fc0a29.js"><link rel="prefetch" href="/assets/js/34.f4808895.js"><link rel="prefetch" href="/assets/js/35.d5ac07cd.js"><link rel="prefetch" href="/assets/js/36.75a94eb0.js"><link rel="prefetch" href="/assets/js/37.6d1f1e01.js"><link rel="prefetch" href="/assets/js/38.0161b3f6.js"><link rel="prefetch" href="/assets/js/39.fc44419d.js"><link rel="prefetch" href="/assets/js/4.3d7e1167.js"><link rel="prefetch" href="/assets/js/40.87f05c68.js"><link rel="prefetch" href="/assets/js/41.db10de88.js"><link rel="prefetch" href="/assets/js/42.c59c554d.js"><link rel="prefetch" href="/assets/js/43.6414d0a2.js"><link rel="prefetch" href="/assets/js/44.73953435.js"><link rel="prefetch" href="/assets/js/45.9e04cf98.js"><link rel="prefetch" href="/assets/js/46.ff5983a1.js"><link rel="prefetch" href="/assets/js/47.1e085b0d.js"><link rel="prefetch" href="/assets/js/48.6f8813c0.js"><link rel="prefetch" href="/assets/js/49.b2828af6.js"><link rel="prefetch" href="/assets/js/5.515e517f.js"><link rel="prefetch" href="/assets/js/50.dd142e4a.js"><link rel="prefetch" href="/assets/js/51.72534ece.js"><link rel="prefetch" href="/assets/js/52.7abaa630.js"><link rel="prefetch" href="/assets/js/53.a05272d6.js"><link rel="prefetch" href="/assets/js/54.39280cee.js"><link rel="prefetch" href="/assets/js/55.56e40469.js"><link rel="prefetch" href="/assets/js/56.cae7d426.js"><link rel="prefetch" href="/assets/js/57.9b2b4098.js"><link rel="prefetch" href="/assets/js/58.5ae4fad2.js"><link rel="prefetch" href="/assets/js/59.436b6860.js"><link rel="prefetch" href="/assets/js/6.921e6e44.js"><link rel="prefetch" href="/assets/js/60.e3e0fa5c.js"><link rel="prefetch" href="/assets/js/61.a51e25c4.js"><link rel="prefetch" href="/assets/js/62.40848567.js"><link rel="prefetch" href="/assets/js/63.131e949b.js"><link rel="prefetch" href="/assets/js/64.17f96d11.js"><link rel="prefetch" href="/assets/js/65.8e272f26.js"><link rel="prefetch" href="/assets/js/66.7e89c847.js"><link rel="prefetch" href="/assets/js/67.d408360c.js"><link rel="prefetch" href="/assets/js/68.fd4204d4.js"><link rel="prefetch" href="/assets/js/69.98dc4570.js"><link rel="prefetch" href="/assets/js/7.fffb9950.js"><link rel="prefetch" href="/assets/js/70.5040cba3.js"><link rel="prefetch" href="/assets/js/71.6a8123f1.js"><link rel="prefetch" href="/assets/js/72.9fe20ff1.js"><link rel="prefetch" href="/assets/js/73.c999b3b1.js"><link rel="prefetch" href="/assets/js/74.725d10bd.js"><link rel="prefetch" href="/assets/js/75.5b922a20.js"><link rel="prefetch" href="/assets/js/76.d4879f49.js"><link rel="prefetch" href="/assets/js/77.333911e9.js"><link rel="prefetch" href="/assets/js/78.cb9c426c.js"><link rel="prefetch" href="/assets/js/79.0a532086.js"><link rel="prefetch" href="/assets/js/80.d5f5c489.js"><link rel="prefetch" href="/assets/js/81.9fa6b600.js"><link rel="prefetch" href="/assets/js/82.417600af.js"><link rel="prefetch" href="/assets/js/83.27898cb7.js"><link rel="prefetch" href="/assets/js/84.2c0eafa1.js"><link rel="prefetch" href="/assets/js/85.77177c5f.js"><link rel="prefetch" href="/assets/js/86.f59c67b1.js"><link rel="prefetch" href="/assets/js/87.b7fb94e6.js"><link rel="prefetch" href="/assets/js/88.a28049b4.js"><link rel="prefetch" href="/assets/js/89.56e8e86d.js"><link rel="prefetch" href="/assets/js/90.8ca4beaa.js"><link rel="prefetch" href="/assets/js/91.efc16c9e.js"><link rel="prefetch" href="/assets/js/92.09ddfb87.js"><link rel="prefetch" href="/assets/js/93.4e4bc234.js"><link rel="prefetch" href="/assets/js/94.eba3a2fc.js"><link rel="prefetch" href="/assets/js/95.c1845811.js"><link rel="prefetch" href="/assets/js/96.3c43bddf.js"><link rel="prefetch" href="/assets/js/97.3b9eeb74.js"><link rel="prefetch" href="/assets/js/98.91ab8e4c.js"><link rel="prefetch" href="/assets/js/99.7da367d2.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.d852a880.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.a31c27c1.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/icon.png" alt="Commercio.network Documentation" class="logo"> <span class="site-name can-hide">Commercio.network Documentation</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Versions" class="dropdown-title"><span class="title">Versions</span> <span class="arrow down"></span></button> <button type="button" aria-label="Versions" class="mobile-dropdown-title"><span class="title">Versions</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/" class="nav-link">
+  ver 3.0.0
+</a></li><li class="dropdown-item"><!----> <a href="/docs2.2.0/" class="nav-link">
+  ver 2.2.0
+</a></li><li class="dropdown-item"><!----> <a href="/docs2.1.2/" class="nav-link">
+  ver 2.1.2
+</a></li></ul></div></div><div class="nav-item"><a href="https://commercio.network" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Site
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div><div class="nav-item"><a href="https://discord.gg/N7DxaDj5sW" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Discord
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div><div class="nav-item"><a href="https://t.me/CommercioNetwork" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Telegram
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div><div class="nav-item"><a href="https://twitter.com/commercionet?s=21&amp;t=8FTpg5f7kurZ1d7LOb9YXw" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Twitter
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <a href="https://github.com/commercionetwork/commercionetwork" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Versions" class="dropdown-title"><span class="title">Versions</span> <span class="arrow down"></span></button> <button type="button" aria-label="Versions" class="mobile-dropdown-title"><span class="title">Versions</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/" class="nav-link">
+  ver 3.0.0
+</a></li><li class="dropdown-item"><!----> <a href="/docs2.2.0/" class="nav-link">
+  ver 2.2.0
+</a></li><li class="dropdown-item"><!----> <a href="/docs2.1.2/" class="nav-link">
+  ver 2.1.2
+</a></li></ul></div></div><div class="nav-item"><a href="https://commercio.network" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Site
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div><div class="nav-item"><a href="https://discord.gg/N7DxaDj5sW" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Discord
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div><div class="nav-item"><a href="https://t.me/CommercioNetwork" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Telegram
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div><div class="nav-item"><a href="https://twitter.com/commercionet?s=21&amp;t=8FTpg5f7kurZ1d7LOb9YXw" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Twitter
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <a href="https://github.com/commercionetwork/commercionetwork" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav>  <ul class="sidebar-links"><li><a href="/" aria-current="page" class="sidebar-link">Overview</a></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>Running Nodes</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/nodes/" class="sidebar-link">Commercio.network overview</a></li><li><a href="/nodes/hardware-requirements.html" class="sidebar-link">Hardware requirements</a></li><li><a href="/nodes/full-node-installation.html" class="sidebar-link">Installing a full node</a></li><li><a href="/nodes/statesync-node-installation.html" class="sidebar-link">Installing a statesynced node</a></li><li><a href="/nodes/statesync-node-quicksync.html" class="sidebar-link">Installing a statesynced node with a snapshot</a></li><li><a href="/nodes/validator-node-installation.html" class="sidebar-link">Becoming a validator</a></li><li><a href="/nodes/validator-node-handling.html" class="sidebar-link">Handling a validator</a></li><li><a href="/nodes/validator-node-update.html" class="sidebar-link">Updating a validator</a></li><li><a href="/nodes/kms-installation.html" class="sidebar-link">KMS installation</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>API Developers</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/app_developers/commercioapi-introduction.html" class="sidebar-link">Introduction to CommercioAPI</a></li><li><a href="/app_developers/commercioapi-authentication.html" class="sidebar-link">Authentication process</a></li><li><a href="/app_developers/commercioapi-wallet.html" class="sidebar-link">eID</a></li><li><a href="/app_developers/commercioapi-ekyc.html" class="sidebar-link">eKyc</a></li><li><a href="/app_developers/commercioapi-sharedoc.html" aria-current="page" class="active sidebar-link">eDelivery</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#msgsharedocument" class="sidebar-link">MsgShareDocument</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#how-a-msgsharedocument-is-structured-and-entites-usage" class="sidebar-link">How a MsgShareDocument is structured and entites usage</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#questions-and-answers" class="sidebar-link">Questions and answers</a></li></ul></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#check-the-hash-of-a-document" class="sidebar-link">Check the hash of a document</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#msgsenddocumentreceipt" class="sidebar-link">MsgSendDocumentReceipt</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#sharedoc-processes" class="sidebar-link">ShareDoc processes</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#send-a-sharedoc-message" class="sidebar-link">Send a shareDoc Message</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#sent-processes" class="sidebar-link">Sent Processes</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#specific-sent-process-details" class="sidebar-link">Specific sent process details</a></li></ul></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#sent-sharedoc" class="sidebar-link">Sent Sharedoc</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#path-4" class="sidebar-link">PATH</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#step-by-step-example-4" class="sidebar-link">Step by step Example</a></li></ul></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#received-sharedoc" class="sidebar-link">Received Sharedoc</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#path-5" class="sidebar-link">PATH</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#step-by-step-example-5" class="sidebar-link">Step by step Example</a></li></ul></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#receipt" class="sidebar-link">Receipt</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#send-a-receipt-message-process" class="sidebar-link">Send a Receipt Message process</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#sent-receipts-processes" class="sidebar-link">Sent Receipts processes</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#sent-receipt-message-specific-process-details" class="sidebar-link">Sent Receipt Message specific process details</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#received-receipt-message" class="sidebar-link">Received Receipt Message</a></li></ul></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#use-cases-examples" class="sidebar-link">Use cases examples</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#timestamp-a-document" class="sidebar-link">Timestamp a document</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#prove-the-existence-of-document" class="sidebar-link">Prove the existence of document</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#notarize-a-document" class="sidebar-link">Notarize a document</a></li><li class="sidebar-sub-header"><a href="/app_developers/commercioapi-sharedoc.html#legally-prove-a-document-was-shared-with-a-third-party" class="sidebar-link">Legally prove a document was shared with a third party</a></li></ul></li></ul></li><li><a href="/app_developers/commercioapi-esign.html" class="sidebar-link">eSign</a></li><li><a href="/app_developers/commercioapi-flow_examples.html" class="sidebar-link">Flows examples : Api usage</a></li><li><a href="/app_developers/commercioapi-surcharge.html" class="sidebar-link">Surcharge POST options</a></li></ul></section></li><li><section class="sidebar-group depth-0"><a href="/modules/" class="sidebar-heading clickable"><span>Custom Modules</span> <!----></a> <ul class="sidebar-links sidebar-group-items"><li><section class="sidebar-group collapsable is-sub-group depth-1"><a href="/modules/government/" class="sidebar-heading clickable open"><span>Government</span> <span class="arrow down"></span></a> <ul class="sidebar-links sidebar-group-items"><li><a href="/modules/government/" class="sidebar-link">Concepts</a></li><li><a href="/modules/government/01_state.html" class="sidebar-link">State</a></li></ul></section></li><li><section class="sidebar-group collapsable is-sub-group depth-1"><a href="/modules/did/" class="sidebar-heading clickable"><span>Did</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable is-sub-group depth-1"><a href="/modules/documents/" class="sidebar-heading clickable"><span>Documents</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable is-sub-group depth-1"><a href="/modules/commerciomint/" class="sidebar-heading clickable"><span>CommercioMint</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable is-sub-group depth-1"><a href="/modules/commerciokyc/" class="sidebar-heading clickable"><span>CommercioKYC</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable is-sub-group depth-1"><a href="/modules/vbr/" class="sidebar-heading clickable"><span>Vbr</span> <span class="arrow right"></span></a> <!----></section></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>ver 2.2.0</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>ver 2.1.2</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="commercioapi-edelivery"><a href="#commercioapi-edelivery" class="header-anchor">#</a> CommercioAPI eDelivery</h1> <p>The  CommercioAPI eDelivery allows you to operate with two type messages available in the Custom  <code>documents</code> module</p> <ul><li><a href="/modules/documents/03_messages.html#share-a-document-with-msgsharedocument">MsgShareDocument</a></li> <li><a href="/modules/documents/03_messages.html#send-a-document-receipt-with-msgsenddocumentreceipt">MsgSendDocumentReceipt</a></li></ul> <h2 id="msgsharedocument"><a href="#msgsharedocument" class="header-anchor">#</a> MsgShareDocument</h2> <p>The message permit to</p> <ul><li>Store a <code>hash of a document</code> you own in the blockchain at a specific time.</li> <li>Link the message to your identity account (your wallet address).</li> <li>Specify the recipient's identity account (receiver's wallet address).</li> <li>Provide basic metadata.</li> <li>Digitally sign (raw signature) the message using your account (which you exclusively control).</li></ul> <p>This features are knonw as <code>Notarization of a document in the blockchain</code></p> <h3 id="how-a-msgsharedocument-is-structured-and-entites-usage"><a href="#how-a-msgsharedocument-is-structured-and-entites-usage" class="header-anchor">#</a> How a MsgShareDocument is structured and entites usage</h3> <p>The MsgShareDocument message is used to certify/notarize the existence of a file at a specific moment in time (the sharedoc's date) through its footprint (document's hash)</p> <p>The complete structure of the message registered in the chain is documented <a href="/modules/documents/03_messages.html#transaction-message">here</a></p> <p>The following explains the use of some of the main entities of the message.</p> <p><strong>sender</strong> : The wallet address of the creator of the MsgShareDocument</p> <p><strong>recipients</strong> : The list of wallet addresses of the recipients of the MsgShareDocument</p> <p><strong>uuid</strong> : The unique identification code of the MsgShareDocument in the chain</p> <p><strong>checksum.value</strong> : is the hash of the fisical document associated with the MsgShareDocument</p> <p><strong>checksum.algorithm</strong> : is the hashing method used to calculate <code>checksum.value</code></p> <p><strong>content_uri</strong> : This is the URI where the document associated with MsgShareDocument is stored (usually an encrypted URI path and document).</p> <p><strong>metadata</strong> : The metadata section is designed and intended to provide additional functional information on how to 'handle' the file for which the MsgShareDocument is being performed. It is entirely at the discretion of the developer and creator of the message to determine what to indicate and how to use the entities that have been prepared for this purpose. There is no specific usage defined at the protocol level.</p> <p>The aim is to make a file available, for example, hosted out of the chain, where you can indicate categorization information about the file for which you are creating a MsgShareDocument.</p> <p>For example, a file (this is purely an example) could be a .json file containing a series of information.</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;creator&quot;: &quot;Administration ACME ltd&quot;,  
+  &quot;user_code&quot;: &quot;3452SFTa&quot;,
+  &quot;creation_date&quot;: &quot;2023-07-12T13:27:17Z&quot;,
+  &quot;sender_email&quot;: &quot;administration@acme.com&quot;,
+  &quot;receiver_email&quot;: &quot;johndoe@user.com,
+  &quot;category&quot;: &quot;orders,
+  &quot;file_format&quot;: &quot;pdf/A&quot;,
+    &quot;product_category&quot;: [
+    &quot;trousers&quot;,
+    &quot;Tshirts&quot;,
+  ],
+  .....
+  
+  &quot;delivery_date&quot;: &quot;2023-07-30T13:27:17Z&quot;,
+}
+</code></pre></div><p>The <strong>metadata</strong> section allows you to indicate</p> <div class="language- extra-class"><pre class="language-text"><code> &quot;metadata&quot;: {
+      &quot;content_uri&quot;: &quot;&lt;Metadata content URI&gt;&quot;,
+      &quot;schema&quot;: {
+        &quot;uri&quot;: &quot;&lt;Metadata schema definition URI&gt;&quot;,
+        &quot;version&quot;: &quot;&lt;Metadata schema version&gt;&quot;
+      },
+    },
+
+</code></pre></div><p><strong>metadata.content_uri</strong> : the URI where the metadata file is stored</p> <p><strong>metadata.schema.uri</strong> : the URI where an optional schema file that describes the content structure of the content file is stored</p> <p><strong>metadata.schema.version</strong> : the version of the schema file indicated  in <strong>metadata.schema.uri</strong></p> <p>In reference to the example, the URL to retrieve the file can be indicated in <strong>metadata.content_uri</strong>, preferably in an encrypted manner to avoid exposing the endpoint too much since the message is public.</p> <p>Of course, the contents of the file could be change over time, and the <strong>MsgShareDocument</strong> only certifies the content of the hashed file, not the content of the .json file itself.</p> <p>The important thing to understand is that whatever is indicated in the external metadata file has no certification, as it can still be externally manipulated.</p> <p>Having said that, there are no rules or restrictions that prohibit using the entities in a different manner. It suggests that users have the freedom to use the entities as they see fit, without any specific limitations or guidelines. You could indicate custom information with total creativity and applying encryption as desired in the application.</p> <p>For example if you have data or similar information that is smaller than 512 bytes and you wish to save it in a fixed manner within the MsgShareDocument, you can encrypt it and indicate it in the metadata/content_uri field.</p> <p>In summary, the protocol allows flexibility in how you handle and encrypt the data, and you have full control over the content of metadata entities  and application logic required to work with the data within the metadata section.</p> <h3 id="questions-and-answers"><a href="#questions-and-answers" class="header-anchor">#</a> Questions and answers</h3> <p><strong>IMPORTANT!!!</strong></p> <ul><li>We are not actually sharing Documents on a blockchain.</li> <li>We are Storing a Message through a transaction on a blockchain with a document footprint indicated (HASH)</li></ul> <p><strong>Can I notarize only PDF file ?</strong></p> <p>No, you can notarize any digital file for which you can generate a hash using the permitted algorithm. Therefore, you can notarize file extensions such as .pdf, .txt, .doc, .docx, .xls, .json, .xml, .zip, .ppt, etc.</p> <h2 id="check-the-hash-of-a-document"><a href="#check-the-hash-of-a-document" class="header-anchor">#</a> Check the hash of a document</h2> <p>In order to check if a file you own correspond to the one notarized in the blockchain  you can perform a verification directly with <b>Almerico</b> throught a simple widget that permit  to  drag&amp;drop a file  using a specific tool and verify if the calculated footprint of the file (<code>hash</code>) correspond to the one notarized in the message.</p> <p>To perform the validation check:</p> <p><strong>1) Open message</strong>
+Open the spacific page of message for the specific transaction.</p> <p>Example</p> <div class="language- extra-class"><pre class="language-text"><code>
+https://testnet.commercio.network/transactions/sharedoc/1348F1AB13E473A94D5656445D0F49FE1924CC3340B533C5C24EA8E2D7FACC43/uuid/6c509472-ead2-4f6f-89c3-f30206c7a737
+
+</code></pre></div><p><small>Nb: the url page is composed by tx has and uuid of the message</small> <small>https://testnet.commercio.network/transactions/sharedoc/#TXHASH#/uuid/#MESSAGE_UUID#</small></p> <p><br><br><br></p> <p><strong>2) Use the tool</strong>
+Drag&amp;drop your file in the widget as asked</p> <p><img src="/assets/img/dragNdrop_hash_check.525545b0.png" alt="Modal"></p> <p><strong>3) Check result</strong>
+You could get the following results</p> <p><strong>Success</strong></p> <p><img src="/assets/img/verification_success.6a1e55b4.png" alt="Modal"></p> <p>It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&amp;Drop area correspond to the one certified in the message</p> <p><strong>Failure</strong></p> <p>It means that the  hash calculated with the method (sha-256,md5 ecc) indicated in the  MsgShareDocument on the file droped in the Drag&amp;Drop area <b>DO NOT</b> correspond to the one certified in the message</p> <p><img src="/assets/img/verification_failure.b4ce2469.png" alt="Modal"></p> <p><small>Same check could be obviuolsy done with other public hashing site or localy with internal hashing tools for example through the shell's functions</small></p> <h2 id="msgsenddocumentreceipt"><a href="#msgsenddocumentreceipt" class="header-anchor">#</a> MsgSendDocumentReceipt</h2> <p>The message permit to</p> <ul><li>store in the blockchain a message in a precise time associated to a <code>MsgShareDocument</code> previously stored  in order to certify you have checked the corrispondance of the <code>hash of a document</code> in the<br> <code>MsgShareDocument</code> message of the document yopu have revevied off the chain</li> <li>Sign (raw) the message with your account (You only control) as recevier of the <code>MsgShareDocument</code> to the Sender</li></ul> <p>For more detail refers to the <a href="/modules/documents/#documents">Document Module</a></p> <h2 id="sharedoc-processes"><a href="#sharedoc-processes" class="header-anchor">#</a> ShareDoc processes</h2> <h3 id="send-a-sharedoc-message"><a href="#send-a-sharedoc-message" class="header-anchor">#</a> Send a shareDoc Message</h3> <p>Permit to create a process to send a message in the block chain named <code>MsgShareDocument</code> or Sharedoc message throught the DOCS  Module</p> <h4 id="path"><a href="#path" class="header-anchor">#</a> PATH</h4> <p>POST : <code>/sharedoc/process</code></p> <h4 id="step-by-step-example"><a href="#step-by-step-example" class="header-anchor">#</a> Step by step Example</h4> <p>Let's create a new process to send a Sharedocument message containig the hash (REMEMBER not the actual document, only the hash ) of a document associated with the given contentUri and having the given metadata and checksum.</p> <h5 id="step-1-define-the-first-query"><a href="#step-1-define-the-first-query" class="header-anchor">#</a> Step 1 - Define the first query</h5> <p>Parameter value :</p> <ul><li>Your account address (authenticated user): es <code>did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3</code></li> <li>Account address of the recipient/s: es <code>did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3</code></li> <li>Hash of the document with <code>sha-256</code> algorithm: <code>3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824</code></li> <li>Encripted content uri : <code>8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9</code></li></ul> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;content_uri&quot;: &quot;8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9&quot;,
+  &quot;hash&quot;: &quot;3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824&quot;,
+  &quot;hash_algorithm&quot;: &quot;sha-256&quot;,
+  &quot;recipients&quot;: [
+    &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;
+  ],
+  &quot;sender&quot;: &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;,
+  &quot;type&quot;: &quot;basic&quot;
+}
+</code></pre></div><h4 id="step-2-use-the-api-to-send-the-message"><a href="#step-2-use-the-api-to-send-the-message" class="header-anchor">#</a> Step 2 - Use the API to Send the message</h4> <p><strong>Use the tryout</strong></p> <p><img src="/assets/img/sharedoc_post.66625cd1.png" alt="Modal"></p> <p><strong>Corresponding Cli request</strong></p> <div class="language- extra-class"><pre class="language-text"><code>curl -X 'POST' \
+  'https://dev-api.commercio.app/v1/sharedoc/process' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer .....' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;back_url&quot;: &quot;http://example.com/callback&quot;,
+  &quot;content_uri&quot;: &quot;55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f&quot;,
+  &quot;hash&quot;: &quot;3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824&quot;,
+  &quot;hash_algorithm&quot;: &quot;sha-256&quot;,
+  &quot;metadata&quot;: {
+    &quot;content_uri&quot;: &quot;55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f&quot;,
+    &quot;schema&quot;: {
+      &quot;uri&quot;: &quot;http://example.com/schema.xml&quot;,
+      &quot;version&quot;: &quot;1.0.0&quot;
+    }
+  },
+  &quot;recipients&quot;: [
+    &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;
+  ]
+}'
+</code></pre></div><p><strong>API : Body response</strong></p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;process_id&quot;: &quot;34669051-707f-4230-a960-e0ef8e517e43&quot;,
+  &quot;sender&quot;: &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;,
+  &quot;receivers&quot;: [
+    &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;
+  ],
+  &quot;document_id&quot;: &quot;b03c6c6e-90e4-49ae-a582-e6a3ff4726a3&quot;,
+  &quot;doc_hash&quot;: &quot;3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824&quot;,
+  &quot;doc_hash_alg&quot;: &quot;sha-256&quot;,
+  &quot;doc_tx_hash&quot;: &quot;&quot;,
+  &quot;doc_metadata&quot;: {
+    &quot;content_uri&quot;: &quot;55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f&quot;,
+    &quot;schema&quot;: {
+      &quot;uri&quot;: &quot;http://example.com/schema.xml&quot;,
+      &quot;version&quot;: &quot;1.0.0&quot;
+    }
+  },
+  &quot;timestamp&quot;: &quot;2021-05-20T08:27:56Z&quot;,
+  &quot;status&quot;: &quot;queued&quot;
+}
+</code></pre></div><p>Register the  process_id assigned <code>&quot;process_id&quot;: &quot;34669051-707f-4230-a960-e0ef8e517e43&quot;</code> for future check</p> <h5 id="step-3-check-the-process-status"><a href="#step-3-check-the-process-status" class="header-anchor">#</a> Step 3 - Check the process status</h5> <p>Use the API Get : /sharedoc/process with process_id = <code>34669051-707f-4230-a960-e0ef8e517e43</code></p> <p>see for more details below in the guide</p> <p><strong>API : Body response</strong></p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;process_id&quot;: &quot;34669051-707f-4230-a960-e0ef8e517e43&quot;,
+  &quot;sender&quot;: &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;,
+  &quot;receivers&quot;: [
+    &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;
+  ],
+  &quot;document_id&quot;: &quot;b03c6c6e-90e4-49ae-a582-e6a3ff4726a3&quot;,
+  &quot;doc_hash&quot;: &quot;3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824&quot;,
+  &quot;doc_hash_alg&quot;: &quot;sha-256&quot;,
+  &quot;doc_tx_hash&quot;: &quot;78733941DE98F4D39424DD082F3516438E397A236BA28C0BBE2AC3CD3A66E94F&quot;,
+  &quot;doc_metadata&quot;: {
+    &quot;content_uri&quot;: &quot;55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f&quot;,
+    &quot;schema&quot;: {
+      &quot;uri&quot;: &quot;http://example.com/schema.xml&quot;,
+      &quot;version&quot;: &quot;1.0.0&quot;
+    }
+  },
+  &quot;timestamp&quot;: &quot;2021-05-20T08:27:56Z&quot;,
+  &quot;status&quot;: &quot;processed&quot;
+}
+</code></pre></div><p>Acquire the  &quot;doc_tx_hash&quot;: &quot;78733941DE98F4D39424DD082F3516438E397A236BA28C0BBE2AC3CD3A66E94F&quot;</p> <h5 id="step-4-check-the-transaction-in-the-explorer"><a href="#step-4-check-the-transaction-in-the-explorer" class="header-anchor">#</a> Step 4  - Check the transaction in the explorer</h5> <p>Use the <code>doc_tx_hash</code>  in the explorer filter</p> <p><img src="/assets/img/explorer_check_transaction.28dba95d.png" alt="Modal"></p> <p>Check the trasaction</p> <p><img src="/assets/img/explorer_transaction_doc_tx_hash.779427f9.png" alt="Modal"></p> <h5 id="step-5-check-the-message-in-the-store-db-of-the-chain"><a href="#step-5-check-the-message-in-the-store-db-of-the-chain" class="header-anchor">#</a> Step 5  - Check the Message in the store (DB) of the chain</h5> <p>Through the public API of the chain (LCD), it is also possible to directly check in the chain's database whether the Sharedoc message has been registered.</p> <p>To perform this verification, use the following path:</p> <p>https://lcd-testnet.commercio.network/#/Query/CommercionetworkCommercionetworkDocumentsDocument</p> <p>You only need to know the UUID of the message.</p> <p>Here's an example URL using the UUID &quot;b03c6c6e-90e4-49ae-a582-e6a3ff4726a3&quot;:</p> <p>https://lcd-testnet.commercio.network/commercionetwork/documents/document/b03c6c6e-90e4-49ae-a582-e6a3ff4726a3</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;Document&quot;: {
+    &quot;sender&quot;: &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;,
+    &quot;recipients&quot;: [
+      &quot;did:com:1j930xl8kr92wrxpmur0e5p8vlmy2ce6zg87w3t&quot;
+    ],
+    &quot;UUID&quot;: &quot;b03c6c6e-90e4-49ae-a582-e6a3ff4726a3&quot;,
+    &quot;metadata&quot;: {
+      &quot;contentURI&quot;: &quot;-&quot;,
+      &quot;schema&quot;: {
+        &quot;URI&quot;: &quot;-&quot;,
+        &quot;version&quot;: &quot;-&quot;
+      }
+    },
+    &quot;contentURI&quot;: &quot;8cc590c1823ee24dae77eadfc3b6c62cac921f5e5d1526c99268ea3bc6f53fd9&quot;,
+    &quot;checksum&quot;: {
+      &quot;value&quot;: &quot;3cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824&quot;,
+      &quot;algorithm&quot;: &quot;sha-256&quot;
+    },
+    &quot;encryptionData&quot;: null,
+    &quot;doSign&quot;: null
+  }
+}
+</code></pre></div><h4 id="common-error"><a href="#common-error" class="header-anchor">#</a> Common error</h4> <p>The following are common error composing using a  POST Sharedocument message</p> <h5 id="_1-hashing-error"><a href="#_1-hashing-error" class="header-anchor">#</a> 1.Hashing Error</h5> <p>Message Example</p> <div class="language- extra-class"><pre class="language-text"><code> {
+    &quot;error&quot;: &quot;could not validate the ShareDocumentRequest: The hash field must have a length of 32, got instead 64&quot;
+}
+</code></pre></div><p>It implies that the hash string indicated in entity <code>hash</code> has not a compliant format in respect of hashing algoritm indicated in field <code>hash_algorithm</code></p> <p>Example</p> <div class="language- extra-class"><pre class="language-text"><code>...
+&quot;hash&quot;: &quot;2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824&quot;,
+&quot;hash_algorithm&quot;: &quot;md5&quot;,
+... 
+</code></pre></div><p>The hash <code>2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824</code> is a sha-256 format NOT Md5</p> <h5 id="_2-recipients-format-not-correct"><a href="#_2-recipients-format-not-correct" class="header-anchor">#</a> 2. Recipients format not correct</h5> <p>Message Example</p> <div class="language- extra-class"><pre class="language-text"><code>{
+    &quot;error&quot;: &quot;could not build MsgShareDocument: could not derive account address from bech32 addr decoding bech32 failed: invalid bech32 string length 6: string&quot;
+}
+</code></pre></div><p>It implies that the value indicated in the entity <code>recipients</code> has not a correct format  (Format example : did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr )</p> <p>Entity  <code>recipients</code>  attend an array of wallet address (did)</p> <p>Example</p> <div class="language- extra-class"><pre class="language-text"><code>...
+ &quot;recipients&quot;: [
+    &quot;string&quot;
+  ]
+... 
+</code></pre></div><p>The value <code>string</code> is not a <code>did</code> format</p> <h5 id="_3-not-enough-ccc"><a href="#_3-not-enough-ccc" class="header-anchor">#</a> 3. Not enough CCC</h5> <p>Message Example</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;error&quot;: &quot;account has only 0uccc, required more 10000uccc&quot;
+}
+</code></pre></div><p>It implies that the wallet of the sender has not enough CCC to pay the chain fee for the transaction.</p> <h3 id="sent-processes"><a href="#sent-processes" class="header-anchor">#</a> Sent Processes</h3> <p>Permit to get all the process of sharedoc sent by the authenticated user</p> <h4 id="path-2"><a href="#path-2" class="header-anchor">#</a> PATH</h4> <p>GET : <code>/sharedoc/process</code></p> <p>Moreover throught the following  parameters the API  permit to paginate and order the result.</p> <ul><li><code>limit</code> : Limit the max number of elements returned</li> <li><code>next_cursor</code>:  Cursor that specifies an ID from starting to return following elements</li> <li><code>order</code> :  Elements ordering by creation timestamp</li></ul> <h4 id="step-by-step-example-2"><a href="#step-by-step-example-2" class="header-anchor">#</a> Step by step Example</h4> <p>Let's create a query to get all messages sent by the sender with <code>did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr</code> thati is associated to the authenticated user</p> <h5 id="step-1-define-the-first-query-2"><a href="#step-1-define-the-first-query-2" class="header-anchor">#</a> Step 1 - Define the first query</h5> <p>Parameter value</p> <ul><li>limit = 30 (is the default value)</li> <li>cursor = empty</li> <li>order : asc</li></ul> <p><strong>Use the tryout</strong></p> <p><img src="/assets/img/sharedoc_processes.13862ff3.png" alt="Modal"></p> <p><strong>Corresponding Cli request</strong></p> <div class="language- extra-class"><pre class="language-text"><code>curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/process?limit=30&amp;order=asc' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ....'
+
+</code></pre></div><p><strong>API : Body response</strong></p> <p>Example Value</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;processes&quot;: [
+    {
+      &quot;process_id&quot;: &quot;38367565-ce60-4fb7-96ac-be591b5c65cb&quot;,
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;receivers&quot;: [
+        &quot;did:com:1ffjuspvy8sm8fw7wjyjtgvzg0wgv36pqxrah9n&quot;
+      ],
+      &quot;document_id&quot;: &quot;be3a7460-4935-4434-b045-f0208d55c076&quot;,
+      &quot;doc_hash&quot;: &quot;2f1ec16b9a177aabd5e1ff6bb5685a3df3a6b462dfa147e6b35585fa58954b6b&quot;,
+      &quot;doc_hash_alg&quot;: &quot;sha-256&quot;,
+      &quot;doc_tx_hash&quot;: &quot;390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2&quot;,
+      &quot;tx_timestamp&quot;: &quot;2021-06-30T09:49:32Z&quot;,
+      &quot;tx_type&quot;: &quot;commercio/MsgShareDocument&quot;,
+      &quot;doc_metadata&quot;: {
+        &quot;content_uri&quot;: &quot;55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;http://example.com/schema.xml&quot;,
+           &quot;version&quot;: &quot;1.0.0&quot;
+        }
+      },
+      &quot;chain_id&quot;: &quot;commercio-testnet10k2&quot;,
+      &quot;timestamp&quot;: &quot;2021-06-30T09:46:25Z&quot;,
+      &quot;status&quot;: &quot;success&quot;
+    },
+    {
+      &quot;process_id&quot;: &quot;295c021f-b14b-4b26-859d-f310cc6a7a73&quot;,
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;receivers&quot;: [
+        &quot;did:com:1lustf0n3t6fr2sp2p07hrf5qzja47juzccz935&quot;
+      ],
+      &quot;document_id&quot;: &quot;d5a84f6c-2540-47b6-8661-70ff99a7fbff&quot;,
+      &quot;doc_hash&quot;: &quot;c2000af9444c2b4b949e86ab00c7521b8ecc8a5b6485dea84442f1e167b6a755&quot;,
+      &quot;doc_hash_alg&quot;: &quot;sha-256&quot;,
+      &quot;doc_tx_hash&quot;: &quot;390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2&quot;,
+      &quot;tx_timestamp&quot;: &quot;2021-06-30T09:49:32Z&quot;,
+      &quot;tx_type&quot;: &quot;commercio/MsgShareDocument&quot;,
+      &quot;doc_metadata&quot;: {
+        &quot;content_uri&quot;: &quot;55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;http://example.com/schema.xml&quot;,
+           &quot;version&quot;: &quot;1.0.0&quot;
+        }
+      },
+      &quot;chain_id&quot;: &quot;commercio-testnet10k2&quot;,
+      &quot;timestamp&quot;: &quot;2021-06-30T09:46:27Z&quot;,
+      &quot;status&quot;: &quot;success&quot;
+    },
+....
+    {
+      &quot;process_id&quot;: &quot;68b833ad-20e9-4887-bc6d-34431d4c2c03&quot;,
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;receivers&quot;: [
+        &quot;did:com:1aeugwtn2tdsqx5uznac5su4k7wscc4atmew04k&quot;
+      ],
+      &quot;document_id&quot;: &quot;49c01045-17ab-4e75-a0bb-f683714d2f08&quot;,
+      &quot;doc_hash&quot;: &quot;a0ed0e4c307bd0a91f5976bb17c444332343716c5ea48f453d623ca8c2d5f4ea&quot;,
+      &quot;doc_hash_alg&quot;: &quot;sha-256&quot;,
+      &quot;doc_tx_hash&quot;: &quot;FD2E1D5DD97E9589673A6BDB2F9A2468F4A856664F843619AF0FDC1D99F6560E&quot;,
+      &quot;tx_timestamp&quot;: &quot;2021-06-30T10:25:06Z&quot;,
+      &quot;tx_type&quot;: &quot;commercio/MsgShareDocument&quot;,
+      &quot;doc_metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;chain_id&quot;: &quot;commercio-testnet10k2&quot;,
+      &quot;timestamp&quot;: &quot;2021-06-30T10:19:44Z&quot;,
+      &quot;status&quot;: &quot;success&quot;
+    }
+  ],
+  &quot;paging&quot;: {
+    &quot;next_cursor&quot;: &quot;MTYyNTA0ODM4NDg0Njk2NjAwMA==&quot;,
+    &quot;next_link&quot;: &quot;https://dev.commercio.app/sharedoc/api/v1/sharedoc/process?limit=30&amp;order=asc&amp;cursor=MTYyNTA0ODM4NDg0Njk2NjAwMA==&quot;,
+    &quot;total_count&quot;: 418
+  }
+}
+</code></pre></div><p>In order to get the following processes use the value of <code>next_cursor</code> ( that is <code>MTYyNTA0ODM4NDg0Njk2NjAwMA==</code> in the exmple ) in the parameter <code>next_cursor</code></p> <h3 id="specific-sent-process-details"><a href="#specific-sent-process-details" class="header-anchor">#</a> Specific sent process details</h3> <h4 id="path-3"><a href="#path-3" class="header-anchor">#</a> PATH</h4> <p>GET :  <code>/sharedoc/process{process_id}</code></p> <p>Permit to check the status of a specific process knowing its process_id assigned by the system</p> <h4 id="step-by-step-example-3"><a href="#step-by-step-example-3" class="header-anchor">#</a> Step by step Example</h4> <p>Let's create a query to get the details of a specific process</p> <h5 id="step-1-define-the-first-query-3"><a href="#step-1-define-the-first-query-3" class="header-anchor">#</a> Step 1 - Define the first query</h5> <p>Lets's check the process with <code>&quot;process_id&quot;: &quot;38367565-ce60-4fb7-96ac-be591b5c65cb&quot;</code></p> <p><strong>Use the tryout</strong></p> <p><img src="/assets/img/sharedoc_process_by_process_id.319d8c5f.png" alt="Modal"></p> <p><strong>Corresponding Cli request</strong></p> <pre style="color:#FFF;">curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/process/38367565-ce60-4fb7-96ac-be591b5c65cb' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOi.....'
+</pre> <p><strong>API : Body response</strong></p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;process_id&quot;: &quot;38367565-ce60-4fb7-96ac-be591b5c65cb&quot;,
+  &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+  &quot;receivers&quot;: [
+    &quot;did:com:1ffjuspvy8sm8fw7wjyjtgvzg0wgv36pqxrah9n&quot;
+  ],
+  &quot;document_id&quot;: &quot;be3a7460-4935-4434-b045-f0208d55c076&quot;,
+  &quot;doc_hash&quot;: &quot;2f1ec16b9a177aabd5e1ff6bb5685a3df3a6b462dfa147e6b35585fa58954b6b&quot;,
+  &quot;doc_hash_alg&quot;: &quot;sha-256&quot;,
+  &quot;doc_tx_hash&quot;: &quot;390EF4F23974B3CF7663B5F3C8B263F9D0ED1A900167D02ED4760052003CC7F2&quot;,
+  &quot;tx_timestamp&quot;: &quot;2021-06-30T09:49:32Z&quot;,
+  &quot;tx_type&quot;: &quot;commercio/MsgShareDocument&quot;,
+      &quot;doc_metadata&quot;: {
+        &quot;content_uri&quot;: &quot;55fa8b74d91bc8443f46b9dc7a179bd3f709bb803f9dccda467310f0fb656a7f&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;http://example.com/schema.xml&quot;,
+           &quot;version&quot;: &quot;1.0.0&quot;
+        }
+      },
+  &quot;chain_id&quot;: &quot;commercio-testnet10k2&quot;,
+  &quot;timestamp&quot;: &quot;2021-06-30T09:46:25Z&quot;,
+  &quot;status&quot;: &quot;success&quot;
+}
+
+</code></pre></div><h2 id="sent-sharedoc"><a href="#sent-sharedoc" class="header-anchor">#</a> Sent Sharedoc</h2> <p>Permit to get all sharedocs messages sent by the did of the authenticated user.</p> <p>Alse messages not sent throught an  APi process <a href="/app_developers/commercioapi-sharedoc.html#send-a-sharedoc">Send Sharedoc process</a></p> <h3 id="path-4"><a href="#path-4" class="header-anchor">#</a> PATH</h3> <p>GET :  <code>/sharedoc/sent</code></p> <p>Moreover throught the following  parameters the API  permit to paginate and order the result.</p> <ul><li><code>limit</code> : Limit the max number of elements returned</li> <li><code>next_cursor</code>:  Cursor that specifies an ID from starting to return following elements</li> <li><code>order</code> :  Elements ordering by creation timestamp</li></ul> <h3 id="step-by-step-example-4"><a href="#step-by-step-example-4" class="header-anchor">#</a> Step by step Example</h3> <p>Let's create a query to get all messages sent by the sender with <code>did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr</code> thati is associated to the authenticated user</p> <h4 id="step-1-define-the-first-query-4"><a href="#step-1-define-the-first-query-4" class="header-anchor">#</a> Step 1 - Define the first query</h4> <p>Parameter value</p> <ul><li>limit = 3</li> <li>cursor = empty</li> <li>order : asc</li></ul> <h4 id="step-2-use-the-api"><a href="#step-2-use-the-api" class="header-anchor">#</a> Step 2 - Use the API</h4> <p><strong>Use the tryout</strong></p> <p><img src="/assets/img/sharedoc_sent.0d701e3f.png" alt="Modal"></p> <p><strong>Corresponding Cli request</strong></p> <div class="language- extra-class"><pre class="language-text"><code>curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/process?limit=30&amp;order=asc' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ....'
+
+</code></pre></div><p><strong>API : Body response</strong></p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;documents&quot;: [
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1u35avnkvywzcxp2uty8u0y6xu3s22hycfgd2we&quot;
+      ],
+      &quot;uuid&quot;: &quot;0093638d-841f-4782-8ddb-d9cb020338eb&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;fe64b6b9a51756a244893722917132e85fe0daea99f7cfffb353eab7e1996dcd&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;c3936c163751c60e428774b5b5d8f3bce430aa962c567d4be6f3a33b69e440aa&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    },
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1lustf0n3t6fr2sp2p07hrf5qzja47juzccz935&quot;
+      ],
+      &quot;uuid&quot;: &quot;00af0720-af3b-4140-b785-00d8ff92e460&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;08faa5bcc66f70f2eab0607c516d28ff1774757edf67d2805ab28d520b0c4300&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;d19eca1648d9440daaa5f9e3477c0f5d5fdae68a3935d17d91558c075dd0483a&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    },
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;
+      ],
+      &quot;uuid&quot;: &quot;00bbcfc0-a688-44d4-81ed-547a256d40f5&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;ec8736178ed930786e889b5945c59e8126cfb95162263beedc0cc00c264409f8&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;002d545ce3050e75dc4c6cb93ef3e0c61df4c98f51caca644bc10659d9966229&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    }
+  ],
+  &quot;paging&quot;: {
+    &quot;next_cursor&quot;: &quot;MDBiYmNmYzAtYTY4OC00NGQ0LTgxZWQtNTQ3YTI1NmQ0MGY1&quot;,
+    &quot;next_link&quot;: &quot;https://dev.commercio.app/sharedoc/api/v1/sharedoc/sent?limit=3&amp;order=asc&amp;cursor=MDBiYmNmYzAtYTY4OC00NGQ0LTgxZWQtNTQ3YTI1NmQ0MGY1&quot;,
+    &quot;total_count&quot;: 418
+  }
+}
+</code></pre></div><p>The response contains</p> <ul><li>the details of the first 3 Sharedoc messages</li> <li>the <code>paging/next_cursor</code> entity that permit to extract the next page  messages</li></ul> <h4 id="step-2-extract-next-page"><a href="#step-2-extract-next-page" class="header-anchor">#</a> Step 2 - Extract next page</h4> <p>Use in the tryout the value</p> <ul><li>limit = 3</li> <li>cursor = <code>MDBiYmNmYzAtYTY4OC00NGQ0LTgxZWQtNTQ3YTI1NmQ0MGY1</code></li> <li>order : asc</li></ul> <p><strong>API : Body response</strong></p> <div class="language- extra-class"><pre class="language-text"><code>
+{
+  &quot;documents&quot;: [
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1e4wh3a2cp20edg7dtkmkrumt9mh4w3x0a4lvjs&quot;
+      ],
+      &quot;uuid&quot;: &quot;00f929e4-44d8-4fd5-8328-2375b67f7357&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;f816e7ad9a72892cbbc70f2d4bd6dfb35cf9e4b0411842ee779f3ad51bdde030&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;10d110a6b1645482572f00af5a7f3bf396e13e37264c861bfa275f0ee7f8b85c&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    },
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1ffjuspvy8sm8fw7wjyjtgvzg0wgv36pqxrah9n&quot;
+      ],
+      &quot;uuid&quot;: &quot;0113ca97-c4e4-4690-b683-3515968600bb&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;b6c44223d34837a00c5947e70b0b84693e9fdbcf391693a7f850b8cc22afc1bf&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;6f1a002bc49f6c4b87878eb314956f04fc283a0300fc131668edc6ea10f10b8c&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    },
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1t934ysywlz29lvjudwd6mr204wysfg34g7pwxs&quot;
+      ],
+      &quot;uuid&quot;: &quot;02e421f6-9839-48c7-ad90-448bdb49d20a&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;923aa06b2cab8e66117c270ddc3c332e4c7fcd295b57b0471db41a40fe829a5c&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;9367b50b323992e3177bd52bcc1a3d6c105a25797aa047c131ba1e92780930cf&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    }
+  ],
+  &quot;paging&quot;: {
+    &quot;next_cursor&quot;: &quot;MDJlNDIxZjYtOTgzOS00OGM3LWFkOTAtNDQ4YmRiNDlkMjBh&quot;,
+    &quot;next_link&quot;: &quot;https://dev.commercio.app/sharedoc/api/v1/sharedoc/sent?limit=3&amp;order=asc&amp;cursor=MDJlNDIxZjYtOTgzOS00OGM3LWFkOTAtNDQ4YmRiNDlkMjBh&quot;,
+    &quot;total_count&quot;: 418
+  }
+}
+
+</code></pre></div><h2 id="received-sharedoc"><a href="#received-sharedoc" class="header-anchor">#</a> Received Sharedoc</h2> <p>Permit to get all sharedocs messages received (sent to the did of the authenticated user).</p> <h3 id="path-5"><a href="#path-5" class="header-anchor">#</a> PATH</h3> <p>GET :</p> <p><code>/sharedoc/received</code></p> <p>Moreover throught the following  parameters the API  permit to paginate and order the result.</p> <ul><li><code>limit</code> : Limit the max number of elements returned</li> <li><code>next_cursor</code>:  Cursor that specifies an ID from starting to return following elements</li> <li><code>order</code> :  Elements ordering by creation timestamp</li></ul> <h3 id="step-by-step-example-5"><a href="#step-by-step-example-5" class="header-anchor">#</a> Step by step Example</h3> <p>Let's create a query to get all messages received by the authenticatd user with the did   <code>did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr</code></p> <h4 id="step-1-define-the-first-query-5"><a href="#step-1-define-the-first-query-5" class="header-anchor">#</a> Step 1 - Define the first query</h4> <p>Parameter value</p> <ul><li>limit = 3</li> <li>cursor = empty</li> <li>order : asc</li></ul> <p><strong>Use the tryout</strong></p> <p><img src="/assets/img/sharedoc_received.0adbf81b.png" alt="Modal"></p> <p><strong>Corresponding Cli request</strong></p> <div class="language- extra-class"><pre class="language-text"><code>curl -X 'GET' \
+  'https://dev-api.commercio.app/v1/sharedoc/received?limit=30&amp;order=asc' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJSU....'
+</code></pre></div><p><strong>API : Body response</strong></p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;documents&quot;: [
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;
+      ],
+      &quot;uuid&quot;: &quot;00bbcfc0-a688-44d4-81ed-547a256d40f5&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;ec8736178ed930786e889b5945c59e8126cfb95162263beedc0cc00c264409f8&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;002d545ce3050e75dc4c6cb93ef3e0c61df4c98f51caca644bc10659d9966229&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    },
+    {
+      &quot;sender&quot;: &quot;did:com:1va3cl46zcmd9lga3mulvhyd7k5a23jg23fkypt&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;
+      ],
+      &quot;uuid&quot;: &quot;014203f1-cf7b-42c8-adbf-b898ad088b21&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;cb57fd1164a2bcd070a14e00c82ead963961c7028bc55af7ed492bcec6b92409&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;b56f2de7cde1285a49d0337869a1c0e52b917170df04c619df26a81b8e8d82d4&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    },
+    ....
+
+    {
+      &quot;sender&quot;: &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;,
+      &quot;recipients&quot;: [
+        &quot;did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr&quot;
+      ],
+      &quot;uuid&quot;: &quot;12ecae4c-bb8b-411c-b516-aba29e186a21&quot;,
+      &quot;metadata&quot;: {
+        &quot;content_uri&quot;: &quot;-&quot;,
+        &quot;schema&quot;: {
+          &quot;uri&quot;: &quot;-&quot;,
+          &quot;version&quot;: &quot;-&quot;
+        }
+      },
+      &quot;content_uri&quot;: &quot;a537ba5171d65c8c8aecd7971f9a65db93906e7dbb0a8618490ed2c5a5ac19b0&quot;,
+      &quot;checksum&quot;: {
+        &quot;value&quot;: &quot;2d1203278986af1ac3a0d6e84b5d2cfb4d8cf2ce60dacddf91824b298189ff09&quot;,
+        &quot;algorithm&quot;: &quot;sha-256&quot;
+      }
+    }
+  ],
+  &quot;paging&quot;: {
+    &quot;next_cursor&quot;: &quot;MTJlY2FlNGMtYmI4Yi00MTFjLWI1MTYtYWJhMjllMTg2YTIx&quot;,
+    &quot;next_link&quot;: &quot;https://dev.commercio.app/sharedoc/api/v1/sharedoc/received?limit=30&amp;order=asc&amp;cursor=MTJlY2FlNGMtYmI4Yi00MTFjLWI1MTYtYWJhMjllMTg2YTIx&quot;,
+    &quot;total_count&quot;: 397
+  }
+}
+
+</code></pre></div><h2 id="receipt"><a href="#receipt" class="header-anchor">#</a> Receipt</h2> <p>This API permit to manage the reading receipt message  <code>MsgSendDocumentReceipt</code> throught the DOCS  Module  used when the receivers wants  to acknowledge the sender that he has properly read a  specific <code>MsgShareDocument</code></p> <h3 id="send-a-receipt-message-process"><a href="#send-a-receipt-message-process" class="header-anchor">#</a> Send a Receipt Message process</h3> <p>Permit to create a receipt message relative to a Sharedocument Message received (the did of the authenticated user is a receipient)</p> <h4 id="path-6"><a href="#path-6" class="header-anchor">#</a> PATH</h4> <p>POST : <code>/receipts/</code></p> <h4 id="step-by-step-example-6"><a href="#step-by-step-example-6" class="header-anchor">#</a> Step by step Example</h4> <p>Let's create a query to get all messages received by the authenticatd user with the did   <code>did:com:1tq5mvp7j4vtew08htaswsyjugzewe4jyph20qr</code></p> <h5 id="step-1-define-the-first-query-6"><a href="#step-1-define-the-first-query-6" class="header-anchor">#</a> Step 1 - Define the first query</h5> <p>Let's create a new process to send a Receipt  relative to a <code>MsgShareDocument</code>
+where your address is in the set of <code>recipients</code></p> <p>In Review - Coming soon</p> <h5 id="step-2-define-the-first-query"><a href="#step-2-define-the-first-query" class="header-anchor">#</a> Step 2 - Define the first query</h5> <h3 id="sent-receipts-processes"><a href="#sent-receipts-processes" class="header-anchor">#</a> Sent Receipts processes</h3> <p>In Review - Coming soon</p> <h3 id="sent-receipt-message-specific-process-details"><a href="#sent-receipt-message-specific-process-details" class="header-anchor">#</a> Sent Receipt Message specific process details</h3> <p>In Review - Coming soon</p> <h3 id="received-receipt-message"><a href="#received-receipt-message" class="header-anchor">#</a> Received Receipt Message</h3> <p>In Review - Coming soon</p> <h2 id="use-cases-examples"><a href="#use-cases-examples" class="header-anchor">#</a> Use cases examples</h2> <h3 id="timestamp-a-document"><a href="#timestamp-a-document" class="header-anchor">#</a> Timestamp a document</h3> <h3 id="prove-the-existence-of-document"><a href="#prove-the-existence-of-document" class="header-anchor">#</a> Prove the existence of document</h3> <h3 id="notarize-a-document"><a href="#notarize-a-document" class="header-anchor">#</a> Notarize a document</h3> <h3 id="legally-prove-a-document-was-shared-with-a-third-party"><a href="#legally-prove-a-document-was-shared-with-a-third-party" class="header-anchor">#</a> Legally prove a document was shared with a third party</h3> <h1 id=""><a href="#" class="header-anchor">#</a></h1></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/commercionetwork/commercionetwork/edit/master/docs/app_developers/commercioapi-sharedoc.md" target="_blank" rel="noopener noreferrer">Edit this page on Github</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">12/27/2024, 5:57:37 AM</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/app_developers/commercioapi-ekyc.html" class="prev">
+        eKyc
+      </a></span> <span class="next"><a href="/app_developers/commercioapi-esign.html">
+        eSign
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.0fc4011c.js" defer></script><script src="/assets/js/2.ac32ef9e.js" defer></script><script src="/assets/js/1.da52573b.js" defer></script><script src="/assets/js/13.aed2da28.js" defer></script>
+  </body>
+</html>
