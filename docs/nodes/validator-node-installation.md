@@ -75,14 +75,18 @@ commercionetworkd keys add $NODENAME --recover
 
 Copy your public address. It should have the format `did:com:139nvx0ugwxr2ql6ph0azjkkzf5lncq7jgglw8d`.
 
-### Using the `commercio wallet app` (WIP)
+### Using the `commercio wallet app` 
 
 Download the `commercio wallet app` and follow the instruction to setup the application.    
 Choose "New wallet" and write down the mnemonic produced by the app.    
 
-### Using `Keplr` (WIP)
+<a href="https://github.com/commercionetwork/Commercio-Wallet-App"> Commercio wallet app</a>
 
 
+### Using `Keplr` 
+ Keplr is a browser extension wallet for the Inter blockchain ecosystem.
+
+<a href="https://chromewebstore.google.com/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?pli=1"> Keplr  extension</a>
 
 ## 2. Get the tokens
 
@@ -218,8 +222,8 @@ timestamp: ""
 
 The key thing is the transaction hash. In the example above it is `C41B87615308550F867D42BB404B64343CB62D453A69F11302A68B02FAFB557C`. Check on the 
 
-- [Commercio.network explorer Testnet](https://testnet.commercio.network/it/validators).       
-- [Commercio.network explorer Mainnet](https://mainnet.commercio.network/it/validators).  
+- [Commercio.network explorer Testnet](https://testnet.commercio.network/validators/).       
+- [Commercio.network explorer Mainnet](https://mainnet.commercio.network/validators/).  
 
 
 ## 4. Delegate tokens to the validator
@@ -245,8 +249,8 @@ Copy the value of `operatoraddress`.
 Also verify that the validator is active and that the `operator_addres` is correct by browsing the 
 
 
-- [Commercio.network explorer Testnet validators](https://testnet.commercio.network/it/validators).       
-- [Commercio.network explorer Mainnet validators](https://mainnet.commercio.network/it/validators).       
+- [Commercio.network explorer Testnet validators](https://testnet.commercio.network/validators).       
+- [Commercio.network explorer Mainnet validators](https://mainnet.commercio.network/validators).       
 
 
 If you see your validator in the list click on its name.     
@@ -360,10 +364,17 @@ commercionetworkd tx staking delegate \
   -y
 ```
 
-### Delegate tokens with `commercio wallet app` (WIP)
+### Delegate tokens with `commercio wallet app`
+Enter `Com` menu and use `Stake your token` function
+
+<a href="https://github.com/commercionetwork/Commercio-Wallet-App"> Commercio wallet app</a>
 
 
-### Delegate tokens with `Keplr` (WIP)
+
+### Delegate tokens with `Keplr` 
+
+With your browser with Keplr extension installed go in validators menu and use `Manage` button
+
 
 
 ## Common errors

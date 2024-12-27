@@ -21,6 +21,7 @@ Once you've properly set up a [validator node](validator-node-installation.md), 
     - [Split the content of `data` folder](#split-the-content-of-data-folder)
     - [Prune the node](#prune-the-node)
     - [State sync the node](#state-sync-the-node)
+    - [State sync the node with snapshot](#state-sync-the-node-with-snapshot)
   - [Add identity to your validator](#add-identity-to-your-validator)
     - [References keybase](#references-keybase)
     - [1. Registration](#1-registration)
@@ -49,7 +50,7 @@ The unbond period is 21 days, so is necessary to wait this period to get back in
 :::
 
 ## Unjail procedure
-In case a validator ended up jail for downtime, it is necessary that the wallet that created the validator performs a ujail transaction.   
+In case a validator ended up jailed for downtime, it is necessary that the wallet that created the validator performs an unjail transaction.   
 The follow command must be performed 
 
 ```bash
@@ -172,6 +173,7 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
 3. Copy `data` folder to the new server
    ```bash
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
@@ -180,27 +182,28 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
    systemctl stop commercionetworkd
    systemctl disable commercionetworkd
    ```
-1. Sync again your new node `data` folder
+5. Sync again your new node `data` folder
    ```bash
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
-2. Copy your `priv_validator_key.json` in the **new server**
+6. Copy your `priv_validator_key.json` in the **new server**
    ```bash
    scp ~/.commercionetwork/config/priv_validator_key.json \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/config/priv_validator_key.json
    ```
-3. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node.
-4. Remove the `priv_validator_key.json` file from **old server**
+7. If you have some special setup in your `config.toml` and `app.toml` copy that in your new node.
+8. Remove the `priv_validator_key.json` file from **old server**
    ```bash
    rm ~/.commercionetwork/config/priv_validator_key.json
    ```
-1. Restart the node in your new server
+9. Restart the node in your new server
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again checking the explorer
+10. Verify if your validator signs again checking the explorer
 
 
 
@@ -214,6 +217,7 @@ If you don't use `kms` the private key of your validator is saved in `priv_valid
 3. Copy `data` folder to the new server
    ```bash
    rsync -av --delete  \
+   --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      <USER_NEW_SERVER>@<IP_NEW_SERVER>:.commercionetwork/data/
    ```
@@ -260,25 +264,25 @@ To resume a validator after break down or some other terrible issue that destroy
    ```bash
    systemctl stop commercionetworkd
    ```
-1. Setup your `priv_val_addr` in `config.toml` using the setup of your server. 
-1. Enter in your `kms` server and stop the `tmkms` service
+3. Setup your `priv_val_addr` in `config.toml` using the setup of your server. 
+4. Enter in your `kms` server and stop the `tmkms` service
    ```bash
    systemctl stop tmkms
    ```
-1. Modify `tmkms` config using `priv_val_addr` value of your validator 
+5. Modify `tmkms` config using `priv_val_addr` value of your validator 
    ```toml
    [[validator]]
    addr = "tcp://<VALIDATOR_IP>:26658"
    ``` 
-1. Restart `tmkms` service
+6. Restart `tmkms` service
    ```bash
    systemctl start tmkms
    ```
-1. Restart the node in your new server
+7. Restart the node in your new server
    ```bash
    systemctl start commercionetworkd
    ```
-1. Verify if your validator signs again checking the explorer
+8. Verify if your validator signs again checking the explorer
 
 ## x% Loss of blocks
 
@@ -308,6 +312,7 @@ The node can be configured to use a new disk to store the blockchain and the sta
 3. Transfer the `data` folder of the node to the new disk
    ```bash
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      /mnt/data/
    ```
@@ -315,6 +320,7 @@ The node can be configured to use a new disk to store the blockchain and the sta
    ```bash
    systemctl stop commercionetworkd
    rsync -av --delete \
+     --exclude wasm/cache \
      ~/.commercionetwork/data/ \
      /mnt/data/
    ```
@@ -357,31 +363,31 @@ The vm provider allows you to increase the disk space of the node. The following
    /dev/sdb        25G   5G    20G    20%   /mnt/data
    ```
    Get the mount point of the disk. In this example the mount point is `/dev/sdb`
-3. Umount the disk
+4. Umount the disk
    ```bash
    sudo su -
    umount /mnt/data
    ```
-4. Resize the disk
+5. Resize the disk
    ```bash
    sudo su -
    e2fsck -f /dev/sdb
    resize2fs /dev/sdb
    ```
-5. Mount the disk
+6. Mount the disk
    ```bash
    sudo su -
    mount /dev/sdb /mnt/data
    ```
-6. Check the size of the disk
+7. Check the size of the disk
    ```bash
    df -h
    ```
-7. Restart the node service
+8. Restart the node service
    ```bash
    systemctl start commercionetworkd
    ```
-8. Verify if the node is working
+9. Verify if the node is working
    ```bash
    journalctl -u commercionetworkd -f
    ```
@@ -439,27 +445,29 @@ The blockchain and the state of the application can be split into different fold
 
 ### Prune the node
 
-The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.      
+The blockchain and the state of the application can be reduced by pruning the node. Pruning is the process of removing old blocks from the blockchain and the state of the application. The pruning process is performed automatically by the node. The default pruning process can be changed by setting the `pruning` parameter in the `~/.commmercionetwork/config/config.toml` file. The default value is `default` and it is possible to set the value to `everything`, `nothing` or `custom`.
 To increase the pruning process it is possible to set the `pruning` parameter in the `config.toml` file to `everything`. The pruning setting can be applied restarting the node service.
 
 You can apply pruning **manually** once in a while with the follow procedure.
 
-:::warning
-Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
-:::
 
-1. Stop `commercionetworkd`
+1. Set the home chain path variable to adapt to any chain user
+   ```bash
+   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
+   ```
+
+2. Stop `commercionetworkd`
    ```bash
    systemctl stop commercionetworkd
    ```
 
-2. Prune the node
+3. Prune the node
    ```bash
-   /root/.commercionetwork/cosmovisor/current/bin/commercionetworkd \
-     forceprune -f 282000 -m 1000 --home /root/.commercionetwork
+   $home_chain/cosmovisor/current/bin/commercionetworkd \
+     forceprune -f 282000 -m 1000 --home $home_chain
    ```
 
-3. Start the node
+4. Start the node
    ```bash
    systemctl start commercionetworkd
    ```
@@ -473,11 +481,18 @@ If you're looking for how to install a statesynced node follow the instructions 
 
 In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by state syncing it to the blockchain. 
 
-:::warning
-Please note that the following commands assume you are acting as the root user. Adjust the user and file paths accordingly if your node is using a different user.
-:::
+1. Set the chain variables to adapt the procedure to any chain user (root or cnd)
+   ```bash
+   # Retrieve the chain home path
+   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
 
-1. Prepare the setup for the statesync
+   # Retrieve the chain user
+   comm_user=$(systemctl show -pUser commercionetworkd.service | awk -F'=' '{print $(NF)}')
+   ```
+
+2. Prepare the setup for the statesync
+
+- Mainnet:
    ```bash
    TRUST_RPC1="rpc-mainnet.commercio.network:80"
    TRUST_RPC2="rpc2-mainnet.commercio.network:80"
@@ -491,8 +506,22 @@ Please note that the following commands assume you are acting as the root user. 
    # Get the trust hash.
    TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
    ```
+- Testnet:
+   ```bash
+   TRUST_RPC1="rpc-testnet.commercio.network:80"
+   TRUST_RPC2="rpc2-testnet.commercio.network:80"
 
-2. Verify the output
+   # Get the current height of the blockchain.
+   CURR_HEIGHT=$(curl -s "http://$TRUST_RPC1/block" | jq -r '.result.block.header.height')
+
+   # Calculate the trust height.
+   TRUST_HEIGHT=$((CURR_HEIGHT-(CURR_HEIGHT%10000)))
+
+   # Get the trust hash.
+   TRUST_HASH=$(curl -s "http://$TRUST_RPC1/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
+   ```
+
+3. Verify the output
    ```bash
    printf "rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"\ntrust_height = $TRUST_HEIGHT\ntrust_hash = \"$TRUST_HASH\"\n"
    ```
@@ -504,41 +533,41 @@ Please note that the following commands assume you are acting as the root user. 
    trust_hash = "2A3B7444CD097C556FD1D1AA4D259E99E9F7513041C02EF3B7DCF8F39FFA21F8"
    ```
 
-3. Write the parameters in the config file
+4. Write the parameters in the config file
    ```bash
-   sed -i -e "s/enable = .*/enable = true/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/rpc_servers = \".*\"/rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_height = .*/trust_height = $TRUST_HEIGHT/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_hash = \".*\"/trust_hash = \"$TRUST_HASH\"/" /root/.commercionetwork/config/config.toml
-   sed -i -e "s/trust_period = \".*\"/trust_period = \"168h0m0s\"/" /root/.commercionetwork/config/config.toml
+   sed -i -e "s/enable = .*/enable = true/" $home_chain/config/config.toml
+   sed -i -e "s/rpc_servers = \".*\"/rpc_servers = \"$TRUST_RPC1,$TRUST_RPC2\"/" $home_chain/config/config.toml
+   sed -i -e "s/trust_height = .*/trust_height = $TRUST_HEIGHT/" $home_chain/config/config.toml
+   sed -i -e "s/trust_hash = \".*\"/trust_hash = \"$TRUST_HASH\"/" $home_chain/config/config.toml
+   sed -i -e "s/trust_period = \".*\"/trust_period = \"168h0m0s\"/" $home_chain/config/config.toml
    ```
 
-4. Stop the `commercionetworkd` process
+5. Stop the `commercionetworkd` process
    ```bash
    systemctl stop commercionetworkd
    ```
 
-5. Backup state file
+6. Backup state file
    ```bash
-   cp /root/.commercionetwork/data/priv_validator_state.json \
-     /root/.commercionetwork/priv_validator_state.json.backup
+   cp $home_chain/data/priv_validator_state.json \
+     $home_chain/priv_validator_state.json.backup
    ```
 
-6. Reset node database
+7. Reset node database
    ```bash
    commercionetworkd unsafe-reset-all \
-     --home /root/.commercionetwork --keep-addr-book
+     --home $home_chain --keep-addr-book
    ```
 
-7. Copy back the backupped state file
+8. Copy back the backupped state file
    ```bash
-   cp /root/.commercionetwork/priv_validator_state.json.backup \
-     /root/.commercionetwork/data/priv_validator_state.json
+   cp $home_chain/priv_validator_state.json.backup \
+     $home_chain/data/priv_validator_state.json
    ```
 
-8. **If you're not operating with root** change the permission accordingly
+9. **If you're not operating with root** change the permission accordingly
    ```bash
-   chown [USER]:[USER] /root/.commercionetwork/data/priv_validator_state.json
+   chown -R $comm_user:$comm_user $home_chain/
    ```
 
 9. Start the node
@@ -546,15 +575,79 @@ Please note that the following commands assume you are acting as the root user. 
    systemctl start commercionetworkd
    ```
 
-10. Check the node alignment
+9. Check the node alignment
       ```bash
       journalctl -u commercionetworkd -f | grep height=
       ```
 
-11. Clean up operations
+9. Clean up operations
       ```bash
-      rm /root/.commercionetwork/priv_validator_state.json.backup
+      rm $home_chain/priv_validator_state.json.backup
       ```
+### State sync the node with snapshot
+
+In this guide, we will walk you through the process of reducing the disk usage of your Commercio Network node by using a **Mainnet** statesync node snapshot from https://quicksync.commercio.network website:
+
+1. Set the chain variables to adapt the procedure to any chain user
+   ```
+   # Retrieve the chain home path
+   home_chain=$(systemctl show commercionetworkd | grep -oP 'DAEMON_HOME=\K\S+')
+
+   # Retrieve the chain user
+   comm_user=$(systemctl show -pUser commercionetworkd.service | awk -F'=' '{print $(NF)}')
+
+   # Set up CHAINID
+   CHAINID="commercio-3"
+   ```
+2. Stop the `commercionetworkd` process
+   ```bash
+   sudo systemctl stop commercionetworkd
+   ```
+
+3. Backup state file
+   ```bash
+   cp $home_chain/data/priv_validator_state.json \
+     $home_chain/priv_validator_state.json.backup
+   ```
+   you don't need to perform this step if you have a kms or if the node is not a validator
+
+4. Remove the database
+   ```bash
+   rm -rf $home_chain/data
+   ```
+5. Download the snapshot and extract it
+   ```bash
+   wget "https://quicksync.commercio.network/$CHAINID-statesync.latest.tgz" -P $home_chain/
+   # Check if the checksum matches the one present inside https://quicksync.commercio.network
+   cd $home_chain/
+   tar -zxf $CHAINID-statesync.latest.tgz
+   rm $CHAINID-statesync.latest.tgz
+   ```   
+6. Copy back the backupped state file
+   ```bash
+   cp $home_chain/priv_validator_state.json.backup \
+     $home_chain/data/priv_validator_state.json
+   ```
+   you don't need to perform this step if you have a kms or if the node is not a validator
+
+7. **If you're not operating with root** change the permission accordingly
+   ```bash
+   sudo chown -R $comm_user:$comm_user $home_chain/
+   ```
+8. Start the node
+   ```bash
+   sudo systemctl start commercionetworkd
+   ```
+9. Check the node alignment
+   ```bash
+   journalctl -u commercionetworkd -f | grep height=
+   ```
+9. Clean up operations
+   ```bash
+    rm $home_chain/priv_validator_state.json.backup
+   ```
+
+You can check the alignment using the procedure described [here](full-node-installation.html#verify-node-synchronization-with-the-blockchain)
 
 
 ## Add identity to your validator
