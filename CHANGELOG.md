@@ -1,3 +1,9 @@
+# Version 5.1.1
+
+* Fixed bug in VBR module rewards distribution
+* Updated documentation
+
+
 # Version 5.1.0
 
 * Added wasmd IBC with customization port conversion by @marcotradenet in https://github.com/commercionetwork/commercionetwork/pull/414
