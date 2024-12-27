@@ -19,7 +19,7 @@ business documents using the blockchain technology.
 
 ## Version
 
-Current Software Version is `v5.1.0`
+Current Software Version is `v5.1.1`
 
 
 Current Chain Version is `commercio-3`
