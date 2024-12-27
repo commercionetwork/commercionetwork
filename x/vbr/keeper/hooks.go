@@ -21,10 +21,10 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 			// Distribute the reward to the block proposer
 			// TODO: Don't panic if pool is empty or not enough to distribute something
-			// _ = k.DistributeBlockRewards(ctx, validator, reward)
-			if err := k.DistributeBlockRewards(ctx, validator, reward); err != nil {
+			_ = k.DistributeBlockRewards(ctx, validator, reward)
+			/*if err := k.DistributeBlockRewards(ctx, validator, reward); err != nil {
 				panic(err)
-			}
+			}*/
 		}
 	}
 }
